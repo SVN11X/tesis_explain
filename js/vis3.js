@@ -111,7 +111,7 @@
       '<div class="capa az">ROS 2 Foxy y Nav2</div>' +
       '<div class="capa">Ubuntu 20.04</div></div>' +
       '<div class="comparar"><div><b>Sí fue criterio</b><span>Arquitectura distribuida sin maestro central y el ecosistema de Nav2.</span></div><div><b>No fue criterio</b><span>El fin de soporte de ROS 1, porque Foxy también está fuera de soporte.</span></div></div>' +
-      '<div class="mejora"><b>Cómo lo cierras.</b> Migrar a mitad del proyecto obligaba a rehacer y volver a probar todo. El fin de vida es una limitación declarada y la migración es el trabajo futuro 3.</div>';
+      '<div class="mejora"><b>Cómo se resuelve.</b> Migrar a mitad del proyecto obligaba a rehacer y volver a probar todo. El fin de vida es una limitación declarada y la migración es el trabajo futuro 3.</div>';
   };
 
   /* ───── Gemelo digital ───── */
@@ -129,7 +129,7 @@
       '<div class="mide"><div class="m-fila"><span class="eyebrow">Simulación</span><div class="m-cmp"><span class="caja">lo ordenado</span><span class="vs">frente a</span><span class="caja">su propia odometría</span></div><b class="num">3,39 %</b></div>' +
       '<div class="m-fila"><span class="eyebrow">Robot real</span><div class="m-cmp"><span class="caja">lo ordenado</span><span class="vs">frente a</span><span class="caja ink">la cinta métrica</span></div><b class="num">7,18 %</b></div></div>' +
       '<p class="vnota">La pose verdadera de Gazebo no quedó registrada, así que en simulación no hay una referencia independiente. La cifra del robot que se parece al 3,39 es el 3,8 % de los encoders frente a lo ordenado.</p>' +
-      '<div class="comparar"><div><b>Láminas 9 y 33</b><span>Capturas de Gazebo Classic. Esto es simulación.</span></div><div><b>Lámina 18</b><span>Cámara cenital y RViz con datos del robot real.</span></div></div>';
+      '<div class="comparar"><div><b>Capturas de Gazebo Classic</b><span>Simulación. El robot y el mundo son modelos.</span></div><div><b>Cámara cenital junto a RViz</b><span>Robot real. RViz solo muestra los datos que envía el robot.</span></div></div>';
   };
 
   /* ───── Costo ───── */
@@ -146,7 +146,7 @@
       '<div class="vley"><span><i class="cu azul"></i>componentes principales, $250 530</span><span><i class="cu azul-m"></i>energía, montaje y cables, $194 113</span><span><i class="cu verde"></i>operación y desarrollo, $137 804</span><span><i class="cu gris"></i>precio de catálogo, sin envío ni impuestos</span></div>' +
       '<h4 class="vsub">Qué hay en los $137 804 de operación y desarrollo</h4>' +
       '<div class="items"><span>Router de viaje<b class="num">$22 140</b></span><span>Cables de red<b class="num">$8 376</b></span><span>Cargador de baterías<b class="num">$16 169</b></span><span>Baterías de repuesto<b class="num">$41 436</b></span><span>HDMI inalámbrico, cables y hub USB<b class="num">$49 683</b></span></div>' +
-      '<p class="vnota">Tablas A1.1 y A1.2. No hay cautín, estaño ni impresora 3D. Ningún monto incluye el computador.</p>';
+      '<p class="vnota">Tablas A1.1 y A1.2 de la tesis. Ningún monto incluye herramientas ni el computador.</p>';
   };
 
   /* ───── Dónde fallaría ───── */

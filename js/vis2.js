@@ -110,7 +110,7 @@
     el.innerHTML = '<div class="vctl"><label class="desl-linea" for="wu-l">Tiempo con la rueda trabada <b class="num" data-v>3 s</b><input id="wu-l" type="range" min="1" max="4" step="1" value="3"></label></div>' +
       '<div class="wu-g"></div>' +
       '<div class="vley"><span><i class="lin rojo"></i>PI normal</span><span><i class="lin azul"></i>PI incremental con tope</span><span><i class="lin-disc"></i>velocidad pedida</span><span><i class="cu gris"></i>rueda trabada</span></div>' +
-      '<p class="vnota">Simulación ilustrativa con un motor y ganancias inventadas, como la Figura 1 del ensayo. No es una medición de tu robot. Las dos leyes tienen las mismas ganancias y se comportan igual hasta que el motor se satura.</p>';
+      '<p class="vnota">Simulación ilustrativa con un motor y ganancias de ejemplo. No es una medición del robot. Las dos leyes tienen las mismas ganancias y se comportan igual hasta que el motor se satura.</p>';
     var g = el.querySelector(".wu-g");
     function sim(tipo) {
       var dt = 0.033, tau = 0.25, G = 1.4, Kp = 0.35, Ki = 1.8, t1 = 1.5, T = 14;
@@ -127,7 +127,7 @@
     }
     function dibujar() {
       var W = Math.max(300, g.clientWidth || 600), chico = W < 520;
-      var ml = chico ? 34 : 44, mr = 10, T = 14;
+      var ml = chico ? 34 : 44, mr = chico ? 18 : 24, T = 14;
       var a = sim("pos"), b = sim("inc");
       function panel(titulo, yMax, yTicks, serie, alto, etiqueta) {
         var mt = 22, mb = 24, H = alto;
@@ -189,7 +189,7 @@
       '<p class="vnota">La raya negra es la ganancia que entregó el PSO. El tramo oscuro va del cambio menor al mayor entre las dos ruedas.</p>' +
       '<div class="comparar tres"><div><b>Lo que el modelo no tenía</b><span>La zona muerta del driver. Por eso aparecieron el error estacionario y la detención.</span></div>' +
       '<div><b>Finales en el código</b><span>Derecha Kp 16,42, Kd 20,05, Ki 0,001. Izquierda Kp 16,0, Kd 20,3, Ki 0,075.</span></div>' +
-      '<div><b>Originales del firmware</b><span>Kp 20, Kd 12, Ki 0. No comparaste contra ellas, así que no afirmas que el PSO ahorró tiempo.</span></div></div>';
+      '<div><b>Originales del firmware</b><span>Kp 20, Kd 12, Ki 0. La tesis no comparó contra ellas, así que no afirma que el PSO ahorrara tiempo.</span></div></div>';
   };
 
   /* ───── Resolución y velocidad única ───── */
@@ -201,7 +201,7 @@
       '<div class="tk"><span>Giro a 0,35 rad/s</span><div class="tk-pista"><i style="--w:' + (10 / 45 * 100) + '%"></i><em class="u14" style="--x:' + (14 / 45 * 100) + '%"></em><em class="db" style="--x:' + (2 / 45 * 100) + '%"></em></div><b class="num">≈ 10</b></div>' +
       '</div>' +
       '<div class="vley"><span><i class="cu azul"></i>ticks que cuenta cada rueda</span><span><i class="lin rojo"></i>14 ticks, error mínimo para que crezca el integral izquierdo</span><span><i class="lin ambar"></i>banda muerta, 1 tick derecha y 2 izquierda</span></div>' +
-      '<p class="vnota">En el giro la rueda cuenta pocos ticks. La banda muerta pesa más y el error casi nunca llega a 14. No lo mediste.</p>' +
+      '<p class="vnota">En el giro la rueda cuenta pocos ticks. La banda muerta pesa más y el error casi nunca llega a 14. No se midió.</p>' +
       '<h4 class="vsub">Cómo llega el dato de velocidad</h4><div class="regla"></div>' +
       '<div class="vley"><span><i class="lin" style="background:var(--muted)"></i>pasos de 0,01 m/s del dato registrado</span><span><i class="pt azul"></i>muestras de ejemplo</span><span><i class="lin ink"></i>promedio 0,128</span><span><i class="cu rojo-s"></i>un sobreimpulso aquí no se ve</span><span><i class="lin" style="background:var(--line);height:8px;width:2px"></i>rayas finas, un tick por ciclo, unos 0,003 m/s</span></div>';
     var cont = el.querySelector(".regla");

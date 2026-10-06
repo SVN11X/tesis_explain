@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Preguntas difíciles · Robot explorador</title>
+<meta name="description" content="Las preguntas más exigentes sobre el robot explorador, con respuestas argumentadas y su respaldo en la tesis. Con búsqueda, filtros por tema y nivel, y un modo práctica que oculta las respuestas.">
+<meta name="author" content="Sebastián Valderas Neculqueo">
+<link rel="canonical" href="https://svn11x.github.io/tesis_explain/preguntas.html">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_CL">
+<meta property="og:site_name" content="Robot explorador">
+<meta property="og:title" content="Preguntas difíciles">
+<meta property="og:description" content="Las preguntas más exigentes sobre el robot explorador, con respuestas argumentadas y su respaldo en la tesis. Con búsqueda, filtros por tema y nivel, y un modo práctica que oculta las respuestas.">
+<meta property="og:url" content="https://svn11x.github.io/tesis_explain/preguntas.html">
+<meta property="og:image" content="https://svn11x.github.io/tesis_explain/img/social.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#004EAA">
+<link rel="icon" href="img/icono.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&amp;family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&amp;family=IBM+Plex+Mono:wght@400;600&amp;display=swap">
+<link rel="stylesheet" href="css/estilo.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script src="js/comun.js" defer></script>
+<script src="js/sitio.js" defer></script>
+<script src="datos/preguntas.js" defer></script><script src="js/preguntas.js" defer></script></head>
+<body data-pagina="preguntas">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<div id="cabecera"></div>
+<header class="cap-cab"><div class="wrap">
+<nav class="miga" aria-label="Ruta"><a href="index.html">Inicio</a><span aria-hidden="true">›</span><span>Preguntas difíciles</span></nav>
+<h1>Preguntas difíciles</h1>
+<p class="lead">Las preguntas que haría alguien que leyó la tesis con lupa, respondidas con argumentos y con la sección exacta donde está el respaldo. Sirven para entender el trabajo a fondo, para ponerte a prueba o para preparar una defensa propia.</p>
+<div class="meta-cap"><span class="etiqueta">Respuestas basadas en la tesis</span><span class="etiqueta">Activa el modo práctica para responder antes de leer</span></div>
+</div></header>
+<main class="wrap" id="contenido" style="padding-block:28px 24px">
+  <div class="filtros">
+    <div class="fila-filtros">
+      <label class="buscar" for="buscar"><span class="sr">Buscar en las preguntas</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+        <input id="buscar" type="search" placeholder="Buscar una palabra, una cifra o una sección" autocomplete="off">
+      </label>
+      <button type="button" class="btn" id="azar">Pregunta al azar</button>
+    </div>
+    <div class="fila-filtros">
+      <div class="segmento" role="group" aria-label="Nivel" id="seg-nivel">
+        <button type="button" data-n="todos" aria-pressed="true">Todas</button>
+        <button type="button" data-n="general" aria-pressed="false">Para todo público</button>
+        <button type="button" data-n="tecnica" aria-pressed="false">Técnicas</button>
+        <button type="button" data-n="exigente" aria-pressed="false">Muy exigentes</button>
+      </div>
+      <label class="interruptor"><input type="checkbox" id="practica">Modo práctica</label>
+      <span class="conteo" id="conteo" aria-live="polite"></span>
+    </div>
+    <div class="chips" id="chips-tema" role="group" aria-label="Filtrar por tema"></div>
+  </div>
+  <div id="faq"><noscript><p class="sin-res">Esta página necesita JavaScript para mostrar las preguntas. También puedes leerlas en el archivo <a href="datos/preguntas.js">datos/preguntas.js</a>.</p></noscript></div>
+  <p class="sin-res" id="sin-res" hidden>Ninguna pregunta coincide con la búsqueda. Prueba con otra palabra o quita un filtro.</p>
+  <div class="callout idea" style="margin-top:32px">
+    <div class="c-tit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg>Cómo responder una pregunta difícil</div>
+    <p>Primero la respuesta directa, en una frase. Después el dato que la respalda y dónde está. Si algo no se midió o la causa no se determinó, se dice así, sin inventar una explicación nueva. Y si la pregunta encuentra un punto débil real, se reconoce y se dice cómo se resolvería.</p>
+  </div>
+</main>
+<div id="pie"></div>
+</body>
+</html>

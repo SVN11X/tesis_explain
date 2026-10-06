@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Planificar y seguir una ruta · Robot explorador</title>
+<meta name="description" content="Cómo navega el robot con Nav2: mapas de costos e inflación, planificación global con A estrella, control local con ventana dinámica (DWB), árboles de comportamiento, recuperaciones y lo que quedó pendiente de medir.">
+<meta name="author" content="Sebastián Valderas Neculqueo">
+<link rel="canonical" href="https://svn11x.github.io/tesis_explain/navegacion.html">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="es_CL">
+<meta property="og:site_name" content="Robot explorador">
+<meta property="og:title" content="Planificar y seguir una ruta">
+<meta property="og:description" content="Cómo navega el robot con Nav2: mapas de costos e inflación, planificación global con A estrella, control local con ventana dinámica (DWB), árboles de comportamiento, recuperaciones y lo que quedó pendiente de medir.">
+<meta property="og:url" content="https://svn11x.github.io/tesis_explain/navegacion.html">
+<meta property="og:image" content="https://svn11x.github.io/tesis_explain/img/social.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#004EAA">
+<link rel="icon" href="img/icono.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&amp;family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&amp;family=IBM+Plex+Mono:wght@400;600&amp;display=swap">
+<link rel="stylesheet" href="css/estilo.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script src="js/comun.js" defer></script>
+<script src="js/vis1.js" defer></script>
+<script src="js/vis2.js" defer></script>
+<script src="js/vis3.js" defer></script>
+<script src="js/sims.js" defer></script>
+<script src="js/sitio.js" defer></script>
+</head>
+<body data-pagina="navegacion">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<div id="cabecera"></div>
+<header class="cap-cab"><div class="wrap">
+<nav class="miga" aria-label="Ruta"><a href="index.html">Inicio</a><span aria-hidden="true">›</span><span data-cap-n>Guía</span></nav>
+<h1>Planificar y seguir una ruta</h1>
+<p class="lead">Saber a dónde ir no basta. Hay que encontrar un camino que no choque, seguirlo con un robot que no puede doblar de golpe y tener un plan cuando algo falla. Eso hace Nav2.</p>
+<div class="meta-cap"><span data-nivel class="etiqueta">Nivel</span><span class="etiqueta" data-lectura>Lectura</span><span class="etiqueta">Basado en la tesis, con fuentes externas marcadas</span></div>
+</div></header>
+<div class="wrap cap-layout">
+<aside class="lateral" id="lateral" aria-label="Navegación del capítulo"></aside>
+<main class="articulo" id="contenido">
+<section class="esencial" aria-label="Lo esencial">
+  <h2>Lo esencial</h2>
+  <ol>
+    <li>Nav2 recibe una meta, calcula una ruta completa con A estrella sobre un mapa de costos, y un controlador local la sigue eligiendo, varias veces por segundo, velocidades que no choquen.</li>
+    <li>Alrededor de cada obstáculo se infla una zona de costo para mantener distancia. En el robot real es de 0,15 m, menos que los 0,24 m que alcanza su esquina, y eso tiene consecuencias en pasos estrechos.</li>
+    <li>La navegación funcionó de punta a punta durante la exploración, pero no tiene un indicador propio. Medir llegadas a destinos fijos quedó como trabajo futuro.</li>
+  </ol>
+</section>
+
+<section>
+  <h2 id="nav2">Las piezas de Nav2</h2>
+  <p>Nav2 es el marco de navegación de referencia en ROS 2 <a class="cita" href="recursos.html#r-macenski2023">(Macenski et al., 2023)</a>. Recibe una meta, calcula una ruta global y genera órdenes de velocidad para recorrerla evitando obstáculos <span class="en-tesis">Sec. 4.5.3, Fig. 4.6</span>. En este robot sus piezas principales son:</p>
+  <ul>
+    <li><b>Dos mapas de costos.</b> Uno global, para planificar la ruta completa, y uno local, que se actualiza alrededor del robot para reaccionar rápido.</li>
+    <li><b>Un planificador global,</b> NavFn, con la búsqueda A estrella activada.</li>
+    <li><b>Un controlador local,</b> DWB, que convierte la ruta en velocidades.</li>
+    <li><b>Un navegador con árbol de comportamiento,</b> bt_navigator, que coordina todo y decide qué hacer ante una falla.</li>
+  </ul>
+  <p>Las órdenes que salen de Nav2 pasan por twist_mux, que da prioridad al mando manual, antes de llegar al controlador diferencial del robot.</p>
+  <h3 id="arbol">Un árbol de comportamiento en vez de un programa rígido</h3>
+  <p>Un árbol de comportamiento es una forma modular de encadenar tareas, como planificar, seguir la ruta y recuperarse de fallas, sin reescribir la lógica completa cada vez <a class="cita" href="recursos.html#r-colledanchise2018">(Colledanchise y Ögren, 2018)</a>. En este robot, el árbol replanifica la ruta de forma periódica y aplica recuperaciones en dos niveles <span class="en-tesis">Sec. 4.5.5</span>.</p>
+</section>
+
+<section>
+  <h2 id="costos">Mapas de costos e inflación</h2>
+  <p>Un mapa de costos toma la rejilla de ocupación y le agrega un costo a cada celda según qué tan cerca está de un obstáculo. Las celdas del obstáculo tienen el costo máximo, que en Nav2 es 254. Las que están a menos del radio inscrito del robot, la distancia de su centro a su borde más cercano, reciben 253, porque el centro ahí ya implicaría choque. Más allá, el costo decae exponencialmente hasta el radio de inflación, y después vale cero <a class="cita" href="recursos.html#r-nav2docs">(Nav2, documentación)</a> <span class="en-tesis">Anexo 5.2</span>.</p>
+  <div class="widget">
+    <div class="widget-cab"><h3 id="sim-inflacion">El radio de inflación y la esquina del robot</h3><span class="tipo inter">Interactivo</span><p>Cambia el radio, gira el robot o arrástralo. Observa el costo bajo el centro y si la huella toca un obstáculo.</p></div>
+    <div class="vis" data-vis="inflacion"><p class="vis-fallback">Simulador de mapa de costos con radio de inflación y huella del robot. Necesita JavaScript.</p></div>
+  </div>
+  <p>En el robot real la huella configurada es un rectángulo que va de 8 cm detrás del centro a 20 cm por delante, con 13 cm a cada lado. Su radio inscrito es de unos 0,08 m y su esquina delantera queda a unos 0,24 m del centro. Con un radio de inflación de 0,15 m, menor que el valor de simulación, las celdas entre 0,15 y 0,24 m de una pared tienen costo cero aunque la esquina del robot pueda llegar a ellas <span class="en-tesis">Sec. 4.5.4, Anexo 5.2</span>.</p>
+  <p>El problema aparece porque el planificador global trata al robot como un punto, y el crítico de obstáculos de DWB revisa solo la celda bajo su centro. Ninguno revisa el contorno completo, así que la configuración no garantiza espacio para la huella girada en pasos estrechos. Su efecto en los ensayos no se cuantificó, y evaluarlo con una configuración acorde es el trabajo futuro 4.</p>
+  <div class="callout idea">
+    <div class="c-tit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg>Por qué no simplemente subir el radio</div>
+    <p>El valor por defecto de Nav2 es de 0,55 m. En un recinto pequeño, con pasillos angostos, un radio grande marca casi todo como costoso o bloqueado, y el robot deja de encontrar rutas. Elegir el radio es un compromiso entre seguridad y espacio útil, y se ajusta junto con el factor de decaimiento del costo. La guía de ajuste de Nav2 dedica una sección completa a ese par de parámetros <a class="cita" href="recursos.html#r-nav2tuning">(Nav2, guía de ajuste)</a>.</p>
+  </div>
+  <p>Un dato más del robot real. El mapa de costos global es una ventana de 10 por 10 m que se mueve con el robot, con celdas de 5 cm. En un recinto pequeño eso no importa, pero en un espacio grande habría que revisar que el explorador, que busca fronteras en ese mapa, no dé por terminada la exploración antes de tiempo.</p>
+</section>
+
+<section>
+  <h2 id="astar">A estrella: buscar la ruta</h2>
+  <p>Sobre la rejilla, el planificador busca un camino desde la posición del robot hasta la meta. A estrella revisa las celdas en un orden inteligente. A cada celda candidata le asigna la suma de dos cosas. Lo que ya cuesta llegar desde el origen y una estimación de lo que falta hasta la meta. Siempre avanza primero por la celda con la menor suma <a class="cita" href="recursos.html#r-hart1968">(Hart, Nilsson y Raphael, 1968)</a> <span class="en-tesis">Sec. 3.10, Ec. 3.15</span>.</p>
+  <div class="widget">
+    <div class="widget-cab"><h3 id="sim-astar">A estrella frente a Dijkstra</h3><span class="tipo inter">Interactivo</span><p>Ejecuta las dos búsquedas y compara cuántas celdas revisa cada una para encontrar la misma ruta.</p></div>
+    <div class="vis" data-vis="astar"><p class="vis-fallback">Comparación de las celdas revisadas por Dijkstra y por A estrella.</p></div>
+  </div>
+  <p>Dijkstra hace lo mismo pero sin la estimación, por eso se expande en todas direcciones <a class="cita" href="recursos.html#r-dijkstra1959">(Dijkstra, 1959)</a>. Si la estimación nunca supera lo que realmente falta, se dice que es admisible, y con ella A estrella garantiza la ruta de menor costo. En Nav2, el planificador NavFn tiene A estrella activado, permite planificar a través de espacio desconocido y acepta llegar hasta 0,5 m de la meta <span class="en-tesis">Tabla 4.5</span>.</p>
+  <p>La tesis no usa la optimalidad de la ruta como criterio de validación, porque Nav2 suma los costos de su propio mapa con un escalamiento interno que no se reconstruyó. Lo que se verificó es que la ruta global pudiera ser seguida por el controlador local.</p>
+  <div class="callout real">
+    <div class="c-tit"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>En la vida real</div>
+    <p>A estrella es el algoritmo con que muchos videojuegos mueven a sus personajes por un mapa. La explicación interactiva de <a class="cita" href="recursos.html#r-redblob">Red Blob Games</a> es una de las mejores introducciones que existen. Y el rover Perseverance hace algo de la misma familia en Marte, con un mapa del terreno a su alrededor en el que elige su camino y replanifica para esquivar rocas <a class="cita" href="recursos.html#r-jpl">(NASA JPL, 2021)</a>.</p>
+  </div>
+</section>
+
+<section>
+  <h2 id="dwb">La ventana dinámica: seguir la ruta sin chocar</h2>
+  <p>La ruta global es una línea sobre el mapa. El robot, en cambio, solo puede cambiar su velocidad un poco en cada instante. El enfoque de ventana dinámica considera solo las velocidades alcanzables desde el estado actual, simula hacia adelante la trayectoria de cada candidata y le pone un puntaje con varios criterios <a class="cita" href="recursos.html#r-fox1997">(Fox, Burgard y Thrun, 1997)</a>. Se elige la de menor puntaje <span class="en-tesis">Sec. 3.10, Ec. 3.16</span>.</p>
+  <div class="widget">
+    <div class="widget-cab"><h3 id="sim-dwb">Trayectorias candidatas y su puntaje</h3><span class="tipo inter">Interactivo</span><p>Cambia cuánto pesa cada criterio y arrastra el obstáculo.</p></div>
+    <div class="vis" data-vis="dwb"><p class="vis-fallback">Simulador de la ventana dinámica. Necesita JavaScript.</p></div>
+  </div>
+  <p>En el robot, DWB usa críticos de obstáculos, oscilación, alineación y distancia respecto de la ruta y de la meta <span class="en-tesis">Tabla 4.5</span>. Algunos valores del robot real ayudan a entender su comportamiento <span class="en-tesis">Tabla A5.1</span>.</p>
+  <div class="tabla-env">
+    <table class="tabla">
+      <thead><tr><th>Parámetro</th><th class="n">Robot real</th><th>Qué significa</th></tr></thead>
+      <tbody>
+        <tr><th>Frecuencia del controlador</th><td class="n">8 Hz</td><td>Elige nuevas velocidades ocho veces por segundo.</td></tr>
+        <tr><th>Velocidad lineal máxima de DWB</th><td class="n">0,15 m/s</td><td>Luego el controlador diferencial la recorta a 0,13 m/s.</td></tr>
+        <tr><th>Giro máximo</th><td class="n">0,35 rad/s</td><td>Igual al límite del controlador diferencial.</td></tr>
+        <tr><th>Tolerancia de llegada</th><td class="n">0,10 m</td><td>La meta se da por alcanzada a menos de 10 cm.</td></tr>
+        <tr><th>Tolerancia de orientación</th><td class="n">3,14 rad</td><td>No exige una orientación final, solo la posición.</td></tr>
+        <tr><th>Verificador de progreso</th><td class="n">0,05 m en 6 s</td><td>Si el robot no avanza 5 cm en 6 s, se declara una falla del controlador.</td></tr>
+      </tbody>
+      <caption>Tabla A5.1 de la tesis.</caption>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2 id="recuperacion">Cuando algo falla: recuperaciones</h2>
+  <p>Si falla la planificación o el seguimiento, el árbol de comportamiento actúa primero sobre el mapa de costos correspondiente. Si falla la navegación completa, ejecuta una secuencia configurada <span class="en-tesis">Tabla A5.2</span>.</p>
+  <div class="flujo" style="max-width:980px">
+    <div class="caja"><b>Limpiar mapa global</b><small>radio de 1,5 m</small></div><div class="flecha-d"></div>
+    <div class="caja"><b>Limpiar mapa local</b><small>radio de 1,0 m</small></div><div class="flecha-d"></div>
+    <div class="caja"><b>Retroceder</b><small>0,15 m a 0,05 m/s, máximo 8 s</small></div><div class="flecha-d"></div>
+    <div class="caja"><b>Girar</b><small>0,8 rad</small></div><div class="flecha-d"></div>
+    <div class="caja"><b>Esperar</b><small>2 s antes de reintentar</small></div>
+  </div>
+</section>
+
+<section>
+  <h2 id="amcl">Ubicarse en un mapa ya hecho</h2>
+  <p>Durante la exploración, la posición la resuelve slam_toolbox mientras construye el mapa. Otra situación distinta es tener un mapa guardado y ubicarse dentro de él. Para eso Nav2 trae AMCL, la localización de Monte Carlo adaptativa, un filtro de partículas <a class="cita" href="recursos.html#r-thrun2005">(Thrun et al., 2005)</a>. Cada partícula es una hipótesis de dónde está el robot. Las hipótesis se mueven con la odometría, se ponderan según cuánto calzan los barridos del láser con el mapa, y el remuestreo concentra las partículas donde es más probable que esté el robot <span class="en-tesis">Sec. 3.9</span>.</p>
+  <p>En esta tesis AMCL quedó fuera del alcance. Está en la pila de navegación con sus valores por defecto, pero no se ajustó ni se ejecutó en los ensayos <span class="en-tesis">Sec. 4.5.2</span>. Es justo lo que hacen los robots de reparto en hospitales, que trabajan sobre mapas y rutas definidos antes <a class="cita" href="recursos.html#r-emsd">(EMSD, s.f.)</a>.</p>
+</section>
+
+<section>
+  <h2 id="evaluacion">Qué se evaluó de la navegación</h2>
+  <p>La navegación se evaluó sobre los destinos que genera el explorador, que es lo comprometido en el objetivo general. Nav2 llevó al robot hacia las metas del explorador en las cinco ejecuciones válidas, 59 metas llegaron a ejecutarse y en el registro no se identificaron abortos atribuibles a fallas de Nav2 <span class="en-tesis">Sec. 5.4</span>. Pero el resultado de esas metas no sirve como tasa de éxito, por una razón que se explica en <a href="exploracion.html#abortadas">Decidir a dónde ir</a>.</p>
+  <div class="widget">
+    <div class="widget-cab"><h3 id="alcance-nav">Lo evaluado y lo que exigiría medir con metas fijas</h3><span class="tipo datos">Datos de la tesis</span></div>
+    <div class="vis" data-vis="alcance"><p class="vis-fallback">Se evaluó la navegación hacia metas del explorador. Las metas fijas exigen un mapa guardado, AMCL y puntos medidos.</p></div>
+  </div>
+  <p>Un protocolo con destinos fijos exige un mapa guardado, AMCL activo y puntos de referencia medidos en el recinto, condiciones que no se configuraron. El script para ese ensayo quedó preparado, pero no tiene registros de salida, no mide el error de posición final y sus poses objetivo solo están definidas para el mundo simulado <span class="en-tesis">Anexo 8.3</span>. Ejecutarlo en un espacio mayor es el trabajo futuro 1.</p>
+</section>
+
+<section>
+  <div class="malentendidos">
+    <h3 id="malentendidos">Malentendidos frecuentes</h3>
+    <div class="mal"><div><span class="mal-et">Se suele decir</span><p>La navegación es limitada.</p></div><div><span class="mal-et">Más preciso</span><p>Funciona de punta a punta, pero no tiene un indicador cuantitativo propio.</p></div></div>
+    <div class="mal"><div><span class="mal-et">Se suele decir</span><p>Nav2 decide a dónde va el robot.</p></div><div><span class="mal-et">Más preciso</span><p>Nav2 lleva al robot hacia el destino que elige el explorador. Decidir el destino es otro módulo.</p></div></div>
+    <div class="mal"><div><span class="mal-et">Se suele decir</span><p>Con A estrella la ruta es la más corta.</p></div><div><span class="mal-et">Más preciso</span><p>Con una estimación admisible es la de menor costo en su grafo. En Nav2 ese costo incluye las penalizaciones del mapa de costos.</p></div></div>
+  </div>
+</section>
+<nav id="nav-cap" aria-label="Capítulo anterior y siguiente"></nav>
+<p id="ayuda-pie" class="ayuda-pie"></p>
+</main>
+</div>
+<div id="pie"></div>
+</body>
+</html>

@@ -3,142 +3,199 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="robots" content="noindex, nofollow">
-<link rel="icon" href="data:,">
-<title>Temas críticos de la defensa</title>
-<meta name="description" content="Explicaciones visuales de los temas que más costaron en las simulaciones de la defensa de título, con su evolución por ronda.">
+<title>Robot explorador · Navegación y exploración autónoma de interiores con ROS 2</title>
+<meta name="description" content="Guía abierta, con simulaciones interactivas y datos medidos, de un robot diferencial de bajo costo que mapea, navega y explora interiores con ROS 2, SLAM Toolbox, Nav2 y exploración por fronteras.">
+<meta name="author" content="Sebastián Valderas Neculqueo">
+<link rel="canonical" href="https://svn11x.github.io/tesis_explain/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_CL">
+<meta property="og:site_name" content="Robot explorador">
+<meta property="og:title" content="Un robot que entra a un lugar desconocido, lo recorre solo y dibuja su plano">
+<meta property="og:description" content="Guía abierta, con simulaciones interactivas y datos medidos, de un robot diferencial de bajo costo que mapea, navega y explora interiores con ROS 2, SLAM Toolbox, Nav2 y exploración por fronteras.">
+<meta property="og:url" content="https://svn11x.github.io/tesis_explain/">
+<meta property="og:image" content="https://svn11x.github.io/tesis_explain/img/social.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#004EAA">
+<link rel="icon" href="img/icono.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&amp;family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&amp;family=IBM+Plex+Mono:wght@400;600&amp;display=swap">
 <link rel="stylesheet" href="css/estilo.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script src="js/comun.js" defer></script>
+<script src="js/sims.js" defer></script>
+<script src="js/sitio.js" defer></script>
 </head>
-<body>
-
-<div class="franja" aria-hidden="true"></div>
-<header class="cabecera">
+<body data-pagina="inicio">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<div id="cabecera"></div>
+<main id="contenido">
+<section class="hero" aria-labelledby="t-hero">
   <div class="wrap">
-    <div class="eyebrow">Defensa de título · Ingeniería Civil Electrónica · UTEM</div>
-    <h1>Temas críticos de la defensa</h1>
-    <p class="tesis">Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial. <em>Cada tema que costó en las simulaciones, explicado con un diagrama y en palabras simples.</em></p>
-    <dl class="cifras-top" id="cifrasTop"></dl>
-  </div>
-</header>
-
-<nav class="secnav" aria-label="Secciones">
-  <div class="wrap">
-    <a href="#resumen">Resumen</a>
-    <a href="#mapa">Mapa de temas</a>
-    <a href="#temas">Temas explicados</a>
-    <a href="#forma">Cómo respondes</a>
-    <a href="#practicar">Practicar</a>
-    <a href="#antes">Antes del día</a>
-  </div>
-</nav>
-
-<main class="wrap">
-
-  <section id="resumen" aria-labelledby="t-res">
-    <div class="sec-cab">
-      <h2 id="t-res">Resumen de las cinco rondas</h2>
-      <p>Cada punto es una pregunta. Los anillos vacíos son preguntas omitidas, que quedan con 1,0. La raya negra es el promedio de la ronda y la línea roja marca el 4,0.</p>
-    </div>
-    <div class="res-grid">
-      <div class="panel">
-        <div class="grafico" id="graficoEvo"></div>
-        <div class="rondas" id="rondas"></div>
-      </div>
-      <div>
-        <div class="areas" id="areasLista"></div>
-        <p class="vnota" style="margin-top:8px">Barra, promedio de las rondas 1 a 4 por área. Rombo azul, la ronda 5. Abre un área para ver qué repasar.</p>
+    <div>
+      <p class="eyebrow">Trabajo de titulación · Ingeniería Civil Electrónica · UTEM · 2026</p>
+      <h1 id="t-hero" style="margin-top:12px">Un robot que entra a un lugar que no conoce, lo recorre solo y <em>dibuja su plano</em></h1>
+      <p class="bajada">Esta guía explica, con dibujos interactivos y datos medidos, cómo se construyó un robot de bajo costo que mapea, navega y explora interiores con ROS 2. Está pensada para quien quiera entenderlo, ponerlo a prueba o construir el suyo.</p>
+      <p class="tesis-ref">Basada en la tesis <em>Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial</em>, de Sebastián Valderas Neculqueo, con el profesor guía Patricio Galarce Acevedo.</p>
+      <div class="acciones">
+        <a class="btn prim" href="problema.html">Empezar la guía <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <a class="btn" href="#robot-real">Ver el robot real</a>
+        <a class="btn" href="preguntas.html">Preguntas difíciles</a>
       </div>
     </div>
-    <div class="r5" id="r5"></div>
-    <details class="plegable"><summary>Ver la nota de cada pregunta en cada ronda</summary><div class="tabla-scroll" id="calor"></div></details>
-  </section>
-
-  <section id="mapa" aria-labelledby="t-mapa">
-    <div class="sec-cab">
-      <h2 id="t-mapa">Mapa de temas problemáticos</h2>
-      <p>Cada recuadro es un tema explicado más abajo. El color es su nota promedio en todas las rondas y los puntos son cada nota en orden. Rojo bajo 4,0, ámbar de 4,0 a 5,4 y verde desde 5,5.</p>
-    </div>
-    <div class="mapa" id="mapaTemas"></div>
-  </section>
-
-  <section id="temas" aria-labelledby="t-temas">
-    <div class="sec-cab">
-      <h2 id="t-temas">Temas explicados</h2>
-      <p>Ordenados desde el área más débil. Cada tema trae un diagrama, las ideas clave en simple, la frase para la sala y las preguntas para practicar.</p>
-    </div>
-    <div id="modulos"></div>
-  </section>
-
-  <section id="forma" aria-labelledby="t-forma">
-    <div class="sec-cab">
-      <h2 id="t-forma">Cómo respondes</h2>
-      <p>Lo que bajó la nota casi nunca fue el contenido, que está en la tesis y en el guion. Fue no contestar, contestar otra cosa o agregar explicaciones sin respaldo.</p>
-    </div>
-    <div class="patrones" id="patrones"></div>
-    <div class="formulas" id="formulas"></div>
-  </section>
-
-  <section id="practicar" aria-labelledby="t-prac">
-    <div class="sec-cab">
-      <h2 id="t-prac">Practicar</h2>
-      <p>Las preguntas de las rondas, con la respuesta oculta. Contesta en voz alta y después ábrela, o salta a su explicación visual.</p>
-    </div>
-    <div class="filtros">
-      <div class="fila-filtros">
-        <label class="buscar" for="buscar">
-          <svg viewBox="0 0 24 24" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
-          <input id="buscar" type="search" placeholder="Buscar pregunta, cifra o sección" autocomplete="off">
-        </label>
-        <button type="button" class="btn" id="azar">Pregunta al azar</button>
-      </div>
-      <div class="fila-filtros">
-        <div class="segmento" role="group" aria-label="Mostrar" id="segFiltro">
-          <button type="button" data-f="todas" aria-pressed="true">Todas</button>
-          <button type="button" data-f="bajo4" aria-pressed="false">Alguna vez bajo 4,0</button>
-          <button type="button" data-f="omit" aria-pressed="false">Omitidas</button>
-          <button type="button" data-f="r5" aria-pressed="false">Ronda 5</button>
-          <button type="button" data-f="sin" aria-pressed="false">Sin nota</button>
+    <figure class="hero-sim" style="margin:0">
+      <div data-vis="exploracion" data-modo="hero" id="sim-hero" aria-label="Simulación de un robot que explora un plano desconocido"><p class="vis-fallback">Aquí se muestra una simulación del robot explorando. Necesita JavaScript.</p></div>
+      <div class="sim-barra" data-sim-barra="sim-hero">
+        <div class="sim-leyenda" aria-hidden="true">
+          <span><i style="background:var(--surface);border:1px solid var(--line-2)"></i>conocido</span>
+          <span><i style="background:var(--desc)"></i>desconocido</span>
+          <span><i style="background:var(--ink)"></i>pared vista</span>
+          <span><i style="background:var(--ambar)"></i>frontera</span>
+          <span><i style="background:#13A538"></i>ruta</span>
         </div>
-        <span class="conteo" id="conteo"></span>
+        <span><span data-estado aria-live="polite"></span> · <button type="button" class="vbtn sec" data-a="play" style="min-height:32px;padding:4px 10px">Pausar</button></span>
       </div>
-      <div class="chips" id="chipsTema" role="group" aria-label="Filtrar por tema"></div>
-    </div>
-    <div id="cartas"></div>
-    <p class="sin-res" id="sinRes" hidden>Ninguna pregunta coincide con los filtros.</p>
-  </section>
-
-  <section id="antes" aria-labelledby="t-antes">
-    <div class="sec-cab">
-      <h2 id="t-antes">Antes del día de la defensa</h2>
-      <p>Lo que falta decidir, corregir y preparar. Las casillas quedan guardadas en este navegador.</p>
-    </div>
-    <div class="dos-col">
-      <div class="panel"><h3>Orden sugerido de repaso</h3><ol class="orden" id="orden"></ol></div>
-      <div class="panel"><h3>Lo que solo tú puedes responder<span class="progreso" id="prog-solo"></span></h3><ul class="checklist" id="lista-solo"></ul></div>
-      <div class="panel"><h3>Diferencias por corregir en tesis y láminas<span class="progreso" id="prog-dif"></span></h3><ul class="checklist" id="lista-dif"></ul>
-        <details class="corregidas" style="margin-top:14px"><summary>Ver las que ya están corregidas</summary><div id="corregidas"></div></details></div>
-      <div class="panel"><h3>Láminas de respaldo por preparar<span class="progreso" id="prog-lam"></span></h3><ul class="checklist" id="lista-lam"></ul></div>
-    </div>
-  </section>
-
-</main>
-
-<footer>
-  <div class="wrap">
-    <span>Fuentes: Banco_preguntas_defensa (rondas 1 a 4, del 26 al 28 de septiembre de 2026), Ensayo_Defensa_y_Repaso (ronda 5, 5 de octubre de 2026, nivel 3), Guion_Defensa, la tesis y el código del proyecto.</span>
-    <span>Los diagramas marcados como ilustrativos usan datos de ejemplo. Las cifras de tu trabajo se citan tal como están en la tesis.</span>
+      <figcaption class="vnota">Simulación ilustrativa del ciclo que repite el robot real: medir con el láser, actualizar el mapa, elegir una frontera, planificar una ruta y moverse. Termina sola cuando no quedan fronteras. <a href="exploracion.html#simulador">Ver la versión completa</a>.</figcaption>
+    </figure>
   </div>
-</footer>
+</section>
 
-<script src="datos/datos.js"></script>
-<script src="datos/temas.js"></script>
-<script src="js/comun.js"></script>
-<script src="js/vis1.js"></script>
-<script src="js/vis2.js"></script>
-<script src="js/vis3.js"></script>
-<script src="js/app.js"></script>
+<section class="seccion" id="robot-real" aria-labelledby="t-real">
+  <div class="wrap">
+    <div class="seccion-cab">
+      <p class="eyebrow">El prototipo</p>
+      <h2 id="t-real">El robot real, en su recinto de pruebas</h2>
+      <p>Un chasis impreso en 3D, dos motores con encoder, un sensor láser que gira, un Arduino Nano, una Raspberry Pi 4 y un computador que se comunica con él por una red Wi-Fi dedicada. Los materiales montados en el robot costaron 444 643 pesos chilenos.</p>
+    </div>
+    <div class="galeria-real">
+      <div>
+        <div class="video" data-yt="iTTC10eGDmc" data-portada="img/fotos/video-portada" data-titulo="El robot explorando por su cuenta" data-sub="Cámara cenital a la izquierda y RViz a la derecha">
+          <a href="https://www.youtube.com/watch?v=iTTC10eGDmc" style="color:#fff;display:grid;place-items:center;height:100%">Ver el video en YouTube</a>
+        </div>
+        <p class="video-pie">Ejecución de demostración sobre el robot real, publicada el 29 de septiembre de 2026. En RViz, el programa que muestra los datos del robot, la línea verde es la ruta que planifica la navegación hacia la frontera elegida. El video se carga solo si lo reproduces.</p>
+      </div>
+      <div class="lado-fotos">
+        <figure class="foto">
+          <picture><source srcset="img/fotos/robot-planta.webp" type="image/webp"><img src="img/fotos/robot-planta.jpg" width="900" height="958" loading="lazy" decoding="async" alt="El robot visto desde arriba: carcasa negra impresa en 3D con forma de U, el sensor RPLidar A1 al centro, un botón de encendido y un visualizador de tensión y corriente."></picture>
+          <figcaption>Vista en planta del prototipo. El RPLidar A1 va al centro, y arriba a la derecha está el visualizador de tensión y corriente. <small>Fotografía del autor, Fig. 4.4 de la tesis.</small></figcaption>
+        </figure>
+      </div>
+    </div>
+    <figure class="foto trans" style="margin:16px auto 0;max-width:920px">
+      <picture><source srcset="img/fotos/recinto.webp" type="image/webp"><img src="img/fotos/recinto-blanco.jpg" width="1400" height="788" loading="lazy" decoding="async" alt="Recinto de pruebas visto en perspectiva: piso de alfombra oscura rodeado por paneles rojos, negros y uno amarillo, con tabiques interiores que forman pasillos."></picture>
+      <figcaption>El recinto de pruebas, con paneles que forman pasillos y rincones. El área libre que el robot mapeó fue cercana a 3,5 m² en todas las corridas. <small>Fotografía del autor, Fig. 5.1 de la tesis.</small></figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="seccion" aria-labelledby="t-pasos">
+  <div class="wrap">
+    <div class="seccion-cab">
+      <p class="eyebrow">En cuatro pasos</p>
+      <h2 id="t-pasos">Cómo hace un robot para explorar solo</h2>
+      <p>El robot repite un ciclo varias veces por segundo. Cada paso tiene su capítulo en la guía.</p>
+    </div>
+    <div class="pasos-4">
+      <a class="paso4" href="mapeo.html"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2.5"/><path d="M12 3a9 9 0 0 1 9 9M12 6.5a5.5 5.5 0 0 1 5.5 5.5M3 12a9 9 0 0 0 9 9"/></svg></span><b>Percibir</b><p>Un láser gira y mide la distancia a las paredes en todas direcciones, en un plano horizontal.</p><span class="ir">Ver y dibujar el mapa →</span></a>
+      <a class="paso4" href="movimiento.html"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="7" cy="17" r="3"/><circle cx="17" cy="17" r="3"/><path d="M7 14V7h7l3 7"/></svg></span><b>Estimar</b><p>Cuenta cuánto giró cada rueda para saber cuánto avanzó, y corrige ese cálculo con el láser.</p><span class="ir">Moverse y medir el avance →</span></a>
+      <a class="paso4" href="exploracion.html"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V5l6 3 6-3 4 2v13l-4-2-6 3-6-3z"/><path d="M10 8v12M16 5v12"/></svg></span><b>Decidir</b><p>Busca los bordes entre lo que ya conoce y lo que no, llamados fronteras, y elige uno como destino.</p><span class="ir">Decidir a dónde ir →</span></a>
+      <a class="paso4" href="navegacion.html"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19c4 0 4-7 8-7s4-7 8-7"/><circle cx="4" cy="19" r="1.6"/><path d="M17 5h3v3"/></svg></span><b>Moverse</b><p>Planifica una ruta que evita obstáculos y ordena a cada rueda la velocidad justa para seguirla.</p><span class="ir">Planificar y seguir una ruta →</span></a>
+    </div>
+  </div>
+</section>
+
+<section class="seccion" aria-labelledby="t-cifras">
+  <div class="wrap">
+    <div class="seccion-cab">
+      <p class="eyebrow">Resultados, con sus matices</p>
+      <h2 id="t-cifras">Lo que se logró y cómo se midió</h2>
+      <p>Cada cifra viene de la tesis y se explica en su capítulo. También está lo que no se alcanzó a medir, porque saber dónde termina la evidencia es parte del resultado.</p>
+    </div>
+    <div class="cifras">
+      <div class="cifra"><b>5 <small>de 6</small></b><span>exploraciones terminaron solas, al no quedar fronteras, sin que nadie interviniera.</span><span class="fuente">Sec. 5.4 de la tesis</span></div>
+      <div class="cifra"><b>3,63 <small>%</small></b><span>error medio de la odometría en una recta de 2 m, medido con cinta en cinco repeticiones.</span><span class="fuente">Sec. 5.1 y Tabla 5.1</span></div>
+      <div class="cifra"><b>3,50 <small>m²</small></b><span>de área libre mapeada en promedio, casi igual en las cinco corridas válidas.</span><span class="fuente">Tabla 5.4</span></div>
+      <div class="cifra"><b>32 <small>% menos</small></b><span>que el TurtleBot 3 Burger en materiales del robot, aunque sin sus mismas prestaciones.</span><span class="fuente">Tablas A1.1 y A1.2</span></div>
+    </div>
+    <div class="callout ojo" style="margin-top:16px;max-width:none">
+      <div class="c-tit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9.5 17H2.5z"/><path d="M12 10v4M12 17.5v.5"/></svg>Lo que quedó sin medir</div>
+      <p>La tasa de éxito al navegar hacia destinos fijos elegidos por una persona. La navegación funcionó de punta a punta durante la exploración, pero no tiene un indicador cuantitativo propio. <a href="resultados.html">Ver qué se demostró y qué no</a>.</p>
+    </div>
+  </div>
+</section>
+
+<section class="seccion" aria-labelledby="t-rutas">
+  <div class="wrap">
+    <div class="seccion-cab">
+      <p class="eyebrow">Rutas de lectura</p>
+      <h2 id="t-rutas">Elige cómo leer</h2>
+    </div>
+    <div class="rutas">
+      <div class="ruta"><h3>Tengo diez minutos</h3><span class="tiempo">Sin conocimientos previos</span><ol><li><a href="problema.html">El problema</a></li><li><a href="#robot-real">El robot en video</a></li><li><a href="resultados.html">Qué se demostró y qué no</a></li></ol></div>
+      <div class="ruta"><h3>Estudio ingeniería o robótica</h3><span class="tiempo">La guía completa, en orden</span><ol><li><a href="problema.html">Del problema</a> al <a href="resultados.html">resultado</a>, diez capítulos</li><li>Simulaciones para probar cada idea</li><li><a href="preguntas.html">Preguntas difíciles</a> para ponerte a prueba</li></ol></div>
+      <div class="ruta"><h3>Quiero construir uno</h3><span class="tiempo">Lo práctico primero</span><ol><li><a href="robot.html">El robot por dentro</a></li><li><a href="control.html">Controlar cada rueda</a></li><li><a href="replicar.html">Constrúyelo tú</a>, con lecciones aprendidas</li></ol></div>
+    </div>
+  </div>
+</section>
+
+<section class="seccion" id="capitulos" aria-labelledby="t-caps">
+  <div class="wrap">
+    <div class="seccion-cab">
+      <p class="eyebrow">La guía</p>
+      <h2 id="t-caps">Diez capítulos, del problema a la construcción</h2>
+      <p>Cada capítulo parte con lo esencial en tres ideas, explica con un interactivo o una figura, cita la sección de la tesis donde está el respaldo y termina con los malentendidos más comunes.</p>
+    </div>
+    <div class="tarjetas-cap">
+      <a class="tarjeta-cap" href="problema.html"><div class="tc-cab"><span class="n">01</span><span class="etiqueta basico">básico</span></div><h3>El problema</h3><p>Qué significa que un robot sea autónomo en interiores, qué alternativas existen y qué se eligió.</p></a>
+      <a class="tarjeta-cap" href="robot.html"><div class="tc-cab"><span class="n">02</span><span class="etiqueta basico">básico</span></div><h3>El robot por dentro</h3><p>Piezas, energía, costo, ROS 2 y el camino de una orden desde el computador hasta el motor.</p></a>
+      <a class="tarjeta-cap" href="movimiento.html"><div class="tc-cab"><span class="n">03</span><span class="etiqueta intermedio">intermedio</span></div><h3>Moverse y medir el avance</h3><p>Tracción diferencial, encoders y odometría. Por qué 7,18 % y 3,63 % miden cosas distintas.</p></a>
+      <a class="tarjeta-cap" href="control.html"><div class="tc-cab"><span class="n">04</span><span class="etiqueta avanzado">avanzado</span></div><h3>Controlar cada rueda</h3><p>PID en tiempo discreto, el hallazgo del PI incremental, el windup y la sintonía con PSO.</p></a>
+      <a class="tarjeta-cap" href="mapeo.html"><div class="tc-cab"><span class="n">05</span><span class="etiqueta intermedio">intermedio</span></div><h3>Ver y dibujar el mapa</h3><p>Cómo mide un LiDAR 2D, qué no ve, y cómo SLAM arma el mapa y corrige la deriva.</p></a>
+      <a class="tarjeta-cap" href="navegacion.html"><div class="tc-cab"><span class="n">06</span><span class="etiqueta intermedio">intermedio</span></div><h3>Planificar y seguir una ruta</h3><p>Mapas de costos, A estrella, ventana dinámica y el detalle de la esquina que no cabía.</p></a>
+      <a class="tarjeta-cap" href="exploracion.html"><div class="tc-cab"><span class="n">07</span><span class="etiqueta intermedio">intermedio</span></div><h3>Decidir a dónde ir</h3><p>Exploración por fronteras y por qué 53 de 54 metas abortadas no eran fallas.</p></a>
+      <a class="tarjeta-cap" href="gemelo.html"><div class="tc-cab"><span class="n">08</span><span class="etiqueta basico">básico</span></div><h3>El gemelo digital</h3><p>Qué se puede comprobar en simulación y qué solo en el robot real.</p></a>
+      <a class="tarjeta-cap" href="resultados.html"><div class="tc-cab"><span class="n">09</span><span class="etiqueta basico">básico</span></div><h3>Qué se demostró y qué no</h3><p>Verificar frente a validar, los cuatro objetivos, las limitaciones y dónde fallaría.</p></a>
+      <a class="tarjeta-cap" href="replicar.html"><div class="tc-cab"><span class="n">10</span><span class="etiqueta intermedio">intermedio</span></div><h3>Constrúyelo tú</h3><p>Materiales, versiones, repositorios base y doce lecciones aprendidas en el camino.</p></a>
+    </div>
+  </div>
+</section>
+
+<section class="seccion" aria-labelledby="t-usos">
+  <div class="wrap">
+    <div class="seccion-cab">
+      <p class="eyebrow">Fuera del laboratorio</p>
+      <h2 id="t-usos">Dónde se usa esta misma tecnología</h2>
+      <p>Las ideas de este robot de escritorio son las mismas que mueven máquinas comerciales y científicas. Cambian la escala, los sensores y las exigencias de seguridad.</p>
+    </div>
+    <div class="usos">
+      <div class="uso"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><circle cx="12" cy="9" r="2.5"/></svg></span><h3>Aspiradoras robot</h3><p>Muchos modelos llevan una torre con un láser giratorio. Cada rebote se convierte en un punto del plano de la casa, que el robot guarda y reutiliza en cada limpieza <a class="cita" href="recursos.html#r-dreame">(Dreame Technology, s.f.)</a>.</p><p class="relacion">Relación con la guía: <a href="mapeo.html">Ver y dibujar el mapa</a></p></div>
+      <div class="uso"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9l9-5 9 5v11H3z"/><path d="M8 20v-6h8v6"/></svg></span><h3>Bodegas</h3><p>Amazon usaba robots en zonas cerradas, separadas de las personas. Su robot Proteus circula entre trabajadores y combina varios sensores, entre ellos un LiDAR de alta precisión <a class="cita" href="recursos.html#r-trr2022">(The Robot Report, 2022)</a>.</p><p class="relacion">Relación con la guía: <a href="navegacion.html">Planificar y seguir una ruta</a></p></div>
+      <div class="uso"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M12 8v8M8 12h8"/></svg></span><h3>Hospitales</h3><p>Robots de reparto como TUG llevan insumos por pasillos con navegación basada en cámaras y láser, sobre mapas y rutas definidos digitalmente <a class="cita" href="recursos.html#r-emsd">(EMSD, s.f.)</a>.</p><p class="relacion">Relación con la guía: navegar sobre un mapa ya guardado, que aquí quedó como <a href="resultados.html#futuro">trabajo futuro</a></p></div>
+      <div class="uso"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20l6-12 4 7 3-4 5 9z"/></svg></span><h3>Cuevas y túneles</h3><p>En el desafío subterráneo de DARPA, el equipo CERBERUS ganó en 2021 con robots que navegaron, exploraron y mapearon túneles y cuevas de forma autónoma <a class="cita" href="recursos.html#r-cerberus">(Tranzatto et al., 2022)</a>.</p><p class="relacion">Relación con la guía: <a href="exploracion.html">Decidir a dónde ir</a></p></div>
+      <div class="uso"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M5 9c3 1 5 0 7-2M10 20c0-3 2-4 5-4s4-2 4-4"/></svg></span><h3>Marte</h3><p>El sistema AutoNav del rover Perseverance mantiene un mapa del terreno a su alrededor, elige su camino y replanifica para esquivar rocas. En el sol 200 recorrió 167 de 175 metros por su cuenta <a class="cita" href="recursos.html#r-jpl">(NASA JPL, 2021)</a>.</p><p class="relacion">Relación con la guía: <a href="navegacion.html">Planificar y seguir una ruta</a></p></div>
+      <div class="uso"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4z"/><path d="M7 9v5c3 2 7 2 10 0V9"/></svg></span><h3>Docencia</h3><p>Plataformas como TurtleBot 3 se usan para enseñar ROS. Un robot propio cuesta menos y permite modificar cada capa, aunque exige resolver lo que un producto trae listo.</p><p class="relacion">Relación con la guía: <a href="robot.html#costo">El robot por dentro</a></p></div>
+    </div>
+  </div>
+</section>
+
+<section class="seccion" aria-labelledby="t-sobre">
+  <div class="wrap">
+    <div class="seccion-cab">
+      <p class="eyebrow">Sobre este sitio</p>
+      <h2 id="t-sobre">Un trabajo de titulación, abierto para la comunidad</h2>
+      <p>Las tesis suelen quedar en un repositorio y leerse poco. Este sitio busca lo contrario: explicar el trabajo en simple, mostrar la evidencia y también sus límites, y dejar el camino trazado para quien quiera repetirlo o mejorarlo.</p>
+      <p>Las cifras y figuras del robot vienen de la tesis y se citan con su sección. Los ejemplos del mundo real y los temas que la tesis toca de forma implícita, como la diferencia entre verificar y validar o la privacidad de los mapas, se apoyan en fuentes externas marcadas en <a href="recursos.html">Recursos</a>.</p>
+    </div>
+    <div class="acciones" style="display:flex;flex-wrap:wrap;gap:10px">
+      <a class="btn prim" href="problema.html">Empezar la guía</a>
+      <a class="btn" href="preguntas.html">Ponerte a prueba</a>
+      <a class="btn" href="recursos.html#citar">Cómo citar</a>
+    </div>
+  </div>
+</section>
+</main>
+<div id="pie"></div>
 </body>
 </html>

@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Qué se demostró y qué no · Robot explorador</title>
+<meta name="description" content="Resultados del robot explorador leídos con cuidado: diferencia entre verificar y validar, estado de cada subsistema, cumplimiento de los cuatro objetivos, limitaciones, dónde fallaría el robot y trabajo futuro.">
+<meta name="author" content="Sebastián Valderas Neculqueo">
+<link rel="canonical" href="https://svn11x.github.io/tesis_explain/resultados.html">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="es_CL">
+<meta property="og:site_name" content="Robot explorador">
+<meta property="og:title" content="Qué se demostró y qué no">
+<meta property="og:description" content="Resultados del robot explorador leídos con cuidado: diferencia entre verificar y validar, estado de cada subsistema, cumplimiento de los cuatro objetivos, limitaciones, dónde fallaría el robot y trabajo futuro.">
+<meta property="og:url" content="https://svn11x.github.io/tesis_explain/resultados.html">
+<meta property="og:image" content="https://svn11x.github.io/tesis_explain/img/social.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#004EAA">
+<link rel="icon" href="img/icono.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&amp;family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&amp;family=IBM+Plex+Mono:wght@400;600&amp;display=swap">
+<link rel="stylesheet" href="css/estilo.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script src="js/comun.js" defer></script>
+<script src="js/vis1.js" defer></script>
+<script src="js/vis2.js" defer></script>
+<script src="js/vis3.js" defer></script>
+<script src="js/sims.js" defer></script>
+<script src="js/sitio.js" defer></script>
+</head>
+<body data-pagina="resultados">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<div id="cabecera"></div>
+<header class="cap-cab"><div class="wrap">
+<nav class="miga" aria-label="Ruta"><a href="index.html">Inicio</a><span aria-hidden="true">›</span><span data-cap-n>Guía</span></nav>
+<h1>Qué se demostró y qué no</h1>
+<p class="lead">Un buen resultado no es solo una cifra. Es saber qué se midió, contra qué, cuántas veces y qué quedó sin medir. Este capítulo reúne la evidencia del trabajo y sus límites.</p>
+<div class="meta-cap"><span data-nivel class="etiqueta">Nivel</span><span class="etiqueta" data-lectura>Lectura</span><span class="etiqueta">Basado en la tesis, con fuentes externas marcadas</span></div>
+</div></header>
+<div class="wrap cap-layout">
+<aside class="lateral" id="lateral" aria-label="Navegación del capítulo"></aside>
+<main class="articulo" id="contenido">
+<section class="esencial" aria-label="Lo esencial">
+  <h2>Lo esencial</h2>
+  <ol>
+    <li>Sí fue posible mapear y explorar un interior con un robot de bajo costo. Cinco de seis ejecuciones produjeron un mapa válido y terminaron solas, sin intervención.</li>
+    <li>La odometría quedó validada con mediciones. El control se evaluó en el robot real. El mapeo, la navegación y la exploración quedaron verificados funcionalmente.</li>
+    <li>Dos objetivos se cumplieron y dos quedaron parciales. El control opera como PI y se probó en un solo punto, y la navegación no tiene un indicador cuantitativo propio.</li>
+  </ol>
+</section>
+
+<section>
+  <h2 id="verificar-validar">Tres palabras que no son sinónimos</h2>
+  <p>La tesis usa con precisión tres niveles de evidencia, y entenderlos es la mejor forma de leer los resultados.</p>
+  <div class="grid-2" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr))">
+    <div class="callout"><div class="c-tit"><span class="estado val">Validado cuantitativamente</span></div><p>Se midió contra una referencia independiente, con repeticiones. Ejemplo, la odometría frente a una cinta métrica, cinco veces.</p></div>
+    <div class="callout"><div class="c-tit"><span class="estado ok">Evaluado experimentalmente</span></div><p>Se midió en el robot real con indicadores, pero en condiciones acotadas. Ejemplo, el control de velocidad a 0,13 m/s.</p></div>
+    <div class="callout"><div class="c-tit"><span class="estado par">Verificado funcionalmente</span></div><p>Se comprobó que funciona de punta a punta, sin un indicador cuantitativo de desempeño. Ejemplo, la navegación hacia las metas del explorador.</p></div>
+  </div>
+  <p>La diferencia de fondo es la que hace el manual de ingeniería de sistemas de la NASA entre verificar, que es comprobar que se cumplen los requisitos especificados, y validar, que es demostrar que el producto cumple su propósito en el entorno real <a class="cita" href="recursos.html#r-nasaseh">(NASA, Sec. 2.4)</a>. Un trabajo serio dice en qué nivel está cada cosa.</p>
+</section>
+
+<section>
+  <h2 id="subsistemas">Estado de cada subsistema</h2>
+  <div class="tabla-env">
+    <table class="tabla">
+      <thead><tr><th>Subsistema</th><th>Estado</th><th>Evidencia y lo que falta</th></tr></thead>
+      <tbody>
+        <tr><th>Odometría</th><td><span class="estado val">Validada cuantitativamente</span></td><td>Recta de 2 m, cinco repeticiones, error medio de 3,63 % frente a cinta. En simulación no hubo referencia independiente y el giro no mide error odométrico angular.</td></tr>
+        <tr><th>Control de velocidad</th><td><span class="estado ok">Evaluado experimentalmente</span></td><td>Captura real en lazo cerrado a 0,13 m/s, error estacionario de 0,002 m/s o menos, sin sobreimpulso apreciable. Un solo punto de operación.</td></tr>
+        <tr><th>SLAM</th><td><span class="estado par">Verificado funcionalmente y caracterizado</span></td><td>Cobertura y área libre en cinco iteraciones. Paredes evaluadas a la vista, sin un plano medido para el error absoluto.</td></tr>
+        <tr><th>Nav2</th><td><span class="estado par">Verificada funcionalmente</span></td><td>Ejecutó 59 metas del explorador. 53 de 54 abortos fueron reemplazos, así que no hay tasa de éxito. Metas fijas fuera del alcance.</td></tr>
+        <tr><th>Exploración</th><td><span class="estado par">Verificada funcionalmente</span></td><td>Cinco de seis ejecuciones terminaron solas con mapa válido. Cobertura media de 62,2 % y área libre media de 3,50 m².</td></tr>
+        <tr><th>Localización</th><td><span class="estado par">Verificada funcionalmente</span></td><td>Resuelta por slam_toolbox durante el mapeo. AMCL sobre un mapa guardado no se ensayó.</td></tr>
+      </tbody>
+      <caption>Tabla 5.5 de la tesis.</caption>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2 id="video">La prueba en video</h2>
+  <div class="video" data-yt="iTTC10eGDmc" data-portada="img/fotos/video-portada" data-titulo="El robot explorando por su cuenta" data-sub="Ejecución de demostración sobre hardware real">
+    <a href="https://www.youtube.com/watch?v=iTTC10eGDmc" style="color:#fff;display:grid;place-items:center;height:100%">Ver el video en YouTube</a>
+  </div>
+  <p class="video-pie">Qué mirar. A la izquierda, el robot real visto desde arriba. A la derecha, RViz con el mapa que se va construyendo y, en verde, la ruta hacia la frontera elegida. El mapa crece a medida que el láser ve geometría nueva, que es la evidencia de que el robot se desplaza. Las capturas de la Fig. 5.5 de la tesis vienen de este registro.</p>
+  <p>Un video muestra el sistema funcionando, pero no reemplaza una medición. Por eso los números de este capítulo vienen de ensayos con registro, y el video es un complemento para entenderlos.</p>
+</section>
+
+<section>
+  <h2 id="objetivos">Los cuatro objetivos, uno por uno</h2>
+  <ul class="oes">
+    <li class="ok"><b>OE1</b><span><b style="font-family:inherit">Construcción y gemelo digital.</b> Se construyó la plataforma y se verificó su gemelo con los criterios de la Tabla A2.2. No incluyó una comparación cuantitativa entre simulación y hardware sobre una misma variable.</span><em>Cumplido</em></li>
+    <li class="par"><b>OE2</b><span><b style="font-family:inherit">Control de bajo nivel.</b> Se implementaron encoders, estados de rueda, control y odometría. Pero la ley heredada opera como un PI incremental sin acción derivativa efectiva, y se evaluó en un solo punto de operación.</span><em>Parcial</em></li>
+    <li class="par"><b>OE3</b><span><b style="font-family:inherit">Localización, mapeo y navegación.</b> Mapeo y localización durante el mapeo verificados en el robot real, con cobertura y área. Nav2 llevó al robot hacia las metas del explorador, pero sin un indicador cuantitativo de su desempeño.</span><em>Parcial</em></li>
+    <li class="ok"><b>OE4</b><span><b style="font-family:inherit">Exploración autónoma.</b> Generó 60 metas sin intervención y cinco de seis ejecuciones terminaron solas con mapa válido. Su principal limitación es que tacha metas que él mismo reemplaza.</span><em>Cumplido</em></li>
+  </ul>
+  <p>Respecto de la pregunta de investigación, la respuesta es afirmativa para mapear y explorar en el entorno ensayado. Lo que queda abierto es medir la navegación con un protocolo de metas fijas <span class="en-tesis">Conclusiones</span>.</p>
+</section>
+
+<section>
+  <h2 id="cifras">Las cifras principales, con su contexto</h2>
+  <div class="datos-fila">
+    <div class="dato"><b class="num">3,63 %</b><span>error odométrico medio en la recta de 2 m, con desviación de 0,44 % en cinco repeticiones</span></div>
+    <div class="dato"><b class="num">7,18 %</b><span>error de seguimiento, cinta frente a lo ordenado, en la misma recta</span></div>
+    <div class="dato"><b class="num">0,002 m/s</b><span>error estacionario de la rueda izquierda a 0,13 m/s, y 0 en la derecha</span></div>
+    <div class="dato"><b class="num">3,50 m²</b><span>área libre mapeada media, con desviación de 0,03 m²</span></div>
+    <div class="dato"><b class="num">62,2 %</b><span>índice medio de cobertura libre, relativo a la imagen del mapa</span></div>
+    <div class="dato"><b class="num">53 de 54</b><span>metas abortadas que fueron reemplazos del explorador</span></div>
+  </div>
+</section>
+
+<section>
+  <h2 id="limitaciones">Limitaciones declaradas</h2>
+  <ul>
+    <li><b>Deriva odométrica.</b> Sin unidad inercial, la odometría acumula error en giros y recorridos largos.</li>
+    <li><b>Espacio de pruebas reducido.</b> Un único recinto, con 3,50 m² de área libre media, y cinco iteraciones. Los resultados no se generalizan a espacios mayores o de otra forma, y la superficie del recinto no se midió aparte del mapa.</li>
+    <li><b>Registro de navegación.</b> Los contadores automáticos no identificaban metas únicas, y el resultado se reconstruyó después desde el flujo de estados. No hay tasa de éxito ni error de posición final hacia metas fijas.</li>
+    <li><b>Ley de control.</b> Opera como PI incremental, sin análisis de estabilidad ni comparación con un PID incremental estándar.</li>
+    <li><b>Métricas del control.</b> Los indicadores reales y los sobreimpulsos de la simulación ilustrativa no deben leerse como una sola prueba.</li>
+    <li><b>Fidelidad de la simulación.</b> Gazebo Classic no reproduce del todo el roce, la zona muerta, el ruido ni las latencias.</li>
+    <li><b>Distribución en fin de vida.</b> ROS 2 Foxy ya no recibe soporte oficial.</li>
+    <li><b>Detalles de implementación conservados.</b> La lectura no atómica de los encoders, el PSO sin semilla fija y el puntaje de fronteras con unidades mezcladas se documentan tal como se ejecutaron, sin cuantificar su efecto.</li>
+    <li><b>Integración entre explorador y Nav2.</b> Las metas reemplazadas aparecen como abortadas y entran a la lista negra.</li>
+  </ul>
+  <p class="vnota">Limitaciones de la sección de Conclusiones de la tesis.</p>
+</section>
+
+<section>
+  <h2 id="donde-fallaria">Dónde fallaría el robot</h2>
+  <p>Imagina llevar el robot a una oficina con sillas, mesas, ventanales y gente caminando. Estos son los problemas que anticipa la propia tesis.</p>
+  <div class="widget">
+    <div class="widget-cab"><h3 id="fallas">Un solo plano y un paso estrecho</h3><span class="tipo ilus">Ilustrativo</span></div>
+    <div class="vis" data-vis="fallaria"><p class="vis-fallback">El láser no ve lo que está fuera de su plano, y en pasos estrechos la esquina del robot puede tocar la pared.</p></div>
+  </div>
+  <ul>
+    <li><b>Mesas y sillas.</b> El láser ve un solo plano, así que detecta las patas pero no la cubierta ni el asiento.</li>
+    <li><b>Ventanales y superficies oscuras.</b> El vidrio y las superficies muy reflectantes o muy absorbentes degradan la medición.</li>
+    <li><b>Gente caminando.</b> El sistema no está pensado para obstáculos que se mueven rápido.</li>
+    <li><b>Pasillos estrechos.</b> El radio de inflación es menor que el alcance de la esquina del robot, y nada revisa la huella completa.</li>
+    <li><b>Una oficina grande.</b> Más recorrido significa más deriva sin unidad inercial, y no se midieron ni la autonomía de la batería ni la carga del computador.</li>
+  </ul>
+</section>
+
+<section>
+  <h2 id="futuro">Trabajo futuro</h2>
+  <ol>
+    <li>Ejecutar el protocolo cuantitativo de navegación en un entorno mayor, registrando cada meta y su resultado de forma unívoca.</li>
+    <li>Integrar una unidad inercial con el paquete robot_localization para reducir la deriva angular.</li>
+    <li>Migrar a una distribución vigente de ROS 2 y, en el mismo paso, a una versión vigente de Gazebo.</li>
+    <li>Evaluar la navegación en espacios estrechos con una configuración acorde a la geometría del robot.</li>
+    <li>Registrar por separado los reemplazos de meta y las fallas de Nav2, cancelando la meta en curso antes de enviar la siguiente, y evaluar el efecto de la frecuencia del explorador.</li>
+    <li>Evaluar el control en otras velocidades y compararlo con un PID incremental estándar, con estado integral en punto flotante y lectura atómica de encoders.</li>
+    <li>Localizar sobre un mapa guardado con AMCL, comparando con posiciones marcadas en el recinto.</li>
+    <li>Repetir el ensayo de giro con un giro controlado hasta un ángulo fijo.</li>
+    <li>Registrar la pose verdadera de Gazebo Classic en los ensayos simulados.</li>
+  </ol>
+  <p class="vnota">Trabajo futuro de la tesis, en su orden original.</p>
+  <p>Si quieres tomar uno de estos puntos, <a href="replicar.html">Constrúyelo tú</a> reúne lo necesario para empezar, y en el <a href="https://github.com/SVN11X/tesis_explain/issues">repositorio del sitio</a> puedes dejar una nota de lo que estás haciendo.</p>
+</section>
+
+<section>
+  <div class="malentendidos">
+    <h3 id="malentendidos">Malentendidos frecuentes</h3>
+    <div class="mal"><div><span class="mal-et">Se suele decir</span><p>El robot exploró todo el recinto.</p></div><div><span class="mal-et">Más preciso</span><p>Las exploraciones terminaron al no quedar fronteras y llegaron siempre a la misma área libre. La superficie del recinto no se midió aparte.</p></div></div>
+    <div class="mal"><div><span class="mal-et">Se suele decir</span><p>Las metas fijas no se alcanzaron a ejecutar.</p></div><div><span class="mal-et">Más preciso</span><p>Quedaron fuera del alcance declarado desde el inicio, porque exigen condiciones que no se configuraron.</p></div></div>
+    <div class="mal"><div><span class="mal-et">Se suele decir</span><p>Está demostrado que un robot barato explora interiores.</p></div><div><span class="mal-et">Más preciso</span><p>Se demostró en un recinto reducido y cinco corridas. Generalizar exige ensayos en espacios mayores y distintos.</p></div></div>
+  </div>
+</section>
+<nav id="nav-cap" aria-label="Capítulo anterior y siguiente"></nav>
+<p id="ayuda-pie" class="ayuda-pie"></p>
+</main>
+</div>
+<div id="pie"></div>
+</body>
+</html>

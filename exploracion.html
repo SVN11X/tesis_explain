@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Decidir a dónde ir · Robot explorador</title>
+<meta name="description" content="Exploración autónoma por fronteras con explore_lite y Nav2: qué es una frontera, cómo elige el explorador, por qué 53 de 54 metas abortadas fueron reemplazos y no fallas, y el efecto de la lista negra. Con simulador interactivo.">
+<meta name="author" content="Sebastián Valderas Neculqueo">
+<link rel="canonical" href="https://svn11x.github.io/tesis_explain/exploracion.html">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="es_CL">
+<meta property="og:site_name" content="Robot explorador">
+<meta property="og:title" content="Decidir a dónde ir">
+<meta property="og:description" content="Exploración autónoma por fronteras con explore_lite y Nav2: qué es una frontera, cómo elige el explorador, por qué 53 de 54 metas abortadas fueron reemplazos y no fallas, y el efecto de la lista negra. Con simulador interactivo.">
+<meta property="og:url" content="https://svn11x.github.io/tesis_explain/exploracion.html">
+<meta property="og:image" content="https://svn11x.github.io/tesis_explain/img/social.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#004EAA">
+<link rel="icon" href="img/icono.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&amp;family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&amp;family=IBM+Plex+Mono:wght@400;600&amp;display=swap">
+<link rel="stylesheet" href="css/estilo.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script src="js/comun.js" defer></script>
+<script src="js/vis1.js" defer></script>
+<script src="js/vis2.js" defer></script>
+<script src="js/vis3.js" defer></script>
+<script src="js/sims.js" defer></script>
+<script src="js/sitio.js" defer></script>
+</head>
+<body data-pagina="exploracion">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<div id="cabecera"></div>
+<header class="cap-cab"><div class="wrap">
+<nav class="miga" aria-label="Ruta"><a href="index.html">Inicio</a><span aria-hidden="true">›</span><span data-cap-n>Guía</span></nav>
+<h1>Decidir a dónde ir</h1>
+<p class="lead">Un robot que explora tiene que decidir, una y otra vez, hacia dónde seguir. La respuesta clásica es ir hacia los bordes de lo que ya conoce. La parte interesante está en los detalles de cómo y cada cuánto lo decide.</p>
+<div class="meta-cap"><span data-nivel class="etiqueta">Nivel</span><span class="etiqueta" data-lectura>Lectura</span><span class="etiqueta">Basado en la tesis, con fuentes externas marcadas</span></div>
+</div></header>
+<div class="wrap cap-layout">
+<aside class="lateral" id="lateral" aria-label="Navegación del capítulo"></aside>
+<main class="articulo" id="contenido">
+<section class="esencial" aria-label="Lo esencial">
+  <h2>Lo esencial</h2>
+  <ol>
+    <li>Una frontera es el borde entre el espacio libre conocido y lo desconocido. Ir hacia las fronteras hasta que no quede ninguna es una forma simple y efectiva de explorar.</li>
+    <li>El explorador vuelve a elegir destino cada 3,3 s y manda la nueva meta sin cancelar la anterior. Nav2 cierra la anterior como abortada. Por eso 53 de 54 metas abortadas fueron reemplazos y no fallas.</li>
+    <li>Cinco de seis exploraciones terminaron solas, al no quedar fronteras. El efecto secundario es que el explorador también tacha metas que no fallaron.</li>
+  </ol>
+</section>
+
+<section>
+  <h2 id="fronteras">La idea de frontera</h2>
+  <p>En 1997, Brian Yamauchi propuso una idea que sigue vigente. Para explorar un lugar desconocido, un robot debería ir hacia las regiones que separan lo que ya vio de lo que todavía no ha visto. Al llegar, observa, actualiza su mapa y vuelve a buscar <a class="cita" href="recursos.html#r-yamauchi1997">(Yamauchi, 1997)</a>. En su propuesta, el robot elige la frontera accesible más cercana, hace un barrido de 360° al llegar, y si no logra avanzar en cierto tiempo marca esa frontera como inaccesible.</p>
+  <p>La idea se mantiene en trabajos recientes que mejoran cómo se puntúa cada frontera <a class="cita" href="recursos.html#r-liu2025">(Liu et al., 2025)</a>, y convive con enfoques más complejos, como los que estiman la ganancia de información de cada destino o el active SLAM, que también considera la incertidumbre del mapa <a class="cita" href="recursos.html#r-placed2023">(Placed et al., 2023)</a>.</p>
+</section>
+
+<section>
+  <h2 id="simulador">Pruébalo: un robot explorando por fronteras</h2>
+  <p>Este simulador hace el mismo ciclo que el robot real. Mide con un láser, actualiza el mapa, busca fronteras, elige la de mejor puntaje con una mezcla de cercanía y tamaño, planifica con A estrella y se mueve. Igual que el explorador del robot, vuelve a elegir cada 3,3 s, y cuenta las metas que cambia antes de llegar.</p>
+  <div class="widget sim-grande">
+    <div class="widget-cab"><h3 id="sim-exploracion">Exploración por fronteras</h3><span class="tipo inter">Interactivo</span><p>Presiona Explorar. Activa el mapa de costos o el plano real para comparar lo que el robot sabe con lo que hay.</p></div>
+    <div class="vis" data-vis="exploracion"><p class="vis-fallback">Simulador de exploración por fronteras. Necesita JavaScript.</p></div>
+  </div>
+  <p class="vnota" style="margin-top:8px">Simulación ilustrativa con un plano inventado inspirado en el recinto de pruebas. La regla de puntaje y el período de 3,3 s imitan a explore_lite. La dinámica del robot, el láser y la planificación están simplificados.</p>
+</section>
+
+<section>
+  <h2 id="explore-lite">Cómo decide explore_lite en este robot</h2>
+  <p>El robot usa explore_lite, en su versión para ROS 2 <a class="cita" href="recursos.html#r-alvarez2021">(Alvarez, 2021)</a>, derivada del proyecto original para ROS 1 <a class="cita" href="recursos.html#r-horner2017">(Hörner, 2017)</a>. Busca fronteras sobre el mapa de costos global y envía metas de navegación a Nav2 <span class="en-tesis">Sec. 4.5.6, Alg. 4.4, Anexo 5.6</span>.</p>
+  <ol>
+    <li><b>Detecta.</b> Una celda desconocida que toca una celda libre es celda de frontera. Las celdas de frontera contiguas forman una frontera.</li>
+    <li><b>Filtra.</b> Descarta las fronteras más chicas que el mínimo configurado, aquí 0,05 m, o sea, basta una celda. El archivo de ejemplo del paquete usa 0,75 m.</li>
+    <li><b>Puntúa.</b> Combina la distancia al robot, con peso 3, y el tamaño de la frontera, con peso 1. Prefiere las cercanas y las grandes.</li>
+    <li><b>Salta las tachadas.</b> Ignora las que están en la lista negra, con una tolerancia de cinco celdas.</li>
+    <li><b>Envía.</b> Si el punto elegido cambió en un centímetro o más respecto de la meta anterior, envía una meta nueva a Nav2, sin cancelar la que está en curso.</li>
+    <li><b>Repite</b> cada 3333 ms, porque su frecuencia está configurada en 0,3 Hz.</li>
+  </ol>
+  <div class="widget">
+    <div class="widget-cab"><h3 id="dos-fronteras">La frontera según Yamauchi y según este robot</h3><span class="tipo ilus">Ilustrativo</span><p>Un mismo mapa de ejemplo, con las dos definiciones. La celda suelta del medio representa una lectura de ruido del láser.</p></div>
+    <div class="vis" data-vis="frontera"><p class="vis-fallback">Yamauchi acepta solo regiones de tamaño parecido al robot. Con un mínimo de 0,05 m se acepta incluso una celda suelta.</p></div>
+  </div>
+  <div class="tabla-env">
+    <table class="tabla">
+      <thead><tr><th>Aspecto</th><th>Yamauchi, 1997</th><th>explore_lite en este robot</th></tr></thead>
+      <tbody>
+        <tr><th>Qué frontera elige</th><td>La accesible más cercana</td><td>La de mejor puntaje entre cercanía y tamaño</td></tr>
+        <tr><th>Cuándo vuelve a elegir</th><td>Al llegar, después de un barrido de 360°</td><td>Cada 3,3 s, sin esperar a llegar</td></tr>
+        <tr><th>Tamaño mínimo</th><td>Parecido al del robot</td><td>Una celda de 5 cm</td></tr>
+        <tr><th>Si no logra avanzar</th><td>La marca como inaccesible</td><td>La anota en una lista negra</td></tr>
+      </tbody>
+      <caption>Comparación basada en Yamauchi (1997), secciones 2.2 y 2.3, y en la Tabla A5.4 y el Anexo 5.6 de la tesis.</caption>
+    </table>
+  </div>
+  <p>Un tamaño mínimo de una sola celda permite elegir fronteras muy pequeñas, que pueden venir del ruido del láser o de rincones donde el robot no cabe. Eso puede alargar la exploración. La tesis no lo cuantificó. También documenta dos detalles del código tal como se ejecutó. El punto que se envía como centro de la frontera no es su centroide geométrico, y el puntaje mezcla unidades distintas, así que es una heurística y no una medida física <span class="en-tesis">Anexo 5.6</span>.</p>
+</section>
+
+<section>
+  <h2 id="abortadas">El hallazgo: abortada no significa fallida</h2>
+  <p>En las cinco exploraciones válidas se generaron 60 metas. A primera vista el resultado es alarmante. 54 quedaron abortadas, una se completó y cinco no alcanzaron a registrar su estado final <span class="en-tesis">Sec. 5.4, Tabla A7.1</span>. ¿Falló la navegación casi siempre?</p>
+  <p>No. En la versión de Nav2 usada, cuando llega una meta nueva mientras otra está en ejecución, la anterior se termina con estado abortado <a class="cita" href="recursos.html#r-nav2foxy">(Nav2, rama foxy-devel)</a>. Y el explorador manda una meta nueva cada 3,3 s sin cancelar la anterior. El mismo estado registra entonces dos cosas muy distintas, los reemplazos que hace el explorador y las fallas reales de Nav2.</p>
+  <div class="widget">
+    <div class="widget-cab"><h3 id="reemplazo">Cómo se ve un reemplazo en el tiempo</h3><span class="tipo inter">Interactivo</span><p>Reproduce 20 segundos con el período del explorador. Abajo, el resultado real de las 60 metas.</p></div>
+    <div class="vis" data-vis="metas"><p class="vis-fallback">Cada 3,3 s se envía una meta nueva y la anterior queda abortada. De 60 metas, 53 fueron abortadas por reemplazo.</p></div>
+  </div>
+  <h3 id="como-se-separo">Cómo se separaron reemplazos de fallas</h3>
+  <p>Cada meta de navegación tiene un identificador único de 16 bytes. Se reconstruyó el historial de cada una a partir del flujo de estados de la acción de navegación, que quedó registrado completo en cada sesión. Una meta abortada se clasificó como reemplazada cuando la meta siguiente ya figuraba en ejecución mientras la abortada seguía activa <span class="en-tesis">Anexo 8.4</span>.</p>
+  <div class="tabla-env">
+    <table class="tabla">
+      <thead><tr><th>Iteración</th><th class="n">Generadas</th><th class="n">Abortadas</th><th class="n">Reemplazadas por el explorador</th><th class="n">Exitosas</th><th class="n">Sin estado final</th><th class="n">Tiempo activo mediano</th></tr></thead>
+      <tbody>
+        <tr><th>1</th><td class="n">18</td><td class="n">17</td><td class="n">16</td><td class="n">0</td><td class="n">1</td><td class="n">3,3 s</td></tr>
+        <tr><th>3</th><td class="n">9</td><td class="n">8</td><td class="n">8</td><td class="n">0</td><td class="n">1</td><td class="n">3,3 s</td></tr>
+        <tr><th>4</th><td class="n">12</td><td class="n">11</td><td class="n">11</td><td class="n">0</td><td class="n">1</td><td class="n">3,3 s</td></tr>
+        <tr><th>5</th><td class="n">11</td><td class="n">9</td><td class="n">9</td><td class="n">1</td><td class="n">1</td><td class="n">3,3 s</td></tr>
+        <tr><th>6</th><td class="n">10</td><td class="n">9</td><td class="n">9</td><td class="n">0</td><td class="n">1</td><td class="n">3,3 s</td></tr>
+        <tr class="total"><th>Total</th><td class="n">60</td><td class="n">54</td><td class="n">53</td><td class="n">1</td><td class="n">5</td><td class="n">no aplica</td></tr>
+      </tbody>
+      <caption>Tabla A7.1 de la tesis. La iteración 2 se excluyó porque el robot no se movió.</caption>
+    </table>
+  </div>
+  <p>El resultado es nítido. En 53 de los 54 abortos, la meta terminó porque el explorador la reemplazó. El aborto restante es la primera meta de la iteración 1, que ya figuraba abortada en el primer mensaje registrado y no se pudo clasificar. El tiempo mediano que cada meta estuvo activa fue de 3,3 s en las cinco corridas, exactamente el período del explorador. Con los datos registrados no se identificó ningún aborto causado por una falla de Nav2. Tampoco se puede saber si las metas reemplazadas habrían llegado a completarse.</p>
+  <p>Las cinco metas sin estado final son la última de cada corrida. Al no encontrar fronteras, el explorador pidió cancelarlas, y el registro se cerró antes de que la cancelación terminara.</p>
+  <div class="callout idea">
+    <div class="c-tit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg>Entonces, ¿qué significa 1 de 60?</div>
+    <p>Indica cuántas veces el robot llegó a menos de 10 cm del punto de una frontera antes de que el explorador cambiara de destino. No es una tasa de éxito de la navegación ni de la exploración. Lo que muestra que el robot va hacia donde se le manda es que el mapa creció en cada corrida hasta que no quedaron fronteras <span class="en-tesis">Sec. 5.4</span>.</p>
+  </div>
+</section>
+
+<section>
+  <h2 id="lista-negra">El efecto secundario: la lista negra</h2>
+  <p>La lista negra existe para que el robot no insista para siempre en una frontera inalcanzable, la misma idea que Yamauchi. Un punto entra a la lista si pasan 10 s sin acercarse a él o si Nav2 responde que su meta quedó abortada. Como las metas reemplazadas también quedan abortadas, el explorador tacha fronteras que no fallaron.</p>
+  <div class="widget">
+    <div class="widget-cab"><h3 id="flujo-lista">Cómo entra un punto a la lista negra</h3><span class="tipo datos">Datos de la tesis</span></div>
+    <div class="vis" data-vis="listanegra"><p class="vis-fallback">Un punto entra a la lista por falta de progreso en 10 s o por una respuesta de meta abortada, incluso si fue reemplazada.</p></div>
+  </div>
+  <p>Cuando todas las candidatas quedan tachadas, el explorador vacía la lista y vuelve a intentar. Ocurrió 17 veces en las cinco corridas válidas, 11 de ellas en la iteración 1. Este efecto no impidió terminar la exploración, pero su efecto sobre la duración del recorrido no se cuantificó <span class="en-tesis">Sec. 5.4</span>.</p>
+  <h3 id="mejora">La mejora propuesta</h3>
+  <p>Cancelar la meta en curso antes de enviar la siguiente. Así los reemplazos quedarían registrados como cancelados, que el explorador no anota, y la lista negra recibiría solo fallas reales. Otra opción es conservar el registro del navegador de Nav2. La tesis lo plantea como trabajo futuro 5, junto con evaluar cómo influye la frecuencia del explorador en la duración de la exploración.</p>
+</section>
+
+<section>
+  <h2 id="medir-bien">Lo que enseña este hallazgo</h2>
+  <div class="callout aporte">
+    <div class="c-tit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M6 18l2.5-2.5M15.5 8.5L18 6"/></svg>Un tema implícito: instrumentar el experimento</div>
+    <p>El hallazgo apareció después de los ensayos, porque los contadores automáticos del script no medían lo que parecían medir. El contador de metas generadas quedó en cero, porque el mensaje que buscaba estaba en un nivel de registro que no se imprimía. Y los contadores de éxito y fallo sumaban una vez por cada mensaje de estado, no por cada meta <span class="en-tesis">Anexo 8.4</span>.</p>
+    <p>Se pudo corregir porque los datos crudos quedaron guardados completos. Dos buenas prácticas salen de aquí. Registrar siempre identificadores únicos de cada evento que se quiera contar, y guardar los datos crudos además de los resúmenes, para poder reconstruir lo que pasó cuando un número no cuadra.</p>
+  </div>
+</section>
+
+<section>
+  <h2 id="fin">Cuándo termina la exploración</h2>
+  <p>Las cinco ejecuciones válidas terminaron de forma automática. En cada una, el explorador informó que no quedaban fronteras en el mapa de costos, detuvo la exploración y pidió cancelar la meta en curso. El script del ensayo detecta ese aviso, guarda el mapa y cierra el registro, sin intervención del operador <span class="en-tesis">Sec. 5.4</span>.</p>
+  <p>Que no queden fronteras significa que el espacio alcanzable quedó mapeado. No prueba por sí solo que se cubrió todo el recinto, porque su superficie no se midió aparte del mapa. La evidencia de que las cinco corridas llegaron al mismo espacio es que el área libre fue casi idéntica en todas, como se ve en <a href="mapeo.html#resultados">Ver y dibujar el mapa</a>.</p>
+  <figure class="foto">
+    <picture><source srcset="img/mapa-crece-fija.jpg" media="(prefers-reduced-motion: reduce)"><img src="img/mapa-crece.gif" width="720" height="405" loading="lazy" decoding="async" alt="Animación de cuatro etapas de una corrida real. A la izquierda la cámara cenital muestra al robot avanzando por el recinto. A la derecha, en RViz, el mapa crece desde un pasillo hasta cubrir todo el recinto."></picture>
+    <figcaption>Una corrida real de principio a fin, en cuatro capturas del video de demostración. El mapa pasa de un pasillo estrecho a cubrir el recinto, y ahí el explorador se queda sin fronteras. <small>Capturas de la ejecución representativa, Fig. A7.1 de la tesis.</small></figcaption>
+  </figure>
+  <div class="callout real">
+    <div class="c-tit"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>En la vida real</div>
+    <p>Explorar sin mapa previo es la base de los robots de búsqueda y rescate. En el desafío subterráneo de DARPA, el equipo CERBERUS ganó la final de 2021 con robots con patas y aéreos que navegaron, exploraron y mapearon por su cuenta túneles, sistemas urbanos subterráneos y cuevas, donde no hay GPS y la comunicación es limitada <a class="cita" href="recursos.html#r-cerberus">(Tranzatto et al., 2022)</a>. Es el mismo problema que el de esta tesis, a una escala y con exigencias mucho mayores.</p>
+  </div>
+</section>
+
+<section>
+  <div class="malentendidos">
+    <h3 id="malentendidos">Malentendidos frecuentes</h3>
+    <div class="mal"><div><span class="mal-et">Se suele decir</span><p>Solo 1 de 60 metas se completó, así que la navegación falla.</p></div><div><span class="mal-et">Más preciso</span><p>53 de 54 abortos fueron reemplazos del explorador. Esa cifra no es una tasa de éxito.</p></div></div>
+    <div class="mal"><div><span class="mal-et">Se suele decir</span><p>Los abortos se deben al recinto chico y a la inflación.</p></div><div><span class="mal-et">Más preciso</span><p>Vienen del reemplazo de metas que hace el explorador. Con los datos registrados no se identificaron abortos por fallas de Nav2.</p></div></div>
+    <div class="mal"><div><span class="mal-et">Se suele decir</span><p>Tachar las metas reemplazadas ayuda a descartar fronteras malas.</p></div><div><span class="mal-et">Más preciso</span><p>Una frontera reemplazada no es una frontera inválida. Es una limitación de la integración entre explore_lite y Nav2.</p></div></div>
+    <div class="mal"><div><span class="mal-et">Se suele decir</span><p>El explorador usa la misma frontera que Yamauchi.</p></div><div><span class="mal-et">Más preciso</span><p>Usa la misma idea general, con otra definición de celda, un tamaño mínimo de una celda y una nueva elección cada 3,3 s.</p></div></div>
+  </div>
+</section>
+<nav id="nav-cap" aria-label="Capítulo anterior y siguiente"></nav>
+<p id="ayuda-pie" class="ayuda-pie"></p>
+</main>
+</div>
+<div id="pie"></div>
+</body>
+</html>

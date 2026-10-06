@@ -19,7 +19,7 @@
       xd += d * esc * Math.cos(h); yd += d * esc * Math.sin(h); der.push([xd, yd]);
     }
     var cor = der.map(function (p, k) { return [real[k][0] + 0.12 * (p[0] - real[k][0]) * (1 - k / N), real[k][1] + 0.12 * (p[1] - real[k][1]) * (1 - k / N)]; });
-    var s = '<svg class="vsvg" viewBox="0 0 430 330" role="img" aria-label="Grafo de poses con y sin cierre de lazo">';
+    var s = '<svg class="vsvg acotado" viewBox="0 0 430 330" role="img" aria-label="Grafo de poses con y sin cierre de lazo">';
     s += '<path class="k-muted" fill="none" stroke-dasharray="4 5" stroke-width="1.5" d="M' + real.map(function (p) { return p[0] + ' ' + p[1]; }).join(' L') + '"/>';
     s += '<g class="lz-aristas"></g><line class="lz-cierre k-verde" stroke-width="2.5" stroke-dasharray="6 4" opacity="0"/>';
     s += '<g class="lz-nodos"></g>';
@@ -128,7 +128,7 @@
     camino.setAttribute("d", "M" + res.a.camino.map(function (p) { return (p[0] * T + T / 2) + " " + (p[1] * T + T / 2); }).join(" L"));
   };
 
-  /* ───── Frontera según Yamauchi y según tu explorador ───── */
+  /* ───── Frontera según Yamauchi y según explore_lite ───── */
   V.frontera = function (el) {
     var M = [
       "222222221111",
@@ -183,11 +183,11 @@
       s += '<circle class="f-verde" cx="' + (2 * T + T / 2) + '" cy="' + (5 * T + T / 2) + '" r="6"/></svg>';
       return { svg: s, acept: acept, rech: rech };
     }
-    var a = panel(fy, 5, "Fronteras según Yamauchi"), b = panel(fe, 1, "Fronteras según tu explorador");
+    var a = panel(fy, 5, "Fronteras según Yamauchi"), b = panel(fe, 1, "Fronteras según explore_lite");
     el.innerHTML = '<div class="dos-pan">' +
       '<figure><figcaption><b>Yamauchi</b><span>Celda libre junto a una desconocida. Solo regiones de tamaño parecido al del robot.</span></figcaption>' + a.svg +
       '<p class="vnota">' + a.acept + ' región aceptada, ' + a.rech + ' descartada por chica.</p></figure>' +
-      '<figure><figcaption><b>Tu explorador</b><span>Celda desconocida junto a una libre. Mínimo 0,05 m, basta una celda.</span></figcaption>' + b.svg +
+      '<figure><figcaption><b>explore_lite, configurado en este robot</b><span>Celda desconocida junto a una libre. Mínimo 0,05 m, basta una celda.</span></figcaption>' + b.svg +
       '<p class="vnota">' + b.acept + ' regiones aceptadas, incluida la celda suelta del medio.</p></figure></div>' +
       '<div class="vley"><span><i class="cu sup"></i>libre</span><span><i class="cu desc"></i>desconocida</span><span><i class="cu obst"></i>ocupada</span><span><i class="cu ambar"></i>frontera aceptada</span><span><i class="cu rech"></i>frontera descartada</span><span><i class="pt verde"></i>robot</span></div>' +
       '<p class="vnota">Mapa de ejemplo. La celda suelta del medio representa una lectura de ruido del láser.</p>';
@@ -202,10 +202,10 @@
       '<div class="flujo"><div class="caja verde"><b>Karto</b><small>la mejor opción global de Trejos</small></div><div class="flecha-d" aria-hidden="true"></div>' +
       '<div class="caja"><b>Open Karto</b><small>la base de Karto</small></div><div class="flecha-d" aria-hidden="true"></div>' +
       '<div class="caja azul"><b>slam_toolbox</b><small>se construye sobre Open Karto, según Macenski y Jambrecic. Trejos no lo evaluó.</small></div><div class="flecha-d" aria-hidden="true"></div>' +
-      '<div class="caja"><b>Tu computador</b><small>Intel Core i7 de clase portátil. CPU no medida.</small></div></div>' +
+      '<div class="caja"><b>El computador del proyecto</b><small>Intel Core i7 de clase portátil. CPU no medida.</small></div></div>' +
       '</div>' +
       '<div class="comparar tres"><div><b>GMapping</b><span>No detecta cierres de lazo y su paso a ROS 2 es más débil.</span></div><div><b>Hector SLAM</b><span>Exige un láser de alta tasa de barrido para contener la deriva.</span></div><div><b>Cartographer</b><span>Configuración compleja y el de mayor uso de CPU en Trejos.</span></div></div>' +
-      '<p class="vnota">Las otras alternativas, tal como las compara tu tesis en la Tabla 1.2.</p>';
+      '<p class="vnota">Las otras alternativas, tal como las compara la Tabla 1.2 de la tesis.</p>';
   };
 
   /* ───── Reemplazo de metas ───── */
@@ -301,7 +301,7 @@
       '<div class="dos-pan"><figure><figcaption><b>Imagen chica</b><span>24 libres y 5 desconocidas</span></figcaption>' + a + '<p class="vnota big num">83 %</p></figure>' +
       '<figure><figcaption><b>Imagen grande</b><span>las mismas 24 libres y 21 desconocidas</span></figcaption>' + b + '<p class="vnota big num">53 %</p></figure></div>' +
       '<div class="vley"><span><i class="cu verde-s"></i>libre</span><span><i class="cu desc"></i>desconocida</span><span><i class="cu obst"></i>ocupada</span></div>' +
-      '<h4 class="vsub">Tus cinco corridas válidas, Tabla 5.4</h4>' +
+      '<h4 class="vsub">Las cinco corridas válidas, Tabla 5.4 de la tesis</h4>' +
       '<div class="dos-pan"><div><span class="eyebrow">Índice de cobertura libre</span>' + barras(1, 100, function (v) { return U.fmt(v, 1); }, " %") + '</div>' +
       '<div><span class="eyebrow">Área libre mapeada</span>' + barras(2, 4, function (v) { return U.fmt(v, 2); }, " m²") + '</div></div>' +
       '<p class="vnota">El índice salta de 53 a 83 %, pero el área libre queda casi fija. La iteración 2 no tiene mapa.</p>';

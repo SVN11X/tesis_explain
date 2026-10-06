@@ -20,8 +20,8 @@
   U.nivel = function (v, om) { return om ? "omit" : (v < 4 ? "baja" : (v < 5.5 ? "media" : "alta")); };
   U.prom = function (a) { if (!a.length) return null; var s = 0; a.forEach(function (x) { s += x; }); return s / a.length; };
   U.quieto = function () { return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches; };
-  U.guardar = function (k, v) { try { localStorage.setItem("defensa3." + k, JSON.stringify(v)); } catch (e) {} };
-  U.leer = function (k, d) { try { var v = localStorage.getItem("defensa3." + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } };
+  U.guardar = function (k, v) { try { localStorage.setItem("sitio." + k, JSON.stringify(v)); } catch (e) {} };
+  U.leer = function (k, d) { try { var v = localStorage.getItem("sitio." + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } };
   /* redibujo al cambiar el ancho */
   var alAncho = [];
   U.alCambiarAncho = function (el, fn) {

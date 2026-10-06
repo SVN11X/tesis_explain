@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>El problema: autonomía en interiores · Robot explorador</title>
+<meta name="description" content="Qué significa que un robot sea autónomo en interiores, los cuatro problemas que hay que resolver juntos, las alternativas del estado del arte y las decisiones de diseño de un robot diferencial de bajo costo con ROS 2.">
+<meta name="author" content="Sebastián Valderas Neculqueo">
+<link rel="canonical" href="https://svn11x.github.io/tesis_explain/problema.html">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="es_CL">
+<meta property="og:site_name" content="Robot explorador">
+<meta property="og:title" content="El problema: autonomía en interiores">
+<meta property="og:description" content="Qué significa que un robot sea autónomo en interiores, los cuatro problemas que hay que resolver juntos, las alternativas del estado del arte y las decisiones de diseño de un robot diferencial de bajo costo con ROS 2.">
+<meta property="og:url" content="https://svn11x.github.io/tesis_explain/problema.html">
+<meta property="og:image" content="https://svn11x.github.io/tesis_explain/img/social.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#004EAA">
+<link rel="icon" href="img/icono.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&amp;family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&amp;family=IBM+Plex+Mono:wght@400;600&amp;display=swap">
+<link rel="stylesheet" href="css/estilo.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script src="js/comun.js" defer></script>
+<script src="js/vis1.js" defer></script>
+<script src="js/vis2.js" defer></script>
+<script src="js/vis3.js" defer></script>
+<script src="js/sims.js" defer></script>
+<script src="js/sitio.js" defer></script>
+</head>
+<body data-pagina="problema">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<div id="cabecera"></div>
+<header class="cap-cab"><div class="wrap">
+<nav class="miga" aria-label="Ruta"><a href="index.html">Inicio</a><span aria-hidden="true">›</span><span data-cap-n>Guía</span></nav>
+<h1>El problema: autonomía en interiores</h1>
+<p class="lead">Construir un robot que se mueva solo por un lugar que no conoce no depende de una pieza genial. Depende de que cuatro problemas se resuelvan a la vez, en el equipo correcto y con piezas que conversen entre sí.</p>
+<div class="meta-cap"><span data-nivel class="etiqueta">Nivel</span><span class="etiqueta" data-lectura>Lectura</span><span class="etiqueta">Basado en la tesis, con fuentes externas marcadas</span></div>
+</div></header>
+<div class="wrap cap-layout">
+<aside class="lateral" id="lateral" aria-label="Navegación del capítulo"></aside>
+<main class="articulo" id="contenido">
+<section class="esencial" aria-label="Lo esencial">
+  <h2>Lo esencial</h2>
+  <ol>
+    <li>Un robot autónomo de interiores tiene que percibir, estimar dónde está, controlar su movimiento y decidir a dónde ir, todo al mismo tiempo.</li>
+    <li>Las piezas de software libre ya existen y son maduras. El desafío de esta tesis fue integrarlas en hardware barato y repartir el trabajo entre el robot y un computador.</li>
+    <li>La pregunta fue si eso se puede lograr con componentes accesibles. La respuesta fue sí para mapear y explorar. Medir la navegación hacia destinos fijos quedó pendiente.</li>
+  </ol>
+</section>
+
+<section>
+  <h2 id="autonomo">Qué significa que un robot sea autónomo</h2>
+  <p>La palabra autónomo se usa para cosas muy distintas. Un robot puede seguir una ruta que alguien le dibujó, como un tren por sus rieles. Otro puede estimar su posición, construir un mapa, planificar su camino y reaccionar si algo cambia. La tesis lo ilustra con tres casos. Un robot logístico que va entre estaciones conocidas, uno de inspección que recorre una instalación registrando mediciones y una plataforma de investigación que explora un recinto desconocido mientras genera su mapa <span class="en-tesis">Sec. 1.1</span>.</p>
+  <p>Este trabajo apunta al tercer caso, el más exigente. El robot no recibe un plano ni una lista de destinos. Tiene que descubrir el lugar y decidir por su cuenta hacia dónde seguir.</p>
+  <div class="callout real">
+    <div class="c-tit"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>En la vida real</div>
+    <p>Los robots de bodega de Amazon muestran bien estos niveles. Los primeros, de la línea Kiva, trabajaban en espacios enjaulados, lejos de las personas. Proteus, su robot más reciente, circula libremente entre trabajadores y para eso combina varios sensores redundantes, entre ellos un LiDAR de alta precisión <a class="cita" href="recursos.html#r-trr2022">(The Robot Report, 2022)</a>. Más autonomía exige más percepción y más cuidado con la seguridad.</p>
+  </div>
+</section>
+
+<section>
+  <h2 id="cuatro-problemas">Cuatro problemas que hay que resolver juntos</h2>
+  <p>La tesis plantea que un robot móvil autónomo para interiores necesita resolver de forma integrada cuatro cosas <span class="en-tesis">Planteamiento del problema</span>.</p>
+  <div class="widget">
+    <div class="widget-cab"><h3 id="ciclo">El ciclo de un robot autónomo</h3><span class="tipo ilus">Diagrama</span><p>Cada caja es un capítulo de esta guía. El ciclo se repite varias veces por segundo.</p></div>
+    <div class="vis">
+      <div class="flujo">
+        <div class="caja azul"><b>Percibir</b><small>Un láser mide distancias en un plano. Capítulo 5.</small></div><div class="flecha-d"></div>
+        <div class="caja azul"><b>Estimar la posición</b><small>Encoders y SLAM dicen dónde está. Capítulos 3 y 5.</small></div><div class="flecha-d"></div>
+        <div class="caja azul"><b>Decidir</b><small>El explorador elige una frontera. Capítulo 7.</small></div><div class="flecha-d"></div>
+        <div class="caja azul"><b>Planificar y mover</b><small>Nav2 traza la ruta y el control de las ruedas la ejecuta. Capítulos 4 y 6.</small></div>
+      </div>
+      <p class="vnota">Al moverse, el robot ve geometría nueva y el ciclo vuelve a empezar.</p>
+    </div>
+  </div>
+  <p>Hay una quinta dificultad que atraviesa a las otras cuatro, que es dónde se calcula cada cosa. El control de los motores necesita respuestas rápidas y periódicas, mientras que el mapeo y la planificación necesitan más capacidad de cálculo. Por eso los sistemas robóticos suelen dividirse en componentes que pueden correr en un mismo proceso, en varios procesos o en varios computadores <a class="cita" href="recursos.html#r-macenski2022">(Macenski et al., 2022)</a>. En este robot, lo rápido y crítico va a bordo y lo pesado va en un computador portátil conectado por red <span class="en-tesis">Cap. 2</span>.</p>
+</section>
+
+<section>
+  <h2 id="pregunta">La pregunta de investigación y los objetivos</h2>
+  <div class="callout idea">
+    <div class="c-tit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg>La pregunta</div>
+    <p>¿Es posible construir un prototipo de robot diferencial que, usando componentes accesibles y herramientas de código abierto, sea capaz de mapear, navegar y explorar entornos interiores de manera autónoma?</p>
+  </div>
+  <p>El objetivo general fue diseñar e implementar un prototipo de robot móvil de tracción diferencial de bajo costo, basado en ROS 2, capaz de construir un mapa 2D de su entorno mediante SLAM y navegar de forma autónoma hacia destinos por explorar, generados automáticamente por una estrategia de fronteras. Se dividió en cuatro objetivos específicos <span class="en-tesis">Introducción</span>.</p>
+  <ul class="oes">
+    <li class="ok"><b>OE1</b><span>Diseñar y construir el robot, validado antes en un gemelo digital en Gazebo Classic.</span><em>Cumplido</em></li>
+    <li class="par"><b>OE2</b><span>Implementar el control de bajo nivel: modelo cinemático, odometría por encoders y controlador PID por rueda.</span><em>Parcial</em></li>
+    <li class="par"><b>OE3</b><span>Implementar la localización, el mapeo 2D y la navegación con SLAM Toolbox y Nav2.</span><em>Parcial</em></li>
+    <li class="ok"><b>OE4</b><span>Integrar exploración por fronteras que genere metas sin intervención manual continua.</span><em>Cumplido</em></li>
+  </ul>
+  <p>Por qué dos objetivos quedaron parciales se explica en <a href="resultados.html#objetivos">Qué se demostró y qué no</a>. En corto, el control resultó ser un PI y no un PID, y la navegación funcionó pero no tiene un indicador cuantitativo propio.</p>
+  <h3 id="alcance">Lo que quedó dentro y fuera del alcance</h3>
+  <p>El robot opera en interiores con piso plano, usa un único LiDAR 2D y estima su avance con encoders. No lleva cámara, unidad inercial ni fusión de sensores, así que su odometría puede degradarse en recorridos largos o con muchos giros. No está pensado para exteriores, suelos irregulares ni obstáculos que se mueven rápido <span class="en-tesis">Alcances y limitaciones</span>.</p>
+  <p>Dos cosas quedaron fuera de forma explícita. La primera es medir la navegación hacia destinos fijos que elige una persona, con tasa de éxito y error de posición final. La segunda es ubicarse sobre un mapa ya guardado con AMCL. Ambas necesitan condiciones que no se configuraron, como un mapa almacenado y puntos de referencia medidos en el recinto.</p>
+</section>
+
+<section>
+  <h2 id="estado-del-arte">Qué existía antes: el estado del arte en simple</h2>
+  <p>Ninguna de las piezas de este robot es nueva. Lo que había que decidir era cuál usar entre varias alternativas, y cada elección tiene costos. Este es el mapa de opciones que revisa el capítulo 1 de la tesis.</p>
+  <h3 id="plataformas">La plataforma de software</h3>
+  <p>Un robot necesita que sus programas se comuniquen entre sí. Para eso existen plataformas y bibliotecas de mensajería. Algunas traen además herramientas de visualización, controladores y paquetes listos, y otras solo resuelven la comunicación <span class="en-tesis">Tabla 1.1</span>.</p>
+  <div class="tabla-env">
+    <table class="tabla">
+      <thead><tr><th>Alternativa</th><th>Qué ofrece</th><th>Por qué no o por qué sí</th></tr></thead>
+      <tbody>
+        <tr><th>ROS 1</th><td>Gran conjunto histórico de paquetes y herramientas.</td><td>Su última distribución terminó su soporte en 2025.</td></tr>
+        <tr class="destacada"><th>ROS 2</th><td>Plataforma modular para sistemas distribuidos, con calidad de servicio y un ecosistema amplio.</td><td>Elegida. No necesita un nodo maestro y trae Nav2.</td></tr>
+        <tr><th>YARP</th><td>Comunicación entre módulos y abstracción de dispositivos.</td><td>No declara una pila propia de navegación móvil.</td></tr>
+        <tr><th>Orocos RTT</th><td>Componentes para control con requerimientos de tiempo real.</td><td>No trae mapeo ni planificación de trayectorias.</td></tr>
+        <tr><th>LCM</th><td>Mensajería liviana de baja latencia.</td><td>No incluye percepción, mapeo ni navegación.</td></tr>
+      </tbody>
+      <caption>Resumen de la Tabla 1.1 de la tesis.</caption>
+    </table>
+  </div>
+  <h3 id="sensores">El sensor para ver</h3>
+  <p>En interiores las opciones principales son el LiDAR 2D, las cámaras de profundidad, la visión estéreo y el LiDAR 3D. Las cámaras entregan más información, pero cargan más el procesamiento y dependen de la iluminación <a class="cita" href="recursos.html#r-tourani2022">(Tourani et al., 2022)</a>. El LiDAR 3D ve más que un plano, a cambio de muchos más datos. En robots de interiores, el SLAM con LiDAR 2D es más económico que su versión 3D y es la alternativa predominante <a class="cita" href="recursos.html#r-ran2025">(Ran et al., 2025)</a>.</p>
+  <h3 id="navegacion-opciones">Cómo planificar y seguir rutas</h3>
+  <p>La navegación combina dos decisiones. Qué planificador calcula la ruta completa y qué controlador la sigue de cerca esquivando obstáculos. En mapas de rejilla 2D, la búsqueda sobre celdas, como Dijkstra o A estrella, sigue siendo lo más usado porque replanifica rápido. Los métodos de muestreo, como RRT, sirven más en espacios continuos de muchas dimensiones <a class="cita" href="recursos.html#r-karaman2011">(Karaman y Frazzoli, 2011)</a>. Para el control local conviven métodos reactivos como la ventana dinámica, geométricos como Pure Pursuit y predictivos como MPPI <a class="cita" href="recursos.html#r-macenski2023">(Macenski et al., 2023)</a>.</p>
+  <p>Estas piezas no corren sueltas. Nav2 es el marco de navegación de referencia en ROS 2 y permite combinar planificadores y controladores coordinados por árboles de comportamiento. Su antecesor en ROS 1, move_base, quedó atado a una distribución sin soporte. Autoware apunta a autos autónomos, con exigencias de percepción y cómputo muy distintas. También se puede armar una arquitectura propia con bibliotecas como OMPL, a cambio de más trabajo de integración <span class="en-tesis">Sec. 1.4.1</span>.</p>
+  <h3 id="exploracion-opciones">Cómo decidir qué explorar</h3>
+  <p>Hay tres familias. La exploración por fronteras, propuesta por <a class="cita" href="recursos.html#r-yamauchi1997">Yamauchi (1997)</a>, va hacia los bordes entre lo conocido y lo desconocido. Los métodos de ganancia de información estiman cuánto se aprendería desde cada posición. Y el active SLAM considera a la vez la cobertura, la incertidumbre de la posición y la consistencia del mapa <a class="cita" href="recursos.html#r-placed2023">(Placed et al., 2023)</a>. Las fronteras siguen vigentes por su simpleza y su integración directa con mapas de ocupación.</p>
+  <h3 id="simuladores">Dónde probar antes de construir</h3>
+  <p>Gazebo Classic, Webots y CoppeliaSim son simuladores de propósito general, e Isaac Sim apunta a mayor fidelidad visual y física a cambio de más cómputo. Para verificar cinemática, marcos de referencia y comunicación basta un simulador de complejidad moderada <span class="en-tesis">Sec. 1.5</span>. Un detalle que confunde a muchos es que el nombre Gazebo designa hoy a dos programas. Gazebo Classic, cuya última versión es la 11 y que llegó al fin de soporte en enero de 2025, y su sucesor, desarrollado primero como Ignition y distribuido ahora simplemente como Gazebo.</p>
+</section>
+
+<section>
+  <h2 id="decisiones">Las decisiones de diseño, una por una</h2>
+  <p>Cada dominio del robot se resolvió eligiendo, entre las alternativas anteriores, la más adecuada para una plataforma diferencial de bajo costo orientada a interiores <span class="en-tesis">Sec. 2.1</span>. El criterio que se repite es la integración con ROS 2 y el bajo costo, no la máxima capacidad.</p>
+  <div class="tabla-env">
+    <table class="tabla">
+      <thead><tr><th>Elección</th><th>Frente a</th><th>Por qué</th></tr></thead>
+      <tbody>
+        <tr><th>ROS 2</th><td>ROS 1</td><td>Arquitectura distribuida sin nodo maestro y ecosistema de mapeo, navegación y exploración. El fin de soporte de ROS 1 no fue el criterio, porque ROS 2 Foxy también está fuera de soporte.</td></tr>
+        <tr><th>LiDAR 2D</th><td>Cámaras de profundidad y LiDAR 3D</td><td>Suficiente para interiores, más barato y con menos carga de procesamiento.</td></tr>
+        <tr><th>slam_toolbox</th><td>GMapping, Hector SLAM, Cartographer</td><td>Integración nativa con ROS 2, grafo de poses y capacidad de guardar y cargar mapas. Detalle en el <a href="mapeo.html#por-que-slam-toolbox">capítulo 5</a>.</td></tr>
+        <tr><th>Nav2 con búsqueda en rejilla y control reactivo</th><td>Muestreo, optimización y control predictivo</td><td>Adecuados a un mapa de ocupación 2D y de bajo costo de cómputo.</td></tr>
+        <tr><th>Gazebo Classic</th><td>Gazebo actual</td><td>Es el que usan los complementos de simulación y de ros2_control del paquete base, disponibles para ROS 2 Foxy en Ubuntu 20.04.</td></tr>
+        <tr><th>PSO sobre un modelo de cada rueda</th><td>Prueba y error desde cero</td><td>Busca las tres ganancias a la vez sin derivadas ni un modelo exacto. Su resultado se usó como punto de partida.</td></tr>
+        <tr><th>Fronteras</th><td>Ganancia de información y active SLAM</td><td>Menos complejidad y fácil integración con el mapa de ocupación y Nav2.</td></tr>
+      </tbody>
+      <caption>Síntesis de la Sec. 2.1 de la tesis.</caption>
+    </table>
+  </div>
+  <div class="callout ojo">
+    <div class="c-tit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9.5 17H2.5z"/><path d="M12 10v4M12 17.5v.5"/></svg>Una tensión que conviene reconocer</div>
+    <p>ROS 2 Foxy, Ubuntu 20.04 y Gazebo Classic quedaron fijos al inicio del proyecto para asegurar que toda la cadena de paquetes funcionara con el hardware disponible. Hoy los tres están fuera de soporte. La tesis lo declara como limitación y propone migrar como trabajo futuro. Si vas a construir algo parecido, parte con una distribución vigente, como se sugiere en <a href="replicar.html#versiones">Constrúyelo tú</a>.</p>
+  </div>
+</section>
+
+<section>
+  <h2 id="aporte">Qué aporta este trabajo</h2>
+  <p>La tesis es explícita en algo que muchas veces se omite. El firmware del Arduino y la interfaz con ROS 2 no se escribieron desde cero, sino que se adaptaron de proyectos de código abierto, y el paquete del robot partió de uno existente <a class="cita" href="recursos.html#r-hbrc">(Home Brew Robotics Club, s.f.)</a> <a class="cita" href="recursos.html#r-newans2022a">(Newans, 2022a, 2023)</a>. Lo propio está en:</p>
+  <ul>
+    <li>La adaptación y la integración completa, desde el firmware hasta la exploración, sobre un robot construido para este fin.</li>
+    <li>La parametrización geométrica del modelo del robot, compartida por la simulación y el hardware.</li>
+    <li>La identificación de un modelo de cada rueda y la sintonía de las ganancias con PSO, refinadas después sobre el robot real.</li>
+    <li>Un programa propio para leer el LiDAR por el puerto serie <span class="en-tesis">Anexo 3.4</span>.</li>
+    <li>Dos hallazgos documentados con cuidado. La ley de control heredada, llamada PID, opera como un PI incremental. Y casi todas las metas abortadas durante la exploración eran reemplazos hechos por el propio explorador, no fallas.</li>
+  </ul>
+  <p>Estos dos hallazgos son de los temas más interesantes de la guía y tienen su propia sección en <a href="control.html#hallazgo">Controlar cada rueda</a> y <a href="exploracion.html#abortadas">Decidir a dónde ir</a>.</p>
+</section>
+
+<section>
+  <h2 id="metodo">Cómo se trabajó</h2>
+  <p>La metodología fue experimental e iterativa, en seis etapas <span class="en-tesis">Metodología</span>. Primero simular, después construir, y en cada etapa volver atrás cuando algo no calzaba.</p>
+  <ol>
+    <li><b>Gemelo digital y simulación.</b> El modelo del robot en URDF y su prueba en Gazebo Classic.</li>
+    <li><b>Construcción del hardware.</b> Chasis impreso, electrónica e integración con ROS 2.</li>
+    <li><b>Control de bajo nivel.</b> Firmware, odometría y ganancias de cada rueda.</li>
+    <li><b>SLAM y navegación.</b> slam_toolbox y Nav2 sobre el robot.</li>
+    <li><b>Exploración y validación final.</b> Fronteras y métricas en el robot real.</li>
+    <li><b>Documentación.</b> La tesis y sus anexos.</li>
+  </ol>
+</section>
+
+<section>
+  <div class="malentendidos">
+    <h3 id="malentendidos">Malentendidos frecuentes</h3>
+    <div class="mal"><div><span class="mal-et">Se suele pensar</span><p>Un robot autónomo hace todo por su cuenta, sin ningún equipo externo.</p></div><div><span class="mal-et">En este robot</span><p>El robot solo no explora. El mapeo, la navegación y el explorador corren en un computador conectado por red. A bordo va lo rápido y crítico.</p></div></div>
+    <div class="mal"><div><span class="mal-et">Se suele pensar</span><p>Si las piezas de software ya existen, juntarlas es trivial.</p></div><div><span class="mal-et">En la práctica</span><p>Hubo que adaptar el firmware, la interfaz de hardware, el modelo del robot y la configuración de SLAM, Nav2 y el explorador, y entender cómo se comportan juntos. De ahí salieron los hallazgos más importantes.</p></div></div>
+    <div class="mal"><div><span class="mal-et">Se suele pensar</span><p>Se eligió ROS 2 porque ROS 1 ya no tiene soporte.</p></div><div><span class="mal-et">Lo que dice la tesis</span><p>Se eligió por su arquitectura distribuida y por Nav2. El soporte no fue criterio, porque la versión usada, Foxy, también está fuera de soporte.</p></div></div>
+  </div>
+</section>
+<nav id="nav-cap" aria-label="Capítulo anterior y siguiente"></nav>
+<p id="ayuda-pie" class="ayuda-pie"></p>
+</main>
+</div>
+<div id="pie"></div>
+</body>
+</html>

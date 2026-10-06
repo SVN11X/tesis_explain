@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Referencias, recursos y glosario · Robot explorador</title>
+<meta name="description" content="Bibliografía completa de la tesis con enlaces, fuentes externas agregadas en esta guía, recursos para seguir aprendiendo robótica móvil con ROS 2, glosario y cómo citar el trabajo.">
+<meta name="author" content="Sebastián Valderas Neculqueo">
+<link rel="canonical" href="https://svn11x.github.io/tesis_explain/recursos.html">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_CL">
+<meta property="og:site_name" content="Robot explorador">
+<meta property="og:title" content="Referencias, recursos y glosario">
+<meta property="og:description" content="Bibliografía completa de la tesis con enlaces, fuentes externas agregadas en esta guía, recursos para seguir aprendiendo robótica móvil con ROS 2, glosario y cómo citar el trabajo.">
+<meta property="og:url" content="https://svn11x.github.io/tesis_explain/recursos.html">
+<meta property="og:image" content="https://svn11x.github.io/tesis_explain/img/social.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#004EAA">
+<link rel="icon" href="img/icono.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&amp;family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&amp;family=IBM+Plex+Mono:wght@400;600&amp;display=swap">
+<link rel="stylesheet" href="css/estilo.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script src="js/comun.js" defer></script>
+<script src="js/sitio.js" defer></script>
+</head>
+<body data-pagina="recursos">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<div id="cabecera"></div>
+<header class="cap-cab"><div class="wrap">
+<nav class="miga" aria-label="Ruta"><a href="index.html">Inicio</a><span aria-hidden="true">›</span><span>Recursos</span></nav>
+<h1>Referencias, recursos y glosario</h1>
+<p class="lead">Todas las fuentes que usa esta guía, para verificar cada afirmación o seguir aprendiendo. Las de la tesis van primero. Las que se agregaron para los ejemplos y los temas implícitos están marcadas.</p>
+<div class="meta-cap"><a class="etiqueta" href="#aprender">Para aprender más</a><a class="etiqueta" href="#glosario">Glosario</a><a class="etiqueta" href="#bibliografia">Bibliografía de la tesis</a><a class="etiqueta" href="#externas">Fuentes agregadas</a><a class="etiqueta" href="#citar">Cómo citar</a><a class="etiqueta" href="#creditos">Créditos</a></div>
+</div></header>
+<main class="wrap articulo" id="contenido" style="padding-block:32px 24px">
+
+<section>
+  <h2 id="aprender">Para aprender más</h2>
+  <p>Una selección de recursos abiertos o muy accesibles, ordenados de lo más introductorio a lo más profundo.</p>
+  <div class="aprender" style="margin-top:16px">
+    <a href="https://www.redblobgames.com/pathfinding/a-star/introduction.html"><b>Introducción a A estrella</b><span>La mejor explicación interactiva de búsqueda de rutas, de Dijkstra a A estrella. Pensada para videojuegos, sirve igual para robots.</span><small>Red Blob Games · interactivo · inglés</small></a>
+    <a href="https://www.cds.caltech.edu/~murray/amwiki/Second_Edition.html"><b>Feedback Systems</b><span>Libro de control realimentado de Åström y Murray, disponible en línea. Usa el control crucero como ejemplo a lo largo del texto.</span><small>Libro abierto · inglés</small></a>
+    <a href="https://www.ipb.uni-bonn.de/online-training-robotics/"><b>Clases de robótica móvil de Cyrill Stachniss</b><span>Cursos grabados de la Universidad de Bonn sobre SLAM, localización y mapeo, de los más usados en el mundo.</span><small>Video · inglés</small></a>
+    <a href="https://doi.org/10.1109/MITS.2010.939925"><b>Tutorial de SLAM por grafos</b><span>Grisetti, Kümmerle, Stachniss y Burgard explican paso a paso cómo se arma y optimiza un grafo de poses.</span><small>Artículo · inglés</small></a>
+    <a href="https://docs.nav2.org/"><b>Documentación de Nav2</b><span>Conceptos, configuración y una guía de ajuste con criterios prácticos para mapas de costos y controladores.</span><small>Documentación · inglés</small></a>
+    <a href="https://docs.ros.org/"><b>Documentación de ROS 2</b><span>Tutoriales para empezar con nodos, tópicos, servicios y acciones.</span><small>Documentación · inglés</small></a>
+    <a href="https://articulatedrobotics.xyz/"><b>Articulated Robotics</b><span>Serie práctica para construir un robot móvil con ROS 2, base de varios paquetes que usa este robot.</span><small>Tutoriales y video · inglés</small></a>
+    <a href="https://www.ros.org/reps/rep-0105.html"><b>REP 105</b><span>La convención de marcos map, odom y base_link que usan casi todos los robots móviles con ROS.</span><small>Norma · inglés</small></a>
+    <a href="https://doi.org/10.1007/978-3-031-06469-2"><b>Robotics, Vision and Control</b><span>El libro de Peter Corke, con ejemplos en Python, cubre cinemática, navegación y percepción.</span><small>Libro · inglés</small></a>
+  </div>
+</section>
+
+<section>
+  <h2 id="glosario">Glosario</h2>
+  <dl class="glosario" style="margin-top:16px">
+    <div id="g-astar"><dt>A estrella</dt><dd>Algoritmo que busca la ruta de menor costo en una rejilla sumando lo recorrido y una estimación de lo que falta. <a href="navegacion.html#astar">Capítulo 6</a>.</dd></div>
+    <div id="g-abortada"><dt>Abortada</dt><dd>Estado final de una meta de navegación que no terminó con éxito. En Nav2 Foxy también lo recibe la meta que es reemplazada por otra. <a href="exploracion.html#abortadas">Capítulo 7</a>.</dd></div>
+    <div id="g-amcl"><dt>AMCL</dt><dd>Localización de Monte Carlo adaptativa. Ubica al robot en un mapa ya guardado con un filtro de partículas.</dd></div>
+    <div id="g-arbol"><dt>Árbol de comportamiento</dt><dd>Estructura modular que encadena tareas como planificar, seguir y recuperarse de fallas.</dd></div>
+    <div id="g-banda"><dt>Banda muerta</dt><dd>Rango de error tan pequeño que el controlador lo trata como cero. En este firmware es de 1 tick por ciclo en la rueda derecha y 2 en la izquierda.</dd></div>
+    <div id="g-cierre"><dt>Cierre de lazo</dt><dd>Restricción que se agrega a SLAM cuando el robot reconoce un lugar ya visitado, y que permite repartir el error acumulado.</dd></div>
+    <div id="g-costmap"><dt>Mapa de costos</dt><dd>Rejilla en la que cada celda tiene un costo según su cercanía a obstáculos. La usa la navegación para planificar.</dd></div>
+    <div id="g-dds"><dt>DDS</dt><dd>Estándar de comunicación sobre el que funciona ROS 2. Descubre los nodos en la red sin un maestro central.</dd></div>
+    <div id="g-deriva"><dt>Deriva</dt><dd>Alejamiento progresivo entre la posición estimada y la real, por la suma de pequeños errores.</dd></div>
+    <div id="g-dwb"><dt>DWB, ventana dinámica</dt><dd>Controlador local que prueba velocidades alcanzables, simula su trayectoria y elige la de mejor puntaje.</dd></div>
+    <div id="g-encoder"><dt>Encoder de cuadratura</dt><dd>Sensor que produce dos señales desfasadas al girar un eje. Permite contar el giro y saber su sentido.</dd></div>
+    <div id="g-fopdt"><dt>FOPDT</dt><dd>Modelo de primer orden con retardo. Resume la respuesta de un sistema con una ganancia, una constante de tiempo y un retardo.</dd></div>
+    <div id="g-frontera"><dt>Frontera</dt><dd>Borde entre el espacio libre conocido y lo desconocido en un mapa. Es el destino natural de un robot que explora.</dd></div>
+    <div id="g-gazebo"><dt>Gazebo Classic</dt><dd>Simulador 3D de robots, versión 11, con fin de soporte en enero de 2025. Su sucesor se llama simplemente Gazebo.</dd></div>
+    <div id="g-gemelo"><dt>Gemelo digital</dt><dd>Réplica virtual de un objeto físico. Aquí, el modelo del robot en simulación con la misma geometría que el real.</dd></div>
+    <div id="g-imu"><dt>IMU</dt><dd>Unidad de medición inercial, con acelerómetros y giroscopios. Este robot no tiene una.</dd></div>
+    <div id="g-inflacion"><dt>Inflación</dt><dd>Zona de costo que se agrega alrededor de los obstáculos para que el robot mantenga distancia.</dd></div>
+    <div id="g-lidar"><dt>LiDAR</dt><dd>Sensor que mide distancias con luz láser. El 2D gira y mide en un plano horizontal.</dd></div>
+    <div id="g-lista-negra"><dt>Lista negra</dt><dd>Lista de puntos que el explorador deja de considerar, para no insistir en fronteras inalcanzables.</dd></div>
+    <div id="g-marcos"><dt>Marcos map, odom y base_link</dt><dd>Sistemas de referencia del mapa, de la odometría y del robot. map es correcto a largo plazo, odom es continuo pero deriva.</dd></div>
+    <div id="g-nav2"><dt>Nav2</dt><dd>Marco de navegación de ROS 2. Planifica rutas, las sigue y se recupera de fallas.</dd></div>
+    <div id="g-nodo"><dt>Nodo y tópico</dt><dd>Un nodo es un programa de ROS que hace una tarea. Un tópico es un canal con nombre por el que los nodos publican y reciben mensajes.</dd></div>
+    <div id="g-odometria"><dt>Odometría</dt><dd>Estimación de la posición sumando el giro medido de las ruedas.</dd></div>
+    <div id="g-pid"><dt>PID</dt><dd>Controlador que combina una acción proporcional al error, una integral del error pasado y una derivativa de su tendencia.</dd></div>
+    <div id="g-pi-incremental"><dt>PI incremental</dt><dd>Controlador que en cada ciclo calcula cuánto cambiar la salida, en vez de calcularla completa. Así opera la ley del firmware de este robot.</dd></div>
+    <div id="g-pso"><dt>PSO</dt><dd>Optimización por enjambre de partículas. Busca el mejor valor moviendo muchos candidatos que comparten lo que encuentran.</dd></div>
+    <div id="g-pwm"><dt>PWM</dt><dd>Modulación por ancho de pulso. Regula la potencia media que recibe el motor encendiéndolo y apagándolo muy rápido. Aquí va de 0 a 255.</dd></div>
+    <div id="g-resolucion"><dt>Resolución de medida</dt><dd>El cambio más pequeño que un instrumento alcanza a mostrar. La velocidad de este firmware se informa en pasos de 0,01 m/s.</dd></div>
+    <div id="g-ros2"><dt>ROS 2</dt><dd>Conjunto de bibliotecas y herramientas de código abierto para construir sistemas robóticos modulares y distribuidos.</dd></div>
+    <div id="g-ros2control"><dt>ros2_control</dt><dd>Marco de ROS 2 que estandariza el acceso al hardware con interfaces de comando y de estado.</dd></div>
+    <div id="g-rviz"><dt>RViz</dt><dd>Programa para visualizar los datos de un robot con ROS, como el mapa, el láser y las rutas.</dd></div>
+    <div id="g-slam"><dt>SLAM</dt><dd>Localización y mapeo simultáneos. Construir el mapa y estimar la posición al mismo tiempo.</dd></div>
+    <div id="g-ticks"><dt>Ticks por ciclo</dt><dd>Pulsos de encoder contados en un ciclo de control. A 0,13 m/s, cada rueda cuenta unos 41.</dd></div>
+    <div id="g-diferencial"><dt>Tracción diferencial</dt><dd>Configuración con dos ruedas motrices independientes. Dobla haciendo girar una rueda más rápido que la otra.</dd></div>
+    <div id="g-twistmux"><dt>twist_mux</dt><dd>Nodo que elige una sola fuente de órdenes de velocidad según prioridades. Aquí da prioridad al mando manual.</dd></div>
+    <div id="g-urdf"><dt>URDF y xacro</dt><dd>Formato que describe un robot como árbol de piezas y articulaciones, y lenguaje de macros para escribirlo por módulos.</dd></div>
+    <div id="g-verificar"><dt>Verificar y validar</dt><dd>Verificar es comprobar que se cumplen los requisitos. Validar es demostrar que se cumple el propósito en el entorno real.</dd></div>
+    <div id="g-windup"><dt>Windup</dt><dd>Acumulación excesiva del término integral cuando el actuador está saturado, que provoca sobreoscilación al liberarse.</dd></div>
+    <div id="g-zona"><dt>Zona muerta del driver</dt><dd>Rango de PWM bajo en que el motor no vence el roce y no gira.</dd></div>
+  </dl>
+</section>
+
+<section>
+  <h2 id="bibliografia">Bibliografía de la tesis</h2>
+  <p>Las 57 referencias del trabajo, en su formato original y con enlace cuando existe.</p>
+  <ol class="refs" style="margin-top:16px">
+    <li id="r-alvarez2021">Alvarez, C. (2021). <i>m-explore-ros2: ROS 2 port of m-explore (explore_lite)</i>. <a href="https://github.com/robo-friends/m-explore-ros2">github.com/robo-friends/m-explore-ros2</a></li>
+    <li id="r-amadi2024">Amadi, C. A., Mbanisi, K., &amp; Smit, W. J. (2024). <i>An Introduction to the ros2_control framework using a low cost Differential Drive Robot</i> [Preprint]. <a href="https://doi.org/10.13140/RG.2.2.15748.54408">doi.org/10.13140/RG.2.2.15748.54408</a></li>
+    <li id="r-astrom2009">Åström, K. J., &amp; Hägglund, T. (2009). <i>Control PID avanzado</i> (S. Dormido Bencomo y J. L. Guzmán Sánchez, Trad.). Pearson Educación. Publicación original de 2006.</li>
+    <li id="r-autoware">Autoware Foundation. (2026). <i>Autoware Documentation</i>. <a href="https://docs.autoware.org/main/home/">docs.autoware.org</a></li>
+    <li id="r-clerc2002">Clerc, M., &amp; Kennedy, J. (2002). The Particle Swarm—Explosion, Stability, and Convergence in a Multidimensional Complex Space. <i>IEEE Transactions on Evolutionary Computation, 6</i>(1), 58-73. <a href="https://doi.org/10.1109/4235.985692">doi.org/10.1109/4235.985692</a></li>
+    <li id="r-coppelia">Coppelia Robotics AG. (2025). <i>CoppeliaSim Version History: Version 4.10.0</i>. <a href="https://manual.coppeliarobotics.com/en/versionInfo.htm">manual.coppeliarobotics.com</a></li>
+    <li id="r-corke2023">Corke, P. (2023). <i>Robotics, Vision and Control: Fundamental Algorithms in Python</i> (3.a ed., Vol. 146). Springer. <a href="https://doi.org/10.1007/978-3-031-06469-2">doi.org/10.1007/978-3-031-06469-2</a></li>
+    <li id="r-webots">Cyberbotics Ltd. (2025). <i>Webots Reference Manual: Release R2025a</i>. <a href="https://cyberbotics.com/doc/reference/index?version=released">cyberbotics.com</a></li>
+    <li id="r-ferreira2023">Ferreira, M., Moreira, L., &amp; Lopes, A. (2023). Differential Drive Kinematics and Odometry for a Mobile Robot Using TwinCAT. <i>Electronic Research Archive, 31</i>(4), 1789-1803. <a href="https://doi.org/10.3934/era.2023092">doi.org/10.3934/era.2023092</a></li>
+    <li id="r-rep103">Foote, T., &amp; Purvis, M. (2010). <i>REP 103: Standard Units of Measure and Coordinate Conventions</i>. <a href="https://www.ros.org/reps/rep-0103.html">ros.org/reps/rep-0103.html</a></li>
+    <li id="r-gokce2021">Gökçe, B., Koca, Y. B., Aslan, Y., &amp; Gökçe, C. O. (2021). Particle Swarm Optimization-Based Optimal PID Control of an Agricultural Mobile Robot. <i>Comptes rendus de l'Académie bulgare des Sciences, 74</i>(4), 568-575. <a href="https://doi.org/10.7546/CRABS.2021.04.12">doi.org/10.7546/CRABS.2021.04.12</a></li>
+    <li id="r-grisetti2007">Grisetti, G., Stachniss, C., &amp; Burgard, W. (2007). Improved Techniques for Grid Mapping with Rao-Blackwellized Particle Filters. <i>IEEE Transactions on Robotics, 23</i>(1), 34-46. <a href="https://doi.org/10.1109/TRO.2006.889486">doi.org/10.1109/TRO.2006.889486</a></li>
+    <li id="r-hess2016">Hess, W., Kohler, D., Rapp, H., &amp; Andor, D. (2016). Real-Time Loop Closure in 2D LIDAR SLAM. <i>2016 IEEE International Conference on Robotics and Automation</i>, 1271-1278. <a href="https://doi.org/10.1109/ICRA.2016.7487258">doi.org/10.1109/ICRA.2016.7487258</a></li>
+    <li id="r-hbrc">Home Brew Robotics Club. (s.f.). <i>ros_arduino_bridge: ROS + Arduino = Robot</i>. <a href="https://github.com/hbrobotics/ros_arduino_bridge">github.com/hbrobotics/ros_arduino_bridge</a></li>
+    <li id="r-horner2017">Hörner, J. (2017). <i>m-explore: ROS packages for multi-robot exploration</i>. <a href="https://github.com/hrnr/m-explore">github.com/hrnr/m-explore</a></li>
+    <li id="r-karaman2011">Karaman, S., &amp; Frazzoli, E. (2011). Sampling-Based Algorithms for Optimal Motion Planning. <i>The International Journal of Robotics Research, 30</i>(7), 846-894. <a href="https://doi.org/10.1177/0278364911406761">doi.org/10.1177/0278364911406761</a></li>
+    <li id="r-kato2018">Kato, S., et al. (2018). Autoware on Board: Enabling Autonomous Vehicles with Embedded Systems. <i>2018 ACM/IEEE 9th International Conference on Cyber-Physical Systems</i>, 287-296. <a href="https://doi.org/10.1109/ICCPS.2018.00035">doi.org/10.1109/ICCPS.2018.00035</a></li>
+    <li id="r-kohlbrecher2011">Kohlbrecher, S., von Stryk, O., Meyer, J., &amp; Klingauf, U. (2011). A Flexible and Scalable SLAM System with Full 3D Motion Estimation. <i>2011 IEEE International Symposium on Safety, Security, and Rescue Robotics</i>, 155-160. <a href="https://doi.org/10.1109/SSRR.2011.6106777">doi.org/10.1109/SSRR.2011.6106777</a></li>
+    <li id="r-lavalle2006">LaValle, S. M. (2006). <i>Planning Algorithms</i>. Cambridge University Press. <a href="https://doi.org/10.1017/CBO9780511546877">doi.org/10.1017/CBO9780511546877</a></li>
+    <li id="r-lcm">LCM Project. (s.f.). <i>LCM Documentation</i>. <a href="https://lcm-proj.github.io/lcm/">lcm-proj.github.io/lcm</a></li>
+    <li id="r-liu2025">Liu, C., et al. (2025). Enhancing autonomous exploration for robotics via real time map optimization and improved frontier costs. <i>Scientific Reports, 15</i>, 12261. <a href="https://doi.org/10.1038/s41598-025-97231-9">doi.org/10.1038/s41598-025-97231-9</a></li>
+    <li id="r-macenski2021">Macenski, S., &amp; Jambrecic, I. (2021). SLAM Toolbox: SLAM for the dynamic world. <i>Journal of Open Source Software, 6</i>(61), 2783. <a href="https://doi.org/10.21105/joss.02783">doi.org/10.21105/joss.02783</a></li>
+    <li id="r-macenski2023">Macenski, S., Moore, T., Lu, D. V., Merzlyakov, A., &amp; Ferguson, M. (2023). From the desks of ROS maintainers: A survey of modern &amp; capable mobile robotics algorithms in the robot operating system 2. <i>Robotics and Autonomous Systems, 168</i>, 104493. <a href="https://doi.org/10.1016/j.robot.2023.104493">doi.org/10.1016/j.robot.2023.104493</a></li>
+    <li id="r-macenski2022">Macenski, S., Foote, T., Gerkey, B., Lalancette, C., &amp; Woodall, W. (2022). Robot Operating System 2: Design, architecture, and uses in the wild. <i>Science Robotics, 7</i>(66), eabm6074. <a href="https://doi.org/10.1126/scirobotics.abm6074">doi.org/10.1126/scirobotics.abm6074</a></li>
+    <li id="r-marcuslanzoni">marcuslanzoni. (2020). <i>Vacuum Robot</i> [Modelo 3D]. Thingiverse. <a href="https://www.thingiverse.com/thing:4459513">thingiverse.com/thing:4459513</a></li>
+    <li id="r-maxim2023">Maxim, A., &amp; De Keyser, R. (2023). Estimation of First Order Plus Dead Time and Second Order Plus Dead Time models from noisy step response data. <i>Asian Journal of Control, 25</i>(3), 1791-1804. <a href="https://doi.org/10.1002/asjc.2999">doi.org/10.1002/asjc.2999</a></li>
+    <li id="r-rep105">Meeussen, W. (2010). <i>REP 105: Coordinate Frames for Mobile Platforms</i>. <a href="https://www.ros.org/reps/rep-0105.html">ros.org/reps/rep-0105.html</a></li>
+    <li id="r-michel2004">Michel, O. (2004). Cyberbotics Ltd. Webots: Professional Mobile Robot Simulation. <i>International Journal of Advanced Robotic Systems, 1</i>(1), 39-42. <a href="https://doi.org/10.5772/5618">doi.org/10.5772/5618</a></li>
+    <li id="r-nav2foxy">Nav2 Maintainers. (2021). <i>Código fuente de Nav2 para ROS 2 Foxy, rama foxy-devel</i>. <a href="https://github.com/ros-navigation/navigation2/tree/foxy-devel">github.com/ros-navigation/navigation2</a></li>
+    <li id="r-nav2docs">Nav2 Maintainers. (2025). <i>Navigation2 Stack (Nav2) Documentation</i>. <a href="https://docs.nav2.org/">docs.nav2.org</a></li>
+    <li id="r-newans2022a">Newans, J. (2022a). <i>diffdrive_arduino: A ros2_control hardware interface for differential drive robots</i>. <a href="https://github.com/joshnewans/diffdrive_arduino">github.com/joshnewans/diffdrive_arduino</a></li>
+    <li id="r-newans2022b">Newans, J. (2022b). <i>ros_arduino_bridge: ROS + Arduino = Robot</i>. <a href="https://github.com/joshnewans/ros_arduino_bridge">github.com/joshnewans/ros_arduino_bridge</a></li>
+    <li id="r-newans2023">Newans, J. (2023). <i>articubot_one: ROS 2 mobile robot package</i>. <a href="https://github.com/joshnewans/articubot_one">github.com/joshnewans/articubot_one</a></li>
+    <li id="r-ngoc2023">Ngoc, H. T., Vinh, N. N., Nguyen, N. T., &amp; Quach, L.-D. (2023). Efficient Evaluation of SLAM Methods and Integration of Human Detection with YOLO Based on Multiple Optimization in ROS2. <i>International Journal of Advanced Computer Science &amp; Applications, 14</i>(11), 300-310. <a href="https://doi.org/10.14569/IJACSA.2023.0141130">doi.org/10.14569/IJACSA.2023.0141130</a></li>
+    <li id="r-isaac">NVIDIA Corporation. (2025). <i>NVIDIA Isaac Sim</i>. <a href="https://developer.nvidia.com/isaac/sim/">developer.nvidia.com/isaac/sim</a></li>
+    <li id="r-ompl">Open Motion Planning Library Project. (2026). <i>The Open Motion Planning Library</i>. <a href="https://ompl.kavrakilab.org/">ompl.kavrakilab.org</a></li>
+    <li id="r-gazebo">Open Robotics. (2024). <i>Gazebo Simulator</i>. <a href="https://gazebosim.org/">gazebosim.org</a></li>
+    <li id="r-gazebo-mig">Open Robotics. (2025a). <i>Gazebo Classic Migration</i>. <a href="https://gazebosim.org/docs/latest/gazebo_classic_migration/">gazebosim.org</a></li>
+    <li id="r-noetic">Open Robotics. (2025b). <i>ROS 1 Noetic Ninjemys Goes End-of-Life 2025-05-31</i>. <a href="https://www.ros.org/blog/noetic-eol/">ros.org/blog/noetic-eol</a></li>
+    <li id="r-gazebo-classic">Open Source Robotics Foundation. (2025). <i>Gazebo Classic</i>. <a href="https://classic.gazebosim.org/">classic.gazebosim.org</a></li>
+    <li id="r-placed2023">Placed, J. A., et al. (2023). A Survey on Active Simultaneous Localization and Mapping: State of the Art and New Frontiers. <i>IEEE Transactions on Robotics, 39</i>(3), 1686-1705. <a href="https://doi.org/10.1109/TRO.2023.3248510">doi.org/10.1109/TRO.2023.3248510</a></li>
+    <li id="r-ran2025">Ran, Y., Xu, X., Tan, Z., &amp; Luo, M. (2025). A Review of 2D Lidar SLAM Research. <i>Remote Sensing, 17</i>(7), 1214. <a href="https://doi.org/10.3390/rs17071214">doi.org/10.3390/rs17071214</a></li>
+    <li id="r-tb3burger">ROBOTIS. (2026a). <i>TURTLEBOT3 Burger RPi4 4GB</i>. <a href="https://en.robotis.com/shop_en/item.php?it_id=901-0118-201">en.robotis.com</a></li>
+    <li id="r-tb3waffle">ROBOTIS. (2026b). <i>TURTLEBOT3 Waffle Pi RPi4 4GB</i>. <a href="https://en.robotis.com/shop_en/item.php?it_id=901-0119-202">en.robotis.com</a></li>
+    <li id="r-rohmer2013">Rohmer, E., Singh, S. P. N., &amp; Freese, M. (2013). V-REP: A Versatile and Scalable Robot Simulation Framework. <i>2013 IEEE/RSJ International Conference on Intelligent Robots and Systems</i>, 1321-1326. <a href="https://doi.org/10.1109/IROS.2013.6696520">doi.org/10.1109/IROS.2013.6696520</a></li>
+    <li id="r-ros2control">ros-controls. (s.f.). <i>ros2_control Documentation, Foxy</i>. <a href="https://control.ros.org/foxy/">control.ros.org/foxy</a></li>
+    <li id="r-sii2024">Servicio de Impuestos Internos. (2024). <i>Dólar observado 2024</i>. <a href="https://www.sii.cl/valores_y_fechas/dolar/dolar2024.htm">sii.cl</a></li>
+    <li id="r-slamtec2020">Shanghai Slamtec Co., Ltd. (2020). <i>RPLIDAR A1 Low Cost 360 Degree Laser Range Scanner: Introduction and Datasheet</i> (rev. 3.0, modelo A1M8). <a href="https://wiki.slamtec.com/download/attachments/83066883/LD108_SLAMTEC_rplidar_datasheet_A1M8_v3.0_en.pdf?api=v2&amp;modificationDate=1677786044000&amp;version=1">wiki.slamtec.com</a></li>
+    <li id="r-shi1998">Shi, Y., &amp; Eberhart, R. C. (1998). A Modified Particle Swarm Optimizer. <i>1998 IEEE International Conference on Evolutionary Computation Proceedings</i>, 69-73. <a href="https://doi.org/10.1109/ICEC.1998.699146">doi.org/10.1109/ICEC.1998.699146</a></li>
+    <li id="r-sucan2012">Şucan, I. A., Moll, M., &amp; Kavraki, L. E. (2012). The Open Motion Planning Library. <i>IEEE Robotics &amp; Automation Magazine, 19</i>(4), 72-82. <a href="https://doi.org/10.1109/MRA.2012.2205651">doi.org/10.1109/MRA.2012.2205651</a></li>
+    <li id="r-orocos">The Orocos Project. (s.f.). <i>Orocos Project Documentation: Real-Time Toolkit</i>. <a href="https://docs.orocos.org/">docs.orocos.org</a></li>
+    <li id="r-thrun2005">Thrun, S., Burgard, W., &amp; Fox, D. (2005). <i>Probabilistic Robotics</i>. MIT Press.</li>
+    <li id="r-tourani2022">Tourani, A., Bavle, H., Sanchez-Lopez, J. L., &amp; Voos, H. (2022). Visual SLAM: What Are the Current Trends and What to Expect? <i>Sensors, 22</i>(23), 9297. <a href="https://doi.org/10.3390/s22239297">doi.org/10.3390/s22239297</a></li>
+    <li id="r-trejos2022">Trejos, K., Rincón, L., Bolaños, M., Fallas, J., &amp; Marín, L. (2022). 2D SLAM Algorithms Characterization, Calibration, and Comparison Considering Pose Error, Map Accuracy as Well as CPU and Memory Usage. <i>Sensors, 22</i>(18), 6903. <a href="https://doi.org/10.3390/s22186903">doi.org/10.3390/s22186903</a></li>
+    <li id="r-video">Valderas Neculqueo, S. (2026, 29 de septiembre). <i>Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial</i> [Video]. YouTube. <a href="https://www.youtube.com/watch?v=iTTC10eGDmc">youtube.com/watch?v=iTTC10eGDmc</a></li>
+    <li id="r-yamauchi1997">Yamauchi, B. (1997). A Frontier-Based Approach for Autonomous Exploration. <i>Proceedings of the 1997 IEEE International Symposium on Computational Intelligence in Robotics and Automation</i>, 146-151. <a href="https://doi.org/10.1109/CIRA.1997.613851">doi.org/10.1109/CIRA.1997.613851</a></li>
+    <li id="r-yarp">YARP Developers. (s.f.). <i>YARP: Yet Another Robot Platform</i>. <a href="https://www.yarp.it/latest/what_is_yarp.html">yarp.it</a></li>
+  </ol>
+</section>
+
+<section>
+  <h2 id="externas">Fuentes agregadas en esta guía</h2>
+  <p>No forman parte de la bibliografía de la tesis. Se usan para los ejemplos del mundo real, los temas implícitos y los recursos de aprendizaje.</p>
+  <ol class="refs" style="margin-top:16px">
+    <li id="r-astrom-murray">Åström, K. J., &amp; Murray, R. M. (2021). <i>Feedback Systems: An Introduction for Scientists and Engineers</i> (2.a ed.). Princeton University Press. <a href="https://www.cds.caltech.edu/~murray/amwiki/Second_Edition.html">Versión en línea</a><span class="tag"><b>Agregada.</b> Control crucero como ejemplo de lazo cerrado.</span></li>
+    <li id="r-borenstein1996">Borenstein, J., &amp; Feng, L. (1996). Measurement and correction of systematic odometry errors in mobile robots. <i>IEEE Transactions on Robotics and Automation, 12</i>(6), 869-880. <a href="https://doi.org/10.1109/70.544770">doi.org/10.1109/70.544770</a><span class="tag"><b>Agregada.</b> Método UMBmark para calibrar la odometría.</span></li>
+    <li id="r-colledanchise2018">Colledanchise, M., &amp; Ögren, P. (2018). <i>Behavior Trees in Robotics and AI: An Introduction</i>. CRC Press. <a href="https://arxiv.org/abs/1709.00084">arxiv.org/abs/1709.00084</a><span class="tag"><b>Agregada.</b> Árboles de comportamiento.</span></li>
+    <li id="r-dijkstra1959">Dijkstra, E. W. (1959). A note on two problems in connexion with graphs. <i>Numerische Mathematik, 1</i>, 269-271. <a href="https://doi.org/10.1007/BF01386390">doi.org/10.1007/BF01386390</a><span class="tag"><b>Agregada.</b> Origen del algoritmo de Dijkstra.</span></li>
+    <li id="r-dreame">Dreame Technology. (s.f.). <i>LiDAR Navigation in Robot Vacuums: How It Works</i>. <a href="https://www.dreametech.com/blogs/blog/lidar-navigation-robot-vacuum">dreametech.com</a><span class="tag"><b>Agregada.</b> Ejemplo de aspiradoras con LiDAR. Fuente de un fabricante.</span></li>
+    <li id="r-emsd">Electrical and Mechanical Services Department, Hong Kong. (s.f.). <i>I&amp;T Solution: robot móvil autónomo TUG para logística hospitalaria</i>. <a href="https://inno.emsd.gov.hk/en/it-solutions/index_id_607.html">inno.emsd.gov.hk</a><span class="tag"><b>Agregada.</b> Ejemplo de robots de reparto en hospitales.</span></li>
+    <li id="r-eol">endoflife.date. (s.f.). <i>ROS 2</i>. <a href="https://endoflife.date/ros2">endoflife.date/ros2</a><span class="tag"><b>Agregada.</b> Fechas de soporte de las distribuciones de ROS 2. Conviene contrastar con la documentación oficial de ROS.</span></li>
+    <li id="r-grisetti2010">Grisetti, G., Kümmerle, R., Stachniss, C., &amp; Burgard, W. (2010). A tutorial on graph-based SLAM. <i>IEEE Intelligent Transportation Systems Magazine, 2</i>(4), 31-43. <a href="https://doi.org/10.1109/MITS.2010.939925">doi.org/10.1109/MITS.2010.939925</a><span class="tag"><b>Agregada.</b> Tutorial de SLAM por grafos.</span></li>
+    <li id="r-mittr2022">Guo, E. (2022, 19 de diciembre). A Roomba recorded a woman on the toilet. How did screenshots end up on Facebook? <i>MIT Technology Review</i>. <a href="https://www.technologyreview.com/2022/12/19/1065306/roomba-irobot-robot-vacuums-artificial-intelligence-training-data-privacy/">technologyreview.com</a><span class="tag"><b>Agregada.</b> Privacidad de los datos que recogen robots domésticos.</span></li>
+    <li id="r-hart1968">Hart, P. E., Nilsson, N. J., &amp; Raphael, B. (1968). A formal basis for the heuristic determination of minimum cost paths. <i>IEEE Transactions on Systems Science and Cybernetics, 4</i>(2), 100-107. <a href="https://doi.org/10.1109/TSSC.1968.300136">doi.org/10.1109/TSSC.1968.300136</a><span class="tag"><b>Agregada.</b> Origen del algoritmo A estrella.</span></li>
+    <li id="r-fox1997">Fox, D., Burgard, W., &amp; Thrun, S. (1997). The dynamic window approach to collision avoidance. <i>IEEE Robotics &amp; Automation Magazine, 4</i>(1), 23-33. <a href="https://doi.org/10.1109/100.580977">doi.org/10.1109/100.580977</a><span class="tag"><b>Agregada.</b> Origen del enfoque de ventana dinámica.</span></li>
+    <li id="r-kennedy1995">Kennedy, J., &amp; Eberhart, R. (1995). Particle swarm optimization. <i>Proceedings of ICNN'95, International Conference on Neural Networks</i>, 4, 1942-1948. <a href="https://doi.org/10.1109/ICNN.1995.488968">doi.org/10.1109/ICNN.1995.488968</a><span class="tag"><b>Agregada.</b> Origen de PSO.</span></li>
+    <li id="r-jpl">NASA Jet Propulsion Laboratory. (2021). <i>Perseverance's Sol 200 Auto-Nav Drive</i>. <a href="https://www.jpl.nasa.gov/images/perseverances-sol-200-auto-nav-drive">jpl.nasa.gov</a><span class="tag"><b>Agregada.</b> Navegación autónoma en Marte.</span></li>
+    <li id="r-nasaseh">NASA. (2016). <i>NASA Systems Engineering Handbook</i> (NASA/SP-2016-6105 Rev2), Sec. 2.4, Distinctions between Product Verification and Product Validation. <a href="https://www.nasa.gov/reference/2-4-distinctions-between-product-verification-and-product-validation/">nasa.gov</a><span class="tag"><b>Agregada.</b> Definiciones de verificar y validar.</span></li>
+    <li id="r-nav2tuning">Nav2. (s.f.). <i>Tuning Guide</i>. <a href="https://docs.nav2.org/tuning/index.html">docs.nav2.org/tuning</a><span class="tag"><b>Agregada.</b> Ajuste de inflación y mapas de costos.</span></li>
+    <li id="r-redblob">Patel, A. (s.f.). <i>Introduction to the A* Algorithm</i>. Red Blob Games. <a href="https://www.redblobgames.com/pathfinding/a-star/introduction.html">redblobgames.com</a><span class="tag"><b>Agregada.</b> Explicación interactiva de búsqueda de rutas.</span></li>
+    <li id="r-trr2022">The Robot Report. (2022, 31 de agosto). <i>How Amazon developed precision autonomy for Proteus</i>. <a href="https://www.therobotreport.com/how-amazon-developed-precision-autonomy-for-proteus/">therobotreport.com</a><span class="tag"><b>Agregada.</b> Robots de bodega entre personas.</span></li>
+    <li id="r-tobin2017">Tobin, J., Fong, R., Ray, A., Schneider, J., Zaremba, W., &amp; Abbeel, P. (2017). Domain randomization for transferring deep neural networks from simulation to the real world. <i>IEEE/RSJ International Conference on Intelligent Robots and Systems</i>. <a href="https://arxiv.org/abs/1703.06907">arxiv.org/abs/1703.06907</a><span class="tag"><b>Agregada.</b> Una técnica para reducir la brecha entre simulación y realidad.</span></li>
+    <li id="r-cerberus">Tranzatto, M., et al. (2022). Team CERBERUS Wins the DARPA Subterranean Challenge: Technical Overview and Lessons Learned. <a href="https://arxiv.org/abs/2207.04914">arxiv.org/abs/2207.04914</a><span class="tag"><b>Agregada.</b> Exploración autónoma subterránea.</span></li>
+    <li id="r-zhou2022">Zhou, J., Zhang, S., &amp; Gu, M. (2022). Revisiting Digital Twins: Origins, Fundamentals and Practices. <a href="https://arxiv.org/abs/2203.12867">arxiv.org/abs/2203.12867</a><span class="tag"><b>Agregada.</b> Origen del concepto de gemelo digital.</span></li>
+  </ol>
+</section>
+
+<section>
+  <h2 id="citar">Cómo citar</h2>
+  <p>Si usas este trabajo, cita la tesis. Si te sirvió la guía, puedes citarla también.</p>
+  <h3 id="citar-tesis">La tesis</h3>
+  <pre class="cita-bloque">Valderas Neculqueo, S. (2026). Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial [Trabajo de titulación para optar al título de Ingeniero Civil Electrónico]. Universidad Tecnológica Metropolitana.</pre>
+  <pre class="cita-bloque" style="margin-top:10px">@thesis{valderas2026navegacion,
+  author = {Valderas Neculqueo, Sebasti{\'a}n},
+  title  = {Navegaci{\'o}n y exploraci{\'o}n aut{\'o}noma de interiores utilizando un robot m{\'o}vil de tracci{\'o}n diferencial},
+  school = {Universidad Tecnol{\'o}gica Metropolitana},
+  type   = {Trabajo de titulaci{\'o}n},
+  address = {Santiago, Chile},
+  year   = {2026}
+}</pre>
+  <h3 id="citar-guia">Esta guía</h3>
+  <pre class="cita-bloque">Valderas Neculqueo, S. (2026). Robot explorador: guía abierta de la tesis "Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial" [Sitio web]. https://svn11x.github.io/tesis_explain/</pre>
+</section>
+
+<section>
+  <h2 id="creditos">Créditos</h2>
+  <ul>
+    <li>Fotografías del robot y del recinto, capturas de RViz y del modelo: Sebastián Valderas Neculqueo, tomadas de la tesis y de su video de demostración.</li>
+    <li>Diagramas, interactivos y simulaciones: elaborados para esta guía con los datos de la tesis. Los marcados como ilustrativos usan datos de ejemplo.</li>
+    <li>Tipografías: Archivo, Atkinson Hyperlegible e IBM Plex Mono, vía Google Fonts.</li>
+    <li>El video se reproduce desde YouTube solo cuando presionas el botón, usando el dominio de privacidad mejorada.</li>
+  </ul>
+</section>
+</main>
+<div id="pie"></div>
+</body>
+</html>
