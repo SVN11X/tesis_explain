@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:,">
+<title>Temas críticos de la defensa</title>
+<meta name="description" content="Explicaciones visuales de los temas que más costaron en las simulaciones de la defensa de título, con su evolución por ronda.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+
+<div class="franja" aria-hidden="true"></div>
+<header class="cabecera">
+  <div class="wrap">
+    <div class="eyebrow">Defensa de título · Ingeniería Civil Electrónica · UTEM</div>
+    <h1>Temas críticos de la defensa</h1>
+    <p class="tesis">Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial. <em>Cada tema que costó en las simulaciones, explicado con un diagrama y en palabras simples.</em></p>
+    <dl class="cifras-top" id="cifrasTop"></dl>
+  </div>
+</header>
+
+<nav class="secnav" aria-label="Secciones">
+  <div class="wrap">
+    <a href="#resumen">Resumen</a>
+    <a href="#mapa">Mapa de temas</a>
+    <a href="#temas">Temas explicados</a>
+    <a href="#forma">Cómo respondes</a>
+    <a href="#practicar">Practicar</a>
+    <a href="#antes">Antes del día</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <section id="resumen" aria-labelledby="t-res">
+    <div class="sec-cab">
+      <h2 id="t-res">Resumen de las cinco rondas</h2>
+      <p>Cada punto es una pregunta. Los anillos vacíos son preguntas omitidas, que quedan con 1,0. La raya negra es el promedio de la ronda y la línea roja marca el 4,0.</p>
+    </div>
+    <div class="res-grid">
+      <div class="panel">
+        <div class="grafico" id="graficoEvo"></div>
+        <div class="rondas" id="rondas"></div>
+      </div>
+      <div>
+        <div class="areas" id="areasLista"></div>
+        <p class="vnota" style="margin-top:8px">Barra, promedio de las rondas 1 a 4 por área. Rombo azul, la ronda 5. Abre un área para ver qué repasar.</p>
+      </div>
+    </div>
+    <div class="r5" id="r5"></div>
+    <details class="plegable"><summary>Ver la nota de cada pregunta en cada ronda</summary><div class="tabla-scroll" id="calor"></div></details>
+  </section>
+
+  <section id="mapa" aria-labelledby="t-mapa">
+    <div class="sec-cab">
+      <h2 id="t-mapa">Mapa de temas problemáticos</h2>
+      <p>Cada recuadro es un tema explicado más abajo. El color es su nota promedio en todas las rondas y los puntos son cada nota en orden. Rojo bajo 4,0, ámbar de 4,0 a 5,4 y verde desde 5,5.</p>
+    </div>
+    <div class="mapa" id="mapaTemas"></div>
+  </section>
+
+  <section id="temas" aria-labelledby="t-temas">
+    <div class="sec-cab">
+      <h2 id="t-temas">Temas explicados</h2>
+      <p>Ordenados desde el área más débil. Cada tema trae un diagrama, las ideas clave en simple, la frase para la sala y las preguntas para practicar.</p>
+    </div>
+    <div id="modulos"></div>
+  </section>
+
+  <section id="forma" aria-labelledby="t-forma">
+    <div class="sec-cab">
+      <h2 id="t-forma">Cómo respondes</h2>
+      <p>Lo que bajó la nota casi nunca fue el contenido, que está en la tesis y en el guion. Fue no contestar, contestar otra cosa o agregar explicaciones sin respaldo.</p>
+    </div>
+    <div class="patrones" id="patrones"></div>
+    <div class="formulas" id="formulas"></div>
+  </section>
+
+  <section id="practicar" aria-labelledby="t-prac">
+    <div class="sec-cab">
+      <h2 id="t-prac">Practicar</h2>
+      <p>Las preguntas de las rondas, con la respuesta oculta. Contesta en voz alta y después ábrela, o salta a su explicación visual.</p>
+    </div>
+    <div class="filtros">
+      <div class="fila-filtros">
+        <label class="buscar" for="buscar">
+          <svg viewBox="0 0 24 24" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+          <input id="buscar" type="search" placeholder="Buscar pregunta, cifra o sección" autocomplete="off">
+        </label>
+        <button type="button" class="btn" id="azar">Pregunta al azar</button>
+      </div>
+      <div class="fila-filtros">
+        <div class="segmento" role="group" aria-label="Mostrar" id="segFiltro">
+          <button type="button" data-f="todas" aria-pressed="true">Todas</button>
+          <button type="button" data-f="bajo4" aria-pressed="false">Alguna vez bajo 4,0</button>
+          <button type="button" data-f="omit" aria-pressed="false">Omitidas</button>
+          <button type="button" data-f="r5" aria-pressed="false">Ronda 5</button>
+          <button type="button" data-f="sin" aria-pressed="false">Sin nota</button>
+        </div>
+        <span class="conteo" id="conteo"></span>
+      </div>
+      <div class="chips" id="chipsTema" role="group" aria-label="Filtrar por tema"></div>
+    </div>
+    <div id="cartas"></div>
+    <p class="sin-res" id="sinRes" hidden>Ninguna pregunta coincide con los filtros.</p>
+  </section>
+
+  <section id="antes" aria-labelledby="t-antes">
+    <div class="sec-cab">
+      <h2 id="t-antes">Antes del día de la defensa</h2>
+      <p>Lo que falta decidir, corregir y preparar. Las casillas quedan guardadas en este navegador.</p>
+    </div>
+    <div class="dos-col">
+      <div class="panel"><h3>Orden sugerido de repaso</h3><ol class="orden" id="orden"></ol></div>
+      <div class="panel"><h3>Lo que solo tú puedes responder<span class="progreso" id="prog-solo"></span></h3><ul class="checklist" id="lista-solo"></ul></div>
+      <div class="panel"><h3>Diferencias por corregir en tesis y láminas<span class="progreso" id="prog-dif"></span></h3><ul class="checklist" id="lista-dif"></ul>
+        <details class="corregidas" style="margin-top:14px"><summary>Ver las que ya están corregidas</summary><div id="corregidas"></div></details></div>
+      <div class="panel"><h3>Láminas de respaldo por preparar<span class="progreso" id="prog-lam"></span></h3><ul class="checklist" id="lista-lam"></ul></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Fuentes: Banco_preguntas_defensa (rondas 1 a 4, del 26 al 28 de septiembre de 2026), Ensayo_Defensa_y_Repaso (ronda 5, 5 de octubre de 2026, nivel 3), Guion_Defensa, la tesis y el código del proyecto.</span>
+    <span>Los diagramas marcados como ilustrativos usan datos de ejemplo. Las cifras de tu trabajo se citan tal como están en la tesis.</span>
+  </div>
+</footer>
+
+<script src="datos/datos.js"></script>
+<script src="datos/temas.js"></script>
+<script src="js/comun.js"></script>
+<script src="js/vis1.js"></script>
+<script src="js/vis2.js"></script>
+<script src="js/vis3.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
