@@ -19,9 +19,6 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#004EAA">
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&amp;family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&amp;family=IBM+Plex+Mono:wght@400;600&amp;display=swap">
 <link rel="stylesheet" href="css/estilo.css">
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <script src="js/comun.js" defer></script>
@@ -55,7 +52,7 @@
 
 <section class="en-breve" aria-labelledby="t-breve">
   <h2 id="t-breve">Explorar hasta que no queden fronteras</h2>
-  <p>Una frontera es el borde entre el espacio libre conocido y lo desconocido. Ir hacia las fronteras hasta que no quede ninguna es una forma simple y efectiva de explorar, y cinco de seis exploraciones del robot real terminaron solas por ese criterio. El explorador vuelve a elegir destino cada 3,3 s y manda la nueva meta sin cancelar la anterior, que Nav2 cierra como abortada. Por eso 53 de las 54 metas abortadas fueron reemplazos y no fallas.</p>
+  <p>Una <span class="term" data-t="Frontera" data-def="Borde entre el espacio libre conocido y lo desconocido en un mapa.">frontera</span> es el borde entre el espacio libre conocido y lo desconocido. Ir hacia las fronteras hasta que no quede ninguna es una forma simple y efectiva de explorar, y cinco de seis exploraciones del robot real terminaron solas por ese criterio. El explorador vuelve a elegir destino cada 3,3 s y manda la nueva meta sin cancelar la anterior, que <span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span> cierra como abortada. Por eso 53 de las 54 metas abortadas fueron reemplazos y no fallas.</p>
   <div class="cifras-mini">
     <div><b>5 <small>de 6</small></b><span>exploraciones terminaron solas, sin intervención del operador</span></div>
     <div><b>53 <small>de 54</small></b><span>metas abortadas fueron reemplazos hechos por el propio explorador</span></div>
@@ -67,13 +64,13 @@
 <section>
   <h2 id="fronteras">La idea de frontera</h2>
   <p>En 1997, Brian Yamauchi propuso una idea que sigue vigente. Para explorar un lugar desconocido, un robot debería ir hacia las regiones que separan lo que ya vio de lo que todavía no ha visto. Al llegar, observa, actualiza su mapa y vuelve a buscar <a class="ref" href="#f2">2</a>. En su propuesta, el robot elige la frontera accesible más cercana, hace un barrido de 360° al llegar, y si no logra avanzar en cierto tiempo marca esa frontera como inaccesible.</p>
-  <p>La idea se mantiene en trabajos recientes que mejoran cómo se puntúa cada frontera <a class="ref" href="#f3">3</a>, y convive con enfoques más complejos, como los que estiman la ganancia de información de cada destino o el active SLAM, que también considera la incertidumbre del mapa <a class="ref" href="#f4">4</a>. Su ventaja es que necesita muy poco. Un mapa de ocupación y un sistema de navegación, justo lo que este robot ya tenía.</p>
+  <p>La idea se mantiene en trabajos recientes que mejoran cómo se puntúa cada frontera <a class="ref" href="#f3">3</a>, y convive con enfoques más complejos, como los que estiman la ganancia de información de cada destino o el active <span class="term" data-def="Localización y mapeo simultáneos, es decir, construir el mapa y estimar la posición al mismo tiempo.">SLAM</span>, que también considera la incertidumbre del mapa <a class="ref" href="#f4">4</a>. Su ventaja es que necesita muy poco. Un mapa de ocupación y un sistema de navegación, justo lo que este robot ya tenía.</p>
   <p class="destacado">Explorar es repetir una pregunta simple: ¿dónde termina lo que conozco?</p>
 </section>
 
 <section>
   <h2 id="simulador">Pruébalo: un robot explorando por fronteras</h2>
-  <p>Este simulador hace el mismo ciclo que el robot real. Mide con un láser, actualiza el mapa, busca fronteras, elige la de mejor puntaje con una mezcla de cercanía y tamaño, planifica con A estrella y se mueve. Igual que el explorador del robot, vuelve a elegir cada 3,3 s, y cuenta las metas que cambia antes de llegar.</p>
+  <p>Este simulador hace el mismo ciclo que el robot real. Mide con un láser, actualiza el mapa, busca fronteras, elige la de mejor puntaje con una mezcla de cercanía y tamaño, planifica con <span class="term" data-def="Algoritmo que busca la ruta de menor costo en una rejilla sumando lo recorrido y una estimación de lo que falta.">A estrella</span> y se mueve. Igual que el explorador del robot, vuelve a elegir cada 3,3 s, y cuenta las metas que cambia antes de llegar.</p>
   <div class="widget sim-grande">
     <div class="widget-cab"><h3 id="sim-exploracion">Exploración por fronteras</h3><span class="tipo inter">Interactivo</span><p>Presiona Explorar. Activa el mapa de costos o el plano real para comparar lo que el robot sabe con lo que hay.</p></div>
     <div class="vis" data-vis="exploracion"><p class="vis-fallback">Simulador de exploración por fronteras. Necesita JavaScript.</p></div>
@@ -83,7 +80,7 @@
 
 <section>
   <h2 id="explore-lite">Cómo decide explore_lite en este robot</h2>
-  <p>El robot usa explore_lite en su versión para ROS 2 <a class="ref" href="#f5">5</a>, derivada del proyecto original para ROS 1. Busca fronteras sobre el mapa de costos global y envía metas de navegación a Nav2 <a class="ref" href="#f1">1</a>. Su ciclo tiene seis pasos.</p>
+  <p>El robot usa <span class="term" data-def="Paquete de ROS que busca fronteras en el mapa y las envía como metas a la navegación.">explore_lite</span> en su versión para <span class="term" data-def="Conjunto de bibliotecas y herramientas de código abierto para construir sistemas robóticos modulares y distribuidos.">ROS 2</span> <a class="ref" href="#f5">5</a>, derivada del proyecto original para ROS 1. Busca fronteras sobre el <span class="term" data-t="Mapa de costos" data-def="Rejilla en la que cada celda tiene un costo según su cercanía a obstáculos.">mapa de costos</span> global y envía metas de navegación a Nav2 <a class="ref" href="#f1">1</a>. Su ciclo tiene seis pasos.</p>
   <ol class="linea">
     <li><b>Detecta</b>Una celda desconocida que toca una libre es frontera.</li>
     <li><b>Filtra</b>Descarta las menores de 0,05 m, o sea, basta una celda.</li>
@@ -185,22 +182,11 @@
         <span class="lugar">Subterráneo · Estados Unidos · 2021</span>
         <h3>CERBERUS en el desafío de DARPA</h3>
         <p>El equipo ganó la final con robots con patas y aéreos que navegaron, exploraron y mapearon por su cuenta túneles, redes urbanas subterráneas y cuevas, sin GPS y con comunicación limitada.</p>
-        <p class="vinculo">Resolvían el mismo problema que este robot, explorar lo desconocido, a una escala y con exigencias mucho mayores.</p>
+        <p class="vinculo">Resolvían el mismo problema que este robot, explorar lo desconocido, a una escala y con exigencias mucho mayores. <a href="mundo-real.html#cerberus">Ver el caso completo</a>.</p>
         <p class="fuente-caso">Fuentes <a class="ref" href="#f7">7</a> <a class="ref" href="#f8">8</a></p>
       </div>
     </article>
-    <article class="caso">
-      <div class="caso-media"><div class="video" data-yt="HbuEOJ_evas" data-titulo="Frontier Exploration + SLAM Toolbox" data-sub="Video en YouTube"><a href="https://www.youtube.com/watch?v=HbuEOJ_evas">Ver el video en YouTube</a></div></div>
-      <div class="caso-txt">
-        <span class="lugar">Comunidad ROS</span>
-        <h3>Fronteras con SLAM Toolbox</h3>
-        <p>Una demostración de la misma combinación que usa este robot, exploración por fronteras sobre un mapa construido con SLAM Toolbox, útil para ver el comportamiento con otro robot y otro espacio.</p>
-        <p class="vinculo">Usa la misma pila de software que este robot, en otro escenario.</p>
-        <p class="fuente-caso">Fuente <a class="ref" href="#f9">9</a></p>
-      </div>
-    </article>
   </div>
-  <p>Otro caso cercano es chileno. En la mina El Teniente, un dron con LiDAR inspecciona sectores de difícil acceso donde no hay GPS. Está en <a href="mapeo.html#mundo-real">Ver y mapear</a> y en <a href="mundo-real.html">En el mundo real</a>.</p>
 </section>
 
 <section class="fuentes-tema">
@@ -214,7 +200,6 @@
     <li id="f6"><span><span class="tipo-ref">Código</span>Nav2 Maintainers (2021). Navigation2, rama foxy-devel. <a href="https://github.com/ros-navigation/navigation2/tree/foxy-devel">github.com/ros-navigation/navigation2</a></span></li>
     <li id="f7"><span><span class="tipo-ref">Artículo</span>Tranzatto, M. y otros (2022). CERBERUS in the DARPA Subterranean Challenge. <em>Science Robotics, 7</em>. Versión abierta en <a href="https://arxiv.org/abs/2207.04914">arxiv.org/abs/2207.04914</a>. Y DARPA (2021), Subterranean Challenge winners. <a href="https://www.darpa.mil/news/2021/subterranean-challenge-winners">darpa.mil</a></span></li>
     <li id="f8"><span><span class="tipo-ref">Video</span>Team CERBERUS Wins the DARPA Subterranean Challenge. <a href="https://www.youtube.com/watch?v=fCHOU-fw2c0">youtube.com/watch?v=fCHOU-fw2c0</a></span></li>
-    <li id="f9"><span><span class="tipo-ref">Video</span>Frontier Exploration + SLAM Toolbox. <a href="https://www.youtube.com/watch?v=HbuEOJ_evas">youtube.com/watch?v=HbuEOJ_evas</a></span></li>
   </ol>
 </section>
 

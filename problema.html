@@ -19,9 +19,6 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#004EAA">
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&amp;family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&amp;family=IBM+Plex+Mono:wght@400;600&amp;display=swap">
 <link rel="stylesheet" href="css/estilo.css">
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <script src="js/comun.js" defer></script>
@@ -84,7 +81,7 @@
   <p>Hay una quinta dificultad que atraviesa a las otras cuatro, y es dónde se calcula cada cosa. El control de los motores necesita respuestas rápidas y regulares, mientras que el mapeo y la planificación necesitan más capacidad de cálculo. Por eso los sistemas robóticos suelen dividirse en componentes que pueden correr en un mismo proceso, en varios procesos o en varios computadores <a class="ref" href="#f2">2</a>. En este robot, lo rápido y crítico va a bordo y lo pesado va en un computador portátil conectado por red.</p>
   <figure class="fig">
     <picture><source srcset="img/tesis/arquitectura-med.webp" type="image/webp"><img src="img/tesis/arquitectura-med.png" data-grande="img/tesis/arquitectura.png" width="1200" height="678" loading="lazy" decoding="async" alt="Diagrama de bloques en dos zonas. En el robot: encoders y LiDAR 2D para el sensado, Arduino con control PID y motores DC para el control de bajo nivel, y una Raspberry Pi 4 que integra ROS 2 y estima la odometría. En la estación de trabajo: SLAM Toolbox, Nav2, el explorador de fronteras y RViz2. Ambas zonas intercambian datos y comandos."></picture>
-    <figcaption>La solución completa en cuatro dominios: sensado, control de bajo nivel, el computador del robot y la estación de trabajo que mapea, navega y explora. Haz clic para ampliar. <small>Fig. 2.1 de la tesis.</small></figcaption>
+    <figcaption>La solución completa en cuatro dominios: sensado, control de bajo nivel, el computador del robot y la estación de trabajo que mapea, navega y explora. <small>Fig. 2.1 de la tesis.</small></figcaption>
   </figure>
 </section>
 
@@ -92,17 +89,17 @@
   <h2 id="pregunta">La pregunta y los objetivos</h2>
   <p>Todo el trabajo se ordena alrededor de una pregunta que puede responderse con evidencia <a class="ref" href="#f1">1</a>.</p>
   <p class="destacado">¿Es posible construir un prototipo de robot diferencial que, usando componentes accesibles y herramientas de código abierto, sea capaz de mapear, navegar y explorar entornos interiores de manera autónoma?</p>
-  <p>El objetivo general fue diseñar e implementar ese prototipo, basado en ROS 2, capaz de construir un mapa 2D mediante SLAM y de navegar solo hacia destinos generados automáticamente por una estrategia de fronteras. De ahí salen cuatro objetivos específicos, y cada uno tiene un resultado distinto.</p>
+  <p>El objetivo general fue diseñar e implementar ese prototipo, basado en <span class="term" data-def="Conjunto de bibliotecas y herramientas de código abierto para construir sistemas robóticos modulares y distribuidos.">ROS 2</span>, capaz de construir un mapa 2D mediante SLAM y de navegar solo hacia destinos generados automáticamente por una estrategia de <span class="term" data-t="Frontera" data-def="Borde entre el espacio libre conocido y lo desconocido en un mapa.">fronteras</span>. De ahí salen cuatro objetivos específicos, y cada uno tiene un resultado distinto.</p>
   <ul class="oes">
-    <li class="ok"><b>OE1</b><span>Diseñar y construir el robot, verificado antes en un gemelo digital en Gazebo Classic.</span><em>Cumplido</em></li>
-    <li class="par"><b>OE2</b><span>Implementar el control de bajo nivel: modelo cinemático, odometría por encoders y controlador PID por rueda.</span><em>Parcial</em></li>
-    <li class="par"><b>OE3</b><span>Implementar la localización, el mapeo 2D y la navegación con SLAM Toolbox y Nav2.</span><em>Parcial</em></li>
+    <li class="ok"><b>OE1</b><span>Diseñar y construir el robot, verificado antes en un gemelo digital en <span class="term" data-def="Simulador 3D de robots, aquí en su versión 11, que llegó al fin de soporte en enero de 2025.">Gazebo Classic</span>.</span><em>Cumplido</em></li>
+    <li class="par"><b>OE2</b><span>Implementar el control de bajo nivel: modelo cinemático, <span class="term" data-t="Odometría" data-def="Estimación de la posición sumando el giro medido de las ruedas.">odometría</span> por <span class="term" data-t="Encoder" data-def="Sensor que produce dos señales desfasadas al girar un eje, para contar el giro y saber su sentido.">encoders</span> y controlador <span class="term" data-def="Controlador que combina una acción proporcional al error, una integral del error pasado y una derivativa de su tendencia.">PID</span> por rueda.</span><em>Parcial</em></li>
+    <li class="par"><b>OE3</b><span>Implementar la localización, el mapeo 2D y la navegación con SLAM Toolbox y <span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span>.</span><em>Parcial</em></li>
     <li class="ok"><b>OE4</b><span>Integrar exploración por fronteras que genere metas sin intervención manual continua.</span><em>Cumplido</em></li>
   </ul>
-  <p>Dos objetivos quedaron parciales. La ley heredada del firmware opera como un PI y no como el PID pedido, y la navegación funcionó de punta a punta pero sin un indicador cuantitativo propio. Ambos casos se explican con sus datos en <a href="resultados.html#objetivos">La evidencia</a>.</p>
+  <p>Dos objetivos quedaron parciales. La ley heredada del firmware opera como un <span class="term" data-def="Controlador con acción proporcional e integral, sin la acción derivativa de un PID.">PI</span> y no como el PID pedido, y la navegación funcionó de punta a punta pero sin un indicador cuantitativo propio. Ambos casos se explican con sus datos en <a href="resultados.html#objetivos">La evidencia</a>.</p>
   <h3 id="alcance">Los límites que se fijaron desde el inicio</h3>
-  <p>Desde el inicio fijé qué no iba a hacer. Este robot opera en interiores con piso plano, usa un único LiDAR 2D y estima su avance con encoders. No usa unidad inercial, cámara ni fusión de sensores, así que su odometría puede degradarse en recorridos largos o con muchos giros. Tampoco está pensado para exteriores, suelos irregulares ni obstáculos que se mueven rápido <a class="ref" href="#f1">1</a>.</p>
-  <p>Dos ensayos quedaron fuera de forma explícita. Medir la navegación hacia destinos fijos elegidos por una persona, con tasa de éxito y error de posición final, y ubicarse sobre un mapa ya guardado con AMCL. Ambos exigen condiciones que no se configuraron, como un mapa almacenado y puntos de referencia medidos en el recinto.</p>
+  <p>Desde el inicio fijé qué no iba a hacer. Este robot opera en interiores con piso plano, usa un único <span class="term" data-def="Sensor que mide distancias con luz láser, y en su versión 2D gira y mide en un plano horizontal.">LiDAR</span> 2D y estima su avance con encoders. No usa unidad inercial, cámara ni fusión de sensores, así que su odometría puede degradarse en recorridos largos o con muchos giros. Tampoco está pensado para exteriores, suelos irregulares ni obstáculos que se mueven rápido <a class="ref" href="#f1">1</a>.</p>
+  <p>Dos ensayos quedaron fuera de forma explícita. Medir la navegación hacia destinos fijos elegidos por una persona, con tasa de éxito y error de posición final, y ubicarse sobre un mapa ya guardado con <span class="term" data-def="Localización de Monte Carlo adaptativa, que ubica al robot en un mapa ya guardado con un filtro de partículas.">AMCL</span>. Ambos exigen condiciones que no se configuraron, como un mapa almacenado y puntos de referencia medidos en el recinto.</p>
 </section>
 
 <section>
@@ -169,8 +166,8 @@
   <h2 id="aporte">Qué aporta este trabajo</h2>
   <p>El firmware del Arduino y la interfaz con ROS 2 los adapté de proyectos de código abierto, y el paquete del robot partió de uno existente <a class="ref" href="#f13">13</a>. Decir el origen de cada pieza deja claro dónde está el trabajo propio.</p>
   <div class="argumento">
-    <div><span class="a-et">Lo que se adaptó</span><p>El paquete articubot_one, la interfaz diffdrive_arduino y el firmware ROSArduinoBridge, de Josh Newans, y el explorador explore_lite en su versión para ROS 2. Todos se modificaron y configuraron para este robot.</p></div>
-    <div><span class="a-et">Lo que es propio</span><p>La integración completa sobre un robot construido para este fin, la parametrización geométrica compartida por simulación y hardware, la identificación de un modelo de cada rueda con su sintonía por PSO y un programa propio para leer el LiDAR por puerto serie.</p></div>
+    <div><span class="a-et">Lo que se adaptó</span><p>El paquete articubot_one, la interfaz diffdrive_arduino y el firmware ROSArduinoBridge, de Josh Newans, y el explorador <span class="term" data-def="Paquete de ROS que busca fronteras en el mapa y las envía como metas a la navegación.">explore_lite</span> en su versión para ROS 2. Todos se modificaron y configuraron para este robot.</p></div>
+    <div><span class="a-et">Lo que es propio</span><p>La integración completa sobre un robot construido para este fin, la parametrización geométrica compartida por simulación y hardware, la identificación de un modelo de cada rueda con su sintonía por <span class="term" data-def="Optimización por enjambre de partículas, que busca el mejor valor moviendo muchos candidatos que comparten lo que encuentran.">PSO</span> y un programa propio para leer el LiDAR por puerto serie.</p></div>
     <div><span class="a-et">Lo que mostró la validación</span><p>La ley de control llamada PID opera como un PI incremental. Y 53 de las 54 metas abortadas durante la exploración fueron reemplazos hechos por el propio explorador, no fallas del robot.</p></div>
   </div>
   <p>Esos dos resultados salieron de validar el sistema y explican el alcance de los objetivos. El primero es la razón por la que el control quedó parcial. El segundo explica por qué el resultado de las metas no mide la tasa de éxito de la navegación. El aporte principal es la integración propia descrita arriba. Cada resultado tiene su desarrollo en <a href="control.html#hallazgo">Control de velocidad</a> y en <a href="exploracion.html#abortadas">Explorar por fronteras</a>.</p>
@@ -180,7 +177,7 @@
   <h2 id="metodo">Cómo se trabajó</h2>
   <p>Trabajé de forma experimental e iterativa, en seis etapas <a class="ref" href="#f1">1</a>. La idea central fue simular antes de construir, para equivocarse primero en el computador y después en el hardware, y volver atrás cada vez que algo no calza.</p>
   <ol class="linea">
-    <li><b>Gemelo digital</b>Modelo URDF y pruebas en Gazebo Classic.</li>
+    <li><b>Gemelo digital</b>Modelo <span class="term" data-def="Formato que describe un robot como un árbol de piezas y articulaciones.">URDF</span> y pruebas en Gazebo Classic.</li>
     <li><b>Hardware</b>Chasis impreso, electrónica e integración con ROS 2.</li>
     <li><b>Control</b>Firmware, odometría y ganancias de cada rueda.</li>
     <li><b>SLAM y Nav2</b>Mapeo y navegación sobre el robot.</li>
@@ -191,7 +188,6 @@
 
 <section>
   <h2 id="mundo-real">En el mundo real</h2>
-  <p>Los niveles de autonomía se ven muy bien en las bodegas de Amazon. Sus primeros robots trabajaban en zonas cerradas, separadas de las personas. Proteus, presentado en 2022, circula entre trabajadores, y para eso combina varios sensores, entre ellos un LiDAR de alta precisión <a class="ref" href="#f14">14</a>. Más autonomía exige más percepción y más cuidado con la seguridad, la misma relación que este robot muestra a pequeña escala.</p>
   <div class="casos">
     <article class="caso">
       <div class="caso-media"><div class="video" data-yt="lyYpcKM-fWg" data-titulo="Meet Proteus, Amazon's New Autonomous Robot" data-sub="Video en YouTube, en inglés"><a href="https://www.youtube.com/watch?v=lyYpcKM-fWg">Ver el video en YouTube</a></div></div>
@@ -199,18 +195,8 @@
         <span class="lugar">Bodegas · Estados Unidos</span>
         <h3>Proteus, de Amazon</h3>
         <p>Un robot móvil que mueve carros de carga en espacios compartidos con personas, sin jaulas de separación.</p>
-        <p class="vinculo">Igual que este robot, percibe con láser, planifica una ruta y reacciona a lo que aparece, como se ve en <a href="navegacion.html">el tema 6</a>.</p>
+        <p class="vinculo">Igual que este robot, percibe con láser, planifica una ruta y reacciona a lo que aparece, como se ve en <a href="navegacion.html">el tema 6</a>. <a href="mundo-real.html#proteus">Ver el caso completo</a>.</p>
         <p class="fuente-caso">Fuentes <a class="ref" href="#f14">14</a> <a class="ref" href="#f15">15</a></p>
-      </div>
-    </article>
-    <article class="caso">
-      <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><rect x="10" y="14" width="44" height="36" rx="4"/><path d="M32 22v20M22 32h20"/></svg></div>
-      <div class="caso-txt">
-        <span class="lugar">Hospitales</span>
-        <h3>Robots de reparto como TUG</h3>
-        <p>Llevan insumos por los pasillos con navegación basada en cámaras y láser, sobre mapas y rutas definidos digitalmente.</p>
-        <p class="vinculo">Navegan sobre un mapa ya guardado, algo que en este trabajo quedó como <a href="resultados.html#futuro">trabajo futuro</a>.</p>
-        <p class="fuente-caso">Fuente <a class="ref" href="#f16">16</a></p>
       </div>
     </article>
   </div>
@@ -235,7 +221,6 @@
     <li id="f13"><span><span class="tipo-ref">Código</span>Newans, J. (2022, 2023). articubot_one, diffdrive_arduino y ros_arduino_bridge. <a href="https://github.com/joshnewans/articubot_one">github.com/joshnewans</a>. Home Brew Robotics Club, ros_arduino_bridge. <a href="https://github.com/hbrobotics/ros_arduino_bridge">github.com/hbrobotics</a>. Alvarez, C. (2021), m-explore-ros2. <a href="https://github.com/robo-friends/m-explore-ros2">github.com/robo-friends</a></span></li>
     <li id="f14"><span><span class="tipo-ref">Prensa</span>The Robot Report (2022). How Amazon developed precision autonomy for Proteus. <a href="https://www.therobotreport.com/how-amazon-developed-precision-autonomy-for-proteus/">therobotreport.com</a></span></li>
     <li id="f15"><span><span class="tipo-ref">Video</span>Meet Proteus, Amazon's New Autonomous Robot. <a href="https://www.youtube.com/watch?v=lyYpcKM-fWg">youtube.com/watch?v=lyYpcKM-fWg</a></span></li>
-    <li id="f16"><span><span class="tipo-ref">Institucional</span>Electrical and Mechanical Services Department, Hong Kong. Autonomous delivery robots in hospitals. <a href="https://inno.emsd.gov.hk/en/it-solutions/index_id_607.html">inno.emsd.gov.hk</a></span></li>
   </ol>
 </section>
 

@@ -19,9 +19,6 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#004EAA">
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&amp;family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&amp;family=IBM+Plex+Mono:wght@400;600&amp;display=swap">
 <link rel="stylesheet" href="css/estilo.css">
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <script src="js/comun.js" defer></script>
@@ -56,7 +53,7 @@
 
 <section class="en-breve" aria-labelledby="t-breve">
   <h2 id="t-breve">Qué se logró y con qué evidencia</h2>
-  <p>Sí fue posible mapear y explorar un interior con un robot de bajo costo. Cinco de seis ejecuciones produjeron un mapa válido y terminaron solas, sin intervención. La odometría quedó validada con mediciones, el control se evaluó en el robot real y el mapeo, la navegación y la exploración quedaron verificados en funcionamiento. Dos objetivos se cumplieron y dos quedaron parciales, y explico por qué con datos.</p>
+  <p>Sí fue posible mapear y explorar un interior con un robot de bajo costo. Cinco de seis ejecuciones produjeron un mapa válido y terminaron solas, sin intervención. La <span class="term" data-t="Odometría" data-def="Estimación de la posición sumando el giro medido de las ruedas.">odometría</span> quedó validada con mediciones, el control se evaluó en el robot real y el mapeo, la navegación y la exploración quedaron verificados en funcionamiento. Dos objetivos se cumplieron y dos quedaron parciales, y explico por qué con datos.</p>
   <div class="cifras-mini">
     <div><b>5 <small>de 6</small></b><span>exploraciones que terminaron solas con un mapa válido</span></div>
     <div><b>3,63 <small>%</small></b><span>error de la odometría, validado con cinta métrica</span></div>
@@ -96,7 +93,7 @@
 
 <section>
   <h2 id="video">La prueba en video</h2>
-  <p>El video de la cabecera muestra una ejecución de demostración sobre el robot real. A la izquierda, el robot visto desde arriba. A la derecha, RViz con el mapa que se va construyendo y, en verde, la ruta hacia la frontera elegida. El mapa crece a medida que el láser ve geometría nueva, que es la evidencia de que el robot se desplaza <a class="ref" href="#f3">3</a>.</p>
+  <p>El video de la cabecera muestra una ejecución de demostración sobre el robot real. A la izquierda, el robot visto desde arriba. A la derecha, RViz con el mapa que se va construyendo y, en verde, la ruta hacia la <span class="term" data-t="Frontera" data-def="Borde entre el espacio libre conocido y lo desconocido en un mapa.">frontera</span> elegida. El mapa crece a medida que el láser ve geometría nueva, que es la evidencia de que el robot se desplaza <a class="ref" href="#f3">3</a>.</p>
   <div class="galeria">
     <figure class="fig">
       <picture><source srcset="img/tesis/prueba-real-1.webp" type="image/webp"><img src="img/tesis/prueba-real-1.png" width="1600" height="856" loading="lazy" decoding="async" alt="Etapa temprana: el robot en un pasillo estrecho visto desde arriba, y en RViz un mapa pequeño con la ruta verde hacia adelante."></picture>
@@ -114,8 +111,8 @@
   <h2 id="objetivos">Los cuatro objetivos, uno por uno</h2>
   <ul class="oes">
     <li class="ok"><b>OE1</b><span><b style="font-family:inherit">Construcción y gemelo digital.</b> Se construyó la plataforma y se verificó su gemelo con cuatro criterios de funcionamiento. No incluyó una comparación cuantitativa entre simulación y hardware sobre una misma variable.</span><em>Cumplido</em></li>
-    <li class="par"><b>OE2</b><span><b style="font-family:inherit">Control de bajo nivel.</b> Se implementaron encoders, estados de rueda, control y odometría. Pero la ley heredada opera como un PI incremental sin acción derivativa efectiva, y se evaluó en un solo punto de operación.</span><em>Parcial</em></li>
-    <li class="par"><b>OE3</b><span><b style="font-family:inherit">Localización, mapeo y navegación.</b> Mapeo y localización verificados en el robot real, con cobertura y área. Nav2 llevó al robot hacia las metas del explorador, pero sin un indicador cuantitativo de su desempeño.</span><em>Parcial</em></li>
+    <li class="par"><b>OE2</b><span><b style="font-family:inherit">Control de bajo nivel.</b> Se implementaron <span class="term" data-t="Encoder" data-def="Sensor que produce dos señales desfasadas al girar un eje, para contar el giro y saber su sentido.">encoders</span>, estados de rueda, control y odometría. Pero la ley heredada opera como un <span class="term" data-def="Controlador que en cada ciclo calcula cuánto cambiar la salida, en vez de calcularla completa.">PI incremental</span> sin acción derivativa efectiva, y se evaluó en un solo punto de operación.</span><em>Parcial</em></li>
+    <li class="par"><b>OE3</b><span><b style="font-family:inherit">Localización, mapeo y navegación.</b> Mapeo y localización verificados en el robot real, con cobertura y área. <span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span> llevó al robot hacia las metas del explorador, pero sin un indicador cuantitativo de su desempeño.</span><em>Parcial</em></li>
     <li class="ok"><b>OE4</b><span><b style="font-family:inherit">Exploración autónoma.</b> Generó 60 metas sin intervención y cinco de seis ejecuciones terminaron solas con mapa válido. Su principal limitación es que tacha metas que él mismo reemplaza.</span><em>Cumplido</em></li>
   </ul>
   <p>Respecto de la pregunta de investigación, la respuesta es afirmativa para mapear y explorar en el entorno ensayado. La navegación funciona de extremo a extremo, y lo que queda abierto es medirla con un protocolo de metas fijas <a class="ref" href="#f1">1</a>.</p>
@@ -141,9 +138,9 @@
     <article class="decision"><span class="d-que">Percepción y movimiento</span><h4>Deriva odométrica</h4><p>Sin unidad inercial, la odometría acumula error en giros y recorridos largos.</p></article>
     <article class="decision"><span class="d-que">Ensayos</span><h4>Recinto único y reducido</h4><p>3,50 m² de área libre media y cinco iteraciones. No se generaliza a espacios mayores, y la superficie del recinto no se midió aparte del mapa.</p></article>
     <article class="decision"><span class="d-que">Navegación</span><h4>Sin tasa de éxito</h4><p>Los contadores no identificaban metas únicas y el resultado se reconstruyó después. No hay tasa de éxito ni error de posición final hacia metas fijas.</p></article>
-    <article class="decision"><span class="d-que">Control</span><h4>Ley heredada sin análisis de estabilidad</h4><p>Opera como PI incremental y no se comparó con un PID incremental estándar. Los sobreimpulsos simulados no se mezclan con la medición real.</p></article>
-    <article class="decision"><span class="d-que">Software</span><h4>Versiones en fin de vida</h4><p>ROS 2 Foxy y Gazebo Classic ya no reciben soporte oficial.</p></article>
-    <article class="decision"><span class="d-que">Integración</span><h4>Detalles conservados del código</h4><p>Lectura no atómica de encoders, PSO sin semilla fija, puntaje de fronteras con unidades mezcladas y metas reemplazadas que entran a la lista negra.</p></article>
+    <article class="decision"><span class="d-que">Control</span><h4>Ley heredada sin análisis de estabilidad</h4><p>Opera como PI incremental y no se comparó con un <span class="term" data-def="Controlador que combina una acción proporcional al error, una integral del error pasado y una derivativa de su tendencia.">PID</span> incremental estándar. Los sobreimpulsos simulados no se mezclan con la medición real.</p></article>
+    <article class="decision"><span class="d-que">Software</span><h4>Versiones en fin de vida</h4><p><span class="term" data-def="Conjunto de bibliotecas y herramientas de código abierto para construir sistemas robóticos modulares y distribuidos.">ROS 2</span> Foxy y <span class="term" data-def="Simulador 3D de robots, aquí en su versión 11, que llegó al fin de soporte en enero de 2025.">Gazebo Classic</span> ya no reciben soporte oficial.</p></article>
+    <article class="decision"><span class="d-que">Integración</span><h4>Detalles conservados del código</h4><p>Lectura no atómica de encoders, <span class="term" data-def="Optimización por enjambre de partículas, que busca el mejor valor moviendo muchos candidatos que comparten lo que encuentran.">PSO</span> sin semilla fija, puntaje de fronteras con unidades mezcladas y metas reemplazadas que entran a la lista negra.</p></article>
   </div>
 </section>
 
@@ -154,7 +151,7 @@
     <div class="widget-cab"><h3 id="fallas">El plano del láser y los pasos estrechos</h3><span class="tipo ilus">Ilustrativo</span></div>
     <div class="vis" data-vis="fallaria"><p class="vis-fallback">El láser no ve lo que está fuera de su plano, y en pasos estrechos la esquina del robot puede tocar la pared.</p></div>
   </div>
-  <p>Las mesas y sillas son el primer problema. El láser ve un solo plano, así que detecta las patas pero no la cubierta ni el asiento. Los ventanales y las superficies muy reflectantes o muy absorbentes degradan la medición. El sistema no está pensado para personas que se mueven rápido. En pasillos estrechos el radio de inflación es menor que el alcance de la esquina del robot y nada revisa la huella completa. Y en una oficina grande, más recorrido significa más deriva sin unidad inercial, mientras que ni la autonomía de la batería ni la carga del computador se midieron.</p>
+  <p>Las mesas y sillas son el primer problema. El láser ve un solo plano, así que detecta las patas pero no la cubierta ni el asiento. Los ventanales y las superficies muy reflectantes o muy absorbentes degradan la medición. El sistema no está pensado para personas que se mueven rápido. En pasillos estrechos el radio de <span class="term" data-t="Inflación" data-def="Zona de costo que se agrega alrededor de los obstáculos para que el robot mantenga distancia.">inflación</span> es menor que el alcance de la esquina del robot y nada revisa la huella completa. Y en una oficina grande, más recorrido significa más deriva sin unidad inercial, mientras que ni la autonomía de la batería ni la carga del computador se midieron.</p>
 </section>
 
 <section>
@@ -167,7 +164,7 @@
     <li>Evaluar la navegación en espacios estrechos con una configuración acorde a la geometría del robot.</li>
     <li>Registrar por separado los reemplazos de meta y las fallas de Nav2, cancelando la meta en curso antes de enviar la siguiente, y evaluar el efecto de la frecuencia del explorador.</li>
     <li>Evaluar el control en otras velocidades y compararlo con un PID incremental estándar, con estado integral en punto flotante y lectura atómica de encoders.</li>
-    <li>Localizar sobre un mapa guardado con AMCL, comparando con posiciones marcadas en el recinto.</li>
+    <li>Localizar sobre un mapa guardado con <span class="term" data-def="Localización de Monte Carlo adaptativa, que ubica al robot en un mapa ya guardado con un filtro de partículas.">AMCL</span>, comparando con posiciones marcadas en el recinto.</li>
     <li>Repetir el ensayo de giro con un giro controlado hasta un ángulo fijo.</li>
     <li>Registrar la pose verdadera de Gazebo Classic en los ensayos simulados.</li>
   </ol>

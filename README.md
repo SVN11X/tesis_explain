@@ -46,6 +46,7 @@ Las cifras y figuras del robot salen de la tesis y se citan con su sección, tab
 ├── js/comun.js          utilidades compartidas
 ├── datos/indice.js      índice del buscador, generado
 ├── herramientas/        índice del buscador y pruebas
+├── fuentes/             tipografías locales con su licencia OFL
 └── img/                 fotos, figuras de la tesis, animaciones y miniaturas
 ```
 
@@ -57,7 +58,7 @@ No hay dependencias ni paso de compilación.
 2. **Texto.** Cada página es HTML estático. Después de cambiar texto, regenera el buscador con `python3 herramientas/indice.py` (requiere `beautifulsoup4`) y sube `datos/indice.js` junto con las páginas.
 3. **Citas.** `<a class="ref" href="#f3">3</a>` apunta a `<li id="f3">` en la lista de fuentes de la misma página.
 4. **Glosario.** `<span class="term" data-def="Definición corta.">término</span>` muestra la definición al pasar el cursor, al enfocarlo o al tocarlo.
-5. **Imágenes.** En `.webp` con respaldo `.jpg` o `.png`. La versión grande va en `data-grande` y se abre al ampliar la imagen.
+5. **Imágenes.** En `.webp` con respaldo `.jpg` o `.png`. La versión grande va en `data-grande` y se abre con el botón Ampliar.
 6. **Interactivos.** Un elemento con `data-vis="nombre"` se monta al entrar en pantalla con la función `window.VISUALES.nombre`.
 7. **Contenido pendiente.** Los bloques ocultos con `hidden` llevan un comentario `PENDIENTE AUTOR` que dice qué falta.
 8. **PDF de la tesis.** Cuando esté en el repositorio institucional, pon su enlace en `TESIS_PDF` dentro de `js/sitio.js`.

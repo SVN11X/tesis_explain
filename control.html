@@ -19,9 +19,6 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#004EAA">
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&amp;family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&amp;family=IBM+Plex+Mono:wght@400;600&amp;display=swap">
 <link rel="stylesheet" href="css/estilo.css">
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <script src="js/comun.js" defer></script>
@@ -55,7 +52,7 @@
 
 <section class="en-breve" aria-labelledby="t-breve">
   <h2 id="t-breve">Un PI que sigue 0,13 m/s</h2>
-  <p>Cada rueda tiene su propio lazo de control en el Arduino. La ley heredada del firmware se llama PID, pero al leer su código vi que opera como un PI incremental, sin acción derivativa. Sus ganancias partieron de una búsqueda con enjambre de partículas sobre un modelo de cada rueda y las terminé de ajustar en el robot real. Con ellas, ambas ruedas siguen 0,13 m/s sin sobreimpulso apreciable dentro de lo que la medición alcanza a ver.</p>
+  <p>Cada rueda tiene su propio lazo de control en el Arduino. La ley heredada del firmware se llama <span class="term" data-def="Controlador que combina una acción proporcional al error, una integral del error pasado y una derivativa de su tendencia.">PID</span>, pero al leer su código vi que opera como un <span class="term" data-def="Controlador que en cada ciclo calcula cuánto cambiar la salida, en vez de calcularla completa.">PI incremental</span>, sin acción derivativa. Sus ganancias partieron de una búsqueda con enjambre de partículas sobre un modelo de cada rueda y las terminé de ajustar en el robot real. Con ellas, ambas ruedas siguen 0,13 m/s sin sobreimpulso apreciable dentro de lo que la medición alcanza a ver.</p>
   <div class="cifras-mini">
     <div><b>0,002 <small>m/s</small></b><span>error estacionario máximo, en la rueda izquierda</span></div>
     <div><b>0,8 <small>y</small> 1,4 <small>s</small></b><span>tiempo de subida de cada rueda, del 10 al 90 %</span></div>
@@ -116,6 +113,7 @@
 <section>
   <h2 id="enteros">Los decimales que se pierden</h2>
   <p>El Arduino Nano guarda varios resultados intermedios como números enteros. Las ganancias se aplican con decimales, pero el error, el aumento de la salida y el término integral se recortan hacia cero al guardarse <a class="ref" href="#f1">1</a>. Si el aumento calculado es 0,9, se guarda 0 y el motor no cambia.</p>
+  <details class="detalle"><summary>Ver el detalle técnico</summary>
   <div class="widget">
     <div class="widget-cab"><h3 id="ciclo">Un ciclo del firmware, con sus números</h3><span class="tipo inter">Interactivo</span><p>Elige una situación o mueve las mediciones. En rojo aparece cada corte.</p></div>
     <div class="vis" data-vis="ciclo"><p class="vis-fallback">Paso a paso del cálculo del control en el firmware.</p></div>
@@ -126,21 +124,24 @@
   </figure>
   <p>Esto tiene un efecto directo sobre Ki. En la rueda derecha, con Ki de 0,001, el producto de Ki por el error solo llegaría a una unidad con errores de 1000 pulsos por ciclo, muy superiores a los del ensayo, así que su término integral queda siempre en cero. En la izquierda, con Ki de 0,075, solo crece con errores de al menos 14 pulsos por ciclo, cerca de 0,045 m/s, lo que pasa sobre todo al arrancar <a class="ref" href="#f1">1</a>.</p>
   <p>En el firmware original las ganancias eran enteras, así que el producto de Ki por el error siempre era entero y no se perdía nada. Al pasar a ganancias con decimales, el estado integral siguió siendo un entero de 16 bits, y ahí aparecieron las pérdidas. Es un error muy común al adaptar código embebido, y por eso tiene su propia sección en <a href="lecciones.html#tipos">Lecciones de ingeniería</a>.</p>
+  </details>
 </section>
 
 <section>
   <h2 id="windup">Windup, el integrador que se infla</h2>
   <p>Cuando el motor ya está al máximo y la rueda no alcanza la referencia, por ejemplo porque está trabada, la parte integral de un PI normal sigue acumulando error. Al liberarse la rueda, esa acumulación tarda en descargarse y la rueda se pasa de la velocidad pedida. Eso se llama windup, algo así como sobrecarga del integrador.</p>
+  <details class="detalle"><summary>Ver el detalle técnico</summary>
   <div class="widget">
     <div class="widget-cab"><h3 id="sim-windup">Rueda trabada, dos leyes</h3><span class="tipo ilus">Ilustrativo</span><p>Cambia cuánto tiempo pasa la rueda trabada.</p></div>
     <div class="vis" data-vis="windup"><p class="vis-fallback">Comparación de un PI normal y uno incremental con tope cuando la rueda se traba.</p></div>
   </div>
   <p>Este firmware tiene dos protecciones. Recorta la salida a 255 antes de guardarla, y deja de actualizar el término integral mientras la salida está en el tope, lo que se llama integración condicional <a class="ref" href="#f2">2</a>.</p>
+  </details>
 </section>
 
 <section>
   <h2 id="modelo">Un modelo de cada rueda</h2>
-  <p>Para buscar ganancias sin probar a ciegas en el robot, primero se identificó un modelo de cada rueda. Se aplicó un escalón de PWM de 143 sin control y se registraron los encoders cada 0,1 s durante 10 s. Con esa respuesta se ajustó un modelo de primer orden con retardo, conocido como <span class="term" data-def="First Order Plus Dead Time. Un modelo que resume cómo responde un sistema con tres números: cuánto responde, qué tan rápido y con cuánta demora.">FOPDT</span>, que resume una rueda con tres números. Cuánto responde, qué tan rápido y con cuánta demora <a class="ref" href="#f3">3</a>.</p>
+  <p>Para buscar ganancias sin probar a ciegas en el robot, primero se identificó un modelo de cada rueda. Se aplicó un escalón de <span class="term" data-def="Modulación por ancho de pulso, que regula la potencia media del motor encendiéndolo y apagándolo muy rápido.">PWM</span> de 143 sin control y se registraron los <span class="term" data-t="Encoder" data-def="Sensor que produce dos señales desfasadas al girar un eje, para contar el giro y saber su sentido.">encoders</span> cada 0,1 s durante 10 s. Con esa respuesta se ajustó un modelo de primer orden con retardo, conocido como <span class="term" data-def="First Order Plus Dead Time. Un modelo que resume cómo responde un sistema con tres números: cuánto responde, qué tan rápido y con cuánta demora.">FOPDT</span>, que resume una rueda con tres números. Cuánto responde, qué tan rápido y con cuánta demora <a class="ref" href="#f3">3</a>.</p>
   <div class="tabla-env">
     <table class="tabla">
       <thead><tr><th>Parámetro del modelo</th><th class="n">Rueda izquierda</th><th class="n">Rueda derecha</th></tr></thead>
@@ -161,7 +162,7 @@
 
 <section>
   <h2 id="pso">Buscar ganancias con un enjambre</h2>
-  <p>La optimización por enjambre de partículas, o PSO, se inspira en cómo se mueven las bandadas <a class="ref" href="#f4">4</a>. Cada partícula es un candidato, aquí un trío de ganancias. En cada generación, cada partícula se mueve combinando tres impulsos. Su velocidad anterior, la atracción hacia el mejor punto que ella misma encontró y la atracción hacia el mejor punto de todo el enjambre. No necesita derivadas ni un modelo exacto, solo poder evaluar qué tan bueno es cada candidato. Por eso es útil cuando se buscan varias ganancias a la vez.</p>
+  <p>La optimización por enjambre de partículas, o <span class="term" data-def="Optimización por enjambre de partículas, que busca el mejor valor moviendo muchos candidatos que comparten lo que encuentran.">PSO</span>, se inspira en cómo se mueven las bandadas <a class="ref" href="#f4">4</a>. Cada partícula es un candidato, aquí un trío de ganancias. En cada generación, cada partícula se mueve combinando tres impulsos. Su velocidad anterior, la atracción hacia el mejor punto que ella misma encontró y la atracción hacia el mejor punto de todo el enjambre. No necesita derivadas ni un modelo exacto, solo poder evaluar qué tan bueno es cada candidato. Por eso es útil cuando se buscan varias ganancias a la vez.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="sim-enjambre">Un enjambre buscando el menor costo</h3><span class="tipo inter">Interactivo</span><p>Presiona Buscar y mira cómo las partículas pasan de explorar a converger.</p></div>
     <div class="vis" data-vis="enjambre"><p class="vis-fallback">Simulador de optimización por enjambre de partículas. Necesita JavaScript.</p></div>
@@ -231,7 +232,7 @@
 
 <section>
   <h2 id="mundo-real">En el mundo real</h2>
-  <p>El lazo cerrado es probablemente la idea de ingeniería más repetida del mundo. Estos son tres lugares donde se ve el mismo problema que el de esta rueda.</p>
+  <p>El lazo cerrado es probablemente la idea de ingeniería más repetida del mundo.</p>
   <div class="casos">
     <article class="caso">
       <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M8 40h48l-6-14H18z"/><circle cx="20" cy="44" r="5"/><circle cx="44" cy="44" r="5"/><path d="M26 26l4-8h10"/></svg></div>
@@ -239,28 +240,8 @@
         <span class="lugar">Automóviles</span>
         <h3>Control crucero</h3>
         <p>El conductor fija una velocidad y el sistema ajusta el acelerador cuando el auto sube o baja una cuesta. Es el ejemplo de cabecera en el libro abierto de Åström y Murray.</p>
-        <p class="vinculo">Tiene una referencia de velocidad, una perturbación y un lazo que corrige, como cada rueda de este robot.</p>
+        <p class="vinculo">Tiene una referencia de velocidad, una perturbación y un lazo que corrige, como cada rueda de este robot. <a href="mundo-real.html#control-crucero">Ver el caso completo</a>.</p>
         <p class="fuente-caso">Fuente <a class="ref" href="#f8">8</a></p>
-      </div>
-    </article>
-    <article class="caso">
-      <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><rect x="14" y="10" width="36" height="8" rx="2"/><path d="M32 18v10M26 28h12l-3 10h-6z"/><path d="M12 54h40M20 54v-8h24v8"/></svg></div>
-      <div class="caso-txt">
-        <span class="lugar">Impresoras 3D</span>
-        <h3>La temperatura de la boquilla</h3>
-        <p>El firmware Marlin mantiene la boquilla a la temperatura pedida con un PID, y trae un comando de autoajuste, M303, que prueba el calentador y calcula las ganancias.</p>
-        <p class="vinculo">Busca ganancias a partir de una respuesta medida, la misma idea que el modelo FOPDT y el PSO de este robot.</p>
-        <p class="fuente-caso">Fuente <a class="ref" href="#f10">10</a></p>
-      </div>
-    </article>
-    <article class="caso">
-      <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M14 20h12M38 20h12M20 20v6h24v-6"/><rect x="24" y="26" width="16" height="12" rx="3"/><circle cx="20" cy="20" r="6"/><circle cx="44" cy="20" r="6"/></svg></div>
-      <div class="caso-txt">
-        <span class="lugar">Drones</span>
-        <h3>Lazos en cascada</h3>
-        <p>Los multicópteros con PX4 encadenan varios controladores, uno por velocidad de giro, otro por ángulo y otro por posición, y su guía de ajuste explica cómo sintonizar cada uno.</p>
-        <p class="vinculo">En este robot también hay lazos encadenados, porque Nav2 ordena velocidades y el Arduino las sigue rueda por rueda.</p>
-        <p class="fuente-caso">Fuente <a class="ref" href="#f11">11</a></p>
       </div>
     </article>
   </div>
@@ -278,8 +259,6 @@
     <li id="f7"><span><span class="tipo-ref">Artículo</span>Gökçe, B., Koca, Y. B., Aslan, Y. y Gökçe, C. O. (2021). Particle Swarm Optimization-Based Optimal PID Control of an Agricultural Mobile Robot. <em>Comptes rendus de l'Académie bulgare des Sciences, 74</em>(4). <a href="https://doi.org/10.7546/CRABS.2021.04.12">doi.org/10.7546/CRABS.2021.04.12</a></span></li>
     <li id="f8"><span><span class="tipo-ref">Libro abierto</span>Åström, K. J. y Murray, R. M. <em>Feedback Systems: An Introduction for Scientists and Engineers</em>, segunda edición. <a href="https://www.cds.caltech.edu/~murray/amwiki/Second_Edition.html">cds.caltech.edu</a></span></li>
     <li id="f9"><span><span class="tipo-ref">Video</span>MATLAB. Understanding PID Control, serie en YouTube. <a href="https://www.youtube.com/playlist?list=PLn8PRpmsu08pQBgjxYFXSsODEF3Jqmm-y">youtube.com</a>. Y MathWorks, PID Control. <a href="https://www.mathworks.com/discovery/pid-control.html">mathworks.com</a></span></li>
-    <li id="f10"><span><span class="tipo-ref">Documentación</span>Marlin Firmware. M303, PID autotune. <a href="https://marlinfw.org/docs/gcode/M303.html">marlinfw.org/docs/gcode/M303.html</a></span></li>
-    <li id="f11"><span><span class="tipo-ref">Documentación</span>PX4 Autopilot. Multicopter PID Tuning Guide. <a href="https://docs.px4.io/main/en/config_mc/pid_tuning_guide_multicopter">docs.px4.io</a></span></li>
   </ol>
 </section>
 

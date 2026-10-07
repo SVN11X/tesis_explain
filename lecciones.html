@@ -19,9 +19,6 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#004EAA">
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&amp;family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&amp;family=IBM+Plex+Mono:wght@400;600&amp;display=swap">
 <link rel="stylesheet" href="css/estilo.css">
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <script src="js/comun.js" defer></script>
@@ -51,7 +48,7 @@
 
 <section class="en-breve" aria-labelledby="t-breve">
   <h2 id="t-breve">Por qué esta página</h2>
-  <p>El aporte de la tesis es la integración de un robot propio. Al validarlo aparecieron resultados que explican el alcance de cada objetivo, como que la ley llamada PID opera como PI, que casi todas las metas abortadas eran reemplazos y que el índice de cobertura depende del encuadre del mapa. Detrás de cada uno hay una lección de método que sirve en cualquier proyecto.</p>
+  <p>El aporte de la tesis es la integración de un robot propio. Al validarlo aparecieron resultados que explican el alcance de cada objetivo, como que la ley llamada <span class="term" data-def="Controlador que combina una acción proporcional al error, una integral del error pasado y una derivativa de su tendencia.">PID</span> opera como <span class="term" data-def="Controlador con acción proporcional e integral, sin la acción derivativa de un PID.">PI</span>, que casi todas las metas abortadas eran reemplazos y que el índice de cobertura depende del encuadre del mapa. Detrás de cada uno hay una lección de método que sirve en cualquier proyecto.</p>
   <div class="cifras-mini">
     <div><b>1999</b><span>año en que una mezcla de unidades costó una sonda a Marte</span></div>
     <div><b>3</b><span>capas de seguridad del robot, de la persona a la red</span></div>
@@ -67,7 +64,7 @@
 
 <section>
   <h2 id="verificar">Verificar y validar</h2>
-  <p>El manual de ingeniería de sistemas de la NASA distingue dos cosas que el lenguaje cotidiano mezcla. Verificar es demostrar que un producto cumple cada requisito especificado. Validar es demostrar que cumple su propósito en el entorno real en que se usará <a class="ref" href="#f3">3</a>. Usé ese vocabulario en todo el trabajo. La odometría quedó validada contra una cinta métrica, el gemelo digital quedó verificado con cuatro criterios y la exploración quedó verificada en funcionamiento.</p>
+  <p>El manual de ingeniería de sistemas de la NASA distingue dos cosas que el lenguaje cotidiano mezcla. Verificar es demostrar que un producto cumple cada requisito especificado. Validar es demostrar que cumple su propósito en el entorno real en que se usará <a class="ref" href="#f3">3</a>. Usé ese vocabulario en todo el trabajo. La <span class="term" data-t="Odometría" data-def="Estimación de la posición sumando el giro medido de las ruedas.">odometría</span> quedó validada contra una cinta métrica, el gemelo digital quedó verificado con cuatro criterios y la exploración quedó verificada en funcionamiento.</p>
   <p>La lección práctica es sencilla. Antes de escribir validado, pregunta contra qué referencia independiente se comparó. Si no hay una, la palabra correcta es otra. Ver <a href="resultados.html#palabras">La evidencia</a>.</p>
 </section>
 
@@ -80,13 +77,13 @@
 <section id="tipos-sec">
   <h2 id="tipos">El tipo de dato también es diseño</h2>
   <p>En el firmware original las ganancias eran enteras y el término integral se guardaba como entero sin perder nada. Al pasar a ganancias con decimales, el término integral siguió siendo un entero de 16 bits, y los productos menores que uno empezaron a desaparecer. En la rueda derecha, el término integral quedó siempre en cero <a class="ref" href="#f4">4</a>.</p>
-  <p>Hay un segundo caso en el mismo firmware. Los contadores de los encoders son enteros de 32 bits, y en un Arduino Nano leer 32 bits no es una operación indivisible. Si una interrupción cambia el contador justo mientras se copia, la lectura puede quedar a medias. Lo documenté como una condición conservada del código original. La recomendación general es leer esas variables con las interrupciones pausadas por un instante.</p>
+  <p>Hay un segundo caso en el mismo firmware. Los contadores de los <span class="term" data-t="Encoder" data-def="Sensor que produce dos señales desfasadas al girar un eje, para contar el giro y saber su sentido.">encoders</span> son enteros de 32 bits, y en un Arduino Nano leer 32 bits no es una operación indivisible. Si una interrupción cambia el contador justo mientras se copia, la lectura puede quedar a medias. Lo documenté como una condición conservada del código original. La recomendación general es leer esas variables con las interrupciones pausadas por un instante.</p>
   <p>Cambiar una parte de un cálculo sin revisar los tipos del resto es uno de los errores más comunes al adaptar código embebido, y uno de los más difíciles de ver, porque nada avisa. Ver <a href="control.html#enteros">Los decimales que se pierden</a>.</p>
 </section>
 
 <section>
   <h2 id="metricas">Qué significa una meta abortada</h2>
-  <p>De 60 metas de navegación, 54 quedaron abortadas. Leído a la ligera, el robot fallaba casi siempre. Leído con cuidado, 53 de esos abortos eran reemplazos hechos por el propio explorador, que cambia de destino cada 3,3 s, y Nav2 informa ese reemplazo con la misma palabra que una falla <a class="ref" href="#f4">4</a>.</p>
+  <p>De 60 metas de navegación, 54 quedaron abortadas. Leído a la ligera, el robot fallaba casi siempre. Leído con cuidado, 53 de esos abortos eran reemplazos hechos por el propio explorador, que cambia de destino cada 3,3 s, y <span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span> informa ese reemplazo con la misma palabra que una falla <a class="ref" href="#f4">4</a>.</p>
   <p>El mismo episodio trae una segunda lección. Los contadores automáticos del ensayo contaban mensajes de estado y no metas únicas, y uno de ellos quedó en cero porque buscaba un texto que nunca se imprimía. Se pudo corregir porque los datos crudos se guardaron completos. De ahí dos prácticas que sirven en cualquier experimento. Registrar identificadores únicos de cada evento que se quiera contar, y guardar los datos crudos además de los resúmenes. Ver <a href="exploracion.html#abortadas">Explorar por fronteras</a>.</p>
   <p class="destacado">Antes de confiar en un contador, pregunta qué cuenta exactamente.</p>
 </section>
@@ -99,8 +96,8 @@
 
 <section>
   <h2 id="reproducibilidad">Reproducible significa que otra persona llega al mismo número</h2>
-  <p>El PSO que buscó las ganancias parte de números al azar y no fijaba una semilla, así que al repetirlo da resultados algo distintos. Conservé la salida exacta de la ejecución usada, que es lo mínimo. Lo ideal es fijar la semilla y guardar la salida <a class="ref" href="#f4">4</a>.</p>
-  <p>Las versiones de software son la otra mitad del problema. Ubuntu 20.04, ROS 2 Foxy y Gazebo Classic se congelaron al inicio para que toda la cadena funcionara, una decisión razonable para terminar un proyecto. Hoy los tres están fuera de soporte <a class="ref" href="#f5">5</a>. Quien quiera repetir el trabajo necesita esas versiones exactas, que dejé registradas, y quien quiera continuarlo necesita migrar. Una buena práctica es empaquetar el entorno completo en un contenedor, por ejemplo con Docker, para que la versión exacta siga disponible aunque el sistema operativo cambie.</p>
+  <p>El <span class="term" data-def="Optimización por enjambre de partículas, que busca el mejor valor moviendo muchos candidatos que comparten lo que encuentran.">PSO</span> que buscó las ganancias parte de números al azar y no fijaba una semilla, así que al repetirlo da resultados algo distintos. Conservé la salida exacta de la ejecución usada, que es lo mínimo. Lo ideal es fijar la semilla y guardar la salida <a class="ref" href="#f4">4</a>.</p>
+  <p>Las versiones de software son la otra mitad del problema. Ubuntu 20.04, <span class="term" data-def="Conjunto de bibliotecas y herramientas de código abierto para construir sistemas robóticos modulares y distribuidos.">ROS 2</span> Foxy y <span class="term" data-def="Simulador 3D de robots, aquí en su versión 11, que llegó al fin de soporte en enero de 2025.">Gazebo Classic</span> se congelaron al inicio para que toda la cadena funcionara, una decisión razonable para terminar un proyecto. Hoy los tres están fuera de soporte <a class="ref" href="#f5">5</a>. Quien quiera repetir el trabajo necesita esas versiones exactas, que dejé registradas, y quien quiera continuarlo necesita migrar. Una buena práctica es empaquetar el entorno completo en un contenedor, por ejemplo con Docker, para que la versión exacta siga disponible aunque el sistema operativo cambie.</p>
 </section>
 
 <section>
@@ -111,14 +108,14 @@
 
 <section>
   <h2 id="privacidad">Un mapa de un interior es un dato personal</h2>
-  <p>Un plano generado por un robot dice cuántas habitaciones tiene una casa, cómo se conectan y dónde están los muebles. En 2017, la empresa fabricante de Roomba causó polémica al sugerir que esos mapas podrían compartirse con otras compañías <a class="ref" href="#f7">7</a>. En 2022 se conoció que imágenes tomadas dentro de hogares por versiones de desarrollo de una aspiradora robot terminaron publicadas en redes sociales por trabajadores contratados para etiquetarlas <a class="ref" href="#f8">8</a>.</p>
-  <p>Este robot solo usa un láser y guarda sus mapas en el computador del proyecto. Pero si la tecnología se lleva a casas u oficinas, conviene decidir desde el diseño dónde se guardan los mapas, quién accede a ellos, cuándo se borran y cómo se avisa a las personas que su espacio está siendo registrado. Ver <a href="mapeo.html#privacidad">Ver y mapear</a>.</p>
+  <p>Un plano generado por un robot revela cómo es una casa por dentro, y los casos de aspiradoras robot que cuento en <a href="mapeo.html#privacidad">Un mapa de interiores es un dato personal</a> muestran por qué importa.</p>
+  <p>Este robot solo usa un láser y guarda sus mapas en el computador del proyecto. Pero si la tecnología se lleva a casas u oficinas, conviene decidir desde el diseño dónde se guardan los mapas, quién accede a ellos, cuándo se borran y cómo se avisa a las personas que su espacio está siendo registrado.</p>
 </section>
 
 <section>
   <h2 id="limites">Declarar los límites</h2>
   <p>Desde la introducción declaré qué no haría, como medir la navegación hacia metas fijas o localizarse sobre un mapa guardado, y en las conclusiones enumeré las limitaciones, desde la deriva sin unidad inercial hasta el recinto único. También dije con precisión qué código adapté y qué es propio <a class="ref" href="#f4">4</a>.</p>
-  <p>Así quien lee sabe exactamente hasta dónde llega cada afirmación, y quien quiera continuar sabe por dónde empezar. La brecha entre simulación y realidad es un buen ejemplo. La uso para explicar por qué medí en el robot real, y la investigación en robótica la trata como un problema propio, con técnicas como variar al azar los parámetros de la simulación <a class="ref" href="#f9">9</a>.</p>
+  <p>Así quien lee sabe exactamente hasta dónde llega cada afirmación, y quien quiera continuar sabe por dónde empezar. La brecha entre simulación y realidad es un buen ejemplo. La uso para explicar por qué medí en el robot real, y la investigación en robótica la trata como un problema propio, con técnicas como variar al azar los parámetros de la simulación <a class="ref" href="#f7">7</a>.</p>
   <p class="destacado">Un resultado acotado sirve de base para el siguiente trabajo. Uno inflado hay que desarmarlo primero.</p>
 </section>
 
@@ -131,9 +128,7 @@
     <li id="f4"><span><span class="tipo-ref">Tesis</span>Valderas Neculqueo, S. (2026). <em>Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial</em>. UTEM. Alcances y limitaciones, secciones 4.3.5, 4.4, 5.1 a 5.4, Conclusiones y Anexos 3.4, 4.1, 4.4, 4.5, 4.10, 6 y 8.4.</span></li>
     <li id="f5"><span><span class="tipo-ref">Referencia</span>endoflife.date. ROS 2. <a href="https://endoflife.date/ros-2">endoflife.date/ros-2</a>. Y Open Source Robotics Foundation, Gazebo Classic. <a href="https://classic.gazebosim.org/">classic.gazebosim.org</a></span></li>
     <li id="f6"><span><span class="tipo-ref">Norma</span>ISO 3691-4, Industrial trucks, Safety requirements and verification, Part 4: Driverless industrial trucks and their systems. <a href="https://www.iso.org/standard/88615.html">iso.org</a></span></li>
-    <li id="f7"><span><span class="tipo-ref">Prensa</span>MIT Technology Review (2017, 25 de julio). Your Roomba is also gathering data about the layout of your home. <a href="https://www.technologyreview.com/2017/07/25/150346/your-roomba-is-also-gathering-data-about-the-layout-of-your-home/">technologyreview.com</a></span></li>
-    <li id="f8"><span><span class="tipo-ref">Prensa</span>Guo, E. (2022, 19 de diciembre). A Roomba recorded a woman on the toilet. How did screenshots end up on Facebook? MIT Technology Review. <a href="https://www.technologyreview.com/2022/12/19/1065306/roomba-irobot-robot-vacuums-artificial-intelligence-training-data-privacy/">technologyreview.com</a></span></li>
-    <li id="f9"><span><span class="tipo-ref">Artículo</span>Tobin, J. y otros (2017). Domain randomization for transferring deep neural networks from simulation to the real world. <em>IEEE/RSJ IROS</em>. <a href="https://arxiv.org/abs/1703.06907">arxiv.org/abs/1703.06907</a></span></li>
+    <li id="f7"><span><span class="tipo-ref">Artículo</span>Tobin, J. y otros (2017). Domain randomization for transferring deep neural networks from simulation to the real world. <em>IEEE/RSJ IROS</em>. <a href="https://arxiv.org/abs/1703.06907">arxiv.org/abs/1703.06907</a></span></li>
   </ol>
 </section>
 

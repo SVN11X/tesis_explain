@@ -59,7 +59,8 @@
     lupa: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>',
     arriba: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>',
     git: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 19c-4 1.3-4-2-6-2.5M15 21v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1-.3-3.4 1.3a11.6 11.6 0 0 0-6 0C6.8 2.8 5.8 3.1 5.8 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4.4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg>',
-    abajo: '<svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px"><path d="M6 9l6 6 6-6"/></svg>'
+    abajo: '<svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px"><path d="M6 9l6 6 6-6"/></svg>',
+    ampliar: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg>'
   };
 
   /* Tema claro u oscuro */
@@ -285,27 +286,35 @@
     });
   }
 
-  /* Ampliar imágenes */
+  /* Ampliar imágenes. Cada figura lleva un botón visible, también en pantallas táctiles,
+     que abre el diálogo. La imagen sigue respondiendo al clic del ratón. */
   function ampliar() {
     var imgs = document.querySelectorAll("figure.foto:not(.sin-zoom) img, figure.fig:not(.sin-zoom) img, figure.tema-hero-fig img");
     if (!imgs.length || typeof HTMLDialogElement === "undefined") return;
     var dlg = document.createElement("dialog"); dlg.className = "lightbox";
     dlg.innerHTML = '<button type="button" aria-label="Cerrar">×</button><img alt=""><p></p>';
     document.body.appendChild(dlg);
+    var origen = null;
     dlg.querySelector("button").addEventListener("click", function () { dlg.close(); });
     dlg.addEventListener("click", function (e) { if (e.target === dlg) dlg.close(); });
+    dlg.addEventListener("close", function () { if (origen) origen.focus(); origen = null; });
     imgs.forEach(function (img) {
-      if (img.closest(".deslizar")) return;
-      img.setAttribute("tabindex", "0"); img.setAttribute("role", "button");
-      img.setAttribute("aria-label", (img.alt || "Imagen") + ". Ampliar");
+      var fig = img.closest("figure");
+      if (img.closest(".deslizar") || !fig || fig.querySelector(".b-ampliar")) return;
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "b-ampliar"; b.setAttribute("aria-label", "Ampliar imagen");
+      b.innerHTML = SVG.ampliar + '<span aria-hidden="true">Ampliar</span>';
       function abrir() {
         var im = dlg.querySelector("img"); im.src = img.getAttribute("data-grande") || img.currentSrc || img.src; im.alt = img.alt;
-        var cap = img.closest("figure").querySelector("figcaption");
+        var cap = fig.querySelector("figcaption");
         dlg.querySelector("p").textContent = cap ? cap.textContent.trim() : "";
+        origen = b;
         dlg.showModal();
       }
+      b.addEventListener("click", abrir);
       img.addEventListener("click", abrir);
-      img.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); abrir(); } });
+      fig.classList.add("ampliable");
+      fig.appendChild(b);
     });
   }
 
@@ -597,13 +606,46 @@
       if (!location.hash) return;
       var dest = document.getElementById(decodeURIComponent(location.hash.slice(1)));
       if (!dest) return;
-      var antes = Array.prototype.filter.call(els, function (el) { return !el.getAttribute("data-montado") && (el.compareDocumentPosition(dest) & 4); });
+      /* los que siguen dentro de un details cerrado se montan al abrirlo, cuando ya tienen ancho */
+      var antes = Array.prototype.filter.call(els, function (el) { return !el.getAttribute("data-montado") && (el.compareDocumentPosition(dest) & 4) && !el.closest("details:not([open])"); });
       if (!antes.length) return;
       antes.forEach(function (el) { montar(el); io.unobserve(el); });
       requestAnimationFrame(function () { dest.scrollIntoView({ block: "start" }); });
     }
     alDestino();
     window.addEventListener("hashchange", alDestino);
+  }
+
+  /* Contenido plegado. Si el destino de un ancla está dentro de un details cerrado, se abre antes
+     de desplazar la página. Cubre la carga con ancla, el cambio de ancla, el índice lateral, las
+     citas y los resultados del buscador. Al abrir uno se avisa un cambio de tamaño para que los
+     interactivos de adentro midan su ancho, y al imprimir se abren todos. */
+  function destinoDe(hash) {
+    if (!hash || hash.length < 2) return null;
+    try { return document.getElementById(decodeURIComponent(hash.slice(1))); } catch (e) { return null; }
+  }
+  function abrirHasta(el) {
+    var abrio = false;
+    for (var d = el; d; d = d.parentElement) if (d.tagName === "DETAILS" && !d.open) { d.open = true; abrio = true; }
+    return abrio;
+  }
+  function plegados() {
+    function alAncla() {
+      var el = destinoDe(location.hash);
+      if (el && abrirHasta(el)) requestAnimationFrame(function () { el.scrollIntoView({ block: "start" }); });
+    }
+    alAncla();
+    window.addEventListener("hashchange", alAncla);
+    document.addEventListener("click", function (e) {
+      var a = e.target.closest && e.target.closest("a[href*='#']");
+      if (!a || a.pathname !== location.pathname) return;
+      var el = destinoDe(a.hash);
+      if (el) abrirHasta(el);
+    }, true);
+    document.querySelectorAll("details").forEach(function (d) {
+      d.addEventListener("toggle", function () { if (d.open) window.dispatchEvent(new Event("resize")); });
+    });
+    window.addEventListener("beforeprint", function () { document.querySelectorAll("details.detalle").forEach(function (d) { d.open = true; }); });
   }
 
   /* Resaltar el destino de un enlace interno */
@@ -629,7 +671,7 @@
   }
 
   function iniciar() {
-    cabecera(); pie(); capitulo(); progreso(); arriba(); videos(); bucles(); ampliar(); comparadores(); citasYTerminos(); buscador(); materiales(); etapas(); interactivos(); destacarHash();
+    cabecera(); pie(); capitulo(); progreso(); arriba(); videos(); bucles(); ampliar(); comparadores(); citasYTerminos(); buscador(); materiales(); etapas(); plegados(); interactivos(); destacarHash();
     document.documentElement.classList.add("js");
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", iniciar); else iniciar();

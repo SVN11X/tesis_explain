@@ -8,7 +8,8 @@ Uso, desde la raíz del repositorio:
 Comprueba: errores de consola y de carga en las 15 páginas, en escritorio y en móvil; que
 todos los interactivos se monten; desborde horizontal en móvil; enlaces internos, anclas y
 recursos locales; el buscador; las definiciones con ratón, toque y teclado; los simuladores
-de inflación, DWB, exploración y encoder; y la página de Recursos.
+de inflación, DWB, exploración y encoder; la página de Recursos; el contenido plegado y sus
+anclas; el botón Ampliar; y el alto mínimo de los controles en un teléfono.
 """
 import os, re, sys, json, glob
 from urllib.parse import urlparse, unquote
@@ -90,8 +91,8 @@ RELOJ = """
 
 
 def externas(ctx):
-    """El entorno de prueba no tiene salida a internet: las fuentes de Google y las portadas de
-    YouTube se responden vacías para que no aparezcan como errores del sitio."""
+    """El entorno de prueba no tiene salida a internet: las portadas de YouTube y cualquier otro
+    recurso externo se responden vacíos para que no aparezcan como errores del sitio."""
     ctx.route(re.compile(r'^https?://(?!localhost)'), lambda r: r.fulfill(status=200, body='', content_type='text/css' if 'css' in r.request.url else 'image/gif'))
 
 
@@ -120,10 +121,11 @@ def recorrer_paginas(nav, nombre, vista, extra):
                 p.evaluate('window.scrollTo(0, %d)' % y)
                 p.wait_for_timeout(15)
             p.wait_for_timeout(200)
+            # los interactivos dentro de un details cerrado se montan al abrirlo, eso se prueba aparte
             info = p.evaluate("""() => ({
-              vis: document.querySelectorAll('[data-vis]').length,
-              montados: document.querySelectorAll('[data-vis][data-montado]').length,
-              rotos: document.querySelectorAll('[data-vis] .vis-fallback').length,
+              vis: [...document.querySelectorAll('[data-vis]')].filter(e => !e.closest('details:not([open])')).length,
+              montados: [...document.querySelectorAll('[data-vis][data-montado]')].filter(e => !e.closest('details:not([open])')).length,
+              rotos: [...document.querySelectorAll('[data-vis] .vis-fallback')].filter(e => !e.closest('details:not([open])')).length,
               ancho: document.documentElement.scrollWidth - window.innerWidth,
               lateral: (() => { const l = document.getElementById('lateral'); return l ? l.children.length : -1; })(),
               navcap: (() => { const n = document.getElementById('nav-cap'); return n ? n.querySelectorAll('a').length : -1; })()
@@ -475,6 +477,111 @@ def probar_recursos(nav):
         ctx.close()
 
 
+def probar_plegados(nav):
+    print('Contenido plegado y anclas')
+    ctx = contexto(nav, viewport={'width': 390, 'height': 844}, has_touch=True, is_mobile=True)
+    p = ctx.new_page()
+    p.goto(BASE + '/control.html#ciclo')
+    p.wait_for_function("document.querySelector('[data-vis=ciclo]').getAttribute('data-montado')", polling=100)
+    p.wait_for_timeout(300)
+    r = p.evaluate("""() => { const h = document.getElementById('ciclo'), d = h.closest('details'), rc = h.getBoundingClientRect();
+      return { abierto: d.open, arriba: Math.round(rc.top), alto: innerHeight }; }""")
+    ok(r['abierto'] and 0 <= r['arriba'] < r['alto'], 'al cargar con un ancla plegada se abre el details y se llega al destino', r)
+    plegado = p.evaluate("!document.querySelector('[data-vis=windup]').closest('details').open")
+    ok(plegado, 'el otro bloque plegado sigue cerrado')
+    p.evaluate("location.hash = 'sim-windup'")
+    p.wait_for_function("document.querySelector('[data-vis=windup]').getAttribute('data-montado')", polling=100)
+    p.wait_for_timeout(400)
+    r = p.evaluate("""() => { const el = document.querySelector('[data-vis=windup]'), svg = el.querySelector('svg');
+      return { abierto: el.closest('details').open, svg: svg ? svg.getBoundingClientRect().width : 0, caja: el.getBoundingClientRect().width,
+               ancho: document.documentElement.scrollWidth - innerWidth }; }""")
+    ok(r['abierto'], 'al cambiar el ancla a un bloque plegado, el details se abre')
+    ok(0 < r['svg'] <= r['caja'] + 1 and r['ancho'] <= 1, 'el interactivo plegado toma el ancho de su contenedor al abrirse', r)
+    # resultado del buscador hacia un bloque plegado de la misma página
+    p.goto(BASE + '/control.html')
+    p.wait_for_timeout(200)
+    ok(p.evaluate("[...document.querySelectorAll('details.detalle')].every(d => !d.open)"), 'sin ancla, los bloques técnicos parten plegados')
+    p.evaluate("document.getElementById('btn-buscar').click()")
+    p.wait_for_selector('dialog.buscador[open]')
+    p.fill('dialog.buscador input', 'Un ciclo del firmware')
+    p.wait_for_timeout(500)
+    p.keyboard.press('Enter')
+    p.wait_for_timeout(400)
+    ok(p.evaluate("location.hash === '#ciclo' && document.getElementById('ciclo').closest('details').open"), 'un resultado del buscador abre el bloque plegado de destino')
+    # enlace interno, como el índice lateral o una cita, hacia algo plegado
+    p.goto(BASE + '/recursos.html')
+    p.wait_for_timeout(200)
+    p.evaluate("""() => { const a = document.createElement('a'); a.href = '#r-yamauchi1997'; a.id = 'prueba-enlace'; a.textContent = 'x'; document.querySelector('main').prepend(a); }""")
+    p.click('#prueba-enlace')
+    p.wait_for_timeout(300)
+    r = p.evaluate("""() => { const li = document.getElementById('r-yamauchi1997'), rc = li.getBoundingClientRect(); return { abierto: li.closest('details').open, arriba: rc.top, alto: innerHeight }; }""")
+    ok(r['abierto'] and 0 <= r['arriba'] < r['alto'], 'un clic en un enlace interno abre la bibliografía plegada y muestra la referencia', r)
+    s = p.locator('details.detalle > summary').first
+    s.focus()
+    ok(p.evaluate("document.activeElement.tagName === 'SUMMARY'"), 'el control para desplegar se alcanza con teclado')
+    ctx.close()
+
+
+def probar_ampliar(nav):
+    print('Botón Ampliar')
+    for nombre, kw in [('escritorio', {'viewport': {'width': 1280, 'height': 900}}), ('teléfono', {'viewport': {'width': 390, 'height': 844}, 'has_touch': True, 'is_mobile': True})]:
+        ctx = contexto(nav, **kw)
+        p = ctx.new_page()
+        p.goto(BASE + '/robot.html')
+        p.wait_for_timeout(200)
+        r = p.evaluate("""() => { const figs = document.querySelectorAll('figure.ampliable'), bs = document.querySelectorAll('.b-ampliar');
+          const b = document.querySelector('#energia ~ figure .b-ampliar') || document.querySelector('figure img[data-grande*=circuito]').closest('figure').querySelector('.b-ampliar');
+          const cs = getComputedStyle(b);
+          return { figs: figs.length, botones: bs.length, etiqueta: b.getAttribute('aria-label'), texto: b.textContent.trim(), visible: cs.display !== 'none' && cs.visibility !== 'hidden' && +cs.opacity > 0.5 }; }""")
+        ok(r['figs'] > 5 and r['figs'] == r['botones'], '%s: cada figura ampliable tiene su botón (%d)' % (nombre, r['botones']), r)
+        ok(r['etiqueta'] == 'Ampliar imagen' and r['texto'] == 'Ampliar' and r['visible'], '%s: el botón es visible, dice Ampliar y tiene etiqueta accesible' % nombre, r)
+        b = p.locator('figure:has(img[data-grande*="circuito"]) .b-ampliar')
+        b.scroll_into_view_if_needed()
+        if nombre == 'teléfono':
+            b.tap()
+        else:
+            b.focus(); p.keyboard.press('Enter')
+        p.wait_for_timeout(150)
+        r = p.evaluate("() => { const d = document.querySelector('dialog.lightbox'); return { abierto: d.open, src: d.querySelector('img').getAttribute('src') }; }")
+        ok(r['abierto'] and r['src'].endswith('circuito.png'), '%s: el botón abre la imagen grande' % nombre, r)
+        p.keyboard.press('Escape')
+        p.wait_for_timeout(100)
+        ok(p.evaluate("!document.querySelector('dialog.lightbox').open && document.activeElement.classList.contains('b-ampliar')"), '%s: Escape cierra y el foco vuelve al botón' % nombre)
+        ok(len(re.findall(r'(?i)ha[zg]a? clic', p.evaluate("document.querySelector('main').innerText"))) == 0, '%s: las leyendas no piden hacer clic' % nombre)
+        ctx.close()
+
+
+def probar_tactil(nav):
+    print('Controles en un teléfono de 390 por 844')
+    ctx = contexto(nav, viewport={'width': 390, 'height': 844}, has_touch=True, is_mobile=True, device_scale_factor=2)
+    sel = '.lateral a, .miga a, .b-ctl, .cab button, .cab a.btn-icono, .b-ampliar, .vbtn, .chip, .segmento button, details.detalle > summary'
+    for pag in ['index.html', 'robot.html', 'control.html', 'exploracion.html', 'resultados.html', 'recursos.html']:
+        p = ctx.new_page()
+        p.goto(BASE + '/' + pag)
+        p.wait_for_timeout(250)
+        p.evaluate("document.querySelectorAll('.lateral details').forEach(d => d.open = true)")
+        alto = p.evaluate('document.body.scrollHeight')
+        for y in range(0, alto + 800, 700):
+            p.evaluate('window.scrollTo(0, %d)' % y)
+            p.wait_for_timeout(10)
+        p.wait_for_timeout(200)
+        r = p.evaluate("""(sel) => { const out = [], n = { total: 0 };
+          document.querySelectorAll(sel).forEach(el => { const rc = el.getBoundingClientRect(); if (!rc.width || !rc.height || el.closest('[hidden]')) return;
+            n.total++; if (rc.height < 43.5) out.push((el.className || el.tagName) + ' ' + (el.textContent || '').trim().slice(0, 20) + ' ' + rc.height.toFixed(1)); });
+          return { total: n.total, chicos: out, ancho: document.documentElement.scrollWidth - innerWidth }; }""", sel)
+        ok(r['total'] > 3 and not r['chicos'], '%s: %d controles miden al menos 44 px de alto' % (pag, r['total']), r['chicos'][:6])
+        ok(r['ancho'] <= 1, '%s: sin desborde horizontal en el teléfono' % pag, r['ancho'])
+        p.close()
+    ctx.close()
+    ctx = contexto(nav, viewport={'width': 1280, 'height': 900})
+    p = ctx.new_page()
+    p.goto(BASE + '/control.html')
+    p.wait_for_timeout(200)
+    h = p.evaluate("Math.round(document.querySelector('.miga a').getBoundingClientRect().height)")
+    ok(h < 44, 'con ratón la ruta de navegación conserva su tamaño (%d px)' % h)
+    ctx.close()
+
+
 with sync_playwright() as pw:
     nav = pw.chromium.launch()
     revisar_enlaces()
@@ -488,6 +595,9 @@ with sync_playwright() as pw:
     probar_exploracion(nav)
     probar_encoder(nav)
     probar_recursos(nav)
+    probar_plegados(nav)
+    probar_ampliar(nav)
+    probar_tactil(nav)
     nav.close()
 
 print('\n%d de %d comprobaciones correctas' % (total - len(fallos), total))

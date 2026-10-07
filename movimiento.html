@@ -19,9 +19,6 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#004EAA">
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&amp;family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&amp;family=IBM+Plex+Mono:wght@400;600&amp;display=swap">
 <link rel="stylesheet" href="css/estilo.css">
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <script src="js/comun.js" defer></script>
@@ -55,7 +52,7 @@
 
 <section class="en-breve" aria-labelledby="t-breve">
   <h2 id="t-breve">Contar pulsos para saber cuánto avanzó</h2>
-  <p>El robot dobla haciendo que una rueda gire más rápido que la otra. Para saber cuánto avanzó cuenta los pulsos de los encoders, una técnica llamada odometría, que es simple y rápida pero acumula error con cada metro. En el robot real esa cuenta se equivocó un 3,63 % en una recta de 2 m, con un error tan parejo que revela un sesgo que se puede corregir.</p>
+  <p>El robot dobla haciendo que una rueda gire más rápido que la otra. Para saber cuánto avanzó cuenta los pulsos de los <span class="term" data-t="Encoder" data-def="Sensor que produce dos señales desfasadas al girar un eje, para contar el giro y saber su sentido.">encoders</span>, una técnica llamada <span class="term" data-t="Odometría" data-def="Estimación de la posición sumando el giro medido de las ruedas.">odometría</span>, que es simple y rápida pero acumula error con cada metro. En el robot real esa cuenta se equivocó un 3,63 % en una recta de 2 m, con un error tan parejo que revela un sesgo que se puede corregir.</p>
   <div class="cifras-mini">
     <div><b>3,63 <small>%</small></b><span>error medio de la odometría frente a una cinta métrica</span></div>
     <div><b>0,44 <small>%</small></b><span>dispersión entre repeticiones, la firma de un sesgo sistemático</span></div>
@@ -72,7 +69,7 @@
     <div class="vis" data-vis="cinematica"><p class="vis-fallback">Simulador de cinemática diferencial. Necesita JavaScript.</p></div>
   </div>
   <p>Dos reglas lo resumen todo. La velocidad del robot es el promedio de las velocidades de sus ruedas. Y la rapidez con que gira es la diferencia entre ambas ruedas dividida por la distancia que las separa, 18,8 cm en este robot <a class="ref" href="#f1">1</a>. Por eso una diferencia pequeña entre ruedas produce una curva amplia, y una diferencia grande, una curva cerrada.</p>
-  <p>El controlador diferencial de ROS 2 hace la cuenta al revés. Recibe una velocidad y un giro para el robot y calcula cuánto debe girar cada rueda. En el robot real limita la velocidad a 0,13 m/s y el giro a 0,35 rad/s, valores prudentes para un recinto pequeño.</p>
+  <p>El controlador diferencial de <span class="term" data-def="Conjunto de bibliotecas y herramientas de código abierto para construir sistemas robóticos modulares y distribuidos.">ROS 2</span> hace la cuenta al revés. Recibe una velocidad y un giro para el robot y calcula cuánto debe girar cada rueda. En el robot real limita la velocidad a 0,13 m/s y el giro a 0,35 rad/s, valores prudentes para un recinto pequeño.</p>
   <details class="profundizar">
     <summary>Para el curioso: las fórmulas</summary>
     <div>
@@ -191,7 +188,7 @@
 <section>
   <h2 id="mejorar">Cómo se mejora una odometría</h2>
   <p>Un sesgo tan parejo como el de este robot es una buena noticia, porque se puede calibrar. El método clásico para robots diferenciales es UMBmark, propuesto por Borenstein y Feng <a class="ref" href="#f4">4</a>. El robot recorre un cuadrado en sentido horario y otro en antihorario, y los errores al volver al punto de partida permiten separar las dos causas sistemáticas dominantes, ruedas de diámetro distinto y una separación efectiva entre ruedas mal estimada, para corregirlas en el software. No lo apliqué en este trabajo, y es una mejora barata para quien construya un robot parecido.</p>
-  <p>Las otras dos mejoras agregan información. Una unidad inercial mide el giro sin depender de las ruedas y se puede fusionar con la odometría mediante el paquete robot_localization, lo que propongo como trabajo futuro. Y el láser, a través de SLAM, ya corrige la deriva mientras se construye el mapa, como se explica en <a href="mapeo.html#slam">Ver y mapear</a>.</p>
+  <p>Las otras dos mejoras agregan información. Una unidad inercial mide el giro sin depender de las ruedas y se puede fusionar con la odometría mediante el paquete robot_localization, lo que propongo como trabajo futuro. Y el láser, a través de <span class="term" data-def="Localización y mapeo simultáneos, es decir, construir el mapa y estimar la posición al mismo tiempo.">SLAM</span>, ya corrige la deriva mientras se construye el mapa, como se explica en <a href="mapeo.html#slam">Ver y mapear</a>.</p>
 </section>
 
 <section>
@@ -204,18 +201,8 @@
         <span class="lugar">La Luna · 1971 y 1972</span>
         <h3>El vehículo lunar del programa Apollo</h3>
         <p>Su sistema de navegación registraba de forma continua la dirección con un giroscopio y la distancia con odómetros en las ruedas, y un computador calculaba el rumbo y la distancia de regreso al módulo lunar.</p>
-        <p class="vinculo">Sumaba un sensor de giro a la odometría de ruedas, la misma mejora que propongo con una unidad inercial.</p>
+        <p class="vinculo">Sumaba un sensor de giro a la odometría de ruedas, la misma mejora que propongo con una unidad inercial. <a href="mundo-real.html#apollo">Ver el caso completo</a>.</p>
         <p class="fuente-caso">Fuente <a class="ref" href="#f5">5</a></p>
-      </div>
-    </article>
-    <article class="caso">
-      <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="22"/><circle cx="32" cy="32" r="8"/><path d="M32 10v6M32 48v6M10 32h6M48 32h6"/></svg></div>
-      <div class="caso-txt">
-        <span class="lugar">Hogares</span>
-        <h3>Aspiradoras robot con LiDAR</h3>
-        <p>Muchos modelos llevan una torre con un láser giratorio que mide la casa y guarda un plano, sobre el cual el robot se ubica en cada limpieza en lugar de confiar solo en lo que avanzaron sus ruedas.</p>
-        <p class="vinculo">El láser corrige la deriva de la odometría, igual que SLAM en <a href="mapeo.html">Ver y mapear</a>.</p>
-        <p class="fuente-caso">Fuente <a class="ref" href="#f7">7</a></p>
       </div>
     </article>
   </div>
@@ -230,7 +217,6 @@
     <li id="f4"><span><span class="tipo-ref">Artículo</span>Borenstein, J. y Feng, L. (1996). Measurement and correction of systematic odometry errors in mobile robots. <em>IEEE Transactions on Robotics and Automation, 12</em>(6). <a href="https://doi.org/10.1109/70.544770">doi.org/10.1109/70.544770</a></span></li>
     <li id="f5"><span><span class="tipo-ref">NASA</span>NASA Space Science Data Coordinated Archive. The Apollo Lunar Roving Vehicle. <a href="https://nssdc.gsfc.nasa.gov/planetary/lunar/apollo_lrv.html">nssdc.gsfc.nasa.gov</a></span></li>
     <li id="f6"><span><span class="tipo-ref">Video</span>How a Rotary Incremental Encoder Works. Direction and Position. <a href="https://www.youtube.com/watch?v=Xbfnxbjjm9s">youtube.com/watch?v=Xbfnxbjjm9s</a></span></li>
-    <li id="f7"><span><span class="tipo-ref">Fabricante</span>Dreame Technology. LiDAR navigation in robot vacuums. <a href="https://www.dreametech.com/blogs/blog/lidar-navigation-robot-vacuum">dreametech.com</a></span></li>
   </ol>
 </section>
 

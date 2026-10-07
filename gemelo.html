@@ -19,9 +19,6 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#004EAA">
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&amp;family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&amp;family=IBM+Plex+Mono:wght@400;600&amp;display=swap">
 <link rel="stylesheet" href="css/estilo.css">
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <script src="js/comun.js" defer></script>
@@ -55,7 +52,7 @@
 
 <section class="en-breve" aria-labelledby="t-breve">
   <h2 id="t-breve">Probar la geometría antes de arriesgar el hardware</h2>
-  <p>El gemelo digital es el modelo del robot en el simulador Gazebo Classic, descrito una sola vez en un archivo que también usa el robot real. Sirvió para corregir errores de geometría, marcos y configuración antes de arriesgar el hardware. Se aprobó con cuatro criterios de funcionamiento, no con una comparación numérica, y no reproduce la ley del firmware, la zona muerta del driver ni el ruido real. Por eso el mapeo y la exploración se midieron en el robot.</p>
+  <p>El gemelo digital es el modelo del robot en el simulador <span class="term" data-def="Simulador 3D de robots, aquí en su versión 11, que llegó al fin de soporte en enero de 2025.">Gazebo Classic</span>, descrito una sola vez en un archivo que también usa el robot real. Sirvió para corregir errores de geometría, marcos y configuración antes de arriesgar el hardware. Se aprobó con cuatro criterios de funcionamiento, no con una comparación numérica, y no reproduce la ley del firmware, la zona muerta del driver ni el ruido real. Por eso el mapeo y la exploración se midieron en el robot.</p>
   <div class="cifras-mini">
     <div><b>1</b><span>descripción del robot, compartida por simulación y hardware</span></div>
     <div><b>4</b><span>criterios de aceptación antes de usar el gemelo</span></div>
@@ -130,7 +127,7 @@
 
 <section>
   <h2 id="criterios">Cómo se aprobó el gemelo</h2>
-  <p>Antes de usar el gemelo para probar SLAM y navegación, se aplicaron cuatro criterios mínimos <a class="ref" href="#f1">1</a>. La cadena de marcos debía estar completa, sin marcos sueltos. El láser y la odometría debían publicarse con frecuencia estable. El robot debía avanzar y girar como dice el modelo diferencial. Y el radio y la separación de las ruedas debían ser iguales a los del prototipo.</p>
+  <p>Antes de usar el gemelo para probar <span class="term" data-def="Localización y mapeo simultáneos, es decir, construir el mapa y estimar la posición al mismo tiempo.">SLAM</span> y navegación, se aplicaron cuatro criterios mínimos <a class="ref" href="#f1">1</a>. La cadena de marcos debía estar completa, sin marcos sueltos. El láser y la <span class="term" data-t="Odometría" data-def="Estimación de la posición sumando el giro medido de las ruedas.">odometría</span> debían publicarse con frecuencia estable. El robot debía avanzar y girar como dice el modelo diferencial. Y el radio y la separación de las ruedas debían ser iguales a los del prototipo.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="cuatro-criterios">Los criterios de aprobación y lo que no reproduce</h3><span class="tipo datos">Datos de la tesis</span></div>
     <div class="vis" data-vis="gemelo"><p class="vis-fallback">Cadena de marcos completa, sensores estables, movimiento coherente y paridad geométrica.</p></div>
@@ -147,19 +144,19 @@
   <div class="argumento">
     <div><span class="a-et">En simulación, 3,39 %</span><p>Odometría simulada frente a los 2 m ordenados. No hay referencia externa.</p></div>
     <div><span class="a-et">En el robot, 7,18 %</span><p>Cinta métrica frente a los 2 m ordenados. Es el error de seguimiento real.</p></div>
-    <div><span class="a-et">La cifra que sí se parece</span><p>En el robot, los encoders marcaron 3,8 % menos que lo ordenado, del mismo orden que la simulación. Pero eso tampoco es una validación del gemelo.</p></div>
+    <div><span class="a-et">La cifra que sí se parece</span><p>En el robot, los <span class="term" data-t="Encoder" data-def="Sensor que produce dos señales desfasadas al girar un eje, para contar el giro y saber su sentido.">encoders</span> marcaron 3,8 % menos que lo ordenado, del mismo orden que la simulación. Pero eso tampoco es una validación del gemelo.</p></div>
   </div>
   <p>Por eso el mapeo, la navegación y la exploración se midieron con indicadores solo en el robot real. En simulación se construyeron mapas en sesiones previas, pero sin calcular indicadores, y la comparación entre ambos es cualitativa. Los mapas simulados tienen paredes más nítidas y nada de ruido en el espacio libre, y los reales detectan solo en parte los obstáculos pequeños.</p>
 </section>
 
 <section>
   <h2 id="gazebo">Por qué Gazebo Classic</h2>
-  <p>Elegí Gazebo Classic y no el Gazebo actual porque es el que usan los complementos de simulación y de ros2_control del paquete base adaptado, disponibles para ROS 2 Foxy sobre Ubuntu 20.04 <a class="ref" href="#f1">1</a>. Gazebo Classic llegó al fin de su soporte en enero de 2025 <a class="ref" href="#f5">5</a>, así que propongo dos mejoras. Migrar el gemelo a una versión vigente de Gazebo junto con ROS 2, y registrar la pose verdadera del simulador en los ensayos para separar el error odométrico del de seguimiento también en simulación.</p>
+  <p>Elegí Gazebo Classic y no el Gazebo actual porque es el que usan los complementos de simulación y de ros2_control del paquete base adaptado, disponibles para <span class="term" data-def="Conjunto de bibliotecas y herramientas de código abierto para construir sistemas robóticos modulares y distribuidos.">ROS 2</span> Foxy sobre Ubuntu 20.04 <a class="ref" href="#f1">1</a>. Gazebo Classic llegó al fin de su soporte en enero de 2025 <a class="ref" href="#f5">5</a>, así que propongo dos mejoras. Migrar el gemelo a una versión vigente de Gazebo junto con ROS 2, y registrar la pose verdadera del simulador en los ensayos para separar el error odométrico del de seguimiento también en simulación.</p>
 </section>
 
 <section>
   <h2 id="mundo-real">En el mundo real</h2>
-  <p>Probar en una copia antes que en el original es una práctica de toda la ingeniería, desde la exploración espacial hasta las competencias de robótica.</p>
+  <p>Probar en una copia antes que en el original es una práctica de toda la ingeniería.</p>
   <div class="casos">
     <article class="caso">
       <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><rect x="8" y="26" width="20" height="12" rx="2"/><rect x="36" y="26" width="20" height="12" rx="2"/><circle cx="12" cy="42" r="3"/><circle cx="24" cy="42" r="3"/><circle cx="40" cy="42" r="3"/><circle cx="52" cy="42" r="3"/><path d="M28 32h8"/></svg></div>
@@ -167,25 +164,15 @@
         <span class="lugar">NASA JPL · Estados Unidos</span>
         <h3>OPTIMISM, el gemelo terrestre de Perseverance</h3>
         <p>El laboratorio mantiene en la Tierra una copia de tamaño real del rover para ensayar maniobras y comandos antes de enviarlos a Marte. Es un gemelo físico, no digital, pero cumple el mismo papel.</p>
-        <p class="vinculo">Permite equivocarse primero en la copia, que es para lo que usé el gemelo de este robot.</p>
+        <p class="vinculo">Permite equivocarse primero en la copia, que es para lo que usé el gemelo de este robot. <a href="mundo-real.html#optimism">Ver el caso completo</a>.</p>
         <p class="fuente-caso">Fuente <a class="ref" href="#f6">6</a></p>
-      </div>
-    </article>
-    <article class="caso">
-      <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><rect x="8" y="12" width="48" height="32" rx="3"/><path d="M24 52h16M32 44v8"/><path d="M16 36l8-10 6 6 8-12 10 16"/></svg></div>
-      <div class="caso-txt">
-        <span class="lugar">DARPA SubT · 2019 a 2021</span>
-        <h3>Una competencia que también se corrió en simulación</h3>
-        <p>El desafío subterráneo de DARPA tuvo, además de las pruebas con robots reales, una competencia virtual en la que los equipos exploraban túneles y cuevas simuladas, con un simulador de Open Robotics, la organización detrás de Gazebo.</p>
-        <p class="vinculo">Usó la simulación como banco de pruebas para algoritmos de exploración, el mismo uso que le di aquí.</p>
-        <p class="fuente-caso">Fuente <a class="ref" href="#f7">7</a></p>
       </div>
     </article>
   </div>
   <div class="videos-grid">
     <div class="vid-card">
       <div class="video" data-yt="laWn7_cj434" data-titulo="Simulating Robots with Gazebo and ROS" data-sub="Articulated Robotics, en inglés"><a href="https://www.youtube.com/watch?v=laWn7_cj434">Ver el video en YouTube</a></div>
-      <p>El tutorial base para armar un gemelo como el de esta tesis, del autor del paquete adaptado. <small>Fuente <a class="ref" href="#f8">8</a></small></p>
+      <p>El tutorial base para armar un gemelo como el de esta tesis, del autor del paquete adaptado. <small>Fuente <a class="ref" href="#f7">7</a></small></p>
     </div>
   </div>
 </section>
@@ -199,8 +186,7 @@
     <li id="f4"><span><span class="tipo-ref">Artículo</span>Tobin, J. y otros (2017). Domain randomization for transferring deep neural networks from simulation to the real world. <em>IEEE/RSJ IROS</em>. <a href="https://arxiv.org/abs/1703.06907">arxiv.org/abs/1703.06907</a></span></li>
     <li id="f5"><span><span class="tipo-ref">Documentación</span>Open Source Robotics Foundation (2025). Gazebo Classic. <a href="https://classic.gazebosim.org/">classic.gazebosim.org</a></span></li>
     <li id="f6"><span><span class="tipo-ref">NASA</span>NASA JPL. NASA Readies Perseverance Mars Rover's Earthly Twin. <a href="https://www.jpl.nasa.gov/news/nasa-readies-perseverance-mars-rovers-earthly-twin/">jpl.nasa.gov</a></span></li>
-    <li id="f7"><span><span class="tipo-ref">Institucional</span>Open Robotics (2021). DARPA SubT Final Competition. <a href="https://www.openrobotics.org/blog/2021/9/27/darpa-subt-final-competition">openrobotics.org</a>. Y Universidad Técnica Checa, Second place in the virtual competition of DARPA SubT Challenge. <a href="https://cs.fel.cvut.cz/en/page/second-place-in-the-virtual-competition-of-darpa-subt-challenge">cs.fel.cvut.cz</a></span></li>
-    <li id="f8"><span><span class="tipo-ref">Video</span>Articulated Robotics. Simulating Robots with Gazebo and ROS. <a href="https://www.youtube.com/watch?v=laWn7_cj434">youtube.com/watch?v=laWn7_cj434</a></span></li>
+    <li id="f7"><span><span class="tipo-ref">Video</span>Articulated Robotics. Simulating Robots with Gazebo and ROS. <a href="https://www.youtube.com/watch?v=laWn7_cj434">youtube.com/watch?v=laWn7_cj434</a></span></li>
   </ol>
 </section>
 

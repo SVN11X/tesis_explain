@@ -19,9 +19,6 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#004EAA">
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&amp;family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&amp;family=IBM+Plex+Mono:wght@400;600&amp;display=swap">
 <link rel="stylesheet" href="css/estilo.css">
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <script src="js/comun.js" defer></script>
@@ -40,7 +37,7 @@
     <div>
       <p class="eyebrow">Trabajo de titulación · Ingeniería Civil Electrónica · UTEM · 2026</p>
       <h1 id="t-portada" style="margin-top:12px">Un robot que entra a un lugar que no conoce, lo recorre solo y <em>dibuja su plano</em></h1>
-      <p class="bajada">Una guía abierta para entender cómo se construyó un robot de bajo costo que mapea, navega y explora interiores con ROS 2. Cada tema explica la idea, muestra la evidencia medida, cita sus fuentes y conecta con casos del mundo real.</p>
+      <p class="bajada">Una guía abierta para entender cómo se construyó un robot de bajo costo que mapea, navega y explora interiores con <span class="term" data-def="Conjunto de bibliotecas y herramientas de código abierto para construir sistemas robóticos modulares y distribuidos.">ROS 2</span>. Cada tema explica la idea, muestra la evidencia medida, cita sus fuentes y conecta con casos del mundo real.</p>
       <div class="acciones">
         <a class="btn prim" href="problema.html">Empezar por el primer tema <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         <a class="btn" href="#video">Ver el robot en acción</a>
@@ -64,7 +61,7 @@
   <div class="wrap">
     <div class="seccion-cab">
       <p class="eyebrow">El prototipo en una corrida real</p>
-      <h2 id="t-video">Mírelo explorar por su cuenta</h2>
+      <h2 id="t-video">Míralo explorar por su cuenta</h2>
       <p>Nadie le indica a dónde ir. El robot mide con su láser, arma el mapa, elige el borde de lo desconocido más conveniente, planifica una ruta y avanza, hasta que no queda nada nuevo por descubrir.</p>
     </div>
     <div class="banda-grid">
@@ -72,13 +69,13 @@
         <div class="video" data-yt="iTTC10eGDmc" data-portada="img/fotos/video-portada" data-titulo="El robot explorando por su cuenta" data-sub="Cámara cenital a la izquierda y RViz a la derecha">
           <a href="https://www.youtube.com/watch?v=iTTC10eGDmc" style="color:#fff;display:grid;place-items:center;height:100%">Ver el video en YouTube</a>
         </div>
-        <p class="video-pie" style="color:#9aa6b6">Ejecución de demostración sobre el robot real. En RViz, el programa que muestra los datos del robot, la línea verde es la ruta planificada hacia la frontera elegida. El video se carga solo si lo reproduce.</p>
+        <p class="video-pie" style="color:#9aa6b6">Ejecución de demostración sobre el robot real. En RViz, el programa que muestra los datos del robot, la línea verde es la ruta planificada hacia la frontera elegida. El video se carga solo si lo reproduces.</p>
       </div>
       <ul class="lista-hechos">
-        <li><b>5 de 6 exploraciones</b>terminaron solas al no quedar fronteras, sin que nadie interviniera. <a href="exploracion.html#fin">Cómo se midió</a></li>
-        <li><b>3,63 % de error</b>medio de la odometría frente a la cinta métrica, en una recta de dos metros repetida cinco veces. <a href="movimiento.html#recta">Qué significa</a></li>
+        <li><b>5 de 6 exploraciones</b>terminaron solas al no quedar <span class="term" data-t="Frontera" data-def="Borde entre el espacio libre conocido y lo desconocido en un mapa.">fronteras</span>, sin que nadie interviniera. <a href="exploracion.html#fin">Cómo se midió</a></li>
+        <li><b>3,63 % de error</b>medio de la <span class="term" data-t="Odometría" data-def="Estimación de la posición sumando el giro medido de las ruedas.">odometría</span> frente a la cinta métrica, en una recta de dos metros repetida cinco veces. <a href="movimiento.html#recta">Qué significa</a></li>
         <li><b>444 643 pesos</b>en materiales montados en el robot, un 32 % menos que un TurtleBot 3 Burger, sin sus mismas prestaciones. <a href="robot.html#costo">Ver el desglose</a></li>
-        <li><b>Software libre</b>de punta a punta: ROS 2, SLAM Toolbox, Nav2, explore_lite y Gazebo. <a href="replicar.html">Cómo replicarlo</a></li>
+        <li><b>Software libre</b>de punta a punta: ROS 2, SLAM Toolbox, <span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span>, <span class="term" data-def="Paquete de ROS que busca fronteras en el mapa y las envía como metas a la navegación.">explore_lite</span> y Gazebo. <a href="replicar.html">Cómo replicarlo</a></li>
       </ul>
     </div>
   </div>
@@ -114,7 +111,7 @@
       </figure>
       <figure class="fig">
         <picture><source srcset="img/tesis/arquitectura-med.webp" type="image/webp"><img src="img/tesis/arquitectura-med.png" data-grande="img/tesis/arquitectura.png" width="1200" height="678" loading="lazy" decoding="async" alt="Diagrama de bloques en dos zonas. En el robot: encoders y LiDAR 2D para el sensado, Arduino con control PID y motores DC para el control de bajo nivel, y una Raspberry Pi 4 que integra ROS 2 y estima la odometría. En la estación de trabajo: SLAM Toolbox, Nav2, el explorador de fronteras y RViz2."></picture>
-        <figcaption>Dónde corre cada paso. Lo rápido y crítico va a bordo del robot, lo pesado en un computador conectado por una red Wi-Fi dedicada. Haga clic para ampliar. <small>Fig. 2.1 de la tesis. Se explica en <a href="robot.html#reparto">Anatomía del robot</a>.</small></figcaption>
+        <figcaption>Dónde corre cada paso. Lo rápido y crítico va a bordo del robot, lo pesado en un computador conectado por una red Wi-Fi dedicada. <small>Fig. 2.1 de la tesis. Se explica en <a href="robot.html#reparto">Anatomía del robot</a>.</small></figcaption>
       </figure>
     </div>
   </div>
@@ -191,8 +188,7 @@
         <div class="caso-txt">
           <span class="lugar">Minería · Chile · 2026</span>
           <h3>Mapear una mina sin exponer personas</h3>
-          <p>En El Teniente, un dron con LiDAR genera mapas 3D de espacios confinados y sin GPS. Inspecciones que tomaban horas se completan en minutos.</p>
-          <p class="vinculo">Como este robot, mapea con láser un interior que no conoce.</p>
+          <p>En la mina El Teniente, un dron con <span class="term" data-def="Sensor que mide distancias con luz láser, y en su versión 2D gira y mide en un plano horizontal.">LiDAR</span> mapea en 3D espacios confinados y sin GPS. <a href="mundo-real.html#el-teniente">Ver el caso</a></p>
         </div>
       </article>
       <article class="caso">
@@ -200,8 +196,7 @@
         <div class="caso-txt">
           <span class="lugar">Subterráneo · Estados Unidos · 2021</span>
           <h3>Explorar túneles y cuevas</h3>
-          <p>El equipo CERBERUS ganó el desafío subterráneo de DARPA con robots que exploraron y mapearon por su cuenta, sin GPS y con comunicación limitada.</p>
-          <p class="vinculo">Su meta era la misma que la de este robot: explorar hasta agotar lo desconocido.</p>
+          <p>El equipo CERBERUS ganó el desafío subterráneo de DARPA con robots que exploraron y mapearon túneles por su cuenta. <a href="mundo-real.html#cerberus">Ver el caso</a></p>
         </div>
       </article>
       <article class="caso">
@@ -209,8 +204,7 @@
         <div class="caso-txt">
           <span class="lugar">Marte · 2021</span>
           <h3>Replanificar entre rocas</h3>
-          <p>El rover Perseverance mantiene un mapa del terreno a su alrededor y replanifica su camino. En el sol 200 recorrió por su cuenta 167 de 175 metros.</p>
-          <p class="vinculo">Usa un mapa local que se actualiza mientras avanza, igual que la navegación de este robot.</p>
+          <p>El rover Perseverance replanifica su camino entre rocas con un mapa local que actualiza mientras avanza. <a href="mundo-real.html#perseverance">Ver el caso</a></p>
         </div>
       </article>
     </div>
@@ -244,7 +238,7 @@
   <div class="wrap">
     <div class="seccion-cab">
       <p class="eyebrow">Rutas de lectura</p>
-      <h2 id="t-rutas">Elija cómo leer</h2>
+      <h2 id="t-rutas">Elige cómo leer</h2>
     </div>
     <div class="rutas r4">
       <div class="ruta"><h3>Tengo diez minutos</h3><span class="tiempo">Sin conocimientos previos</span><ol><li><a href="problema.html">Autonomía en interiores</a></li><li><a href="#video">El robot en video</a></li><li><a href="resultados.html">Qué se demostró</a></li></ol></div>

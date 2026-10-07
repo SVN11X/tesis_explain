@@ -19,9 +19,6 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#004EAA">
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&amp;family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&amp;family=IBM+Plex+Mono:wght@400;600&amp;display=swap">
 <link rel="stylesheet" href="css/estilo.css">
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <script src="js/comun.js" defer></script>
@@ -55,7 +52,7 @@
 
 <section class="en-breve" aria-labelledby="t-breve">
   <h2 id="t-breve">Un trabajo repartido en tres niveles</h2>
-  <p>El robot divide su trabajo en tres niveles. Un Arduino Nano controla las ruedas varias decenas de veces por segundo, una Raspberry Pi 4 hace de puente con ROS 2 y calcula la odometría, y un computador portátil mapea, navega y explora. Los motores y la electrónica comparten la batería, pero cada uno recibe su propia tensión para que los motores no perturben a los computadores.</p>
+  <p>El robot divide su trabajo en tres niveles. Un Arduino Nano controla las ruedas varias decenas de veces por segundo, una Raspberry Pi 4 hace de puente con <span class="term" data-def="Conjunto de bibliotecas y herramientas de código abierto para construir sistemas robóticos modulares y distribuidos.">ROS 2</span> y calcula la <span class="term" data-t="Odometría" data-def="Estimación de la posición sumando el giro medido de las ruedas.">odometría</span>, y un computador portátil mapea, navega y explora. Los motores y la electrónica comparten la batería, pero cada uno recibe su propia tensión para que los motores no perturben a los computadores.</p>
   <div class="cifras-mini">
     <div><b>444 643 <small>CLP</small></b><span>en materiales montados en el robot, sin contar el computador</span></div>
     <div><b>12 V <small>y 5 V</small></b><span>dos rieles de energía separados, motores y electrónica</span></div>
@@ -66,7 +63,7 @@
 
 <section>
   <h2 id="piezas">Las piezas y su función</h2>
-  <p>La locomoción usa dos motorreductores JGA25-370 de 12 V, cada uno con un encoder de cuadratura que cuenta su giro, y una rueda loca de apoyo. Un Arduino Nano lee los encoders y ejecuta el control de velocidad de cada rueda, y un driver L298N entrega la potencia a los motores. Una Raspberry Pi 4 ejecuta la interfaz con ROS 2, lee el láser RPLidar A1 y se comunica con el computador <a class="ref" href="#f1">1</a>.</p>
+  <p>La locomoción usa dos motorreductores JGA25-370 de 12 V, cada uno con un <span class="term" data-t="Encoder" data-def="Sensor que produce dos señales desfasadas al girar un eje, para contar el giro y saber su sentido.">encoder</span> de cuadratura que cuenta su giro, y una rueda loca de apoyo. Un Arduino Nano lee los encoders y ejecuta el control de velocidad de cada rueda, y un driver L298N entrega la potencia a los motores. Una Raspberry Pi 4 ejecuta la interfaz con ROS 2, lee el láser RPLidar A1 y se comunica con el computador <a class="ref" href="#f1">1</a>.</p>
   <p>Imprimí el chasis y las cubiertas en PLA+, un plástico común en impresoras 3D domésticas, a partir de un diseño abierto de robot aspiradora publicado en Thingiverse <a class="ref" href="#f2">2</a>. Una forma de aspiradora es baja y compacta, deja el láser libre arriba y cabe por pasillos estrechos.</p>
   <div class="galeria g3">
     <figure class="fig">
@@ -83,7 +80,7 @@
     </figure>
   </div>
   <p>Cuatro números describen al robot para el software, y aparecen una y otra vez en esta guía. El radio de rueda es 0,0335 m, la separación entre ruedas 0,188 m, el encoder entrega 1980 pulsos por vuelta de rueda y la interfaz con ROS 2 trabaja a 30 ciclos por segundo <a class="ref" href="#f1">1</a>. Esos mismos valores alimentan al robot real y a su gemelo en simulación, como se explica en <a href="gemelo.html">El gemelo digital</a>.</p>
-  <p>El robot no usa cámara ni unidad inercial. En las fotos se ve un lente montado en el frontal, pero la percepción que evalué se basa solo en el LiDAR 2D y en los encoders.</p>
+  <p>El robot no usa cámara ni unidad inercial. En las fotos se ve un lente montado en el frontal, pero la percepción que evalué se basa solo en el <span class="term" data-def="Sensor que mide distancias con luz láser, y en su versión 2D gira y mide en un plano horizontal.">LiDAR</span> 2D y en los encoders.</p>
 </section>
 
 <section>
@@ -92,7 +89,7 @@
   <p>El dominio de potencia usa el bus de 12 V de la batería para mover los motores a través del L298N. Del mismo bus, un módulo reductor de 25 W genera un riel regulado de 5 V para la Raspberry Pi, el Arduino, el láser y los periféricos. Un interruptor y un fusible protegen la entrada, y un pequeño visualizador muestra la tensión y la corriente en la cubierta.</p>
   <figure class="fig">
     <picture><source srcset="img/tesis/circuito-med.webp" type="image/webp"><img src="img/tesis/circuito-med.png" data-grande="img/tesis/circuito.png" width="1200" height="915" loading="lazy" decoding="async" alt="Esquema de conexiones: batería de tres celdas 18650 con fusible e interruptor, bloques de distribución de 12 V y de 5 V, regulador de tensión, multímetro, driver L298N conectado a los dos motores con encoder, Arduino Nano, Raspberry Pi y el LiDAR."></picture>
-    <figcaption>Esquema de conexiones eléctricas y de datos. Los cables rojos y negros llevan energía, los de colores llevan señales de los encoders y del PWM. Haz clic para ver el esquema en alta resolución. <small>Fig. 4.5 de la tesis.</small></figcaption>
+    <figcaption>Esquema de conexiones eléctricas y de datos. Los cables rojos y negros llevan energía, los de colores llevan señales de los encoders y del PWM. <small>Fig. 4.5 de la tesis.</small></figcaption>
   </figure>
   <p>Las señales viajan por otro camino. El Arduino y la Raspberry Pi se hablan por un cable USB que funciona como puerto serie, y el láser se conecta a un puerto serie de la Raspberry Pi. Para que cada dispositivo conserve su nombre aunque se reconecte, unas reglas del sistema operativo los fijan. El Arduino aparece siempre como <code>/dev/motor_controller</code> y el láser como <code>/dev/rlidar_gpio</code> <a class="ref" href="#f1">1</a>.</p>
 </section>
@@ -167,7 +164,7 @@
   <p>Un robot que se mueve solo tiene que poder detenerse aunque falle el software que lo guía. Este prototipo tiene tres mecanismos, y cada uno cubre una falla distinta <a class="ref" href="#f1">1</a>.</p>
   <div class="decisiones">
     <article class="decision"><span class="d-que">Falla humana</span><h4>Botón de hombre muerto</h4><p>La conducción manual con un mando inalámbrico solo envía órdenes mientras se mantiene presionado un botón. Si la persona lo suelta, el robot se detiene.</p></article>
-    <article class="decision"><span class="d-que">Conflicto de órdenes</span><h4>Prioridad de la persona</h4><p>El multiplexor twist_mux elige una sola fuente de órdenes y da prioridad al mando sobre Nav2. Una persona puede retomar el control en cualquier momento.</p></article>
+    <article class="decision"><span class="d-que">Conflicto de órdenes</span><h4>Prioridad de la persona</h4><p>El multiplexor twist_mux elige una sola fuente de órdenes y da prioridad al mando sobre <span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span>. Una persona puede retomar el control en cualquier momento.</p></article>
     <article class="decision"><span class="d-que">Falla de comunicación</span><h4>Detención automática</h4><p>Si el Arduino pasa 2 segundos sin recibir órdenes de movimiento, detiene los motores. Protege ante una caída de la red o de un nodo.</p></article>
   </div>
   <p>En la industria estas ideas se formalizan en normas de seguridad, como la ISO 3691-4 para vehículos industriales sin conductor. El tema se desarrolla en <a href="lecciones.html#seguridad">Lecciones de ingeniería</a>.</p>
@@ -225,22 +222,12 @@
   <h2 id="mundo-real">En el mundo real</h2>
   <div class="casos">
     <article class="caso">
-      <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><circle cx="32" cy="34" r="20"/><circle cx="32" cy="34" r="6"/><path d="M32 8v6M14 20l4 4M50 20l-4 4"/></svg></div>
-      <div class="caso-txt">
-        <span class="lugar">Docencia</span>
-        <h3>TurtleBot 3</h3>
-        <p>La plataforma educativa más usada con ROS reparte el trabajo igual que este robot. Una Raspberry Pi ejecuta ROS y una placa OpenCR, con microcontrolador y unidad inercial, maneja los motores.</p>
-        <p class="vinculo">Reparte el trabajo como este robot, entre un computador que piensa y un microcontrolador que actúa.</p>
-        <p class="fuente-caso">Fuente <a class="ref" href="#f3">3</a></p>
-      </div>
-    </article>
-    <article class="caso">
       <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M14 20h12M38 20h12M20 20v6h24v-6"/><rect x="24" y="26" width="16" height="12" rx="3"/><path d="M26 44l-6 8M38 44l6 8"/><circle cx="20" cy="20" r="6"/><circle cx="44" cy="20" r="6"/></svg></div>
       <div class="caso-txt">
         <span class="lugar">Drones</span>
         <h3>Controlador de vuelo y computador acompañante</h3>
         <p>En los drones con PX4, el controlador de vuelo mantiene estable la aeronave en tiempo real y un computador acompañante ejecuta tareas de más alto nivel, como visión o planificación.</p>
-        <p class="vinculo">Separa lo crítico y rápido de lo pesado, igual que el Arduino y la estación de trabajo de este robot.</p>
+        <p class="vinculo">Separa lo crítico y rápido de lo pesado, igual que el Arduino y la estación de trabajo de este robot. <a href="mundo-real.html#px4">Ver el caso completo</a>.</p>
         <p class="fuente-caso">Fuente <a class="ref" href="#f4">4</a></p>
       </div>
     </article>

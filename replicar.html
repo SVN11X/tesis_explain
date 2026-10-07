@@ -19,9 +19,6 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#004EAA">
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&amp;family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&amp;family=IBM+Plex+Mono:wght@400;600&amp;display=swap">
 <link rel="stylesheet" href="css/estilo.css">
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <script src="js/comun.js" defer></script>
@@ -55,7 +52,7 @@
 
 <section class="en-breve" aria-labelledby="t-breve">
   <h2 id="t-breve">Lo necesario para repetir este robot</h2>
-  <p>Los materiales montados en el robot costaron 444 643 pesos, y 582 447 con los accesorios de operación. Falta sumar un computador para el mapeo y la navegación. El software parte de proyectos abiertos, todos citados aquí, con una serie de videos que explica casi cada paso. Si empiezas hoy, usa una distribución vigente de ROS 2 y no Foxy. Lo que más me sirvió fue aprender a medir, a registrar y a leer código ajeno.</p>
+  <p>Los materiales montados en el robot costaron 444 643 pesos, y 582 447 con los accesorios de operación. Falta sumar un computador para el mapeo y la navegación. El software parte de proyectos abiertos, todos citados aquí, con una serie de videos que explica casi cada paso. Si empiezas hoy, usa una distribución vigente de <span class="term" data-def="Conjunto de bibliotecas y herramientas de código abierto para construir sistemas robóticos modulares y distribuidos.">ROS 2</span> y no Foxy. Lo que más me sirvió fue aprender a medir, a registrar y a leer código ajeno.</p>
   <div class="cifras-mini">
     <div><b>582 447 <small>CLP</small></b><span>costo total del proyecto, sin el computador</span></div>
     <div><b>127 234 <small>CLP</small></b><span>en tornillería y kits, el gasto más fácil de reducir</span></div>
@@ -129,7 +126,7 @@
   <h2 id="conexiones">Conexiones entre Arduino, driver y encoders</h2>
   <figure class="fig">
     <picture><source srcset="img/tesis/circuito-med.webp" type="image/webp"><img src="img/tesis/circuito-med.png" data-grande="img/tesis/circuito.png" width="1200" height="915" loading="lazy" decoding="async" alt="Esquema de conexiones con la batería, el fusible, el interruptor, los bloques de distribución de 12 V y 5 V, el regulador, el L298N, los dos motores con encoder, el Arduino Nano, la Raspberry Pi y el LiDAR."></picture>
-    <figcaption>Esquema completo de energía y datos. Haz clic para verlo en alta resolución. <small>Fig. 4.5 de la tesis.</small></figcaption>
+    <figcaption>Esquema completo de energía y datos. <small>Fig. 4.5 de la tesis.</small></figcaption>
   </figure>
   <div class="tabla-env" style="max-width:640px">
     <table class="tabla" style="min-width:0">
@@ -171,7 +168,7 @@
     <div class="widget-cab"><h3 id="congelado">Por qué se congelaron</h3><span class="tipo datos">Datos de la tesis</span></div>
     <div class="vis" data-vis="versiones"><p class="vis-fallback">Ubuntu 20.04, ROS 2 Foxy, Gazebo Classic y los paquetes base se congelaron al inicio para asegurar la compatibilidad.</p></div>
   </div>
-  <p>Si empiezas hoy, ten en cuenta que ROS 2 Foxy dejó de tener soporte en junio de 2023 y Gazebo Classic en enero de 2025. Las distribuciones de ROS 2 que salen en años pares tienen cinco años de soporte. Jazzy Jalisco, de mayo de 2024, tiene soporte hasta mayo de 2029 <a class="ref" href="#f3">3</a>. Usa una distribución vigente con la versión de Gazebo que recomiende su documentación, y espera tener que ajustar los paquetes base, que fueron escritos para Foxy.</p>
+  <p>Si empiezas hoy, ten en cuenta que ROS 2 Foxy dejó de tener soporte en junio de 2023 y <span class="term" data-def="Simulador 3D de robots, aquí en su versión 11, que llegó al fin de soporte en enero de 2025.">Gazebo Classic</span> en enero de 2025. Las distribuciones de ROS 2 que salen en años pares tienen cinco años de soporte. Jazzy Jalisco, de mayo de 2024, tiene soporte hasta mayo de 2029 <a class="ref" href="#f3">3</a>. Usa una distribución vigente con la versión de Gazebo que recomiende su documentación, y espera tener que ajustar los paquetes base, que fueron escritos para Foxy.</p>
 </section>
 
 <section>
@@ -192,7 +189,7 @@
     </div>
     <div class="vid-card">
       <div class="video" data-yt="jkoGkAd0GYk" data-titulo="Making robot navigation easy with Nav2 and ROS!" data-sub="Paso 4, la navegación"><a href="https://www.youtube.com/watch?v=jkoGkAd0GYk">Ver en YouTube</a></div>
-      <p><b>4. Navegar.</b> Configurar Nav2 sobre el mapa. <small>Relacionado con <a href="navegacion.html">Planificar y seguir rutas</a>.</small></p>
+      <p><b>4. Navegar.</b> Configurar <span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span> sobre el mapa. <small>Relacionado con <a href="navegacion.html">Planificar y seguir rutas</a>.</small></p>
     </div>
   </div>
 </section>
@@ -239,12 +236,12 @@
   <h2 id="lecciones">Lo que aprendí en el taller</h2>
   <p>Cada una sale de un episodio concreto del trabajo, enlazado a su explicación. Varias se desarrollan como ensayo en <a href="lecciones.html">Lecciones de ingeniería</a>.</p>
   <ol>
-    <li><b>Mide contra algo independiente.</b> La odometría se comparó con una cinta, y el movimiento real se probó con el crecimiento del mapa, no con los encoders. <a href="movimiento.html#iteracion-2">Ver la corrida sin avance</a>.</li>
+    <li><b>Mide contra algo independiente.</b> La <span class="term" data-t="Odometría" data-def="Estimación de la posición sumando el giro medido de las ruedas.">odometría</span> se comparó con una cinta, y el movimiento real se probó con el crecimiento del mapa, no con los <span class="term" data-t="Encoder" data-def="Sensor que produce dos señales desfasadas al girar un eje, para contar el giro y saber su sentido.">encoders</span>. <a href="movimiento.html#iteracion-2">Ver la corrida sin avance</a>.</li>
     <li><b>Diseña el ensayo para que mida lo que crees que mide.</b> Una orden de giro por sobre el límite del controlador mezcló dos efectos. <a href="movimiento.html#giro">Ver el ensayo de giro</a>.</li>
     <li><b>Cuenta con identificadores únicos y guarda los datos crudos.</b> Los contadores automáticos contaban mensajes, no metas. <a href="exploracion.html#medir-bien">Ver el caso</a>.</li>
-    <li><b>Lee el código heredado antes de confiar en sus nombres.</b> Una ley llamada PID resultó ser un PI incremental. <a href="control.html#hallazgo">Ver la ley de control</a>.</li>
+    <li><b>Lee el código heredado antes de confiar en sus nombres.</b> Una ley llamada <span class="term" data-def="Controlador que combina una acción proporcional al error, una integral del error pasado y una derivativa de su tendencia.">PID</span> resultó ser un <span class="term" data-def="Controlador que en cada ciclo calcula cuánto cambiar la salida, en vez de calcularla completa.">PI incremental</span>. <a href="control.html#hallazgo">Ver la ley de control</a>.</li>
     <li><b>Revisa los tipos de datos cuando cambias un cálculo.</b> Un entero de 16 bits anuló el término integral de una rueda. <a href="control.html#enteros">Ver por qué</a>.</li>
-    <li><b>Fija la semilla de todo método aleatorio.</b> Sin ella, el PSO da resultados distintos en cada ejecución. <a href="control.html#semilla">Ver el PSO</a>.</li>
+    <li><b>Fija la semilla de todo método aleatorio.</b> Sin ella, el <span class="term" data-def="Optimización por enjambre de partículas, que busca el mejor valor moviendo muchos candidatos que comparten lo que encuentran.">PSO</span> da resultados distintos en cada ejecución. <a href="control.html#semilla">Ver el PSO</a>.</li>
     <li><b>Ponle la hora correcta a cada medición.</b> Un barrido con la hora de publicación queda asociado a una posición posterior. <a href="robot.html#lidar">Ver el láser</a>.</li>
     <li><b>Conoce la resolución de tu instrumento antes de informar decimales.</b> Con pasos de 0,01 m/s, un sobreimpulso pequeño no se ve. <a href="control.html#resolucion">Ver la resolución</a>.</li>
     <li><b>Separa la energía de motores y electrónica.</b> Reduce la interferencia sobre los computadores. <a href="robot.html#energia">Ver el esquema</a>.</li>

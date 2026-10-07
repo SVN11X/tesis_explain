@@ -19,9 +19,6 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#004EAA">
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&amp;family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&amp;family=IBM+Plex+Mono:wght@400;600&amp;display=swap">
 <link rel="stylesheet" href="css/estilo.css">
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <script src="js/comun.js" defer></script>
@@ -55,7 +52,7 @@
 
 <section class="en-breve" aria-labelledby="t-breve">
   <h2 id="t-breve">Una ruta global y velocidades que no chocan</h2>
-  <p>Nav2 recibe una meta, calcula una ruta completa con A estrella sobre un mapa de costos, y un controlador local la sigue eligiendo velocidades que no choquen. Alrededor de cada obstáculo se infla una zona de costo para mantener distancia. En este robot esa zona es más angosta que la esquina del propio robot, y eso enseña algo sobre cómo se configura un sistema para un espacio pequeño. La navegación funcionó de punta a punta, aunque todavía no tiene un indicador propio.</p>
+  <p><span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span> recibe una meta, calcula una ruta completa con <span class="term" data-def="Algoritmo que busca la ruta de menor costo en una rejilla sumando lo recorrido y una estimación de lo que falta.">A estrella</span> sobre un <span class="term" data-t="Mapa de costos" data-def="Rejilla en la que cada celda tiene un costo según su cercanía a obstáculos.">mapa de costos</span>, y un controlador local la sigue eligiendo velocidades que no choquen. Alrededor de cada obstáculo se infla una zona de costo para mantener distancia. En este robot esa zona es más angosta que la esquina del propio robot, y eso enseña algo sobre cómo se configura un sistema para un espacio pequeño. La navegación funcionó de punta a punta, aunque todavía no tiene un indicador propio.</p>
   <div class="cifras-mini">
     <div><b>59</b><span>metas del explorador que Nav2 llegó a ejecutar en el robot real</span></div>
     <div><b>0,15 <small>m</small></b><span>radio de inflación en el robot real, frente a 0,24 m de su esquina</span></div>
@@ -66,10 +63,10 @@
 
 <section>
   <h2 id="nav2">Las piezas de Nav2</h2>
-  <p>Nav2 es el marco de navegación de referencia en ROS 2 <a class="ref" href="#f2">2</a>. Recibe una meta, calcula una ruta global y genera órdenes de velocidad para recorrerla evitando obstáculos <a class="ref" href="#f1">1</a>. En este robot sus piezas principales son dos mapas de costos, uno global para planificar y uno local que se actualiza alrededor del robot, un planificador global llamado NavFn con A estrella activado, un controlador local llamado DWB y un navegador que coordina todo con un árbol de comportamiento.</p>
+  <p>Nav2 es el marco de navegación de referencia en <span class="term" data-def="Conjunto de bibliotecas y herramientas de código abierto para construir sistemas robóticos modulares y distribuidos.">ROS 2</span> <a class="ref" href="#f2">2</a>. Recibe una meta, calcula una ruta global y genera órdenes de velocidad para recorrerla evitando obstáculos <a class="ref" href="#f1">1</a>. En este robot sus piezas principales son dos mapas de costos, uno global para planificar y uno local que se actualiza alrededor del robot, un planificador global llamado NavFn con A estrella activado, un controlador local llamado <span class="term" data-def="Controlador local que prueba velocidades alcanzables, simula su trayectoria y elige la de mejor puntaje.">DWB</span> y un navegador que coordina todo con un árbol de comportamiento.</p>
   <figure class="fig oscura">
     <picture><source srcset="img/tesis/nav2-arquitectura-med.webp" type="image/webp"><img src="img/tesis/nav2-arquitectura-med.png" data-grande="img/tesis/nav2-arquitectura.png" width="1200" height="827" loading="lazy" decoding="async" alt="Diagrama sobre fondo negro con tres zonas. Arriba, el operador con joystick y RViz2, y el robot físico con el RPLidar. Al centro, los componentes ROS 2 en la estación: slam_toolbox, costmaps, bt_navigator, planner_server, controller_server, recoveries_server, explore_server y twist_mux. Abajo, el robot físico: ros2_control, Arduino Nano, driver L298N, motores DC y encoders, con los tópicos que los unen."></picture>
-    <figcaption>Cómo se conectan los componentes de la navegación, desde el láser hasta los motores. Haz clic para ampliar. <small>Fig. 4.6 de la tesis.</small></figcaption>
+    <figcaption>Cómo se conectan los componentes de la navegación, desde el láser hasta los motores. <small>Fig. 4.6 de la tesis.</small></figcaption>
   </figure>
   <p>Las órdenes que salen de Nav2 pasan por twist_mux, que da prioridad al mando manual, antes de llegar al controlador diferencial. Así una persona siempre puede retomar el control, una decisión de seguridad descrita en <a href="robot.html#seguridad">Anatomía del robot</a>.</p>
   <h3 id="arbol">Un árbol de comportamiento en vez de un programa rígido</h3>
@@ -78,7 +75,7 @@
 
 <section>
   <h2 id="costos">Mapas de costos e inflación</h2>
-  <p>Un mapa de costos toma la rejilla de ocupación y le agrega un costo a cada celda según qué tan cerca está de un obstáculo. Las celdas del obstáculo tienen el costo máximo, que en Nav2 es 254. Las que están a menos del radio inscrito del robot, la distancia de su centro a su borde más cercano, reciben 253, porque el centro ahí ya implicaría choque. Más allá, el costo decae de forma exponencial hasta el radio de inflación, y después vale cero <a class="ref" href="#f4">4</a>.</p>
+  <p>Un mapa de costos toma la rejilla de ocupación y le agrega un costo a cada celda según qué tan cerca está de un obstáculo. Las celdas del obstáculo tienen el costo máximo, que en Nav2 es 254. Las que están a menos del radio inscrito del robot, la distancia de su centro a su borde más cercano, reciben 253, porque el centro ahí ya implicaría choque. Más allá, el costo decae de forma exponencial hasta el radio de <span class="term" data-t="Inflación" data-def="Zona de costo que se agrega alrededor de los obstáculos para que el robot mantenga distancia.">inflación</span>, y después vale cero <a class="ref" href="#f4">4</a>.</p>
   <div class="galeria g3">
     <figure class="fig oscura">
       <picture><source srcset="img/tesis/costmap-1.webp" type="image/webp"><img src="img/tesis/costmap-1.png" width="1001" height="714" loading="lazy" decoding="async" alt="Mapa de costos al inicio de la exploración, con pocas paredes detectadas en rojo y celeste alrededor del robot."></picture>
@@ -153,7 +150,7 @@
 
 <section>
   <h2 id="amcl">Ubicarse en un mapa ya hecho</h2>
-  <p>Durante la exploración, la posición la resuelve slam_toolbox mientras construye el mapa. Otra situación distinta es tener un mapa guardado y ubicarse dentro de él. Para eso Nav2 trae AMCL, la localización de Monte Carlo adaptativa, un <span class="term" data-def="Un método que representa la incertidumbre con muchas hipótesis, llamadas partículas. Las que calzan mejor con lo que mide el sensor sobreviven y se multiplican.">filtro de partículas</span> <a class="ref" href="#f10">10</a>. Cada partícula es una hipótesis de dónde está el robot. Las hipótesis se mueven con la odometría, se ponderan según cuánto calzan los barridos del láser con el mapa, y el remuestreo concentra las partículas donde es más probable que esté el robot.</p>
+  <p>Durante la exploración, la posición la resuelve slam_toolbox mientras construye el mapa. Otra situación distinta es tener un mapa guardado y ubicarse dentro de él. Para eso Nav2 trae <span class="term" data-def="Localización de Monte Carlo adaptativa, que ubica al robot en un mapa ya guardado con un filtro de partículas.">AMCL</span>, la localización de Monte Carlo adaptativa, un <span class="term" data-def="Un método que representa la incertidumbre con muchas hipótesis, llamadas partículas. Las que calzan mejor con lo que mide el sensor sobreviven y se multiplican.">filtro de partículas</span> <a class="ref" href="#f10">10</a>. Cada partícula es una hipótesis de dónde está el robot. Las hipótesis se mueven con la <span class="term" data-t="Odometría" data-def="Estimación de la posición sumando el giro medido de las ruedas.">odometría</span>, se ponderan según cuánto calzan los barridos del láser con el mapa, y el remuestreo concentra las partículas donde es más probable que esté el robot.</p>
   <p>En este trabajo AMCL quedó fuera del alcance. Está en la pila de navegación con sus valores por defecto, pero no lo ajusté ni lo ejecuté en los ensayos <a class="ref" href="#f1">1</a>. Es justo lo que hacen los robots de reparto en hospitales, que trabajan sobre mapas y rutas definidos de antemano.</p>
 </section>
 
@@ -176,18 +173,8 @@
         <span class="lugar">Marte · 2021</span>
         <h3>AutoNav, de Perseverance</h3>
         <p>El rover mantiene un mapa del terreno a su alrededor, elige su camino y replanifica para esquivar rocas. En el sol 200 de la misión recorrió por su cuenta 167 de 175 metros.</p>
-        <p class="vinculo">Usa un mapa de costos local y un planificador que replanifica mientras avanza, como Nav2 en este robot, pero a millones de kilómetros.</p>
+        <p class="vinculo">Usa un mapa de costos local y un planificador que replanifica mientras avanza, como Nav2 en este robot, pero a millones de kilómetros. <a href="mundo-real.html#perseverance">Ver el caso completo</a>.</p>
         <p class="fuente-caso">Fuentes <a class="ref" href="#f11">11</a> <a class="ref" href="#f12">12</a></p>
-      </div>
-    </article>
-    <article class="caso">
-      <div class="caso-media"><div class="video" data-yt="jkoGkAd0GYk" data-titulo="Making robot navigation easy with Nav2 and ROS!" data-sub="Articulated Robotics, en inglés"><a href="https://www.youtube.com/watch?v=jkoGkAd0GYk">Ver el video en YouTube</a></div></div>
-      <div class="caso-txt">
-        <span class="lugar">Para aprender</span>
-        <h3>Nav2 en un robot casero</h3>
-        <p>El tutorial del autor de los paquetes en que se basa este robot muestra la configuración de Nav2 paso a paso, sobre una plataforma diferencial muy parecida.</p>
-        <p class="vinculo">Es el mismo camino de configuración que seguí en este trabajo.</p>
-        <p class="fuente-caso">Fuente <a class="ref" href="#f13">13</a></p>
       </div>
     </article>
   </div>
@@ -208,7 +195,6 @@
     <li id="f10"><span><span class="tipo-ref">Libro</span>Thrun, S., Burgard, W. y Fox, D. (2005). <em>Probabilistic Robotics</em>. MIT Press. Capítulo 8.</span></li>
     <li id="f11"><span><span class="tipo-ref">NASA</span>NASA JPL (2021). Perseverance's Sol 200 Auto-Nav Drive. <a href="https://www.jpl.nasa.gov/images/perseverances-sol-200-auto-nav-drive">jpl.nasa.gov</a></span></li>
     <li id="f12"><span><span class="tipo-ref">Video</span>Perseverance AutoNav Avoids a Boulder. <a href="https://www.youtube.com/watch?v=DTNRc2N1vbg">youtube.com/watch?v=DTNRc2N1vbg</a></span></li>
-    <li id="f13"><span><span class="tipo-ref">Video</span>Articulated Robotics. Making robot navigation easy with Nav2 and ROS! <a href="https://www.youtube.com/watch?v=jkoGkAd0GYk">youtube.com/watch?v=jkoGkAd0GYk</a></span></li>
   </ol>
 </section>
 

@@ -19,9 +19,6 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#004EAA">
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&amp;family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&amp;family=IBM+Plex+Mono:wght@400;600&amp;display=swap">
 <link rel="stylesheet" href="css/estilo.css">
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <script src="js/comun.js" defer></script>
@@ -60,9 +57,9 @@
 
 <section>
   <h2 id="percibir">Percibir: ver con láser</h2>
-  <p>El LiDAR es el sensor que comparten casi todos estos casos. En el robot explorador es un láser 2D que gira, el mismo tipo que llevan muchas aspiradoras. En la minería y en los vehículos autónomos se usan versiones 3D, que ven más que un plano a cambio de muchos más datos <a class="ref" href="#f1">1</a>.</p>
+  <p>El <span class="term" data-def="Sensor que mide distancias con luz láser, y en su versión 2D gira y mide en un plano horizontal.">LiDAR</span> es el sensor que comparten casi todos estos casos. En el robot explorador es un láser 2D que gira, el mismo tipo que llevan muchas aspiradoras. En la minería y en los vehículos autónomos se usan versiones 3D, que ven más que un plano a cambio de muchos más datos <a class="ref" href="#f1">1</a>.</p>
   <div class="casos">
-    <article class="caso">
+    <article class="caso" id="aspiradoras">
       <div class="caso-media"><div class="video" data-yt="DSBWH8dzyeU" data-titulo="How do robot vacuums know where to clean?" data-sub="BBC News, en inglés"><a href="https://www.youtube.com/watch?v=DSBWH8dzyeU">Ver el video en YouTube</a></div></div>
       <div class="caso-txt">
         <span class="lugar">Hogares</span>
@@ -72,7 +69,7 @@
         <p class="fuente-caso">Fuentes <a class="ref" href="#f2">2</a> <a class="ref" href="#f3">3</a></p>
       </div>
     </article>
-    <article class="caso">
+    <article class="caso" id="el-teniente">
       <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M6 52l14-22 8 10 10-18 20 30z"/><path d="M26 18h12M32 18v-6"/><circle cx="32" cy="22" r="4"/></svg></div>
       <div class="caso-txt">
         <span class="lugar">Minería · Chile · 2026</span>
@@ -89,23 +86,23 @@
   <h2 id="estimar">Estimar: saber dónde se está</h2>
   <p>Contar el giro de las ruedas es la forma más antigua de saber cuánto se avanzó, y tiene siempre el mismo problema, la deriva. Por eso los robots de uso real combinan esa cuenta con otro sensor.</p>
   <div class="casos">
-    <article class="caso">
+    <article class="caso" id="apollo">
       <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><circle cx="18" cy="44" r="8"/><circle cx="46" cy="44" r="8"/><path d="M18 36l8-14h12l8 14M26 22v-8h12"/><circle cx="50" cy="14" r="5"/></svg></div>
       <div class="caso-txt">
         <span class="lugar">La Luna · 1971 y 1972</span>
         <h3>El vehículo lunar de Apollo</h3>
         <p>Registraba de forma continua la dirección con un giroscopio y la distancia con odómetros en las ruedas, y un computador calculaba el rumbo y la distancia de regreso al módulo lunar.</p>
-        <p class="vinculo">Combinaba odometría de ruedas con un sensor de giro, la mejora que propongo para este robot. Más en <a href="movimiento.html#mejorar">Moverse y medir el avance</a>.</p>
+        <p class="vinculo">Combinaba <span class="term" data-t="Odometría" data-def="Estimación de la posición sumando el giro medido de las ruedas.">odometría</span> de ruedas con un sensor de giro, la mejora que propongo para este robot. Más en <a href="movimiento.html#mejorar">Moverse y medir el avance</a>.</p>
         <p class="fuente-caso">Fuente <a class="ref" href="#f5">5</a></p>
       </div>
     </article>
-    <article class="caso">
+    <article class="caso" id="tug">
       <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="22"/><path d="M32 10v44M10 32h44"/><circle cx="32" cy="32" r="5"/></svg></div>
       <div class="caso-txt">
         <span class="lugar">Hospitales</span>
         <h3>Robots de reparto como TUG</h3>
         <p>Llevan insumos por los pasillos con navegación basada en cámaras y láser, sobre mapas y rutas definidos digitalmente. Ubicarse en un mapa ya conocido es su tarea de todos los días.</p>
-        <p class="vinculo">Se ubican sobre un mapa guardado, lo que en este trabajo quedó como trabajo futuro con AMCL. Más en <a href="navegacion.html#amcl">Planificar y seguir rutas</a>.</p>
+        <p class="vinculo">Se ubican sobre un mapa guardado, lo que en este trabajo quedó como trabajo futuro con <span class="term" data-def="Localización de Monte Carlo adaptativa, que ubica al robot en un mapa ya guardado con un filtro de partículas.">AMCL</span>. Más en <a href="navegacion.html#amcl">Planificar y seguir rutas</a>.</p>
         <p class="fuente-caso">Fuente <a class="ref" href="#f6">6</a></p>
       </div>
     </article>
@@ -116,7 +113,7 @@
   <h2 id="decidir">Decidir: explorar lo desconocido</h2>
   <p>Elegir el próximo destino sin un plano previo es el corazón de la exploración autónoma. Es el problema central de esta tesis y de las competencias de robots de rescate.</p>
   <div class="casos">
-    <article class="caso">
+    <article class="caso" id="cerberus">
       <div class="caso-media"><div class="video" data-yt="fCHOU-fw2c0" data-titulo="Team CERBERUS Wins the DARPA Subterranean Challenge" data-sub="Video en YouTube, en inglés"><a href="https://www.youtube.com/watch?v=fCHOU-fw2c0">Ver el video en YouTube</a></div></div>
       <div class="caso-txt">
         <span class="lugar">Subterráneo · Estados Unidos · 2021</span>
@@ -132,17 +129,17 @@
 <section>
   <h2 id="moverse">Moverse: planificar entre personas y rocas</h2>
   <div class="casos">
-    <article class="caso">
+    <article class="caso" id="proteus">
       <div class="caso-media"><div class="video" data-yt="lyYpcKM-fWg" data-titulo="Meet Proteus, Amazon's New Autonomous Robot" data-sub="Video en YouTube, en inglés"><a href="https://www.youtube.com/watch?v=lyYpcKM-fWg">Ver el video en YouTube</a></div></div>
       <div class="caso-txt">
         <span class="lugar">Bodegas · Estados Unidos · 2022</span>
         <h3>Proteus, de Amazon</h3>
         <p>Los primeros robots de bodega de Amazon trabajaban en zonas cerradas, lejos de las personas. Proteus circula entre trabajadores y combina varios sensores, entre ellos un LiDAR de alta precisión.</p>
-        <p class="vinculo">Planifica sobre un mapa de costos y reacciona a los obstáculos, como Nav2 en el robot explorador. Más en <a href="navegacion.html">Planificar y seguir rutas</a>.</p>
+        <p class="vinculo">Planifica sobre un <span class="term" data-t="Mapa de costos" data-def="Rejilla en la que cada celda tiene un costo según su cercanía a obstáculos.">mapa de costos</span> y reacciona a los obstáculos, como <span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span> en el robot explorador. Más en <a href="navegacion.html">Planificar y seguir rutas</a>.</p>
         <p class="fuente-caso">Fuente <a class="ref" href="#f8">8</a></p>
       </div>
     </article>
-    <article class="caso">
+    <article class="caso" id="perseverance">
       <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="22"/><path d="M14 26c8 3 14 1 20-6M22 50c0-8 6-11 14-11s12-5 12-11"/></svg></div>
       <div class="caso-txt">
         <span class="lugar">Marte · 2021</span>
@@ -159,7 +156,7 @@
   <h2 id="controlar">Controlar: el lazo cerrado en todas partes</h2>
   <p>Cada rueda del robot explorador tiene un lazo de control que mide, compara y corrige. Esa misma idea mantiene la velocidad de un auto, la temperatura de una impresora y la estabilidad de un dron.</p>
   <div class="casos">
-    <article class="caso">
+    <article class="caso" id="control-crucero">
       <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M8 40h48l-6-14H18z"/><circle cx="20" cy="44" r="5"/><circle cx="44" cy="44" r="5"/></svg></div>
       <div class="caso-txt">
         <span class="lugar">Automóviles</span>
@@ -169,17 +166,17 @@
         <p class="fuente-caso">Fuente <a class="ref" href="#f10">10</a></p>
       </div>
     </article>
-    <article class="caso">
+    <article class="caso" id="marlin">
       <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><rect x="14" y="10" width="36" height="8" rx="2"/><path d="M32 18v10M26 28h12l-3 10h-6z"/><path d="M12 54h40M20 54v-8h24v8"/></svg></div>
       <div class="caso-txt">
         <span class="lugar">Impresoras 3D</span>
         <h3>Autoajuste del PID de la boquilla</h3>
-        <p>El firmware Marlin trae el comando M303, que prueba el calentador y calcula las ganancias del PID que mantiene la temperatura.</p>
-        <p class="vinculo">Obtiene ganancias a partir de una respuesta medida, como hice con el modelo FOPDT y el PSO.</p>
+        <p>El firmware Marlin trae el comando M303, que prueba el calentador y calcula las ganancias del <span class="term" data-def="Controlador que combina una acción proporcional al error, una integral del error pasado y una derivativa de su tendencia.">PID</span> que mantiene la temperatura.</p>
+        <p class="vinculo">Obtiene ganancias a partir de una respuesta medida, como hice con el modelo <span class="term" data-def="Modelo de primer orden con retardo, que resume la respuesta de un sistema con una ganancia, una constante de tiempo y un retardo.">FOPDT</span> y el <span class="term" data-def="Optimización por enjambre de partículas, que busca el mejor valor moviendo muchos candidatos que comparten lo que encuentran.">PSO</span>.</p>
         <p class="fuente-caso">Fuente <a class="ref" href="#f11">11</a></p>
       </div>
     </article>
-    <article class="caso">
+    <article class="caso" id="px4">
       <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M14 20h12M38 20h12M20 20v6h24v-6"/><rect x="24" y="26" width="16" height="12" rx="3"/><circle cx="20" cy="20" r="6"/><circle cx="44" cy="20" r="6"/></svg></div>
       <div class="caso-txt">
         <span class="lugar">Drones</span>
@@ -195,7 +192,7 @@
 <section>
   <h2 id="simular">Probar antes: gemelos y simuladores</h2>
   <div class="casos">
-    <article class="caso">
+    <article class="caso" id="optimism">
       <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><rect x="8" y="26" width="20" height="12" rx="2"/><rect x="36" y="26" width="20" height="12" rx="2"/><circle cx="12" cy="42" r="3"/><circle cx="24" cy="42" r="3"/><circle cx="40" cy="42" r="3"/><circle cx="52" cy="42" r="3"/><path d="M28 32h8"/></svg></div>
       <div class="caso-txt">
         <span class="lugar">NASA JPL</span>
@@ -205,7 +202,7 @@
         <p class="fuente-caso">Fuente <a class="ref" href="#f13">13</a></p>
       </div>
     </article>
-    <article class="caso">
+    <article class="caso" id="subt-virtual">
       <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><rect x="8" y="12" width="48" height="32" rx="3"/><path d="M24 52h16M32 44v8"/><path d="M16 36l8-10 6 6 8-12 10 16"/></svg></div>
       <div class="caso-txt">
         <span class="lugar">DARPA SubT · 2019 a 2021</span>

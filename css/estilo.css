@@ -3,6 +3,7 @@
   "Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial".
 
   Orden del archivo
+  0. Fuentes tipográficas locales
   1. Tokens de color, tipografía y espacio (modo claro y oscuro)
   2. Base y tipografía de lectura
   3. Cabecera, navegación, pie y barra de progreso
@@ -14,7 +15,16 @@
   9. Ajustes responsivos, impresión y movimiento reducido
   10. Rediseño editorial: portada, temas, medios, fuentes y búsqueda
   11. Portada: video en recuadro, ciclo, lecciones y rutas
+  12. Contenido plegado, botón Ampliar y controles táctiles
 */
+
+/* Fuentes tipográficas locales, subconjunto latino, licencia OFL en fuentes/ */
+@font-face { font-family: "Archivo"; src: url("../fuentes/archivo-latin-variable.woff2") format("woff2"); font-weight: 500 800; font-style: normal; font-stretch: 75% 100%; font-display: swap; unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Atkinson Hyperlegible"; src: url("../fuentes/atkinson-hyperlegible-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Atkinson Hyperlegible"; src: url("../fuentes/atkinson-hyperlegible-latin-700-normal.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Atkinson Hyperlegible"; src: url("../fuentes/atkinson-hyperlegible-latin-400-italic.woff2") format("woff2"); font-weight: 400; font-style: italic; font-display: swap; unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "IBM Plex Mono"; src: url("../fuentes/ibm-plex-mono-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "IBM Plex Mono"; src: url("../fuentes/ibm-plex-mono-latin-600-normal.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 
 /* 1. Tokens */
 :root {
@@ -866,7 +876,7 @@ ol.refs-lista a { overflow-wrap: anywhere; }
 
 /* Términos con definición */
 .term[aria-expanded="true"] { background: var(--azul-suave); border-radius: 3px; }
-.term { text-decoration: underline dotted color-mix(in srgb, var(--azul) 70%, transparent); text-underline-offset: .2em; text-decoration-thickness: 1.5px; cursor: help; }
+.term { white-space: nowrap; text-decoration: underline dotted color-mix(in srgb, var(--azul) 70%, transparent); text-underline-offset: .2em; text-decoration-thickness: 1.5px; cursor: help; }
 .term:focus-visible { outline: 2px solid var(--azul); outline-offset: 2px; border-radius: 3px; }
 .burbuja { position: absolute; z-index: 90; max-width: min(340px, calc(100vw - 24px)); background: var(--ink); color: var(--bg); font-size: var(--t-sm); line-height: 1.45; padding: 10px 12px; border-radius: 10px; box-shadow: var(--sombra-alta); pointer-events: none; opacity: 0; transform: translateY(4px); transition: opacity .15s, transform .15s; }
 .burbuja.visible { opacity: 1; transform: none; }
@@ -984,4 +994,37 @@ p.chip-dato { margin: 0; }
   .ruta-replica th, .ruta-replica td, .materiales th, .materiales td { display: block; border: 0 !important; padding: 2px 0 !important; white-space: normal !important; }
   .ruta-replica th, .materiales th { font-size: var(--t-base); }
   .ruta-replica caption, .materiales caption { display: block; }
+}
+
+/* 12. Contenido plegado, botón Ampliar y controles táctiles */
+details.detalle { margin-top: 18px; max-width: var(--lectura); }
+details.detalle[open] { max-width: none; }
+details.detalle > summary { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 8px 16px 8px 10px; border: 1px solid var(--line-2); border-radius: 10px; background: var(--surface); color: var(--azul); font-weight: 700; font-size: var(--t-sm); cursor: pointer; list-style: none; }
+details.detalle > summary::-webkit-details-marker { display: none; }
+details.detalle > summary::before { content: "+"; font-family: var(--f-data); width: 24px; height: 24px; border-radius: 6px; display: grid; place-items: center; background: var(--azul-suave); color: var(--azul); flex: none; }
+details.detalle[open] > summary::before { content: "−"; }
+details.detalle > summary:hover { border-color: var(--azul); }
+details.detalle > summary:focus-visible { outline: 3px solid var(--azul); outline-offset: 2px; }
+details.detalle > * + * { margin-top: 22px; }
+details.detalle > p + p { margin-top: 14px; }
+figure.ampliable { position: relative; }
+.b-ampliar { position: absolute; top: 10px; right: 10px; z-index: 2; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 6px 12px; border: 0; border-radius: 999px; background: rgba(15, 23, 34, .82); color: #fff; font-size: var(--t-xs); font-weight: 700; line-height: 1; cursor: pointer; box-shadow: 0 1px 3px rgba(0, 0, 0, .25); }
+.b-ampliar:hover { background: rgba(15, 23, 34, .95); }
+.b-ampliar:focus-visible { outline: 3px solid var(--azul); outline-offset: 2px; }
+.b-ampliar svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+/* En pantallas táctiles, cada control mide al menos 44 px de alto. Con ratón el aspecto no cambia. */
+@media (pointer: coarse) {
+  .lateral a { min-height: 44px; align-items: center; }
+  .miga a { display: inline-flex; align-items: center; min-height: 44px; }
+  .b-ctl, .bucle .b-ctl, .portada-media .inset .bucle .b-ctl, .b-ampliar { min-height: 44px; }
+  .btn-icono, .btn-buscar, .nav-principal a, .nav-principal button.nav-btn { min-height: 44px; min-width: 44px; }
+  .cajon-panel a { min-height: 44px; }
+  .vbtn, .chip, .segmento button, .btn.chico, .etapas-ctl button { min-height: 44px !important; }
+}
+@media (pointer: coarse) and (max-width: 420px) {
+  .btn-icono { width: 44px; height: 44px; }
+}
+@media print {
+  .b-ampliar { display: none !important; }
+  details.detalle > summary { display: none; }
 }
