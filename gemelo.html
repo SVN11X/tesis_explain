@@ -132,7 +132,7 @@
   <h2 id="criterios">Cómo se aprobó el gemelo</h2>
   <p>Antes de usar el gemelo para probar SLAM y navegación, se aplicaron cuatro criterios mínimos <a class="ref" href="#f1">1</a>. La cadena de marcos debía estar completa, sin marcos sueltos. El láser y la odometría debían publicarse con frecuencia estable. El robot debía avanzar y girar como dice el modelo diferencial. Y el radio y la separación de las ruedas debían ser iguales a los del prototipo.</p>
   <div class="widget">
-    <div class="widget-cab"><h3 id="cuatro-criterios">Los criterios, lo que no reproduce y dos cifras que no se comparan</h3><span class="tipo datos">Datos de la tesis</span></div>
+    <div class="widget-cab"><h3 id="cuatro-criterios">Los criterios de aprobación y lo que no reproduce</h3><span class="tipo datos">Datos de la tesis</span></div>
     <div class="vis" data-vis="gemelo"><p class="vis-fallback">Cadena de marcos completa, sensores estables, movimiento coherente y paridad geométrica.</p></div>
   </div>
   <p>Los criterios se confirmaron durante la puesta en marcha del modelo. No incluí, por ejemplo, los valores medidos de frecuencia de los tópicos ni la imagen del árbol de marcos. Es una debilidad del registro y deja una lección práctica. Lo que no se registra, después no se puede mostrar.</p>
@@ -142,7 +142,7 @@
 <section>
   <h2 id="brecha">La brecha entre simulación y realidad</h2>
   <p>Ningún simulador es la realidad. Gazebo Classic no reproduce del todo el roce, la zona muerta del driver, el ruido de los sensores ni las latencias reales <a class="ref" href="#f1">1</a>. A esa diferencia se le llama brecha entre simulación y realidad, y es un tema de investigación en sí mismo. Una de las técnicas conocidas es variar al azar los parámetros de la simulación, como texturas, colores o iluminación, para que lo aprendido en ella resista mejor el paso al mundo real <a class="ref" href="#f4">4</a>.</p>
-  <h3 id="no-se-comparan">Dos cifras que parecen comparables y no lo son</h3>
+  <h3 id="no-se-comparan">Por qué las cifras de simulación y del robot no se comparan</h3>
   <p>En la recta de 2 m, la desviación en simulación fue de 3,39 % y en el robot real de 7,18 %. Parecen la misma medida en dos entornos, pero miden cosas distintas. En simulación la pose verdadera de Gazebo no quedó registrada, así que la distancia salió de la propia odometría. En el robot real se midió con cinta. Una cifra se mide consigo misma y la otra contra una referencia física <a class="ref" href="#f1">1</a>.</p>
   <div class="argumento">
     <div><span class="a-et">En simulación, 3,39 %</span><p>Odometría simulada frente a los 2 m ordenados. No hay referencia externa.</p></div>

@@ -70,7 +70,7 @@
   <h2 id="cuatro-problemas">Lo que un robot autónomo resuelve a la vez</h2>
   <p>Un robot móvil autónomo para interiores necesita resolver cuatro tareas de forma integrada <a class="ref" href="#f1">1</a>. Ninguna funciona sola. Si la estimación de posición falla, el mapa se deforma. Si el mapa se deforma, la ruta pasa por donde hay una pared. Y si las ruedas no siguen la velocidad pedida, la ruta perfecta no sirve de nada.</p>
   <div class="widget">
-    <div class="widget-cab"><h3 id="ciclo">El ciclo de un robot autónomo</h3><span class="tipo ilus">Diagrama</span><p>Cada caja tiene su tema en esta guía. El ciclo se repite varias veces por segundo.</p></div>
+    <div class="widget-cab"><h3 id="ciclo">El ciclo de un robot autónomo</h3><span class="tipo ilus">Diagrama</span><p>Cada caja tiene su tema en esta guía. Las ruedas se corrigen 30 veces por segundo y el destino se revisa cada 3,3 s.</p></div>
     <div class="vis">
       <div class="flujo">
         <div class="caja azul"><b>Percibir</b><small>Un láser mide distancias en un plano. <a href="mapeo.html">Tema 5</a>.</small></div><div class="flecha-d"></div>
@@ -171,9 +171,9 @@
   <div class="argumento">
     <div><span class="a-et">Lo que se adaptó</span><p>El paquete articubot_one, la interfaz diffdrive_arduino y el firmware ROSArduinoBridge, de Josh Newans, y el explorador explore_lite en su versión para ROS 2. Todos se modificaron y configuraron para este robot.</p></div>
     <div><span class="a-et">Lo que es propio</span><p>La integración completa sobre un robot construido para este fin, la parametrización geométrica compartida por simulación y hardware, la identificación de un modelo de cada rueda con su sintonía por PSO y un programa propio para leer el LiDAR por puerto serie.</p></div>
-    <div><span class="a-et">Lo que se descubrió</span><p>La ley de control llamada PID opera como un PI incremental. Y 53 de las 54 metas abortadas durante la exploración fueron reemplazos hechos por el propio explorador, no fallas del robot.</p></div>
+    <div><span class="a-et">Lo que mostró la validación</span><p>La ley de control llamada PID opera como un PI incremental. Y 53 de las 54 metas abortadas durante la exploración fueron reemplazos hechos por el propio explorador, no fallas del robot.</p></div>
   </div>
-  <p>Esos dos hallazgos son de lo más valioso de la tesis, porque muestran que integrar no es solo conectar piezas. Es entender cómo se comportan juntas. Tienen su desarrollo en <a href="control.html#hallazgo">Control de velocidad</a> y en <a href="exploracion.html#abortadas">Explorar por fronteras</a>.</p>
+  <p>Esos dos resultados salieron de validar el sistema y explican el alcance de los objetivos. El primero es la razón por la que el control quedó parcial. El segundo explica por qué el resultado de las metas no mide la tasa de éxito de la navegación. El aporte principal es la integración propia descrita arriba. Cada resultado tiene su desarrollo en <a href="control.html#hallazgo">Control de velocidad</a> y en <a href="exploracion.html#abortadas">Explorar por fronteras</a>.</p>
 </section>
 
 <section>
