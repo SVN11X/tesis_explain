@@ -9,7 +9,8 @@ Comprueba: errores de consola y de carga en las 15 páginas, en escritorio y en 
 todos los interactivos se monten; desborde horizontal en móvil; enlaces internos, anclas y
 recursos locales; el buscador; las definiciones con ratón, toque y teclado; los simuladores
 de inflación, DWB, exploración y encoder; la página de Recursos; el contenido plegado y sus
-anclas; el botón Ampliar; y el alto mínimo de los controles en un teléfono.
+anclas; el botón Ampliar; el alto mínimo de los controles en un teléfono; el visor de fotos,
+el esquema con puntos, la línea de tiempo y los bloques de video preparados.
 """
 import os, re, sys, json, glob
 from urllib.parse import urlparse, unquote
@@ -64,6 +65,15 @@ def revisar_enlaces():
                     n_rec += 1
                     if not os.path.exists(os.path.join(REPO, unquote(v.split('#')[0].split('?')[0]))):
                         recursos_malos.append(pag + ' → ' + v)
+        # videos preparados: sus archivos se exigen solo cuando el bloque deja de estar oculto
+        for t in s.select('[data-src], [data-poster]'):
+            if t.find_parent(attrs={'hidden': True}) is not None:
+                continue
+            for attr in ('data-src', 'data-poster'):
+                if t.has_attr(attr):
+                    n_rec += 1
+                    if not os.path.exists(os.path.join(REPO, t[attr])):
+                        recursos_malos.append(pag + ' → ' + t[attr])
         for t in s.select('[data-portada]'):
             for ext in ('.webp', '.jpg'):
                 n_rec += 1
@@ -527,13 +537,13 @@ def probar_ampliar(nav):
     for nombre, kw in [('escritorio', {'viewport': {'width': 1280, 'height': 900}}), ('teléfono', {'viewport': {'width': 390, 'height': 844}, 'has_touch': True, 'is_mobile': True})]:
         ctx = contexto(nav, **kw)
         p = ctx.new_page()
-        p.goto(BASE + '/robot.html')
+        p.goto(BASE + '/replicar.html')
         p.wait_for_timeout(200)
         r = p.evaluate("""() => { const figs = document.querySelectorAll('figure.ampliable'), bs = document.querySelectorAll('.b-ampliar');
-          const b = document.querySelector('#energia ~ figure .b-ampliar') || document.querySelector('figure img[data-grande*=circuito]').closest('figure').querySelector('.b-ampliar');
+          const b = document.querySelector('figure img[data-grande*=circuito]').closest('figure').querySelector('.b-ampliar');
           const cs = getComputedStyle(b);
           return { figs: figs.length, botones: bs.length, etiqueta: b.getAttribute('aria-label'), texto: b.textContent.trim(), visible: cs.display !== 'none' && cs.visibility !== 'hidden' && +cs.opacity > 0.5 }; }""")
-        ok(r['figs'] > 5 and r['figs'] == r['botones'], '%s: cada figura ampliable tiene su botón (%d)' % (nombre, r['botones']), r)
+        ok(r['figs'] >= 2 and r['figs'] == r['botones'], '%s: cada figura ampliable tiene su botón (%d)' % (nombre, r['botones']), r)
         ok(r['etiqueta'] == 'Ampliar imagen' and r['texto'] == 'Ampliar' and r['visible'], '%s: el botón es visible, dice Ampliar y tiene etiqueta accesible' % nombre, r)
         b = p.locator('figure:has(img[data-grande*="circuito"]) .b-ampliar')
         b.scroll_into_view_if_needed()
@@ -582,6 +592,115 @@ def probar_tactil(nav):
     ctx.close()
 
 
+def probar_vistas(nav):
+    print('Visor de fotos del prototipo')
+    for nombre, kw in [('escritorio', {'viewport': {'width': 1280, 'height': 900}}), ('teléfono', {'viewport': {'width': 390, 'height': 844}, 'has_touch': True, 'is_mobile': True})]:
+        ctx = contexto(nav, **kw)
+        p = ctx.new_page()
+        estatico = open(os.path.join(REPO, 'robot.html'), encoding='utf-8').read()
+        ok(not re.search(r'robot-(frente|derecha|planta)\.(jpg|webp)', estatico) and 'data-vis="vistas"' in estatico,
+           '%s: las fotos del visor no están en el HTML y se piden al montarlo, con la carga diferida del sitio' % nombre)
+        sel = montar(p, 'robot.html', 'vistas')
+        est = lambda: p.evaluate("s => document.querySelector(s).estadoVista()", sel)
+        cab = p.evaluate("s => document.querySelector(s).closest('.widget').querySelector('.tipo').textContent", sel)
+        ok(cab == 'Fotos del prototipo', '%s: el visor lleva la etiqueta Fotos del prototipo' % nombre, cab)
+        botones = p.eval_on_selector_all(sel + ' .visor-ctl button', 'bs => bs.map(b => b.textContent)')
+        ok(botones == ['Frente', 'Derecha', 'Lateral', 'Desde arriba'], '%s: botones Frente, Derecha, Lateral y Desde arriba' % nombre, botones)
+        e = est()
+        ok(e['id'] == 'frente' and e['src'].endswith('robot-frente.jpg') and len(e['alt']) > 40, '%s: parte en la vista de frente con texto alternativo' % nombre, e)
+        if nombre == 'teléfono':
+            p.locator(sel + ' .visor-ctl button', has_text='Desde arriba').tap()
+        else:
+            p.click(sel + ' .visor-ctl button:has-text("Desde arriba")')
+        e = est()
+        ok(e['id'] == 'planta' and 'visualizador de tensión' in e['alt'] and p.get_attribute(sel + ' .visor-ctl button:has-text("Desde arriba")', 'aria-pressed') == 'true', '%s: el botón cambia a la vista desde arriba' % nombre, e)
+        p.focus(sel + ' .visor')
+        p.keyboard.press('ArrowRight')
+        ok(est()['id'] == 'frente', '%s: la flecha derecha avanza y vuelve al inicio' % nombre, est())
+        p.keyboard.press('ArrowLeft')
+        ok(est()['id'] == 'planta', '%s: la flecha izquierda retrocede' % nombre)
+        caja = p.locator(sel + ' .visor-marco').bounding_box()
+        y = caja['y'] + caja['height'] / 2
+        p.evaluate("""([s, x0, x1, y]) => { const m = document.querySelector(s + ' .visor-marco');
+          m.dispatchEvent(new PointerEvent('pointerdown', { clientX: x0, clientY: y, bubbles: true, pointerType: 'touch' }));
+          m.dispatchEvent(new PointerEvent('pointerup', { clientX: x1, clientY: y, bubbles: true, pointerType: 'touch' })); }""",
+                   [sel, caja['x'] + caja['width'] * 0.8, caja['x'] + caja['width'] * 0.2, y])
+        ok(est()['id'] == 'frente', '%s: deslizar hacia la izquierda pasa a la vista siguiente' % nombre, est())
+        p.mouse.move(caja['x'] + 40, y); p.mouse.down(); p.mouse.move(caja['x'] + 200, y, steps=5); p.mouse.up()
+        ok(est()['id'] == 'planta', '%s: arrastrar hacia la derecha con el ratón vuelve a la anterior' % nombre, est())
+        alts = p.evaluate("""s => { const el = document.querySelector(s), out = []; for (let k = 0; k < 4; k++) { el.querySelectorAll('.visor-ctl button')[k].click(); out.push(el.estadoVista().alt); } return out; }""", sel)
+        ok(len(set(alts)) == 4 and all('negra' in a and ('LiDAR' in a) for a in alts), '%s: cada vista tiene su propio texto alternativo' % nombre, alts)
+        ancho = p.evaluate('document.documentElement.scrollWidth - innerWidth')
+        ok(ancho <= 1, '%s: el visor no desborda la página' % nombre, ancho)
+        ctx.close()
+
+
+def probar_esquema(nav):
+    print('Esquema de conexiones con puntos')
+    for nombre, kw in [('escritorio', {'viewport': {'width': 1280, 'height': 900}}), ('teléfono', {'viewport': {'width': 390, 'height': 844}, 'has_touch': True, 'is_mobile': True})]:
+        ctx = contexto(nav, **kw)
+        p = ctx.new_page()
+        sel = montar(p, 'robot.html', 'esquema')
+        p.wait_for_timeout(300)
+        r = p.evaluate("""s => { const el = document.querySelector(s), img = el.querySelector('img'), ri = img.getBoundingClientRect();
+          const pts = [...el.querySelectorAll('.punto')];
+          return { n: pts.length, tipo: el.closest('.widget').querySelector('.tipo').textContent,
+            enPorcentaje: pts.every(b => /%$/.test(b.style.left) && /%$/.test(b.style.top)),
+            dentro: pts.every(b => { const r = b.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2; return cx >= ri.left && cx <= ri.right && cy >= ri.top && cy <= ri.bottom; }),
+            nombres: pts.map(b => b.getAttribute('aria-label')), ampliar: !!el.querySelector('.b-ampliar') }; }""", sel)
+        ok(r['n'] >= 10 and r['tipo'] == 'Datos de la tesis', '%s: %d puntos sobre la figura, con la etiqueta Datos de la tesis' % (nombre, r['n']), r)
+        ok(r['enPorcentaje'] and r['dentro'], '%s: los puntos van en porcentaje y quedan dentro de la imagen' % nombre, r)
+        ok(all(x in r['nombres'] for x in ['Arduino Nano', 'Driver L298N', 'Regulador de tensión', 'Motor derecho con encoder']), '%s: hay puntos en el Arduino, el L298N, el regulador y los motores' % nombre, r['nombres'])
+        ok(r['ampliar'], '%s: la figura del esquema también se puede ampliar' % nombre)
+        b = p.locator(sel + ' .punto[aria-label="Arduino Nano"]')
+        if nombre == 'teléfono':
+            b.tap()
+        else:
+            b.click()
+        e = p.evaluate("s => document.querySelector(s).estadoEsquema()", sel)
+        ok('Arduino Nano' in e['texto'] and 'encoders' in e['texto'] and b.get_attribute('aria-pressed') == 'true', '%s: tocar un punto muestra su explicación' % nombre, e)
+        p.focus(sel + ' .punto[aria-label="Driver L298N"]')
+        p.keyboard.press('Enter')
+        e = p.evaluate("s => document.querySelector(s).estadoEsquema()", sel)
+        ok('L298N' in e['texto'] and 'PWM' in e['texto'], '%s: con el teclado se activa un punto' % nombre, e)
+        ok(p.evaluate("s => document.querySelector(s + ' .esquema-info').getAttribute('aria-live')", sel) == 'polite', '%s: la explicación se anuncia a lectores de pantalla' % nombre)
+        ctx.close()
+
+
+def probar_preparados(nav):
+    print('Línea de tiempo y bloques de video preparados')
+    ctx = contexto(nav, viewport={'width': 1280, 'height': 900})
+    p = ctx.new_page()
+    pedidas = []
+    p.on('request', lambda r: pedidas.append(r.url))
+    for pag in ['movimiento.html', 'exploracion.html', 'gemelo.html']:
+        p.goto(BASE + '/' + pag)
+        p.wait_for_timeout(200)
+        r = p.evaluate("""() => [...document.querySelectorAll('.bucle video')].filter(v => v.closest('[hidden]')).map(v => ({
+          oculto: true, src: v.querySelector('source').getAttribute('data-src'), conSrc: v.querySelector('source').hasAttribute('src') || v.hasAttribute('poster'),
+          ctl: !!v.parentElement.querySelector('.b-ctl'), muted: v.muted || v.hasAttribute('muted'), loop: v.hasAttribute('loop') }))""")
+        ok(len(r) == 1 and not r[0]['conSrc'] and not r[0]['ctl'] and r[0]['muted'] and r[0]['loop'], '%s: el bloque de video espera oculto, mudo y en bucle, sin pedir archivos' % pag, r)
+        html = open(os.path.join(REPO, pag), encoding='utf-8').read()
+        ok('PENDIENTE AUTOR' in html and r and r[0]['src'] in html, '%s: el bloque lleva su comentario PENDIENTE AUTOR' % pag)
+    malos = [u for u in pedidas if re.search(r'(falla-sin-avance|meta-reemplazada|sim-vs-real)', u)]
+    ok(not malos, 'no se piden los videos que todavía no existen', malos)
+    p.goto(BASE + '/problema.html#metodo')
+    p.wait_for_timeout(300)
+    r = p.evaluate("""() => { const lis = [...document.querySelectorAll('.linea.con-fotos > li')];
+      return { n: lis.length, imgs: lis.filter(li => li.querySelector('img')).length, huecos: lis.filter(li => li.querySelector('.linea-proceso[hidden]')).length,
+        tops: lis.map(li => Math.round(li.getBoundingClientRect().top)), fechas: document.querySelectorAll('.linea.con-fotos time').length }; }""")
+    ok(r['n'] == 6 and r['imgs'] == 5 and r['huecos'] == 6 and r['fechas'] == 0, 'la línea de tiempo tiene seis etapas, cinco imágenes, un espacio oculto por etapa y ninguna fecha', r)
+    ok(len(set(r['tops'])) == 1, 'en escritorio la línea de tiempo es horizontal', r['tops'])
+    ctx.close()
+    ctx = contexto(nav, viewport={'width': 390, 'height': 844}, has_touch=True, is_mobile=True)
+    p = ctx.new_page()
+    p.goto(BASE + '/problema.html#metodo')
+    p.wait_for_timeout(300)
+    r = p.evaluate("""() => { const lis = [...document.querySelectorAll('.linea.con-fotos > li')]; return { tops: lis.map(li => Math.round(li.getBoundingClientRect().top)), lefts: lis.map(li => Math.round(li.getBoundingClientRect().left)) }; }""")
+    ok(all(a < b for a, b in zip(r['tops'], r['tops'][1:])) and len(set(r['lefts'])) == 1, 'en el teléfono la línea de tiempo es vertical', r)
+    ctx.close()
+
+
 with sync_playwright() as pw:
     nav = pw.chromium.launch()
     revisar_enlaces()
@@ -598,6 +717,9 @@ with sync_playwright() as pw:
     probar_plegados(nav)
     probar_ampliar(nav)
     probar_tactil(nav)
+    probar_vistas(nav)
+    probar_esquema(nav)
+    probar_preparados(nav)
     nav.close()
 
 print('\n%d de %d comprobaciones correctas' % (total - len(fallos), total))

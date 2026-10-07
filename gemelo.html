@@ -146,6 +146,14 @@
     <div><span class="a-et">En el robot, 7,18 %</span><p>Cinta métrica frente a los 2 m ordenados. Es el error de seguimiento real.</p></div>
     <div><span class="a-et">La cifra que sí se parece</span><p>En el robot, los <span class="term" data-t="Encoder" data-def="Sensor que produce dos señales desfasadas al girar un eje, para contar el giro y saber su sentido.">encoders</span> marcaron 3,8 % menos que lo ordenado, del mismo orden que la simulación. Pero eso tampoco es una validación del gemelo.</p></div>
   </div>
+  <!-- PENDIENTE AUTOR: video de unos 10 segundos con la simulación a la izquierda y el robot real a la derecha, sincronizados en un mismo archivo. Guárdalo en MP4 sin audio como img/tesis/sim-vs-real.mp4, con su portada en JPG como img/tesis/sim-vs-real-poster.jpg. Ajusta width y height a las del video y quita el atributo hidden del bloque siguiente. -->
+  <div class="widget" hidden>
+    <div class="widget-cab"><h3>La simulación y el robot real, lado a lado</h3><span class="tipo ilus">Ilustrativo</span></div>
+    <figure class="bucle-env sim-real">
+      <div class="bucle"><video autoplay muted loop playsinline preload="metadata" data-poster="img/tesis/sim-vs-real-poster.jpg" width="1280" height="360" aria-label="La simulación en Gazebo Classic a la izquierda y el robot real a la derecha, con el mismo comportamiento."><source data-src="img/tesis/sim-vs-real.mp4" type="video/mp4"></video><span class="c-et a" aria-hidden="true">Simulación</span><span class="c-et b" aria-hidden="true">Robot real</span></div>
+      <figcaption>Los dos videos muestran el mismo comportamiento. Sus cifras no se comparan entre sí, por las razones de esta sección.</figcaption>
+    </figure>
+  </div>
   <p>Por eso el mapeo, la navegación y la exploración se midieron con indicadores solo en el robot real. En simulación se construyeron mapas en sesiones previas, pero sin calcular indicadores, y la comparación entre ambos es cualitativa. Los mapas simulados tienen paredes más nítidas y nada de ruido en el espacio libre, y los reales detectan solo en parte los obstáculos pequeños.</p>
 </section>
 

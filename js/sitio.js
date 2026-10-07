@@ -263,7 +263,15 @@
 
   /* Videos en bucle, con pausa y respeto por el movimiento reducido */
   function bucles() {
+    /* Un bloque preparado lleva data-src y data-poster mientras espera su video. Al quitarle hidden
+       se usan como src y poster, y así no se piden archivos que todavía no existen. */
+    document.querySelectorAll(".bucle video[data-poster], .bucle video source[data-src]").forEach(function (v) {
+      if (v.closest("[hidden]")) return;
+      if (v.hasAttribute("data-poster")) v.setAttribute("poster", v.getAttribute("data-poster"));
+      if (v.hasAttribute("data-src")) { v.setAttribute("src", v.getAttribute("data-src")); v.parentElement.load(); }
+    });
     document.querySelectorAll(".bucle video").forEach(function (vid) {
+      if (vid.closest("[hidden]")) return;
       var caja = vid.parentElement;
       var b = document.createElement("button"); b.type = "button"; b.className = "b-ctl";
       function marcar() { var p = vid.paused; b.textContent = p ? "▶ Reproducir" : "❚❚ Pausar"; b.setAttribute("aria-label", p ? "Reproducir animación" : "Pausar animación"); }
@@ -288,34 +296,40 @@
 
   /* Ampliar imágenes. Cada figura lleva un botón visible, también en pantallas táctiles,
      que abre el diálogo. La imagen sigue respondiendo al clic del ratón. */
-  function ampliar() {
-    var imgs = document.querySelectorAll("figure.foto:not(.sin-zoom) img, figure.fig:not(.sin-zoom) img, figure.tema-hero-fig img");
-    if (!imgs.length || typeof HTMLDialogElement === "undefined") return;
-    var dlg = document.createElement("dialog"); dlg.className = "lightbox";
+  var dlgAmpliar = null, origenAmpliar = null;
+  function dialogoAmpliar() {
+    if (dlgAmpliar) return dlgAmpliar;
+    var dlg = dlgAmpliar = document.createElement("dialog"); dlg.className = "lightbox";
     dlg.innerHTML = '<button type="button" aria-label="Cerrar">×</button><img alt=""><p></p>';
     document.body.appendChild(dlg);
-    var origen = null;
     dlg.querySelector("button").addEventListener("click", function () { dlg.close(); });
     dlg.addEventListener("click", function (e) { if (e.target === dlg) dlg.close(); });
-    dlg.addEventListener("close", function () { if (origen) origen.focus(); origen = null; });
-    imgs.forEach(function (img) {
-      var fig = img.closest("figure");
-      if (img.closest(".deslizar") || !fig || fig.querySelector(".b-ampliar")) return;
-      var b = document.createElement("button");
-      b.type = "button"; b.className = "b-ampliar"; b.setAttribute("aria-label", "Ampliar imagen");
-      b.innerHTML = SVG.ampliar + '<span aria-hidden="true">Ampliar</span>';
-      function abrir() {
-        var im = dlg.querySelector("img"); im.src = img.getAttribute("data-grande") || img.currentSrc || img.src; im.alt = img.alt;
-        var cap = fig.querySelector("figcaption");
-        dlg.querySelector("p").textContent = cap ? cap.textContent.trim() : "";
-        origen = b;
-        dlg.showModal();
-      }
-      b.addEventListener("click", abrir);
-      img.addEventListener("click", abrir);
-      fig.classList.add("ampliable");
-      fig.appendChild(b);
-    });
+    dlg.addEventListener("close", function () { if (origenAmpliar) origenAmpliar.focus(); origenAmpliar = null; });
+    return dlg;
+  }
+  /* también la usan los interactivos que dibujan una figura después de cargar la página */
+  function hacerAmpliable(img) {
+    var fig = img.closest("figure");
+    if (typeof HTMLDialogElement === "undefined" || img.closest(".deslizar") || !fig || fig.querySelector(".b-ampliar")) return;
+    var dlg = dialogoAmpliar();
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "b-ampliar"; b.setAttribute("aria-label", "Ampliar imagen");
+    b.innerHTML = SVG.ampliar + '<span aria-hidden="true">Ampliar</span>';
+    function abrir() {
+      var im = dlg.querySelector("img"); im.src = img.getAttribute("data-grande") || img.currentSrc || img.src; im.alt = img.alt;
+      var cap = fig.querySelector("figcaption");
+      dlg.querySelector("p").textContent = cap ? cap.textContent.trim() : "";
+      origenAmpliar = b;
+      dlg.showModal();
+    }
+    b.addEventListener("click", abrir);
+    img.addEventListener("click", abrir);
+    fig.classList.add("ampliable");
+    fig.appendChild(b);
+  }
+  window.SITIO.ampliable = hacerAmpliable;
+  function ampliar() {
+    document.querySelectorAll("figure.foto:not(.sin-zoom) img, figure.fig:not(.sin-zoom) img, figure.tema-hero-fig img").forEach(hacerAmpliable);
   }
 
   /* Comparador antes y después */

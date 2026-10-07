@@ -63,22 +63,12 @@
 
 <section>
   <h2 id="piezas">Las piezas y su función</h2>
+  <div class="widget">
+    <div class="widget-cab"><h3 id="vistas">El prototipo por fuera</h3><span class="tipo foto">Fotos del prototipo</span><p>Elige una vista con los botones, desliza la foto o usa las flechas del teclado.</p></div>
+    <div class="vis" data-vis="vistas"><p class="vis-fallback">Cuatro fotos del prototipo: de frente, desde la derecha, de lado y desde arriba. Se ven la carcasa negra impresa en 3D con dos franjas amarillas, el LiDAR arriba y, en la vista superior, el visualizador de tensión.</p></div>
+  </div>
   <p>La locomoción usa dos motorreductores JGA25-370 de 12 V, cada uno con un <span class="term" data-t="Encoder" data-def="Sensor que produce dos señales desfasadas al girar un eje, para contar el giro y saber su sentido.">encoder</span> de cuadratura que cuenta su giro, y una rueda loca de apoyo. Un Arduino Nano lee los encoders y ejecuta el control de velocidad de cada rueda, y un driver L298N entrega la potencia a los motores. Una Raspberry Pi 4 ejecuta la interfaz con ROS 2, lee el láser RPLidar A1 y se comunica con el computador <a class="ref" href="#f1">1</a>.</p>
   <p>Imprimí el chasis y las cubiertas en PLA+, un plástico común en impresoras 3D domésticas, a partir de un diseño abierto de robot aspiradora publicado en Thingiverse <a class="ref" href="#f2">2</a>. Una forma de aspiradora es baja y compacta, deja el láser libre arriba y cabe por pasillos estrechos.</p>
-  <div class="galeria g3">
-    <figure class="fig">
-      <picture><source srcset="img/fotos/robot-frente.webp" type="image/webp"><img src="img/fotos/robot-frente.jpg" width="1400" height="1156" loading="lazy" decoding="async" alt="Frente del robot: carcasa curva negra con franjas amarillas, el sensor láser arriba y un panel frontal con un lente."></picture>
-      <figcaption>Frente. El lente del panel frontal no forma parte del sistema evaluado. <small>Fotografía del autor.</small></figcaption>
-    </figure>
-    <figure class="fig">
-      <picture><source srcset="img/fotos/robot-derecha.webp" type="image/webp"><img src="img/fotos/robot-derecha.jpg" width="1400" height="1133" loading="lazy" decoding="async" alt="Costado derecho del robot con los puertos de conexión en la parte trasera."></picture>
-      <figcaption>Costado derecho, con los puertos de acceso atrás. <small>Fotografía del autor.</small></figcaption>
-    </figure>
-    <figure class="fig">
-      <picture><source srcset="img/fotos/robot-planta.webp" type="image/webp"><img src="img/fotos/robot-planta.jpg" data-grande="img/fotos/robot-planta-grande.jpg" width="900" height="958" loading="lazy" decoding="async" alt="Vista superior del robot: carcasa en forma de U, el RPLidar al centro, un botón de encendido y un visualizador de tensión y corriente."></picture>
-      <figcaption>Vista en planta, con el láser al centro. <small>Fotografía del autor, Fig. 4.4 de la tesis.</small></figcaption>
-    </figure>
-  </div>
   <p>Cuatro números describen al robot para el software, y aparecen una y otra vez en esta guía. El radio de rueda es 0,0335 m, la separación entre ruedas 0,188 m, el encoder entrega 1980 pulsos por vuelta de rueda y la interfaz con ROS 2 trabaja a 30 ciclos por segundo <a class="ref" href="#f1">1</a>. Esos mismos valores alimentan al robot real y a su gemelo en simulación, como se explica en <a href="gemelo.html">El gemelo digital</a>.</p>
   <p>El robot no usa cámara ni unidad inercial. En las fotos se ve un lente montado en el frontal, pero la percepción que evalué se basa solo en el <span class="term" data-def="Sensor que mide distancias con luz láser, y en su versión 2D gira y mide en un plano horizontal.">LiDAR</span> 2D y en los encoders.</p>
 </section>
@@ -87,10 +77,11 @@
   <h2 id="energia">Energía: potencia y lógica separadas</h2>
   <p>Un motor que arranca pide de golpe mucha corriente y llena la línea de alimentación de ruido eléctrico. Si la Raspberry Pi bebe de esa misma línea sin protección, puede reiniciarse justo cuando el robot empieza a moverse. Por eso la plataforma tiene dos dominios eléctricos <a class="ref" href="#f1">1</a>.</p>
   <p>El dominio de potencia usa el bus de 12 V de la batería para mover los motores a través del L298N. Del mismo bus, un módulo reductor de 25 W genera un riel regulado de 5 V para la Raspberry Pi, el Arduino, el láser y los periféricos. Un interruptor y un fusible protegen la entrada, y un pequeño visualizador muestra la tensión y la corriente en la cubierta.</p>
-  <figure class="fig">
-    <picture><source srcset="img/tesis/circuito-med.webp" type="image/webp"><img src="img/tesis/circuito-med.png" data-grande="img/tesis/circuito.png" width="1200" height="915" loading="lazy" decoding="async" alt="Esquema de conexiones: batería de tres celdas 18650 con fusible e interruptor, bloques de distribución de 12 V y de 5 V, regulador de tensión, multímetro, driver L298N conectado a los dos motores con encoder, Arduino Nano, Raspberry Pi y el LiDAR."></picture>
-    <figcaption>Esquema de conexiones eléctricas y de datos. Los cables rojos y negros llevan energía, los de colores llevan señales de los encoders y del PWM. <small>Fig. 4.5 de la tesis.</small></figcaption>
-  </figure>
+  <div class="widget">
+    <div class="widget-cab"><h3 id="esquema">Esquema de conexiones</h3><span class="tipo datos">Datos de la tesis</span><p>Cada punto marca un componente rotulado en la figura. Tócalo o llega a él con la tecla Tab para ver qué hace.</p></div>
+    <!-- PENDIENTE AUTOR: confirmar que cada punto quedó sobre su componente. Las posiciones están en js/vis3.js, en V.esquema, como porcentaje del ancho y el alto de la imagen. -->
+    <div class="vis" data-vis="esquema"><p class="vis-fallback">Esquema de conexiones eléctricas y de datos, Fig. 4.5 de la tesis. La batería de 12 V pasa por un fusible y un interruptor hacia los bloques de distribución de 12 V, que alimentan el driver L298N y el regulador de tensión. El regulador genera el riel de 5 V para la Raspberry Pi, el Arduino Nano y el LiDAR. El Arduino lee los encoders de los dos motores y envía el PWM al L298N.</p></div>
+  </div>
   <p>Las señales viajan por otro camino. El Arduino y la Raspberry Pi se hablan por un cable USB que funciona como puerto serie, y el láser se conecta a un puerto serie de la Raspberry Pi. Para que cada dispositivo conserve su nombre aunque se reconecte, unas reglas del sistema operativo los fijan. El Arduino aparece siempre como <code>/dev/motor_controller</code> y el láser como <code>/dev/rlidar_gpio</code> <a class="ref" href="#f1">1</a>.</p>
 </section>
 

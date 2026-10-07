@@ -61,6 +61,7 @@ No hay dependencias ni paso de compilación.
 5. **Imágenes.** En `.webp` con respaldo `.jpg` o `.png`. La versión grande va en `data-grande` y se abre con el botón Ampliar.
 6. **Interactivos.** Un elemento con `data-vis="nombre"` se monta al entrar en pantalla con la función `window.VISUALES.nombre`.
 7. **Contenido pendiente.** Los bloques ocultos con `hidden` llevan un comentario `PENDIENTE AUTOR` que dice qué falta.
+   Los videos preparados usan `data-src` y `data-poster`. Basta con agregar los archivos y quitar `hidden`.
 8. **PDF de la tesis.** Cuando esté en el repositorio institucional, pon su enlace en `TESIS_PDF` dentro de `js/sitio.js`.
 
 ## Ver el sitio en tu computador

@@ -182,6 +182,11 @@
     <div class="widget-cab"><h3 id="tres-senales">Las señales de esa corrida</h3><span class="tipo datos">Datos de la tesis</span></div>
     <div class="vis" data-vis="iteracion2"><p class="vis-fallback">Encoders 3,851 m. Mapa sin crecimiento. Posición real sin cambio.</p></div>
   </div>
+  <!-- PENDIENTE AUTOR: clip de unos 10 segundos de la iteración 2, en que la odometría avanza y el robot no. Guárdalo en MP4 sin audio como img/tesis/falla-sin-avance.mp4, con su portada en JPG como img/tesis/falla-sin-avance-poster.jpg. Ajusta width y height a las del video y quita el atributo hidden de la figura siguiente. -->
+  <figure class="bucle-env" hidden>
+    <div class="bucle"><video autoplay muted loop playsinline preload="metadata" data-poster="img/tesis/falla-sin-avance-poster.jpg" width="1280" height="720" aria-label="Clip de la iteración 2: la odometría suma distancia mientras el robot sigue en su posición inicial."><source data-src="img/tesis/falla-sin-avance.mp4" type="video/mp4"></video></div>
+    <figcaption>La iteración 2 de la exploración. La odometría sumó 3,851 m, pero el robot no se movió de su posición inicial. <small>Video del autor, en bucle.</small></figcaption>
+  </figure>
   <p>El episodio muestra el límite de fondo de los encoders. Miden el giro de las ruedas, no el avance del robot, así que unas ruedas que giran sin avanzar suman distancia igual. El láser sí tenía la señal, porque si el robot no se mueve el mapa no crece. Por la misma razón, en las otras cinco corridas el movimiento queda respaldado por una evidencia independiente de los encoders, que es el crecimiento del mapa. Una cinta métrica tampoco es la verdad absoluta, pero es una referencia externa, y eso es lo que importa para medir un sesgo de unos 7 cm.</p>
 </section>
 

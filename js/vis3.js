@@ -1,4 +1,4 @@
-/* Diagramas de ensayos, decisiones, gemelo digital y profesor externo */
+/* Diagramas de ensayos, decisiones, gemelo digital, fotos del prototipo y esquema de conexiones */
 (function () {
   "use strict";
   var V = window.VISUALES, U = window.U;
@@ -178,5 +178,87 @@
       '<figure><figcaption><b>Visto desde arriba</b><span>Un paso estrecho</span></figcaption>' + arriba + '</figure></div>' +
       '<div class="chips-no"><span>' + NO + 'vidrio y superficies muy reflectantes</span><span>' + NO + 'superficies muy absorbentes</span><span>' + NO + 'obstáculos rápidos</span><span>' + NO + 'suelos irregulares</span><span>' + NO + 'recorridos largos sin IMU</span></div>' +
       '<p class="vnota">Dibujos ilustrativos, no a escala exacta. El centro queda fuera de la zona de inflación, así que su costo es nulo, pero la esquina puede llegar a la pared. Su efecto no se cuantificó y es el trabajo futuro 4.</p>';
+  };
+
+  /* Visor de fotos del prototipo. Se cambia de vista con los botones, deslizando la foto con el
+     dedo o el ratón, o con las flechas cuando el visor tiene el foco. Sin animaciones. */
+  V.vistas = function (el) {
+    var VISTAS = [
+      { id: "frente", t: "Frente", w: 1400, h: 1156, alt: "Frente del robot: carcasa negra curva impresa en 3D con dos franjas amarillas, un panel vertical al centro con un lente redondo y el LiDAR arriba.", cap: "Frente. El lente del panel frontal no forma parte del sistema evaluado." },
+      { id: "derecha", t: "Derecha", w: 1400, h: 1133, alt: "El robot visto desde su costado derecho: carcasa negra impresa en 3D con dos franjas amarillas y el LiDAR sobre la cubierta.", cap: "Costado derecho, con los puertos de acceso atrás." },
+      { id: "lateral", t: "Lateral", w: 1400, h: 1108, alt: "El robot visto de lado: carcasa negra impresa en 3D, dos franjas amarillas y el LiDAR sobre la cubierta.", cap: "Vista lateral. Fig. 4.1 de la tesis." },
+      { id: "planta", t: "Desde arriba", w: 900, h: 958, alt: "El robot visto desde arriba: cubierta negra en forma de U, el LiDAR al centro y el visualizador de tensión en una esquina.", cap: "Vista en planta, con el láser al centro. Fig. 4.4 de la tesis." }
+    ];
+    var n = VISTAS.length, i = 0;
+    el.innerHTML =
+      '<div class="visor" tabindex="0" role="group" aria-roledescription="visor de fotos" aria-label="Fotos del prototipo. Usa las flechas izquierda y derecha para cambiar de vista.">' +
+      '<div class="visor-marco"><picture><source type="image/webp"><img decoding="async"></picture></div>' +
+      '<p class="visor-pie" aria-live="polite"></p></div>' +
+      '<div class="segmento visor-ctl" role="group" aria-label="Elegir vista">' + VISTAS.map(function (v, k) { return '<button type="button" data-k="' + k + '" aria-pressed="false">' + v.t + '</button>'; }).join("") + '</div>' +
+      '<p class="vnota">Fotografías del autor. Desliza la foto o usa las flechas del teclado para cambiar de vista.</p>';
+    var visor = el.querySelector(".visor"), marco = el.querySelector(".visor-marco"), src = el.querySelector("source"), img = el.querySelector("img"), pie = el.querySelector(".visor-pie");
+    var btns = el.querySelectorAll(".visor-ctl button");
+    function ir(k) {
+      i = (k + n) % n;
+      var v = VISTAS[i], base = "img/fotos/robot-" + v.id;
+      src.srcset = base + ".webp"; img.src = base + ".jpg"; img.alt = v.alt; img.width = v.w; img.height = v.h;
+      pie.textContent = v.cap + " Vista " + (i + 1) + " de " + n + ".";
+      btns.forEach(function (b, j) { b.setAttribute("aria-pressed", j === i ? "true" : "false"); });
+    }
+    btns.forEach(function (b) { b.addEventListener("click", function () { ir(+b.getAttribute("data-k")); }); });
+    visor.addEventListener("keydown", function (e) {
+      var k = { ArrowLeft: i - 1, ArrowRight: i + 1, Home: 0, End: n - 1 }[e.key];
+      if (k == null) return;
+      e.preventDefault(); ir(k);
+    });
+    var x0 = null;
+    marco.addEventListener("pointerdown", function (e) { x0 = e.clientX; });
+    marco.addEventListener("pointercancel", function () { x0 = null; });
+    marco.addEventListener("pointerup", function (e) {
+      if (x0 == null) return;
+      var dx = e.clientX - x0; x0 = null;
+      if (Math.abs(dx) > 40) ir(dx < 0 ? i + 1 : i - 1);
+    });
+    marco.addEventListener("dragstart", function (e) { e.preventDefault(); });
+    ir(0);
+    /* las otras vistas se piden recién cuando el visor ya está en pantalla */
+    VISTAS.forEach(function (v, k) { if (k) { var p = new Image(); p.src = "img/fotos/robot-" + v.id + (window.HTMLPictureElement ? ".webp" : ".jpg"); } });
+    el.estadoVista = function () { return { k: i, id: VISTAS[i].id, alt: img.alt, src: img.getAttribute("src"), pie: pie.textContent }; };
+  };
+
+  /* Esquema de conexiones con un punto sobre cada componente rotulado en la figura.
+     Las posiciones van en porcentaje del ancho y el alto de la imagen, así escalan con ella. */
+  V.esquema = function (el) {
+    var MOTOR = "Motorreductor JGA25-370 de 12 V con encoder incremental de cuadratura. Los canales del encoder llegan al Arduino, que cuenta el giro de la rueda.";
+    var P = [
+      { x: 11.3, y: 87.4, t: "Batería de 12 V", d: "Batería de 12 V y 3000 mAh. Es la fuente de energía del robot y alimenta el bus de 12 V." },
+      { x: 5.0, y: 28.6, t: "Fusible", d: "Protege la entrada de la batería. Figura en la tabla de materiales junto con el interruptor, los conectores XT60 y el bloque de distribución." },
+      { x: 12.8, y: 20.8, t: "Interruptor", d: "Interruptor de encendido, en el panel de control de la cubierta." },
+      { x: 8.6, y: 50.5, t: "Distribución de 12 V", d: "Reparte el bus de 12 V de la batería entre el driver de los motores y el módulo reductor." },
+      { x: 8.6, y: 62.5, t: "Distribución de 12 V", d: "Reparte el bus de 12 V de la batería entre el driver de los motores y el módulo reductor." },
+      { x: 21.8, y: 59.7, t: "Multímetro", d: "Visualizador de tensión y corriente, en el panel de control de la cubierta." },
+      { x: 16.4, y: 38.3, t: "Regulador de tensión", d: "Módulo reductor DC-DC de 25 W. Toma el bus de 12 V y genera el riel regulado de 5 V para la Raspberry Pi, el Arduino, el LiDAR y los periféricos." },
+      { x: 22.7, y: 9.6, t: "Distribución de 5 V", d: "Reparte el riel regulado de 5 V. Separar la electrónica del bus de los motores reduce la interferencia eléctrica sobre el control." },
+      { x: 22.7, y: 24.9, t: "Distribución de 5 V", d: "Reparte el riel regulado de 5 V. Separar la electrónica del bus de los motores reduce la interferencia eléctrica sobre el control." },
+      { x: 35.0, y: 61.2, t: "Driver L298N", d: "Aplica a los motores las señales PWM del Arduino, con la tensión del bus de 12 V." },
+      { x: 36.7, y: 39.3, t: "Motor derecho con encoder", d: MOTOR },
+      { x: 36.7, y: 89.1, t: "Motor izquierdo con encoder", d: MOTOR },
+      { x: 56.2, y: 61.7, t: "Arduino Nano", d: "Lee los encoders y ejecuta el control de velocidad de cada rueda. Se comunica con la Raspberry Pi por un enlace serial USB." },
+      { x: 84.6, y: 73.8, t: "Raspberry Pi 4", d: "Ejecuta la interfaz de hardware con ROS 2, recibe los barridos del LiDAR y se comunica con la estación de trabajo." },
+      { x: 86.7, y: 24.6, t: "LiDAR RPLidar A1", d: "El sensor que percibe el entorno. Se conecta a un puerto serie UART de la Raspberry Pi." }
+    ];
+    el.innerHTML =
+      '<figure class="fig esquema"><div class="esquema-marco"><picture><source srcset="img/tesis/circuito-med.webp" type="image/webp"><img src="img/tesis/circuito-med.png" data-grande="img/tesis/circuito.png" width="1200" height="915" decoding="async" alt="Esquema de conexiones: batería de 12 V con fusible e interruptor, bloques de distribución de 12 V y de 5 V, regulador de tensión, multímetro, driver L298N conectado a los dos motores con encoder, Arduino Nano, Raspberry Pi y el LiDAR."></picture>' +
+      P.map(function (p, k) { return '<button type="button" class="punto" data-k="' + k + '" style="left:' + p.x + '%;top:' + p.y + '%" aria-label="' + U.esc(p.t) + '" aria-pressed="false" aria-controls="esquema-info"><span aria-hidden="true">' + (k + 1) + '</span></button>'; }).join("") +
+      '</div><figcaption>Los cables rojos y negros llevan energía, los de colores llevan señales de los encoders y del PWM. <small>Fig. 4.5 de la tesis, con explicaciones de la sección 4.3 y de la tabla de materiales.</small></figcaption></figure>' +
+      '<div class="esquema-info" id="esquema-info" aria-live="polite"><p class="vnota">Toca un punto o recórrelos con la tecla Tab para ver qué hace cada componente.</p></div>';
+    var info = el.querySelector(".esquema-info"), pts = el.querySelectorAll(".punto");
+    function elegir(k) {
+      pts.forEach(function (b, j) { b.setAttribute("aria-pressed", j === k ? "true" : "false"); });
+      info.innerHTML = '<p><b>' + (k + 1) + '. ' + U.esc(P[k].t) + '.</b> ' + U.esc(P[k].d) + '</p>';
+    }
+    pts.forEach(function (b) { b.addEventListener("click", function () { elegir(+b.getAttribute("data-k")); }); });
+    if (window.SITIO && window.SITIO.ampliable) window.SITIO.ampliable(el.querySelector("img"));
+    el.estadoEsquema = function () { var a = el.querySelector('.punto[aria-pressed="true"]'); return { activo: a ? +a.getAttribute("data-k") : -1, texto: info.textContent }; };
   };
 })();

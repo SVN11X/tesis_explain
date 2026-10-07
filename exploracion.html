@@ -121,6 +121,11 @@
     <div class="widget-cab"><h3 id="reemplazo">Cómo se ve un reemplazo en el tiempo</h3><span class="tipo inter">Interactivo</span><p>Reproduce 20 segundos con el período del explorador. Abajo, el resultado real de las 60 metas.</p></div>
     <div class="vis" data-vis="metas"><p class="vis-fallback">Cada 3,3 s se envía una meta nueva y la anterior queda abortada. De 60 metas, 53 fueron abortadas por reemplazo.</p></div>
   </div>
+  <!-- PENDIENTE AUTOR: clip de unos 10 segundos en que el explorador reemplaza una meta en curso. Guárdalo en MP4 sin audio como img/tesis/meta-reemplazada.mp4, con su portada en JPG como img/tesis/meta-reemplazada-poster.jpg. Ajusta width y height a las del video y quita el atributo hidden de la figura siguiente. -->
+  <figure class="bucle-env" hidden>
+    <div class="bucle"><video autoplay muted loop playsinline preload="metadata" data-poster="img/tesis/meta-reemplazada-poster.jpg" width="1280" height="720" aria-label="Clip de una meta reemplazada: el explorador envía un destino nuevo y la ruta cambia antes de llegar al anterior."><source data-src="img/tesis/meta-reemplazada.mp4" type="video/mp4"></video></div>
+    <figcaption>Una meta reemplazada. El explorador envía un destino nuevo cada 3,3 s y Nav2 cierra la meta anterior como abortada. <small>Video del autor, en bucle.</small></figcaption>
+  </figure>
   <h3 id="como-se-separo">Cómo se separaron reemplazos de fallas</h3>
   <p>Cada meta de navegación tiene un identificador único de 16 bytes. Reconstruí el historial de cada una a partir del flujo de estados de la acción de navegación, que quedó registrado completo en cada sesión. Clasifiqué una meta abortada como reemplazada cuando la meta siguiente ya figuraba en ejecución mientras la abortada seguía activa <a class="ref" href="#f1">1</a>.</p>
   <div class="tabla-env">
