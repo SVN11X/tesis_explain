@@ -69,7 +69,7 @@ def generar():
         s = BeautifulSoup(open(f, encoding='utf-8').read(), 'html.parser')
         titulo = limpio(s.find('h1').get_text(' ')) if pid != 'index' else 'Inicio'
         url = pid + '.html'
-        for x in s.select('script, style, .fuentes-tema, nav, .lateral, #cabecera, #pie'):
+        for x in s.select('script, style, .fuentes-tema, nav, .lateral, #cabecera, #pie, [hidden]'):
             x.decompose()
         if pid == 'recursos':
             for g in s.select('[id^=g-]'):

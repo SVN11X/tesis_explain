@@ -54,7 +54,7 @@
 <main class="articulo" id="contenido">
 
 <section class="en-breve" aria-labelledby="t-breve">
-  <h2 id="t-breve">En pocas palabras</h2>
+  <h2 id="t-breve">El mismo espacio mapeado en cinco corridas</h2>
   <p>El LiDAR mide distancias girando en un plano horizontal. SLAM Toolbox junta esos barridos en un grafo de poses y, cuando el robot reconoce un lugar ya visto, reparte el error acumulado en todo el recorrido. En el robot real, las cinco exploraciones válidas mapearon casi la misma área libre, 3,50 m² en promedio, aunque su índice de cobertura varió mucho por una razón que vale la pena entender.</p>
   <div class="cifras-mini">
     <div><b>3,50 <small>m²</small></b><span>área libre mapeada en promedio, con dispersión de solo 0,03 m²</span></div>
@@ -85,7 +85,7 @@
 </section>
 
 <section>
-  <h2 id="marcos">Tres marcos de referencia: mapa, odometría y robot</h2>
+  <h2 id="marcos">Marcos de referencia: mapa, odometría y robot</h2>
   <p>Para decir dónde está algo hay que decir respecto de qué. ROS organiza las posiciones en un árbol de marcos de referencia, con convenciones comunes para todos los robots. El eje x apunta hacia adelante, el y hacia la izquierda y el z hacia arriba <a class="ref" href="#f5">5</a>, y los marcos principales de un robot móvil son tres <a class="ref" href="#f6">6</a>.</p>
   <div class="grid-2">
     <div>
@@ -109,7 +109,7 @@
   <p>Cuando el robot vuelve a ver una zona que ya conocía, se agrega una restricción de <span class="term" data-def="Reconocer que el robot volvió a un lugar ya visitado. Esa nueva restricción permite repartir el error acumulado en todo el recorrido.">cierre de lazo</span>. Al optimizar el grafo, que es un problema de mínimos cuadrados, el error acumulado se reparte a lo largo de toda la trayectoria y el mapa se corrige. Para entenderlo en profundidad, el tutorial de Grisetti y otros es un buen punto de partida <a class="ref" href="#f8">8</a>.</p>
   <h3 id="slam-toolbox">SLAM Toolbox en este robot</h3>
   <p>El robot usa slam_toolbox, un SLAM 2D por grafos de poses diseñado para ROS 2 <a class="ref" href="#f9">9</a>, en su modo asíncrono en línea. Procesa los barridos sin bloquear el sistema cuando la carga crece, optimiza el grafo con el resolvedor Ceres y tiene el cierre de lazo activado. Corre en el computador, no en la Raspberry Pi, y su uso de procesador no se midió <a class="ref" href="#f1">1</a>.</p>
-  <p>Un detalle que la tesis informa con cuidado. En los resultados el cierre de lazo figura como no determinado, porque el análisis posterior no detecta automáticamente si ocurrió. La consistencia de los mapas se evaluó a la vista. Es preferible decirlo así que inventar una cifra.</p>
+  <p>En los resultados el cierre de lazo figura como no determinado, porque el análisis posterior no detecta automáticamente si ocurrió. La consistencia de los mapas la evalué a la vista.</p>
   <div class="videos-grid">
     <div class="vid-card">
       <div class="video" data-vimeo="378682207" data-titulo="On Use of SLAM Toolbox" data-sub="Charla de Steve Macenski en ROSCon 2019, en inglés"><a href="https://vimeo.com/378682207">Ver la charla en Vimeo</a></div>
@@ -136,7 +136,7 @@
       <caption>Tabla 1.2 de la tesis, con base en Ran y otros, Trejos y otros, y Macenski y Jambrecic.</caption>
     </table>
   </div>
-  <p>La comparación independiente es la de Trejos y otros, que midió cinco algoritmos en simulación <a class="ref" href="#f12">12</a>. No incluyó slam_toolbox, pero sí a Karto, que fue su mejor opción global, y slam_toolbox se construye sobre Open Karto. El argumento no es que slam_toolbox gane una carrera que no corrió, sino que hereda una base bien evaluada y suma lo que este proyecto necesitaba.</p>
+  <p>La comparación independiente es la de Trejos y otros, que midió cinco algoritmos en simulación <a class="ref" href="#f12">12</a>. No incluyó slam_toolbox, pero sí a Karto, que fue su mejor opción global, y slam_toolbox se construye sobre Open Karto. Así, slam_toolbox hereda una base bien evaluada y suma lo que este proyecto necesitaba.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="trejos">Qué comparó Trejos y cómo se conecta</h3><span class="tipo datos">Fuentes citadas</span></div>
     <div class="vis" data-vis="trejos"><p class="vis-fallback">Trejos comparó Cartographer, GMapping, Hector, Karto y RTAB-Map. Karto fue la mejor opción global.</p></div>
@@ -168,12 +168,12 @@
 
 <section>
   <h2 id="resultados">Resultados de mapeo y cómo leerlos</h2>
-  <p>De seis ejecuciones de exploración en el robot real, cinco produjeron un mapa válido. Para cada una se calcularon dos indicadores a partir del mapa guardado <a class="ref" href="#f1">1</a>. El área libre mapeada, que es el número de celdas libres por el área de cada celda. Y el índice de cobertura libre, que divide las celdas libres por la suma de celdas libres y desconocidas de la imagen.</p>
+  <p>De seis ejecuciones de exploración en el robot real, cinco produjeron un mapa válido. Para cada una calculé dos indicadores a partir del mapa guardado <a class="ref" href="#f1">1</a>. El área libre mapeada, que es el número de celdas libres por el área de cada celda. Y el índice de cobertura libre, que divide las celdas libres por la suma de celdas libres y desconocidas de la imagen.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="cobertura">Mismo espacio, distinto índice</h3><span class="tipo datos">Datos de la tesis</span><p>El índice depende de cuántas celdas desconocidas quedan en la imagen, que no está anclada al recinto.</p></div>
     <div class="vis" data-vis="cobertura"><p class="vis-fallback">Índices de 82,9, 53,5, 54,2, 67,1 y 53,4 %. Áreas libres de 3,510, 3,540, 3,478, 3,483 y 3,478 m².</p></div>
   </div>
-  <p>El área libre fue casi la misma en las cinco corridas, entre 3,478 y 3,540 m². El índice de cobertura, en cambio, saltó entre 53,4 % y 82,9 %. La razón es que la imagen del mapa no tiene un tamaño fijo, y cambia cuántas celdas desconocidas quedan a su alrededor. Por eso la tesis usa como evidencia principal el área libre y el hecho de que las cinco corridas terminaron solas, y el índice como indicador complementario <a class="ref" href="#f1">1</a>.</p>
+  <p>El área libre fue casi la misma en las cinco corridas, entre 3,478 y 3,540 m². El índice de cobertura, en cambio, saltó entre 53,4 % y 82,9 %. La razón es que la imagen del mapa no tiene un tamaño fijo, y cambia cuántas celdas desconocidas quedan a su alrededor. Por eso tomo como evidencia principal el área libre y el hecho de que las cinco corridas terminaron solas, y uso el índice como indicador complementario <a class="ref" href="#f1">1</a>.</p>
   <p class="destacado">Un indicador estable que mide lo correcto vale más que uno espectacular que depende del encuadre.</p>
   <p>Ninguno de los dos mide el error absoluto del mapa, porque no se dispuso de un plano medido del recinto para compararlo. Por eso el SLAM se declara verificado en funcionamiento y caracterizado, no validado. La diferencia entre esas palabras se explica en <a href="resultados.html#palabras">La evidencia</a>.</p>
 </section>
@@ -193,7 +193,7 @@
         <span class="lugar">Hogares</span>
         <h3>Aspiradoras robot</h3>
         <p>Muchos modelos llevan una torre con un láser giratorio. Cada rebote se convierte en un punto del plano de la casa, que el robot guarda y reutiliza en cada limpieza. Un cable en el piso, bajo el plano del láser, no aparece en ese mapa.</p>
-        <p class="vinculo"><b>Relación:</b> el mismo LiDAR 2D y el mismo límite de ver un solo plano.</p>
+        <p class="vinculo">Usan el mismo tipo de LiDAR 2D que este robot y comparten su límite de ver un solo plano.</p>
         <p class="fuente-caso">Fuentes <a class="ref" href="#f15">15</a> <a class="ref" href="#f16">16</a></p>
       </div>
     </article>
@@ -203,7 +203,7 @@
         <span class="lugar">Minería · Chile · 2026</span>
         <h3>Un dron con LiDAR en El Teniente</h3>
         <p>La mina subterránea de cobre más grande del mundo incorporó el dron Elios 3, que con un LiDAR genera mapas 3D en espacios confinados y sin GPS. Inspecciones que antes tomaban horas se hacen en minutos, sin exponer a las personas a zonas peligrosas.</p>
-        <p class="vinculo"><b>Relación:</b> mapear un interior desconocido con láser, ahora en tres dimensiones y donde equivocarse cuesta caro.</p>
+        <p class="vinculo">Mapea con láser un interior desconocido, como este robot, pero en tres dimensiones y donde equivocarse cuesta caro.</p>
         <p class="fuente-caso">Fuente <a class="ref" href="#f17">17</a></p>
       </div>
     </article>

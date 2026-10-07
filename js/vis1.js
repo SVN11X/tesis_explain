@@ -6,7 +6,7 @@
   var NO = '<svg class="ico no" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7.5"/><path d="M5.2 5.2l5.6 5.6M10.8 5.2l-5.6 5.6"/></svg>';
   V.ICO = { OK: OK, NO: NO };
 
-  /* ───── Grafo de poses y cierre de lazo ───── */
+  /* Grafo de poses y cierre de lazo */
   V.lazo = function (el) {
     var N = 16, d = 60, eps = 1.3 * Math.PI / 180, esc = 1.0, X0 = 70, Y0 = 80;
     var rumbo = [];
@@ -60,7 +60,7 @@
     estado.textContent = "Sin cierre de lazo, la última pose queda lejos del inicio.";
   };
 
-  /* ───── A estrella frente a Dijkstra ───── */
+  /* A estrella frente a Dijkstra */
   V.astar = function (el) {
     var C = 24, R = 13, T = 16;
     var muro = {};
@@ -128,7 +128,7 @@
     camino.setAttribute("d", "M" + res.a.camino.map(function (p) { return (p[0] * T + T / 2) + " " + (p[1] * T + T / 2); }).join(" L"));
   };
 
-  /* ───── Frontera según Yamauchi y según explore_lite ───── */
+  /* Frontera según Yamauchi y según explore_lite */
   V.frontera = function (el) {
     var M = [
       "222222221111",
@@ -193,7 +193,7 @@
       '<p class="vnota">Mapa de ejemplo. La celda suelta del medio representa una lectura de ruido del láser.</p>';
   };
 
-  /* ───── Trejos y slam_toolbox ───── */
+  /* Trejos y slam_toolbox */
   V.trejos = function (el) {
     el.innerHTML =
       '<div class="tj">' +
@@ -208,7 +208,7 @@
       '<p class="vnota">Las otras alternativas, tal como las compara la Tabla 1.2 de la tesis.</p>';
   };
 
-  /* ───── Reemplazo de metas ───── */
+  /* Reemplazo de metas */
   V.metas = function (el) {
     el.innerHTML = '<div class="vctl"><button type="button" class="vbtn" data-a="play">Reproducir 20 segundos</button><span class="vestado" aria-live="polite"></span></div><div class="mt-graf"></div>' +
       '<div class="vley"><span><i class="cu azul"></i>meta activa</span><span><i class="x-rojo"></i>Nav2 la cierra como abortada</span><span><i class="lin-disc"></i>el explorador vuelve a elegir</span></div>' +
@@ -259,7 +259,7 @@
     U.alCambiarAncho(cont, dibujar);
   };
 
-  /* ───── Lista negra ───── */
+  /* Lista negra */
   V.listanegra = function (el) {
     el.innerHTML =
       '<h4 class="vsub">Cada 3,3 segundos el explorador elige destino</h4>' +
@@ -277,7 +277,7 @@
       '<div class="mejora"><b>La mejora, trabajo futuro 5.</b> Cancelar la meta antes de enviar la siguiente. Los reemplazos llegarían como canceladas y la lista solo recibiría fallas reales.</div>';
   };
 
-  /* ───── Cobertura ───── */
+  /* Cobertura */
   V.cobertura = function (el) {
     function grilla(cols, filas, libre, ocup, etiqueta) {
       var T = 20, s = '<svg class="vsvg mini-grid" style="max-width:' + cols * 26 + 'px" viewBox="0 0 ' + cols * T + ' ' + filas * T + '" role="img" aria-label="' + U.esc(etiqueta) + '">';
@@ -307,7 +307,7 @@
       '<p class="vnota">El índice salta de 53 a 83 %, pero el área libre queda casi fija. La iteración 2 no tiene mapa.</p>';
   };
 
-  /* ───── Alcance de la navegación ───── */
+  /* Alcance de la navegación */
   V.alcance = function (el) {
     el.innerHTML =
       '<div class="dos-pan"><div class="lista-ico"><span class="eyebrow">Lo que se evaluó</span>' +

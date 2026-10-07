@@ -54,7 +54,7 @@
 <main class="articulo" id="contenido">
 
 <section class="en-breve" aria-labelledby="t-breve">
-  <h2 id="t-breve">En pocas palabras</h2>
+  <h2 id="t-breve">Un trabajo repartido en tres niveles</h2>
   <p>El robot divide su trabajo en tres niveles. Un Arduino Nano controla las ruedas varias decenas de veces por segundo, una Raspberry Pi 4 hace de puente con ROS 2 y calcula la odometría, y un computador portátil mapea, navega y explora. Los motores y la electrónica comparten la batería, pero cada uno recibe su propia tensión para que los motores no perturben a los computadores.</p>
   <div class="cifras-mini">
     <div><b>444 643 <small>CLP</small></b><span>en materiales montados en el robot, sin contar el computador</span></div>
@@ -67,7 +67,7 @@
 <section>
   <h2 id="piezas">Las piezas y su función</h2>
   <p>La locomoción usa dos motorreductores JGA25-370 de 12 V, cada uno con un encoder de cuadratura que cuenta su giro, y una rueda loca de apoyo. Un Arduino Nano lee los encoders y ejecuta el control de velocidad de cada rueda, y un driver L298N entrega la potencia a los motores. Una Raspberry Pi 4 ejecuta la interfaz con ROS 2, lee el láser RPLidar A1 y se comunica con el computador <a class="ref" href="#f1">1</a>.</p>
-  <p>El chasis y las cubiertas se imprimieron en PLA+, un plástico común en impresoras 3D domésticas, a partir de un diseño abierto de robot aspiradora publicado en Thingiverse <a class="ref" href="#f2">2</a>. Esa elección no es estética. Una forma de aspiradora es baja y compacta, deja el láser libre arriba y cabe por pasillos estrechos.</p>
+  <p>Imprimí el chasis y las cubiertas en PLA+, un plástico común en impresoras 3D domésticas, a partir de un diseño abierto de robot aspiradora publicado en Thingiverse <a class="ref" href="#f2">2</a>. Una forma de aspiradora es baja y compacta, deja el láser libre arriba y cabe por pasillos estrechos.</p>
   <div class="galeria g3">
     <figure class="fig">
       <picture><source srcset="img/fotos/robot-frente.webp" type="image/webp"><img src="img/fotos/robot-frente.jpg" width="1400" height="1156" loading="lazy" decoding="async" alt="Frente del robot: carcasa curva negra con franjas amarillas, el sensor láser arriba y un panel frontal con un lente."></picture>
@@ -83,11 +83,11 @@
     </figure>
   </div>
   <p>Cuatro números describen al robot para el software, y aparecen una y otra vez en esta guía. El radio de rueda es 0,0335 m, la separación entre ruedas 0,188 m, el encoder entrega 1980 pulsos por vuelta de rueda y la interfaz con ROS 2 trabaja a 30 ciclos por segundo <a class="ref" href="#f1">1</a>. Esos mismos valores alimentan al robot real y a su gemelo en simulación, como se explica en <a href="gemelo.html">El gemelo digital</a>.</p>
-  <p>La tesis declara que el robot no usa cámara ni unidad inercial. En las fotos se ve un lente montado en el frontal, pero la percepción evaluada se basa solo en el LiDAR 2D y en los encoders.</p>
+  <p>El robot no usa cámara ni unidad inercial. En las fotos se ve un lente montado en el frontal, pero la percepción que evalué se basa solo en el LiDAR 2D y en los encoders.</p>
 </section>
 
 <section>
-  <h2 id="energia">Energía: dos mundos que no deben mezclarse</h2>
+  <h2 id="energia">Energía: potencia y lógica separadas</h2>
   <p>Un motor que arranca pide de golpe mucha corriente y llena la línea de alimentación de ruido eléctrico. Si la Raspberry Pi bebe de esa misma línea sin protección, puede reiniciarse justo cuando el robot empieza a moverse. Por eso la plataforma tiene dos dominios eléctricos <a class="ref" href="#f1">1</a>.</p>
   <p>El dominio de potencia usa el bus de 12 V de la batería para mover los motores a través del L298N. Del mismo bus, un módulo reductor de 25 W genera un riel regulado de 5 V para la Raspberry Pi, el Arduino, el láser y los periféricos. Un interruptor y un fusible protegen la entrada, y un pequeño visualizador muestra la tensión y la corriente en la cubierta.</p>
   <figure class="fig">
@@ -104,7 +104,7 @@
     <div class="widget-cab"><h3 id="reparto-vis">El reparto del trabajo</h3><span class="tipo datos">Datos de la tesis</span><p>Pasa por cada equipo para ver sus tareas.</p></div>
     <div class="vis" data-vis="arquitectura"><p class="vis-fallback">Arduino: encoders y control de ruedas. Raspberry Pi: ros2_control, odometría y láser. Computador: SLAM, Nav2 y exploración.</p></div>
   </div>
-  <p>Este patrón de un computador para pensar y un microcontrolador para actuar no es una invención de la tesis. El TurtleBot 3 combina una Raspberry Pi con una placa OpenCR que controla sus motores <a class="ref" href="#f3">3</a>, y los drones que usan PX4 separan el controlador de vuelo de un computador acompañante que ejecuta tareas pesadas como la visión <a class="ref" href="#f4">4</a>.</p>
+  <p>Muchos robots usan este mismo reparto. El TurtleBot 3 combina una Raspberry Pi con una placa OpenCR que controla sus motores <a class="ref" href="#f3">3</a>, y los drones que usan PX4 separan el controlador de vuelo de un computador acompañante que ejecuta tareas pesadas como la visión <a class="ref" href="#f4">4</a>.</p>
 </section>
 
 <section>
@@ -152,13 +152,18 @@
 
 <section>
   <h2 id="lidar">Un programa propio para leer el láser</h2>
-  <p>En el robot real el RPLidar A1 no se lee con el controlador del fabricante, sino con un nodo escrito para este trabajo que se comunica a 115 200 baudios por el puerto serie de la Raspberry Pi <a class="ref" href="#f1">1</a>. Al arrancar reinicia el sensor, consulta su estado de salud y no publica nada si el sensor informa un error. Es una forma sencilla de fallar con seguridad.</p>
+  <p>En el robot real leo el RPLidar A1 con un nodo que escribí para este trabajo, en lugar del controlador del fabricante. Se comunica a 115 200 baudios por el puerto serie de la Raspberry Pi <a class="ref" href="#f1">1</a>. Al arrancar reinicia el sensor, consulta su estado de salud y no publica nada si el sensor informa un error. Es una forma sencilla de fallar con seguridad.</p>
+  <aside class="nota-autor" hidden>
+    <p class="nota-autor-rotulo">Nota del autor</p>
+    <p>Escribí este nodo para leer el RPLidar A1 por el puerto serie de la Raspberry Pi, sin el controlador del fabricante.</p>
+    <!-- PENDIENTE AUTOR: completar esta nota en primera persona y quitar el atributo hidden. Pregunta: ¿Qué problema concreto te llevó a escribir tu propio nodo y cuánto te tomó? -->
+  </aside>
   <p>Cada 50 ms lee lo que llegó, descarta los paquetes que no pasan la verificación del protocolo y agrupa las mediciones por vuelta. Una vuelta se publica solo si reúne al menos 180 mediciones. Luego la reparte en 230 sectores de unos 1,57°, guarda la distancia más corta de cada sector y deja como infinito lo que está fuera de 0,15 a 12 m. También invierte el sentido del ángulo para respetar la convención de ROS, donde los ángulos crecen en sentido antihorario <a class="ref" href="#f6">6</a>.</p>
-  <p>Hay un límite que la tesis documenta con honestidad. Cada barrido lleva la hora en que se publicó, no la de su primera medición. Por eso los nodos que lo usan lo asocian a una posición del robot algo posterior a la real, y el desfase crece con la velocidad, sobre todo en los giros. Su efecto sobre los mapas no se cuantificó. En un sistema repartido entre dos equipos, además, conviene sincronizar los relojes de ambos antes de mapear, porque cada mensaje se ubica en el tiempo con esas marcas.</p>
+  <p>Hay un límite conocido. Cada barrido lleva la hora en que se publicó, no la de su primera medición. Por eso los nodos que lo usan lo asocian a una posición del robot algo posterior a la real, y el desfase crece con la velocidad, sobre todo en los giros. Su efecto sobre los mapas no se cuantificó. En un sistema repartido entre dos equipos, además, conviene sincronizar los relojes de ambos antes de mapear, porque cada mensaje se ubica en el tiempo con esas marcas.</p>
 </section>
 
 <section>
-  <h2 id="seguridad">Seguridad: tres formas de detenerse</h2>
+  <h2 id="seguridad">Seguridad: cómo se detiene el robot</h2>
   <p>Un robot que se mueve solo tiene que poder detenerse aunque falle el software que lo guía. Este prototipo tiene tres mecanismos, y cada uno cubre una falla distinta <a class="ref" href="#f1">1</a>.</p>
   <div class="decisiones">
     <article class="decision"><span class="d-que">Falla humana</span><h4>Botón de hombre muerto</h4><p>La conducción manual con un mando inalámbrico solo envía órdenes mientras se mantiene presionado un botón. Si la persona lo suelta, el robot se detiene.</p></article>
@@ -194,7 +199,7 @@
     <div class="widget-cab"><h3 id="grafico-costo">Costo del prototipo y de dos plataformas comerciales</h3><span class="tipo datos">Datos de la tesis</span><p>Precios comerciales de catálogo convertidos a 963 CLP por dólar, sin envío ni impuestos.</p></div>
     <div class="vis" data-vis="costo"><p class="vis-fallback">Robot 444 643 CLP. Proyecto completo 582 447 CLP. TurtleBot 3 Burger 656 092 CLP. TurtleBot 3 Waffle Pi 1 619 188 CLP.</p></div>
   </div>
-  <p>El tipo de cambio es el promedio del dólar observado de octubre a diciembre de 2024, porque el 68 % del gasto se hizo ese año. Con él, el robot costó un 32 % menos que el TurtleBot 3 Burger y el proyecto completo un 11 % menos. Pero más barato no significa equivalente. El Burger trae unidad inercial y actuadores con controlador integrado, que este robot reemplaza con piezas separadas de menor costo <a class="ref" href="#f1">1</a>. Lo que sí gana quien lo construye es acceso a cada capa del sistema.</p>
+  <p>El tipo de cambio es el promedio del dólar observado de octubre a diciembre de 2024, porque el 68 % del gasto se hizo ese año. Con él, el robot costó un 32 % menos que el TurtleBot 3 Burger y el proyecto completo un 11 % menos. El Burger trae unidad inercial y actuadores con controlador integrado, que este robot reemplaza con piezas separadas de menor costo <a class="ref" href="#f1">1</a>. Lo que sí gana quien lo construye es acceso a cada capa del sistema.</p>
 </section>
 
 <section>
@@ -225,7 +230,7 @@
         <span class="lugar">Docencia</span>
         <h3>TurtleBot 3</h3>
         <p>La plataforma educativa más usada con ROS reparte el trabajo igual que este robot. Una Raspberry Pi ejecuta ROS y una placa OpenCR, con microcontrolador y unidad inercial, maneja los motores.</p>
-        <p class="vinculo"><b>Relación:</b> el mismo reparto entre un computador que piensa y un microcontrolador que actúa.</p>
+        <p class="vinculo">Reparte el trabajo como este robot, entre un computador que piensa y un microcontrolador que actúa.</p>
         <p class="fuente-caso">Fuente <a class="ref" href="#f3">3</a></p>
       </div>
     </article>
@@ -235,7 +240,7 @@
         <span class="lugar">Drones</span>
         <h3>Controlador de vuelo y computador acompañante</h3>
         <p>En los drones con PX4, el controlador de vuelo mantiene estable la aeronave en tiempo real y un computador acompañante ejecuta tareas de más alto nivel, como visión o planificación.</p>
-        <p class="vinculo"><b>Relación:</b> separar lo crítico y rápido de lo pesado, como el Arduino y la estación de trabajo.</p>
+        <p class="vinculo">Separa lo crítico y rápido de lo pesado, igual que el Arduino y la estación de trabajo de este robot.</p>
         <p class="fuente-caso">Fuente <a class="ref" href="#f4">4</a></p>
       </div>
     </article>

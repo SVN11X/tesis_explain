@@ -17,7 +17,7 @@
   var V = window.VISUALES = window.VISUALES || {};
   var U = window.U;
 
-  /* ── utilidades de color y lienzo ── */
+  /* utilidades de color y lienzo */
   function css(nombre) { return getComputedStyle(document.documentElement).getPropertyValue(nombre).trim() || "#888"; }
   function rgba(hex, a) {
     hex = hex.replace("#", "");
@@ -112,7 +112,7 @@
     if (mq.addEventListener) mq.addEventListener("change", f); else if (mq.addListener) mq.addListener(f);
   }
 
-  /* ── Geometría de la huella, usada por el simulador de inflación ── */
+  /* Geometría de la huella, usada por el simulador de inflación */
   /* ¿Se superponen un polígono convexo y un rectángulo alineado con los ejes?
      Prueba de ejes separadores: hay contacto si en ningún eje queda un hueco mayor que eps.
      El contacto en un borde o en una esquina, con hueco cero, cuenta como contacto. */
@@ -160,9 +160,7 @@
   }
   window.SIMS_PRUEBAS = { pasoFijo: pasoFijo, poligonoTocaRect: poligonoTocaRect, huellaEnMundo: huellaEnMundo, celdasTocadas: celdasTocadas, evaluarHuella: evaluarHuella };
 
-  /* ═══════════════════════════════════════════════════════════
-     1. Exploración por fronteras
-     ═══════════════════════════════════════════════════════════ */
+  /* 1. Exploración por fronteras */
   V.exploracion = function (el) {
     var hero = el.getAttribute("data-modo") === "hero";
     var C = 72, F = 46;                       /* columnas y filas de la rejilla */
@@ -353,7 +351,7 @@
       for (var k = 0; k < Math.min(ruta.length, 12); k++) { var i = Math.floor(ruta[k][1]) * C + Math.floor(ruta[k][0]); if (conoc[i] === 1) { tUlt = t - 3.3; break; } }
     }
 
-    /* ── interfaz ── */
+    /* interfaz */
     el.innerHTML = (hero ? '' :
       '<div class="vctl"><button type="button" class="vbtn" data-a="play">Explorar</button><button type="button" class="vbtn sec" data-a="reset">Reiniciar</button>' +
       '<div class="segmento" role="group" aria-label="Velocidad de la simulación"><button type="button" data-v="1" aria-pressed="false">1×</button><button type="button" data-v="2" aria-pressed="true">2×</button><button type="button" data-v="4" aria-pressed="false">4×</button></div></div>' +
@@ -493,9 +491,7 @@
     });
   };
 
-  /* ═══════════════════════════════════════════════════════════
-     2. Cinemática diferencial
-     ═══════════════════════════════════════════════════════════ */
+  /* 2. Cinemática diferencial */
   V.cinematica = function (el) {
     var r = 0.0335, b = 0.188, NE = 1980, F = 30;
     var st = { vl: 0.10, vr: 0.13 }, pose, rastro, P = paleta();
@@ -576,9 +572,7 @@
     });
   };
 
-  /* ═══════════════════════════════════════════════════════════
-     3. Encoder de cuadratura
-     ═══════════════════════════════════════════════════════════ */
+  /* 3. Encoder de cuadratura */
   V.encoder = function (el) {
     var P = paleta(), ang = 0, sentido = 1, VEL0 = 0.6, vel = VEL0, cuenta = 0, hist = [], prevA = null, prevB = null, polos = 6;
     el.innerHTML = '<div class="vctl"><button type="button" class="vbtn" data-a="anim" aria-pressed="false">Reproducir</button><div class="segmento" role="group" aria-label="Sentido de giro"><button type="button" data-s="1" aria-pressed="true">Adelante</button><button type="button" data-s="-1" aria-pressed="false">Atrás</button></div>' +
@@ -657,9 +651,7 @@
     el.estadoSim = function () { return { activo: B.activo, vel: vel, control: parseFloat(el.querySelector("#en-v").value), etiqueta: el.querySelector('[data-o="vel"]').textContent, ang: ang, cuenta: cuenta }; };
   };
 
-  /* ═══════════════════════════════════════════════════════════
-     4. Qué ve un LiDAR 2D
-     ═══════════════════════════════════════════════════════════ */
+  /* 4. Qué ve un LiDAR 2D */
   V.lidar = function (el) {
     var P = paleta(), SECT = 230, RMIN = 0.15, RMAX = 12;
     var Wm = 4.0, Hm = 2.6;   /* sala de 4 por 2,6 m */
@@ -751,9 +743,7 @@
     dibujar();
   };
 
-  /* ═══════════════════════════════════════════════════════════
-     5. PID de una rueda
-     ═══════════════════════════════════════════════════════════ */
+  /* 5. PID de una rueda */
   V.pid = function (el) {
     var P = paleta(), REF = 0.13, DT = 1 / 30, T = 6, K = 0.000913, TAU = 0.33;
     var st = { kp: 600, ki: 0, kd: 0, zona: false, accion: false };
@@ -767,7 +757,7 @@
       '<div class="casillas"><label><input type="checkbox" data-c="zona">Agregar zona muerta del driver</label><label><input type="checkbox" data-c="accion">Mostrar la señal al motor</label></div>' +
       '<div class="pid-l"></div>' +
       '<div class="lecturas"><div><span>Velocidad al final</span><b data-o="fin"></b></div><div><span>Error que queda</span><b data-o="err"></b></div><div><span>Sobreimpulso</span><b data-o="os"></b></div><div><span>Tiempo de subida</span><b data-o="tr"></b></div></div>' +
-      '<p class="vnota">Modelo ilustrativo de una rueda con un retardo de primer orden, una ganancia y una constante de tiempo del orden de las identificadas en la tesis, y el PWM limitado a 255. Las ganancias de este simulador no son las del firmware, que usa otra escala y otra ley.</p>';
+      '<p class="vnota">Modelo ilustrativo de una rueda con un retardo de primer orden, una ganancia y una constante de tiempo del orden de las que identifiqué, y el PWM limitado a 255. Las ganancias de este simulador no son las del firmware, que usa otra escala y otra ley.</p>';
     var cont = el.querySelector(".pid-l"), L = lienzo(cont, 16 / 7, function () { dibujar(); });
     alTema(function () { P = paleta(); dibujar(); });
     function sim() {
@@ -818,9 +808,7 @@
     dibujar();
   };
 
-  /* ═══════════════════════════════════════════════════════════
-     6. Enjambre de partículas
-     ═══════════════════════════════════════════════════════════ */
+  /* 6. Enjambre de partículas */
   V.enjambre = function (el) {
     var P = paleta(), N = 24, GMAX = 60, ZETA = 0.7298, C1 = 2.05, C2 = 2.05;
     var parts, gBest, gCost, gen, semilla = 1;
@@ -857,7 +845,7 @@
     el.innerHTML = '<div class="vctl"><button type="button" class="vbtn" data-a="play">Buscar</button><button type="button" class="vbtn sec" data-a="paso">Una generación</button><button type="button" class="vbtn sec" data-a="reset">Reiniciar</button><span class="vestado" aria-live="polite" data-o="e"></span></div>' +
       '<div class="pso-l"></div>' +
       '<div class="vley"><span><i class="pt" style="background:var(--ink)"></i>partícula, un conjunto de ganancias</span><span><i class="pt rojo"></i>mejor de todo el enjambre</span><span><i class="cu" style="background:var(--s1)"></i>más oscuro, menor costo</span></div>' +
-      '<p class="vnota">Ilustración en dos dimensiones para poder dibujarla. En la tesis cada partícula tiene tres coordenadas, Kp, Kd y Ki, y su costo se calcula simulando el modelo de cada rueda. Se usan los mismos parámetros del script, factor de constricción 0,7298, coeficientes 2,05 y peso de inercia que baja de 1 a 0.</p>';
+      '<p class="vnota">Ilustración en dos dimensiones para poder dibujarla. En el script de sintonía cada partícula tiene tres coordenadas, Kp, Kd y Ki, y su costo se calcula simulando el modelo de cada rueda. Se usan los mismos parámetros del script, factor de constricción 0,7298, coeficientes 2,05 y peso de inercia que baja de 1 a 0.</p>';
     var cont = el.querySelector(".pso-l"), L = lienzo(cont, 16 / 9, function () { mapa = null; dibujar(); });
     alTema(function () { P = paleta(); mapa = null; dibujar(); });
     function fondo(W, H) {
@@ -898,9 +886,7 @@
     reset(); dibujar();
   };
 
-  /* ═══════════════════════════════════════════════════════════
-     7. Inflación y huella del robot
-     ═══════════════════════════════════════════════════════════ */
+  /* 7. Inflación y huella del robot */
   V.inflacion = function (el) {
     var P = paleta(), RES = 0.05, Wm = 1.6, Hm = 0.9, C = Math.round(Wm / RES), F = Math.round(Hm / RES);
     var st = { infl: 0.15, ang: 57, x: 0.45, y: 0.61 }, BETA = 5.0, INSC = 0.08;
@@ -1010,9 +996,7 @@
     el.fijarSim = function (o) { Object.keys(o).forEach(function (k) { st[k] = o[k]; }); dibujar(); };
   };
 
-  /* ═══════════════════════════════════════════════════════════
-     8. Ventana dinámica (DWB)
-     ═══════════════════════════════════════════════════════════ */
+  /* 8. Ventana dinámica (DWB) */
   V.dwb = function (el) {
     var P = paleta(), Wm = 2.0, Hm = 1.4, SIMT = 1.7, VMAX = 0.15, WMAX = 0.35;
     var D_INFL = 0.35, D_CHOQUE = 0.12;   /* parámetros de esta demostración, no de la configuración real */

@@ -89,7 +89,7 @@
     <div class="seccion-cab">
       <p class="eyebrow">La idea en cuatro pasos</p>
       <h2 id="t-ciclo">Cómo hace un robot para explorar solo</h2>
-      <p>El robot repite este ciclo varias veces por segundo. Cada paso tiene un tema propio en la guía, con su teoría, su evidencia y sus límites.</p>
+      <p>El robot repite este ciclo varias veces por segundo.</p>
     </div>
     <div class="pasos-4">
       <a class="paso4" href="mapeo.html"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2.5"/><path d="M12 3a9 9 0 0 1 9 9M12 6.5a5.5 5.5 0 0 1 5.5 5.5M3 12a9 9 0 0 0 9 9"/></svg></span><b>Percibir</b><p>Un láser gira y mide la distancia a las paredes en todas direcciones, en un plano horizontal.</p><span class="ir">Ver y mapear →</span></a>
@@ -124,8 +124,8 @@
   <div class="wrap">
     <div class="seccion-cab">
       <p class="eyebrow">La guía</p>
-      <h2 id="t-temas">Diez temas, del problema a la construcción</h2>
-      <p>Cada tema abre con un resumen y sus cifras clave, desarrolla la idea con figuras de la tesis, animaciones o simuladores, cita sus fuentes con número y termina con casos reales. Se pueden leer en orden o por separado.</p>
+      <h2 id="t-temas">Los temas, del problema a la construcción</h2>
+      <p>Se pueden leer en orden o por separado.</p>
     </div>
 
     <div class="temas-bloque">
@@ -163,7 +163,7 @@
     <div class="seccion-cab">
       <p class="eyebrow">Resultados, con sus matices</p>
       <h2 id="t-cifras">Lo que se logró y cómo se midió</h2>
-      <p>Cada cifra viene de la tesis y se explica en su tema. También está lo que no se alcanzó a medir, porque saber dónde termina la evidencia es parte del resultado.</p>
+      <p>Las cifras vienen de la tesis. También se dice qué no se alcanzó a medir.</p>
     </div>
     <div class="cifras">
       <div class="cifra"><b>2 <small>de 4</small></b><span>objetivos específicos cumplidos por completo. Los otros dos quedaron parciales, con su explicación.</span><a class="fuente" href="resultados.html#objetivos">Ver los objetivos</a></div>
@@ -192,7 +192,7 @@
           <span class="lugar">Minería · Chile · 2026</span>
           <h3>Mapear una mina sin exponer personas</h3>
           <p>En El Teniente, un dron con LiDAR genera mapas 3D de espacios confinados y sin GPS. Inspecciones que tomaban horas se completan en minutos.</p>
-          <p class="vinculo"><b>Pieza compartida:</b> mapear con láser un interior desconocido.</p>
+          <p class="vinculo">Como este robot, mapea con láser un interior que no conoce.</p>
         </div>
       </article>
       <article class="caso">
@@ -201,7 +201,7 @@
           <span class="lugar">Subterráneo · Estados Unidos · 2021</span>
           <h3>Explorar túneles y cuevas</h3>
           <p>El equipo CERBERUS ganó el desafío subterráneo de DARPA con robots que exploraron y mapearon por su cuenta, sin GPS y con comunicación limitada.</p>
-          <p class="vinculo"><b>Pieza compartida:</b> explorar hasta agotar lo desconocido.</p>
+          <p class="vinculo">Su meta era la misma que la de este robot: explorar hasta agotar lo desconocido.</p>
         </div>
       </article>
       <article class="caso">
@@ -210,7 +210,7 @@
           <span class="lugar">Marte · 2021</span>
           <h3>Replanificar entre rocas</h3>
           <p>El rover Perseverance mantiene un mapa del terreno a su alrededor y replanifica su camino. En el sol 200 recorrió por su cuenta 167 de 175 metros.</p>
-          <p class="vinculo"><b>Pieza compartida:</b> un mapa local que se actualiza mientras se avanza.</p>
+          <p class="vinculo">Usa un mapa local que se actualiza mientras avanza, igual que la navegación de este robot.</p>
         </div>
       </article>
     </div>
@@ -222,15 +222,15 @@
   <div class="wrap">
     <div class="seccion-cab">
       <p class="eyebrow">Más allá de esta tesis</p>
-      <h2 id="t-lecc">Diez lecciones de ingeniería que el robot enseña</h2>
-      <p>Hay temas que la tesis resuelve sin nombrarlos y que sirven en cualquier proyecto. Aquí se desarrollan con ejemplos y fuentes externas.</p>
+      <h2 id="t-lecc">Lecciones de ingeniería</h2>
+      <p>Hay temas que el trabajo resuelve sin nombrarlos y que sirven en cualquier proyecto.</p>
     </div>
     <ol class="lecc-lista">
-      <li><a href="lecciones.html#unidades"><b>Las unidades no son un detalle</b><span>Metros, radianes y la convención de ejes de ROS.</span></a></li>
-      <li><a href="lecciones.html#verificar"><b>Verificar no es validar</b><span>Funcionar como se diseñó no es servir para lo que se necesita.</span></a></li>
-      <li><a href="lecciones.html#codigo-heredado"><b>El nombre no es el comportamiento</b><span>Un archivo llamado PID que opera como PI.</span></a></li>
-      <li><a href="lecciones.html#tipos"><b>El tipo de dato es diseño</b><span>Lo que se pierde al truncar a enteros.</span></a></li>
-      <li><a href="lecciones.html#metricas"><b>Un estado no es un resultado</b><span>Por qué una meta abortada no siempre es una falla.</span></a></li>
+      <li><a href="lecciones.html#unidades"><b>Unidades y convenciones de ROS</b><span>Metros, radianes y la convención de ejes de ROS.</span></a></li>
+      <li><a href="lecciones.html#verificar"><b>Verificar y validar</b><span>Que algo funcione no prueba que sirva para lo que se necesita.</span></a></li>
+      <li><a href="lecciones.html#codigo-heredado"><b>Leer el código antes de confiar en su nombre</b><span>Un archivo llamado PID que opera como PI.</span></a></li>
+      <li><a href="lecciones.html#tipos"><b>El tipo de dato también es diseño</b><span>Lo que se pierde al truncar a enteros.</span></a></li>
+      <li><a href="lecciones.html#metricas"><b>Qué significa una meta abortada</b><span>Por qué 53 de 54 abortos fueron reemplazos.</span></a></li>
       <li><a href="lecciones.html#ensayos"><b>Medir lo que uno cree medir</b><span>Diseñar un ensayo con repeticiones y referencia.</span></a></li>
       <li><a href="lecciones.html#reproducibilidad"><b>Reproducible de verdad</b><span>Versiones fijas, contenedores y datos guardados.</span></a></li>
       <li><a href="lecciones.html#seguridad"><b>La seguridad se diseña</b><span>Lo que exigen las normas para robots móviles.</span></a></li>
@@ -260,7 +260,7 @@
     <div class="seccion-cab">
       <p class="eyebrow">Sobre este sitio</p>
       <h2 id="t-sobre">Un trabajo de titulación, abierto a la comunidad</h2>
-      <p>Las tesis suelen quedar en un repositorio y leerse poco. Este sitio busca lo contrario. Explica el trabajo en simple, muestra la evidencia junto con sus límites y deja el camino trazado para quien quiera repetirlo o mejorarlo.</p>
+      <p>Hice este sitio para que el trabajo se pueda entender y repetir sin leer la tesis completa. Explica el trabajo en simple, muestra la evidencia junto con sus límites y deja el camino trazado para quien quiera repetirlo o mejorarlo.</p>
       <p>Las cifras y figuras del robot vienen de la tesis y se citan con su sección o figura. Los casos del mundo real y las lecciones de ingeniería se apoyan en fuentes externas, listadas al final de cada página y reunidas en <a href="recursos.html">Recursos</a>.</p>
     </div>
     <div class="acciones" style="display:flex;flex-wrap:wrap;gap:10px">

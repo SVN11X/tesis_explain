@@ -40,7 +40,7 @@
       <nav class="miga" aria-label="Ruta"><a href="index.html">Inicio</a><span aria-hidden="true">›</span><a href="index.html#temas">Temas</a><span aria-hidden="true">›</span><span data-cap-n>Tema</span></nav>
       <p class="eyebrow" data-bloque>Evidencia y práctica</p>
       <h1>La evidencia: qué se demostró</h1>
-      <p class="lead">Un resultado vale tanto como la forma en que se midió. Este tema reúne lo que la tesis demuestra, con qué nivel de evidencia, qué quedó parcial, dónde fallaría el robot y qué viene después.</p>
+      <p class="lead">Un resultado vale tanto como la forma en que se midió. Este tema reúne lo que demuestra el trabajo, con qué nivel de evidencia, qué quedó parcial, dónde fallaría el robot y qué viene después.</p>
       <div class="meta-cap"><span data-nivel class="etiqueta">Nivel</span><span class="etiqueta" data-lectura>Lectura</span></div>
     </div>
     <div class="tema-hero-fig">
@@ -55,8 +55,8 @@
 <main class="articulo" id="contenido">
 
 <section class="en-breve" aria-labelledby="t-breve">
-  <h2 id="t-breve">En pocas palabras</h2>
-  <p>Sí fue posible mapear y explorar un interior con un robot de bajo costo. Cinco de seis ejecuciones produjeron un mapa válido y terminaron solas, sin intervención. La odometría quedó validada con mediciones, el control se evaluó en el robot real y el mapeo, la navegación y la exploración quedaron verificados en funcionamiento. Dos objetivos se cumplieron y dos quedaron parciales, y la tesis explica por qué con datos.</p>
+  <h2 id="t-breve">Qué se logró y con qué evidencia</h2>
+  <p>Sí fue posible mapear y explorar un interior con un robot de bajo costo. Cinco de seis ejecuciones produjeron un mapa válido y terminaron solas, sin intervención. La odometría quedó validada con mediciones, el control se evaluó en el robot real y el mapeo, la navegación y la exploración quedaron verificados en funcionamiento. Dos objetivos se cumplieron y dos quedaron parciales, y explico por qué con datos.</p>
   <div class="cifras-mini">
     <div><b>5 <small>de 6</small></b><span>exploraciones que terminaron solas con un mapa válido</span></div>
     <div><b>3,63 <small>%</small></b><span>error de la odometría, validado con cinta métrica</span></div>
@@ -66,14 +66,14 @@
 </section>
 
 <section>
-  <h2 id="palabras">Tres palabras que no son sinónimos</h2>
-  <p>La tesis usa con precisión tres niveles de evidencia, y entenderlos es la mejor forma de leer sus resultados. La diferencia de fondo es la que hace el manual de ingeniería de sistemas de la NASA entre verificar, que es comprobar que se cumplen los requisitos especificados, y validar, que es demostrar que el producto cumple su propósito en el entorno real <a class="ref" href="#f2">2</a>.</p>
+  <h2 id="palabras">Validado, evaluado y verificado</h2>
+  <p>Uso tres niveles de evidencia, y entenderlos es la mejor forma de leer los resultados. La diferencia de fondo es la que hace el manual de ingeniería de sistemas de la NASA entre verificar, que es comprobar que se cumplen los requisitos especificados, y validar, que es demostrar que el producto cumple su propósito en el entorno real <a class="ref" href="#f2">2</a>.</p>
   <div class="decisiones">
     <article class="decision"><span class="d-que"><span class="estado val">Validado cuantitativamente</span></span><h4>Medido contra una referencia independiente</h4><p>Con repeticiones y una referencia externa al propio sistema. Ejemplo, la odometría frente a una cinta métrica, cinco veces.</p></article>
     <article class="decision"><span class="d-que"><span class="estado ok">Evaluado experimentalmente</span></span><h4>Medido en el robot, en condiciones acotadas</h4><p>Con indicadores reales, pero en un caso particular. Ejemplo, el control de velocidad a 0,13 m/s.</p></article>
     <article class="decision"><span class="d-que"><span class="estado par">Verificado funcionalmente</span></span><h4>Funciona de punta a punta</h4><p>Sin un indicador cuantitativo de desempeño. Ejemplo, la navegación hacia las metas del explorador.</p></article>
   </div>
-  <p class="destacado">Un trabajo serio dice en qué nivel de evidencia está cada afirmación, y no usa la palabra validado cuando solo verificó.</p>
+  <p class="destacado">En este sitio cada resultado dice en cuál de los tres niveles está.</p>
 </section>
 
 <section>
@@ -107,7 +107,7 @@
       <figcaption>Cobertura amplia, con la ruta planificada activa. <small>Fig. A7.1 c de la tesis.</small></figcaption>
     </figure>
   </div>
-  <p>Un video muestra el sistema funcionando, pero no reemplaza una medición. Por eso los números de esta página vienen de ensayos con registro, y el video es un complemento para entenderlos.</p>
+  <p>Las cifras de esta página vienen de ensayos con registro. El video sirve para verlas funcionando.</p>
 </section>
 
 <section>
@@ -123,7 +123,6 @@
 
 <section>
   <h2 id="cifras">Las cifras principales, con su contexto</h2>
-  <p>Una cifra sin contexto se presta para malas lecturas. Cada una de estas tiene al lado lo que mide y lo que no.</p>
   <div class="datos-fila">
     <div class="dato"><b class="num">3,63 %</b><span>error odométrico medio en la recta de 2 m, con desviación de 0,44 % en cinco repeticiones</span></div>
     <div class="dato"><b class="num">7,18 %</b><span>error de seguimiento, cinta frente a lo ordenado, en la misma recta</span></div>
@@ -137,10 +136,10 @@
 
 <section>
   <h2 id="limitaciones">Limitaciones declaradas</h2>
-  <p>Declarar los límites no debilita un trabajo, lo hace confiable. Estas son las que la propia tesis reconoce <a class="ref" href="#f1">1</a>.</p>
+  <p>Estas son las limitaciones que reconoce la tesis <a class="ref" href="#f1">1</a>.</p>
   <div class="decisiones">
     <article class="decision"><span class="d-que">Percepción y movimiento</span><h4>Deriva odométrica</h4><p>Sin unidad inercial, la odometría acumula error en giros y recorridos largos.</p></article>
-    <article class="decision"><span class="d-que">Ensayos</span><h4>Un solo recinto reducido</h4><p>3,50 m² de área libre media y cinco iteraciones. No se generaliza a espacios mayores, y la superficie del recinto no se midió aparte del mapa.</p></article>
+    <article class="decision"><span class="d-que">Ensayos</span><h4>Recinto único y reducido</h4><p>3,50 m² de área libre media y cinco iteraciones. No se generaliza a espacios mayores, y la superficie del recinto no se midió aparte del mapa.</p></article>
     <article class="decision"><span class="d-que">Navegación</span><h4>Sin tasa de éxito</h4><p>Los contadores no identificaban metas únicas y el resultado se reconstruyó después. No hay tasa de éxito ni error de posición final hacia metas fijas.</p></article>
     <article class="decision"><span class="d-que">Control</span><h4>Ley heredada sin análisis de estabilidad</h4><p>Opera como PI incremental y no se comparó con un PID incremental estándar. Los sobreimpulsos simulados no se mezclan con la medición real.</p></article>
     <article class="decision"><span class="d-que">Software</span><h4>Versiones en fin de vida</h4><p>ROS 2 Foxy y Gazebo Classic ya no reciben soporte oficial.</p></article>
@@ -150,9 +149,9 @@
 
 <section>
   <h2 id="donde-fallaria">Dónde fallaría el robot</h2>
-  <p>Imagina llevar el robot a una oficina con sillas, mesas, ventanales y gente caminando. Estos son los problemas que anticipa la propia tesis.</p>
+  <p>Imagina llevar el robot a una oficina con sillas, mesas, ventanales y gente caminando. Estos son los problemas que anticipo.</p>
   <div class="widget">
-    <div class="widget-cab"><h3 id="fallas">Un solo plano y un paso estrecho</h3><span class="tipo ilus">Ilustrativo</span></div>
+    <div class="widget-cab"><h3 id="fallas">El plano del láser y los pasos estrechos</h3><span class="tipo ilus">Ilustrativo</span></div>
     <div class="vis" data-vis="fallaria"><p class="vis-fallback">El láser no ve lo que está fuera de su plano, y en pasos estrechos la esquina del robot puede tocar la pared.</p></div>
   </div>
   <p>Las mesas y sillas son el primer problema. El láser ve un solo plano, así que detecta las patas pero no la cubierta ni el asiento. Los ventanales y las superficies muy reflectantes o muy absorbentes degradan la medición. El sistema no está pensado para personas que se mueven rápido. En pasillos estrechos el radio de inflación es menor que el alcance de la esquina del robot y nada revisa la huella completa. Y en una oficina grande, más recorrido significa más deriva sin unidad inercial, mientras que ni la autonomía de la batería ni la carga del computador se midieron.</p>
@@ -160,7 +159,7 @@
 
 <section>
   <h2 id="futuro">Trabajo futuro</h2>
-  <p>La tesis propone nueve líneas de trabajo, en este orden. Cada una es un buen punto de partida para otro proyecto de título o para un curso.</p>
+  <p>Propongo nueve líneas de trabajo, en este orden. Cada una es un buen punto de partida para otro proyecto de título o para un curso.</p>
   <ol>
     <li>Ejecutar el protocolo cuantitativo de navegación en un entorno mayor, registrando cada meta y su resultado de forma unívoca.</li>
     <li>Integrar una unidad inercial con el paquete robot_localization para reducir la deriva angular.</li>

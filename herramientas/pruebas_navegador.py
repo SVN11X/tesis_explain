@@ -184,7 +184,7 @@ def probar_buscador(nav):
         if (pg === 'preguntas.html') continue;
         const html = await (await fetch(pg)).text();
         const d = new DOMParser().parseFromString(html, 'text/html');
-        d.querySelectorAll('script, style, .fuentes-tema, nav, .lateral, #cabecera, #pie').forEach(x => x.remove());
+        d.querySelectorAll('script, style, .fuentes-tema, nav, .lateral, #cabecera, #pie, [hidden]').forEach(x => x.remove());
         d.querySelectorAll('main p, main li, main td, main th, main figcaption, main dd').forEach(x => {
           const t = B.norm(x.textContent).replace(/necesita javascript\\.?/g, '').replace(/\\s+/g, '');
           if (t.length < 20) return;

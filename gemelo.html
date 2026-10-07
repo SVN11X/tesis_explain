@@ -54,7 +54,7 @@
 <main class="articulo" id="contenido">
 
 <section class="en-breve" aria-labelledby="t-breve">
-  <h2 id="t-breve">En pocas palabras</h2>
+  <h2 id="t-breve">Probar la geometría antes de arriesgar el hardware</h2>
   <p>El gemelo digital es el modelo del robot en el simulador Gazebo Classic, descrito una sola vez en un archivo que también usa el robot real. Sirvió para corregir errores de geometría, marcos y configuración antes de arriesgar el hardware. Se aprobó con cuatro criterios de funcionamiento, no con una comparación numérica, y no reproduce la ley del firmware, la zona muerta del driver ni el ruido real. Por eso el mapeo y la exploración se midieron en el robot.</p>
   <div class="cifras-mini">
     <div><b>1</b><span>descripción del robot, compartida por simulación y hardware</span></div>
@@ -66,7 +66,7 @@
 <section>
   <h2 id="que-es">Qué es un gemelo digital</h2>
   <p>En la industria, un gemelo digital es una réplica virtual de un objeto físico que se usa para probar, anticipar fallas o decidir sin intervenir el objeto real. El término se suele asociar a Michael Grieves, que propuso a inicios de los años 2000 un modelo de espacio espejo para productos, y a una hoja de ruta de la NASA de 2010. Una revisión reciente muestra que la idea tiene raíces aún anteriores, en la manufactura virtual de los años noventa <a class="ref" href="#f2">2</a>.</p>
-  <p>En esta tesis el término tiene un sentido acotado y práctico. Es el robot descrito una sola vez en un archivo, y cargado tanto en el simulador como en el robot real <a class="ref" href="#f1">1</a>. La ventaja es concreta. Si el radio de rueda está mal escrito, el error aparece igual en los dos mundos, y se corrige en un solo lugar.</p>
+  <p>En este trabajo el término tiene un sentido acotado y práctico. Es el robot descrito una sola vez en un archivo, y cargado tanto en el simulador como en el robot real <a class="ref" href="#f1">1</a>. La ventaja es concreta. Si el radio de rueda está mal escrito, el error aparece igual en los dos mundos, y se corrige en un solo lugar.</p>
   <div class="grid-2">
     <figure class="fig oscura">
       <picture><source srcset="img/fotos/gemelo-modelo.webp" type="image/webp"><img src="img/fotos/gemelo-modelo.jpg" width="532" height="376" loading="lazy" decoding="async" alt="Modelo 3D simple del robot: una caja naranja con un cilindro negro arriba, que representa el láser, y una rueda azul visible bajo el chasis."></picture>
@@ -121,10 +121,10 @@
       <caption>Anexos 2 y 3.4 de la tesis.</caption>
     </table>
   </div>
-  <p>Un modelo puede crecer sin tocar el robot real. La captura siguiente muestra el mismo gemelo con una cámara simulada frente a un mundo de prueba. La cámara no forma parte del sistema evaluado en la tesis, pero ilustra cómo se probaría un sensor nuevo antes de comprarlo.</p>
+  <p>Un modelo puede crecer sin tocar el robot real. La captura siguiente muestra el mismo gemelo con una cámara simulada frente a un mundo de prueba. La cámara no forma parte del sistema que evalué, pero ilustra cómo se probaría un sensor nuevo antes de comprarlo.</p>
   <figure class="fig oscura">
     <picture><source srcset="img/tesis/gazebo-camara.webp" type="image/webp"><img src="img/tesis/gazebo-camara.jpg" width="1562" height="884" loading="lazy" decoding="async" alt="El gemelo naranja en Gazebo con líneas blancas que marcan el campo de visión de una cámara simulada, apuntando a un panel con figuras de personas y un número tres, junto a buzones."></picture>
-    <figcaption>Una cámara simulada en el gemelo. Las líneas blancas marcan su campo de visión. <small>Captura del autor. Extensión posible, no evaluada en la tesis.</small></figcaption>
+    <figcaption>Una cámara simulada en el gemelo. Las líneas blancas marcan su campo de visión. <small>Captura del autor. Extensión posible, no evaluada en este trabajo.</small></figcaption>
   </figure>
 </section>
 
@@ -135,7 +135,7 @@
     <div class="widget-cab"><h3 id="cuatro-criterios">Los criterios, lo que no reproduce y dos cifras que no se comparan</h3><span class="tipo datos">Datos de la tesis</span></div>
     <div class="vis" data-vis="gemelo"><p class="vis-fallback">Cadena de marcos completa, sensores estables, movimiento coherente y paridad geométrica.</p></div>
   </div>
-  <p>La tesis dice que los criterios se confirmaron durante la puesta en marcha del modelo. No quedaron registrados, por ejemplo, los valores medidos de frecuencia de los tópicos ni la imagen del árbol de marcos. Es una debilidad del registro que la propia tesis permite identificar, y una lección práctica. Lo que no se registra, después no se puede mostrar.</p>
+  <p>Los criterios se confirmaron durante la puesta en marcha del modelo. No incluí, por ejemplo, los valores medidos de frecuencia de los tópicos ni la imagen del árbol de marcos. Es una debilidad del registro y deja una lección práctica. Lo que no se registra, después no se puede mostrar.</p>
   <p>Con el vocabulario de la ingeniería de sistemas, el gemelo quedó verificado, porque cumple los cuatro criterios. No quedó validado como representación cuantitativa del robot real, porque nunca se comparó una misma variable medida en ambos <a class="ref" href="#f3">3</a>. La diferencia entre esas dos palabras se desarrolla en <a href="resultados.html#palabras">La evidencia</a>.</p>
 </section>
 
@@ -143,7 +143,7 @@
   <h2 id="brecha">La brecha entre simulación y realidad</h2>
   <p>Ningún simulador es la realidad. Gazebo Classic no reproduce del todo el roce, la zona muerta del driver, el ruido de los sensores ni las latencias reales <a class="ref" href="#f1">1</a>. A esa diferencia se le llama brecha entre simulación y realidad, y es un tema de investigación en sí mismo. Una de las técnicas conocidas es variar al azar los parámetros de la simulación, como texturas, colores o iluminación, para que lo aprendido en ella resista mejor el paso al mundo real <a class="ref" href="#f4">4</a>.</p>
   <h3 id="no-se-comparan">Dos cifras que parecen comparables y no lo son</h3>
-  <p>En la recta de 2 m, la desviación en simulación fue de 3,39 % y en el robot real de 7,18 %. Parecen la misma medida en dos entornos, pero no lo son. En simulación la pose verdadera de Gazebo no quedó registrada, así que la distancia salió de la propia odometría. En el robot real se midió con cinta. Una cifra se mide consigo misma y la otra contra una referencia física <a class="ref" href="#f1">1</a>.</p>
+  <p>En la recta de 2 m, la desviación en simulación fue de 3,39 % y en el robot real de 7,18 %. Parecen la misma medida en dos entornos, pero miden cosas distintas. En simulación la pose verdadera de Gazebo no quedó registrada, así que la distancia salió de la propia odometría. En el robot real se midió con cinta. Una cifra se mide consigo misma y la otra contra una referencia física <a class="ref" href="#f1">1</a>.</p>
   <div class="argumento">
     <div><span class="a-et">En simulación, 3,39 %</span><p>Odometría simulada frente a los 2 m ordenados. No hay referencia externa.</p></div>
     <div><span class="a-et">En el robot, 7,18 %</span><p>Cinta métrica frente a los 2 m ordenados. Es el error de seguimiento real.</p></div>
@@ -154,7 +154,7 @@
 
 <section>
   <h2 id="gazebo">Por qué Gazebo Classic</h2>
-  <p>Se eligió Gazebo Classic y no el Gazebo actual porque es el que usan los complementos de simulación y de ros2_control del paquete base adaptado, disponibles para ROS 2 Foxy sobre Ubuntu 20.04 <a class="ref" href="#f1">1</a>. Gazebo Classic llegó al fin de su soporte en enero de 2025 <a class="ref" href="#f5">5</a>, así que la tesis propone dos mejoras. Migrar el gemelo a una versión vigente de Gazebo junto con ROS 2, y registrar la pose verdadera del simulador en los ensayos para separar el error odométrico del de seguimiento también en simulación.</p>
+  <p>Elegí Gazebo Classic y no el Gazebo actual porque es el que usan los complementos de simulación y de ros2_control del paquete base adaptado, disponibles para ROS 2 Foxy sobre Ubuntu 20.04 <a class="ref" href="#f1">1</a>. Gazebo Classic llegó al fin de su soporte en enero de 2025 <a class="ref" href="#f5">5</a>, así que propongo dos mejoras. Migrar el gemelo a una versión vigente de Gazebo junto con ROS 2, y registrar la pose verdadera del simulador en los ensayos para separar el error odométrico del de seguimiento también en simulación.</p>
 </section>
 
 <section>
@@ -167,7 +167,7 @@
         <span class="lugar">NASA JPL · Estados Unidos</span>
         <h3>OPTIMISM, el gemelo terrestre de Perseverance</h3>
         <p>El laboratorio mantiene en la Tierra una copia de tamaño real del rover para ensayar maniobras y comandos antes de enviarlos a Marte. Es un gemelo físico, no digital, pero cumple el mismo papel.</p>
-        <p class="vinculo"><b>Relación:</b> equivocarse primero en la copia, que es exactamente para qué sirvió el gemelo de esta tesis.</p>
+        <p class="vinculo">Permite equivocarse primero en la copia, que es para lo que usé el gemelo de este robot.</p>
         <p class="fuente-caso">Fuente <a class="ref" href="#f6">6</a></p>
       </div>
     </article>
@@ -177,7 +177,7 @@
         <span class="lugar">DARPA SubT · 2019 a 2021</span>
         <h3>Una competencia que también se corrió en simulación</h3>
         <p>El desafío subterráneo de DARPA tuvo, además de las pruebas con robots reales, una competencia virtual en la que los equipos exploraban túneles y cuevas simuladas, con un simulador de Open Robotics, la organización detrás de Gazebo.</p>
-        <p class="vinculo"><b>Relación:</b> la simulación como banco de pruebas para algoritmos de exploración, el mismo uso que se le dio aquí.</p>
+        <p class="vinculo">Usó la simulación como banco de pruebas para algoritmos de exploración, el mismo uso que le di aquí.</p>
         <p class="fuente-caso">Fuente <a class="ref" href="#f7">7</a></p>
       </div>
     </article>

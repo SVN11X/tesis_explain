@@ -40,7 +40,7 @@
       <nav class="miga" aria-label="Ruta"><a href="index.html">Inicio</a><span aria-hidden="true">›</span><a href="index.html#temas">Temas</a><span aria-hidden="true">›</span><span data-cap-n>Tema</span></nav>
       <p class="eyebrow" data-bloque>Cómo funciona</p>
       <h1>Control de velocidad de las ruedas</h1>
-      <p class="lead">Pedirle a una rueda que gire a 0,13 m/s no basta. Hay que medir, comparar y corregir decenas de veces por segundo. Este tema explica cómo lo hace el Arduino, qué se descubrió al leer su código y cómo se buscaron las ganancias con un enjambre de partículas.</p>
+      <p class="lead">Pedirle a una rueda que gire a 0,13 m/s no basta. Hay que medir, comparar y corregir decenas de veces por segundo. Este tema explica cómo lo hace el Arduino, qué encontré al leer su código y cómo busqué las ganancias con un enjambre de partículas.</p>
       <div class="meta-cap"><span data-nivel class="etiqueta">Nivel</span><span class="etiqueta" data-lectura>Lectura</span></div>
     </div>
     <figure class="tema-hero-fig contener">
@@ -54,8 +54,8 @@
 <main class="articulo" id="contenido">
 
 <section class="en-breve" aria-labelledby="t-breve">
-  <h2 id="t-breve">En pocas palabras</h2>
-  <p>Cada rueda tiene su propio lazo de control en el Arduino. La ley heredada del firmware se llama PID, pero al leer su código se descubrió que opera como un PI incremental, sin acción derivativa. Sus ganancias partieron de una búsqueda con enjambre de partículas sobre un modelo de cada rueda y se terminaron de ajustar en el robot real. Con ellas, ambas ruedas siguen 0,13 m/s sin sobreimpulso apreciable dentro de lo que la medición alcanza a ver.</p>
+  <h2 id="t-breve">Un PI que sigue 0,13 m/s</h2>
+  <p>Cada rueda tiene su propio lazo de control en el Arduino. La ley heredada del firmware se llama PID, pero al leer su código vi que opera como un PI incremental, sin acción derivativa. Sus ganancias partieron de una búsqueda con enjambre de partículas sobre un modelo de cada rueda y las terminé de ajustar en el robot real. Con ellas, ambas ruedas siguen 0,13 m/s sin sobreimpulso apreciable dentro de lo que la medición alcanza a ver.</p>
   <div class="cifras-mini">
     <div><b>0,002 <small>m/s</small></b><span>error estacionario máximo, en la rueda izquierda</span></div>
     <div><b>0,8 <small>y</small> 1,4 <small>s</small></b><span>tiempo de subida de cada rueda, del 10 al 90 %</span></div>
@@ -87,8 +87,13 @@
 </section>
 
 <section>
-  <h2 id="hallazgo">El hallazgo: un PID que opera como PI</h2>
-  <p>El firmware del Arduino, ROSArduinoBridge, viene de un proyecto abierto, y su encabezado indica que el controlador se tomó en su mayor parte del código ArbotiX <a class="ref" href="#f1">1</a>. Sus ganancias se llaman Kp, Ki y Kd, como en un PID. Al leer la función que calcula el control, la tesis encontró que en cada ciclo se calcula un aumento con los tres términos, al estilo posicional, y ese aumento se suma a la salida anterior, al estilo incremental. Sumar ciclo tras ciclo es integrar, así que cada término sube un escalón.</p>
+  <h2 id="hallazgo">Un PID que opera como PI</h2>
+  <p>El firmware del Arduino, ROSArduinoBridge, viene de un proyecto abierto, y su encabezado indica que el controlador se tomó en su mayor parte del código ArbotiX <a class="ref" href="#f1">1</a>. Sus ganancias se llaman Kp, Ki y Kd, como en un PID. Al leer la función que calcula el control, encontré que en cada ciclo se calcula un aumento con los tres términos, al estilo posicional, y ese aumento se suma a la salida anterior, al estilo incremental. Sumar ciclo tras ciclo es integrar, así que cada término sube un escalón.</p>
+  <aside class="nota-autor" hidden>
+    <p class="nota-autor-rotulo">Nota del autor</p>
+    <p>Al revisar la función doPID() del firmware vi que cada aumento de la salida se suma a la salida anterior.</p>
+    <!-- PENDIENTE AUTOR: completar esta nota en primera persona y quitar el atributo hidden. Pregunta: ¿En qué momento lo notaste al leer el código? -->
+  </aside>
   <div class="widget">
     <div class="widget-cab"><h3 id="papeles">El papel real de cada ganancia</h3><span class="tipo inter">Interactivo</span><p>Avanza ciclo a ciclo para ver por qué el término de Kd termina actuando como proporcional.</p></div>
     <div class="vis" data-vis="papeles"><p class="vis-fallback">Kp actúa como integral, Kd como proporcional sobre la medición y Ki como segunda integración.</p></div>
@@ -98,11 +103,11 @@
     <div><span class="a-et">Kd actúa como proporcional</span><p>Multiplica el cambio de la medición. La suma de los cambios de algo devuelve ese algo, así que termina multiplicando la medición actual.</p></div>
     <div><span class="a-et">Ki actúa como doble integral</span><p>Se acumula aparte y luego vuelve a sumarse, por lo que integra dos veces. En la práctica casi no actúa, como se verá más abajo.</p></div>
   </div>
-  <p>Sin el término de Ki, como en el firmware original, la ley coincide con la forma incremental del PI que describen Åström y Hägglund, con la referencia entrando solo en el término integral <a class="ref" href="#f2">2</a>. Esa forma evita saltos de la señal cuando cambia la referencia y reduce la sobreoscilación. Lo importante es que la ley no se cambió en ningún momento, así que todos los resultados corresponden a este controlador tal como es. Por eso el objetivo que pedía un PID se declara cumplido en forma parcial.</p>
+  <p>Sin el término de Ki, como en el firmware original, la ley coincide con la forma incremental del PI que describen Åström y Hägglund, con la referencia entrando solo en el término integral <a class="ref" href="#f2">2</a>. Esa forma evita saltos de la señal cuando cambia la referencia y reduce la sobreoscilación. No cambié la ley en ningún momento, así que todos los resultados corresponden a este controlador tal como es. Por eso el objetivo que pedía un PID se declara cumplido en forma parcial.</p>
   <h3 id="por-que-se-conservo">¿Por qué no se reescribió?</h3>
-  <p>La tesis da dos razones y una aclaración. La interfaz diffdrive_arduino ya usa el protocolo de este firmware, y la forma incremental simplifica la protección contra el windup. La aclaración es que se conservó porque siguió la referencia en los ensayos, no porque se haya comparado con otras leyes. Esa comparación queda como trabajo futuro.</p>
+  <p>La conservé por dos razones. La interfaz diffdrive_arduino ya usa el protocolo de este firmware, y la forma incremental simplifica la protección contra el windup. También pesó que siguiera la referencia en los ensayos, pero no la comparé con otras leyes. Esa comparación queda como trabajo futuro.</p>
   <div class="widget">
-    <div class="widget-cab"><h3 id="protocolo-ley">El protocolo justifica los comandos, no la fórmula</h3><span class="tipo datos">Datos de la tesis</span><p>Un matiz honesto. La ley vive en un archivo separado del manejo de comandos, así que se podía reescribir sin tocar la comunicación.</p></div>
+    <div class="widget-cab"><h3 id="protocolo-ley">El protocolo justifica los comandos, no la fórmula</h3><span class="tipo datos">Datos de la tesis</span><p>La ley vive en un archivo separado del manejo de comandos, así que se podía reescribir sin tocar la comunicación.</p></div>
     <div class="vis" data-vis="protocolo"><p class="vis-fallback">La interfaz envía referencias con el comando m y pide encoders con el comando e. La ley está en diff_controller.h.</p></div>
   </div>
   <p class="destacado">Una ganancia no se lee por su nombre, se lee por la ecuación que la usa.</p>
@@ -149,7 +154,7 @@
   </div>
   <figure class="fig">
     <picture><source srcset="img/tesis/pso-lambda.webp" type="image/webp"><img src="img/tesis/pso-lambda.png" width="1600" height="1461" loading="lazy" decoding="async" alt="Cuatro gráficos. A la izquierda, la identificación de cada rueda en lazo abierto: datos reales, datos suavizados y el modelo FOPDT, muy parecidos. A la derecha, una simulación del lazo cerrado con las ganancias finales y con una sintonía Lambda, que oscila mucho más."></picture>
-    <figcaption>A la izquierda, el modelo de cada rueda calza con los datos reales. A la derecha, una comparación simulada con la sintonía Lambda, que la tesis presenta solo como ilustración porque el modelo no tiene la zona muerta ni los tipos enteros del firmware. <small>Fig. A4.1 de la tesis.</small></figcaption>
+    <figcaption>A la izquierda, el modelo de cada rueda calza con los datos reales. A la derecha, una comparación simulada con la sintonía Lambda, que presento solo como ilustración porque el modelo no tiene la zona muerta ni los tipos enteros del firmware. <small>Fig. A4.1 de la tesis.</small></figcaption>
   </figure>
   <p>Que las dos ruedas tengan modelos distintos importa. Una tabla fija de sintonía daría las mismas ganancias a ambas, y este robot necesitaba ganancias propias para cada rueda.</p>
 </section>
@@ -161,9 +166,9 @@
     <div class="widget-cab"><h3 id="sim-enjambre">Un enjambre buscando el menor costo</h3><span class="tipo inter">Interactivo</span><p>Presiona Buscar y mira cómo las partículas pasan de explorar a converger.</p></div>
     <div class="vis" data-vis="enjambre"><p class="vis-fallback">Simulador de optimización por enjambre de partículas. Necesita JavaScript.</p></div>
   </div>
-  <p>El script de la tesis combina dos mejoras conocidas. Un factor de constricción de 0,7298, el valor que entrega la fórmula de Clerc y Kennedy con coeficientes de 2,05 <a class="ref" href="#f5">5</a>, y un peso de inercia que baja de forma lineal con las generaciones, mecanismo propuesto por Shi y Eberhart <a class="ref" href="#f6">6</a>. Usa 50 partículas y 150 generaciones. El costo de cada candidato es el error cuadrático medio de la velocidad simulada más una penalización por sobreimpulso que pesa el triple <a class="ref" href="#f1">1</a>. Como antecedente, Gökçe y otros usaron PSO para sintonizar el PID de un robot móvil agrícola <a class="ref" href="#f7">7</a>.</p>
+  <p>El script que escribí combina dos mejoras conocidas. Un factor de constricción de 0,7298, el valor que entrega la fórmula de Clerc y Kennedy con coeficientes de 2,05 <a class="ref" href="#f5">5</a>, y un peso de inercia que baja de forma lineal con las generaciones, mecanismo propuesto por Shi y Eberhart <a class="ref" href="#f6">6</a>. Usa 50 partículas y 150 generaciones. El costo de cada candidato es el error cuadrático medio de la velocidad simulada más una penalización por sobreimpulso que pesa el triple <a class="ref" href="#f1">1</a>. Como antecedente, Gökçe y otros usaron PSO para sintonizar el PID de un robot móvil agrícola <a class="ref" href="#f7">7</a>.</p>
   <h3 id="semilla">El PSO fue una semilla, el robot dio la última palabra</h3>
-  <p>Las ganancias sugeridas por el PSO se cargaron en el robot y aparecieron dos comportamientos que el modelo no anticipaba. La rueda izquierda se quedaba un escalón de medición por debajo de la referencia, y la derecha subía por tramos, con una detención cerca de 0,11 m/s. La causa principal es que el modelo de primer orden no tiene la <span class="term" data-def="Un rango de PWM bajo en que el motor no alcanza a vencer el roce y no gira, aunque reciba señal.">zona muerta</span> del driver <a class="ref" href="#f1">1</a>. Desliza el control para comparar ambas respuestas sobre los mismos ejes.</p>
+  <p>Cargué en el robot las ganancias sugeridas por el PSO y aparecieron dos comportamientos que el modelo no anticipaba. La rueda izquierda se quedaba un escalón de medición por debajo de la referencia, y la derecha subía por tramos, con una detención cerca de 0,11 m/s. La causa principal es que el modelo de primer orden no tiene la <span class="term" data-def="Un rango de PWM bajo en que el motor no alcanza a vencer el roce y no gira, aunque reciba señal.">zona muerta</span> del driver <a class="ref" href="#f1">1</a>. Desliza el control para comparar ambas respuestas sobre los mismos ejes.</p>
   <figure class="desl-env">
     <div class="deslizar">
       <img class="c-a" src="img/tesis/escalon-pso.png" width="1281" height="1027" alt="Respuesta con las ganancias del PSO: la rueda izquierda queda bajo la referencia y la derecha sube por tramos con una detención cerca de 0,11 m/s.">
@@ -178,7 +183,7 @@
     <div class="widget-cab"><h3 id="cambios">Del PSO a las ganancias finales</h3><span class="tipo datos">Datos de la tesis</span></div>
     <div class="vis" data-vis="pso"><p class="vis-fallback">Kp sube entre 28 y 63 %, Kd baja entre 41 y 45 % y Ki sube varios órdenes de magnitud.</p></div>
   </div>
-  <p>Se subió Kp para atravesar más rápido la zona muerta, lo que en esta ley acelera el crecimiento de la salida. Eso, sobre una velocidad medida en escalones, volvió excesiva la acción de Kd, que se bajó. Y el Ki de la rueda izquierda subió para eliminar su error estacionario. La tesis concluye que el aporte del PSO fue el de una semilla de búsqueda y no el de un ajuste final validado por sí solo <a class="ref" href="#f1">1</a>. Es una conclusión valiosa, porque muestra el límite de cualquier optimización. Solo es tan buena como el modelo sobre el que busca.</p>
+  <p>Subí Kp para atravesar más rápido la zona muerta, lo que en esta ley acelera el crecimiento de la salida. Eso, sobre una velocidad medida en escalones, volvió excesiva la acción de Kd, que bajé. Y subí el Ki de la rueda izquierda para eliminar su error estacionario. El aporte del PSO fue el de una semilla de búsqueda y no el de un ajuste final validado por sí solo <a class="ref" href="#f1">1</a>. Esto muestra el límite de cualquier optimización, que solo es tan buena como el modelo sobre el que busca.</p>
   <div class="tabla-env">
     <table class="tabla">
       <thead><tr><th>Ganancia</th><th class="n">PSO izquierda</th><th class="n">Final izquierda</th><th class="n">PSO derecha</th><th class="n">Final derecha</th></tr></thead>
@@ -191,7 +196,7 @@
       <caption>Tablas A4.4 y 4.4 de la tesis. Las ganancias están en la escala interna del firmware.</caption>
     </table>
   </div>
-  <p>El PSO parte de números al azar y la clase usada no fija una <span class="term" data-def="Un número inicial que hace que un generador de números aleatorios produzca siempre la misma secuencia. Fijarlo permite repetir un resultado.">semilla aleatoria</span>, así que al repetir el script se obtienen parámetros algo distintos. La tesis conserva la salida exacta de la ejecución usada <a class="ref" href="#f1">1</a>. En cualquier trabajo con métodos aleatorios conviene fijar la semilla y guardar la salida, para que otra persona pueda llegar al mismo resultado.</p>
+  <p>El PSO parte de números al azar y la clase usada no fija una <span class="term" data-def="Un número inicial que hace que un generador de números aleatorios produzca siempre la misma secuencia. Fijarlo permite repetir un resultado.">semilla aleatoria</span>, así que al repetir el script se obtienen parámetros algo distintos. Conservé la salida exacta de la ejecución usada <a class="ref" href="#f1">1</a>. En cualquier trabajo con métodos aleatorios conviene fijar la semilla y guardar la salida, para que otra persona pueda llegar al mismo resultado.</p>
 </section>
 
 <section>
@@ -215,11 +220,11 @@
     <div class="widget-cab"><h3 id="ticks">Resolución y velocidad única</h3><span class="tipo datos">Datos de la tesis</span></div>
     <div class="vis" data-vis="resolucion"><p class="vis-fallback">A 0,13 m/s cada rueda cuenta unos 41 pulsos por ciclo. En un giro a 0,35 rad/s, cerca de 10.</p></div>
   </div>
-  <p>El control se evaluó en un solo punto de operación, 0,13 m/s. En los giros sobre su eje, cada rueda cuenta cerca de 10 pulsos por ciclo en vez de 41, y ahí las bandas muertas de 1 y 2 pulsos pesan mucho más. Extender la evaluación a otras velocidades y compararla con un PID incremental estándar es parte del trabajo futuro.</p>
+  <p>Evalué el control en un solo punto de operación, 0,13 m/s. En los giros sobre su eje, cada rueda cuenta cerca de 10 pulsos por ciclo en vez de 41, y ahí las bandas muertas de 1 y 2 pulsos pesan mucho más. Extender la evaluación a otras velocidades y compararla con un PID incremental estándar es parte del trabajo futuro.</p>
   <details class="profundizar">
     <summary>Para el curioso: la comparación con la sintonía Lambda</summary>
     <div>
-      <p>La tesis incluye una comparación simulada entre las ganancias finales y una sintonía analítica llamada Lambda, sobre un modelo reidentificado. En esa simulación las ganancias finales muestran sobreimpulsos de 10,7 % a 15,6 %. La tesis advierte que esos números vienen de un modelo sin zona muerta, sin bandas muertas asimétricas y sin los tipos enteros del firmware, así que no se comparan con la medición real. Es una comparación ilustrativa, y es la que muestra la figura del modelo más arriba.</p>
+      <p>Incluí una comparación simulada entre las ganancias finales y una sintonía analítica llamada Lambda, sobre un modelo reidentificado. En esa simulación las ganancias finales muestran sobreimpulsos de 10,7 % a 15,6 %. Esos números vienen de un modelo sin zona muerta, sin bandas muertas asimétricas y sin los tipos enteros del firmware, así que no se comparan con la medición real. Es una comparación ilustrativa, y es la que muestra la figura del modelo más arriba.</p>
     </div>
   </details>
 </section>
@@ -234,7 +239,7 @@
         <span class="lugar">Automóviles</span>
         <h3>Control crucero</h3>
         <p>El conductor fija una velocidad y el sistema ajusta el acelerador cuando el auto sube o baja una cuesta. Es el ejemplo de cabecera en el libro abierto de Åström y Murray.</p>
-        <p class="vinculo"><b>Relación:</b> una referencia de velocidad, una perturbación y un lazo que corrige, como en cada rueda de este robot.</p>
+        <p class="vinculo">Tiene una referencia de velocidad, una perturbación y un lazo que corrige, como cada rueda de este robot.</p>
         <p class="fuente-caso">Fuente <a class="ref" href="#f8">8</a></p>
       </div>
     </article>
@@ -244,7 +249,7 @@
         <span class="lugar">Impresoras 3D</span>
         <h3>La temperatura de la boquilla</h3>
         <p>El firmware Marlin mantiene la boquilla a la temperatura pedida con un PID, y trae un comando de autoajuste, M303, que prueba el calentador y calcula las ganancias.</p>
-        <p class="vinculo"><b>Relación:</b> buscar ganancias a partir de una respuesta medida, la misma idea que el modelo FOPDT y el PSO de esta tesis.</p>
+        <p class="vinculo">Busca ganancias a partir de una respuesta medida, la misma idea que el modelo FOPDT y el PSO de este robot.</p>
         <p class="fuente-caso">Fuente <a class="ref" href="#f10">10</a></p>
       </div>
     </article>
@@ -254,7 +259,7 @@
         <span class="lugar">Drones</span>
         <h3>Lazos en cascada</h3>
         <p>Los multicópteros con PX4 encadenan varios controladores, uno por velocidad de giro, otro por ángulo y otro por posición, y su guía de ajuste explica cómo sintonizar cada uno.</p>
-        <p class="vinculo"><b>Relación:</b> en este robot también hay lazos encadenados. Nav2 ordena velocidades y el Arduino las sigue rueda por rueda.</p>
+        <p class="vinculo">En este robot también hay lazos encadenados, porque Nav2 ordena velocidades y el Arduino las sigue rueda por rueda.</p>
         <p class="fuente-caso">Fuente <a class="ref" href="#f11">11</a></p>
       </div>
     </article>

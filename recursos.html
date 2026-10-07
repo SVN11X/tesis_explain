@@ -125,7 +125,7 @@
     <li id="r-amadi2024">Amadi, C. A., Mbanisi, K., &amp; Smit, W. J. (2024). <i>An Introduction to the ros2_control framework using a low cost Differential Drive Robot</i> [Preprint]. <a href="https://doi.org/10.13140/RG.2.2.15748.54408">doi.org/10.13140/RG.2.2.15748.54408</a></li>
     <li id="r-astrom2009">Åström, K. J., &amp; Hägglund, T. (2009). <i>Control PID avanzado</i> (S. Dormido Bencomo y J. L. Guzmán Sánchez, Trad.). Pearson Educación. Publicación original de 2006.</li>
     <li id="r-autoware">Autoware Foundation. (2026). <i>Autoware Documentation</i>. <a href="https://docs.autoware.org/main/home/">docs.autoware.org</a></li>
-    <li id="r-clerc2002">Clerc, M., &amp; Kennedy, J. (2002). The Particle Swarm—Explosion, Stability, and Convergence in a Multidimensional Complex Space. <i>IEEE Transactions on Evolutionary Computation, 6</i>(1), 58-73. <a href="https://doi.org/10.1109/4235.985692">doi.org/10.1109/4235.985692</a></li>
+    <li id="r-clerc2002">Clerc, M., &amp; Kennedy, J. (2002). The Particle Swarm, Explosion, Stability, and Convergence in a Multidimensional Complex Space. <i>IEEE Transactions on Evolutionary Computation, 6</i>(1), 58-73. <a href="https://doi.org/10.1109/4235.985692">doi.org/10.1109/4235.985692</a></li>
     <li id="r-coppelia">Coppelia Robotics AG. (2025). <i>CoppeliaSim Version History: Version 4.10.0</i>. <a href="https://manual.coppeliarobotics.com/en/versionInfo.htm">manual.coppeliarobotics.com</a></li>
     <li id="r-corke2023">Corke, P. (2023). <i>Robotics, Vision and Control: Fundamental Algorithms in Python</i> (3.a ed., Vol. 146). Springer. <a href="https://doi.org/10.1007/978-3-031-06469-2">doi.org/10.1007/978-3-031-06469-2</a></li>
     <li id="r-webots">Cyberbotics Ltd. (2025). <i>Webots Reference Manual: Release R2025a</i>. <a href="https://cyberbotics.com/doc/reference/index?version=released">cyberbotics.com</a></li>
@@ -227,14 +227,14 @@
 
 <section>
   <h2 id="materiales">Materiales originales: qué está disponible y qué falta</h2>
-  <p>Para verificar las cifras o repetir el trabajo exactamente se necesitan los archivos usados en la tesis, no solo los proyectos de los que partió. Este sitio publica las figuras, fotos y videos que muestra. El resto de los materiales originales todavía no está publicado, y la tabla dice cuál es cada uno. Los nombres de archivo son los que cita la tesis en su Anexo 9, con rutas relativas a la carpeta <code>src/</code> de su repositorio. La referencia completa de la tesis está en <a href="#citar-tesis">Cómo citar</a>.</p>
+  <p>Para verificar las cifras o repetir el trabajo exactamente se necesitan los archivos que usé, además de los proyectos de los que partió. Este sitio publica las figuras, fotos y videos que muestra. El resto de los materiales originales todavía no está publicado, y la tabla dice cuál es cada uno. Los nombres de archivo son los que cita la tesis en su Anexo 9, con rutas relativas a la carpeta <code>src/</code> de su repositorio. La referencia completa de la tesis está en <a href="#citar-tesis">Cómo citar</a>.</p>
   <div class="tabla-env">
     <table class="tabla materiales">
       <thead><tr><th>Material</th><th>Estado</th><th>Detalle</th></tr></thead>
       <tbody>
         <tr><th>Tesis en PDF</th><td data-tesis-pdf><span class="estado no">No publicada</span></td><td>Se enlazará aquí y en el pie de página cuando esté disponible en un repositorio institucional.</td></tr>
         <tr><th>Figuras, fotos y videos de esta guía</th><td><span class="estado ok">Disponibles</span></td><td>En la carpeta <code>img/</code> de <a href="https://github.com/SVN11X/tesis_explain">este repositorio</a>, con su figura de origen en cada leyenda.</td></tr>
-        <tr><th>Firmware adaptado del Arduino</th><td><span class="estado no">No publicado</span></td><td><code>arduino_firmware/ROSArduinoBridge/</code>, con el control de ruedas y la lectura de encoders. El proyecto base, <a href="https://github.com/joshnewans/ros_arduino_bridge">ros_arduino_bridge</a>, no incluye los cambios de la tesis.</td></tr>
+        <tr><th>Firmware adaptado del Arduino</th><td><span class="estado no">No publicado</span></td><td><code>arduino_firmware/ROSArduinoBridge/</code>, con el control de ruedas y la lectura de encoders. El proyecto base, <a href="https://github.com/joshnewans/ros_arduino_bridge">ros_arduino_bridge</a>, no incluye mis cambios.</td></tr>
         <tr><th>Descripción del robot</th><td><span class="estado no">No publicada</span></td><td><code>articubot_one/description/</code>: <code>robot.urdf.xacro</code>, <code>robot_core.xacro</code>, <code>lidar.xacro</code>, <code>lidar_sim.xacro</code> y <code>ros2_control.xacro</code>. Base en <a href="https://github.com/joshnewans/articubot_one">articubot_one</a>, con las medidas del prototipo.</td></tr>
         <tr><th>Configuraciones</th><td><span class="estado no">No publicadas</span></td><td><code>articubot_one/config/</code>, entre ellas <code>nav2_params.yaml</code>, <code>mapper_params_online_async.yaml</code>, <code>explore.yaml</code>, <code>my_controllers.yaml</code> y <code>twist_mux.yaml</code>. Los valores que cita esta guía salen de la tesis.</td></tr>
         <tr><th>Programas propios</th><td><span class="estado no">No publicados</span></td><td><code>arduino_firmware/pid_config/</code>, con la identificación de cada rueda y la sintonía por PSO, y <code>articubot_one/scripts/rplidar_serial_publisher.py</code>, el nodo de lectura del láser.</td></tr>
@@ -245,7 +245,7 @@
       <caption>Estado de los materiales a la fecha de esta versión del sitio.</caption>
     </table>
   </div>
-  <div class="callout ojo"><p><b>Proyectos base no son archivos de la tesis.</b> Los repositorios enlazados en <a href="replicar.html#repositorios">Constrúyelo tú</a> son puntos de partida públicos. La tesis los adaptó, por ejemplo con otra resolución de encoder, otras ganancias y otros parámetros de Nav2, así que usarlos tal cual no reproduce los resultados. Ningún ejemplo de este sitio debe tomarse como un archivo original del robot.</p></div>
+  <div class="callout ojo"><p><b>Proyectos base no son archivos de la tesis.</b> Los repositorios enlazados en <a href="replicar.html#repositorios">Constrúyelo tú</a> son puntos de partida públicos. Los adapté, por ejemplo con otra resolución de encoder, otras ganancias y otros parámetros de Nav2, así que usarlos tal cual no reproduce los resultados. Ningún ejemplo de este sitio debe tomarse como un archivo original del robot.</p></div>
 </section>
 
 <section>

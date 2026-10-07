@@ -3,7 +3,7 @@
   "use strict";
   var V = window.VISUALES, U = window.U;
 
-  /* ───── Papel real de cada ganancia ───── */
+  /* Papel real de cada ganancia */
   V.papeles = function (el) {
     var med = [0, 2, 5, 6, 6, 4];
     function tabla(hasta) {
@@ -33,7 +33,7 @@
     });
   };
 
-  /* ───── Un ciclo del firmware, con el código real ───── */
+  /* Un ciclo del firmware, con el código real */
   V.ciclo = function (el) {
     var RUEDA = {
       der: { n: "Rueda derecha", Kp: 16.42, Kd: 20.05, Ki: 0.001, Ko: 50, banda: 1 },
@@ -104,7 +104,7 @@
     calc();
   };
 
-  /* ───── Windup con la rueda trabada ───── */
+  /* Windup con la rueda trabada */
   V.windup = function (el) {
     var L = 3;
     el.innerHTML = '<div class="vctl"><label class="desl-linea" for="wu-l">Tiempo con la rueda trabada <b class="num" data-v>3 s</b><input id="wu-l" type="range" min="1" max="4" step="1" value="3"></label></div>' +
@@ -158,7 +158,7 @@
     U.alCambiarAncho(g, dibujar);
   };
 
-  /* ───── El protocolo serial y la ley ───── */
+  /* El protocolo serial y la ley */
   V.protocolo = function (el) {
     el.innerHTML =
       '<div class="proto">' +
@@ -174,7 +174,7 @@
       '<div class="comparar"><div><b>Lo que justifica el protocolo</b><span>Conservar el firmware y sus comandos m y e, que diffdrive_arduino ya sabe usar.</span></div><div><b>Lo que no justifica</b><span>La fórmula de doPID. Ningún comando depende de ella.</span></div></div>';
   };
 
-  /* ───── PSO como semilla ───── */
+  /* PSO como semilla */
   V.pso = function (el) {
     el.innerHTML =
       '<div class="flujo"><div class="caja"><b>Capturar</b><small>respuesta real de cada rueda</small></div><div class="flecha-d"></div>' +
@@ -189,10 +189,10 @@
       '<p class="vnota">La raya negra es la ganancia que entregó el PSO. El tramo oscuro va del cambio menor al mayor entre las dos ruedas.</p>' +
       '<div class="comparar tres"><div><b>Lo que el modelo no tenía</b><span>La zona muerta del driver. Por eso aparecieron el error estacionario y la detención.</span></div>' +
       '<div><b>Finales en el código</b><span>Derecha Kp 16,42, Kd 20,05, Ki 0,001. Izquierda Kp 16,0, Kd 20,3, Ki 0,075.</span></div>' +
-      '<div><b>Originales del firmware</b><span>Kp 20, Kd 12, Ki 0. La tesis no comparó contra ellas, así que no afirma que el PSO ahorrara tiempo.</span></div></div>';
+      '<div><b>Originales del firmware</b><span>Kp 20, Kd 12, Ki 0. No comparé contra ellas, así que no afirmo que el PSO ahorrara tiempo.</span></div></div>';
   };
 
-  /* ───── Resolución y velocidad única ───── */
+  /* Resolución y velocidad única */
   V.resolucion = function (el) {
     el.innerHTML =
       '<h4 class="vsub">Ticks por ciclo de 33 ms</h4>' +
@@ -223,7 +223,7 @@
     U.alCambiarAncho(cont, dibujar);
   };
 
-  /* ───── Camino de una orden ───── */
+  /* Camino de una orden */
   V.camino = function (el) {
     var E = [
       { eq: "Computador", t: "Nav2 y DWB", v: "velocidad lineal y angular, hasta 0,15 m/s" },

@@ -16,7 +16,7 @@
   11. Portada: video en recuadro, ciclo, lecciones y rutas
 */
 
-/* 1. Tokens ─────────────────────────────────────────────── */
+/* 1. Tokens */
 :root {
   --bg: #F6F8FB;
   --surface: #FFFFFF;
@@ -85,7 +85,7 @@
   color-scheme: dark;
 }
 
-/* 2. Base ──────────────────────────────────────────────── */
+/* 2. Base */
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--cab-h) + 16px); }
 body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: var(--t-base); line-height: 1.65; overflow-x: hidden; }
@@ -108,7 +108,7 @@ p { margin: 0; }
 kbd, code { font-family: var(--f-data); font-size: .88em; background: var(--surface-2); border: 1px solid var(--line); border-radius: 5px; padding: .05em .35em; }
 abbr[title] { text-decoration: underline dotted; cursor: help; }
 
-/* 3. Cabecera, navegación y pie ───────────────────────── */
+/* 3. Cabecera, navegación y pie */
 .progreso-lectura { position: fixed; left: 0; top: 0; height: 3px; width: 100%; transform-origin: 0 50%; transform: scaleX(0); background: linear-gradient(90deg, var(--azul), var(--verde)); z-index: 60; }
 #cabecera { min-height: var(--cab-h); }
 .cab { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, var(--surface) 90%, transparent); backdrop-filter: saturate(1.4) blur(10px); -webkit-backdrop-filter: saturate(1.4) blur(10px); border-bottom: 1px solid var(--line); }
@@ -150,7 +150,7 @@ abbr[title] { text-decoration: underline dotted; cursor: help; }
 .pie p + p { margin-top: 8px; }
 .pie .franja { height: 4px; background: linear-gradient(90deg, var(--azul) 0 72%, var(--verde) 72% 100%); }
 
-/* 4. Portada ───────────────────────────────────────────── */
+/* 4. Portada */
 .hero-sim { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--sombra-alta); padding: 12px; display: grid; gap: 10px; }
 .hero-sim canvas { width: 100%; aspect-ratio: 16 / 10.5; display: block; border-radius: 10px; background: var(--bg); }
 .hero-sim .sim-barra { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; justify-content: space-between; font-size: var(--t-xs); color: var(--muted); }
@@ -185,7 +185,7 @@ abbr[title] { text-decoration: underline dotted; cursor: help; }
 .ruta .tiempo { font-size: var(--t-xs); color: var(--muted); font-family: var(--f-data); }
 .ruta ol { margin: 0; padding-left: 20px; display: grid; gap: 4px; font-size: var(--t-sm); }
 
-/* 5. Capítulos ─────────────────────────────────────────── */
+/* 5. Capítulos */
 .miga { font-size: var(--t-xs); color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .miga a { color: var(--muted); }
 .meta-cap { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: var(--t-xs); color: var(--muted); }
@@ -248,7 +248,7 @@ details.profundizar > div { padding: 0 16px 16px; display: grid; gap: 12px; }
 .nav-cap a.sig { text-align: right; grid-column: 2; }
 .ayuda-pie { margin-top: 28px; font-size: var(--t-sm); color: var(--muted); max-width: 78ch; border-top: 1px solid var(--line); padding-top: 16px; }
 
-/* 6. Componentes compartidos ───────────────────────────── */
+/* 6. Componentes compartidos */
 .btn { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); border-radius: 10px; padding: 10px 16px; font-size: var(--t-sm); font-weight: 700; cursor: pointer; text-decoration: none; white-space: nowrap; min-height: 44px; }
 .btn:hover { border-color: var(--azul); color: var(--azul); text-decoration: none; }
 .btn.prim { background: var(--azul); border-color: var(--azul); color: var(--sobre-azul); }
@@ -313,7 +313,7 @@ table.tabla { border-collapse: collapse; width: 100%; font-size: var(--t-sm); mi
 .dato b { font-family: var(--f-display); font-stretch: 80%; font-weight: 800; font-size: 1.6rem; line-height: 1.05; }
 .dato span { font-size: var(--t-xs); color: var(--muted); line-height: 1.4; }
 
-/* 7. Interactivos y diagramas ─────────────────────────── */
+/* 7. Interactivos y diagramas */
 .widget { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--sombra); max-width: 1000px; overflow: hidden; }
 .widget-cab { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; justify-content: space-between; padding: 14px 18px 10px; border-bottom: 1px solid var(--line); }
 .widget-cab h3, .widget-cab h4 { margin: 0 !important; font-size: var(--t-md) !important; font-stretch: 88%; }
@@ -595,7 +595,7 @@ table.tabla.dw-tabla { font-size: var(--t-xs); min-width: 0; }
 /* exploración grande */
 .sim-grande canvas { aspect-ratio: 16 / 10; }
 
-/* 8. Recursos ─────────────────────────────── */
+/* 8. Recursos */
 .refs { list-style: none; margin: 0 !important; padding: 0 !important; display: grid !important; grid-template-columns: minmax(0, 1fr); gap: 10px !important; max-width: 92ch !important; }
 .refs li { padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); font-size: var(--t-sm); scroll-margin-top: calc(var(--cab-h) + 16px); transition: border-color .3s, box-shadow .3s; }
 .refs li:target { border-color: var(--azul); box-shadow: 0 0 0 3px var(--azul-suave); }
@@ -614,7 +614,7 @@ table.tabla.dw-tabla { font-size: var(--t-xs); min-width: 0; }
 .aprender a small { font-size: var(--t-xs); color: var(--azul); }
 .cita-bloque { font-family: var(--f-data); font-size: var(--t-xs); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; white-space: pre-wrap; overflow-x: auto; max-width: 92ch; }
 
-/* 9. Responsivo ─────────────────────────────────────────── */
+/* 9. Responsivo */
 @media (max-width: 1080px) {
   .cap-layout { grid-template-columns: minmax(0, 1fr); }
   .lateral { position: static; max-height: none; overflow: visible; }
@@ -693,7 +693,7 @@ p, li, dd, figcaption { overflow-wrap: break-word; }
   a { color: #000; }
 }
 
-/* 10. Rediseño editorial: portada, temas, medios, fuentes y búsqueda ───── */
+/* 10. Rediseño editorial: portada, temas, medios, fuentes y búsqueda */
 
 /* Portada */
 .portada { background: var(--surface); border-bottom: 1px solid var(--line); }
@@ -858,6 +858,12 @@ ol.refs-lista > li:target, ol.refs-lista > li.destacar { background: var(--azul-
 ol.refs-lista .tipo-ref { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-right: 6px; }
 ol.refs-lista a { overflow-wrap: anywhere; }
 
+/* Nota del autor: borde lateral en el verde institucional, igual en modo claro y oscuro */
+.nota-autor { max-width: 78ch; margin: 22px 0 0; padding: 12px 16px 14px; border-left: 4px solid var(--verde); background: var(--surface); border-radius: 0 var(--r) var(--r) 0; display: grid; gap: 6px; }
+.articulo .nota-autor p + p { margin-top: 0; }
+.articulo .nota-autor + p, .articulo .nota-autor + ul, .articulo .nota-autor + ol { margin-top: 14px; }
+.nota-autor .nota-autor-rotulo { font-family: var(--f-display); font-size: var(--t-xs); font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--verde-texto); }
+
 /* Términos con definición */
 .term[aria-expanded="true"] { background: var(--azul-suave); border-radius: 3px; }
 .term { text-decoration: underline dotted color-mix(in srgb, var(--azul) 70%, transparent); text-underline-offset: .2em; text-decoration-thickness: 1.5px; cursor: help; }
@@ -932,7 +938,7 @@ ol.refs-lista a { overflow-wrap: anywhere; }
   a.ref { background: none; }
 }
 
-/* 11. Portada: video en recuadro, ciclo, lecciones y rutas ───── */
+/* 11. Portada: video en recuadro, ciclo, lecciones y rutas */
 .portada-media .inset { margin: 0; }
 .portada-media .inset .bucle { border: 0; border-radius: 0; }
 .portada-media .inset .bucle .b-ctl { right: 8px; bottom: 8px; min-height: 30px; padding: 4px 10px; }

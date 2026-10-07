@@ -4,7 +4,7 @@
   var V = window.VISUALES, U = window.U;
   var OK = V.ICO.OK, NO = V.ICO.NO;
 
-  /* ───── Recta de 2 metros ───── */
+  /* Recta de 2 metros */
   V.odometria = function (el) {
     el.innerHTML =
       '<div class="tres-datos"><div><b class="num">2,000 m</b><span>lo ordenado, 0,13 m/s durante 15,4 s</span></div><div class="az"><b class="num">1,924 m</b><span>lo que estiman los encoders</span></div><div class="ink"><b class="num">1,856 m</b><span>lo que avanzó de verdad, con cinta</span></div></div>' +
@@ -28,10 +28,10 @@
     U.alCambiarAncho(cont, dibujar);
   };
 
-  /* ───── Iteración 2 ───── */
+  /* Iteración 2 */
   V.iteracion2 = function (el) {
     el.innerHTML =
-      '<h4 class="vsub">Tres señales de la misma corrida</h4>' +
+      '<h4 class="vsub">Las señales de esa corrida</h4>' +
       '<div class="senales"><div class="sen az"><span class="eyebrow">Encoders</span><b class="num">3,851 m</b><span>la odometría sumó distancia</span></div>' +
       '<div class="sen ok"><span class="eyebrow">Láser y mapa</span><b>el mapa no creció</b><span>la señal estaba, pero el ensayo no la usa para detenerse</span></div>' +
       '<div class="sen ink"><span class="eyebrow">Posición real</span><b class="num">0 m</b><span>el robot no se movió de su posición inicial</span></div></div>' +
@@ -60,7 +60,7 @@
     U.alCambiarAncho(cont, dibujar);
   };
 
-  /* ───── Giro ───── */
+  /* Giro */
   V.giro = function (el) {
     el.innerHTML =
       '<div class="flujo"><div class="caja"><b>El script pide</b><small>0,4 rad/s durante 15,7 s, una vuelta a esa velocidad</small></div><div class="flecha-d"></div>' +
@@ -87,7 +87,7 @@
     U.alCambiarAncho(cont, dibujar);
   };
 
-  /* ───── Robot y computador ───── */
+  /* Robot y computador */
   V.arquitectura = function (el) {
     el.innerHTML =
       '<div class="arq">' +
@@ -102,7 +102,7 @@
       '</div>';
   };
 
-  /* ───── Versiones congeladas ───── */
+  /* Versiones congeladas */
   V.versiones = function (el) {
     el.innerHTML =
       '<div class="pila"><span class="eyebrow">Congelado al inicio del proyecto</span>' +
@@ -114,7 +114,7 @@
       '<div class="mejora"><b>Cómo se resuelve.</b> Migrar a mitad del proyecto obligaba a rehacer y volver a probar todo. El fin de vida es una limitación declarada y la migración es el trabajo futuro 3.</div>';
   };
 
-  /* ───── Gemelo digital ───── */
+  /* Gemelo digital */
   V.gemelo = function (el) {
     el.innerHTML =
       '<h4 class="vsub">Los cuatro criterios de la Tabla A2.2</h4>' +
@@ -125,14 +125,14 @@
       '<div>' + OK + '<b>Mismas ruedas</b><small>radio y separación iguales al prototipo</small></div></div>' +
       '<h4 class="vsub">Lo que Gazebo no reproduce</h4>' +
       '<div class="chips-no"><span>' + NO + 'la ley del firmware</span><span>' + NO + 'la zona muerta del driver</span><span>' + NO + 'la fricción real</span><span>' + NO + 'el ruido del láser</span><span>' + NO + 'las latencias</span></div>' +
-      '<h4 class="vsub">Dos cifras que no se comparan</h4>' +
+      '<h4 class="vsub">Cifras que no se comparan</h4>' +
       '<div class="mide"><div class="m-fila"><span class="eyebrow">Simulación</span><div class="m-cmp"><span class="caja">lo ordenado</span><span class="vs">frente a</span><span class="caja">su propia odometría</span></div><b class="num">3,39 %</b></div>' +
       '<div class="m-fila"><span class="eyebrow">Robot real</span><div class="m-cmp"><span class="caja">lo ordenado</span><span class="vs">frente a</span><span class="caja ink">la cinta métrica</span></div><b class="num">7,18 %</b></div></div>' +
       '<p class="vnota">La pose verdadera de Gazebo no quedó registrada, así que en simulación no hay una referencia independiente. La cifra del robot que se parece al 3,39 es el 3,8 % de los encoders frente a lo ordenado.</p>' +
       '<div class="comparar"><div><b>Capturas de Gazebo Classic</b><span>Simulación. El robot y el mundo son modelos.</span></div><div><b>Cámara cenital junto a RViz</b><span>Robot real. RViz solo muestra los datos que envía el robot.</span></div></div>';
   };
 
-  /* ───── Costo ───── */
+  /* Costo */
   V.costo = function (el) {
     var max = 1619188;
     function pct(v) { return (v / max * 100).toFixed(2) + "%"; }
@@ -149,7 +149,7 @@
       '<p class="vnota">Tablas A1.1 y A1.2 de la tesis. Ningún monto incluye herramientas ni el computador.</p>';
   };
 
-  /* ───── Dónde fallaría ───── */
+  /* Dónde fallaría */
   V.fallaria = function (el) {
     var lado = '<svg class="vsvg" viewBox="0 0 400 200" role="img" aria-label="Vista lateral del plano del láser">' +
       '<line class="k-ink" stroke-width="2" x1="10" y1="170" x2="390" y2="170"/>' +

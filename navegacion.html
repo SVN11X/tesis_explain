@@ -54,7 +54,7 @@
 <main class="articulo" id="contenido">
 
 <section class="en-breve" aria-labelledby="t-breve">
-  <h2 id="t-breve">En pocas palabras</h2>
+  <h2 id="t-breve">Una ruta global y velocidades que no chocan</h2>
   <p>Nav2 recibe una meta, calcula una ruta completa con A estrella sobre un mapa de costos, y un controlador local la sigue eligiendo velocidades que no choquen. Alrededor de cada obstáculo se infla una zona de costo para mantener distancia. En este robot esa zona es más angosta que la esquina del propio robot, y eso enseña algo sobre cómo se configura un sistema para un espacio pequeño. La navegación funcionó de punta a punta, aunque todavía no tiene un indicador propio.</p>
   <div class="cifras-mini">
     <div><b>59</b><span>metas del explorador que Nav2 llegó a ejecutar en el robot real</span></div>
@@ -111,7 +111,7 @@
     <div class="vis" data-vis="astar"><p class="vis-fallback">Comparación de las celdas revisadas por Dijkstra y por A estrella.</p></div>
   </div>
   <p>Dijkstra hace lo mismo pero sin la estimación, por eso se expande en todas direcciones <a class="ref" href="#f7">7</a>. Si la estimación nunca supera lo que realmente falta, se dice que es admisible, y con ella A estrella garantiza la ruta de menor costo. En Nav2, el planificador NavFn tiene A estrella activado, permite planificar a través de espacio desconocido y acepta llegar hasta 0,5 m de la meta <a class="ref" href="#f1">1</a>.</p>
-  <p>La tesis no usa la optimalidad de la ruta como criterio de validación, porque Nav2 suma los costos de su propio mapa con un escalamiento interno que no se reconstruyó. Lo que se verificó es que la ruta global pudiera ser seguida por el controlador local. Es un buen ejemplo de elegir un criterio que se puede comprobar en lugar de uno que suena mejor. Para profundizar, la explicación interactiva de Red Blob Games es una de las mejores introducciones a A estrella que existen <a class="ref" href="#f8">8</a>.</p>
+  <p>No usé la optimalidad de la ruta como criterio de validación, porque Nav2 suma los costos de su propio mapa con un escalamiento interno que no reconstruí. Lo que verifiqué es que la ruta global pudiera ser seguida por el controlador local. Para profundizar, la explicación interactiva de Red Blob Games es una de las mejores introducciones a A estrella que existen <a class="ref" href="#f8">8</a>.</p>
 </section>
 
 <section>
@@ -154,7 +154,7 @@
 <section>
   <h2 id="amcl">Ubicarse en un mapa ya hecho</h2>
   <p>Durante la exploración, la posición la resuelve slam_toolbox mientras construye el mapa. Otra situación distinta es tener un mapa guardado y ubicarse dentro de él. Para eso Nav2 trae AMCL, la localización de Monte Carlo adaptativa, un <span class="term" data-def="Un método que representa la incertidumbre con muchas hipótesis, llamadas partículas. Las que calzan mejor con lo que mide el sensor sobreviven y se multiplican.">filtro de partículas</span> <a class="ref" href="#f10">10</a>. Cada partícula es una hipótesis de dónde está el robot. Las hipótesis se mueven con la odometría, se ponderan según cuánto calzan los barridos del láser con el mapa, y el remuestreo concentra las partículas donde es más probable que esté el robot.</p>
-  <p>En esta tesis AMCL quedó fuera del alcance. Está en la pila de navegación con sus valores por defecto, pero no se ajustó ni se ejecutó en los ensayos <a class="ref" href="#f1">1</a>. Es justo lo que hacen los robots de reparto en hospitales, que trabajan sobre mapas y rutas definidos de antemano.</p>
+  <p>En este trabajo AMCL quedó fuera del alcance. Está en la pila de navegación con sus valores por defecto, pero no lo ajusté ni lo ejecuté en los ensayos <a class="ref" href="#f1">1</a>. Es justo lo que hacen los robots de reparto en hospitales, que trabajan sobre mapas y rutas definidos de antemano.</p>
 </section>
 
 <section>
@@ -176,7 +176,7 @@
         <span class="lugar">Marte · 2021</span>
         <h3>AutoNav, de Perseverance</h3>
         <p>El rover mantiene un mapa del terreno a su alrededor, elige su camino y replanifica para esquivar rocas. En el sol 200 de la misión recorrió por su cuenta 167 de 175 metros.</p>
-        <p class="vinculo"><b>Relación:</b> un mapa de costos local y un planificador que replanifica mientras avanza, a millones de kilómetros.</p>
+        <p class="vinculo">Usa un mapa de costos local y un planificador que replanifica mientras avanza, como Nav2 en este robot, pero a millones de kilómetros.</p>
         <p class="fuente-caso">Fuentes <a class="ref" href="#f11">11</a> <a class="ref" href="#f12">12</a></p>
       </div>
     </article>
@@ -186,7 +186,7 @@
         <span class="lugar">Para aprender</span>
         <h3>Nav2 en un robot casero</h3>
         <p>El tutorial del autor de los paquetes en que se basa este robot muestra la configuración de Nav2 paso a paso, sobre una plataforma diferencial muy parecida.</p>
-        <p class="vinculo"><b>Relación:</b> es el mismo camino de configuración que siguió esta tesis.</p>
+        <p class="vinculo">Es el mismo camino de configuración que seguí en este trabajo.</p>
         <p class="fuente-caso">Fuente <a class="ref" href="#f13">13</a></p>
       </div>
     </article>

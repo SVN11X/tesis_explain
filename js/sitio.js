@@ -62,7 +62,7 @@
     abajo: '<svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px"><path d="M6 9l6 6 6-6"/></svg>'
   };
 
-  /* ── Tema claro u oscuro ── */
+  /* Tema claro u oscuro */
   var TEMAS = ["auto", "light", "dark"];
   var NOMBRE_TEMA = { auto: "automático", light: "claro", dark: "oscuro" };
   function temaActual() { return leer("tema", "auto"); }
@@ -86,7 +86,7 @@
 
   function enlace(id, texto, extra) { return '<a href="' + id + '.html"' + (id === pagina ? ' aria-current="page"' : '') + (extra || '') + '>' + texto + '</a>'; }
 
-  /* ── Cabecera ── */
+  /* Cabecera */
   function cabecera() {
     var cont = document.getElementById("cabecera");
     if (!cont) return;
@@ -135,7 +135,7 @@
     cajon.addEventListener("click", function (e) { if (e.target.closest("[data-cerrar]")) cerrarCajon(); });
   }
 
-  /* ── Pie ── */
+  /* Pie */
   function pie() {
     var cont = document.getElementById("pie");
     if (!cont) return;
@@ -148,7 +148,7 @@
       '</div></footer>';
   }
 
-  /* ── Tema o complemento: índice lateral, etiquetas y navegación ── */
+  /* Tema o complemento: índice lateral, etiquetas y navegación */
   function capitulo() {
     if (idxSec < 0) return;
     var c = SECUENCIA[idxSec];
@@ -209,7 +209,7 @@
     if (ay) ay.innerHTML = '¿Encontraste un error o algo no se entiende? <a href="' + REPO + '/issues/new?title=' + encodeURIComponent(c.t) + '">Escríbelo en GitHub</a>. Toda contribución mejora la guía para quien venga después.';
   }
 
-  /* ── Barra de progreso de lectura ── */
+  /* Barra de progreso de lectura */
   function progreso() {
     var art = document.querySelector(".articulo");
     if (!art) return;
@@ -226,7 +226,7 @@
     act();
   }
 
-  /* ── Botón para volver arriba ── */
+  /* Botón para volver arriba */
   function arriba() {
     var b = document.createElement("button");
     b.type = "button"; b.className = "btn-arriba"; b.setAttribute("aria-label", "Volver al inicio de la página"); b.innerHTML = SVG.arriba;
@@ -239,7 +239,7 @@
     }, { passive: true });
   }
 
-  /* ── Video liviano de YouTube y Vimeo ── */
+  /* Video liviano de YouTube y Vimeo */
   function videos() {
     document.querySelectorAll(".video[data-yt], .video[data-vimeo]").forEach(function (v) {
       var yt = v.getAttribute("data-yt"), vm = v.getAttribute("data-vimeo");
@@ -260,7 +260,7 @@
     });
   }
 
-  /* ── Videos en bucle, con pausa y respeto por el movimiento reducido ── */
+  /* Videos en bucle, con pausa y respeto por el movimiento reducido */
   function bucles() {
     document.querySelectorAll(".bucle video").forEach(function (vid) {
       var caja = vid.parentElement;
@@ -285,7 +285,7 @@
     });
   }
 
-  /* ── Ampliar imágenes ── */
+  /* Ampliar imágenes */
   function ampliar() {
     var imgs = document.querySelectorAll("figure.foto:not(.sin-zoom) img, figure.fig:not(.sin-zoom) img, figure.tema-hero-fig img");
     if (!imgs.length || typeof HTMLDialogElement === "undefined") return;
@@ -309,7 +309,7 @@
     });
   }
 
-  /* ── Comparador antes y después ── */
+  /* Comparador antes y después */
   function comparadores() {
     document.querySelectorAll(".deslizar").forEach(function (c) {
       var r = c.querySelector("input[type=range]");
@@ -319,7 +319,7 @@
     });
   }
 
-  /* ── Burbuja compartida para citas y términos ──
+  /* Burbuja compartida para citas y términos
      Estado único: qué elemento la muestra y si quedó fijada con clic, toque, Enter o Espacio.
      El foco y el paso del ratón la muestran sin fijarla. El primer clic o toque la fija, aunque
      el foco ya la hubiera mostrado, y el siguiente la cierra. Escape, un clic fuera o salir con
@@ -394,7 +394,7 @@
     window.addEventListener("resize", function () { if (dueno && !fijada) ocultar(); });
   }
 
-  /* ── Normalización y coincidencias del buscador ──
+  /* Normalización y coincidencias del buscador
      Funciones puras, expuestas en SITIO.busqueda para poder probarlas.
      norm quita mayúsculas y tildes, une los miles escritos con espacio (49 683 → 49683)
      y usa coma decimal (3.63 → 3,63). Cada carácter normalizado guarda la posición del
@@ -495,7 +495,7 @@
   })();
   window.SITIO.busqueda = BUS;
 
-  /* ── Buscador ── */
+  /* Buscador */
   function buscador() {
     var btn = document.getElementById("btn-buscar");
     if (!btn || typeof HTMLDialogElement === "undefined") { if (btn) btn.remove(); return; }
@@ -550,7 +550,7 @@
     });
   }
 
-  /* ── Secuencia de etapas (cámara y mapa) ── */
+  /* Secuencia de etapas (cámara y mapa) */
   function etapas() {
     document.querySelectorAll(".etapas").forEach(function (box) {
       var btns = box.querySelectorAll(".etapas-ctl button"), cam = box.querySelector(".cam img"), mapa = box.querySelector(".mapa img");
@@ -576,7 +576,7 @@
     });
   }
 
-  /* ── Interactivos con carga diferida ── */
+  /* Interactivos con carga diferida */
   function interactivos() {
     var els = document.querySelectorAll("[data-vis]");
     function montar(el) {
@@ -606,7 +606,7 @@
     window.addEventListener("hashchange", alDestino);
   }
 
-  /* ── Resaltar el destino de un enlace interno ── */
+  /* Resaltar el destino de un enlace interno */
   function destacarHash() {
     function marcar() {
       if (!location.hash) return;
@@ -620,7 +620,7 @@
     setTimeout(marcar, 60);
   }
 
-  /* ── Estado del PDF de la tesis en Recursos ── */
+  /* Estado del PDF de la tesis en Recursos */
   function materiales() {
     if (!TESIS_PDF) return;
     document.querySelectorAll("[data-tesis-pdf]").forEach(function (td) {

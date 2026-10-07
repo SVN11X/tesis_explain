@@ -50,8 +50,8 @@
 <main class="articulo" id="contenido">
 
 <section class="en-breve" aria-labelledby="t-breve">
-  <h2 id="t-breve">En pocas palabras</h2>
-  <p>Un robot autónomo de interiores tiene que percibir, saber dónde está, mover sus ruedas con precisión y decidir a dónde ir, todo a la vez. Las piezas de software libre para cada tarea ya existían. El desafío de esta tesis fue elegirlas con criterio, integrarlas en un robot de bajo costo y medir con honestidad qué funcionó.</p>
+  <h2 id="t-breve">Percibir, ubicarse, moverse y decidir a la vez</h2>
+  <p>Un robot autónomo de interiores tiene que percibir, saber dónde está, mover sus ruedas con precisión y decidir a dónde ir, todo a la vez. Las piezas de software libre para cada tarea ya existían. Mi desafío fue elegirlas con criterio, integrarlas en un robot de bajo costo y medir qué funcionó y qué no.</p>
   <div class="cifras-mini">
     <div><b>4</b><span>problemas que se resuelven en un mismo ciclo: percibir, estimar, decidir y moverse</span></div>
     <div><b>2 <small>de 4</small></b><span>objetivos específicos cumplidos por completo, y dos en forma parcial</span></div>
@@ -60,15 +60,15 @@
 </section>
 
 <section>
-  <h2 id="autonomo">Tres maneras de ser autónomo</h2>
-  <p>La palabra autónomo se usa para máquinas muy distintas. Un robot puede seguir un camino que alguien le trazó, como un tren sobre sus rieles. Otro puede estimar su posición, construir un mapa, planificar su recorrido y reaccionar cuando algo cambia. La tesis lo ilustra con tres casos <a class="ref" href="#f1">1</a>. Un robot logístico que viaja entre estaciones conocidas. Un robot de inspección que recorre una instalación registrando mediciones. Y una plataforma de investigación que entra a un recinto desconocido y genera su mapa mientras avanza.</p>
+  <h2 id="autonomo">Qué tan autónomo es un robot</h2>
+  <p>La palabra autónomo se usa para máquinas muy distintas. Un robot puede seguir un camino que alguien le trazó, como un tren sobre sus rieles. Otro puede estimar su posición, construir un mapa, planificar su recorrido y reaccionar cuando algo cambia. Lo ilustro con tres casos <a class="ref" href="#f1">1</a>. Un robot logístico que viaja entre estaciones conocidas. Un robot de inspección que recorre una instalación registrando mediciones. Y una plataforma de investigación que entra a un recinto desconocido y genera su mapa mientras avanza.</p>
   <p>Este trabajo apunta al tercer caso, que es el más exigente. El robot no recibe un plano ni una lista de destinos. Tiene que descubrir el lugar y decidir por su cuenta hacia dónde seguir. Por eso necesita algo más que moverse bien. Necesita una forma de <span class="term" data-def="Construir una representación del lugar mientras el robot estima su propia posición dentro de ella. La sigla SLAM viene del inglés Simultaneous Localization and Mapping.">mapear y ubicarse al mismo tiempo</span>, y una regla para elegir su próximo destino.</p>
   <p class="destacado">La diferencia entre seguir una ruta y explorar es que, al explorar, nadie sabe de antemano cuál es la ruta.</p>
 </section>
 
 <section>
-  <h2 id="cuatro-problemas">Cuatro problemas que se resuelven juntos</h2>
-  <p>La tesis plantea que un robot móvil autónomo para interiores necesita resolver de forma integrada cuatro tareas <a class="ref" href="#f1">1</a>. Ninguna funciona sola. Si la estimación de posición falla, el mapa se deforma. Si el mapa se deforma, la ruta pasa por donde hay una pared. Y si las ruedas no siguen la velocidad pedida, la ruta perfecta no sirve de nada.</p>
+  <h2 id="cuatro-problemas">Lo que un robot autónomo resuelve a la vez</h2>
+  <p>Un robot móvil autónomo para interiores necesita resolver cuatro tareas de forma integrada <a class="ref" href="#f1">1</a>. Ninguna funciona sola. Si la estimación de posición falla, el mapa se deforma. Si el mapa se deforma, la ruta pasa por donde hay una pared. Y si las ruedas no siguen la velocidad pedida, la ruta perfecta no sirve de nada.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="ciclo">El ciclo de un robot autónomo</h3><span class="tipo ilus">Diagrama</span><p>Cada caja tiene su tema en esta guía. El ciclo se repite varias veces por segundo.</p></div>
     <div class="vis">
@@ -90,7 +90,7 @@
 
 <section>
   <h2 id="pregunta">La pregunta y los objetivos</h2>
-  <p>Toda la tesis se ordena alrededor de una pregunta que puede responderse con evidencia <a class="ref" href="#f1">1</a>.</p>
+  <p>Todo el trabajo se ordena alrededor de una pregunta que puede responderse con evidencia <a class="ref" href="#f1">1</a>.</p>
   <p class="destacado">¿Es posible construir un prototipo de robot diferencial que, usando componentes accesibles y herramientas de código abierto, sea capaz de mapear, navegar y explorar entornos interiores de manera autónoma?</p>
   <p>El objetivo general fue diseñar e implementar ese prototipo, basado en ROS 2, capaz de construir un mapa 2D mediante SLAM y de navegar solo hacia destinos generados automáticamente por una estrategia de fronteras. De ahí salen cuatro objetivos específicos, y cada uno tiene un resultado distinto.</p>
   <ul class="oes">
@@ -99,15 +99,15 @@
     <li class="par"><b>OE3</b><span>Implementar la localización, el mapeo 2D y la navegación con SLAM Toolbox y Nav2.</span><em>Parcial</em></li>
     <li class="ok"><b>OE4</b><span>Integrar exploración por fronteras que genere metas sin intervención manual continua.</span><em>Cumplido</em></li>
   </ul>
-  <p>Que dos objetivos queden parciales no es un descuido, es un resultado. El control pedido era un PID y la ley heredada del firmware opera como un PI. La navegación funcionó de punta a punta, pero no tiene un indicador cuantitativo propio. Ambos casos se explican con sus datos en <a href="resultados.html#objetivos">La evidencia</a>.</p>
+  <p>Dos objetivos quedaron parciales. La ley heredada del firmware opera como un PI y no como el PID pedido, y la navegación funcionó de punta a punta pero sin un indicador cuantitativo propio. Ambos casos se explican con sus datos en <a href="resultados.html#objetivos">La evidencia</a>.</p>
   <h3 id="alcance">Los límites que se fijaron desde el inicio</h3>
-  <p>Un buen proyecto declara qué no va a hacer. Este robot opera en interiores con piso plano, usa un único LiDAR 2D y estima su avance con encoders. No usa unidad inercial, cámara ni fusión de sensores, así que su odometría puede degradarse en recorridos largos o con muchos giros. Tampoco está pensado para exteriores, suelos irregulares ni obstáculos que se mueven rápido <a class="ref" href="#f1">1</a>.</p>
+  <p>Desde el inicio fijé qué no iba a hacer. Este robot opera en interiores con piso plano, usa un único LiDAR 2D y estima su avance con encoders. No usa unidad inercial, cámara ni fusión de sensores, así que su odometría puede degradarse en recorridos largos o con muchos giros. Tampoco está pensado para exteriores, suelos irregulares ni obstáculos que se mueven rápido <a class="ref" href="#f1">1</a>.</p>
   <p>Dos ensayos quedaron fuera de forma explícita. Medir la navegación hacia destinos fijos elegidos por una persona, con tasa de éxito y error de posición final, y ubicarse sobre un mapa ya guardado con AMCL. Ambos exigen condiciones que no se configuraron, como un mapa almacenado y puntos de referencia medidos en el recinto.</p>
 </section>
 
 <section>
   <h2 id="estado-del-arte">El estado del arte y cada decisión</h2>
-  <p>Ninguna pieza de este robot es nueva, y la tesis lo dice sin rodeos. Lo que había que hacer era elegir entre alternativas que tienen costos distintos. El criterio que se repite es la integración con ROS 2 y el bajo costo, no la máxima capacidad <a class="ref" href="#f1">1</a>. Estas son las decisiones, con las alternativas que se descartaron y la razón.</p>
+  <p>Ninguna pieza de este robot es nueva. Mi trabajo fue elegir entre alternativas con costos distintos, y el criterio que repetí fue la integración con ROS 2 y el bajo costo, antes que la máxima capacidad <a class="ref" href="#f1">1</a>. Estas son las decisiones, con las alternativas que descarté y la razón.</p>
   <div class="decisiones">
     <article class="decision">
       <span class="d-que">Plataforma de software</span>
@@ -143,7 +143,7 @@
       <span class="d-que">Simulación</span>
       <h4>Gazebo Classic</h4>
       <div class="d-alt" aria-label="Alternativas"><span>Gazebo actual</span><span>Webots</span><span>CoppeliaSim</span><span>Isaac Sim</span></div>
-      <p>Para verificar cinemática, marcos y comunicación basta un simulador de complejidad moderada. Se usó Gazebo Classic porque es el que soportan los complementos del paquete base para ROS 2 Foxy en Ubuntu 20.04. Llegó al fin de soporte en enero de 2025 <a class="ref" href="#f9">9</a>, y eso se declara como limitación.</p>
+      <p>Para verificar cinemática, marcos y comunicación basta un simulador de complejidad moderada. Usé Gazebo Classic porque es el que soportan los complementos del paquete base para ROS 2 Foxy en Ubuntu 20.04. Llegó al fin de soporte en enero de 2025 <a class="ref" href="#f9">9</a>, y eso se declara como limitación.</p>
     </article>
   </div>
   <p>Un detalle que confunde a muchos es que el nombre Gazebo designa hoy a dos programas. Gazebo Classic, cuya última versión es la 11, y su sucesor, que se desarrolló como Ignition y hoy se distribuye simplemente como Gazebo <a class="ref" href="#f9">9</a>. Si construyes algo parecido, parte con versiones vigentes, como se sugiere en <a href="replicar.html#versiones">Constrúyelo tú</a>.</p>
@@ -162,12 +162,12 @@
       <figcaption>LoCoBot, una plataforma que combina navegación y manipulación. <small>Imagen de Interbotix, Trossen Robotics <a class="ref" href="#f12">12</a>.</small></figcaption>
     </figure>
   </div>
-  <p>Frente al Burger, los materiales montados en este robot costaron un 32 % menos, y el proyecto completo un 11 % menos <a class="ref" href="#f1">1</a>. Pero la comparación tiene que leerse completa. El Burger trae unidad inercial y actuadores integrados que este prototipo no tiene, y sus precios son de catálogo, sin envío ni impuestos. La conclusión honesta no es que el robot propio ofrezca lo mismo por menos. Es que construirlo deja documentada y abierta cada capa, desde el firmware hasta la exploración, y eso tiene valor para aprender y para modificar. El desglose está en <a href="robot.html#costo">Anatomía del robot</a>.</p>
+  <p>Frente al Burger, los materiales montados en este robot costaron un 32 % menos, y el proyecto completo un 11 % menos <a class="ref" href="#f1">1</a>. Pero la comparación tiene que leerse completa. El Burger trae unidad inercial y actuadores integrados que este prototipo no tiene, y sus precios son de catálogo, sin envío ni impuestos. El robot propio no ofrece lo mismo por menos. Lo que gana es que cada capa queda documentada y abierta, desde el firmware hasta la exploración. El desglose está en <a href="robot.html#costo">Anatomía del robot</a>.</p>
 </section>
 
 <section>
   <h2 id="aporte">Qué aporta este trabajo</h2>
-  <p>La tesis es explícita en algo que muchos trabajos omiten. El firmware del Arduino y la interfaz con ROS 2 no se escribieron desde cero, sino que se adaptaron de proyectos de código abierto, y el paquete del robot partió de uno existente <a class="ref" href="#f13">13</a>. Reconocer el origen de cada pieza no resta mérito. Permite ver con claridad dónde está el trabajo propio.</p>
+  <p>El firmware del Arduino y la interfaz con ROS 2 los adapté de proyectos de código abierto, y el paquete del robot partió de uno existente <a class="ref" href="#f13">13</a>. Decir el origen de cada pieza deja claro dónde está el trabajo propio.</p>
   <div class="argumento">
     <div><span class="a-et">Lo que se adaptó</span><p>El paquete articubot_one, la interfaz diffdrive_arduino y el firmware ROSArduinoBridge, de Josh Newans, y el explorador explore_lite en su versión para ROS 2. Todos se modificaron y configuraron para este robot.</p></div>
     <div><span class="a-et">Lo que es propio</span><p>La integración completa sobre un robot construido para este fin, la parametrización geométrica compartida por simulación y hardware, la identificación de un modelo de cada rueda con su sintonía por PSO y un programa propio para leer el LiDAR por puerto serie.</p></div>
@@ -178,7 +178,7 @@
 
 <section>
   <h2 id="metodo">Cómo se trabajó</h2>
-  <p>La metodología fue experimental e iterativa, en seis etapas <a class="ref" href="#f1">1</a>. La idea central es simular antes de construir, para equivocarse primero en el computador y después en el hardware, y volver atrás cada vez que algo no calza.</p>
+  <p>Trabajé de forma experimental e iterativa, en seis etapas <a class="ref" href="#f1">1</a>. La idea central fue simular antes de construir, para equivocarse primero en el computador y después en el hardware, y volver atrás cada vez que algo no calza.</p>
   <ol class="linea">
     <li><b>Gemelo digital</b>Modelo URDF y pruebas en Gazebo Classic.</li>
     <li><b>Hardware</b>Chasis impreso, electrónica e integración con ROS 2.</li>
@@ -191,7 +191,7 @@
 
 <section>
   <h2 id="mundo-real">En el mundo real</h2>
-  <p>Los niveles de autonomía se ven muy bien en las bodegas de Amazon. Sus primeros robots trabajaban en zonas cerradas, separadas de las personas. Proteus, presentado en 2022, circula entre trabajadores, y para eso combina varios sensores, entre ellos un LiDAR de alta precisión <a class="ref" href="#f14">14</a>. Más autonomía exige más percepción y más cuidado con la seguridad, la misma relación que este robot muestra a escala de escritorio.</p>
+  <p>Los niveles de autonomía se ven muy bien en las bodegas de Amazon. Sus primeros robots trabajaban en zonas cerradas, separadas de las personas. Proteus, presentado en 2022, circula entre trabajadores, y para eso combina varios sensores, entre ellos un LiDAR de alta precisión <a class="ref" href="#f14">14</a>. Más autonomía exige más percepción y más cuidado con la seguridad, la misma relación que este robot muestra a pequeña escala.</p>
   <div class="casos">
     <article class="caso">
       <div class="caso-media"><div class="video" data-yt="lyYpcKM-fWg" data-titulo="Meet Proteus, Amazon's New Autonomous Robot" data-sub="Video en YouTube, en inglés"><a href="https://www.youtube.com/watch?v=lyYpcKM-fWg">Ver el video en YouTube</a></div></div>
@@ -199,7 +199,7 @@
         <span class="lugar">Bodegas · Estados Unidos</span>
         <h3>Proteus, de Amazon</h3>
         <p>Un robot móvil que mueve carros de carga en espacios compartidos con personas, sin jaulas de separación.</p>
-        <p class="vinculo"><b>Relación con este robot:</b> percibir con láser, planificar una ruta y reaccionar a lo que aparece, como en <a href="navegacion.html">el tema 6</a>.</p>
+        <p class="vinculo">Igual que este robot, percibe con láser, planifica una ruta y reacciona a lo que aparece, como se ve en <a href="navegacion.html">el tema 6</a>.</p>
         <p class="fuente-caso">Fuentes <a class="ref" href="#f14">14</a> <a class="ref" href="#f15">15</a></p>
       </div>
     </article>
@@ -209,7 +209,7 @@
         <span class="lugar">Hospitales</span>
         <h3>Robots de reparto como TUG</h3>
         <p>Llevan insumos por los pasillos con navegación basada en cámaras y láser, sobre mapas y rutas definidos digitalmente.</p>
-        <p class="vinculo"><b>Relación con este robot:</b> navegan sobre un mapa ya guardado, que en esta tesis quedó como <a href="resultados.html#futuro">trabajo futuro</a>.</p>
+        <p class="vinculo">Navegan sobre un mapa ya guardado, algo que en este trabajo quedó como <a href="resultados.html#futuro">trabajo futuro</a>.</p>
         <p class="fuente-caso">Fuente <a class="ref" href="#f16">16</a></p>
       </div>
     </article>
