@@ -1,0 +1,6 @@
+prueba,distancia_teorica_m,distancia_odometria_m,distancia_real_m,error_odometrico_pct
+1,2.00,1.920,1.846,4.01
+2,2.00,1.922,1.868,2.88
+3,2.00,1.923,1.851,3.87
+4,2.00,1.926,1.856,3.78
+5,2.00,1.928,1.861,3.61

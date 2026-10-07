@@ -484,6 +484,13 @@ def probar_recursos(nav):
         ok(r['nav'] == ['lecciones.html', 'index.html'], '%s: navegación anterior y siguiente de Recursos' % nombre, r['nav'])
         ok(r['actual'], '%s: Recursos aparece como página actual' % nombre)
         ok(r['numeros'][:10] == ['%02d' % i for i in range(1, 11)] and r['numeros'][10:] == ['+', '+', '+'], '%s: la numeración de los temas no cambia' % nombre, r['numeros'])
+        if nombre == 'escritorio':
+            e = p.evaluate("""() => { const pie = document.querySelector('.pie'), ab = document.getElementById('abstract').closest('section');
+              return { mit: !!pie.querySelector('a[href$="/LICENSE"]'), cc: !!pie.querySelector('a[href*="licenses/by/4.0"]'), rev: (pie.querySelector('time') || {}).textContent || '',
+                       autor: !!pie.querySelector('a[href="recursos.html#autor"]'), versionOculta: [...pie.querySelectorAll('p[hidden]')].some(x => x.textContent.includes('Basado en la versión')),
+                       lang: ab.getAttribute('lang'), abstract: ab.textContent.includes('Keywords'), ocultos: document.querySelectorAll('#autor ~ * [hidden], #autor ~ [hidden]').length }; }""")
+            ok(e['mit'] and e['cc'] and e['rev'] and e['autor'] and e['versionOculta'], 'el pie muestra la licencia, la fecha de revisión y el enlace al autor, con la versión de la tesis pendiente y oculta', e)
+            ok(e['lang'] == 'en' and e['abstract'] and e['ocultos'] >= 3, 'el abstract va en inglés y los datos pendientes del autor quedan ocultos', e)
         ctx.close()
 
 

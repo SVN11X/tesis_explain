@@ -34,7 +34,7 @@
       <p class="eyebrow">Para seguir aprendiendo</p>
       <h1>Recursos, glosario y fuentes</h1>
       <p class="lead">Todas las fuentes que usa esta guía, para verificar cada afirmación o seguir aprendiendo. Las de la tesis van primero. Las que se agregaron para los ejemplos del mundo real y las lecciones están marcadas.</p>
-      <div class="meta-cap"><a class="etiqueta" href="#aprender">Para aprender más</a><a class="etiqueta" href="#glosario">Glosario</a><a class="etiqueta" href="#bibliografia">Bibliografía de la tesis</a><a class="etiqueta" href="#externas">Fuentes agregadas</a><a class="etiqueta" href="#materiales">Materiales originales</a><a class="etiqueta" href="#citar">Cómo citar</a></div>
+      <div class="meta-cap"><a class="etiqueta" href="#aprender">Para aprender más</a><a class="etiqueta" href="#glosario">Glosario</a><a class="etiqueta" href="#bibliografia">Bibliografía de la tesis</a><a class="etiqueta" href="#externas">Fuentes agregadas</a><a class="etiqueta" href="#materiales">Materiales originales</a><a class="etiqueta" href="#citar">Cómo citar</a><a class="etiqueta" href="#abstract" hreflang="en">Abstract</a><a class="etiqueta" href="#autor">Sobre el autor</a></div>
     </div>
     <figure class="tema-hero-fig contener">
       <picture><source srcset="img/tesis/arquitectura-med.webp" type="image/webp"><img src="img/tesis/arquitectura-med.png" width="1200" height="678" alt="Diagrama de bloques del robot y la estación de trabajo." fetchpriority="high"></picture>
@@ -237,13 +237,14 @@
       <thead><tr><th>Material</th><th>Estado</th><th>Detalle</th></tr></thead>
       <tbody>
         <tr><th>Tesis en PDF</th><td data-tesis-pdf><span class="estado no">No publicada</span></td><td>Se enlazará aquí y en el pie de página cuando esté disponible en un repositorio institucional.</td></tr>
+        <tr><th>Tablas de los ensayos en CSV</th><td><span class="estado ok">Disponibles</span></td><td>Recta de 2 m, giros, respuesta al escalón, mapeo por iteración y metas de exploración, transcritas de las tablas de la tesis en la carpeta <a href="https://github.com/SVN11X/tesis_explain/tree/main/datos/ensayos"><code>datos/ensayos/</code></a>, con un archivo que dice de qué tabla sale cada una.</td></tr>
         <tr><th>Figuras, fotos y videos de esta guía</th><td><span class="estado ok">Disponibles</span></td><td>En la carpeta <code>img/</code> de <a href="https://github.com/SVN11X/tesis_explain">este repositorio</a>, con su figura de origen en cada leyenda.</td></tr>
         <tr><th>Firmware adaptado del Arduino</th><td><span class="estado no">No publicado</span></td><td><code>arduino_firmware/ROSArduinoBridge/</code>, con el control de ruedas y la lectura de encoders. El proyecto base, <a href="https://github.com/joshnewans/ros_arduino_bridge">ros_arduino_bridge</a>, no incluye mis cambios.</td></tr>
         <tr><th>Descripción del robot</th><td><span class="estado no">No publicada</span></td><td><code>articubot_one/description/</code>: <code>robot.urdf.xacro</code>, <code>robot_core.xacro</code>, <code>lidar.xacro</code>, <code>lidar_sim.xacro</code> y <code>ros2_control.xacro</code>. Base en <a href="https://github.com/joshnewans/articubot_one">articubot_one</a>, con las medidas del prototipo.</td></tr>
         <tr><th>Configuraciones</th><td><span class="estado no">No publicadas</span></td><td><code>articubot_one/config/</code>, entre ellas <code>nav2_params.yaml</code>, <code>mapper_params_online_async.yaml</code>, <code>explore.yaml</code>, <code>my_controllers.yaml</code> y <code>twist_mux.yaml</code>. Los valores que cita esta guía salen de la tesis.</td></tr>
         <tr><th>Programas propios</th><td><span class="estado no">No publicados</span></td><td><code>arduino_firmware/pid_config/</code>, con la identificación de cada rueda y la sintonía por PSO, y <code>articubot_one/scripts/rplidar_serial_publisher.py</code>, el nodo de lectura del láser.</td></tr>
         <tr><th>Interfaz con el hardware y exploración</th><td><span class="estado no">No publicadas</span></td><td>Las versiones adaptadas de <code>diffdrive_arduino</code> y <code>explore_lite</code>. Sus proyectos base están en <a href="replicar.html#repositorios">Constrúyelo tú</a>.</td></tr>
-        <tr><th>Registros de los ensayos</th><td><span class="estado no">No publicados</span></td><td>Las instantáneas de cada ensayo en <code>test/sesiones_mapeo/</code>, los registros de estado de las metas y el script <code>clasificar_metas_exploracion.py</code> que los reconstruye. Sin ellos no se pueden recalcular las cifras de la tesis.</td></tr>
+        <tr><th>Registros crudos de las corridas</th><td><span class="estado no">No publicados</span></td><td>Las instantáneas de cada ensayo en <code>test/sesiones_mapeo/</code>, los registros de estado de las metas y el script <code>clasificar_metas_exploracion.py</code> que los reconstruye. Sin ellos no se pueden recalcular las cifras de la tesis.</td></tr>
         <tr><th>Archivos de impresión del chasis</th><td><span class="estado no">No publicados</span></td><td>El diseño de referencia, <a href="https://www.thingiverse.com/thing:4459513">Vacuum Robot</a>, está disponible. Los archivos usados para imprimir este prototipo no están en este repositorio.</td></tr>
       </tbody>
       <caption>Estado de los materiales a la fecha de esta versión del sitio.</caption>
@@ -269,6 +270,28 @@
   <pre class="cita-bloque">Valderas Neculqueo, S. (2026). Robot explorador: guía abierta de la tesis "Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial" [Sitio web]. https://svn11x.github.io/tesis_explain/</pre>
 </section>
 
+<section lang="en">
+  <h2 id="abstract">Abstract</h2>
+  <p>This thesis presents the design and implementation of a low-cost differential mobile robot prototype for 2D mapping, autonomous navigation, and indoor exploration using ROS 2 Foxy. The system integrates a Raspberry Pi 4, an Arduino Nano, quadrature encoders, an RPLidar A1 sensor, and a digital twin developed in Gazebo Classic. Speed control uses the PID law inherited from the original firmware, which in practice operates as an incremental PI controller, with gains obtained through Particle Swarm Optimization (PSO) and experimental refinement. Mapping was implemented with SLAM Toolbox, navigation with Nav2, and exploration through a frontier-based strategy.</p>
+  <p>Odometry achieved a mean error of 3.63 % in straight-line trajectories on real hardware. Speed control was evaluated at 0.13 m/s, showing near-zero steady-state error and no appreciable overshoot within the measurement resolution. Autonomous exploration produced valid maps in five of the six experimental runs, with a mean free-space coverage index of 62.2 % and a mean mapped free area of 3.50 m². The five valid runs ended automatically when the explorer found no remaining frontiers, without manual intervention. During these runs, 60 navigation goals were generated. Of these, 54 were aborted, one was completed, and five had no recorded final state because exploration stopped while they were in progress. Log analysis showed that 53 of these aborts occurred because the explorer replaced the active goal with a new one, since it renews its target every 3.3 s, and Nav2 reports that replacement as an abort. The results functionally verify autonomous mapping and exploration. The success rate of navigation toward fixed goals was not evaluated and is left as future work.</p>
+  <p><b>Keywords:</b> differential mobile robot, SLAM, ROS 2, Nav2, autonomous navigation, frontier exploration, PSO, digital twin.</p>
+</section>
+
+<section>
+  <h2 id="autor">Sobre el autor</h2>
+  <dl class="ficha">
+    <div><dt>Nombre</dt><dd>Sebastián Valderas Neculqueo</dd></div>
+    <div><dt>Carrera</dt><dd>Ingeniería Civil Electrónica</dd></div>
+    <div><dt>Universidad</dt><dd>Universidad Tecnológica Metropolitana (UTEM), Santiago de Chile</dd></div>
+    <div><dt>Profesor guía</dt><dd>Patricio Galarce Acevedo</dd></div>
+    <div><dt>Año</dt><dd>2026</dd></div>
+    <div><dt>GitHub</dt><dd><a href="https://github.com/SVN11X">github.com/SVN11X</a></dd></div>
+    <div hidden><dt>Correo</dt><dd><!-- PENDIENTE AUTOR: correo de contacto, si quieres publicarlo. Escríbelo aquí y quita el atributo hidden de este bloque. --></dd></div>
+    <div hidden><dt>LinkedIn</dt><dd><!-- PENDIENTE AUTOR: enlace a tu perfil de LinkedIn. Escríbelo aquí y quita el atributo hidden de este bloque. --></dd></div>
+  </dl>
+  <p hidden><!-- PENDIENTE AUTOR: descripción breve en primera persona, de dos o tres frases, sobre ti y tu interés en este trabajo. Escríbela aquí y quita el atributo hidden. --></p>
+</section>
+
 <section>
   <h2 id="creditos">Créditos</h2>
   <ul>
@@ -277,6 +300,7 @@
     <li>Diagramas, interactivos y simulaciones: elaborados para esta guía con los datos de la tesis. Los marcados como ilustrativos usan datos de ejemplo.</li>
     <li>Videos externos: se reproducen desde YouTube o Vimeo solo cuando presionas el botón. Los de YouTube usan el dominio de privacidad mejorada.</li>
     <li>Tipografías: Archivo, Atkinson Hyperlegible e IBM Plex Mono, incluidas en la carpeta <code>fuentes/</code> con su licencia SIL Open Font License 1.1.</li>
+    <li>Licencias: el código del sitio, es decir <code>js/</code>, <code>css/</code>, <code>herramientas/</code> y la estructura de las páginas, se publica bajo la <a href="https://github.com/SVN11X/tesis_explain/blob/main/LICENSE">licencia MIT</a>. Los textos, diagramas, fotos y figuras propias se publican bajo <a href="https://creativecommons.org/licenses/by/4.0/deed.es">CC BY 4.0</a>, como detalla <a href="https://github.com/SVN11X/tesis_explain/blob/main/LICENSE-contenido.md">LICENSE-contenido.md</a>. Quedan fuera de esa licencia las imágenes de productos de terceros, que pertenecen a sus fabricantes, y las tipografías, que se rigen por la licencia OFL. Titular: Sebastián Valderas Neculqueo, 2026.</li>
   </ul>
 </section>
 

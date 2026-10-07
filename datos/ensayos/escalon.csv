@@ -1,0 +1,5 @@
+indicador,unidad,rueda_izquierda,rueda_derecha
+velocidad_estacionaria_desde_7_s,m/s,0.128,0.130
+error_estacionario,m/s,0.002,0.000
+tiempo_de_subida_10_a_90,s,0.8,1.4
+sobreimpulso_maximo,,sin sobreimpulso significativo,sin sobreimpulso significativo

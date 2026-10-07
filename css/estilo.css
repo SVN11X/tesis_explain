@@ -17,6 +17,7 @@
   11. Portada: video en recuadro, ciclo, lecciones y rutas
   12. Contenido plegado, botón Ampliar y controles táctiles
   13. Visor de fotos, esquema con puntos, línea de tiempo con imágenes y video lado a lado
+  14. Ficha del autor
 */
 
 /* Fuentes tipográficas locales, subconjunto latino, licencia OFL en fuentes/ */
@@ -1063,3 +1064,9 @@ figure.ampliable { position: relative; }
 @media (pointer: coarse) and (min-width: 561px) {
   .punto { width: 30px; height: 30px; }
 }
+
+/* 14. Ficha del autor */
+.ficha { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 10px; max-width: none !important; margin: 16px 0 0; }
+.ficha div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
+.ficha dt { font-size: var(--t-xs); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-family: var(--f-display); font-weight: 700; }
+.ficha dd { margin: 2px 0 0; }

@@ -14,6 +14,11 @@
      dice que la tesis no está publicada. Pon aquí solo una dirección verificada, por ejemplo la
      del repositorio institucional de la UTEM, nunca una copia sin procedencia. */
   var TESIS_PDF = "";
+  /* Fecha de la última revisión del sitio, la del último commit publicado. */
+  var REVISION = { iso: "2026-10-07", texto: "7 de octubre de 2026" };
+  /* PENDIENTE AUTOR: fecha de la versión de la tesis en que se basa el sitio, por ejemplo "30 de septiembre de 2026".
+     Mientras esté vacía, la línea del pie queda oculta. */
+  var VERSION_TESIS = "";
   var REPO = "https://github.com/SVN11X/tesis_explain";
   var VIDEO_ID = "iTTC10eGDmc";
 
@@ -143,9 +148,12 @@
     cont.innerHTML = '<footer class="pie"><div class="franja"></div><div class="wrap">' +
       '<div><h2>Sobre este sitio</h2><p>Guía abierta para entender, cuestionar y reproducir el trabajo de titulación <em>Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial</em>, de Sebastián Valderas Neculqueo, con el profesor guía Patricio Galarce Acevedo. Ingeniería Civil Electrónica, Universidad Tecnológica Metropolitana, Santiago de Chile, 2026.</p>' +
       '<p>Los datos del robot vienen de la tesis y se citan con su sección. Los ejemplos del mundo real y los temas transversales se apoyan en fuentes externas, enlazadas en cada página.</p>' +
-      (TESIS_PDF ? '<p><a href="' + esc(TESIS_PDF) + '">Descargar la tesis en PDF</a></p>' : '') + '</div>' +
+      (TESIS_PDF ? '<p><a href="' + esc(TESIS_PDF) + '">Descargar la tesis en PDF</a></p>' : '') +
+      '<p>Código bajo licencia <a href="' + REPO + '/blob/main/LICENSE">MIT</a> y contenido bajo <a href="https://creativecommons.org/licenses/by/4.0/deed.es">CC BY 4.0</a>, salvo las excepciones indicadas en <a href="recursos.html#creditos">Créditos</a>.</p>' +
+      '<p>Última revisión del sitio: <time datetime="' + REVISION.iso + '">' + REVISION.texto + '</time>.</p>' +
+      (VERSION_TESIS ? '<p>Basado en la versión de la tesis del ' + esc(VERSION_TESIS) + '.</p>' : '<p hidden>Basado en la versión de la tesis del <!-- PENDIENTE AUTOR: fecha de la versión de la tesis, en VERSION_TESIS dentro de js/sitio.js --></p>') + '</div>' +
       '<div><h2>Temas</h2><ul>' + CAPS.map(function (c, i) { return '<li><a href="' + c.id + '.html">' + n2(i) + ' · ' + esc(c.t) + '</a></li>'; }).join("") + '</ul></div>' +
-      '<div><h2>Más</h2><ul>' + EXTRAS.map(function (e) { return '<li><a href="' + e.id + '.html">' + esc(e.t) + '</a></li>'; }).join("") + '<li><a href="recursos.html#glosario">Glosario</a></li><li><a href="recursos.html#citar">Cómo citar</a></li><li><a href="https://www.youtube.com/watch?v=' + VIDEO_ID + '">Video del robot en YouTube</a></li><li><a href="' + REPO + '">Código de este sitio</a></li><li><a href="' + REPO + '/issues">Reportar un error o sugerir una mejora</a></li></ul></div>' +
+      '<div><h2>Más</h2><ul>' + EXTRAS.map(function (e) { return '<li><a href="' + e.id + '.html">' + esc(e.t) + '</a></li>'; }).join("") + '<li><a href="recursos.html#glosario">Glosario</a></li><li><a href="recursos.html#citar">Cómo citar</a></li><li><a href="recursos.html#autor">Sobre el autor</a></li><li><a href="recursos.html#abstract" hreflang="en">Abstract in English</a></li><li><a href="https://www.youtube.com/watch?v=' + VIDEO_ID + '">Video del robot en YouTube</a></li><li><a href="' + REPO + '">Código de este sitio</a></li><li><a href="' + REPO + '/issues">Reportar un error o sugerir una mejora</a></li></ul></div>' +
       '</div></footer>';
   }
 

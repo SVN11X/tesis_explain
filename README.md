@@ -45,6 +45,7 @@ Las cifras y figuras del robot salen de la tesis y se citan con su sección, tab
 ├── js/vis1.js … vis3.js interactivos de cada tema
 ├── js/comun.js          utilidades compartidas
 ├── datos/indice.js      índice del buscador, generado
+├── datos/ensayos/       tablas de los ensayos en CSV, con su origen en la tesis
 ├── herramientas/        índice del buscador y pruebas
 ├── fuentes/             tipografías locales con su licencia OFL
 └── img/                 fotos, figuras de la tesis, animaciones y miniaturas
@@ -102,6 +103,10 @@ El sitio respeta el modo oscuro y el movimiento reducido, se recorre con teclado
 Valderas Neculqueo, S. (2026). *Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial* [Trabajo de titulación para optar al título de Ingeniero Civil Electrónico]. Universidad Tecnológica Metropolitana.
 
 El formato BibTeX está en `recursos.html#citar`.
+
+## Licencia
+
+El código del sitio, es decir `js/`, `css/`, `herramientas/` y la estructura de las páginas HTML, usa la licencia MIT del archivo `LICENSE`. Los textos, diagramas, fotos, figuras propias y las tablas de `datos/ensayos/` usan CC BY 4.0, como detalla `LICENSE-contenido.md`. Las imágenes de productos de terceros quedan fuera de esa licencia y las tipografías de `fuentes/` se rigen por la licencia OFL. Titular: Sebastián Valderas Neculqueo, 2026.
 
 ## Créditos de imágenes
 
