@@ -60,7 +60,7 @@
     <div><b>582 447 <small>CLP</small></b><span>costo total del proyecto, sin el computador</span></div>
     <div><b>127 234 <small>CLP</small></b><span>en tornillería y kits, el gasto más fácil de reducir</span></div>
     <div><b>1 <small>kg</small></b><span>de filamento PLA+ para el chasis y las cubiertas</span></div>
-    <div><b>8</b><span>pasos en un orden de trabajo que funciona</span></div>
+    <div><b>8</b><span>pasos en una ruta recomendada, con lo que hizo la tesis en cada uno</span></div>
   </div>
 </section>
 
@@ -199,6 +199,7 @@
 
 <section>
   <h2 id="repositorios">Repositorios y documentación de base</h2>
+  <p>Son los proyectos públicos de los que partió el robot, no los archivos usados en la tesis. Las versiones adaptadas, las configuraciones y los registros de los ensayos todavía no están publicados. El detalle de qué está disponible y qué falta está en <a href="recursos.html#materiales">Materiales originales</a>.</p>
   <div class="aprender">
     <a href="https://github.com/joshnewans/articubot_one"><b>articubot_one</b><span>Paquete de descripción, control, SLAM y navegación del que partió el robot.</span><small>github.com/joshnewans</small></a>
     <a href="https://github.com/joshnewans/diffdrive_arduino"><b>diffdrive_arduino</b><span>Interfaz de ros2_control para robots diferenciales con Arduino.</span><small>github.com/joshnewans</small></a>
@@ -213,18 +214,25 @@
 </section>
 
 <section>
-  <h2 id="orden">Un orden de trabajo que funciona</h2>
-  <p>El mismo que siguió esta tesis. Simular antes de construir y avanzar de abajo hacia arriba, sin pasar a la capa siguiente hasta medir la anterior.</p>
-  <ol class="linea l4">
-    <li><b>Modela</b>URDF con medidas reales, probado en simulación.</li>
-    <li><b>Construye</b>Separa la energía de motores y electrónica.</li>
-    <li><b>Mide encoders</b>Sentido del conteo y pulsos por vuelta reales.</li>
-    <li><b>Sintoniza</b>Modelo de cada rueda, ganancias y ajuste en el robot.</li>
-    <li><b>Valida la odometría</b>Contra una cinta, con repeticiones.</li>
-    <li><b>Mapea</b>Conduce con el mando mientras se arma el mapa.</li>
-    <li><b>Navega</b>A metas fijas, midiendo llegadas y error.</li>
-    <li><b>Explora</b>Recién entonces suma las fronteras.</li>
-  </ol>
+  <h2 id="orden">Una ruta recomendada para replicarlo</h2>
+  <p>Es un orden sugerido para quien empieza: simular antes de construir y avanzar de abajo hacia arriba, sin pasar a la capa siguiente hasta medir la anterior. No es una cronología de la tesis. La última columna dice qué hizo la tesis en cada paso, para distinguir lo medido de lo que queda pendiente <a class="ref" href="#f1">1</a>.</p>
+  <div class="tabla-env">
+    <table class="tabla ruta-replica">
+      <thead><tr><th>Paso</th><th>Qué hacer</th><th>En esta tesis</th></tr></thead>
+      <tbody>
+        <tr><th>1. Modela</th><td>URDF con medidas reales, probado en simulación.</td><td><span class="estado ok">Realizado</span> Gemelo en Gazebo Classic verificado con cuatro criterios de funcionamiento, sin comparación cuantitativa con el robot sobre una misma variable. <a href="gemelo.html">Ver el gemelo</a>.</td></tr>
+        <tr><th>2. Construye</th><td>Separa la energía de motores y electrónica.</td><td><span class="estado ok">Realizado</span> Dos rieles separados, 12 V para motores y 5 V para electrónica. <a href="robot.html#energia">Ver el esquema</a>.</td></tr>
+        <tr><th>3. Mide los encoders</th><td>Sentido del conteo y pulsos por vuelta reales.</td><td><span class="estado ok">Realizado</span> Diez vueltas por rueda, con promedios de 1976 y 1969 pulsos. El firmware usa un valor único de 1980. <a href="movimiento.html#encoders">Ver la medición</a>.</td></tr>
+        <tr><th>4. Sintoniza</th><td>Modelo de cada rueda, ganancias y ajuste en el robot.</td><td><span class="estado par">Parcial</span> Modelo de primer orden con retardo, búsqueda con PSO y ajuste final en el robot. La ley heredada opera como PI y se evaluó en un solo punto de operación. <a href="control.html">Ver el control</a>.</td></tr>
+        <tr><th>5. Valida la odometría</th><td>Contra una cinta, con repeticiones.</td><td><span class="estado val">Validado</span> Recta de 2 m repetida cinco veces, con error medio de 3,63 % frente a la cinta. El giro no midió error odométrico angular. <a href="movimiento.html#recta">Ver el ensayo</a>.</td></tr>
+        <tr><th>6. Mapea</th><td>Construye el mapa y revisa que el área sea estable entre corridas.</td><td><span class="estado ok">Realizado</span> Los mapas evaluados son los de las corridas de exploración: cinco de seis dieron un mapa válido, con área libre casi igual en todas. <a href="mapeo.html#resultados">Ver los resultados</a>.</td></tr>
+        <tr><th>7. Navega a metas fijas</th><td>Con un mapa guardado y AMCL, envía metas a puntos medidos y registra cada llegada y su error de posición final.</td><td><span class="estado no">Pendiente</span> No se ejecutó. El script quedó preparado, sin registros de salida, sin medir el error final y con poses definidas solo para el mundo simulado. No hay tasa de éxito ni error de posición. <a href="navegacion.html#evaluacion">Ver qué se evaluó</a>.</td></tr>
+        <tr><th>8. Explora</th><td>Suma las fronteras cuando la navegación ya está medida.</td><td><span class="estado ok">Realizado</span> Seis ejecuciones, cinco terminaron solas con mapa válido. Se hizo sin el paso 7, y la navegación se evaluó solo sobre las metas del explorador. <a href="exploracion.html">Ver la exploración</a>.</td></tr>
+      </tbody>
+      <caption>Estados según la tesis y la página <a href="resultados.html#objetivos">La evidencia</a>. Validado indica comparación con una referencia independiente.</caption>
+    </table>
+  </div>
+  <p>Si replicas el trabajo, el paso 7 es el aporte más directo que puedes hacer, porque es lo que falta para tener un indicador cuantitativo de la navegación. Está descrito como trabajo futuro en <a href="resultados.html">La evidencia</a>.</p>
 </section>
 
 <section>

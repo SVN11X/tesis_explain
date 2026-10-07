@@ -94,7 +94,7 @@
     </figure>
   </div>
   <div class="widget">
-    <div class="widget-cab"><h3 id="sim-inflacion">El radio de inflación y la esquina del robot</h3><span class="tipo inter">Interactivo</span><p>Cambia el radio, gira el robot o arrástralo. Observa el costo bajo el centro y si la huella toca un obstáculo.</p></div>
+    <div class="widget-cab"><h3 id="sim-inflacion">El radio de inflación y la esquina del robot</h3><span class="tipo inter">Interactivo</span><p>Cambia el radio, gira el robot o muévelo. Se distinguen tres cosas: si la huella toca un obstáculo real, si entra en el margen inflado, que es solo una zona de seguridad, y el costo de la celda bajo el centro.</p></div>
     <div class="vis" data-vis="inflacion"><p class="vis-fallback">Simulador de mapa de costos con radio de inflación y huella del robot. Necesita JavaScript.</p></div>
   </div>
   <p>En el robot real la huella configurada es un rectángulo que va de 8 cm detrás del centro a 20 cm por delante, con 13 cm a cada lado. Su radio inscrito es de unos 0,08 m y su esquina delantera queda a unos 0,24 m del centro. Con un radio de inflación de 0,15 m, menor que el valor de simulación, las celdas entre 0,15 y 0,24 m de una pared tienen costo cero aunque la esquina del robot pueda llegar a ellas <a class="ref" href="#f1">1</a>.</p>
@@ -118,7 +118,7 @@
   <h2 id="dwb">La ventana dinámica: seguir la ruta sin chocar</h2>
   <p>La ruta global es una línea sobre el mapa. El robot, en cambio, solo puede cambiar su velocidad un poco en cada instante. El enfoque de ventana dinámica considera solo las velocidades alcanzables desde el estado actual, simula hacia adelante la trayectoria de cada candidata y le pone un puntaje con varios criterios <a class="ref" href="#f9">9</a>. Se elige la de menor puntaje <a class="ref" href="#f1">1</a>.</p>
   <div class="widget">
-    <div class="widget-cab"><h3 id="sim-dwb">Trayectorias candidatas y su puntaje</h3><span class="tipo inter">Interactivo</span><p>Cambia cuánto pesa cada criterio y arrastra el obstáculo.</p></div>
+    <div class="widget-cab"><h3 id="sim-dwb">Trayectorias candidatas y su puntaje</h3><span class="tipo inter">Interactivo</span><p>Cambia cuánto pesa cada criterio y mueve el obstáculo. La tabla muestra de qué se compone el puntaje de la trayectoria elegida.</p></div>
     <div class="vis" data-vis="dwb"><p class="vis-fallback">Simulador de la ventana dinámica. Necesita JavaScript.</p></div>
   </div>
   <p>En el robot, DWB usa criterios de obstáculos, oscilación, alineación y distancia respecto de la ruta y de la meta. Algunos valores del robot real ayudan a entender su comportamiento.</p>

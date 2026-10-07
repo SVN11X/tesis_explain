@@ -413,7 +413,14 @@ table.tabla { border-collapse: collapse; width: 100%; font-size: var(--t-sm); mi
 .casillas { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: var(--t-xs); color: var(--ink-2); }
 .casillas label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; min-height: 28px; }
 .casillas input { width: 16px; height: 16px; accent-color: var(--azul); }
-.lienzo { display: block; width: 100%; height: auto; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); touch-action: none; }
+.lienzo { display: block; width: 100%; height: auto; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); }
+/* solo los dibujos que se arrastran capturan el gesto táctil; los demás dejan desplazar la página */
+.lienzo.arrastrable { touch-action: none; cursor: grab; }
+.lienzo.arrastrable:active { cursor: grabbing; }
+.lienzo:focus-visible { outline: 3px solid var(--azul); outline-offset: 3px; }
+table.tabla.dw-tabla { font-size: var(--t-xs); min-width: 0; }
+.dw-tabla th, .dw-tabla td { padding: 7px 8px; }
+.dw-tabla td.n, .dw-tabla th { white-space: normal; }
 .lecturas { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 130px), 1fr)); gap: 8px; }
 .lecturas div { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; display: grid; }
 .lecturas span { font-size: var(--t-xs); color: var(--muted); }
@@ -852,6 +859,7 @@ ol.refs-lista .tipo-ref { font-size: .7rem; font-weight: 700; text-transform: up
 ol.refs-lista a { overflow-wrap: anywhere; }
 
 /* Términos con definición */
+.term[aria-expanded="true"] { background: var(--azul-suave); border-radius: 3px; }
 .term { text-decoration: underline dotted color-mix(in srgb, var(--azul) 70%, transparent); text-underline-offset: .2em; text-decoration-thickness: 1.5px; cursor: help; }
 .term:focus-visible { outline: 2px solid var(--azul); outline-offset: 2px; border-radius: 3px; }
 .burbuja { position: absolute; z-index: 90; max-width: min(340px, calc(100vw - 24px)); background: var(--ink); color: var(--bg); font-size: var(--t-sm); line-height: 1.45; padding: 10px 12px; border-radius: 10px; box-shadow: var(--sombra-alta); pointer-events: none; opacity: 0; transform: translateY(4px); transition: opacity .15s, transform .15s; }
@@ -960,3 +968,14 @@ p.chip-dato { margin: 0; }
 /* Espacio reservado para los interactivos antes de montarse, para reducir saltos del texto */
 [data-vis]:not([data-montado]):not([data-modo="hero"]) { min-height: 360px; display: grid; place-items: center; }
 @media (max-width: 700px) { [data-vis]:not([data-montado]):not([data-modo="hero"]) { min-height: 480px; } }
+
+/* Tablas de estado (ruta de replicación y materiales): en pantallas angostas cada fila se apila */
+.ruta-replica td .estado, .materiales td .estado { margin-right: 4px; }
+@media (max-width: 680px) {
+  .ruta-replica, .materiales { min-width: 0 !important; width: 100%; }
+  .ruta-replica thead, .materiales thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .ruta-replica tr, .materiales tr { display: block; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  .ruta-replica th, .ruta-replica td, .materiales th, .materiales td { display: block; border: 0 !important; padding: 2px 0 !important; white-space: normal !important; }
+  .ruta-replica th, .materiales th { font-size: var(--t-base); }
+  .ruta-replica caption, .materiales caption { display: block; }
+}

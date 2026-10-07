@@ -70,6 +70,8 @@ Cada tema sigue la misma estructura:
 ├── js/comun.js          utilidades compartidas
 ├── datos/indice.js      índice del buscador, generado
 ├── herramientas/indice.py  regenera el índice del buscador
+├── herramientas/pruebas_unitarias.js   pruebas sin navegador
+├── herramientas/pruebas_navegador.py   pruebas en Chromium con Playwright
 └── img/
     ├── fotos/           prototipo, recinto, componentes y plataformas comerciales
     ├── tesis/           figuras de la tesis, animaciones en MP4 y sus portadas
@@ -89,6 +91,10 @@ pip install beautifulsoup4
 python3 herramientas/indice.py
 ```
 
+El script indexa todo el texto de cada sección, incluidas tablas, listas y el texto alternativo de los interactivos. Las secciones largas se dividen en partes solapadas con el mismo enlace. Solo el extracto que se muestra en pantalla se recorta, en `js/sitio.js`. El script se detiene con un error si algún enlace del índice apunta a una página o a un ancla que no existe. Sube `datos/indice.js` junto con las páginas.
+
+El buscador no distingue tildes ni mayúsculas, une los miles escritos con espacio y acepta punto o coma decimal: `3.63` y `3,63` encuentran lo mismo, igual que `49 683` y `49683`. Un número debe coincidir completo, así que `3,63` no aparece dentro de `13,63`.
+
 **Citas.** Dentro del texto, una cita es `<a class="ref" href="#f3">3</a>` y apunta al elemento `<li id="f3">` de la lista de fuentes al final de la misma página.
 
 **Términos del glosario.** `<span class="term" data-def="Definición corta.">término</span>` muestra la definición al pasar el cursor, al enfocarlo con teclado o al tocarlo.
@@ -101,7 +107,20 @@ python3 herramientas/indice.py
 
 **Interactivos.** Un elemento con `data-vis="nombre"` se monta cuando entra en pantalla, usando la función registrada en `window.VISUALES.nombre`.
 
-**PDF de la tesis.** Cuando la tesis esté publicada, pon su enlace en `TESIS_PDF` dentro de `js/sitio.js` y aparecerá en el pie y en Recursos.
+**PDF de la tesis.** Cuando la tesis esté publicada, pon su enlace en `TESIS_PDF` dentro de `js/sitio.js` y aparecerá en el pie y en la tabla de `recursos.html#materiales`. Usa solo una dirección verificada, como la del repositorio institucional.
+
+**Materiales originales.** `recursos.html#materiales` dice qué archivos de la tesis están publicados y cuáles faltan. Si publicas el código, las configuraciones o los registros del robot, actualiza esa tabla y enlázalos allí. Los repositorios de `replicar.html#repositorios` son proyectos base, no los archivos usados en la tesis.
+
+## Pruebas
+
+```bash
+node herramientas/pruebas_unitarias.js          # geometría de la huella y reloj de paso fijo
+pip install playwright beautifulsoup4 && python3 -m playwright install chromium
+python3 -m http.server 8765 &
+python3 herramientas/pruebas_navegador.py       # páginas, enlaces, buscador, definiciones y simuladores
+```
+
+Las pruebas del navegador recorren las 15 páginas en escritorio, móvil y con movimiento reducido, y comprueban errores de consola, interactivos montados, desborde horizontal, enlaces internos, anclas y recursos locales. También prueban el buscador, las definiciones con ratón, toque y teclado, y los simuladores de inflación, DWB, exploración y encoder.
 
 ## Ver el sitio en tu computador
 
@@ -115,9 +134,22 @@ Luego abre http://localhost:8000
 
 En Settings, Pages, elige "Deploy from a branch", rama `main` y carpeta `/ (root)`. Los cambios quedan publicados uno o dos minutos después de cada commit en `main`.
 
+Para actualizar la publicación existente:
+
+```bash
+git pull
+# copia o edita los archivos, regenera el índice si cambió texto
+python3 herramientas/indice.py
+git add -A
+git commit -m "Describe el cambio"
+git push origin main
+```
+
+Después revisa la pestaña Actions del repositorio hasta que el despliegue de Pages termine en verde, y recarga el sitio forzando la caché (Ctrl+Shift+R o Cmd+Shift+R). Las carpetas `herramientas/` y los archivos de prueba no afectan al sitio publicado.
+
 ## Accesibilidad
 
-El sitio respeta el modo oscuro del sistema y la preferencia de movimiento reducido, se puede recorrer con teclado y tiene un enlace para saltar al contenido. El buscador se abre con la tecla `/`. Cada interactivo tiene un texto que explica lo que muestra, y los videos de YouTube y Vimeo se cargan solo cuando se presiona reproducir.
+El sitio respeta el modo oscuro del sistema y la preferencia de movimiento reducido, se puede recorrer con teclado y tiene un enlace para saltar al contenido. Con movimiento reducido, las animaciones y simuladores parten detenidos y ofrecen un botón para reproducirlos. Los simuladores que se arrastran, LiDAR, inflación y DWB, también se controlan con deslizadores etiquetados y con las flechas cuando el dibujo tiene el foco. Las definiciones se abren con clic, toque, Enter o Espacio y se cierran con un segundo clic, Escape o un clic fuera. El buscador se abre con la tecla `/`. Cada interactivo tiene un texto que explica lo que muestra, y los videos de YouTube y Vimeo se cargan solo cuando se presiona reproducir.
 
 ## Cómo citar
 

@@ -37,7 +37,7 @@
       <p class="eyebrow">Para seguir aprendiendo</p>
       <h1>Recursos, glosario y fuentes</h1>
       <p class="lead">Todas las fuentes que usa esta guía, para verificar cada afirmación o seguir aprendiendo. Las de la tesis van primero. Las que se agregaron para los ejemplos del mundo real y las lecciones están marcadas.</p>
-      <div class="meta-cap"><a class="etiqueta" href="#aprender">Para aprender más</a><a class="etiqueta" href="#glosario">Glosario</a><a class="etiqueta" href="#bibliografia">Bibliografía de la tesis</a><a class="etiqueta" href="#externas">Fuentes agregadas</a><a class="etiqueta" href="#citar">Cómo citar</a></div>
+      <div class="meta-cap"><a class="etiqueta" href="#aprender">Para aprender más</a><a class="etiqueta" href="#glosario">Glosario</a><a class="etiqueta" href="#bibliografia">Bibliografía de la tesis</a><a class="etiqueta" href="#externas">Fuentes agregadas</a><a class="etiqueta" href="#materiales">Materiales originales</a><a class="etiqueta" href="#citar">Cómo citar</a></div>
     </div>
     <figure class="tema-hero-fig contener">
       <picture><source srcset="img/tesis/arquitectura-med.webp" type="image/webp"><img src="img/tesis/arquitectura-med.png" width="1200" height="678" alt="Diagrama de bloques del robot y la estación de trabajo." fetchpriority="high"></picture>
@@ -223,6 +223,29 @@
     <li id="r-opencr">ROBOTIS. (s.f.). <i>OpenCR 1.0</i>. <a href="https://emanual.robotis.com/docs/en/parts/controller/opencr10/">emanual.robotis.com</a><span class="tag"><b>Agregada.</b> El controlador del TurtleBot 3.</span></li>
     <li id="r-trossen">Trossen Robotics. (s.f.). <i>Interbotix LoCoBot</i>. <a href="https://www.trossenrobotics.com/locobots">trossenrobotics.com</a><span class="tag"><b>Agregada.</b> Plataforma de navegación y manipulación, imagen del fabricante.</span></li>
   </ol>
+</section>
+
+<section>
+  <h2 id="materiales">Materiales originales: qué está disponible y qué falta</h2>
+  <p>Para verificar las cifras o repetir el trabajo exactamente se necesitan los archivos usados en la tesis, no solo los proyectos de los que partió. Este sitio publica las figuras, fotos y videos que muestra. El resto de los materiales originales todavía no está publicado, y la tabla dice cuál es cada uno. Los nombres de archivo son los que cita la tesis en su Anexo 9, con rutas relativas a la carpeta <code>src/</code> de su repositorio. La referencia completa de la tesis está en <a href="#citar-tesis">Cómo citar</a>.</p>
+  <div class="tabla-env">
+    <table class="tabla materiales">
+      <thead><tr><th>Material</th><th>Estado</th><th>Detalle</th></tr></thead>
+      <tbody>
+        <tr><th>Tesis en PDF</th><td data-tesis-pdf><span class="estado no">No publicada</span></td><td>Se enlazará aquí y en el pie de página cuando esté disponible en un repositorio institucional.</td></tr>
+        <tr><th>Figuras, fotos y videos de esta guía</th><td><span class="estado ok">Disponibles</span></td><td>En la carpeta <code>img/</code> de <a href="https://github.com/SVN11X/tesis_explain">este repositorio</a>, con su figura de origen en cada leyenda.</td></tr>
+        <tr><th>Firmware adaptado del Arduino</th><td><span class="estado no">No publicado</span></td><td><code>arduino_firmware/ROSArduinoBridge/</code>, con el control de ruedas y la lectura de encoders. El proyecto base, <a href="https://github.com/joshnewans/ros_arduino_bridge">ros_arduino_bridge</a>, no incluye los cambios de la tesis.</td></tr>
+        <tr><th>Descripción del robot</th><td><span class="estado no">No publicada</span></td><td><code>articubot_one/description/</code>: <code>robot.urdf.xacro</code>, <code>robot_core.xacro</code>, <code>lidar.xacro</code>, <code>lidar_sim.xacro</code> y <code>ros2_control.xacro</code>. Base en <a href="https://github.com/joshnewans/articubot_one">articubot_one</a>, con las medidas del prototipo.</td></tr>
+        <tr><th>Configuraciones</th><td><span class="estado no">No publicadas</span></td><td><code>articubot_one/config/</code>, entre ellas <code>nav2_params.yaml</code>, <code>mapper_params_online_async.yaml</code>, <code>explore.yaml</code>, <code>my_controllers.yaml</code> y <code>twist_mux.yaml</code>. Los valores que cita esta guía salen de la tesis.</td></tr>
+        <tr><th>Programas propios</th><td><span class="estado no">No publicados</span></td><td><code>arduino_firmware/pid_config/</code>, con la identificación de cada rueda y la sintonía por PSO, y <code>articubot_one/scripts/rplidar_serial_publisher.py</code>, el nodo de lectura del láser.</td></tr>
+        <tr><th>Interfaz con el hardware y exploración</th><td><span class="estado no">No publicadas</span></td><td>Las versiones adaptadas de <code>diffdrive_arduino</code> y <code>explore_lite</code>. Sus proyectos base están en <a href="replicar.html#repositorios">Constrúyelo tú</a>.</td></tr>
+        <tr><th>Registros de los ensayos</th><td><span class="estado no">No publicados</span></td><td>Las instantáneas de cada ensayo en <code>test/sesiones_mapeo/</code>, los registros de estado de las metas y el script <code>clasificar_metas_exploracion.py</code> que los reconstruye. Sin ellos no se pueden recalcular las cifras de la tesis.</td></tr>
+        <tr><th>Archivos de impresión del chasis</th><td><span class="estado no">No publicados</span></td><td>El diseño de referencia, <a href="https://www.thingiverse.com/thing:4459513">Vacuum Robot</a>, está disponible. Los archivos usados para imprimir este prototipo no están en este repositorio.</td></tr>
+      </tbody>
+      <caption>Estado de los materiales a la fecha de esta versión del sitio.</caption>
+    </table>
+  </div>
+  <div class="callout ojo"><p><b>Proyectos base no son archivos de la tesis.</b> Los repositorios enlazados en <a href="replicar.html#repositorios">Constrúyelo tú</a> son puntos de partida públicos. La tesis los adaptó, por ejemplo con otra resolución de encoder, otras ganancias y otros parámetros de Nav2, así que usarlos tal cual no reproduce los resultados. Ningún ejemplo de este sitio debe tomarse como un archivo original del robot.</p></div>
 </section>
 
 <section>

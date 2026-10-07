@@ -62,27 +62,103 @@
   function quieto() { return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches; }
   function fmt(v, d) { return U ? U.fmt(v, d) : v.toFixed(d).replace(".", ","); }
   function limitar(v, a, b) { return Math.max(a, Math.min(b, v)); }
-  /* bucle que corre solo cuando el elemento está a la vista */
+  /* Paso fijo con acumulador. Se acumula el tiempo real multiplicado por la velocidad
+     y se ejecutan tantos pasos de duración h como quepan, guardando la fracción pendiente.
+     Así 1×, 2× y 4× avanzan en proporción con cualquier frecuencia de pantalla.
+     maxDt limita la recuperación después de una pausa larga o de volver a la pestaña. */
+  function pasoFijo(h, maxDt) {
+    var acc = 0;
+    return {
+      pasos: function (dt, vel) {
+        if (!(dt > 0) || !(vel > 0)) return 0;
+        acc += Math.min(dt, maxDt) * vel;
+        var n = Math.floor(acc / h + 1e-9);
+        acc -= n * h;
+        if (acc < 0) acc = 0;
+        return n;
+      },
+      reiniciar: function () { acc = 0; },
+      get pendiente() { return acc; }
+    };
+  }
+  /* bucle que corre solo cuando el elemento está a la vista y la pestaña está visible.
+     El primer cuadro después de arrancar o de volver a la vista entrega dt = 0, para no saltar. */
   function bucle(el, paso) {
-    var activo = false, visible = true, ult = 0, id = 0;
+    var activo = false, enVista = true, pestana = !document.hidden, ult = 0, id = 0;
+    function puede() { return activo && enVista && pestana; }
     function tick(ts) {
-      if (!activo || !visible) { id = 0; return; }
-      var dt = ult ? Math.min(0.1, (ts - ult) / 1000) : 1 / 60;
+      if (!puede()) { id = 0; return; }
+      var dt = ult ? Math.min(0.1, Math.max(0, (ts - ult) / 1000)) : 0;
       ult = ts;
       paso(dt);
       id = requestAnimationFrame(tick);
     }
-    function arrancar() { if (!id && activo && visible) { ult = 0; id = requestAnimationFrame(tick); } }
+    function arrancar() { if (!id && puede()) { ult = 0; id = requestAnimationFrame(tick); } }
     if ("IntersectionObserver" in window) {
-      new IntersectionObserver(function (es) { visible = es[0].isIntersecting; arrancar(); }, { threshold: 0.05 }).observe(el);
+      new IntersectionObserver(function (es) { enVista = es[es.length - 1].isIntersecting; arrancar(); }, { threshold: 0.05 }).observe(el);
     }
-    document.addEventListener("visibilitychange", function () { visible = !document.hidden; arrancar(); });
+    document.addEventListener("visibilitychange", function () { pestana = !document.hidden; arrancar(); });
     return {
       play: function () { activo = true; arrancar(); },
-      pausa: function () { activo = false; },
+      pausa: function () { activo = false; if (id) { cancelAnimationFrame(id); id = 0; } },
       get activo() { return activo; }
     };
   }
+  /* preferencia de movimiento reducido, con aviso cuando cambia */
+  function alCambiarMovimiento(fn) {
+    if (!window.matchMedia) return;
+    var mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    var f = function () { fn(mq.matches); };
+    if (mq.addEventListener) mq.addEventListener("change", f); else if (mq.addListener) mq.addListener(f);
+  }
+
+  /* ── Geometría de la huella, usada por el simulador de inflación ── */
+  /* ¿Se superponen un polígono convexo y un rectángulo alineado con los ejes?
+     Prueba de ejes separadores: hay contacto si en ningún eje queda un hueco mayor que eps.
+     El contacto en un borde o en una esquina, con hueco cero, cuenta como contacto. */
+  function poligonoTocaRect(poly, x0, y0, x1, y1, eps) {
+    if (eps == null) eps = 1e-9;
+    var rect = [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
+    var ejes = [[1, 0], [0, 1]];
+    for (var i = 0; i < poly.length; i++) {
+      var a = poly[i], b = poly[(i + 1) % poly.length], ex = b[0] - a[0], ey = b[1] - a[1], n = Math.hypot(ex, ey);
+      if (n > 0) ejes.push([-ey / n, ex / n]);
+    }
+    for (var k = 0; k < ejes.length; k++) {
+      var ax = ejes[k][0], ay = ejes[k][1], pmin = Infinity, pmax = -Infinity, rmin = Infinity, rmax = -Infinity;
+      poly.forEach(function (p) { var d = p[0] * ax + p[1] * ay; if (d < pmin) pmin = d; if (d > pmax) pmax = d; });
+      rect.forEach(function (p) { var d = p[0] * ax + p[1] * ay; if (d < rmin) rmin = d; if (d > rmax) rmax = d; });
+      if (pmax < rmin - eps || rmax < pmin - eps) return false;
+    }
+    return true;
+  }
+  function huellaEnMundo(huella, x, y, angGrados) {
+    var a = angGrados * Math.PI / 180, c = Math.cos(a), s = Math.sin(a);
+    return huella.map(function (p) { return [x + p[0] * c - p[1] * s, y + p[0] * s + p[1] * c]; });
+  }
+  /* celdas de una rejilla de C por F, de lado res, que la huella toca */
+  function celdasTocadas(poly, C, F, res) {
+    var xs = poly.map(function (p) { return p[0]; }), ys = poly.map(function (p) { return p[1]; });
+    var cx0 = Math.max(0, Math.floor(Math.min.apply(null, xs) / res) - 1), cx1 = Math.min(C - 1, Math.floor(Math.max.apply(null, xs) / res) + 1);
+    var cy0 = Math.max(0, Math.floor(Math.min.apply(null, ys) / res) - 1), cy1 = Math.min(F - 1, Math.floor(Math.max.apply(null, ys) / res) + 1);
+    var out = [];
+    for (var y = cy0; y <= cy1; y++) for (var x = cx0; x <= cx1; x++) {
+      if (poligonoTocaRect(poly, x * res, y * res, (x + 1) * res, (y + 1) * res)) out.push(y * C + x);
+    }
+    return out;
+  }
+  /* Separa los tres conceptos: contacto físico con celdas ocupadas, entrada al margen inflado
+     y costo de la celda bajo el centro. ocup es la rejilla de obstáculos reales y costoDe(i) el costo de cada celda. */
+  function evaluarHuella(poly, centro, C, F, res, ocup, costoDe) {
+    var toc = celdasTocadas(poly, C, F, res), fisicas = [], margen = [], inscritas = 0;
+    toc.forEach(function (i) {
+      if (ocup[i]) fisicas.push(i);
+      else { var c = costoDe(i); if (c > 0) { margen.push(i); if (c >= 253) inscritas++; } }
+    });
+    var ci = limitar(Math.floor(centro[1] / res), 0, F - 1) * C + limitar(Math.floor(centro[0] / res), 0, C - 1);
+    return { fisico: fisicas.length > 0, celdasFisicas: fisicas, margen: margen.length > 0, celdasMargen: margen, inscritas: inscritas, costoCentro: costoDe(ci), celdaCentro: ci };
+  }
+  window.SIMS_PRUEBAS = { pasoFijo: pasoFijo, poligonoTocaRect: poligonoTocaRect, huellaEnMundo: huellaEnMundo, celdasTocadas: celdasTocadas, evaluarHuella: evaluarHuella };
 
   /* ═══════════════════════════════════════════════════════════
      1. Exploración por fronteras
@@ -372,22 +448,30 @@
       o("ev").textContent = eventos.length ? eventos[0] : "";
     }
     var heroEst = null;
+    /* paso fijo de 1/30 s de tiempo simulado; la velocidad 1×, 2× o 4× multiplica el tiempo real acumulado */
+    var H_PASO = 1 / 30, reloj = pasoFijo(H_PASO, 0.1);
     var B = bucle(el, function (dt) {
-      var pasos = Math.max(1, Math.round(vel * dt * 30));
-      for (var k = 0; k < pasos; k++) avanzar(1 / 30);
-      if (terminado && fin > (hero ? 4 : 1e9)) reiniciar();
-      dibujar();
+      var pasos = reloj.pasos(dt, vel);
+      for (var k = 0; k < pasos; k++) avanzar(H_PASO);
+      if (terminado && fin > (hero ? 4 : 1e9)) { reiniciar(); reloj.reiniciar(); }
+      if (pasos) dibujar();
     });
+    var reiniciarBase = reiniciar;
+    reiniciar = function () { reiniciarBase(); reloj.reiniciar(); };
     reiniciar(); dibujar();
+    /* lectura del estado, usada por las pruebas automáticas */
+    el.estadoSim = function () { return { t: t, pasos: Math.round(t / H_PASO), enviadas: est.enviadas, reemplazadas: est.reemplazadas, alcanzadas: est.alcanzadas, terminado: terminado, x: robot.x, y: robot.y, activo: B.activo }; };
     if (hero) {
       var barra = document.querySelector('[data-sim-barra="' + (el.id || "") + '"]');
       if (barra) {
         heroEst = barra.querySelector("[data-estado]");
         var bp = barra.querySelector("[data-a=play]");
         var setTxt = function () { bp.textContent = B.activo ? "Pausar" : "Reproducir"; bp.setAttribute("aria-pressed", B.activo ? "true" : "false"); };
-        bp.addEventListener("click", function () { if (B.activo) B.pausa(); else B.play(); setTxt(); });
+        var pausadoUsuario = false;
+        bp.addEventListener("click", function () { if (B.activo) { B.pausa(); pausadoUsuario = true; } else { B.play(); pausadoUsuario = false; } setTxt(); });
         if (!quieto()) B.play();
         setTxt();
+        alCambiarMovimiento(function (reducido) { if (reducido) B.pausa(); else if (!pausadoUsuario) B.play(); setTxt(); });
       } else if (!quieto()) B.play();
       return;
     }
@@ -496,17 +580,19 @@
      3. Encoder de cuadratura
      ═══════════════════════════════════════════════════════════ */
   V.encoder = function (el) {
-    var P = paleta(), ang = 0, sentido = 1, vel = 0.6, cuenta = 0, hist = [], prevA = null, prevB = null, polos = 6;
-    el.innerHTML = '<div class="vctl"><div class="segmento" role="group" aria-label="Sentido de giro"><button type="button" data-s="1" aria-pressed="true">Adelante</button><button type="button" data-s="-1" aria-pressed="false">Atrás</button></div>' +
-      '<label class="desl-linea" for="en-v">Velocidad<b class="num" data-o="vel"></b><input id="en-v" type="range" min="0" max="1.5" step="0.05" value="0.6"></label><button type="button" class="vbtn sec" data-a="cero">Contador a cero</button></div>' +
+    var P = paleta(), ang = 0, sentido = 1, VEL0 = 0.6, vel = VEL0, cuenta = 0, hist = [], prevA = null, prevB = null, polos = 6;
+    el.innerHTML = '<div class="vctl"><button type="button" class="vbtn" data-a="anim" aria-pressed="false">Reproducir</button><div class="segmento" role="group" aria-label="Sentido de giro"><button type="button" data-s="1" aria-pressed="true">Adelante</button><button type="button" data-s="-1" aria-pressed="false">Atrás</button></div>' +
+      '<label class="desl-linea" for="en-v">Velocidad<b class="num" data-o="vel"></b><input id="en-v" type="range" min="0" max="1.5" step="0.05" value="' + VEL0 + '"></label><button type="button" class="vbtn sec" data-a="paso">Avanzar un paso</button><button type="button" class="vbtn sec" data-a="cero">Contador a cero</button></div>' +
       '<div class="en-l"></div>' +
       '<div class="lecturas"><div><span>Flancos contados</span><b data-o="c">0</b></div><div><span>Orden de los flancos</span><b data-o="ord">A antes que B</b></div><div><span>Sentido detectado</span><b data-o="sen">adelante</b></div></div>' +
+      '<p class="vestado" aria-live="polite" data-o="estado"></p>' +
       '<p class="vnota">Ilustración con un imán de 6 pares de polos y la rueda girando muy lento. En el robot, cada vuelta de la rueda produce cerca de 1980 flancos, porque el sensor está en el eje del motor, antes de la caja reductora, y se cuentan los cuatro flancos de cada ciclo.</p>';
     var cont = el.querySelector(".en-l"), L = lienzo(cont, 16 / 7, function () { dibujar(); });
+    L.cv.setAttribute("role", "img"); L.cv.setAttribute("aria-label", "Disco magnético del encoder y las señales de los canales A y B en el tiempo");
     alTema(function () { P = paleta(); dibujar(); });
     function canal(a, desfase) { return Math.sin(polos * a + desfase) >= 0 ? 1 : 0; }
-    function paso(dt) {
-      ang += sentido * vel * dt;
+    function avanzarAng(da) {
+      ang += da;
       var A = canal(ang, 0), Bv = canal(ang, -Math.PI / 2);
       if (prevA !== null && (A !== prevA || Bv !== prevB)) {
         /* decodificación por cuatro: cada cambio suma o resta según el otro canal */
@@ -518,8 +604,8 @@
       prevA = A; prevB = Bv;
       hist.push([A, Bv]); if (hist.length > 360) hist.shift();
       el.querySelector('[data-o="c"]').textContent = cuenta;
-      dibujar();
     }
+    function paso(dt) { avanzarAng(sentido * vel * dt); dibujar(); }
     function dibujar() {
       var ctx = L.ctx, W = L.w, H = L.h; ctx.clearRect(0, 0, W, H); ctx.fillStyle = P.sup; ctx.fillRect(0, 0, W, H);
       var R = Math.min(H * .36, W * .14), cx = R + 24, cy = H / 2;
@@ -547,14 +633,28 @@
       ctx.fillStyle = P.muted; ctx.fillText("cada marca verde es un flanco contado", x0, H * .95);
     }
     /* llena el historial para que las señales se vean completas desde el inicio */
-    (function () { var v0 = vel; for (var k = 0; k < 360; k++) { ang += v0 / 60; hist.push([canal(ang, 0), canal(ang, -Math.PI / 2)]); } prevA = hist[359][0]; prevB = hist[359][1]; dibujar(); })();
-    var B = bucle(el, paso); if (!quieto()) B.play(); else { vel = 0.4; B.play(); }
-    el.querySelector('[data-o="vel"]').textContent = fmt(vel, 2);
+    (function () { for (var k = 0; k < 360; k++) { ang += VEL0 / 60; hist.push([canal(ang, 0), canal(ang, -Math.PI / 2)]); } prevA = hist[359][0]; prevB = hist[359][1]; dibujar(); })();
+    var B = bucle(el, paso), bAnim = el.querySelector('[data-a="anim"]'), pausadoUsuario = false;
+    function marcar() {
+      var on = B.activo;
+      bAnim.textContent = on ? "Pausar" : "Reproducir"; bAnim.setAttribute("aria-pressed", String(on));
+      el.querySelector('[data-o="estado"]').textContent = on ? "Animación en marcha." : (quieto() && !pausadoUsuario ? "Imagen fija porque el sistema pide reducir el movimiento. Usa Reproducir o Avanzar un paso." : "Animación en pausa.");
+    }
+    function velTxt() { el.querySelector('[data-o="vel"]').textContent = fmt(vel, 2); }
+    /* sin movimiento reducido arranca sola; con movimiento reducido queda fija hasta que la persona la inicie */
+    if (!quieto()) B.play();
+    velTxt(); marcar();
+    alCambiarMovimiento(function (reducido) { if (reducido) B.pausa(); else if (!pausadoUsuario) B.play(); marcar(); });
     el.addEventListener("click", function (e) {
       var s = e.target.closest("[data-s]"); if (s) { sentido = +s.getAttribute("data-s"); el.querySelectorAll("[data-s]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === s)); }); }
-      var a = e.target.closest('[data-a="cero"]'); if (a) { cuenta = 0; el.querySelector('[data-o="c"]').textContent = 0; }
+      var a = e.target.closest("[data-a]"); if (!a) return;
+      var k = a.getAttribute("data-a");
+      if (k === "cero") { cuenta = 0; el.querySelector('[data-o="c"]').textContent = 0; }
+      if (k === "anim") { if (B.activo) { B.pausa(); pausadoUsuario = true; } else { B.play(); pausadoUsuario = false; } marcar(); }
+      if (k === "paso") { if (B.activo) { B.pausa(); pausadoUsuario = true; marcar(); } avanzarAng(sentido * Math.PI / (2 * polos) * 1.0001); dibujar(); }
     });
-    el.addEventListener("input", function (e) { if (e.target.id === "en-v") { vel = parseFloat(e.target.value); el.querySelector('[data-o="vel"]').textContent = fmt(vel, 2); } });
+    el.addEventListener("input", function (e) { if (e.target.id === "en-v") { vel = parseFloat(e.target.value); velTxt(); } });
+    el.estadoSim = function () { return { activo: B.activo, vel: vel, control: parseFloat(el.querySelector("#en-v").value), etiqueta: el.querySelector('[data-o="vel"]').textContent, ang: ang, cuenta: cuenta }; };
   };
 
   /* ═══════════════════════════════════════════════════════════
@@ -580,7 +680,7 @@
       '<p class="vestado" aria-live="polite" data-o="info"></p>' +
       '<p class="vnota">Arrastra el robot, o usa las flechas del teclado con el dibujo enfocado. 230 sectores por vuelta, de 1,57° cada uno, entre 0,15 y 12 m, como el nodo de lectura escrito para este trabajo. El vidrio, la superficie oscura y la mesa son ilustrativos.</p>';
     var cont = el.querySelector(".li-l"), L = lienzo(cont, Wm / Hm * 1.0, function () { dibujar(); });
-    L.cv.tabIndex = 0; L.cv.setAttribute("role", "img"); L.cv.setAttribute("aria-label", "Sala vista desde arriba con el robot y su barrido láser");
+    L.cv.classList.add("arrastrable"); L.cv.tabIndex = 0; L.cv.setAttribute("role", "img"); L.cv.setAttribute("aria-label", "Sala vista desde arriba con el robot y su barrido láser");
     alTema(function () { P = paleta(); dibujar(); });
     function azar(i) { var x = Math.sin(i * 12.9898 + semilla * 78.233) * 43758.5453; return x - Math.floor(x); }
     function inter(ox, oy, dx, dy, s) {
@@ -803,22 +903,27 @@
      ═══════════════════════════════════════════════════════════ */
   V.inflacion = function (el) {
     var P = paleta(), RES = 0.05, Wm = 1.6, Hm = 0.9, C = Math.round(Wm / RES), F = Math.round(Hm / RES);
-    var st = { infl: 0.15, ang: 57, x: 0.45, y: 0.62 }, BETA = 5.0, INSC = 0.08;
+    var st = { infl: 0.15, ang: 57, x: 0.45, y: 0.61 }, BETA = 5.0, INSC = 0.08;
+    var LIM = { x: [0.1, Wm - 0.1], y: [0.1, Hm - 0.1] };
     var HUELLA = [[0.20, 0.13], [-0.08, 0.13], [-0.08, -0.13], [0.20, -0.13]];
     var ocup = new Uint8Array(C * F);
     for (var x = 0; x < C; x++) { ocup[x] = 1; ocup[(F - 1) * C + x] = 1; }
     for (var y = 0; y < 6; y++) for (var xx = 18; xx < 21; xx++) ocup[(F - 1 - y) * C + xx] = 1;   /* esquina de un mueble */
+    var uid = "in" + Math.random().toString(36).slice(2, 7);
     el.innerHTML = '<div class="deslizadores">' +
-      '<label for="in-r">Radio de inflación<b class="num" data-v="infl"></b><input id="in-r" type="range" min="0.05" max="0.55" step="0.01" data-k="infl"></label>' +
-      '<label for="in-a">Ángulo del robot<b class="num" data-v="ang"></b><input id="in-a" type="range" min="0" max="90" step="1" data-k="ang"></label>' +
-      '<label for="in-y">Posición en el pasillo<b class="num" data-v="y"></b><input id="in-y" type="range" min="0.15" max="0.75" step="0.01" data-k="y"></label></div>' +
-      '<div class="chips" role="group" aria-label="Valores"><button type="button" class="chip" data-r="0.15" aria-pressed="true">0,15 m, el robot real</button><button type="button" class="chip" data-r="0.24" aria-pressed="false">0,24 m, alcance de la esquina</button><button type="button" class="chip" data-r="0.55" aria-pressed="false">0,55 m, valor por defecto de Nav2</button></div>' +
+      '<label for="' + uid + '-r">Radio de inflación<b class="num" data-v="infl"></b><input id="' + uid + '-r" type="range" min="0.05" max="0.55" step="0.01" data-k="infl"></label>' +
+      '<label for="' + uid + '-a">Ángulo del robot<b class="num" data-v="ang"></b><input id="' + uid + '-a" type="range" min="0" max="90" step="1" data-k="ang"></label>' +
+      '<label for="' + uid + '-x">Posición a lo largo del pasillo, x<b class="num" data-v="x"></b><input id="' + uid + '-x" type="range" min="' + LIM.x[0] + '" max="' + LIM.x[1] + '" step="0.01" data-k="x"></label>' +
+      '<label for="' + uid + '-y">Posición a lo ancho del pasillo, y<b class="num" data-v="y"></b><input id="' + uid + '-y" type="range" min="' + LIM.y[0] + '" max="' + LIM.y[1] + '" step="0.01" data-k="y"></label></div>' +
+      '<div class="chips" role="group" aria-label="Valores del radio de inflación"><button type="button" class="chip" data-r="0.15" aria-pressed="true">0,15 m, el robot real</button><button type="button" class="chip" data-r="0.24" aria-pressed="false">0,24 m, alcance de la esquina</button><button type="button" class="chip" data-r="0.55" aria-pressed="false">0,55 m, valor por defecto de Nav2</button></div>' +
       '<div class="in-l"></div>' +
-      '<div class="lecturas"><div><span>Costo bajo el centro</span><b data-o="cc"></b></div><div><span>¿La huella toca un obstáculo?</span><b data-o="toca"></b></div><div><span>Radio inscrito</span><b>0,08 m</b></div><div><span>Radio circunscrito</span><b>0,24 m</b></div></div>' +
-      '<div class="vley"><span><i class="cu" style="background:var(--ink)"></i>obstáculo, costo 254</span><span><i class="cu" style="background:var(--violeta)"></i>radio inscrito, 253</span><span><i class="cu" style="background:var(--violeta);opacity:.35"></i>inflación, el costo decae con la distancia</span><span><i class="cu sup"></i>costo 0</span></div>' +
+      '<div class="lecturas"><div><span>¿Contacto físico con un obstáculo?</span><b data-o="fis"></b></div><div><span>¿La huella entra en el margen inflado?</span><b data-o="mar"></b></div><div><span>Costo bajo el centro</span><b data-o="cc"></b></div><div><span>Radio inscrito</span><b>0,08 m</b></div><div><span>Radio circunscrito</span><b>0,24 m</b></div></div>' +
+      '<div class="vley"><span><i class="cu" style="background:var(--ink)"></i>obstáculo real, costo 254</span><span><i class="cu" style="background:var(--violeta)"></i>radio inscrito, 253</span><span><i class="cu" style="background:var(--violeta);opacity:.35"></i>inflación, el costo decae con la distancia</span><span><i class="cu sup"></i>costo 0</span><span><i class="cu" style="background:none;border:2px solid var(--rojo)"></i>celda ocupada que la huella toca</span></div>' +
       '<p class="vestado" aria-live="polite" data-o="msg"></p>' +
-      '<p class="vnota">Celdas de 5 cm y factor de decaimiento 5,0, como en el robot. La huella es el rectángulo configurado en Nav2. Arrastra el robot para moverlo.</p>';
+      '<p class="vnota" id="' + uid + '-ayuda">Celdas de 5 cm y factor de decaimiento 5,0, como en el robot. La huella es el rectángulo configurado en Nav2. El contacto físico se calcula entre el contorno de la huella y el área completa de cada celda ocupada, incluidos bordes y esquinas. El margen inflado es una zona de seguridad del mapa de costos, no un obstáculo. Mueve el robot con los deslizadores, arrastrándolo, o con las flechas del teclado cuando el dibujo tiene el foco. Con Mayúsculas y las flechas izquierda y derecha cambia el ángulo.</p>';
     var cont = el.querySelector(".in-l"), L = lienzo(cont, Wm / Hm, function () { dibujar(); });
+    L.cv.classList.add("arrastrable"); L.cv.tabIndex = 0; L.cv.setAttribute("role", "img");
+    L.cv.setAttribute("aria-describedby", uid + "-ayuda");
     alTema(function () { P = paleta(); dibujar(); });
     var dist = new Float32Array(C * F);
     function distancias() {
@@ -834,58 +939,75 @@
       if (d <= st.infl) return Math.round(252 * Math.exp(-BETA * (d - INSC)));
       return 0;
     }
-    function huellaMundo() {
-      var a = st.ang * Math.PI / 180, c = Math.cos(a), s = Math.sin(a);
-      return HUELLA.map(function (p) { return [st.x + p[0] * c - p[1] * s, st.y + p[0] * s + p[1] * c]; });
-    }
-    function dentro(px, py, poly) {
-      var ins = false;
-      for (var i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-        var xi = poly[i][0], yi = poly[i][1], xj = poly[j][0], yj = poly[j][1];
-        if (((yi > py) !== (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi)) ins = !ins;
-      }
-      return ins;
-    }
+    function costoCelda(i) { return ocup[i] ? 254 : costo(dist[i]); }
+    function evaluar() { return evaluarHuella(huellaEnMundo(HUELLA, st.x, st.y, st.ang), [st.x, st.y], C, F, RES, ocup, costoCelda); }
     function dibujar() {
       var ctx = L.ctx, W = L.w, H = L.h, s = Math.min(W / C, H / F), ox = (W - C * s) / 2, oy = (H - F * s) / 2;
       ctx.clearRect(0, 0, W, H); ctx.fillStyle = P.sup; ctx.fillRect(0, 0, W, H);
-      var poly = huellaMundo(), toca = false;
+      var poly = huellaEnMundo(HUELLA, st.x, st.y, st.ang), ev = evaluar();
       for (var i = 0; i < C * F; i++) {
-        var x = i % C, y = (i / C) | 0, cst = costo(dist[i]), px = ox + x * s, py = oy + y * s;
+        var x = i % C, y = (i / C) | 0, cst = costoCelda(i), px = ox + x * s, py = oy + y * s;
         if (cst === 254) ctx.fillStyle = P.ink;
         else if (cst === 253) ctx.fillStyle = P.violeta;
         else if (cst > 0) ctx.fillStyle = rgba(P.violeta, 0.12 + 0.5 * cst / 252);
         else ctx.fillStyle = P.sup;
         ctx.fillRect(px, py, s + .5, s + .5);
-        if (cst >= 253 && dentro((x + .5) * RES, (y + .5) * RES, poly)) toca = true;
       }
       ctx.strokeStyle = P.linea; ctx.lineWidth = .5;
       for (var gx = 0; gx <= C; gx++) { ctx.beginPath(); ctx.moveTo(ox + gx * s, oy); ctx.lineTo(ox + gx * s, oy + F * s); ctx.stroke(); }
       for (var gy = 0; gy <= F; gy++) { ctx.beginPath(); ctx.moveTo(ox, oy + gy * s); ctx.lineTo(ox + C * s, oy + gy * s); ctx.stroke(); }
-      ctx.fillStyle = rgba(P.azul, .25); ctx.strokeStyle = toca ? P.rojo : P.azul; ctx.lineWidth = 2.5;
+      /* celdas ocupadas que la huella toca */
+      ctx.strokeStyle = P.rojo; ctx.lineWidth = 2;
+      ev.celdasFisicas.forEach(function (i) { ctx.strokeRect(ox + (i % C) * s + 1, oy + ((i / C) | 0) * s + 1, s - 2, s - 2); });
+      var colHuella = ev.fisico ? P.rojo : (ev.margen ? P.ambar : P.azul);
+      ctx.fillStyle = rgba(P.azul, .25); ctx.strokeStyle = colHuella; ctx.lineWidth = 2.5;
+      if (ev.margen && !ev.fisico) ctx.setLineDash([6, 3]);
       ctx.beginPath(); poly.forEach(function (p, k) { var X = ox + p[0] / RES * s, Y = oy + p[1] / RES * s; if (k) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); }); ctx.closePath(); ctx.fill(); ctx.stroke();
       ctx.setLineDash([4, 4]); ctx.strokeStyle = P.muted; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(ox + st.x / RES * s, oy + st.y / RES * s, 0.24 / RES * s, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
       var cx = ox + st.x / RES * s, cy = oy + st.y / RES * s;
       ctx.fillStyle = P.sup; ctx.strokeStyle = P.ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, 5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-      var ci = Math.floor(st.y / RES) * C + Math.floor(st.x / RES), cc = costo(dist[ci]);
       var o = function (k) { return el.querySelector('[data-o="' + k + '"]'); };
-      o("cc").textContent = cc; o("toca").textContent = toca ? "sí" : "no";
-      o("toca").style.color = toca ? "var(--rojo)" : "var(--verde-texto)";
-      o("msg").textContent = toca && cc < 253 ? "El centro está en una celda permitida, pero la esquina del robot ya toca la zona prohibida. El planificador mira solo el centro." : (toca ? "El centro ya está en zona prohibida." : (cc > 0 ? "El centro paga un costo extra por estar cerca del obstáculo y la huella no toca nada." : "Ni el centro ni la huella tocan obstáculos."));
+      var cc = ev.costoCentro;
+      o("cc").textContent = cc;
+      o("fis").textContent = ev.fisico ? "sí, " + ev.celdasFisicas.length + (ev.celdasFisicas.length === 1 ? " celda" : " celdas") : "no";
+      o("fis").style.color = ev.fisico ? "var(--rojo)" : "var(--verde-texto)";
+      o("mar").textContent = ev.margen ? (ev.inscritas ? "sí, hasta 253" : "sí") : "no";
+      o("mar").style.color = ev.margen ? "var(--ambar)" : "var(--verde-texto)";
+      var msg;
+      if (ev.fisico) msg = "Contacto físico: el contorno de la huella se superpone con " + ev.celdasFisicas.length + (ev.celdasFisicas.length === 1 ? " celda ocupada" : " celdas ocupadas") + ", marcadas en rojo. " + (cc < 253 ? "Aun así, el centro está en una celda de costo " + cc + ". Un criterio que mira solo el centro no lo detectaría." : "El centro también está en zona prohibida.");
+      else if (ev.margen) msg = "Sin contacto físico. La huella entra en el margen inflado" + (ev.inscritas ? ", incluidas celdas de costo 253," : "") + " que es una zona de seguridad del mapa de costos, no un obstáculo. El centro está en una celda de costo " + cc + ".";
+      else msg = cc > 0 ? "Sin contacto físico y sin entrar al margen con la huella. El centro paga un costo " + cc + " por estar cerca de un obstáculo." : "Ni el centro ni la huella tocan obstáculos ni el margen inflado.";
+      o("msg").textContent = msg;
+      L.cv.setAttribute("aria-label", "Mapa de costos visto desde arriba. Robot en x " + fmt(st.x, 2) + " m, y " + fmt(st.y, 2) + " m, ángulo " + st.ang + " grados. " + msg);
       el.querySelectorAll("[data-v]").forEach(function (b) { var k = b.getAttribute("data-v"); b.textContent = k === "ang" ? st.ang + "°" : fmt(st[k], 2) + " m"; });
-      el.querySelectorAll("input[data-k]").forEach(function (inp) { inp.value = st[inp.getAttribute("data-k")]; });
+      el.querySelectorAll("input[data-k]").forEach(function (inp) { if (document.activeElement !== inp) inp.value = st[inp.getAttribute("data-k")]; });
     }
     function mover(e) {
       var r = L.cv.getBoundingClientRect(), W = L.w, H = L.h, s = Math.min(W / C, H / F), ox = (W - C * s) / 2, oy = (H - F * s) / 2;
-      st.x = limitar((e.clientX - r.left - ox) / s * RES, 0.1, Wm - 0.1); st.y = limitar((e.clientY - r.top - oy) / s * RES, 0.1, Hm - 0.1); dibujar();
+      var kx = W / Math.max(1, r.width), ky = H / Math.max(1, r.height);
+      st.x = Math.round(limitar(((e.clientX - r.left) * kx - ox) / s * RES, LIM.x[0], LIM.x[1]) * 100) / 100;
+      st.y = Math.round(limitar(((e.clientY - r.top) * ky - oy) / s * RES, LIM.y[0], LIM.y[1]) * 100) / 100;
+      dibujar();
     }
     var arr = false;
-    L.cv.addEventListener("pointerdown", function (e) { arr = true; L.cv.setPointerCapture(e.pointerId); mover(e); });
+    L.cv.addEventListener("pointerdown", function (e) { arr = true; try { L.cv.setPointerCapture(e.pointerId); } catch (er) {} mover(e); });
     L.cv.addEventListener("pointermove", function (e) { if (arr) mover(e); });
     L.cv.addEventListener("pointerup", function () { arr = false; });
-    el.addEventListener("input", function (e) { var k = e.target.getAttribute("data-k"); if (!k) return; st[k] = parseFloat(e.target.value); if (k === "infl") el.querySelectorAll("[data-r]").forEach(function (x) { x.setAttribute("aria-pressed", "false"); }); dibujar(); });
+    L.cv.addEventListener("pointercancel", function () { arr = false; });
+    L.cv.addEventListener("keydown", function (e) {
+      var paso = e.altKey ? 0.05 : 0.01;
+      if (e.shiftKey && (e.key === "ArrowLeft" || e.key === "ArrowRight")) { e.preventDefault(); st.ang = limitar(st.ang + (e.key === "ArrowRight" ? 1 : -1), 0, 90); dibujar(); return; }
+      var d = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key]; if (!d) return;
+      e.preventDefault();
+      st.x = Math.round(limitar(st.x + d[0] * paso, LIM.x[0], LIM.x[1]) * 100) / 100;
+      st.y = Math.round(limitar(st.y + d[1] * paso, LIM.y[0], LIM.y[1]) * 100) / 100;
+      dibujar();
+    });
+    el.addEventListener("input", function (e) { var k = e.target.getAttribute("data-k"); if (!k) return; st[k] = parseFloat(e.target.value); if (k === "infl") el.querySelectorAll("[data-r]").forEach(function (x) { x.setAttribute("aria-pressed", String(Math.abs(parseFloat(x.getAttribute("data-r")) - st.infl) < 1e-9)); }); dibujar(); });
     el.addEventListener("click", function (e) { var b = e.target.closest("[data-r]"); if (!b) return; st.infl = parseFloat(b.getAttribute("data-r")); el.querySelectorAll("[data-r]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); dibujar(); });
     distancias(); dibujar();
+    el.estadoSim = function () { var ev = evaluar(); return { st: { x: st.x, y: st.y, ang: st.ang, infl: st.infl }, fisico: ev.fisico, margen: ev.margen, inscritas: ev.inscritas, costoCentro: ev.costoCentro, celdasFisicas: ev.celdasFisicas.length }; };
+    el.fijarSim = function (o) { Object.keys(o).forEach(function (k) { st[k] = o[k]; }); dibujar(); };
   };
 
   /* ═══════════════════════════════════════════════════════════
@@ -893,32 +1015,40 @@
      ═══════════════════════════════════════════════════════════ */
   V.dwb = function (el) {
     var P = paleta(), Wm = 2.0, Hm = 1.4, SIMT = 1.7, VMAX = 0.15, WMAX = 0.35;
-    var obs = { x: 0.95, y: 0.62, r: 0.1 }, rob = { x: 0.25, y: 1.05, th: -0.55 };
+    var D_INFL = 0.35, D_CHOQUE = 0.12;   /* parámetros de esta demostración, no de la configuración real */
+    var ESCENAS = { cerca: { x: 0.72, y: 0.72 }, lejos: { x: 0.95, y: 0.62 } };
+    var obs = { x: ESCENAS.cerca.x, y: ESCENAS.cerca.y, r: 0.1 }, rob = { x: 0.25, y: 1.05, th: -0.55 };
     var st = { ruta: 32, meta: 24, obst: 20 };
     var ruta = []; for (var k = 0; k <= 40; k++) { var tt = k / 40; ruta.push([0.25 + 1.55 * tt, 1.05 - 0.75 * Math.sin(tt * Math.PI / 2)]); }
-    el.innerHTML = '<div class="deslizadores">' +
-      '<label for="dw-r">Peso de seguir la ruta<b class="num" data-v="ruta"></b><input id="dw-r" type="range" min="0" max="64" step="1" data-k="ruta"></label>' +
-      '<label for="dw-m">Peso de acercarse a la meta<b class="num" data-v="meta"></b><input id="dw-m" type="range" min="0" max="64" step="1" data-k="meta"></label>' +
-      '<label for="dw-o">Peso de alejarse de obstáculos<b class="num" data-v="obst"></b><input id="dw-o" type="range" min="0" max="64" step="1" data-k="obst"></label></div>' +
+    var uid = "dw" + Math.random().toString(36).slice(2, 7);
+    el.innerHTML = '<div class="chips" role="group" aria-label="Escenarios del obstáculo"><button type="button" class="chip" data-e="cerca" aria-pressed="true">Obstáculo junto a la ruta</button><button type="button" class="chip" data-e="lejos" aria-pressed="false">Obstáculo fuera del alcance de las candidatas</button></div>' +
+      '<div class="deslizadores">' +
+      '<label for="' + uid + '-r">Peso de seguir la ruta<b class="num" data-v="ruta"></b><input id="' + uid + '-r" type="range" min="0" max="64" step="1" data-k="ruta"></label>' +
+      '<label for="' + uid + '-m">Peso de acercarse a la meta<b class="num" data-v="meta"></b><input id="' + uid + '-m" type="range" min="0" max="64" step="1" data-k="meta"></label>' +
+      '<label for="' + uid + '-o">Peso de alejarse de obstáculos<b class="num" data-v="obst"></b><input id="' + uid + '-o" type="range" min="0" max="64" step="1" data-k="obst"></label>' +
+      '<label for="' + uid + '-ox">Obstáculo, posición x<b class="num" data-v="ox"></b><input id="' + uid + '-ox" type="range" min="0.1" max="' + (Wm - 0.1) + '" step="0.01" data-o-k="x"></label>' +
+      '<label for="' + uid + '-oy">Obstáculo, posición y<b class="num" data-v="oy"></b><input id="' + uid + '-oy" type="range" min="0.1" max="' + (Hm - 0.1) + '" step="0.01" data-o-k="y"></label></div>' +
       '<div class="dw-l"></div>' +
-      '<div class="vley"><span><i class="lin" style="background:#13A538"></i>ruta global</span><span><i class="lin azul"></i>trayectoria elegida</span><span><i class="lin" style="background:var(--line-2)"></i>candidatas, más oscuras si tienen mejor puntaje</span><span><i class="lin rojo"></i>descartadas por chocar</span></div>' +
+      '<div class="vley"><span><i class="lin" style="background:#13A538"></i>ruta global</span><span><i class="lin azul"></i>trayectoria elegida</span><span><i class="lin" style="background:var(--line-2)"></i>candidatas, más oscuras si tienen mejor puntaje</span><span><i class="lin rojo"></i>descartadas por chocar</span><span><i class="cu" style="background:none;border:1px dashed var(--muted);border-radius:50%"></i>zona donde el obstáculo penaliza</span></div>' +
+      '<div class="tabla-env"><table class="tabla dw-tabla"><caption>Puntaje de la trayectoria elegida, menor es mejor. Cada término es peso por medida.</caption><thead><tr><th>Criterio</th><th class="n">Medida</th><th class="n">Peso</th><th class="n">Aporte</th></tr></thead><tbody data-o="tabla"></tbody></table></div>' +
       '<p class="vestado" aria-live="polite" data-o="msg"></p>' +
-      '<p class="vnota">Ilustrativo. Se prueban 7 velocidades lineales entre 0 y 0,15 m/s y 15 de giro entre ±0,35 rad/s, los límites que DWB tiene configurados en el robot real. Aquí cada candidata se proyecta 1,7 s hacia adelante para que el dibujo se lea, la configuración del robot real usa 3,5 s. El obstáculo aparece después de planificar la ruta global, por eso la ruta lo atraviesa. Arrástralo.</p>';
+      '<p class="vnota" id="' + uid + '-ayuda">Ilustrativo. Se prueban 7 velocidades lineales entre 0 y 0,15 m/s y 15 de giro entre ±0,35 rad/s, los límites que DWB tiene configurados en el robot real. Aquí cada candidata se proyecta 1,7 s hacia adelante para que el dibujo se lea, la configuración del robot real usa 3,5 s. Los pesos, la zona de 0,35 m donde el obstáculo penaliza y el margen de choque de 0,12 m son propios de esta demostración y no equivalen a las escalas de los críticos del robot real. El obstáculo aparece después de planificar la ruta global, por eso la ruta lo atraviesa. Muévelo con los deslizadores, arrastrándolo o con las flechas del teclado cuando el dibujo tiene el foco.</p>';
     var cont = el.querySelector(".dw-l"), L = lienzo(cont, Wm / Hm, function () { dibujar(); });
+    L.cv.classList.add("arrastrable"); L.cv.tabIndex = 0; L.cv.setAttribute("role", "img"); L.cv.setAttribute("aria-describedby", uid + "-ayuda");
     alTema(function () { P = paleta(); dibujar(); });
-    function candidatas() {
+    function evaluarCandidatas() {
       var out = [];
       for (var i = 0; i < 7; i++) for (var j = 0; j < 15; j++) {
         var v = VMAX * i / 6, w = -WMAX + 2 * WMAX * j / 14, x = rob.x, y = rob.y, th = rob.th, pts = [[x, y]], choca = false, dmin = 9;
         for (var t = 0; t < SIMT; t += 0.05) {
           th += w * 0.05; x += v * Math.cos(th) * 0.05; y += v * Math.sin(th) * 0.05; pts.push([x, y]);
-          var d = Math.hypot(x - obs.x, y - obs.y) - obs.r; dmin = Math.min(dmin, d); if (d < 0.12) choca = true;
+          var d = Math.hypot(x - obs.x, y - obs.y) - obs.r; dmin = Math.min(dmin, d); if (d < D_CHOQUE) choca = true;
         }
         var dr = 9; ruta.forEach(function (p) { dr = Math.min(dr, Math.hypot(p[0] - x, p[1] - y)); });
         var meta = ruta[ruta.length - 1], dm = Math.hypot(meta[0] - x, meta[1] - y);
-        var cObs = dmin < 0.35 ? (0.35 - dmin) * 3 : 0;
-        var score = st.ruta * dr + st.meta * dm * 0.5 + st.obst * cObs;
-        out.push({ v: v, w: w, pts: pts, choca: choca, s: score });
+        var cObs = dmin < D_INFL ? (D_INFL - dmin) * 3 : 0;
+        var partes = { ruta: st.ruta * dr, meta: st.meta * dm * 0.5, obst: st.obst * cObs };
+        out.push({ v: v, w: w, pts: pts, choca: choca, dmin: dmin, dr: dr, dm: dm, cObs: cObs, partes: partes, s: partes.ruta + partes.meta + partes.obst });
       }
       return out;
     }
@@ -928,7 +1058,7 @@
       ctx.clearRect(0, 0, W, H); ctx.fillStyle = P.sup; ctx.fillRect(0, 0, W, H);
       ctx.strokeStyle = P.linea; ctx.lineWidth = 1; for (var g = 0; g <= 20; g++) { ctx.beginPath(); ctx.moveTo(X(g * .1), 0); ctx.lineTo(X(g * .1), H); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, Y(g * .1)); ctx.lineTo(W, Y(g * .1)); ctx.stroke(); }
       ctx.strokeStyle = P.oscuro ? "#5BE07A" : "#13A538"; ctx.lineWidth = 3; ctx.beginPath(); ruta.forEach(function (p, i) { if (i) ctx.lineTo(X(p[0]), Y(p[1])); else ctx.moveTo(X(p[0]), Y(p[1])); }); ctx.stroke();
-      var cs = candidatas(), val = cs.filter(function (c) { return !c.choca; }), mn = Infinity, mx = -Infinity;
+      var cs = evaluarCandidatas(), val = cs.filter(function (c) { return !c.choca; }), mn = Infinity, mx = -Infinity;
       val.forEach(function (c) { mn = Math.min(mn, c.s); mx = Math.max(mx, c.s); });
       var mejor = null; val.forEach(function (c) { if (!mejor || c.s < mejor.s) mejor = c; });
       cs.forEach(function (c) {
@@ -939,20 +1069,64 @@
       });
       ctx.setLineDash([]);
       if (mejor) { ctx.strokeStyle = P.azul; ctx.lineWidth = 4; ctx.beginPath(); mejor.pts.forEach(function (p, i) { if (i) ctx.lineTo(X(p[0]), Y(p[1])); else ctx.moveTo(X(p[0]), Y(p[1])); }); ctx.stroke(); }
+      /* zona de influencia del obstáculo en esta demostración */
+      ctx.setLineDash([4, 4]); ctx.strokeStyle = P.muted; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(X(obs.x), Y(obs.y), (obs.r + D_INFL) * esc, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle = P.obst; ctx.beginPath(); ctx.arc(X(obs.x), Y(obs.y), obs.r * esc, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = P.sup; ctx.font = "700 11px Atkinson Hyperlegible, sans-serif"; ctx.textAlign = "center"; ctx.fillText("obstáculo", X(obs.x), Y(obs.y) + 4); ctx.textAlign = "start";
       ctx.save(); ctx.translate(X(rob.x), Y(rob.y)); ctx.rotate(rob.th); ctx.fillStyle = P.azul; ctx.fillRect(-0.08 * esc, -0.13 * esc, 0.28 * esc, 0.26 * esc); ctx.fillStyle = P.verdeV; ctx.beginPath(); ctx.moveTo(0.24 * esc, 0); ctx.lineTo(0.16 * esc, -6); ctx.lineTo(0.16 * esc, 6); ctx.fill(); ctx.restore();
       var meta = ruta[ruta.length - 1]; ctx.fillStyle = P.rojo; ctx.beginPath(); ctx.arc(X(meta[0]), Y(meta[1]), 6, 0, Math.PI * 2); ctx.fill();
-      el.querySelector('[data-o="msg"]').textContent = mejor ? "Elige " + fmt(mejor.v, 3) + " m/s y " + fmt(mejor.w, 2) + " rad/s. " + (cs.length - val.length) + " de " + cs.length + " candidatas quedan descartadas por chocar." : "Todas las candidatas chocan. Nav2 activaría una recuperación.";
-      el.querySelectorAll("[data-v]").forEach(function (b) { b.textContent = st[b.getAttribute("data-v")]; });
-      el.querySelectorAll("input[data-k]").forEach(function (i) { i.value = st[i.getAttribute("data-k")]; });
+      /* lecturas */
+      var dminTodas = Math.min.apply(null, cs.map(function (c) { return c.dmin; }));
+      var influyen = cs.filter(function (c) { return !c.choca && c.cObs > 0; }).length;
+      var msg;
+      if (!mejor) msg = "Todas las candidatas chocan. Nav2 activaría una recuperación.";
+      else {
+        msg = "Elige " + fmt(mejor.v, 3) + " m/s y " + fmt(mejor.w, 2) + " rad/s. " + (cs.length - val.length) + " de " + cs.length + " candidatas quedan descartadas por chocar. ";
+        if (dminTodas >= D_INFL) msg += "El obstáculo no aporta nada: ninguna candidata se acerca a menos de " + fmt(dminTodas, 2) + " m de su borde, y solo penaliza a menos de " + fmt(D_INFL, 2) + " m. En 1,7 s a 0,15 m/s el robot recorre como máximo " + fmt(VMAX * SIMT, 2) + " m, así que cambiar su peso no altera la elección.";
+        else if (!influyen) msg += "Las candidatas que se acercan al obstáculo quedan descartadas por chocar. Las válidas no reciben penalización, así que su peso no cambia la elección.";
+        else msg += influyen + " candidatas válidas pasan a menos de " + fmt(D_INFL, 2) + " m del obstáculo y pagan por ello. Con más peso, la elección tiende a alejarse del obstáculo o a frenar.";
+      }
+      el.querySelector('[data-o="msg"]').textContent = msg;
+      L.cv.setAttribute("aria-label", "Trayectorias candidatas de la ventana dinámica. Obstáculo en x " + fmt(obs.x, 2) + " m, y " + fmt(obs.y, 2) + " m. " + msg);
+      el.querySelector('[data-o="tabla"]').innerHTML = mejor ?
+        '<tr><th>Distancia a la ruta al final</th><td class="n">' + fmt(mejor.dr, 3) + ' m</td><td class="n">' + st.ruta + '</td><td class="n">' + fmt(mejor.partes.ruta, 2) + '</td></tr>' +
+        '<tr><th>Distancia a la meta al final, por 0,5</th><td class="n">' + fmt(mejor.dm, 3) + ' m</td><td class="n">' + st.meta + '</td><td class="n">' + fmt(mejor.partes.meta, 2) + '</td></tr>' +
+        '<tr><th>Cercanía al obstáculo, ' + fmt(D_INFL, 2) + ' m menos la distancia mínima, por 3</th><td class="n">' + (mejor.cObs > 0 ? fmt(mejor.cObs, 3) : '0, a ' + fmt(mejor.dmin, 2) + ' m') + '</td><td class="n">' + st.obst + '</td><td class="n">' + fmt(mejor.partes.obst, 2) + '</td></tr>' +
+        '<tr class="destacada"><th>Total</th><td></td><td></td><td class="n">' + fmt(mejor.s, 2) + '</td></tr>' : '<tr><td colspan="4">Sin trayectoria válida.</td></tr>';
+      el.querySelectorAll("[data-v]").forEach(function (b) { var k = b.getAttribute("data-v"); b.textContent = k === "ox" ? fmt(obs.x, 2) + " m" : (k === "oy" ? fmt(obs.y, 2) + " m" : st[k]); });
+      el.querySelectorAll("input[data-k]").forEach(function (i) { if (document.activeElement !== i) i.value = st[i.getAttribute("data-k")]; });
+      el.querySelectorAll("input[data-o-k]").forEach(function (i) { if (document.activeElement !== i) i.value = obs[i.getAttribute("data-o-k")]; });
+      return { mejor: mejor, dminTodas: dminTodas, influyen: influyen };
+    }
+    function marcarEscena() {
+      el.querySelectorAll("[data-e]").forEach(function (b) { var e = ESCENAS[b.getAttribute("data-e")]; b.setAttribute("aria-pressed", String(Math.abs(e.x - obs.x) < 1e-6 && Math.abs(e.y - obs.y) < 1e-6)); });
     }
     var arr = false;
-    function mover(e) { var r = L.cv.getBoundingClientRect(), esc = Math.min(L.w / Wm, L.h / Hm); obs.x = limitar((e.clientX - r.left) / esc, 0.1, Wm - 0.1); obs.y = limitar((e.clientY - r.top) / esc, 0.1, Hm - 0.1); dibujar(); }
-    L.cv.addEventListener("pointerdown", function (e) { arr = true; L.cv.setPointerCapture(e.pointerId); mover(e); });
+    function mover(e) {
+      var r = L.cv.getBoundingClientRect(), esc = Math.min(L.w / Wm, L.h / Hm), kx = L.w / Math.max(1, r.width), ky = L.h / Math.max(1, r.height);
+      obs.x = Math.round(limitar((e.clientX - r.left) * kx / esc, 0.1, Wm - 0.1) * 100) / 100; obs.y = Math.round(limitar((e.clientY - r.top) * ky / esc, 0.1, Hm - 0.1) * 100) / 100;
+      marcarEscena(); dibujar();
+    }
+    L.cv.addEventListener("pointerdown", function (e) { arr = true; try { L.cv.setPointerCapture(e.pointerId); } catch (er) {} mover(e); });
     L.cv.addEventListener("pointermove", function (e) { if (arr) mover(e); });
     L.cv.addEventListener("pointerup", function () { arr = false; });
-    el.addEventListener("input", function (e) { var k = e.target.getAttribute("data-k"); if (!k) return; st[k] = parseFloat(e.target.value); dibujar(); });
+    L.cv.addEventListener("pointercancel", function () { arr = false; });
+    L.cv.addEventListener("keydown", function (e) {
+      var d = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key]; if (!d) return;
+      e.preventDefault(); var paso = e.shiftKey ? 0.05 : 0.01;
+      obs.x = Math.round(limitar(obs.x + d[0] * paso, 0.1, Wm - 0.1) * 100) / 100; obs.y = Math.round(limitar(obs.y + d[1] * paso, 0.1, Hm - 0.1) * 100) / 100;
+      marcarEscena(); dibujar();
+    });
+    el.addEventListener("input", function (e) {
+      var k = e.target.getAttribute("data-k"), ok = e.target.getAttribute("data-o-k");
+      if (k) st[k] = parseFloat(e.target.value);
+      else if (ok) { obs[ok] = parseFloat(e.target.value); marcarEscena(); }
+      else return;
+      dibujar();
+    });
+    el.addEventListener("click", function (e) { var b = e.target.closest("[data-e]"); if (!b) return; var sc = ESCENAS[b.getAttribute("data-e")]; obs.x = sc.x; obs.y = sc.y; marcarEscena(); dibujar(); });
     dibujar();
+    el.estadoSim = function () { var r = dibujar(); return { obs: { x: obs.x, y: obs.y }, pesos: { ruta: st.ruta, meta: st.meta, obst: st.obst }, v: r.mejor && r.mejor.v, w: r.mejor && r.mejor.w, puntaje: r.mejor && r.mejor.s, aporteObst: r.mejor && r.mejor.partes.obst, dminTodas: r.dminTodas, influyen: r.influyen }; };
+    el.fijarSim = function (o) { if (o.obs) { obs.x = o.obs.x; obs.y = o.obs.y; } ["ruta", "meta", "obst"].forEach(function (k) { if (o[k] != null) st[k] = o[k]; }); marcarEscena(); dibujar(); };
   };
 })();

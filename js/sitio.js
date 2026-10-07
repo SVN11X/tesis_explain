@@ -5,12 +5,15 @@
   ampliación de imágenes, secuencia de etapas y carga diferida de los interactivos.
 
   Para agregar o renombrar un tema basta con editar la lista CAPS.
-  Si la tesis se publica en PDF, pon su enlace en TESIS_PDF y aparecerá en el pie y en Recursos.
+  Si la tesis se publica en PDF, pon su enlace en TESIS_PDF y aparecerá en el pie y en Recursos#materiales.
 */
 (function () {
   "use strict";
 
-  var TESIS_PDF = "";            /* ejemplo: "https://repositorio.utem.cl/..." */
+  /* Enlace público a la tesis en PDF. Mientras esté vacío, el pie no muestra enlace y Recursos
+     dice que la tesis no está publicada. Pon aquí solo una dirección verificada, por ejemplo la
+     del repositorio institucional de la UTEM, nunca una copia sin procedencia. */
+  var TESIS_PDF = "";
   var REPO = "https://github.com/SVN11X/tesis_explain";
   var VIDEO_ID = "iTTC10eGDmc";
 
@@ -32,7 +35,9 @@
     { id: "lecciones", t: "Lecciones de ingeniería", d: "Temas que la tesis deja implícitos: unidades, seguridad, privacidad, reproducibilidad." },
     { id: "recursos", t: "Recursos", d: "Glosario, bibliografía, material para aprender y cómo citar." }
   ];
-  var SECUENCIA = CAPS.concat(EXTRAS.slice(0, 2));
+  /* Secuencia de lectura: los diez temas numerados y, después, los complementos sin número.
+     Recursos va al final, con su índice lateral y su navegación, sin alterar la numeración de los temas. */
+  var SECUENCIA = CAPS.concat(EXTRAS);
   window.SITIO = { CAPS: CAPS, EXTRAS: EXTRAS, REPO: REPO, VIDEO_ID: VIDEO_ID, TESIS_PDF: TESIS_PDF };
 
   var pagina = document.body.getAttribute("data-pagina") || "";
@@ -198,7 +203,7 @@
       var ant = SECUENCIA[idxSec - 1], sig = SECUENCIA[idxSec + 1];
       nc.className = "nav-cap";
       nc.innerHTML = (ant ? '<a class="ant" href="' + ant.id + '.html"><span>← Anterior</span><b>' + esc(ant.t) + '</b></a>' : '<a class="ant" href="index.html"><span>← Volver</span><b>Inicio</b></a>') +
-        (sig ? '<a class="sig" href="' + sig.id + '.html"><span>Siguiente →</span><b>' + esc(sig.t) + '</b></a>' : '<a class="sig" href="recursos.html"><span>Para seguir →</span><b>Recursos y glosario</b></a>');
+        (sig ? '<a class="sig" href="' + sig.id + '.html"><span>Siguiente →</span><b>' + esc(sig.t) + '</b></a>' : (pagina === "recursos" ? '<a class="sig" href="index.html"><span>Para terminar →</span><b>Volver al inicio</b></a>' : '<a class="sig" href="recursos.html"><span>Para seguir →</span><b>Recursos y glosario</b></a>'));
     }
     var ay = document.getElementById("ayuda-pie");
     if (ay) ay.innerHTML = '¿Encontraste un error o algo no se entiende? <a href="' + REPO + '/issues/new?title=' + encodeURIComponent(c.t) + '">Escríbelo en GitHub</a>. Toda contribución mejora la guía para quien venga después.';
@@ -314,10 +319,20 @@
     });
   }
 
-  /* ── Burbuja compartida para citas y términos ── */
-  var burbuja = null;
-  function mostrar(el, html) {
-    if (!burbuja) { burbuja = document.createElement("div"); burbuja.className = "burbuja"; burbuja.id = "burbuja"; burbuja.setAttribute("role", "tooltip"); document.body.appendChild(burbuja); }
+  /* ── Burbuja compartida para citas y términos ──
+     Estado único: qué elemento la muestra y si quedó fijada con clic, toque, Enter o Espacio.
+     El foco y el paso del ratón la muestran sin fijarla. El primer clic o toque la fija, aunque
+     el foco ya la hubiera mostrado, y el siguiente la cierra. Escape, un clic fuera o salir con
+     el foco la cierran. No atrapa el foco: la burbuja no contiene elementos enfocables. */
+  var burbuja = null, dueno = null, fijada = false;
+  function crearBurbuja() {
+    if (burbuja) return;
+    burbuja = document.createElement("div"); burbuja.className = "burbuja"; burbuja.id = "burbuja"; burbuja.setAttribute("role", "tooltip");
+    document.body.appendChild(burbuja);
+  }
+  function mostrar(el, html, fijar) {
+    crearBurbuja();
+    if (dueno && dueno !== el) soltar(dueno);
     burbuja.innerHTML = html;
     var r = el.getBoundingClientRect();
     burbuja.style.left = "0px"; burbuja.style.top = "0px"; burbuja.classList.add("visible");
@@ -327,8 +342,19 @@
     if (r.top - h - 10 < 70) y = r.bottom + window.scrollY + 10;
     burbuja.style.left = x + "px"; burbuja.style.top = y + "px";
     el.setAttribute("aria-describedby", "burbuja");
+    if (el.classList.contains("term")) el.setAttribute("aria-expanded", "true");
+    dueno = el; fijada = !!fijar;
   }
-  function ocultar(el) { if (burbuja) burbuja.classList.remove("visible"); if (el) el.removeAttribute("aria-describedby"); }
+  function soltar(el) {
+    if (!el) return;
+    el.removeAttribute("aria-describedby");
+    if (el.classList.contains("term")) el.setAttribute("aria-expanded", "false");
+  }
+  function ocultar(el) {
+    if (el && dueno && el !== dueno) return;      /* otro elemento ya tomó la burbuja */
+    if (burbuja) burbuja.classList.remove("visible");
+    soltar(dueno); dueno = null; fijada = false;
+  }
   function citasYTerminos() {
     document.querySelectorAll("a.ref").forEach(function (a) {
       var id = (a.getAttribute("href") || "").replace("#", "");
@@ -336,84 +362,180 @@
       if (!li) return;
       a.setAttribute("aria-label", "Fuente " + a.textContent.trim());
       var txt = esc(li.textContent.trim().replace(/\s+/g, " "));
-      a.addEventListener("mouseenter", function () { mostrar(a, txt); });
-      a.addEventListener("focus", function () { mostrar(a, txt); });
-      a.addEventListener("mouseleave", function () { ocultar(a); });
+      a.addEventListener("mouseenter", function () { if (!fijada) mostrar(a, txt); });
+      a.addEventListener("focus", function () { if (!fijada || dueno !== a) mostrar(a, txt); });
+      a.addEventListener("mouseleave", function () { if (!fijada) ocultar(a); });
       a.addEventListener("blur", function () { ocultar(a); });
       a.addEventListener("click", function () { ocultar(a); li.classList.add("destacar"); setTimeout(function () { li.classList.remove("destacar"); }, 2400); });
     });
     document.querySelectorAll(".term[data-def]").forEach(function (t) {
       if (!t.hasAttribute("tabindex")) t.setAttribute("tabindex", "0");
+      t.setAttribute("role", "button");
+      t.setAttribute("aria-expanded", "false");
+      if (!t.hasAttribute("aria-label")) t.setAttribute("aria-label", t.textContent.trim() + ", ver definición");
       var html = '<b>' + esc(t.getAttribute("data-t") || t.textContent.trim()) + '</b>' + esc(t.getAttribute("data-def"));
-      t.addEventListener("mouseenter", function () { mostrar(t, html); });
-      t.addEventListener("focus", function () { mostrar(t, html); });
-      t.addEventListener("mouseleave", function () { ocultar(t); });
+      function alternar() { if (dueno === t && fijada) ocultar(t); else mostrar(t, html, true); }
+      t.addEventListener("mouseenter", function () { if (!fijada) mostrar(t, html); });
+      t.addEventListener("mouseleave", function () { if (!fijada) ocultar(t); });
+      t.addEventListener("focus", function () { if (dueno !== t) mostrar(t, html); });
       t.addEventListener("blur", function () { ocultar(t); });
-      t.addEventListener("click", function () { if (burbuja && burbuja.classList.contains("visible")) ocultar(t); else mostrar(t, html); });
+      t.addEventListener("click", function (e) { e.preventDefault(); alternar(); });
+      t.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") { e.preventDefault(); alternar(); }
+      });
     });
-    document.addEventListener("keydown", function (e) { if (e.key === "Escape") ocultar(); });
-    window.addEventListener("scroll", function () { ocultar(); }, { passive: true });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && dueno) ocultar(); });
+    /* un clic o toque fuera del término o de la burbuja la cierra */
+    document.addEventListener("pointerdown", function (e) {
+      if (!dueno) return;
+      if (e.target.closest && (e.target.closest(".term, a.ref") || e.target.closest("#burbuja"))) return;
+      ocultar();
+    });
+    window.addEventListener("resize", function () { if (dueno && !fijada) ocultar(); });
   }
+
+  /* ── Normalización y coincidencias del buscador ──
+     Funciones puras, expuestas en SITIO.busqueda para poder probarlas.
+     norm quita mayúsculas y tildes, une los miles escritos con espacio (49 683 → 49683)
+     y usa coma decimal (3.63 → 3,63). Cada carácter normalizado guarda la posición del
+     original, así el resaltado marca el texto tal como se escribió en la página. */
+  var BUS = (function () {
+    var ESPACIOS = /[    ]/;
+    function normMap(s) {
+      s = String(s == null ? "" : s);
+      var cs = [], ix = [];
+      for (var i = 0; i < s.length; i++) {
+        var ch = s[i];
+        if (ESPACIOS.test(ch)) ch = " ";
+        var d = ch.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+        for (var k = 0; k < d.length; k++) { cs.push(d[k]); ix.push(i); }
+      }
+      var t = cs.join(""), borrar = {};
+      /* miles separados por espacio: 1 a 3 cifras y luego grupos de exactamente 3 cifras */
+      var re = /(^|[^0-9,.])(\d{1,3}(?: \d{3})+)(?![0-9])/g, m;
+      while ((m = re.exec(t))) {
+        var ini = m.index + m[1].length, grupo = m[2];
+        for (var j = 0; j < grupo.length; j++) if (grupo[j] === " ") borrar[ini + j] = 1;
+      }
+      var cs2 = [], ix2 = [];
+      for (var q = 0; q < cs.length; q++) if (!borrar[q]) { cs2.push(cs[q]); ix2.push(ix[q]); }
+      /* punto decimal entre cifras se escribe como coma */
+      for (var r = 1; r < cs2.length - 1; r++) if (cs2[r] === "." && /\d/.test(cs2[r - 1]) && /\d/.test(cs2[r + 1])) cs2[r] = ",";
+      return { t: cs2.join(""), map: ix2 };
+    }
+    function norm(s) { return normMap(s).t; }
+    function esNumero(tok) { return /^\d+(,\d+)?$/.test(tok); }
+    function tokens(q) {
+      return norm(q).split(/\s+/).map(function (p) { return p.replace(/^[^0-9a-zñ]+|[^0-9a-zñ]+$/g, ""); }).filter(Boolean);
+    }
+    function dig(c) { return c != null && c >= "0" && c <= "9"; }
+    /* posiciones donde aparece tok en t. Un número debe coincidir completo: 3,63 no aparece en 13,63 ni en 3,635 */
+    function posiciones(t, tok, max) {
+      var out = [], desde = 0, num = esNumero(tok);
+      while (out.length < (max || 1e9)) {
+        var p = t.indexOf(tok, desde);
+        if (p < 0) break;
+        desde = p + 1;
+        if (num) {
+          var a = t[p - 1], b = t[p + tok.length];
+          if (dig(a) || (a === "," && dig(t[p - 2]))) continue;
+          if (dig(b) || (b === "," && dig(t[p + tok.length + 1]))) continue;
+        }
+        out.push(p);
+      }
+      return out;
+    }
+    function aparece(t, tok) { return posiciones(t, tok, 1).length > 0; }
+    function buscar(indice, q, max) {
+      var ps = tokens(q);
+      if (!ps.length) return [];
+      return indice.map(function (e, n) {
+        var tt = e._t || (e._t = norm(e.t)), tx = e._x || (e._x = norm(e.x)), puntos = 0;
+        for (var i = 0; i < ps.length; i++) {
+          var enT = aparece(tt, ps[i]), enX = aparece(tx, ps[i]);
+          if (!enT && !enX) return null;
+          puntos += (enT ? 10 : 0) + (enX ? 2 : 0);
+        }
+        return { e: e, p: puntos, n: n };
+      }).filter(Boolean).sort(function (a, b) { return b.p - a.p || a.n - b.n; })
+        /* una sección larga puede tener varias partes: se muestra solo la primera que coincide */
+        .filter(function (r, i, arr) { for (var k = 0; k < i; k++) if (arr[k].e.u === r.e.u) return false; return true; })
+        .slice(0, max || 14);
+    }
+    /* devuelve HTML escapado con <mark> en cada coincidencia, sobre el texto original */
+    function resaltar(txt, ps) {
+      var nm = normMap(txt), rangos = [];
+      ps.forEach(function (p) {
+        if (p.length < 3 && !esNumero(p)) return;
+        posiciones(nm.t, p).forEach(function (i) { rangos.push([nm.map[i], nm.map[i + p.length - 1] + 1]); });
+      });
+      rangos.sort(function (a, b) { return a[0] - b[0]; });
+      var out = "", cur = 0;
+      rangos.forEach(function (r) {
+        if (r[1] <= cur) return;
+        var ini = Math.max(cur, r[0]);
+        out += esc(txt.slice(cur, ini)) + "<mark>" + esc(txt.slice(ini, r[1])) + "</mark>";
+        cur = r[1];
+      });
+      return out + esc(txt.slice(cur));
+    }
+    /* fragmento del texto original alrededor de la primera coincidencia */
+    function extracto(x, ps, largo) {
+      largo = largo || 170;
+      var nm = normMap(x), pos = -1;
+      for (var i = 0; i < ps.length && pos < 0; i++) { var p = posiciones(nm.t, ps[i], 1); if (p.length) pos = nm.map[p[0]]; }
+      if (pos < 0) pos = 0;
+      var ini = Math.max(0, pos - 60);
+      if (ini > 0) { var esp = x.lastIndexOf(" ", ini); if (esp > ini - 20) ini = esp + 1; }
+      var fin = Math.min(x.length, ini + largo);
+      if (fin < x.length) { var e2 = x.indexOf(" ", fin); if (e2 > 0 && e2 < fin + 20) fin = e2; }
+      return { texto: x.slice(ini, fin), antes: ini > 0, despues: fin < x.length };
+    }
+    return { normMap: normMap, norm: norm, tokens: tokens, posiciones: posiciones, buscar: buscar, resaltar: resaltar, extracto: extracto };
+  })();
+  window.SITIO.busqueda = BUS;
 
   /* ── Buscador ── */
   function buscador() {
     var btn = document.getElementById("btn-buscar");
     if (!btn || typeof HTMLDialogElement === "undefined") { if (btn) btn.remove(); return; }
     var dlg = document.createElement("dialog"); dlg.className = "buscador"; dlg.setAttribute("aria-label", "Buscar en el sitio");
-    dlg.innerHTML = '<div class="bus-cab">' + SVG.lupa + '<input type="search" placeholder="Busca un tema, una cifra o un concepto" aria-label="Buscar" autocomplete="off"><button type="button" class="btn-icono" aria-label="Cerrar buscador">' + SVG.cerrar + '</button></div>' +
-      '<ul class="bus-res" role="list"></ul><div class="bus-pie"><span>Enter abre el primer resultado</span><span>Esc cierra</span><span>Prueba con: odometría, A estrella, costo, fronteras</span></div>';
+    dlg.innerHTML = '<div class="bus-cab">' + SVG.lupa + '<input type="search" placeholder="Busca un tema, una cifra o un concepto" aria-label="Buscar" aria-describedby="bus-ayuda" autocomplete="off"><button type="button" class="btn-icono" aria-label="Cerrar buscador">' + SVG.cerrar + '</button></div>' +
+      '<p class="bus-estado sr" role="status" aria-live="polite"></p>' +
+      '<ul class="bus-res" role="list"></ul><div class="bus-pie" id="bus-ayuda"><span>Enter abre el primer resultado</span><span>Esc cierra</span><span>Las cifras se encuentran con coma o punto: 3,63 o 3.63</span></div>';
     document.body.appendChild(dlg);
-    var input = dlg.querySelector("input"), lista = dlg.querySelector(".bus-res");
+    var input = dlg.querySelector("input"), lista = dlg.querySelector(".bus-res"), estado = dlg.querySelector(".bus-estado");
     var indice = null, cargando = false;
-    function norm(s) { return String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); }
     function cargar(cb) {
       if (indice) { cb(); return; }
       if (window.INDICE) { indice = window.INDICE; cb(); return; }
       if (cargando) return; cargando = true;
       var s = document.createElement("script"); s.src = "datos/indice.js";
       s.onload = function () { indice = window.INDICE || []; cb(); };
-      s.onerror = function () { lista.innerHTML = '<li class="bus-vacio">No se pudo cargar el índice de búsqueda.</li>'; };
+      s.onerror = function () { cargando = false; lista.innerHTML = '<li class="bus-vacio">No se pudo cargar el índice de búsqueda.</li>'; };
       document.head.appendChild(s);
     }
-    function marcarTxt(txt, palabras) {
-      var t = esc(txt);
-      palabras.forEach(function (p) {
-        if (p.length < 3) return;
-        var re = new RegExp("(" + p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "gi");
-        t = t.replace(re, "<mark>$1</mark>");
-      });
-      return t;
-    }
     function buscar() {
-      var q = norm(input.value.trim());
-      if (!q) { lista.innerHTML = '<li class="bus-vacio">Escribe al menos una palabra.</li>'; return; }
-      var ps = q.split(/\s+/).filter(Boolean);
-      var res = indice.map(function (e) {
-        var tt = norm(e.t), tx = norm(e.x), puntos = 0;
-        for (var i = 0; i < ps.length; i++) {
-          var p = ps[i], enT = tt.indexOf(p) >= 0, enX = tx.indexOf(p) >= 0;
-          if (!enT && !enX) return null;
-          puntos += (enT ? 10 : 0) + (enX ? 2 : 0);
-        }
-        return { e: e, p: puntos };
-      }).filter(Boolean).sort(function (a, b) { return b.p - a.p; }).slice(0, 14);
-      if (!res.length) { lista.innerHTML = '<li class="bus-vacio">Sin resultados para «' + esc(input.value) + '». Revisa el <a href="recursos.html#glosario">glosario</a>.</li>'; return; }
-      var crudas = input.value.trim().split(/\s+/);
+      var q = input.value.trim();
+      if (!q) { lista.innerHTML = '<li class="bus-vacio">Escribe al menos una palabra.</li>'; estado.textContent = ""; return; }
+      var ps = BUS.tokens(q), res = BUS.buscar(indice, q, 14);
+      if (!res.length) { lista.innerHTML = '<li class="bus-vacio">Sin resultados para «' + esc(q) + '». Revisa el <a href="recursos.html#glosario">glosario</a>.</li>'; estado.textContent = "Sin resultados."; return; }
+      estado.textContent = res.length + (res.length === 1 ? " resultado." : " resultados.");
       lista.innerHTML = res.map(function (r, i) {
-        var e = r.e, x = e.x, pos = norm(x).indexOf(ps[0]);
-        var ini = Math.max(0, pos - 60), frag = (ini > 0 ? "…" : "") + x.slice(ini, ini + 170) + (x.length > ini + 170 ? "…" : "");
-        return '<li><a href="' + esc(e.u) + '"' + (i === 0 ? ' class="sel"' : '') + '><small>' + esc(e.p) + '</small><b>' + marcarTxt(e.t, crudas) + '</b><span>' + marcarTxt(frag, crudas) + '</span></a></li>';
+        var e = r.e, ex = BUS.extracto(e.x, ps, 170);
+        return '<li><a href="' + esc(e.u) + '"' + (i === 0 ? ' class="sel"' : '') + '><small>' + esc(e.p) + '</small><b>' + BUS.resaltar(e.t, ps) + '</b><span>' + (ex.antes ? "…" : "") + BUS.resaltar(ex.texto, ps) + (ex.despues ? "…" : "") + '</span></a></li>';
       }).join("");
     }
     function abrir() { cargar(function () { buscar(); }); dlg.showModal(); input.focus(); input.select(); }
     btn.addEventListener("click", abrir);
     dlg.querySelector(".bus-cab button").addEventListener("click", function () { dlg.close(); });
     dlg.addEventListener("click", function (e) { if (e.target === dlg) dlg.close(); });
+    dlg.addEventListener("close", function () { btn.focus(); });
     var t = null;
     input.addEventListener("input", function () { clearTimeout(t); t = setTimeout(function () { if (indice) buscar(); }, 90); });
     input.addEventListener("keydown", function (e) {
-      if (e.key === "Escape") { e.preventDefault(); dlg.close(); btn.focus(); return; }
-      if (e.key === "Enter") { var a = lista.querySelector("a"); if (a) { e.preventDefault(); location.href = a.getAttribute("href"); dlg.close(); } }
+      if (e.key === "Escape") { e.preventDefault(); dlg.close(); return; }
+      if (e.key === "Enter") { clearTimeout(t); if (indice) buscar(); var a = lista.querySelector("a"); if (a) { e.preventDefault(); var h = a.getAttribute("href"); dlg.close(); location.href = h; } }
       if (e.key === "ArrowDown") { var f = lista.querySelector("a"); if (f) { e.preventDefault(); f.focus(); } }
     });
     lista.addEventListener("keydown", function (e) {
@@ -498,8 +620,16 @@
     setTimeout(marcar, 60);
   }
 
+  /* ── Estado del PDF de la tesis en Recursos ── */
+  function materiales() {
+    if (!TESIS_PDF) return;
+    document.querySelectorAll("[data-tesis-pdf]").forEach(function (td) {
+      td.innerHTML = '<span class="estado ok">Disponible</span> <a href="' + esc(TESIS_PDF) + '">Descargar el PDF</a>';
+    });
+  }
+
   function iniciar() {
-    cabecera(); pie(); capitulo(); progreso(); arriba(); videos(); bucles(); ampliar(); comparadores(); citasYTerminos(); buscador(); etapas(); interactivos(); destacarHash();
+    cabecera(); pie(); capitulo(); progreso(); arriba(); videos(); bucles(); ampliar(); comparadores(); citasYTerminos(); buscador(); materiales(); etapas(); interactivos(); destacarHash();
     document.documentElement.classList.add("js");
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", iniciar); else iniciar();
