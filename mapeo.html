@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Ver y dibujar el mapa · Robot explorador</title>
-<meta name="description" content="Cómo mide un LiDAR 2D y qué no ve, qué es una rejilla de ocupación, cómo SLAM por grafos construye el mapa y corrige la odometría, por qué slam_toolbox, y cómo leer los resultados de mapeo del robot real.">
+<title>Ver y mapear con LiDAR y SLAM · Robot explorador</title>
+<meta name="description" content="Cómo mide un LiDAR 2D, qué no alcanza a ver, cómo SLAM Toolbox arma el mapa con un grafo de poses y cómo leer los resultados de mapeo del robot real.">
 <meta name="author" content="Sebastián Valderas Neculqueo">
 <link rel="canonical" href="https://svn11x.github.io/tesis_explain/mapeo.html">
 <meta property="og:type" content="article">
 <meta property="og:locale" content="es_CL">
 <meta property="og:site_name" content="Robot explorador">
-<meta property="og:title" content="Ver y dibujar el mapa">
-<meta property="og:description" content="Cómo mide un LiDAR 2D y qué no ve, qué es una rejilla de ocupación, cómo SLAM por grafos construye el mapa y corrige la odometría, por qué slam_toolbox, y cómo leer los resultados de mapeo del robot real.">
+<meta property="og:title" content="Ver y mapear con LiDAR y SLAM">
+<meta property="og:description" content="Cómo mide un LiDAR 2D, qué no alcanza a ver, cómo SLAM Toolbox arma el mapa con un grafo de poses y cómo leer los resultados de mapeo del robot real.">
 <meta property="og:url" content="https://svn11x.github.io/tesis_explain/mapeo.html">
 <meta property="og:image" content="https://svn11x.github.io/tesis_explain/img/social.png">
 <meta property="og:image:width" content="1200">
@@ -34,68 +34,91 @@
 <body data-pagina="mapeo">
 <a class="saltar" href="#contenido">Saltar al contenido</a>
 <div id="cabecera"></div>
-<header class="cap-cab"><div class="wrap">
-<nav class="miga" aria-label="Ruta"><a href="index.html">Inicio</a><span aria-hidden="true">›</span><span data-cap-n>Guía</span></nav>
-<h1>Ver y dibujar el mapa</h1>
-<p class="lead">Un láser que gira entrega cientos de distancias por vuelta. Convertirlas en un plano confiable, mientras el robot se mueve y su odometría deriva, es el problema que resuelve SLAM.</p>
-<div class="meta-cap"><span data-nivel class="etiqueta">Nivel</span><span class="etiqueta" data-lectura>Lectura</span><span class="etiqueta">Basado en la tesis, con fuentes externas marcadas</span></div>
-</div></header>
+<header class="tema-hero">
+  <div class="wrap">
+    <div class="tema-hero-txt">
+      <nav class="miga" aria-label="Ruta"><a href="index.html">Inicio</a><span aria-hidden="true">›</span><a href="index.html#temas">Temas</a><span aria-hidden="true">›</span><span data-cap-n>Tema</span></nav>
+      <p class="eyebrow" data-bloque>Cómo funciona</p>
+      <h1>Ver y mapear con LiDAR y SLAM</h1>
+      <p class="lead">Para hacer un mapa hay que saber dónde está el robot, y para saber dónde está hace falta un mapa. Este tema explica cómo un láser que gira resuelve ese círculo, qué no alcanza a ver y cómo leer los mapas que construyó el robot real.</p>
+      <div class="meta-cap"><span data-nivel class="etiqueta">Nivel</span><span class="etiqueta" data-lectura>Lectura</span></div>
+    </div>
+    <figure class="tema-hero-fig contener">
+      <picture><source srcset="img/fotos/rplidar-a1.webp" type="image/webp"><img src="img/fotos/rplidar-a1.jpg" width="800" height="800" alt="Sensor RPLidar A1: una base negra con forma de lágrima y una torre cilíndrica que gira, impulsada por un pequeño motor con correa." fetchpriority="high"></picture>
+      <figcaption>El RPLidar A1, el único sensor de percepción del robot. Imagen de Slamtec.</figcaption>
+    </figure>
+  </div>
+</header>
 <div class="wrap cap-layout">
-<aside class="lateral" id="lateral" aria-label="Navegación del capítulo"></aside>
+<aside class="lateral" id="lateral" aria-label="Navegación del tema"></aside>
 <main class="articulo" id="contenido">
-<section class="esencial" aria-label="Lo esencial">
-  <h2>Lo esencial</h2>
-  <ol>
-    <li>El LiDAR mide distancias girando en un plano horizontal. No ve lo que queda arriba o abajo de ese plano, y le cuestan el vidrio y las superficies muy oscuras.</li>
-    <li>SLAM construye el mapa y estima la posición al mismo tiempo. En el enfoque de grafos, cuando el robot reconoce un lugar ya visto, el error acumulado se reparte en todo el recorrido.</li>
-    <li>El robot mapeó en promedio 3,50 m² de área libre, casi igual en las cinco corridas. El índice de cobertura varió mucho más, porque depende del tamaño de la imagen y no del recinto.</li>
-  </ol>
+
+<section class="en-breve" aria-labelledby="t-breve">
+  <h2 id="t-breve">En pocas palabras</h2>
+  <p>El LiDAR mide distancias girando en un plano horizontal. SLAM Toolbox junta esos barridos en un grafo de poses y, cuando el robot reconoce un lugar ya visto, reparte el error acumulado en todo el recorrido. En el robot real, las cinco exploraciones válidas mapearon casi la misma área libre, 3,50 m² en promedio, aunque su índice de cobertura varió mucho por una razón que vale la pena entender.</p>
+  <div class="cifras-mini">
+    <div><b>3,50 <small>m²</small></b><span>área libre mapeada en promedio, con dispersión de solo 0,03 m²</span></div>
+    <div><b>62,2 <small>%</small></b><span>índice medio de cobertura libre, un indicador relativo a la imagen</span></div>
+    <div><b>5 <small>cm</small></b><span>lado de cada celda del mapa</span></div>
+    <div><b>5 <small>de 6</small></b><span>ejecuciones que produjeron un mapa válido</span></div>
+  </div>
 </section>
 
 <section>
   <h2 id="lidar">Cómo ve un LiDAR 2D</h2>
-  <p>Un LiDAR mide distancias con luz láser. Algunos miden el tiempo que tarda el pulso en volver <a class="cita" href="recursos.html#r-corke2023">(Corke, 2023, Sec. 6.8)</a> y otros, como el RPLidar A1 de este robot, usan triangulación óptica <a class="cita" href="recursos.html#r-slamtec2020">(Slamtec, 2020)</a>. En un LiDAR 2D el emisor y el receptor giran sobre un eje vertical y entregan, en cada vuelta, pares de ángulo y distancia en un plano horizontal. Con eso se detectan paredes y obstáculos <span class="en-tesis">Sec. 3.3.1</span>.</p>
+  <p>Un LiDAR mide distancias con luz láser. Algunos miden el tiempo que tarda el pulso en volver <a class="ref" href="#f2">2</a> y otros, como el RPLidar A1 de este robot, usan triangulación óptica, es decir, calculan la distancia según el ángulo con que vuelve la luz reflejada <a class="ref" href="#f3">3</a>. En un LiDAR 2D el emisor y el receptor giran sobre un eje vertical y entregan, en cada vuelta, pares de ángulo y distancia en un plano horizontal. Con eso se detectan paredes y obstáculos <a class="ref" href="#f1">1</a>.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="sim-lidar">Lo que ve el láser, y lo que no</h3><span class="tipo inter">Interactivo</span><p>Arrastra el robot por la sala. Cambia a la vista del láser para ver el mundo como lo ve el robot.</p></div>
     <div class="vis" data-vis="lidar"><p class="vis-fallback">Simulador del barrido de un LiDAR 2D. Necesita JavaScript.</p></div>
   </div>
-  <p>Sus límites principales son dos <span class="en-tesis">Sec. 3.3.1</span>. No detecta objetos fuera de su plano de barrido, como la cubierta de una mesa o una caja baja, y su medición se degrada ante superficies muy reflectantes, como el vidrio, o muy absorbentes, como una tela negra. En el robot real, el programa de lectura reparte cada vuelta en 230 sectores y descarta lo que está a menos de 0,15 m o a más de 12 m, como se explica en <a href="robot.html#lidar">El robot por dentro</a>.</p>
-  <div class="callout real">
-    <div class="c-tit"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>En la vida real</div>
-    <p>Las aspiradoras robot con torre láser hacen exactamente esto. El láser gira, cada rebote se convierte en un punto del plano, y tras una primera pasada el robot guarda el mapa para reutilizarlo <a class="cita" href="recursos.html#r-dreame">(Dreame Technology, s.f.)</a>. Por la misma razón que en esta tesis, un objeto bajo el plano del láser, como un cable en el piso, no aparece en ese mapa. En productos comerciales, esa limitación se suele cubrir sumando otros sensores.</p>
-  </div>
+  <p>Sus límites principales son dos. No detecta objetos fuera de su plano de barrido, como la cubierta de una mesa o una caja baja, y su medición se degrada ante superficies muy reflectantes, como el vidrio, o muy absorbentes, como una tela negra <a class="ref" href="#f1">1</a>. El recinto de pruebas usa paneles opacos y de color, una elección razonable para un primer prototipo, pero que deja fuera los casos difíciles de una oficina real.</p>
+  <figure class="fig oscura">
+    <picture><source srcset="img/tesis/gazebo-lidar.webp" type="image/webp"><img src="img/tesis/gazebo-lidar.png" width="1600" height="985" loading="lazy" decoding="async" alt="Vista superior de una simulación en Gazebo: el área barrida por el láser en azul, recortada por obstáculos que dejan sombras detrás."></picture>
+    <figcaption>El barrido del láser simulado se corta en cada obstáculo y deja zonas de sombra detrás. Lo que el láser no ve, el mapa no lo tiene. <small>Fig. 4.3 de la tesis.</small></figcaption>
+  </figure>
 </section>
 
 <section>
   <h2 id="rejilla">El mapa como una rejilla</h2>
-  <p>El mapa que construye el robot es una rejilla de ocupación. El plano se divide en celdas, aquí de 5 cm por lado, y cada una queda como libre, ocupada o desconocida <a class="cita" href="recursos.html#r-macenski2023">(Macenski et al., 2023)</a>. Al guardarse, el mapa es una imagen en escala de grises en la que lo claro es libre, lo oscuro es ocupado y el gris intermedio es desconocido <span class="en-tesis">Anexo 8.1</span>.</p>
-  <p>Sobre esa rejilla trabajan los demás módulos. La navegación agrega un margen de seguridad alrededor de los obstáculos, y el explorador busca los bordes entre lo libre y lo desconocido. Ambos temas tienen su capítulo.</p>
+  <p>El mapa que construye el robot es una <span class="term" data-def="Un mapa dividido en celdas cuadradas iguales. Cada celda se marca como libre, ocupada o desconocida.">rejilla de ocupación</span>. El plano se divide en celdas, aquí de 5 cm por lado, y cada una queda como libre, ocupada o desconocida <a class="ref" href="#f4">4</a>. Al guardarse, el mapa es una imagen en escala de grises en la que lo claro es libre, lo oscuro es ocupado y el gris intermedio es desconocido <a class="ref" href="#f1">1</a>.</p>
+  <p>Sobre esa rejilla trabajan los demás módulos. La navegación agrega un margen de seguridad alrededor de los obstáculos, y el explorador busca los bordes entre lo libre y lo desconocido. Ambos temas tienen su propia página.</p>
 </section>
 
 <section>
   <h2 id="marcos">Tres marcos de referencia: mapa, odometría y robot</h2>
-  <p>Para decir dónde está algo hay que decir respecto de qué. ROS organiza las posiciones en un árbol de marcos de referencia, con convenciones comunes para todos los robots. El eje x apunta hacia adelante, el y hacia la izquierda y el z hacia arriba <a class="cita" href="recursos.html#r-rep103">(REP 103)</a>, y los marcos principales de un robot móvil son tres <a class="cita" href="recursos.html#r-rep105">(REP 105)</a>.</p>
-  <ul>
-    <li><b>base_link</b> viaja pegado al robot.</li>
-    <li><b>odom</b> es el marco de la odometría. Es continuo, sin saltos, pero se aleja de la realidad con el tiempo.</li>
-    <li><b>map</b> es el marco del mapa. Es correcto a largo plazo, pero puede corregirse a saltos cuando SLAM ajusta su estimación.</li>
-  </ul>
-  <p>La cadena completa es map, odom, base_link y laser_frame. El controlador diferencial publica el paso de odom a base_link con la odometría de los encoders, y slam_toolbox publica el paso de map a odom <span class="en-tesis">Sec. 4.2.2 y 4.3.2</span>. Esa última transformación es la que absorbe la deriva de la odometría. Por eso un sesgo de 3,63 % en los encoders no se acumula en el mapa.</p>
+  <p>Para decir dónde está algo hay que decir respecto de qué. ROS organiza las posiciones en un árbol de marcos de referencia, con convenciones comunes para todos los robots. El eje x apunta hacia adelante, el y hacia la izquierda y el z hacia arriba <a class="ref" href="#f5">5</a>, y los marcos principales de un robot móvil son tres <a class="ref" href="#f6">6</a>.</p>
+  <div class="grid-2">
+    <div>
+      <p><b>base_link</b> viaja pegado al robot. <b>odom</b> es el marco de la odometría, continuo y sin saltos, pero que se aleja de la realidad con el tiempo. <b>map</b> es el marco del mapa, correcto a largo plazo, aunque puede corregirse a saltos cuando SLAM ajusta su estimación.</p>
+      <p>La cadena completa es map, odom, base_link y el marco del láser. El controlador diferencial publica el paso de odom a base_link con los encoders, y slam_toolbox publica el paso de map a odom <a class="ref" href="#f1">1</a>. Esa última transformación absorbe la deriva de la odometría. Por eso un sesgo de 3,63 % en los encoders no se acumula en el mapa.</p>
+    </div>
+    <figure class="fig oscura">
+      <picture><source srcset="img/tesis/tf-marcos.webp" type="image/webp"><img src="img/tesis/tf-marcos.png" width="1279" height="926" loading="lazy" decoding="async" alt="Modelo del robot en RViz con varios tríos de ejes rojos, verdes y azules, uno por cada marco de referencia del modelo."></picture>
+      <figcaption>Los marcos del modelo en RViz. Cada trío de ejes rojo, verde y azul es un marco, con x, y y z. <small>Captura del autor.</small></figcaption>
+    </figure>
+  </div>
 </section>
 
 <section>
   <h2 id="slam">SLAM: mapear y ubicarse a la vez</h2>
-  <p>Para hacer un mapa hay que saber dónde está el robot, y para saber dónde está el robot hace falta un mapa. SLAM resuelve las dos cosas a la vez <a class="cita" href="recursos.html#r-thrun2005">(Thrun et al., 2005)</a>. En el enfoque basado en grafos, cada nodo es una pose del robot, es decir, dónde estaba y hacia dónde miraba. Cada arista es una restricción entre dos poses, que sale de la odometría o de alinear dos barridos del láser, lo que se llama ajuste de barridos <span class="en-tesis">Sec. 3.8</span>.</p>
+  <p>SLAM resuelve el mapa y la posición al mismo tiempo <a class="ref" href="#f7">7</a>. En el enfoque basado en grafos, cada nodo es una <span class="term" data-def="La posición del robot en el plano más la dirección hacia la que mira.">pose</span> del robot y cada arista es una restricción entre dos poses, que sale de la odometría o de alinear dos barridos del láser, lo que se llama ajuste de barridos <a class="ref" href="#f1">1</a>.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="sim-lazo">Grafo de poses y cierre de lazo</h3><span class="tipo inter">Interactivo</span><p>Mira cómo se abre la trayectoria por la deriva y cómo se corrige al cerrar el lazo.</p></div>
     <div class="vis" data-vis="lazo"><p class="vis-fallback">Grafo de poses con y sin cierre de lazo.</p></div>
   </div>
-  <p>Cuando el robot vuelve a ver una zona que ya conocía, se agrega una restricción de cierre de lazo. Al optimizar el grafo, que es un problema de mínimos cuadrados, el error acumulado se reparte a lo largo de toda la trayectoria y el mapa se corrige. Un buen punto de partida para entenderlo en profundidad es el tutorial de <a class="cita" href="recursos.html#r-grisetti2010">Grisetti et al. (2010)</a>.</p>
+  <p>Cuando el robot vuelve a ver una zona que ya conocía, se agrega una restricción de <span class="term" data-def="Reconocer que el robot volvió a un lugar ya visitado. Esa nueva restricción permite repartir el error acumulado en todo el recorrido.">cierre de lazo</span>. Al optimizar el grafo, que es un problema de mínimos cuadrados, el error acumulado se reparte a lo largo de toda la trayectoria y el mapa se corrige. Para entenderlo en profundidad, el tutorial de Grisetti y otros es un buen punto de partida <a class="ref" href="#f8">8</a>.</p>
   <h3 id="slam-toolbox">SLAM Toolbox en este robot</h3>
-  <p>El robot usa slam_toolbox, un SLAM 2D por grafos de poses diseñado para ROS 2 <a class="cita" href="recursos.html#r-macenski2021">(Macenski y Jambrecic, 2021)</a>, en su modo asíncrono en línea. Procesa los barridos sin bloquear el sistema cuando la carga crece, optimiza el grafo con Ceres y tiene el cierre de lazo activado. Corre en el computador, no en la Raspberry, y su uso de procesador no se midió <span class="en-tesis">Sec. 4.5.1, Tabla A5.3</span>.</p>
-  <div class="callout ojo">
-    <div class="c-tit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9.5 17H2.5z"/><path d="M12 10v4M12 17.5v.5"/></svg>Un detalle honesto</div>
-    <p>En los resultados, el cierre de lazo figura como no determinado. El cierre estaba activado, pero el análisis posterior no detecta automáticamente si ocurrió, y ese dato se ingresaba a mano. La consistencia de los mapas se evaluó a la vista <span class="en-tesis">Sec. 5.3, Anexo 8.1</span>.</p>
+  <p>El robot usa slam_toolbox, un SLAM 2D por grafos de poses diseñado para ROS 2 <a class="ref" href="#f9">9</a>, en su modo asíncrono en línea. Procesa los barridos sin bloquear el sistema cuando la carga crece, optimiza el grafo con el resolvedor Ceres y tiene el cierre de lazo activado. Corre en el computador, no en la Raspberry Pi, y su uso de procesador no se midió <a class="ref" href="#f1">1</a>.</p>
+  <p>Un detalle que la tesis informa con cuidado. En los resultados el cierre de lazo figura como no determinado, porque el análisis posterior no detecta automáticamente si ocurrió. La consistencia de los mapas se evaluó a la vista. Es preferible decirlo así que inventar una cifra.</p>
+  <div class="videos-grid">
+    <div class="vid-card">
+      <div class="video" data-vimeo="378682207" data-titulo="On Use of SLAM Toolbox" data-sub="Charla de Steve Macenski en ROSCon 2019, en inglés"><a href="https://vimeo.com/378682207">Ver la charla en Vimeo</a></div>
+      <p>El autor de SLAM Toolbox explica por qué lo diseñó y cómo se usa. <small>Fuente <a class="ref" href="#f10">10</a></small></p>
+    </div>
+    <div class="vid-card">
+      <div class="video" data-yt="ZaiA3hWaRzE" data-titulo="Easy SLAM with ROS using slam_toolbox" data-sub="Articulated Robotics, en inglés"><a href="https://www.youtube.com/watch?v=ZaiA3hWaRzE">Ver el video en YouTube</a></div>
+      <p>Un tutorial práctico del mismo autor de los paquetes en que se basa este robot. <small>Fuente <a class="ref" href="#f11">11</a></small></p>
+    </div>
   </div>
 </section>
 
@@ -105,15 +128,15 @@
     <table class="tabla">
       <thead><tr><th>Alternativa</th><th>Fortaleza</th><th>Limitación</th></tr></thead>
       <tbody>
-        <tr><th>GMapping</th><td>Rejilla con filtro de partículas, buen desempeño en escenas pequeñas <a class="cita" href="recursos.html#r-grisetti2007">(Grisetti et al., 2007)</a>.</td><td>Depende de una odometría consistente, no detecta cierres de lazo y su paso a ROS 2 es más débil.</td></tr>
-        <tr><th>Hector SLAM</th><td>Puede operar con poca dependencia de la odometría <a class="cita" href="recursos.html#r-kohlbrecher2011">(Kohlbrecher et al., 2011)</a>.</td><td>Necesita un láser de alta tasa de barrido para contener la deriva.</td></tr>
-        <tr><th>Cartographer</th><td>Buena consistencia global y cierre de lazo <a class="cita" href="recursos.html#r-hess2016">(Hess et al., 2016)</a>.</td><td>Configuración más compleja y el mayor uso medio de CPU en una comparación independiente.</td></tr>
+        <tr><th>GMapping</th><td>Rejilla con filtro de partículas, buen desempeño en escenas pequeñas.</td><td>Depende de una odometría consistente, no detecta cierres de lazo y su paso a ROS 2 es más débil.</td></tr>
+        <tr><th>Hector SLAM</th><td>Puede operar con poca dependencia de la odometría.</td><td>Necesita un láser de alta tasa de barrido para contener la deriva.</td></tr>
+        <tr><th>Cartographer</th><td>Buena consistencia global y cierre de lazo.</td><td>Configuración más compleja y el mayor uso medio de CPU en una comparación independiente.</td></tr>
         <tr class="destacada"><th>slam_toolbox</th><td>Integración con ROS 2, grafo de poses y almacenamiento de mapas.</td><td>En modo asíncrono puede omitir mediciones si la anterior se atrasa.</td></tr>
       </tbody>
-      <caption>Tabla 1.2 de la tesis.</caption>
+      <caption>Tabla 1.2 de la tesis, con base en Ran y otros, Trejos y otros, y Macenski y Jambrecic.</caption>
     </table>
   </div>
-  <p>La comparación independiente es la de <a class="cita" href="recursos.html#r-trejos2022">Trejos et al. (2022)</a>, que midió cinco algoritmos en simulación. No incluyó slam_toolbox, pero sí a Karto, que fue su mejor opción global, y slam_toolbox se construye sobre Open Karto.</p>
+  <p>La comparación independiente es la de Trejos y otros, que midió cinco algoritmos en simulación <a class="ref" href="#f12">12</a>. No incluyó slam_toolbox, pero sí a Karto, que fue su mejor opción global, y slam_toolbox se construye sobre Open Karto. El argumento no es que slam_toolbox gane una carrera que no corrió, sino que hereda una base bien evaluada y suma lo que este proyecto necesitaba.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="trejos">Qué comparó Trejos y cómo se conecta</h3><span class="tipo datos">Fuentes citadas</span></div>
     <div class="vis" data-vis="trejos"><p class="vis-fallback">Trejos comparó Cartographer, GMapping, Hector, Karto y RTAB-Map. Karto fue la mejor opción global.</p></div>
@@ -123,10 +146,14 @@
 <section>
   <h2 id="como-crece">Así crece el mapa en el robot real</h2>
   <p>Cuatro momentos de una misma exploración. A la izquierda, la cámara cenital sobre el recinto. A la derecha, RViz, el programa que muestra los datos del robot. La línea verde es la ruta que planifica la navegación hacia la frontera elegida, no el camino ya recorrido.</p>
+  <figure class="bucle-env">
+    <div class="bucle"><video autoplay muted loop playsinline preload="metadata" poster="img/tesis/exploracion-real-poster.jpg" width="1280" height="686" aria-label="Animación de cuatro capturas de la exploración real: cámara cenital y mapa en RViz que crece desde un pasillo hasta casi todo el recinto."><source src="img/tesis/exploracion-real.mp4" type="video/mp4"></video></div>
+    <figcaption>La exploración en cuatro capturas, en bucle. A la izquierda de cada panel, la cámara cenital, y a la derecha RViz. <small>Fig. A7.1 de la tesis.</small></figcaption>
+  </figure>
   <div class="etapas">
     <div class="etapas-vista">
-      <div class="cam"><picture><source srcset="img/fotos/etapa-1-camara.webp" type="image/webp"><img src="img/fotos/etapa-1-camara.jpg" width="489" height="862" alt="Cámara cenital, etapa 1 de 4" decoding="async"></picture></div>
-      <div class="mapa"><picture><source srcset="img/fotos/etapa-1-mapa.webp" type="image/webp"><img src="img/fotos/etapa-1-mapa.jpg" width="1062" height="769" alt="Mapa en RViz al comienzo: solo un pasillo estrecho alrededor del robot, con la ruta verde hacia adelante." decoding="async"></picture></div>
+      <div class="cam"><picture><source srcset="img/fotos/etapa-1-camara.webp" type="image/webp"><img src="img/fotos/etapa-1-camara.jpg" width="489" height="862" alt="Cámara cenital, etapa 1 de 4" decoding="async" loading="lazy"></picture></div>
+      <div class="mapa"><picture><source srcset="img/fotos/etapa-1-mapa.webp" type="image/webp"><img src="img/fotos/etapa-1-mapa.jpg" width="1062" height="769" alt="Mapa en RViz al comienzo: solo un pasillo estrecho alrededor del robot, con la ruta verde hacia adelante." decoding="async" loading="lazy"></picture></div>
     </div>
     <div class="etapas-ctl" role="group" aria-label="Etapas de la exploración">
       <button type="button" aria-pressed="true" data-alt="Mapa en RViz al comienzo: solo un pasillo estrecho alrededor del robot, con la ruta verde hacia adelante."><b>1 · Inicio</b><small>Un pasillo estrecho</small></button>
@@ -134,47 +161,83 @@
       <button type="button" aria-pressed="false" data-alt="Mapa en RViz con la mayor parte del recinto descubierto y una ruta verde curva hacia el sector superior derecho."><b>3 · Cobertura amplia</b><small>Con ruta activa</small></button>
       <button type="button" aria-pressed="false" data-alt="Mapa en RViz casi completo del recinto, con todos los pasillos y la ruta verde hacia el último rincón."><b>4 · Cierre</b><small>Mayor cobertura</small></button>
     </div>
-    <div class="etapas-pie"><span>Capturas de la ejecución representativa de la Fig. A7.1 de la tesis, tomadas del video de demostración.</span><button type="button" class="vbtn sec" data-play aria-pressed="false">Reproducir secuencia</button></div>
+    <div class="etapas-pie"><span>Explora cada etapa a tu ritmo con los botones.</span><button type="button" class="vbtn sec" data-play aria-pressed="false">Reproducir secuencia</button></div>
   </div>
-  <p>Los colores de RViz corresponden a su esquema para mapas de costos. Las paredes detectadas aparecen en magenta, la franja contigua en celeste y luego un degradado de rojos a morados que marca el costo extra de pasar cerca de un obstáculo. Lo oscuro es espacio libre sin costo y lo gris es lo que todavía no se conoce. Cómo se calculan esos costos se explica en <a href="navegacion.html#costos">Planificar y seguir una ruta</a>.</p>
+  <p>Los colores de RViz corresponden a su esquema para mapas de costos. Las paredes detectadas aparecen en magenta, la franja contigua en celeste y luego un degradado de rojos a morados que marca el costo extra de pasar cerca de un obstáculo. Lo oscuro es espacio libre sin costo y lo gris es lo que todavía no se conoce. Cómo se calculan esos costos se explica en <a href="navegacion.html#costos">Planificar y seguir rutas</a>.</p>
 </section>
 
 <section>
   <h2 id="resultados">Resultados de mapeo y cómo leerlos</h2>
-  <p>De seis ejecuciones de exploración en el robot real, cinco produjeron un mapa válido. Para cada una se calcularon dos indicadores a partir del mapa guardado <span class="en-tesis">Sec. 5.3, Tabla 5.4</span>.</p>
-  <ul>
-    <li><b>Área libre mapeada.</b> El número de celdas libres por el área de cada celda.</li>
-    <li><b>Índice de cobertura libre.</b> Las celdas libres divididas por la suma de celdas libres y desconocidas de la imagen. Las ocupadas no cuentan.</li>
-  </ul>
+  <p>De seis ejecuciones de exploración en el robot real, cinco produjeron un mapa válido. Para cada una se calcularon dos indicadores a partir del mapa guardado <a class="ref" href="#f1">1</a>. El área libre mapeada, que es el número de celdas libres por el área de cada celda. Y el índice de cobertura libre, que divide las celdas libres por la suma de celdas libres y desconocidas de la imagen.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="cobertura">Mismo espacio, distinto índice</h3><span class="tipo datos">Datos de la tesis</span><p>El índice depende de cuántas celdas desconocidas quedan en la imagen, que no está anclada al recinto.</p></div>
     <div class="vis" data-vis="cobertura"><p class="vis-fallback">Índices de 82,9, 53,5, 54,2, 67,1 y 53,4 %. Áreas libres de 3,510, 3,540, 3,478, 3,483 y 3,478 m².</p></div>
   </div>
-  <p>El área libre fue casi la misma en las cinco corridas, entre 3,478 y 3,540 m², con una desviación estándar de 0,03 m². El índice de cobertura, en cambio, saltó entre 53,4 % y 82,9 %, con una media de 62,2 %. La razón es que la imagen del mapa no tiene un tamaño fijo, y cambia cuántas celdas desconocidas quedan a su alrededor. Por eso la tesis usa el área libre y el hecho de que las cinco corridas terminaron solas como evidencia principal, y el índice como un indicador complementario <span class="en-tesis">Sec. 5.3</span>.</p>
-  <p>Ninguno de los dos mide el error absoluto del mapa, porque no se dispuso de un plano medido del recinto para compararlo. La consistencia de las paredes se evaluó a la vista, y el contraste con los mapas de simulación es cualitativo <span class="en-tesis">Tabla A8.1</span>.</p>
+  <p>El área libre fue casi la misma en las cinco corridas, entre 3,478 y 3,540 m². El índice de cobertura, en cambio, saltó entre 53,4 % y 82,9 %. La razón es que la imagen del mapa no tiene un tamaño fijo, y cambia cuántas celdas desconocidas quedan a su alrededor. Por eso la tesis usa como evidencia principal el área libre y el hecho de que las cinco corridas terminaron solas, y el índice como indicador complementario <a class="ref" href="#f1">1</a>.</p>
+  <p class="destacado">Un indicador estable que mide lo correcto vale más que uno espectacular que depende del encuadre.</p>
+  <p>Ninguno de los dos mide el error absoluto del mapa, porque no se dispuso de un plano medido del recinto para compararlo. Por eso el SLAM se declara verificado en funcionamiento y caracterizado, no validado. La diferencia entre esas palabras se explica en <a href="resultados.html#palabras">La evidencia</a>.</p>
 </section>
 
 <section>
-  <h2 id="privacidad">Un tema implícito: un mapa de interiores es un dato personal</h2>
-  <div class="callout aporte">
-    <div class="c-tit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M6 18l2.5-2.5M15.5 8.5L18 6"/></svg>Más allá de la tesis</div>
-    <p>Un plano generado por un robot dice cuántas habitaciones tiene una casa, cómo se conectan y dónde están los muebles. Si el robot además lleva cámara, la información es aún más sensible. En 2022 se conoció que imágenes tomadas dentro de hogares por versiones de desarrollo de una aspiradora robot, enviadas para entrenar inteligencia artificial, terminaron publicadas en redes sociales por trabajadores contratados para etiquetarlas <a class="cita" href="recursos.html#r-mittr2022">(Guo, 2022)</a>.</p>
-    <p>Este robot solo usa un láser y guarda sus mapas en el computador del proyecto. Aun así, quien lleve esta tecnología a casas u oficinas debería pensar desde el diseño dónde se guardan los mapas, quién accede a ellos y cuándo se borran, y avisar a las personas que el robot está registrando su espacio.</p>
-  </div>
+  <h2 id="privacidad">Un mapa de interiores es un dato personal</h2>
+  <p>Un plano generado por un robot dice cuántas habitaciones tiene una casa, cómo se conectan y dónde están los muebles. En 2017, el director de la empresa que fabrica Roomba comentó que esos mapas podrían compartirse con otras compañías de hogar inteligente, y tras la polémica la empresa aclaró que no vendería los datos de sus clientes <a class="ref" href="#f13">13</a>. En 2022 se conoció que imágenes tomadas dentro de hogares por versiones de desarrollo de una aspiradora robot terminaron publicadas en redes sociales por trabajadores contratados para etiquetarlas <a class="ref" href="#f14">14</a>.</p>
+  <p>Este robot solo usa un láser y guarda sus mapas en el computador del proyecto. Aun así, quien lleve esta tecnología a casas u oficinas debería decidir desde el diseño dónde se guardan los mapas, quién accede a ellos y cuándo se borran. El tema se amplía en <a href="lecciones.html#privacidad">Lecciones de ingeniería</a>.</p>
 </section>
 
 <section>
-  <div class="malentendidos">
-    <h3 id="malentendidos">Malentendidos frecuentes</h3>
-    <div class="mal"><div><span class="mal-et">Se suele decir</span><p>El robot cubre el 62 % del recinto.</p></div><div><span class="mal-et">Más preciso</span><p>El índice medio de cobertura libre fue 62,2 %, calculado sobre la imagen del mapa. La superficie del recinto no se midió aparte.</p></div></div>
-    <div class="mal"><div><span class="mal-et">Se suele decir</span><p>El SLAM quedó validado.</p></div><div><span class="mal-et">Más preciso</span><p>Quedó verificado funcionalmente y caracterizado con cobertura y área. Sin un plano medido no hay validación del error absoluto del mapa.</p></div></div>
-    <div class="mal"><div><span class="mal-et">Se suele decir</span><p>Si no hay objetos opacos, el láser no tiene problemas.</p></div><div><span class="mal-et">Más preciso</span><p>Ve un solo plano, así que se pierde lo que está arriba o abajo, y le afectan tanto las superficies reflectantes como las muy absorbentes.</p></div></div>
+  <h2 id="mundo-real">En el mundo real</h2>
+  <div class="casos">
+    <article class="caso">
+      <div class="caso-media"><div class="video" data-yt="DSBWH8dzyeU" data-titulo="How do robot vacuums know where to clean?" data-sub="BBC News, en inglés"><a href="https://www.youtube.com/watch?v=DSBWH8dzyeU">Ver el video en YouTube</a></div></div>
+      <div class="caso-txt">
+        <span class="lugar">Hogares</span>
+        <h3>Aspiradoras robot</h3>
+        <p>Muchos modelos llevan una torre con un láser giratorio. Cada rebote se convierte en un punto del plano de la casa, que el robot guarda y reutiliza en cada limpieza. Un cable en el piso, bajo el plano del láser, no aparece en ese mapa.</p>
+        <p class="vinculo"><b>Relación:</b> el mismo LiDAR 2D y el mismo límite de ver un solo plano.</p>
+        <p class="fuente-caso">Fuentes <a class="ref" href="#f15">15</a> <a class="ref" href="#f16">16</a></p>
+      </div>
+    </article>
+    <article class="caso">
+      <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M6 52l14-22 8 10 10-18 20 30z"/><path d="M26 18h12M32 18v-6"/><circle cx="32" cy="22" r="4"/></svg></div>
+      <div class="caso-txt">
+        <span class="lugar">Minería · Chile · 2026</span>
+        <h3>Un dron con LiDAR en El Teniente</h3>
+        <p>La mina subterránea de cobre más grande del mundo incorporó el dron Elios 3, que con un LiDAR genera mapas 3D en espacios confinados y sin GPS. Inspecciones que antes tomaban horas se hacen en minutos, sin exponer a las personas a zonas peligrosas.</p>
+        <p class="vinculo"><b>Relación:</b> mapear un interior desconocido con láser, ahora en tres dimensiones y donde equivocarse cuesta caro.</p>
+        <p class="fuente-caso">Fuente <a class="ref" href="#f17">17</a></p>
+      </div>
+    </article>
   </div>
 </section>
-<nav id="nav-cap" aria-label="Capítulo anterior y siguiente"></nav>
+
+<section class="fuentes-tema">
+  <h2 id="fuentes">Fuentes de este tema</h2>
+  <ol class="refs-lista">
+    <li id="f1"><span><span class="tipo-ref">Tesis</span>Valderas Neculqueo, S. (2026). <em>Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial</em>. UTEM. Secciones 1.3, 3.1, 3.3.1, 3.8, 4.2.2, 4.5.1 y 5.3, y Anexos 3.4, 5.4, 7 y 8.</span></li>
+    <li id="f2"><span><span class="tipo-ref">Libro</span>Corke, P. (2023). <em>Robotics, Vision and Control</em> (3.ª ed.). Springer. Sección 6.8. <a href="https://doi.org/10.1007/978-3-031-06469-2">doi.org/10.1007/978-3-031-06469-2</a></span></li>
+    <li id="f3"><span><span class="tipo-ref">Hoja de datos</span>Shanghai Slamtec (2020). RPLIDAR A1 Low Cost 360 Degree Laser Range Scanner. <a href="https://wiki.slamtec.com/download/attachments/83066883/LD108_SLAMTEC_rplidar_datasheet_A1M8_v3.0_en.pdf?api=v2&amp;modificationDate=1677786044000&amp;version=1">wiki.slamtec.com</a></span></li>
+    <li id="f4"><span><span class="tipo-ref">Artículo</span>Macenski, S., Moore, T., Lu, D. V., Merzlyakov, A. y Ferguson, M. (2023). From the desks of ROS maintainers. <em>Robotics and Autonomous Systems, 168</em>. <a href="https://doi.org/10.1016/j.robot.2023.104493">doi.org/10.1016/j.robot.2023.104493</a></span></li>
+    <li id="f5"><span><span class="tipo-ref">Norma ROS</span>Foote, T. y Purvis, M. (2010). REP 103: Standard Units of Measure and Coordinate Conventions. <a href="https://www.ros.org/reps/rep-0103.html">ros.org/reps/rep-0103.html</a></span></li>
+    <li id="f6"><span><span class="tipo-ref">Norma ROS</span>Meeussen, W. (2010). REP 105: Coordinate Frames for Mobile Platforms. <a href="https://www.ros.org/reps/rep-0105.html">ros.org/reps/rep-0105.html</a></span></li>
+    <li id="f7"><span><span class="tipo-ref">Libro</span>Thrun, S., Burgard, W. y Fox, D. (2005). <em>Probabilistic Robotics</em>. MIT Press.</span></li>
+    <li id="f8"><span><span class="tipo-ref">Artículo</span>Grisetti, G., Kümmerle, R., Stachniss, C. y Burgard, W. (2010). A Tutorial on Graph-Based SLAM. <em>IEEE Intelligent Transportation Systems Magazine, 2</em>(4). <a href="https://doi.org/10.1109/MITS.2010.939925">doi.org/10.1109/MITS.2010.939925</a></span></li>
+    <li id="f9"><span><span class="tipo-ref">Artículo</span>Macenski, S. y Jambrecic, I. (2021). SLAM Toolbox: SLAM for the dynamic world. <em>Journal of Open Source Software, 6</em>(61). <a href="https://doi.org/10.21105/joss.02783">doi.org/10.21105/joss.02783</a></span></li>
+    <li id="f10"><span><span class="tipo-ref">Charla</span>Macenski, S. (2019). On Use of SLAM Toolbox. ROSCon 2019, Macao. <a href="https://vimeo.com/378682207">vimeo.com/378682207</a>. Diapositivas en <a href="https://roscon.ros.org/2019/talks/roscon2019_slamtoolbox.pdf">roscon.ros.org</a></span></li>
+    <li id="f11"><span><span class="tipo-ref">Video</span>Articulated Robotics. Easy SLAM with ROS using slam_toolbox. <a href="https://www.youtube.com/watch?v=ZaiA3hWaRzE">youtube.com/watch?v=ZaiA3hWaRzE</a></span></li>
+    <li id="f12"><span><span class="tipo-ref">Artículo</span>Trejos, K., Rincón, L., Bolaños, M., Fallas, J. y Marín, L. (2022). 2D SLAM Algorithms Characterization, Calibration, and Comparison. <em>Sensors, 22</em>(18). <a href="https://doi.org/10.3390/s22186903">doi.org/10.3390/s22186903</a></span></li>
+    <li id="f13"><span><span class="tipo-ref">Prensa</span>MIT Technology Review (2017, 25 de julio). Your Roomba is also gathering data about the layout of your home. <a href="https://www.technologyreview.com/2017/07/25/150346/your-roomba-is-also-gathering-data-about-the-layout-of-your-home/">technologyreview.com</a></span></li>
+    <li id="f14"><span><span class="tipo-ref">Prensa</span>Guo, E. (2022, 19 de diciembre). A Roomba recorded a woman on the toilet. How did screenshots end up on Facebook? MIT Technology Review. <a href="https://www.technologyreview.com/2022/12/19/1065306/roomba-irobot-robot-vacuums-artificial-intelligence-training-data-privacy/">technologyreview.com</a></span></li>
+    <li id="f15"><span><span class="tipo-ref">Fabricante</span>Dreame Technology. LiDAR navigation in robot vacuums. <a href="https://www.dreametech.com/blogs/blog/lidar-navigation-robot-vacuum">dreametech.com</a></span></li>
+    <li id="f16"><span><span class="tipo-ref">Video</span>BBC News. How do robot vacuums know where to clean? <a href="https://www.youtube.com/watch?v=DSBWH8dzyeU">youtube.com/watch?v=DSBWH8dzyeU</a></span></li>
+    <li id="f17"><span><span class="tipo-ref">Prensa</span>Codelco (2026, 27 de marzo). El Teniente incorpora dron para inspección de sectores de difícil acceso. <a href="https://codelco.com/el-teniente-incorpora-dron-para-inspeccion-de-sectores-de-dificil-acceso">codelco.com</a></span></li>
+  </ol>
+</section>
+
+<nav id="nav-cap" aria-label="Tema anterior y siguiente"></nav>
 <p id="ayuda-pie" class="ayuda-pie"></p>
 </main>
 </div>
+
 <div id="pie"></div>
 </body>
 </html>

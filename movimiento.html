@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Moverse y medir el avance · Robot explorador</title>
-<meta name="description" content="Tracción diferencial, encoders de cuadratura y odometría explicados con simuladores, y los ensayos reales de una recta de 2 m y un giro, con la diferencia entre error de seguimiento y error odométrico.">
+<meta name="description" content="Tracción diferencial, encoders de cuadratura y odometría, con los ensayos de recta y giro del robot real y lo que enseñan sus errores.">
 <meta name="author" content="Sebastián Valderas Neculqueo">
 <link rel="canonical" href="https://svn11x.github.io/tesis_explain/movimiento.html">
 <meta property="og:type" content="article">
 <meta property="og:locale" content="es_CL">
 <meta property="og:site_name" content="Robot explorador">
 <meta property="og:title" content="Moverse y medir el avance">
-<meta property="og:description" content="Tracción diferencial, encoders de cuadratura y odometría explicados con simuladores, y los ensayos reales de una recta de 2 m y un giro, con la diferencia entre error de seguimiento y error odométrico.">
+<meta property="og:description" content="Tracción diferencial, encoders de cuadratura y odometría, con los ensayos de recta y giro del robot real y lo que enseñan sus errores.">
 <meta property="og:url" content="https://svn11x.github.io/tesis_explain/movimiento.html">
 <meta property="og:image" content="https://svn11x.github.io/tesis_explain/img/social.png">
 <meta property="og:image:width" content="1200">
@@ -34,33 +34,45 @@
 <body data-pagina="movimiento">
 <a class="saltar" href="#contenido">Saltar al contenido</a>
 <div id="cabecera"></div>
-<header class="cap-cab"><div class="wrap">
-<nav class="miga" aria-label="Ruta"><a href="index.html">Inicio</a><span aria-hidden="true">›</span><span data-cap-n>Guía</span></nav>
-<h1>Moverse y medir el avance</h1>
-<p class="lead">Con dos ruedas y una rueda loca, un robot puede ir a casi cualquier parte. Saber cuánto se movió es más difícil de lo que parece, y los ensayos de esta tesis muestran por qué.</p>
-<div class="meta-cap"><span data-nivel class="etiqueta">Nivel</span><span class="etiqueta" data-lectura>Lectura</span><span class="etiqueta">Basado en la tesis, con fuentes externas marcadas</span></div>
-</div></header>
+<header class="tema-hero">
+  <div class="wrap">
+    <div class="tema-hero-txt">
+      <nav class="miga" aria-label="Ruta"><a href="index.html">Inicio</a><span aria-hidden="true">›</span><a href="index.html#temas">Temas</a><span aria-hidden="true">›</span><span data-cap-n>Tema</span></nav>
+      <p class="eyebrow" data-bloque>Cómo funciona</p>
+      <h1>Moverse y medir el avance</h1>
+      <p class="lead">Un robot con dos ruedas y sin volante puede avanzar, doblar y girar sobre sí mismo. Saber cuánto avanzó es otro problema. Este tema explica la tracción diferencial, cómo se cuenta el giro de las ruedas y qué tan confiable resultó esa cuenta en el robot real.</p>
+      <div class="meta-cap"><span data-nivel class="etiqueta">Nivel</span><span class="etiqueta" data-lectura>Lectura</span></div>
+    </div>
+    <figure class="tema-hero-fig contener">
+      <picture><source srcset="img/tesis/odom-real.webp" type="image/webp"><img src="img/tesis/odom-real.png" width="1400" height="831" alt="Gráfico de barras del error de odometría en cinco repeticiones de una recta de 2 m en el robot real: 4,01, 2,88, 3,87, 3,78 y 3,61 %, todas bajo el criterio máximo de 5 %." fetchpriority="high"></picture>
+      <figcaption>Error de odometría en cinco rectas de 2 m del robot real, medido con cinta métrica. Fig. 5.2 de la tesis.</figcaption>
+    </figure>
+  </div>
+</header>
 <div class="wrap cap-layout">
-<aside class="lateral" id="lateral" aria-label="Navegación del capítulo"></aside>
+<aside class="lateral" id="lateral" aria-label="Navegación del tema"></aside>
 <main class="articulo" id="contenido">
-<section class="esencial" aria-label="Lo esencial">
-  <h2>Lo esencial</h2>
-  <ol>
-    <li>Si las dos ruedas giran igual, el robot avanza recto. Si giran distinto, dobla. Si giran en sentidos opuestos, gira sobre sí mismo.</li>
-    <li>Contando los pulsos de los encoders se estima cuánto avanzó. Eso se llama odometría, y es simple pero acumula error con cada metro.</li>
-    <li>En una recta de 2 m, la odometría se equivocó un 3,63 % frente a una cinta métrica. El robot además avanzó un 7,18 % menos de lo ordenado, que es otra medida distinta.</li>
-  </ol>
+
+<section class="en-breve" aria-labelledby="t-breve">
+  <h2 id="t-breve">En pocas palabras</h2>
+  <p>El robot dobla haciendo que una rueda gire más rápido que la otra. Para saber cuánto avanzó cuenta los pulsos de los encoders, una técnica llamada odometría, que es simple y rápida pero acumula error con cada metro. En el robot real esa cuenta se equivocó un 3,63 % en una recta de 2 m, con un error tan parejo que revela un sesgo que se puede corregir.</p>
+  <div class="cifras-mini">
+    <div><b>3,63 <small>%</small></b><span>error medio de la odometría frente a una cinta métrica</span></div>
+    <div><b>0,44 <small>%</small></b><span>dispersión entre repeticiones, la firma de un sesgo sistemático</span></div>
+    <div><b>1980</b><span>pulsos del encoder por vuelta de rueda</span></div>
+    <div><b>5</b><span>repeticiones por ensayo, en simulación y en el robot real</span></div>
+  </div>
 </section>
 
 <section>
   <h2 id="traccion">La tracción diferencial</h2>
-  <p>Un robot diferencial tiene dos ruedas motrices, cada una con su motor, y elementos pasivos de apoyo, como una rueda loca. No tiene volante. Dobla haciendo que una rueda gire más rápido que la otra, igual que un tanque o una silla de ruedas. Es la configuración más común en robots móviles pequeños por su simpleza mecánica y porque puede girar en su lugar, algo que un auto no puede hacer <a class="cita" href="recursos.html#r-corke2023">(Corke, 2023, Sec. 4.1)</a>.</p>
+  <p>Un robot diferencial tiene dos ruedas motrices, cada una con su motor, y un apoyo pasivo como una rueda loca. No tiene volante. Dobla haciendo que una rueda gire más rápido que la otra, igual que un tanque o una silla de ruedas. Es la configuración más común en robots móviles pequeños por su simpleza mecánica y porque puede girar en su lugar, algo que un auto no puede hacer <a class="ref" href="#f2">2</a>.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="sim-cinematica">Prueba con dos velocidades de rueda</h3><span class="tipo inter">Interactivo</span><p>Mueve los deslizadores o elige un caso. El dibujo usa el radio de rueda y la separación reales del robot.</p></div>
     <div class="vis" data-vis="cinematica"><p class="vis-fallback">Simulador de cinemática diferencial. Necesita JavaScript.</p></div>
   </div>
-  <p>Dos reglas resumen todo. La velocidad del robot es el promedio de las velocidades de sus ruedas. Y la rapidez con que gira es la diferencia entre ambas ruedas dividida por la distancia que las separa, 18,8 cm en este robot <span class="en-tesis">Ec. 3.3 y 3.4</span>. Por eso una diferencia pequeña entre ruedas produce una curva amplia, y una diferencia grande, una curva cerrada.</p>
-  <p>El controlador diferencial de ROS 2 hace la cuenta al revés. Recibe una velocidad y un giro para el robot y calcula cuánto debe girar cada rueda. En el robot real limita la velocidad a 0,13 m/s y el giro a 0,35 rad/s <span class="en-tesis">Tabla 4.3</span>.</p>
+  <p>Dos reglas lo resumen todo. La velocidad del robot es el promedio de las velocidades de sus ruedas. Y la rapidez con que gira es la diferencia entre ambas ruedas dividida por la distancia que las separa, 18,8 cm en este robot <a class="ref" href="#f1">1</a>. Por eso una diferencia pequeña entre ruedas produce una curva amplia, y una diferencia grande, una curva cerrada.</p>
+  <p>El controlador diferencial de ROS 2 hace la cuenta al revés. Recibe una velocidad y un giro para el robot y calcula cuánto debe girar cada rueda. En el robot real limita la velocidad a 0,13 m/s y el giro a 0,35 rad/s, valores prudentes para un recinto pequeño.</p>
   <details class="profundizar">
     <summary>Para el curioso: las fórmulas</summary>
     <div>
@@ -70,45 +82,60 @@
       <div class="formula-bloque">ωR = v / r + (b / 2r) · ω<br>ωL = v / r − (b / 2r) · ω</div>
       <p>Para seguir la posición se suma cada pequeño avance en la dirección en que mira el robot, en intervalos cortos de tiempo T:</p>
       <div class="formula-bloque">x nuevo = x + T · v · cos θ<br>y nuevo = y + T · v · sin θ<br>θ nuevo = θ + T · ω</div>
-      <p class="vnota">Ecuaciones 3.3 a 3.8 de la tesis, según <a href="recursos.html#r-corke2023">Corke (2023)</a> y <a href="recursos.html#r-ferreira2023">Ferreira et al. (2023)</a>.</p>
+      <p class="vnota">Ecuaciones 3.3 a 3.8 de la tesis, según Corke <a class="ref" href="#f2">2</a> y Ferreira y otros <a class="ref" href="#f3">3</a>.</p>
     </div>
   </details>
 </section>
 
 <section>
   <h2 id="encoders">Encoders: contar el giro de cada rueda</h2>
-  <p>Un encoder incremental convierte el giro de un eje en pulsos eléctricos. En los de efecto Hall, como los de estos motores, un imán con varios polos gira junto al eje del motor y dos sensores producen dos señales desfasadas un cuarto de ciclo, llamadas canales en cuadratura. El orden en que cambian dice el sentido de giro, y contar todos los cambios de ambos canales multiplica por cuatro la resolución <span class="en-tesis">Sec. 3.3.2</span>.</p>
+  <p>Un encoder incremental convierte el giro de un eje en pulsos eléctricos. En los de efecto Hall, como los de estos motores, un imán con varios polos gira junto al eje del motor y dos sensores producen dos señales desfasadas un cuarto de ciclo, llamadas canales en cuadratura. El orden en que cambian dice el sentido de giro, y contar todos los cambios de ambos canales multiplica por cuatro la resolución <a class="ref" href="#f1">1</a>.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="sim-encoder">Dos canales, un sentido</h3><span class="tipo inter">Interactivo</span><p>Cambia el sentido de giro y observa cómo se invierte el orden entre A y B.</p></div>
     <div class="vis" data-vis="encoder"><p class="vis-fallback">Simulador de encoder de cuadratura. Necesita JavaScript.</p></div>
   </div>
-  <p>Como el sensor está en el eje del motor y la rueda gira mucho más lento por la caja reductora, cada vuelta de rueda produce cientos de pulsos. En teoría, la resolución es el número de pulsos por vuelta del motor, por cuatro, por la reducción. En la práctica conviene medirla. Se giró cada rueda una vuelta completa diez veces y se obtuvieron promedios de 1976 ticks en la derecha y 1969 en la izquierda. El firmware usa un único valor de 1980, que introduce un error sistemático de 0,20 % y 0,56 % respectivamente <span class="en-tesis">Anexo 4.1, Tabla A4.1</span>.</p>
-  <p>El conteo no ocurre en el ciclo principal del programa. Cada cambio en un canal dispara una interrupción del Arduino, cuya rutina suma o resta en el contador de esa rueda, de modo que el conteo avanza en paralelo a todo lo demás <span class="en-tesis">Sec. 4.4.2</span>.</p>
+  <p>Como el sensor está en el eje del motor y la rueda gira mucho más lento por la caja reductora, cada vuelta de rueda produce cientos de pulsos. En teoría, la resolución se calcula multiplicando los pulsos por vuelta del motor, el factor cuatro y la reducción. En la práctica conviene medirla, porque las tolerancias mecánicas cambian el número. Se giró cada rueda una vuelta completa diez veces y se obtuvieron promedios de 1976 pulsos en la derecha y 1969 en la izquierda. El firmware usa un único valor de 1980, que introduce un error sistemático de 0,20 % y 0,56 % respectivamente <a class="ref" href="#f1">1</a>.</p>
+  <p>El conteo no ocurre en el ciclo principal del programa. Cada cambio en un canal dispara una <span class="term" data-def="Una señal que hace que el microcontrolador deje lo que está haciendo, ejecute una rutina muy corta y luego vuelva. Así no se pierde ningún pulso del encoder.">interrupción</span> del Arduino, cuya rutina suma o resta en el contador de esa rueda. Así el conteo avanza en paralelo a todo lo demás.</p>
+  <div class="videos-grid">
+    <div class="vid-card">
+      <div class="video" data-yt="Xbfnxbjjm9s" data-titulo="How a Rotary Incremental Encoder Works" data-sub="Video en YouTube, en inglés"><a href="https://www.youtube.com/watch?v=Xbfnxbjjm9s">Ver el video en YouTube</a></div>
+      <p>Una animación de cómo un encoder incremental entrega dirección y posición. Útil para ver en movimiento lo que el interactivo muestra en dos canales. <small>Fuente <a class="ref" href="#f6">6</a></small></p>
+    </div>
+  </div>
 </section>
 
 <section>
   <h2 id="odometria">Odometría: saber dónde estás contando pasos</h2>
-  <p>La odometría estima la posición del robot sumando el desplazamiento de sus ruedas <a class="cita" href="recursos.html#r-ferreira2023">(Ferreira et al., 2023)</a>. Es la misma idea de la navegación por estima que usaban los barcos antes de los satélites, o de caminar con los ojos cerrados contando pasos. Es barata y rápida, pero cada pequeño error se suma al siguiente y la posición estimada se va alejando de la real.</p>
-  <p>Hay dos tipos de error <a class="cita" href="recursos.html#r-corke2023">(Corke, 2023, Sec. 6.1)</a>. Los sistemáticos se repiten siempre igual, como un radio de rueda mal calibrado. Los aleatorios cambian de una vez a otra, como el deslizamiento de una rueda sobre la alfombra. Los primeros se pueden calibrar. Los segundos solo se pueden acotar con otro sensor.</p>
-  <div class="callout real">
-    <div class="c-tit"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>En la vida real</div>
-    <p>El cuentakilómetros de un auto hace exactamente esto, y por eso marca distinto si cambias el tamaño de los neumáticos. Un robot que solo usa odometría en un recorrido largo termina en un lugar distinto del que cree. Esa es la razón de fondo para usar SLAM, que corrige la odometría con lo que ve el láser, como se explica en <a href="mapeo.html#slam">Ver y dibujar el mapa</a>.</p>
-  </div>
+  <p>La odometría estima la posición del robot sumando el desplazamiento de sus ruedas <a class="ref" href="#f3">3</a>. Es la misma idea de la navegación por estima que usaban los barcos antes de los satélites, o de caminar con los ojos cerrados contando pasos. Es barata y rápida, pero cada pequeño error se suma al siguiente y la posición estimada se va alejando de la real.</p>
+  <p>Hay dos tipos de error <a class="ref" href="#f2">2</a>. Los sistemáticos se repiten siempre igual, como un radio de rueda mal calibrado. Los aleatorios cambian de una vez a otra, como el deslizamiento de una rueda sobre la alfombra. La diferencia importa, porque define el remedio. Los primeros se corrigen calibrando. Los segundos solo se acotan con otro sensor.</p>
+  <p class="destacado">El cuentakilómetros de un auto hace odometría, y por eso marca distinto si cambias el tamaño de los neumáticos.</p>
 </section>
 
 <section>
   <h2 id="recta">El ensayo de la recta de 2 metros</h2>
-  <p>Un script ordenó al robot avanzar a 0,13 m/s durante 15,4 s, que es el tiempo para recorrer 2 m a esa velocidad, y después lo detuvo. Se repitió cinco veces. En cada repetición se registró lo que estimó la odometría y se midió con cinta métrica lo que el robot avanzó de verdad <span class="en-tesis">Sec. 5.1</span>.</p>
+  <p>Un script ordenó al robot avanzar a 0,13 m/s durante 15,4 s, el tiempo para recorrer 2 m a esa velocidad, y después lo detuvo. Se repitió cinco veces. En cada repetición se registró lo que estimó la odometría y se midió con cinta métrica lo que el robot avanzó de verdad <a class="ref" href="#f1">1</a>.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="tres-distancias">Tres distancias de una misma recta</h3><span class="tipo datos">Datos de la tesis</span><p>Promedio de cinco repeticiones en el robot real.</p></div>
     <div class="vis" data-vis="odometria"><p class="vis-fallback">Ordenado 2,000 m. Encoders 1,924 m. Cinta 1,856 m.</p></div>
   </div>
-  <p>De ahí salen dos cifras que miden cosas distintas.</p>
-  <ul>
-    <li><b>Error de seguimiento, 7,18 %.</b> Compara la cinta con lo ordenado. Dice que el robot avanzó menos de lo pedido. Una parte ya la registran los propios encoders, que marcan 3,8 % menos que los 2 m, y es compatible con el tiempo que tardan las ruedas en acelerar, porque la orden se definió por tiempo y no por posición.</li>
-    <li><b>Error odométrico, 3,63 %.</b> Compara los encoders con la cinta. Dice que el robot cree haber avanzado más de lo real, unos 7 cm de más. Esta es la cifra que describe la calidad de la odometría.</li>
-  </ul>
-  <p>La dispersión del error odométrico entre repeticiones fue de solo 0,44 %. Un error tan parejo es la firma de un sesgo sistemático, compatible con un radio efectivo de rueda algo distinto del configurado o con un deslizamiento persistente. La tesis no separó esas causas con ensayos independientes, pero sí descarta una. El valor de 1980 ticks haría que la odometría subestimara la distancia, no que la sobreestimara <span class="en-tesis">Sec. 5.1</span>.</p>
+  <p>De esas tres distancias salen dos cifras que miden cosas distintas, y confundirlas es el error más común al leer este resultado.</p>
+  <div class="argumento">
+    <div><span class="a-et">Error de seguimiento, 7,18 %</span><p>Compara la cinta con lo ordenado. Dice que el robot avanzó menos de lo pedido. Una parte ya la registran los encoders, que marcan 3,8 % menos que los 2 m, y es compatible con el tiempo que tardan las ruedas en acelerar, porque la orden se definió por tiempo y no por posición.</p></div>
+    <div><span class="a-et">Error odométrico, 3,63 %</span><p>Compara los encoders con la cinta. Dice que el robot cree haber avanzado unos 7 cm más de lo real. Esta es la cifra que describe la calidad de la odometría.</p></div>
+    <div><span class="a-et">Lo que revela la dispersión</span><p>El error odométrico varió solo 0,44 % entre repeticiones. Un error tan parejo es la firma de un sesgo sistemático, compatible con un radio efectivo de rueda distinto del configurado o con un deslizamiento persistente.</p></div>
+  </div>
+  <p>La tesis no separó esas causas con ensayos independientes, pero sí descarta una con un argumento limpio. El valor de 1980 pulsos por vuelta es mayor que los promedios medidos, así que haría que la odometría subestimara la distancia, no que la sobreestimara <a class="ref" href="#f1">1</a>. La causa tiene que estar en otra parte.</p>
+  <div class="galeria">
+    <figure class="fig">
+      <picture><source srcset="img/tesis/odom-real.webp" type="image/webp"><img src="img/tesis/odom-real.png" width="1400" height="831" loading="lazy" decoding="async" alt="Barras del error de odometría en el robot real, entre 2,88 y 4,01 %."></picture>
+      <figcaption>Robot real: odometría frente a la cinta métrica. <small>Fig. 5.2 b de la tesis.</small></figcaption>
+    </figure>
+    <figure class="fig">
+      <picture><source srcset="img/tesis/odom-sim.webp" type="image/webp"><img src="img/tesis/odom-sim.png" width="1400" height="830" loading="lazy" decoding="async" alt="Barras de la desviación de la odometría simulada respecto de los 2 m teóricos, entre 1,40 y 6,69 %."></picture>
+      <figcaption>Simulación: odometría frente a los 2 m teóricos. No mide lo mismo que la figura de la izquierda. <small>Fig. 5.2 a de la tesis.</small></figcaption>
+    </figure>
+  </div>
+  <p>Las dos figuras se parecen, pero no se comparan entre sí. En simulación la pose verdadera de Gazebo no quedó registrada y la distancia salió de la propia odometría, así que el 3,39 % simulado compara la odometría con lo ordenado, no con una medición externa <a class="ref" href="#f1">1</a>. Es un buen ejemplo de por qué una tabla debe decir siempre contra qué se mide cada número.</p>
   <div class="tabla-env">
     <table class="tabla">
       <thead><tr><th>Prueba</th><th class="n">Odometría (m)</th><th class="n">Cinta (m)</th><th class="n">Error odométrico</th></tr></thead>
@@ -127,49 +154,86 @@
 
 <section>
   <h2 id="giro">El ensayo de giro y lo que enseña su diseño</h2>
-  <p>Para el giro, un script pidió 0,4 rad/s durante el tiempo que tomaría una vuelta completa a esa velocidad, unos 15,7 s. El detalle es que el controlador diferencial limita el giro a 0,35 rad/s. Con ese límite aplicado de forma ideal, el robot llegaría a 315°, no a 360° <span class="en-tesis">Anexo 6</span>.</p>
+  <p>Para el giro, un script pidió 0,4 rad/s durante el tiempo que tomaría una vuelta completa a esa velocidad, unos 15,7 s. El detalle es que el controlador diferencial limita el giro a 0,35 rad/s. Con ese límite aplicado de forma ideal, el robot llegaría a 315°, no a 360° <a class="ref" href="#f1">1</a>.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="giros">Cinco giros medidos frente a 315° y 360°</h3><span class="tipo datos">Datos de la tesis</span></div>
     <div class="vis" data-vis="giro"><p class="vis-fallback">Giros medidos de 355,7°, 340°, 380°, 370° y 356°.</p></div>
   </div>
-  <p>Todos los giros superaron los 315°, tanto en simulación, entre 335,9° y 347,4°, como en el robot real, entre 340° y 380°. Eso indica que la velocidad efectiva no quedó limitada de forma ideal, y la causa no se determinó. Por eso la tesis no habla de error de odometría angular, sino de desviación respecto de 360° nominales, de 3,24 % en el robot real y 4,74 % en simulación <span class="en-tesis">Tabla 5.2</span>. Los registros de cada prueba conservan la odometría, que permitiría revisar la velocidad aplicada sin repetir el ensayo.</p>
-  <div class="callout idea">
-    <div class="c-tit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg>La lección</div>
-    <p>Un ensayo tiene que medir lo que uno cree que mide. Si la orden choca con un límite del sistema, el resultado mezcla el error que se quería estudiar con el efecto del límite. La mejora propuesta es un giro controlado hasta un ángulo fijo, que entregaría un error angular directo <span class="en-tesis">Trabajo futuro 8</span>.</p>
+  <p>Todos los giros superaron los 315°, tanto en simulación, entre 335,9° y 347,4°, como en el robot real, entre 340° y 380°. Eso indica que la velocidad efectiva no quedó limitada de forma ideal, y la causa no se determinó. Por eso la tesis no habla de error de odometría angular, sino de desviación respecto de 360° nominales, de 3,24 % en el robot real y 4,74 % en simulación <a class="ref" href="#f1">1</a>.</p>
+  <div class="galeria">
+    <figure class="fig">
+      <picture><source srcset="img/tesis/giro-real.webp" type="image/webp"><img src="img/tesis/giro-real.png" width="1400" height="831" loading="lazy" decoding="async" alt="Barras de la desviación física respecto de 360° en el robot real: 4,3, 20, 20, 10 y 4 grados."></picture>
+      <figcaption>Robot real: desviación física medida, con sobregiros y subgiros. <small>Fig. 5.2 d de la tesis.</small></figcaption>
+    </figure>
+    <figure class="fig">
+      <picture><source srcset="img/tesis/giro-sim.webp" type="image/webp"><img src="img/tesis/giro-sim.png" width="1400" height="830" loading="lazy" decoding="async" alt="Barras de la desviación del giro simulado respecto de 360°: 6,71, 3,50, 3,72, 3,50 y 6,28 %."></picture>
+      <figcaption>Simulación: giro acumulado de la odometría frente a 360°. <small>Fig. 5.2 c de la tesis.</small></figcaption>
+    </figure>
   </div>
+  <p>La lección vale para cualquier ensayo. Tiene que medir lo que uno cree que mide. Si la orden choca con un límite del sistema, el resultado mezcla el error que se quería estudiar con el efecto del límite. La mejora propuesta es un giro controlado hasta un ángulo fijo, que entregaría un error angular directo. Mientras tanto, los registros de cada prueba conservan la odometría y permiten revisar la velocidad aplicada sin repetir el ensayo.</p>
 </section>
 
 <section>
   <h2 id="iteracion-2">La corrida en que la odometría avanzó y el robot no</h2>
-  <p>De las seis ejecuciones de exploración, una se excluyó. Durante 5,09 minutos el explorador envió 14 metas y la odometría sumó 3,851 m, pero el robot no se movió de su posición inicial. La causa no se determinó <span class="en-tesis">Anexo 7</span>.</p>
+  <p>De las seis ejecuciones de exploración, una se excluyó. Durante 5,09 minutos el explorador envió 14 metas y la odometría sumó 3,851 m, pero el robot no se movió de su posición inicial. La causa no se determinó <a class="ref" href="#f1">1</a>.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="tres-senales">Tres señales de la misma corrida</h3><span class="tipo datos">Datos de la tesis</span></div>
     <div class="vis" data-vis="iteracion2"><p class="vis-fallback">Encoders 3,851 m. Mapa sin crecimiento. Posición real sin cambio.</p></div>
   </div>
-  <p>El episodio muestra el límite de fondo de los encoders. Miden el giro de las ruedas, no el avance del robot, así que unas ruedas que giran sin avanzar suman distancia igual. El láser sí tenía la señal, porque si el robot no se mueve el mapa no crece. Por la misma razón, en las otras cinco corridas el movimiento está respaldado por una evidencia independiente de los encoders, que es el crecimiento del mapa.</p>
+  <p>El episodio muestra el límite de fondo de los encoders. Miden el giro de las ruedas, no el avance del robot, así que unas ruedas que giran sin avanzar suman distancia igual. El láser sí tenía la señal, porque si el robot no se mueve el mapa no crece. Por la misma razón, en las otras cinco corridas el movimiento queda respaldado por una evidencia independiente de los encoders, que es el crecimiento del mapa. Una cinta métrica tampoco es la verdad absoluta, pero es una referencia externa, y eso es lo que importa para medir un sesgo de unos 7 cm.</p>
 </section>
 
 <section>
   <h2 id="mejorar">Cómo se mejora una odometría</h2>
-  <div class="callout aporte">
-    <div class="c-tit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M6 18l2.5-2.5M15.5 8.5L18 6"/></svg>Más allá de la tesis</div>
-    <p>Un sesgo tan parejo como el de este robot es una buena noticia, porque se puede calibrar. El método clásico para robots diferenciales es UMBmark, propuesto por <a class="cita" href="recursos.html#r-borenstein1996">Borenstein y Feng (1996)</a>. El robot recorre un cuadrado en sentido horario y otro en antihorario, y los errores al volver al punto de partida permiten separar las dos causas sistemáticas dominantes, ruedas de diámetro distinto y una separación efectiva entre ruedas mal estimada, para corregirlas en el software.</p>
-  </div>
-  <p>Las otras dos mejoras van por agregar información. Una unidad inercial mide el giro de forma independiente de las ruedas y se puede fusionar con la odometría mediante el paquete robot_localization, lo que la tesis propone como trabajo futuro 2. Y el láser, a través de SLAM, ya corrige la deriva mientras se construye el mapa, como se ve en el siguiente capítulo de percepción.</p>
+  <p>Un sesgo tan parejo como el de este robot es una buena noticia, porque se puede calibrar. El método clásico para robots diferenciales es UMBmark, propuesto por Borenstein y Feng <a class="ref" href="#f4">4</a>. El robot recorre un cuadrado en sentido horario y otro en antihorario, y los errores al volver al punto de partida permiten separar las dos causas sistemáticas dominantes, ruedas de diámetro distinto y una separación efectiva entre ruedas mal estimada, para corregirlas en el software. La tesis no lo aplicó, y es una mejora barata para quien construya un robot parecido.</p>
+  <p>Las otras dos mejoras agregan información. Una unidad inercial mide el giro sin depender de las ruedas y se puede fusionar con la odometría mediante el paquete robot_localization, lo que la tesis propone como trabajo futuro. Y el láser, a través de SLAM, ya corrige la deriva mientras se construye el mapa, como se explica en <a href="mapeo.html#slam">Ver y mapear</a>.</p>
 </section>
 
 <section>
-  <div class="malentendidos">
-    <h3 id="malentendidos">Malentendidos frecuentes</h3>
-    <div class="mal"><div><span class="mal-et">Se suele decir</span><p>El 7,18 % y el 3,63 % son dos formas de decir lo mismo.</p></div><div><span class="mal-et">Más preciso</span><p>El primero compara la cinta con lo ordenado y mide el seguimiento. El segundo compara los encoders con la cinta y mide la odometría.</p></div></div>
-    <div class="mal"><div><span class="mal-et">Se suele decir</span><p>La cinta métrica es la verdad absoluta.</p></div><div><span class="mal-et">Más preciso</span><p>Es una referencia externa e independiente de los encoders. Tiene su propia incertidumbre, que la tesis no cuantificó aparte, y se espera pequeña frente a un sesgo de unos 7 cm.</p></div></div>
-    <div class="mal"><div><span class="mal-et">Se suele decir</span><p>Si la odometría sumó distancia, el robot se movió.</p></div><div><span class="mal-et">Más preciso</span><p>Los encoders cuentan giro de rueda. La evidencia de movimiento real necesita otra fuente, como el crecimiento del mapa.</p></div></div>
+  <h2 id="mundo-real">En el mundo real</h2>
+  <p>La navegación por estima es más antigua que los robots y sigue presente en máquinas de todos los tamaños.</p>
+  <div class="casos">
+    <article class="caso">
+      <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><circle cx="18" cy="44" r="8"/><circle cx="46" cy="44" r="8"/><path d="M18 36l8-14h12l8 14M26 22v-8h12"/><circle cx="50" cy="14" r="5"/></svg></div>
+      <div class="caso-txt">
+        <span class="lugar">La Luna · 1971 y 1972</span>
+        <h3>El vehículo lunar del programa Apollo</h3>
+        <p>Su sistema de navegación registraba de forma continua la dirección con un giroscopio y la distancia con odómetros en las ruedas, y un computador calculaba el rumbo y la distancia de regreso al módulo lunar.</p>
+        <p class="vinculo"><b>Relación:</b> odometría de ruedas más un sensor de giro, justo la mejora que esta tesis propone con una unidad inercial.</p>
+        <p class="fuente-caso">Fuente <a class="ref" href="#f5">5</a></p>
+      </div>
+    </article>
+    <article class="caso">
+      <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="22"/><circle cx="32" cy="32" r="8"/><path d="M32 10v6M32 48v6M10 32h6M48 32h6"/></svg></div>
+      <div class="caso-txt">
+        <span class="lugar">Hogares</span>
+        <h3>Aspiradoras robot con LiDAR</h3>
+        <p>Muchos modelos llevan una torre con un láser giratorio que mide la casa y guarda un plano, sobre el cual el robot se ubica en cada limpieza en lugar de confiar solo en lo que avanzaron sus ruedas.</p>
+        <p class="vinculo"><b>Relación:</b> la percepción corrige la deriva de la odometría, igual que SLAM en <a href="mapeo.html">Ver y mapear</a>.</p>
+        <p class="fuente-caso">Fuente <a class="ref" href="#f7">7</a></p>
+      </div>
+    </article>
   </div>
 </section>
-<nav id="nav-cap" aria-label="Capítulo anterior y siguiente"></nav>
+
+<section class="fuentes-tema">
+  <h2 id="fuentes">Fuentes de este tema</h2>
+  <ol class="refs-lista">
+    <li id="f1"><span><span class="tipo-ref">Tesis</span>Valderas Neculqueo, S. (2026). <em>Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial</em>. UTEM. Secciones 3.3.2, 3.4, 4.3.3 y 5.1, Tablas 4.3, 5.1 y 5.2, y Anexos 4.1, 6 y 7.</span></li>
+    <li id="f2"><span><span class="tipo-ref">Libro</span>Corke, P. (2023). <em>Robotics, Vision and Control: Fundamental Algorithms in Python</em> (3.ª ed.). Springer. Secciones 4.1 y 6.1. <a href="https://doi.org/10.1007/978-3-031-06469-2">doi.org/10.1007/978-3-031-06469-2</a></span></li>
+    <li id="f3"><span><span class="tipo-ref">Artículo</span>Ferreira, M., Moreira, L. y Lopes, A. (2023). Differential Drive Kinematics and Odometry for a Mobile Robot Using TwinCAT. <em>Electronic Research Archive, 31</em>(4). <a href="https://doi.org/10.3934/era.2023092">doi.org/10.3934/era.2023092</a></span></li>
+    <li id="f4"><span><span class="tipo-ref">Artículo</span>Borenstein, J. y Feng, L. (1996). Measurement and correction of systematic odometry errors in mobile robots. <em>IEEE Transactions on Robotics and Automation, 12</em>(6). <a href="https://doi.org/10.1109/70.544770">doi.org/10.1109/70.544770</a></span></li>
+    <li id="f5"><span><span class="tipo-ref">NASA</span>NASA Space Science Data Coordinated Archive. The Apollo Lunar Roving Vehicle. <a href="https://nssdc.gsfc.nasa.gov/planetary/lunar/apollo_lrv.html">nssdc.gsfc.nasa.gov</a></span></li>
+    <li id="f6"><span><span class="tipo-ref">Video</span>How a Rotary Incremental Encoder Works. Direction and Position. <a href="https://www.youtube.com/watch?v=Xbfnxbjjm9s">youtube.com/watch?v=Xbfnxbjjm9s</a></span></li>
+    <li id="f7"><span><span class="tipo-ref">Fabricante</span>Dreame Technology. LiDAR navigation in robot vacuums. <a href="https://www.dreametech.com/blogs/blog/lidar-navigation-robot-vacuum">dreametech.com</a></span></li>
+  </ol>
+</section>
+
+<nav id="nav-cap" aria-label="Tema anterior y siguiente"></nav>
 <p id="ayuda-pie" class="ayuda-pie"></p>
 </main>
 </div>
+
 <div id="pie"></div>
 </body>
 </html>

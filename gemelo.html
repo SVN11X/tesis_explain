@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>El gemelo digital · Robot explorador</title>
-<meta name="description" content="El modelo del robot en Gazebo Classic: descripción URDF y xacro, marcos de referencia, criterios de aceptación, diferencia entre verificar y validar, y la brecha entre simulación y realidad.">
+<meta name="description" content="El modelo URDF del robot en Gazebo Classic, qué se puede comprobar en simulación, la brecha con la realidad y por qué dos cifras parecidas no se comparan.">
 <meta name="author" content="Sebastián Valderas Neculqueo">
 <link rel="canonical" href="https://svn11x.github.io/tesis_explain/gemelo.html">
 <meta property="og:type" content="article">
 <meta property="og:locale" content="es_CL">
 <meta property="og:site_name" content="Robot explorador">
 <meta property="og:title" content="El gemelo digital">
-<meta property="og:description" content="El modelo del robot en Gazebo Classic: descripción URDF y xacro, marcos de referencia, criterios de aceptación, diferencia entre verificar y validar, y la brecha entre simulación y realidad.">
+<meta property="og:description" content="El modelo URDF del robot en Gazebo Classic, qué se puede comprobar en simulación, la brecha con la realidad y por qué dos cifras parecidas no se comparan.">
 <meta property="og:url" content="https://svn11x.github.io/tesis_explain/gemelo.html">
 <meta property="og:image" content="https://svn11x.github.io/tesis_explain/img/social.png">
 <meta property="og:image:width" content="1200">
@@ -34,44 +34,55 @@
 <body data-pagina="gemelo">
 <a class="saltar" href="#contenido">Saltar al contenido</a>
 <div id="cabecera"></div>
-<header class="cap-cab"><div class="wrap">
-<nav class="miga" aria-label="Ruta"><a href="index.html">Inicio</a><span aria-hidden="true">›</span><span data-cap-n>Guía</span></nav>
-<h1>El gemelo digital</h1>
-<p class="lead">Antes de arriesgar el hardware, el robot existió como modelo en un simulador. Este capítulo explica qué se pudo comprobar ahí, qué no, y por qué esa diferencia importa al leer los resultados.</p>
-<div class="meta-cap"><span data-nivel class="etiqueta">Nivel</span><span class="etiqueta" data-lectura>Lectura</span><span class="etiqueta">Basado en la tesis, con fuentes externas marcadas</span></div>
-</div></header>
+<header class="tema-hero">
+  <div class="wrap">
+    <div class="tema-hero-txt">
+      <nav class="miga" aria-label="Ruta"><a href="index.html">Inicio</a><span aria-hidden="true">›</span><a href="index.html#temas">Temas</a><span aria-hidden="true">›</span><span data-cap-n>Tema</span></nav>
+      <p class="eyebrow" data-bloque>Cómo funciona</p>
+      <h1>El gemelo digital</h1>
+      <p class="lead">Antes de soldar un cable, el robot ya existía en el computador, con las mismas medidas y los mismos marcos de referencia. Este tema explica qué se puede comprobar en simulación, qué solo en el robot real y por qué dos cifras que parecen gemelas no se comparan.</p>
+      <div class="meta-cap"><span data-nivel class="etiqueta">Nivel</span><span class="etiqueta" data-lectura>Lectura</span></div>
+    </div>
+    <figure class="tema-hero-fig contener">
+      <picture><source srcset="img/tesis/cotas-gemelo-med.webp" type="image/webp"><img src="img/tesis/cotas-gemelo-med.png" data-grande="img/tesis/cotas-gemelo.png" width="1100" height="914" alt="Plano del modelo del robot en tres vistas, lateral, frontal y en planta, con sus cotas: largo del chasis 24,5 cm, ancho 23 cm, altura total 17,4 cm, radio de rueda 3,35 cm, separación entre ruedas 18,8 cm y posición del LiDAR a 12 cm." fetchpriority="high"></picture>
+      <figcaption>Las medidas del gemelo digital, las mismas del robot real. Fig. A2.1 de la tesis.</figcaption>
+    </figure>
+  </div>
+</header>
 <div class="wrap cap-layout">
-<aside class="lateral" id="lateral" aria-label="Navegación del capítulo"></aside>
+<aside class="lateral" id="lateral" aria-label="Navegación del tema"></aside>
 <main class="articulo" id="contenido">
-<section class="esencial" aria-label="Lo esencial">
-  <h2>Lo esencial</h2>
-  <ol>
-    <li>El gemelo digital es el modelo del robot en simulación, con la misma geometría y los mismos marcos de referencia que el real. Sirve para corregir errores antes de tocar el hardware.</li>
-    <li>Se aprobó con cuatro criterios, como la cadena de marcos completa y las medidas de las ruedas. Fue una verificación de funcionamiento, no una validación con números.</li>
-    <li>La simulación no reproduce la ley del firmware, la zona muerta del driver, el roce real, el ruido del láser ni las latencias. Por eso el mapeo y la exploración se midieron solo en el robot real.</li>
-  </ol>
+
+<section class="en-breve" aria-labelledby="t-breve">
+  <h2 id="t-breve">En pocas palabras</h2>
+  <p>El gemelo digital es el modelo del robot en el simulador Gazebo Classic, descrito una sola vez en un archivo que también usa el robot real. Sirvió para corregir errores de geometría, marcos y configuración antes de arriesgar el hardware. Se aprobó con cuatro criterios de funcionamiento, no con una comparación numérica, y no reproduce la ley del firmware, la zona muerta del driver ni el ruido real. Por eso el mapeo y la exploración se midieron en el robot.</p>
+  <div class="cifras-mini">
+    <div><b>1</b><span>descripción del robot, compartida por simulación y hardware</span></div>
+    <div><b>4</b><span>criterios de aceptación antes de usar el gemelo</span></div>
+    <div><b>360 <small>vs</small> 230</b><span>mediciones por vuelta del láser simulado frente al real</span></div>
+  </div>
 </section>
 
 <section>
   <h2 id="que-es">Qué es un gemelo digital</h2>
-  <p>En la industria, un gemelo digital es una réplica virtual de un objeto físico que se usa para probar, anticipar fallas o decidir sin intervenir el objeto real. El término se suele asociar a Michael Grieves, que propuso a inicios de los años 2000 un modelo de espacio espejo para productos, y a una hoja de ruta de la NASA de 2010, a la que se suele atribuir el nombre. Una revisión reciente muestra que la idea tiene raíces aún anteriores, en la manufactura virtual de los años noventa <a class="cita" href="recursos.html#r-zhou2022">(Zhou et al., 2022)</a>.</p>
-  <p>En esta tesis el término tiene un sentido acotado y práctico. Es el robot descrito una sola vez en un archivo, y cargado tanto en el simulador Gazebo Classic como en el robot real <span class="en-tesis">Sec. 4.2</span>.</p>
+  <p>En la industria, un gemelo digital es una réplica virtual de un objeto físico que se usa para probar, anticipar fallas o decidir sin intervenir el objeto real. El término se suele asociar a Michael Grieves, que propuso a inicios de los años 2000 un modelo de espacio espejo para productos, y a una hoja de ruta de la NASA de 2010. Una revisión reciente muestra que la idea tiene raíces aún anteriores, en la manufactura virtual de los años noventa <a class="ref" href="#f2">2</a>.</p>
+  <p>En esta tesis el término tiene un sentido acotado y práctico. Es el robot descrito una sola vez en un archivo, y cargado tanto en el simulador como en el robot real <a class="ref" href="#f1">1</a>. La ventaja es concreta. Si el radio de rueda está mal escrito, el error aparece igual en los dos mundos, y se corrige en un solo lugar.</p>
   <div class="grid-2">
-    <figure class="foto oscura">
+    <figure class="fig oscura">
       <picture><source srcset="img/fotos/gemelo-modelo.webp" type="image/webp"><img src="img/fotos/gemelo-modelo.jpg" width="532" height="376" loading="lazy" decoding="async" alt="Modelo 3D simple del robot: una caja naranja con un cilindro negro arriba, que representa el láser, y una rueda azul visible bajo el chasis."></picture>
-      <figcaption>El gemelo digital. Un chasis simple, dos ruedas, una rueda loca y el láser, con las medidas del robot real. <small>Captura del autor, ver Fig. 4.2 de la tesis.</small></figcaption>
+      <figcaption>El gemelo en Gazebo Classic: un chasis simple, dos ruedas, una rueda loca y el láser. <small>Fig. 4.2 de la tesis.</small></figcaption>
     </figure>
-    <figure class="foto">
+    <figure class="fig">
       <picture><source srcset="img/fotos/robot-planta.webp" type="image/webp"><img src="img/fotos/robot-planta.jpg" width="900" height="958" loading="lazy" decoding="async" alt="El robot real visto desde arriba, con su carcasa negra y el láser al centro."></picture>
-      <figcaption>El robot real. Comparten radio de rueda, separación entre ruedas y posición del láser. <small>Fotografía del autor, Fig. 4.4.</small></figcaption>
+      <figcaption>El robot real, con el mismo radio de rueda, separación y posición del láser. <small>Fig. 4.4 de la tesis.</small></figcaption>
     </figure>
   </div>
 </section>
 
 <section>
   <h2 id="urdf">Una sola descripción para los dos robots</h2>
-  <p>El formato URDF describe un robot como un árbol de piezas rígidas unidas por articulaciones. Por cada pieza se declara su forma visible, su forma de colisión y su inercia. Por cada articulación, su tipo, sus límites y qué piezas une <span class="en-tesis">Sec. 3.1.1</span>. La misma descripción alimenta la visualización, la publicación de marcos de referencia y el simulador.</p>
-  <p>Xacro es un lenguaje de macros que permite definir constantes y dividir la descripción en módulos, de modo que medidas como el radio de rueda se escriben una sola vez. En este robot, un archivo raíz arma el modelo con el núcleo mecánico y elige el resto según dónde se ejecute <span class="en-tesis">Alg. 3.1</span>.</p>
+  <p>El formato <span class="term" data-def="Unified Robot Description Format. Un archivo XML que describe las piezas de un robot, cómo se unen y dónde está cada sensor.">URDF</span> describe un robot como un árbol de piezas rígidas unidas por articulaciones. Por cada pieza se declara su forma visible, su forma de colisión y su inercia. Por cada articulación, su tipo, sus límites y qué piezas une <a class="ref" href="#f1">1</a>. La misma descripción alimenta la visualización, la publicación de marcos de referencia y el simulador.</p>
+  <p>Xacro es un lenguaje de macros que permite definir constantes y dividir la descripción en módulos, de modo que medidas como el radio de rueda se escriben una sola vez. En este robot, un archivo raíz arma el modelo con el núcleo mecánico y elige el resto según dónde se ejecute.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="estructura">Estructura del modelo</h3><span class="tipo datos">Datos de la tesis</span></div>
     <div class="vis">
@@ -83,10 +94,20 @@
         <div><b>Si es simulación</b><span>lidar_sim.xacro y el plugin GazeboSystem. Los estados de las ruedas los entrega Gazebo directamente.</span></div>
         <div><b>Si es el robot real</b><span>lidar.xacro y el plugin DiffDriveArduino. Los estados salen de los encoders, vía el Arduino.</span></div>
       </div>
-      <p class="vnota">En ambos casos se usa ros2_control con las mismas interfaces, una orden de velocidad por rueda y su posición y velocidad como estado <span class="en-tesis">Tabla 4.2</span>.</p>
+      <p class="vnota">En ambos casos se usa ros2_control con las mismas interfaces, una orden de velocidad por rueda y su posición y velocidad como estado. Tabla 4.2 de la tesis.</p>
     </div>
   </div>
-  <p>Esto tiene una consecuencia que conviene tener presente. En simulación, las ruedas no pasan por la conversión a ticks ni por el controlador del firmware. El gemelo sirve para probar la geometría, los marcos y la navegación, pero no el control de bajo nivel.</p>
+  <p>Esto tiene una consecuencia que conviene tener presente. En simulación, las ruedas no pasan por la conversión a pulsos ni por el controlador del firmware. El gemelo sirve para probar la geometría, los marcos y la navegación, pero no el control de bajo nivel.</p>
+  <div class="galeria">
+    <figure class="fig oscura">
+      <picture><source srcset="img/tesis/tf-marcos.webp" type="image/webp"><img src="img/tesis/tf-marcos.png" width="1279" height="926" loading="lazy" decoding="async" alt="El modelo del robot en RViz con varios tríos de ejes rojos, verdes y azules, uno por cada marco de referencia."></picture>
+      <figcaption>Los marcos del modelo en RViz. Verificar que no haya marcos sueltos fue el primer criterio de aceptación. <small>Captura del autor.</small></figcaption>
+    </figure>
+    <figure class="fig oscura">
+      <picture><source srcset="img/tesis/gazebo-lidar.webp" type="image/webp"><img src="img/tesis/gazebo-lidar.png" width="1600" height="985" loading="lazy" decoding="async" alt="Vista superior en Gazebo del barrido del láser simulado en azul, recortado por obstáculos."></picture>
+      <figcaption>El láser simulado en el mundo de prueba, con sombras detrás de cada obstáculo. <small>Fig. 4.3 de la tesis.</small></figcaption>
+    </figure>
+  </div>
   <h3 id="laser-simulado">El láser simulado es equivalente, pero ideal</h3>
   <div class="tabla-env">
     <table class="tabla">
@@ -97,51 +118,97 @@
         <tr><th>Distancia máxima</th><td>12 m</td><td>12 m</td></tr>
         <tr><th>Ruido</th><td>no se declara</td><td>el propio del sensor</td></tr>
       </tbody>
-      <caption>Anexo 2 y Anexo 3.4 de la tesis.</caption>
+      <caption>Anexos 2 y 3.4 de la tesis.</caption>
     </table>
   </div>
+  <p>Un modelo puede crecer sin tocar el robot real. La captura siguiente muestra el mismo gemelo con una cámara simulada frente a un mundo de prueba. La cámara no forma parte del sistema evaluado en la tesis, pero ilustra cómo se probaría un sensor nuevo antes de comprarlo.</p>
+  <figure class="fig oscura">
+    <picture><source srcset="img/tesis/gazebo-camara.webp" type="image/webp"><img src="img/tesis/gazebo-camara.jpg" width="1562" height="884" loading="lazy" decoding="async" alt="El gemelo naranja en Gazebo con líneas blancas que marcan el campo de visión de una cámara simulada, apuntando a un panel con figuras de personas y un número tres, junto a buzones."></picture>
+    <figcaption>Una cámara simulada en el gemelo. Las líneas blancas marcan su campo de visión. <small>Captura del autor. Extensión posible, no evaluada en la tesis.</small></figcaption>
+  </figure>
 </section>
 
 <section>
   <h2 id="criterios">Cómo se aprobó el gemelo</h2>
-  <p>Antes de usar el gemelo para probar SLAM y navegación, se aplicaron cuatro criterios mínimos <span class="en-tesis">Tabla A2.2</span>.</p>
+  <p>Antes de usar el gemelo para probar SLAM y navegación, se aplicaron cuatro criterios mínimos <a class="ref" href="#f1">1</a>. La cadena de marcos debía estar completa, sin marcos sueltos. El láser y la odometría debían publicarse con frecuencia estable. El robot debía avanzar y girar como dice el modelo diferencial. Y el radio y la separación de las ruedas debían ser iguales a los del prototipo.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="cuatro-criterios">Los criterios, lo que no reproduce y dos cifras que no se comparan</h3><span class="tipo datos">Datos de la tesis</span></div>
     <div class="vis" data-vis="gemelo"><p class="vis-fallback">Cadena de marcos completa, sensores estables, movimiento coherente y paridad geométrica.</p></div>
   </div>
-  <p>La tesis dice que los criterios se confirmaron durante la puesta en marcha del modelo. No quedaron registrados, por ejemplo, los valores medidos de frecuencia de los tópicos ni la imagen del árbol de marcos. Es una debilidad del registro que la propia tesis permite identificar.</p>
-  <div class="callout aporte">
-    <div class="c-tit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M6 18l2.5-2.5M15.5 8.5L18 6"/></svg>Un tema implícito: verificar no es lo mismo que validar</div>
-    <p>El manual de ingeniería de sistemas de la NASA lo dice así. Verificar un producto es demostrar que cumple cada requisito especificado. Validarlo es demostrar que cumple su propósito en el entorno real en que se usará <a class="cita" href="recursos.html#r-nasaseh">(NASA, Systems Engineering Handbook, Sec. 2.4)</a>.</p>
-    <p>Con esas palabras, el gemelo quedó verificado. Cumple los cuatro criterios. No quedó validado como representación cuantitativa del robot real, porque nunca se comparó una misma variable medida en ambos. La tesis usa este vocabulario con cuidado, y vale la pena aprender a usarlo igual. Más en <a href="resultados.html#verificar-validar">Qué se demostró y qué no</a>.</p>
-  </div>
+  <p>La tesis dice que los criterios se confirmaron durante la puesta en marcha del modelo. No quedaron registrados, por ejemplo, los valores medidos de frecuencia de los tópicos ni la imagen del árbol de marcos. Es una debilidad del registro que la propia tesis permite identificar, y una lección práctica. Lo que no se registra, después no se puede mostrar.</p>
+  <p>Con el vocabulario de la ingeniería de sistemas, el gemelo quedó verificado, porque cumple los cuatro criterios. No quedó validado como representación cuantitativa del robot real, porque nunca se comparó una misma variable medida en ambos <a class="ref" href="#f3">3</a>. La diferencia entre esas dos palabras se desarrolla en <a href="resultados.html#palabras">La evidencia</a>.</p>
 </section>
 
 <section>
   <h2 id="brecha">La brecha entre simulación y realidad</h2>
-  <p>Ningún simulador es la realidad. Gazebo Classic no reproduce del todo el roce, la zona muerta del driver, el ruido de los sensores ni las latencias reales <span class="en-tesis">Sec. 3.1.2, Limitaciones</span>. A esa diferencia se le llama brecha entre simulación y realidad, y es un tema de investigación en sí mismo. Una de las técnicas conocidas es variar al azar los parámetros de la simulación, como texturas, colores o iluminación, para que lo aprendido en ella resista mejor el paso al mundo real <a class="cita" href="recursos.html#r-tobin2017">(Tobin et al., 2017)</a>.</p>
+  <p>Ningún simulador es la realidad. Gazebo Classic no reproduce del todo el roce, la zona muerta del driver, el ruido de los sensores ni las latencias reales <a class="ref" href="#f1">1</a>. A esa diferencia se le llama brecha entre simulación y realidad, y es un tema de investigación en sí mismo. Una de las técnicas conocidas es variar al azar los parámetros de la simulación, como texturas, colores o iluminación, para que lo aprendido en ella resista mejor el paso al mundo real <a class="ref" href="#f4">4</a>.</p>
   <h3 id="no-se-comparan">Dos cifras que parecen comparables y no lo son</h3>
-  <p>En la recta de 2 m, la desviación en simulación fue de 3,39 % y en el robot real de 7,18 %. Parecen la misma medida en dos entornos, pero no lo son. En simulación, la pose verdadera de Gazebo no quedó registrada, así que la distancia salió de la propia odometría. En el robot real se midió con cinta. Una cifra se mide consigo misma y la otra contra una referencia física <span class="en-tesis">Tabla 5.1, Sec. 5.5</span>. Algo parecido pasa con el giro, donde los dos entornos se comparan con 360° nominales y no con el giro efectivamente ordenado.</p>
-  <p>Por eso el mapeo, la navegación y la exploración se midieron con indicadores solo en el robot real. En simulación se construyeron mapas en sesiones previas, pero sin calcular indicadores, y la comparación entre ambos es cualitativa. Los mapas simulados tienen paredes más nítidas y nada de ruido en el espacio libre, y los reales detectan solo en parte los obstáculos pequeños <span class="en-tesis">Tabla A8.1</span>.</p>
+  <p>En la recta de 2 m, la desviación en simulación fue de 3,39 % y en el robot real de 7,18 %. Parecen la misma medida en dos entornos, pero no lo son. En simulación la pose verdadera de Gazebo no quedó registrada, así que la distancia salió de la propia odometría. En el robot real se midió con cinta. Una cifra se mide consigo misma y la otra contra una referencia física <a class="ref" href="#f1">1</a>.</p>
+  <div class="argumento">
+    <div><span class="a-et">En simulación, 3,39 %</span><p>Odometría simulada frente a los 2 m ordenados. No hay referencia externa.</p></div>
+    <div><span class="a-et">En el robot, 7,18 %</span><p>Cinta métrica frente a los 2 m ordenados. Es el error de seguimiento real.</p></div>
+    <div><span class="a-et">La cifra que sí se parece</span><p>En el robot, los encoders marcaron 3,8 % menos que lo ordenado, del mismo orden que la simulación. Pero eso tampoco es una validación del gemelo.</p></div>
+  </div>
+  <p>Por eso el mapeo, la navegación y la exploración se midieron con indicadores solo en el robot real. En simulación se construyeron mapas en sesiones previas, pero sin calcular indicadores, y la comparación entre ambos es cualitativa. Los mapas simulados tienen paredes más nítidas y nada de ruido en el espacio libre, y los reales detectan solo en parte los obstáculos pequeños.</p>
 </section>
 
 <section>
   <h2 id="gazebo">Por qué Gazebo Classic</h2>
-  <p>Se eligió Gazebo Classic y no el Gazebo actual porque es el que usan los complementos de simulación y de ros2_control del paquete base adaptado, disponibles para ROS 2 Foxy sobre Ubuntu 20.04 <span class="en-tesis">Sec. 2.1</span>. Gazebo Classic llegó al fin de su soporte en enero de 2025, así que la tesis propone dos mejoras. Migrar el gemelo a una versión vigente de Gazebo junto con ROS 2, y registrar la pose verdadera del simulador en los ensayos para separar el error odométrico del de seguimiento también en simulación <span class="en-tesis">Trabajos futuros 3 y 9</span>.</p>
+  <p>Se eligió Gazebo Classic y no el Gazebo actual porque es el que usan los complementos de simulación y de ros2_control del paquete base adaptado, disponibles para ROS 2 Foxy sobre Ubuntu 20.04 <a class="ref" href="#f1">1</a>. Gazebo Classic llegó al fin de su soporte en enero de 2025 <a class="ref" href="#f5">5</a>, así que la tesis propone dos mejoras. Migrar el gemelo a una versión vigente de Gazebo junto con ROS 2, y registrar la pose verdadera del simulador en los ensayos para separar el error odométrico del de seguimiento también en simulación.</p>
 </section>
 
 <section>
-  <div class="malentendidos">
-    <h3 id="malentendidos">Malentendidos frecuentes</h3>
-    <div class="mal"><div><span class="mal-et">Se suele decir</span><p>El gemelo digital se validó con números.</p></div><div><span class="mal-et">Más preciso</span><p>Se verificó con los cuatro criterios de la Tabla A2.2. No se comparó una misma variable entre simulación y robot real.</p></div></div>
-    <div class="mal"><div><span class="mal-et">Se suele decir</span><p>La simulación y el robot se comportan igual.</p></div><div><span class="mal-et">Más preciso</span><p>Comparten modelo, marcos y medidas. La simulación no tiene la ley del firmware ni la zona muerta, el roce y el ruido reales.</p></div></div>
-    <div class="mal"><div><span class="mal-et">Se suele decir</span><p>Una captura de RViz es la simulación.</p></div><div><span class="mal-et">Más preciso</span><p>RViz solo muestra datos. Pueden venir del simulador o del robot real. Las capturas de RViz junto a la cámara cenital de esta guía son del robot real.</p></div></div>
+  <h2 id="mundo-real">En el mundo real</h2>
+  <p>Probar en una copia antes que en el original es una práctica de toda la ingeniería, desde la exploración espacial hasta las competencias de robótica.</p>
+  <div class="casos">
+    <article class="caso">
+      <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><rect x="8" y="26" width="20" height="12" rx="2"/><rect x="36" y="26" width="20" height="12" rx="2"/><circle cx="12" cy="42" r="3"/><circle cx="24" cy="42" r="3"/><circle cx="40" cy="42" r="3"/><circle cx="52" cy="42" r="3"/><path d="M28 32h8"/></svg></div>
+      <div class="caso-txt">
+        <span class="lugar">NASA JPL · Estados Unidos</span>
+        <h3>OPTIMISM, el gemelo terrestre de Perseverance</h3>
+        <p>El laboratorio mantiene en la Tierra una copia de tamaño real del rover para ensayar maniobras y comandos antes de enviarlos a Marte. Es un gemelo físico, no digital, pero cumple el mismo papel.</p>
+        <p class="vinculo"><b>Relación:</b> equivocarse primero en la copia, que es exactamente para qué sirvió el gemelo de esta tesis.</p>
+        <p class="fuente-caso">Fuente <a class="ref" href="#f6">6</a></p>
+      </div>
+    </article>
+    <article class="caso">
+      <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><rect x="8" y="12" width="48" height="32" rx="3"/><path d="M24 52h16M32 44v8"/><path d="M16 36l8-10 6 6 8-12 10 16"/></svg></div>
+      <div class="caso-txt">
+        <span class="lugar">DARPA SubT · 2019 a 2021</span>
+        <h3>Una competencia que también se corrió en simulación</h3>
+        <p>El desafío subterráneo de DARPA tuvo, además de las pruebas con robots reales, una competencia virtual en la que los equipos exploraban túneles y cuevas simuladas, con un simulador de Open Robotics, la organización detrás de Gazebo.</p>
+        <p class="vinculo"><b>Relación:</b> la simulación como banco de pruebas para algoritmos de exploración, el mismo uso que se le dio aquí.</p>
+        <p class="fuente-caso">Fuente <a class="ref" href="#f7">7</a></p>
+      </div>
+    </article>
+  </div>
+  <div class="videos-grid">
+    <div class="vid-card">
+      <div class="video" data-yt="laWn7_cj434" data-titulo="Simulating Robots with Gazebo and ROS" data-sub="Articulated Robotics, en inglés"><a href="https://www.youtube.com/watch?v=laWn7_cj434">Ver el video en YouTube</a></div>
+      <p>El tutorial base para armar un gemelo como el de esta tesis, del autor del paquete adaptado. <small>Fuente <a class="ref" href="#f8">8</a></small></p>
+    </div>
   </div>
 </section>
-<nav id="nav-cap" aria-label="Capítulo anterior y siguiente"></nav>
+
+<section class="fuentes-tema">
+  <h2 id="fuentes">Fuentes de este tema</h2>
+  <ol class="refs-lista">
+    <li id="f1"><span><span class="tipo-ref">Tesis</span>Valderas Neculqueo, S. (2026). <em>Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial</em>. UTEM. Secciones 1.5, 2.1, 3.1, 4.2, 5.1 y 5.5, Tablas 4.2, 5.1, A2.2 y A8.1, y Anexo 2.</span></li>
+    <li id="f2"><span><span class="tipo-ref">Preprint</span>Zhou, J., Zhang, S. y Gu, M. (2022). Revisiting Digital Twins: Origins, Fundamentals and Practices. <a href="https://arxiv.org/abs/2203.12867">arxiv.org/abs/2203.12867</a></span></li>
+    <li id="f3"><span><span class="tipo-ref">NASA</span>NASA (2016). NASA Systems Engineering Handbook, Sec. 2.4, Distinctions between Product Verification and Product Validation. <a href="https://www.nasa.gov/reference/2-4-distinctions-between-product-verification-and-product-validation/">nasa.gov</a></span></li>
+    <li id="f4"><span><span class="tipo-ref">Artículo</span>Tobin, J. y otros (2017). Domain randomization for transferring deep neural networks from simulation to the real world. <em>IEEE/RSJ IROS</em>. <a href="https://arxiv.org/abs/1703.06907">arxiv.org/abs/1703.06907</a></span></li>
+    <li id="f5"><span><span class="tipo-ref">Documentación</span>Open Source Robotics Foundation (2025). Gazebo Classic. <a href="https://classic.gazebosim.org/">classic.gazebosim.org</a></span></li>
+    <li id="f6"><span><span class="tipo-ref">NASA</span>NASA JPL. NASA Readies Perseverance Mars Rover's Earthly Twin. <a href="https://www.jpl.nasa.gov/news/nasa-readies-perseverance-mars-rovers-earthly-twin/">jpl.nasa.gov</a></span></li>
+    <li id="f7"><span><span class="tipo-ref">Institucional</span>Open Robotics (2021). DARPA SubT Final Competition. <a href="https://www.openrobotics.org/blog/2021/9/27/darpa-subt-final-competition">openrobotics.org</a>. Y Universidad Técnica Checa, Second place in the virtual competition of DARPA SubT Challenge. <a href="https://cs.fel.cvut.cz/en/page/second-place-in-the-virtual-competition-of-darpa-subt-challenge">cs.fel.cvut.cz</a></span></li>
+    <li id="f8"><span><span class="tipo-ref">Video</span>Articulated Robotics. Simulating Robots with Gazebo and ROS. <a href="https://www.youtube.com/watch?v=laWn7_cj434">youtube.com/watch?v=laWn7_cj434</a></span></li>
+  </ol>
+</section>
+
+<nav id="nav-cap" aria-label="Tema anterior y siguiente"></nav>
 <p id="ayuda-pie" class="ayuda-pie"></p>
 </main>
 </div>
+
 <div id="pie"></div>
 </body>
 </html>

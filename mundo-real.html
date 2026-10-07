@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>En el mundo real · Robot explorador</title>
+<meta name="description" content="Las mismas ideas del robot explorador en aspiradoras, bodegas, hospitales, minería chilena, competencias subterráneas y Marte.">
+<meta name="author" content="Sebastián Valderas Neculqueo">
+<link rel="canonical" href="https://svn11x.github.io/tesis_explain/mundo-real.html">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="es_CL">
+<meta property="og:site_name" content="Robot explorador">
+<meta property="og:title" content="En el mundo real">
+<meta property="og:description" content="Las mismas ideas del robot explorador en aspiradoras, bodegas, hospitales, minería chilena, competencias subterráneas y Marte.">
+<meta property="og:url" content="https://svn11x.github.io/tesis_explain/mundo-real.html">
+<meta property="og:image" content="https://svn11x.github.io/tesis_explain/img/social.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#004EAA">
+<link rel="icon" href="img/icono.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&amp;family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&amp;family=IBM+Plex+Mono:wght@400;600&amp;display=swap">
+<link rel="stylesheet" href="css/estilo.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script src="js/comun.js" defer></script>
+<script src="js/sitio.js" defer></script>
+</head>
+<body data-pagina="mundo-real">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<div id="cabecera"></div>
+<header class="tema-hero">
+  <div class="wrap">
+    <div class="tema-hero-txt">
+      <nav class="miga" aria-label="Ruta"><a href="index.html">Inicio</a><span aria-hidden="true">›</span><span data-cap-n>Complemento</span></nav>
+      <p class="eyebrow" data-bloque>Complemento de la guía</p>
+      <h1>En el mundo real</h1>
+      <p class="lead">Las ideas de este robot de escritorio son las mismas que mueven aspiradoras, robots de bodega, drones mineros y rovers en Marte. Cambian la escala, los sensores y las exigencias de seguridad. Esta página recorre esos casos siguiendo el mismo ciclo del robot: percibir, estimar, decidir, moverse y probar antes.</p>
+      <div class="meta-cap"><span class="etiqueta" data-lectura>Lectura</span></div>
+    </div>
+    <div class="tema-hero-fig">
+      <div class="video" data-yt="DTNRc2N1vbg" data-titulo="Perseverance AutoNav Avoids a Boulder" data-sub="Navegación autónoma en Marte, en inglés"><a href="https://www.youtube.com/watch?v=DTNRc2N1vbg" style="color:#fff;display:grid;place-items:center;height:100%">Ver el video en YouTube</a></div>
+    </div>
+  </div>
+</header>
+<div class="wrap cap-layout">
+<aside class="lateral" id="lateral" aria-label="Navegación de la página"></aside>
+<main class="articulo" id="contenido">
+
+<section class="en-breve" aria-labelledby="t-breve">
+  <h2 id="t-breve">Por qué mirar afuera</h2>
+  <p>Una tesis se valida con sus propios datos, pero se entiende mejor cuando se ve en contexto. Cada caso de esta página se eligió porque comparte una pieza concreta con el robot explorador, y en cada uno se indica cuál. Ninguno se presenta como resultado de la tesis. Son ejemplos con fuente, para que quien lea pueda seguir aprendiendo.</p>
+  <div class="cifras-mini">
+    <div><b>12</b><span>casos con su fuente, de Chile a Marte</span></div>
+    <div><b>5</b><span>etapas del ciclo del robot que ordenan los casos</span></div>
+    <div><b>1</b><span>caso chileno destacado, en la minería subterránea</span></div>
+  </div>
+</section>
+
+<section>
+  <h2 id="percibir">Percibir: ver con láser</h2>
+  <p>El LiDAR es el sensor que comparten casi todos estos casos. En el robot explorador es un láser 2D que gira, el mismo tipo que llevan muchas aspiradoras. En la minería y en los vehículos autónomos se usan versiones 3D, que ven más que un plano a cambio de muchos más datos <a class="ref" href="#f1">1</a>.</p>
+  <div class="casos">
+    <article class="caso">
+      <div class="caso-media"><div class="video" data-yt="DSBWH8dzyeU" data-titulo="How do robot vacuums know where to clean?" data-sub="BBC News, en inglés"><a href="https://www.youtube.com/watch?v=DSBWH8dzyeU">Ver el video en YouTube</a></div></div>
+      <div class="caso-txt">
+        <span class="lugar">Hogares</span>
+        <h3>Aspiradoras robot con LiDAR</h3>
+        <p>Una torre con un láser giratorio mide la casa y el robot guarda el plano para reutilizarlo en cada limpieza. Lo que queda bajo el plano del láser, como un cable en el piso, no aparece en ese mapa.</p>
+        <p class="vinculo"><b>Pieza compartida:</b> LiDAR 2D y rejilla de ocupación. Ver <a href="mapeo.html#lidar">Ver y mapear</a>.</p>
+        <p class="fuente-caso">Fuentes <a class="ref" href="#f2">2</a> <a class="ref" href="#f3">3</a></p>
+      </div>
+    </article>
+    <article class="caso">
+      <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M6 52l14-22 8 10 10-18 20 30z"/><path d="M26 18h12M32 18v-6"/><circle cx="32" cy="22" r="4"/></svg></div>
+      <div class="caso-txt">
+        <span class="lugar">Minería · Chile · 2026</span>
+        <h3>Elios 3 en la mina El Teniente</h3>
+        <p>Codelco incorporó un dron con LiDAR que genera mapas 3D en espacios confinados y sin GPS. Inspecciones de sectores geomecánicamente complejos que antes tomaban horas se completan en minutos, sin exponer a las personas.</p>
+        <p class="vinculo"><b>Pieza compartida:</b> mapear un interior desconocido con láser, en un entorno donde equivocarse es caro.</p>
+        <p class="fuente-caso">Fuente <a class="ref" href="#f4">4</a></p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section>
+  <h2 id="estimar">Estimar: saber dónde se está</h2>
+  <p>Contar el giro de las ruedas es la forma más antigua de saber cuánto se avanzó, y tiene siempre el mismo problema, la deriva. Por eso los sistemas serios combinan esa cuenta con otro sensor.</p>
+  <div class="casos">
+    <article class="caso">
+      <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><circle cx="18" cy="44" r="8"/><circle cx="46" cy="44" r="8"/><path d="M18 36l8-14h12l8 14M26 22v-8h12"/><circle cx="50" cy="14" r="5"/></svg></div>
+      <div class="caso-txt">
+        <span class="lugar">La Luna · 1971 y 1972</span>
+        <h3>El vehículo lunar de Apollo</h3>
+        <p>Registraba de forma continua la dirección con un giroscopio y la distancia con odómetros en las ruedas, y un computador calculaba el rumbo y la distancia de regreso al módulo lunar.</p>
+        <p class="vinculo"><b>Pieza compartida:</b> odometría de ruedas más un sensor de giro, la mejora que propone la tesis. Ver <a href="movimiento.html#mejorar">Moverse y medir el avance</a>.</p>
+        <p class="fuente-caso">Fuente <a class="ref" href="#f5">5</a></p>
+      </div>
+    </article>
+    <article class="caso">
+      <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="22"/><path d="M32 10v44M10 32h44"/><circle cx="32" cy="32" r="5"/></svg></div>
+      <div class="caso-txt">
+        <span class="lugar">Hospitales</span>
+        <h3>Robots de reparto como TUG</h3>
+        <p>Llevan insumos por los pasillos con navegación basada en cámaras y láser, sobre mapas y rutas definidos digitalmente. Ubicarse en un mapa ya conocido es su tarea de todos los días.</p>
+        <p class="vinculo"><b>Pieza compartida:</b> localización sobre un mapa guardado, que en esta tesis quedó como trabajo futuro con AMCL. Ver <a href="navegacion.html#amcl">Planificar y seguir rutas</a>.</p>
+        <p class="fuente-caso">Fuente <a class="ref" href="#f6">6</a></p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section>
+  <h2 id="decidir">Decidir: explorar lo desconocido</h2>
+  <p>Elegir el próximo destino sin un plano previo es el corazón de la exploración autónoma. Es el problema central de esta tesis y de las competencias de robots de rescate.</p>
+  <div class="casos">
+    <article class="caso">
+      <div class="caso-media"><div class="video" data-yt="fCHOU-fw2c0" data-titulo="Team CERBERUS Wins the DARPA Subterranean Challenge" data-sub="Video en YouTube, en inglés"><a href="https://www.youtube.com/watch?v=fCHOU-fw2c0">Ver el video en YouTube</a></div></div>
+      <div class="caso-txt">
+        <span class="lugar">Subterráneo · Estados Unidos · 2021</span>
+        <h3>CERBERUS en el desafío de DARPA</h3>
+        <p>Robots con patas y aéreos navegaron, exploraron y mapearon por su cuenta túneles, redes urbanas subterráneas y cuevas, sin GPS y con comunicación limitada, y ganaron la final.</p>
+        <p class="vinculo"><b>Pieza compartida:</b> explorar hasta agotar lo desconocido. Ver <a href="exploracion.html">Explorar por fronteras</a>.</p>
+        <p class="fuente-caso">Fuente <a class="ref" href="#f7">7</a></p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section>
+  <h2 id="moverse">Moverse: planificar entre personas y rocas</h2>
+  <div class="casos">
+    <article class="caso">
+      <div class="caso-media"><div class="video" data-yt="lyYpcKM-fWg" data-titulo="Meet Proteus, Amazon's New Autonomous Robot" data-sub="Video en YouTube, en inglés"><a href="https://www.youtube.com/watch?v=lyYpcKM-fWg">Ver el video en YouTube</a></div></div>
+      <div class="caso-txt">
+        <span class="lugar">Bodegas · Estados Unidos · 2022</span>
+        <h3>Proteus, de Amazon</h3>
+        <p>Los primeros robots de bodega de Amazon trabajaban en zonas cerradas, lejos de las personas. Proteus circula entre trabajadores y combina varios sensores, entre ellos un LiDAR de alta precisión.</p>
+        <p class="vinculo"><b>Pieza compartida:</b> mapa de costos, planificación y reacción a obstáculos. Ver <a href="navegacion.html">Planificar y seguir rutas</a>.</p>
+        <p class="fuente-caso">Fuente <a class="ref" href="#f8">8</a></p>
+      </div>
+    </article>
+    <article class="caso">
+      <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="22"/><path d="M14 26c8 3 14 1 20-6M22 50c0-8 6-11 14-11s12-5 12-11"/></svg></div>
+      <div class="caso-txt">
+        <span class="lugar">Marte · 2021</span>
+        <h3>AutoNav, de Perseverance</h3>
+        <p>El rover mantiene un mapa del terreno a su alrededor, elige su camino y replanifica para esquivar rocas. En el sol 200 de la misión recorrió por su cuenta 167 de 175 metros. El video de la cabecera muestra una de esas maniobras.</p>
+        <p class="vinculo"><b>Pieza compartida:</b> replanificar mientras se avanza, con un mapa local que se actualiza.</p>
+        <p class="fuente-caso">Fuente <a class="ref" href="#f9">9</a></p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section>
+  <h2 id="controlar">Controlar: el lazo cerrado en todas partes</h2>
+  <p>Cada rueda del robot explorador tiene un lazo de control que mide, compara y corrige. Esa misma idea mantiene la velocidad de un auto, la temperatura de una impresora y la estabilidad de un dron.</p>
+  <div class="casos">
+    <article class="caso">
+      <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M8 40h48l-6-14H18z"/><circle cx="20" cy="44" r="5"/><circle cx="44" cy="44" r="5"/></svg></div>
+      <div class="caso-txt">
+        <span class="lugar">Automóviles</span>
+        <h3>Control crucero</h3>
+        <p>El sistema ajusta el acelerador cuando el auto sube o baja una cuesta para mantener la velocidad fijada. Es el ejemplo de cabecera del libro abierto de Åström y Murray.</p>
+        <p class="vinculo"><b>Pieza compartida:</b> seguir una velocidad pese a las perturbaciones. Ver <a href="control.html">Control de velocidad</a>.</p>
+        <p class="fuente-caso">Fuente <a class="ref" href="#f10">10</a></p>
+      </div>
+    </article>
+    <article class="caso">
+      <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><rect x="14" y="10" width="36" height="8" rx="2"/><path d="M32 18v10M26 28h12l-3 10h-6z"/><path d="M12 54h40M20 54v-8h24v8"/></svg></div>
+      <div class="caso-txt">
+        <span class="lugar">Impresoras 3D</span>
+        <h3>Autoajuste del PID de la boquilla</h3>
+        <p>El firmware Marlin trae el comando M303, que prueba el calentador y calcula las ganancias del PID que mantiene la temperatura.</p>
+        <p class="vinculo"><b>Pieza compartida:</b> obtener ganancias a partir de una respuesta medida, como el modelo FOPDT y el PSO.</p>
+        <p class="fuente-caso">Fuente <a class="ref" href="#f11">11</a></p>
+      </div>
+    </article>
+    <article class="caso">
+      <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M14 20h12M38 20h12M20 20v6h24v-6"/><rect x="24" y="26" width="16" height="12" rx="3"/><circle cx="20" cy="20" r="6"/><circle cx="44" cy="20" r="6"/></svg></div>
+      <div class="caso-txt">
+        <span class="lugar">Drones</span>
+        <h3>Lazos en cascada en PX4</h3>
+        <p>Los multicópteros encadenan controladores de velocidad de giro, de ángulo y de posición, y separan el controlador de vuelo de un computador acompañante para las tareas pesadas.</p>
+        <p class="vinculo"><b>Pieza compartida:</b> lazos encadenados y el reparto entre microcontrolador y computador. Ver <a href="robot.html#reparto">Anatomía del robot</a>.</p>
+        <p class="fuente-caso">Fuente <a class="ref" href="#f12">12</a></p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section>
+  <h2 id="simular">Probar antes: gemelos y simuladores</h2>
+  <div class="casos">
+    <article class="caso">
+      <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><rect x="8" y="26" width="20" height="12" rx="2"/><rect x="36" y="26" width="20" height="12" rx="2"/><circle cx="12" cy="42" r="3"/><circle cx="24" cy="42" r="3"/><circle cx="40" cy="42" r="3"/><circle cx="52" cy="42" r="3"/><path d="M28 32h8"/></svg></div>
+      <div class="caso-txt">
+        <span class="lugar">NASA JPL</span>
+        <h3>OPTIMISM, el gemelo de Perseverance</h3>
+        <p>Una copia de tamaño real del rover permite ensayar maniobras y comandos en la Tierra antes de enviarlos a Marte.</p>
+        <p class="vinculo"><b>Pieza compartida:</b> equivocarse primero en la copia. Ver <a href="gemelo.html">El gemelo digital</a>.</p>
+        <p class="fuente-caso">Fuente <a class="ref" href="#f13">13</a></p>
+      </div>
+    </article>
+    <article class="caso">
+      <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><rect x="8" y="12" width="48" height="32" rx="3"/><path d="M24 52h16M32 44v8"/><path d="M16 36l8-10 6 6 8-12 10 16"/></svg></div>
+      <div class="caso-txt">
+        <span class="lugar">DARPA SubT · 2019 a 2021</span>
+        <h3>Una competencia en simulación</h3>
+        <p>Además de las pruebas con robots reales, el desafío subterráneo tuvo una competencia virtual en túneles y cuevas simuladas, con un simulador de Open Robotics, la organización detrás de Gazebo.</p>
+        <p class="vinculo"><b>Pieza compartida:</b> usar la simulación como banco de pruebas de la exploración.</p>
+        <p class="fuente-caso">Fuente <a class="ref" href="#f14">14</a></p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section>
+  <h2 id="escala">Lo que cambia con la escala</h2>
+  <p>Ver estos casos juntos ayuda a ubicar el robot explorador. Comparte las ideas de fondo, pero no la escala ni las exigencias. La tabla resume esa distancia, sin cifras de los productos comerciales que no estén en sus fuentes.</p>
+  <div class="tabla-env">
+    <table class="tabla">
+      <thead><tr><th>Aspecto</th><th>Robot explorador</th><th>Sistemas comerciales y de investigación</th></tr></thead>
+      <tbody>
+        <tr><th>Percepción</th><td>Un LiDAR 2D</td><td>Varios sensores redundantes, a menudo LiDAR 3D y cámaras</td></tr>
+        <tr><th>Estimación</th><td>Encoders y SLAM, sin unidad inercial</td><td>Fusión de odometría, inercia, visión y láser</td></tr>
+        <tr><th>Entorno</th><td>Un recinto de 3,50 m² de área libre</td><td>Casas, bodegas, minas, cuevas y planetas</td></tr>
+        <tr><th>Seguridad</th><td>Hombre muerto, prioridad manual y detención a los 2 s</td><td>Normas de seguridad funcional y certificación</td></tr>
+        <tr><th>Evidencia</th><td>Cinco corridas, un recinto</td><td>Miles de horas de operación</td></tr>
+      </tbody>
+      <caption>Comparación cualitativa elaborada para esta guía, a partir de la tesis y de las fuentes de esta página.</caption>
+    </table>
+  </div>
+  <p>La conclusión no es que el robot de la tesis sea pequeño, sino que es un buen lugar para aprender. Cada pieza que en un producto viene cerrada, aquí se puede abrir, medir y cambiar.</p>
+</section>
+
+<section class="fuentes-tema">
+  <h2 id="fuentes">Fuentes de esta página</h2>
+  <ol class="refs-lista">
+    <li id="f1"><span><span class="tipo-ref">Artículo</span>Ran, Y., Xu, X., Tan, Z. y Luo, M. (2025). A Review of 2D Lidar SLAM Research. <em>Remote Sensing, 17</em>(7). <a href="https://doi.org/10.3390/rs17071214">doi.org/10.3390/rs17071214</a></span></li>
+    <li id="f2"><span><span class="tipo-ref">Video</span>BBC News. How do robot vacuums know where to clean? <a href="https://www.youtube.com/watch?v=DSBWH8dzyeU">youtube.com/watch?v=DSBWH8dzyeU</a></span></li>
+    <li id="f3"><span><span class="tipo-ref">Fabricante</span>Dreame Technology. LiDAR navigation in robot vacuums. <a href="https://www.dreametech.com/blogs/blog/lidar-navigation-robot-vacuum">dreametech.com</a></span></li>
+    <li id="f4"><span><span class="tipo-ref">Prensa</span>Codelco (2026, 27 de marzo). El Teniente incorpora dron para inspección de sectores de difícil acceso. <a href="https://codelco.com/el-teniente-incorpora-dron-para-inspeccion-de-sectores-de-dificil-acceso">codelco.com</a></span></li>
+    <li id="f5"><span><span class="tipo-ref">NASA</span>NASA Space Science Data Coordinated Archive. The Apollo Lunar Roving Vehicle. <a href="https://nssdc.gsfc.nasa.gov/planetary/lunar/apollo_lrv.html">nssdc.gsfc.nasa.gov</a></span></li>
+    <li id="f6"><span><span class="tipo-ref">Institucional</span>Electrical and Mechanical Services Department, Hong Kong. Autonomous delivery robots in hospitals. <a href="https://inno.emsd.gov.hk/en/it-solutions/index_id_607.html">inno.emsd.gov.hk</a></span></li>
+    <li id="f7"><span><span class="tipo-ref">Artículo y video</span>Tranzatto, M. y otros (2022). CERBERUS in the DARPA Subterranean Challenge. <a href="https://arxiv.org/abs/2207.04914">arxiv.org/abs/2207.04914</a>. Video: <a href="https://www.youtube.com/watch?v=fCHOU-fw2c0">youtube.com/watch?v=fCHOU-fw2c0</a></span></li>
+    <li id="f8"><span><span class="tipo-ref">Prensa y video</span>The Robot Report (2022). How Amazon developed precision autonomy for Proteus. <a href="https://www.therobotreport.com/how-amazon-developed-precision-autonomy-for-proteus/">therobotreport.com</a>. Video: <a href="https://www.youtube.com/watch?v=lyYpcKM-fWg">youtube.com/watch?v=lyYpcKM-fWg</a></span></li>
+    <li id="f9"><span><span class="tipo-ref">NASA</span>NASA JPL (2021). Perseverance's Sol 200 Auto-Nav Drive. <a href="https://www.jpl.nasa.gov/images/perseverances-sol-200-auto-nav-drive">jpl.nasa.gov</a>. Video: <a href="https://www.youtube.com/watch?v=DTNRc2N1vbg">youtube.com/watch?v=DTNRc2N1vbg</a></span></li>
+    <li id="f10"><span><span class="tipo-ref">Libro abierto</span>Åström, K. J. y Murray, R. M. <em>Feedback Systems</em>, segunda edición. <a href="https://www.cds.caltech.edu/~murray/amwiki/Second_Edition.html">cds.caltech.edu</a></span></li>
+    <li id="f11"><span><span class="tipo-ref">Documentación</span>Marlin Firmware. M303, PID autotune. <a href="https://marlinfw.org/docs/gcode/M303.html">marlinfw.org</a></span></li>
+    <li id="f12"><span><span class="tipo-ref">Documentación</span>PX4 Autopilot. Multicopter PID Tuning Guide y Companion Computers. <a href="https://docs.px4.io/main/en/config_mc/pid_tuning_guide_multicopter">docs.px4.io</a></span></li>
+    <li id="f13"><span><span class="tipo-ref">NASA</span>NASA JPL. NASA Readies Perseverance Mars Rover's Earthly Twin. <a href="https://www.jpl.nasa.gov/news/nasa-readies-perseverance-mars-rovers-earthly-twin/">jpl.nasa.gov</a></span></li>
+    <li id="f14"><span><span class="tipo-ref">Institucional</span>Open Robotics (2021). DARPA SubT Final Competition. <a href="https://www.openrobotics.org/blog/2021/9/27/darpa-subt-final-competition">openrobotics.org</a></span></li>
+  </ol>
+</section>
+
+<nav id="nav-cap" aria-label="Página anterior y siguiente"></nav>
+<p id="ayuda-pie" class="ayuda-pie"></p>
+</main>
+</div>
+
+<div id="pie"></div>
+</body>
+</html>

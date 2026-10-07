@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lecciones de ingeniería · Robot explorador</title>
+<meta name="description" content="Temas que la tesis deja implícitos y que sirven en cualquier proyecto: unidades, verificación, código heredado, tipos de datos, métricas, reproducibilidad, seguridad y privacidad.">
+<meta name="author" content="Sebastián Valderas Neculqueo">
+<link rel="canonical" href="https://svn11x.github.io/tesis_explain/lecciones.html">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="es_CL">
+<meta property="og:site_name" content="Robot explorador">
+<meta property="og:title" content="Lecciones de ingeniería">
+<meta property="og:description" content="Temas que la tesis deja implícitos y que sirven en cualquier proyecto: unidades, verificación, código heredado, tipos de datos, métricas, reproducibilidad, seguridad y privacidad.">
+<meta property="og:url" content="https://svn11x.github.io/tesis_explain/lecciones.html">
+<meta property="og:image" content="https://svn11x.github.io/tesis_explain/img/social.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#004EAA">
+<link rel="icon" href="img/icono.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&amp;family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&amp;family=IBM+Plex+Mono:wght@400;600&amp;display=swap">
+<link rel="stylesheet" href="css/estilo.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script src="js/comun.js" defer></script>
+<script src="js/sitio.js" defer></script>
+</head>
+<body data-pagina="lecciones">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<div id="cabecera"></div>
+<header class="tema-hero">
+  <div class="wrap">
+    <div class="tema-hero-txt">
+      <nav class="miga" aria-label="Ruta"><a href="index.html">Inicio</a><span aria-hidden="true">›</span><span data-cap-n>Complemento</span></nav>
+      <p class="eyebrow" data-bloque>Complemento de la guía</p>
+      <h1>Lecciones de ingeniería</h1>
+      <p class="lead">Una tesis de robótica enseña más que robótica. Detrás de cada hallazgo de este trabajo hay una lección que sirve en cualquier proyecto de ingeniería: cómo medir, cómo leer código ajeno, cómo nombrar lo que se demostró y cómo cuidar a las personas. Esta página reúne esos temas implícitos, cada uno con su caso en la tesis y una fuente externa.</p>
+      <div class="meta-cap"><span class="etiqueta" data-lectura>Lectura</span></div>
+    </div>
+    <figure class="tema-hero-fig contener">
+      <img src="img/truncamiento.png" width="1360" height="560" alt="Dos gráficos de una salida acumulada en diez ciclos. Guardando los decimales la salida sube, cortándolos en cada ciclo sube menos o no sube." fetchpriority="high">
+      <figcaption>Un ejemplo de lección escondida: los decimales que un entero no guarda pueden anular un término completo de control.</figcaption>
+    </figure>
+  </div>
+</header>
+<div class="wrap cap-layout">
+<aside class="lateral" id="lateral" aria-label="Navegación de la página"></aside>
+<main class="articulo" id="contenido">
+
+<section class="en-breve" aria-labelledby="t-breve">
+  <h2 id="t-breve">Por qué esta página</h2>
+  <p>Los hallazgos más valiosos de la tesis no fueron un algoritmo nuevo, sino descubrir que una ley llamada PID operaba como PI, que una meta abortada no era una falla y que un índice de cobertura dependía del encuadre. Son lecciones de método. Aquí se presentan como ensayos cortos, para estudiantes, docentes y cualquiera que construya un sistema con piezas de otros.</p>
+  <div class="cifras-mini">
+    <div><b>10</b><span>lecciones, cada una con su caso en la tesis</span></div>
+    <div><b>1999</b><span>año en que una mezcla de unidades costó una sonda a Marte</span></div>
+    <div><b>3</b><span>capas de seguridad del robot, de la persona a la red</span></div>
+  </div>
+</section>
+
+<section>
+  <h2 id="unidades">1. Las unidades y las convenciones no son un detalle</h2>
+  <p>ROS fija una convención para todos sus robots. Distancias en metros, ángulos en radianes, tiempos en segundos, el eje x hacia adelante, el y hacia la izquierda y los ángulos creciendo en sentido antihorario <a class="ref" href="#f1">1</a>. Parece burocracia, hasta que dos piezas no la respetan. En este robot, el programa que lee el láser tuvo que invertir el sentido de los ángulos del sensor para cumplirla, y el firmware trabaja en pulsos por ciclo mientras ROS trabaja en radianes por segundo. Cada conversión es un lugar donde un error puede esconderse.</p>
+  <p>La historia más citada sobre esto es la sonda Mars Climate Orbiter, perdida en 1999 al llegar a Marte. Un equipo entregó datos de impulso de los propulsores en unidades inglesas y el software que los recibía esperaba unidades del sistema métrico. El error se acumuló durante meses de viaje hasta llevar la sonda a una trayectoria demasiado baja <a class="ref" href="#f2">2</a>.</p>
+  <p class="destacado">Una convención compartida vale más que una buena intención, porque la cumple también quien no leyó el documento.</p>
+</section>
+
+<section>
+  <h2 id="verificar">2. Verificar no es validar</h2>
+  <p>El manual de ingeniería de sistemas de la NASA distingue dos cosas que el lenguaje cotidiano mezcla. Verificar es demostrar que un producto cumple cada requisito especificado. Validar es demostrar que cumple su propósito en el entorno real en que se usará <a class="ref" href="#f3">3</a>. La tesis usa ese vocabulario con disciplina. La odometría quedó validada contra una cinta métrica, el gemelo digital quedó verificado con cuatro criterios y la exploración quedó verificada en funcionamiento.</p>
+  <p>La lección práctica es sencilla. Antes de escribir validado, pregunta contra qué referencia independiente se comparó. Si no hay una, la palabra correcta es otra. Ver <a href="resultados.html#palabras">La evidencia</a>.</p>
+</section>
+
+<section>
+  <h2 id="codigo-heredado">3. El nombre no es el comportamiento</h2>
+  <p>El firmware adaptado llamaba PID a su controlador y sus ganancias se llamaban Kp, Ki y Kd. Al leer la función línea por línea, la tesis mostró que cada aumento se suma a la salida anterior, así que Kp actúa como integral, Kd como proporcional y Ki como doble integral. El controlador opera como un PI incremental <a class="ref" href="#f4">4</a>.</p>
+  <p>Reutilizar código abierto es una de las mejores prácticas de la ingeniería moderna, y también exige leerlo. Los nombres los pone quien escribió el código, con su propia historia. El comportamiento lo dicen las ecuaciones. Ver <a href="control.html#hallazgo">Control de velocidad</a>.</p>
+</section>
+
+<section id="tipos-sec">
+  <h2 id="tipos">4. El tipo de dato también es diseño</h2>
+  <p>En el firmware original las ganancias eran enteras y el término integral se guardaba como entero sin perder nada. Al pasar a ganancias con decimales, el término integral siguió siendo un entero de 16 bits, y los productos menores que uno empezaron a desaparecer. En la rueda derecha, el término integral quedó siempre en cero <a class="ref" href="#f4">4</a>.</p>
+  <p>Hay un segundo caso en el mismo firmware. Los contadores de los encoders son enteros de 32 bits, y en un Arduino Nano leer 32 bits no es una operación indivisible. Si una interrupción cambia el contador justo mientras se copia, la lectura puede quedar a medias. La tesis lo documenta como una condición conservada del código original. La recomendación general es leer esas variables con las interrupciones pausadas por un instante.</p>
+  <p>Cambiar una parte de un cálculo sin revisar los tipos del resto es uno de los errores más comunes al adaptar código embebido, y uno de los más difíciles de ver, porque nada avisa. Ver <a href="control.html#enteros">Los decimales que se pierden</a>.</p>
+</section>
+
+<section>
+  <h2 id="metricas">5. Un estado no es un resultado</h2>
+  <p>De 60 metas de navegación, 54 quedaron abortadas. Leído a la ligera, el robot fallaba casi siempre. Leído con cuidado, 53 de esos abortos eran reemplazos hechos por el propio explorador, que cambia de destino cada 3,3 s, y Nav2 informa ese reemplazo con la misma palabra que una falla <a class="ref" href="#f4">4</a>.</p>
+  <p>El mismo episodio trae una segunda lección. Los contadores automáticos del ensayo contaban mensajes de estado y no metas únicas, y uno de ellos quedó en cero porque buscaba un texto que nunca se imprimía. Se pudo corregir porque los datos crudos se guardaron completos. De ahí dos prácticas que sirven en cualquier experimento. Registrar identificadores únicos de cada evento que se quiera contar, y guardar los datos crudos además de los resúmenes. Ver <a href="exploracion.html#abortadas">Explorar por fronteras</a>.</p>
+  <p class="destacado">Antes de confiar en un contador, pregunta qué cuenta exactamente.</p>
+</section>
+
+<section>
+  <h2 id="ensayos">6. Un ensayo tiene que medir lo que uno cree que mide</h2>
+  <p>El ensayo de giro pidió 0,4 rad/s cuando el controlador estaba limitado a 0,35 rad/s, así que el resultado mezcló el error que se quería estudiar con el efecto del límite. Y los giros medidos superaron lo que ese límite permitía, sin que se pudiera explicar por qué. La tesis lo reporta como desviación respecto de una referencia nominal y no como error de odometría angular <a class="ref" href="#f4">4</a>.</p>
+  <p>Algo parecido ocurre con el índice de cobertura del mapa, que dependía del tamaño de la imagen y no del recinto. La tesis eligió como evidencia principal el área libre, que fue estable, y dejó el índice como complemento. La lección es diseñar el ensayo pensando en la conclusión que se quiere sostener, y elegir el indicador que no dependa de detalles ajenos al fenómeno. Ver <a href="movimiento.html#giro">El ensayo de giro</a> y <a href="mapeo.html#resultados">Resultados de mapeo</a>.</p>
+</section>
+
+<section>
+  <h2 id="reproducibilidad">7. Reproducible significa que otra persona llega al mismo número</h2>
+  <p>El PSO que buscó las ganancias parte de números al azar y no fijaba una semilla, así que al repetirlo da resultados algo distintos. La tesis conservó la salida exacta de la ejecución usada, que es lo mínimo. Lo ideal es fijar la semilla y guardar la salida <a class="ref" href="#f4">4</a>.</p>
+  <p>Las versiones de software son la otra mitad del problema. Ubuntu 20.04, ROS 2 Foxy y Gazebo Classic se congelaron al inicio para que toda la cadena funcionara, una decisión razonable para terminar un proyecto. Hoy los tres están fuera de soporte <a class="ref" href="#f5">5</a>. Quien quiera repetir el trabajo necesita esas versiones exactas, que la tesis registra, y quien quiera continuarlo necesita migrar. Una buena práctica es empaquetar el entorno completo en un contenedor, por ejemplo con Docker, para que la versión exacta siga disponible aunque el sistema operativo cambie.</p>
+</section>
+
+<section>
+  <h2 id="seguridad">8. La seguridad se diseña desde el principio</h2>
+  <p>Este robot pesa poco y anda lento, y aun así tiene tres capas de seguridad. Un botón de hombre muerto en el mando, que detiene el robot si la persona lo suelta. Prioridad del mando sobre la navegación automática. Y una detención automática si el Arduino pasa 2 segundos sin recibir órdenes, por ejemplo si se corta la red <a class="ref" href="#f4">4</a>. A eso se suman un fusible y un interruptor en la batería.</p>
+  <p>En la industria estas ideas se formalizan. La norma ISO 3691-4 fija los requisitos de seguridad de los vehículos industriales sin conductor, incluidos los robots móviles autónomos que circulan entre personas <a class="ref" href="#f6">6</a>. Un prototipo académico no necesita certificarse, pero pensar desde el inicio qué pasa cuando algo falla es lo que permite escalarlo después. Ver <a href="robot.html#seguridad">Anatomía del robot</a>.</p>
+</section>
+
+<section>
+  <h2 id="privacidad">9. Un mapa de un interior es un dato personal</h2>
+  <p>Un plano generado por un robot dice cuántas habitaciones tiene una casa, cómo se conectan y dónde están los muebles. En 2017, la empresa fabricante de Roomba causó polémica al sugerir que esos mapas podrían compartirse con otras compañías <a class="ref" href="#f7">7</a>. En 2022 se conoció que imágenes tomadas dentro de hogares por versiones de desarrollo de una aspiradora robot terminaron publicadas en redes sociales por trabajadores contratados para etiquetarlas <a class="ref" href="#f8">8</a>.</p>
+  <p>Este robot solo usa un láser y guarda sus mapas en el computador del proyecto. Pero si la tecnología se lleva a casas u oficinas, conviene decidir desde el diseño dónde se guardan los mapas, quién accede a ellos, cuándo se borran y cómo se avisa a las personas que su espacio está siendo registrado. Ver <a href="mapeo.html#privacidad">Ver y mapear</a>.</p>
+</section>
+
+<section>
+  <h2 id="limites">10. Declarar los límites hace confiable un trabajo</h2>
+  <p>La tesis declara desde la introducción qué no hará, como medir la navegación hacia metas fijas o localizarse sobre un mapa guardado, y en las conclusiones enumera sus limitaciones, desde la deriva sin unidad inercial hasta el recinto único. También dice con precisión qué código adaptó y qué es propio <a class="ref" href="#f4">4</a>.</p>
+  <p>Podría parecer que eso debilita el trabajo. Ocurre lo contrario. Quien lee sabe exactamente hasta dónde llega cada afirmación, y quien quiera continuar sabe por dónde empezar. La brecha entre simulación y realidad es un buen ejemplo. La tesis no la esconde, la usa para explicar por qué midió en el robot real, y la investigación en robótica la trata como un problema propio, con técnicas como variar al azar los parámetros de la simulación <a class="ref" href="#f9">9</a>.</p>
+  <p class="destacado">Un resultado acotado y honesto se puede construir encima. Uno inflado hay que desarmarlo primero.</p>
+</section>
+
+<section class="fuentes-tema">
+  <h2 id="fuentes">Fuentes de esta página</h2>
+  <ol class="refs-lista">
+    <li id="f1"><span><span class="tipo-ref">Norma ROS</span>Foote, T. y Purvis, M. (2010). REP 103: Standard Units of Measure and Coordinate Conventions. <a href="https://www.ros.org/reps/rep-0103.html">ros.org/reps/rep-0103.html</a></span></li>
+    <li id="f2"><span><span class="tipo-ref">Prensa científica</span>Physics Today. Mars Climate Orbiter lost. <a href="https://physicstoday.aip.org/news/mars-climate-orbiter-lost">physicstoday.aip.org</a>. Y Nature (1999). <a href="https://www.nature.com/articles/43974">nature.com/articles/43974</a></span></li>
+    <li id="f3"><span><span class="tipo-ref">NASA</span>NASA (2016). NASA Systems Engineering Handbook, Sec. 2.4, Distinctions between Product Verification and Product Validation. <a href="https://www.nasa.gov/reference/2-4-distinctions-between-product-verification-and-product-validation/">nasa.gov</a></span></li>
+    <li id="f4"><span><span class="tipo-ref">Tesis</span>Valderas Neculqueo, S. (2026). <em>Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial</em>. UTEM. Alcances y limitaciones, secciones 4.3.5, 4.4, 5.1 a 5.4, Conclusiones y Anexos 3.4, 4.1, 4.4, 4.5, 4.10, 6 y 8.4.</span></li>
+    <li id="f5"><span><span class="tipo-ref">Referencia</span>endoflife.date. ROS 2. <a href="https://endoflife.date/ros-2">endoflife.date/ros-2</a>. Y Open Source Robotics Foundation, Gazebo Classic. <a href="https://classic.gazebosim.org/">classic.gazebosim.org</a></span></li>
+    <li id="f6"><span><span class="tipo-ref">Norma</span>ISO 3691-4, Industrial trucks, Safety requirements and verification, Part 4: Driverless industrial trucks and their systems. <a href="https://www.iso.org/standard/88615.html">iso.org</a></span></li>
+    <li id="f7"><span><span class="tipo-ref">Prensa</span>MIT Technology Review (2017, 25 de julio). Your Roomba is also gathering data about the layout of your home. <a href="https://www.technologyreview.com/2017/07/25/150346/your-roomba-is-also-gathering-data-about-the-layout-of-your-home/">technologyreview.com</a></span></li>
+    <li id="f8"><span><span class="tipo-ref">Prensa</span>Guo, E. (2022, 19 de diciembre). A Roomba recorded a woman on the toilet. How did screenshots end up on Facebook? MIT Technology Review. <a href="https://www.technologyreview.com/2022/12/19/1065306/roomba-irobot-robot-vacuums-artificial-intelligence-training-data-privacy/">technologyreview.com</a></span></li>
+    <li id="f9"><span><span class="tipo-ref">Artículo</span>Tobin, J. y otros (2017). Domain randomization for transferring deep neural networks from simulation to the real world. <em>IEEE/RSJ IROS</em>. <a href="https://arxiv.org/abs/1703.06907">arxiv.org/abs/1703.06907</a></span></li>
+  </ol>
+</section>
+
+<nav id="nav-cap" aria-label="Página anterior y siguiente"></nav>
+<p id="ayuda-pie" class="ayuda-pie"></p>
+</main>
+</div>
+
+<div id="pie"></div>
+</body>
+</html>

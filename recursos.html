@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Referencias, recursos y glosario · Robot explorador</title>
-<meta name="description" content="Bibliografía completa de la tesis con enlaces, fuentes externas agregadas en esta guía, recursos para seguir aprendiendo robótica móvil con ROS 2, glosario y cómo citar el trabajo.">
+<title>Recursos · Robot explorador</title>
+<meta name="description" content="Glosario, bibliografía de la tesis, fuentes externas, videos y material para aprender robótica móvil con ROS 2, y cómo citar este trabajo.">
 <meta name="author" content="Sebastián Valderas Neculqueo">
 <link rel="canonical" href="https://svn11x.github.io/tesis_explain/recursos.html">
-<meta property="og:type" content="website">
+<meta property="og:type" content="article">
 <meta property="og:locale" content="es_CL">
 <meta property="og:site_name" content="Robot explorador">
-<meta property="og:title" content="Referencias, recursos y glosario">
-<meta property="og:description" content="Bibliografía completa de la tesis con enlaces, fuentes externas agregadas en esta guía, recursos para seguir aprendiendo robótica móvil con ROS 2, glosario y cómo citar el trabajo.">
+<meta property="og:title" content="Recursos">
+<meta property="og:description" content="Glosario, bibliografía de la tesis, fuentes externas, videos y material para aprender robótica móvil con ROS 2, y cómo citar este trabajo.">
 <meta property="og:url" content="https://svn11x.github.io/tesis_explain/recursos.html">
 <meta property="og:image" content="https://svn11x.github.io/tesis_explain/img/social.png">
 <meta property="og:image:width" content="1200">
@@ -30,13 +30,24 @@
 <body data-pagina="recursos">
 <a class="saltar" href="#contenido">Saltar al contenido</a>
 <div id="cabecera"></div>
-<header class="cap-cab"><div class="wrap">
-<nav class="miga" aria-label="Ruta"><a href="index.html">Inicio</a><span aria-hidden="true">›</span><span>Recursos</span></nav>
-<h1>Referencias, recursos y glosario</h1>
-<p class="lead">Todas las fuentes que usa esta guía, para verificar cada afirmación o seguir aprendiendo. Las de la tesis van primero. Las que se agregaron para los ejemplos y los temas implícitos están marcadas.</p>
-<div class="meta-cap"><a class="etiqueta" href="#aprender">Para aprender más</a><a class="etiqueta" href="#glosario">Glosario</a><a class="etiqueta" href="#bibliografia">Bibliografía de la tesis</a><a class="etiqueta" href="#externas">Fuentes agregadas</a><a class="etiqueta" href="#citar">Cómo citar</a><a class="etiqueta" href="#creditos">Créditos</a></div>
-</div></header>
-<main class="wrap articulo" id="contenido" style="padding-block:32px 24px">
+<header class="tema-hero">
+  <div class="wrap">
+    <div class="tema-hero-txt">
+      <nav class="miga" aria-label="Ruta"><a href="index.html">Inicio</a><span aria-hidden="true">›</span><span>Recursos</span></nav>
+      <p class="eyebrow">Para seguir aprendiendo</p>
+      <h1>Recursos, glosario y fuentes</h1>
+      <p class="lead">Todas las fuentes que usa esta guía, para verificar cada afirmación o seguir aprendiendo. Las de la tesis van primero. Las que se agregaron para los ejemplos del mundo real y las lecciones están marcadas.</p>
+      <div class="meta-cap"><a class="etiqueta" href="#aprender">Para aprender más</a><a class="etiqueta" href="#glosario">Glosario</a><a class="etiqueta" href="#bibliografia">Bibliografía de la tesis</a><a class="etiqueta" href="#externas">Fuentes agregadas</a><a class="etiqueta" href="#citar">Cómo citar</a></div>
+    </div>
+    <figure class="tema-hero-fig contener">
+      <picture><source srcset="img/tesis/arquitectura-med.webp" type="image/webp"><img src="img/tesis/arquitectura-med.png" width="1200" height="678" alt="Diagrama de bloques del robot y la estación de trabajo." fetchpriority="high"></picture>
+      <figcaption>El sistema completo, con cada pieza enlazada a su tema. Fig. 2.1 de la tesis.</figcaption>
+    </figure>
+  </div>
+</header>
+<div class="wrap cap-layout">
+<aside class="lateral" id="lateral" aria-label="Navegación de la página"></aside>
+<main class="articulo" id="contenido">
 
 <section>
   <h2 id="aprender">Para aprender más</h2>
@@ -52,13 +63,20 @@
     <a href="https://www.ros.org/reps/rep-0105.html"><b>REP 105</b><span>La convención de marcos map, odom y base_link que usan casi todos los robots móviles con ROS.</span><small>Norma · inglés</small></a>
     <a href="https://doi.org/10.1007/978-3-031-06469-2"><b>Robotics, Vision and Control</b><span>El libro de Peter Corke, con ejemplos en Python, cubre cinemática, navegación y percepción.</span><small>Libro · inglés</small></a>
   </div>
+  <h3 id="videos">Videos para empezar</h3>
+  <div class="videos-grid">
+    <div class="vid-card"><div class="video" data-yt="iTTC10eGDmc" data-portada="img/fotos/video-portada" data-titulo="El robot explorando por su cuenta" data-sub="La demostración de esta tesis"><a href="https://www.youtube.com/watch?v=iTTC10eGDmc">Ver en YouTube</a></div><p>La ejecución de demostración del robot real, con la cámara cenital y RViz.</p></div>
+    <div class="vid-card"><div class="video" data-yt="wkfEZmsQqiA" data-titulo="What Is PID Control?" data-sub="MATLAB, en inglés"><a href="https://www.youtube.com/watch?v=wkfEZmsQqiA">Ver en YouTube</a></div><p>El primer capítulo de la serie de MATLAB sobre control PID.</p></div>
+    <div class="vid-card"><div class="video" data-vimeo="378682207" data-titulo="On Use of SLAM Toolbox" data-sub="ROSCon 2019, en inglés"><a href="https://vimeo.com/378682207">Ver en Vimeo</a></div><p>Steve Macenski presenta SLAM Toolbox.</p></div>
+    <div class="vid-card"><div class="video" data-yt="jkoGkAd0GYk" data-titulo="Making robot navigation easy with Nav2 and ROS!" data-sub="Articulated Robotics, en inglés"><a href="https://www.youtube.com/watch?v=jkoGkAd0GYk">Ver en YouTube</a></div><p>Nav2 paso a paso en un robot diferencial casero.</p></div>
+  </div>
 </section>
 
 <section>
   <h2 id="glosario">Glosario</h2>
   <dl class="glosario" style="margin-top:16px">
-    <div id="g-astar"><dt>A estrella</dt><dd>Algoritmo que busca la ruta de menor costo en una rejilla sumando lo recorrido y una estimación de lo que falta. <a href="navegacion.html#astar">Capítulo 6</a>.</dd></div>
-    <div id="g-abortada"><dt>Abortada</dt><dd>Estado final de una meta de navegación que no terminó con éxito. En Nav2 Foxy también lo recibe la meta que es reemplazada por otra. <a href="exploracion.html#abortadas">Capítulo 7</a>.</dd></div>
+    <div id="g-astar"><dt>A estrella</dt><dd>Algoritmo que busca la ruta de menor costo en una rejilla sumando lo recorrido y una estimación de lo que falta. <a href="navegacion.html#astar">Tema 6</a>.</dd></div>
+    <div id="g-abortada"><dt>Abortada</dt><dd>Estado final de una meta de navegación que no terminó con éxito. En Nav2 Foxy también lo recibe la meta que es reemplazada por otra. <a href="exploracion.html#abortadas">Tema 7</a>.</dd></div>
     <div id="g-amcl"><dt>AMCL</dt><dd>Localización de Monte Carlo adaptativa. Ubica al robot en un mapa ya guardado con un filtro de partículas.</dd></div>
     <div id="g-arbol"><dt>Árbol de comportamiento</dt><dd>Estructura modular que encadena tareas como planificar, seguir y recuperarse de fallas.</dd></div>
     <div id="g-banda"><dt>Banda muerta</dt><dd>Rango de error tan pequeño que el controlador lo trata como cero. En este firmware es de 1 tick por ciclo en la rueda derecha y 2 en la izquierda.</dd></div>
@@ -165,7 +183,7 @@
 
 <section>
   <h2 id="externas">Fuentes agregadas en esta guía</h2>
-  <p>No forman parte de la bibliografía de la tesis. Se usan para los ejemplos del mundo real, los temas implícitos y los recursos de aprendizaje.</p>
+  <p>No forman parte de la bibliografía de la tesis. Se usan para los ejemplos del mundo real, las lecciones de ingeniería y los recursos de aprendizaje. Cada página de la guía lista además sus propias fuentes al final.</p>
   <ol class="refs" style="margin-top:16px">
     <li id="r-astrom-murray">Åström, K. J., &amp; Murray, R. M. (2021). <i>Feedback Systems: An Introduction for Scientists and Engineers</i> (2.a ed.). Princeton University Press. <a href="https://www.cds.caltech.edu/~murray/amwiki/Second_Edition.html">Versión en línea</a><span class="tag"><b>Agregada.</b> Control crucero como ejemplo de lazo cerrado.</span></li>
     <li id="r-borenstein1996">Borenstein, J., &amp; Feng, L. (1996). Measurement and correction of systematic odometry errors in mobile robots. <i>IEEE Transactions on Robotics and Automation, 12</i>(6), 869-880. <a href="https://doi.org/10.1109/70.544770">doi.org/10.1109/70.544770</a><span class="tag"><b>Agregada.</b> Método UMBmark para calibrar la odometría.</span></li>
@@ -187,6 +205,23 @@
     <li id="r-tobin2017">Tobin, J., Fong, R., Ray, A., Schneider, J., Zaremba, W., &amp; Abbeel, P. (2017). Domain randomization for transferring deep neural networks from simulation to the real world. <i>IEEE/RSJ International Conference on Intelligent Robots and Systems</i>. <a href="https://arxiv.org/abs/1703.06907">arxiv.org/abs/1703.06907</a><span class="tag"><b>Agregada.</b> Una técnica para reducir la brecha entre simulación y realidad.</span></li>
     <li id="r-cerberus">Tranzatto, M., et al. (2022). Team CERBERUS Wins the DARPA Subterranean Challenge: Technical Overview and Lessons Learned. <a href="https://arxiv.org/abs/2207.04914">arxiv.org/abs/2207.04914</a><span class="tag"><b>Agregada.</b> Exploración autónoma subterránea.</span></li>
     <li id="r-zhou2022">Zhou, J., Zhang, S., &amp; Gu, M. (2022). Revisiting Digital Twins: Origins, Fundamentals and Practices. <a href="https://arxiv.org/abs/2203.12867">arxiv.org/abs/2203.12867</a><span class="tag"><b>Agregada.</b> Origen del concepto de gemelo digital.</span></li>
+    <li id="r-articulated">Articulated Robotics. (s.f.). Canal de YouTube y tutoriales de Josh Newans. <a href="https://www.youtube.com/@ArticulatedRobotics">youtube.com/@ArticulatedRobotics</a><span class="tag"><b>Agregada.</b> Ruta de videos para construir un robot como este.</span></li>
+    <li id="r-bbc">BBC News. (s.f.). <i>How do robot vacuums know where to clean?</i> [Video]. <a href="https://www.youtube.com/watch?v=DSBWH8dzyeU">youtube.com</a><span class="tag"><b>Agregada.</b> Aspiradoras robot y mapas del hogar.</span></li>
+    <li id="r-clearpath">Clearpath Robotics. (s.f.). <i>Husky UGV</i>. <a href="https://clearpathrobotics.com/husky-ugv/">clearpathrobotics.com</a><span class="tag"><b>Agregada.</b> Plataforma comercial de investigación, imagen del fabricante.</span></li>
+    <li id="r-codelco2026">Codelco. (2026, 27 de marzo). <i>El Teniente incorpora dron para inspección de sectores de difícil acceso</i>. <a href="https://codelco.com/el-teniente-incorpora-dron-para-inspeccion-de-sectores-de-dificil-acceso">codelco.com</a><span class="tag"><b>Agregada.</b> Mapeo con LiDAR en la minería chilena.</span></li>
+    <li id="r-darpa2021">DARPA. (2021). <i>Subterranean Challenge winners</i>. <a href="https://www.darpa.mil/news/2021/subterranean-challenge-winners">darpa.mil</a><span class="tag"><b>Agregada.</b> Resultado de la final del desafío subterráneo.</span></li>
+    <li id="r-iso36914">ISO. <i>ISO 3691-4, Industrial trucks, Safety requirements and verification, Part 4: Driverless industrial trucks and their systems</i>. <a href="https://www.iso.org/standard/88615.html">iso.org</a><span class="tag"><b>Agregada.</b> Seguridad de vehículos industriales sin conductor.</span></li>
+    <li id="r-jpl-optimism">NASA Jet Propulsion Laboratory. (2020). <i>NASA Readies Perseverance Mars Rover's Earthly Twin</i>. <a href="https://www.jpl.nasa.gov/news/nasa-readies-perseverance-mars-rovers-earthly-twin/">jpl.nasa.gov</a><span class="tag"><b>Agregada.</b> Un gemelo físico para ensayar antes de Marte.</span></li>
+    <li id="r-macenski2019">Macenski, S. (2019). <i>On Use of SLAM Toolbox</i> [Charla]. ROSCon 2019, Macao. <a href="https://vimeo.com/378682207">vimeo.com/378682207</a><span class="tag"><b>Agregada.</b> El autor de SLAM Toolbox explica su diseño.</span></li>
+    <li id="r-marlin">Marlin Firmware. (s.f.). <i>M303, PID autotune</i>. <a href="https://marlinfw.org/docs/gcode/M303.html">marlinfw.org</a><span class="tag"><b>Agregada.</b> Autoajuste de PID en impresoras 3D.</span></li>
+    <li id="r-matlab-pid">MATLAB. (s.f.). <i>Understanding PID Control</i> [Serie de videos]. <a href="https://www.youtube.com/playlist?list=PLn8PRpmsu08pQBgjxYFXSsODEF3Jqmm-y">youtube.com</a><span class="tag"><b>Agregada.</b> Introducción visual al control PID.</span></li>
+    <li id="r-mittr2017">MIT Technology Review. (2017, 25 de julio). <i>Your Roomba is also gathering data about the layout of your home</i>. <a href="https://www.technologyreview.com/2017/07/25/150346/your-roomba-is-also-gathering-data-about-the-layout-of-your-home/">technologyreview.com</a><span class="tag"><b>Agregada.</b> Privacidad de los mapas del hogar.</span></li>
+    <li id="r-nssdc-lrv">NASA Space Science Data Coordinated Archive. (s.f.). <i>The Apollo Lunar Roving Vehicle</i>. <a href="https://nssdc.gsfc.nasa.gov/planetary/lunar/apollo_lrv.html">nssdc.gsfc.nasa.gov</a><span class="tag"><b>Agregada.</b> Navegación por estima en la Luna.</span></li>
+    <li id="r-openrobotics2021">Open Robotics. (2021). <i>DARPA SubT Final Competition</i>. <a href="https://www.openrobotics.org/blog/2021/9/27/darpa-subt-final-competition">openrobotics.org</a><span class="tag"><b>Agregada.</b> La competencia virtual del desafío subterráneo.</span></li>
+    <li id="r-physicstoday">Physics Today. (1999). <i>Mars Climate Orbiter lost</i>. <a href="https://physicstoday.aip.org/news/mars-climate-orbiter-lost">physicstoday.aip.org</a><span class="tag"><b>Agregada.</b> El costo de mezclar unidades.</span></li>
+    <li id="r-px4">PX4 Autopilot. (s.f.). <i>Multicopter PID Tuning Guide</i> y <i>Companion Computers</i>. <a href="https://docs.px4.io/main/en/config_mc/pid_tuning_guide_multicopter">docs.px4.io</a><span class="tag"><b>Agregada.</b> Lazos en cascada y reparto de cómputo en drones.</span></li>
+    <li id="r-opencr">ROBOTIS. (s.f.). <i>OpenCR 1.0</i>. <a href="https://emanual.robotis.com/docs/en/parts/controller/opencr10/">emanual.robotis.com</a><span class="tag"><b>Agregada.</b> El controlador del TurtleBot 3.</span></li>
+    <li id="r-trossen">Trossen Robotics. (s.f.). <i>Interbotix LoCoBot</i>. <a href="https://www.trossenrobotics.com/locobots">trossenrobotics.com</a><span class="tag"><b>Agregada.</b> Plataforma de navegación y manipulación, imagen del fabricante.</span></li>
   </ol>
 </section>
 
@@ -210,13 +245,18 @@
 <section>
   <h2 id="creditos">Créditos</h2>
   <ul>
-    <li>Fotografías del robot y del recinto, capturas de RViz y del modelo: Sebastián Valderas Neculqueo, tomadas de la tesis y de su video de demostración.</li>
+    <li>Fotografías del robot y del recinto, capturas de RViz, de Gazebo y del modelo, esquema eléctrico, diagramas de arquitectura y gráficos de resultados: Sebastián Valderas Neculqueo, tomados de la tesis, de su carpeta de figuras y de su video de demostración.</li>
+    <li>Imágenes de productos de terceros, como el RPLidar A1, el router GL.iNet, el Husky A300 y el LoCoBot: de sus respectivos fabricantes, usadas para identificar los equipos con su fuente indicada.</li>
     <li>Diagramas, interactivos y simulaciones: elaborados para esta guía con los datos de la tesis. Los marcados como ilustrativos usan datos de ejemplo.</li>
+    <li>Videos externos: se reproducen desde YouTube o Vimeo solo cuando presionas el botón. Los de YouTube usan el dominio de privacidad mejorada.</li>
     <li>Tipografías: Archivo, Atkinson Hyperlegible e IBM Plex Mono, vía Google Fonts.</li>
-    <li>El video se reproduce desde YouTube solo cuando presionas el botón, usando el dominio de privacidad mejorada.</li>
   </ul>
 </section>
+
+<nav id="nav-cap" aria-label="Página anterior y siguiente"></nav>
 </main>
+</div>
+
 <div id="pie"></div>
 </body>
 </html>

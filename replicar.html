@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Constrúyelo tú · Robot explorador</title>
-<meta name="description" content="Guía práctica para construir un robot explorador parecido: lista de materiales con costos, parámetros de impresión 3D, conexiones, versiones de software, repositorios base, orden de trabajo sugerido y doce lecciones aprendidas.">
+<meta name="description" content="Materiales, conexiones, versiones de software, repositorios base, videos para aprender y lecciones de taller para construir un robot explorador.">
 <meta name="author" content="Sebastián Valderas Neculqueo">
 <link rel="canonical" href="https://svn11x.github.io/tesis_explain/replicar.html">
 <meta property="og:type" content="article">
 <meta property="og:locale" content="es_CL">
 <meta property="og:site_name" content="Robot explorador">
 <meta property="og:title" content="Constrúyelo tú">
-<meta property="og:description" content="Guía práctica para construir un robot explorador parecido: lista de materiales con costos, parámetros de impresión 3D, conexiones, versiones de software, repositorios base, orden de trabajo sugerido y doce lecciones aprendidas.">
+<meta property="og:description" content="Materiales, conexiones, versiones de software, repositorios base, videos para aprender y lecciones de taller para construir un robot explorador.">
 <meta property="og:url" content="https://svn11x.github.io/tesis_explain/replicar.html">
 <meta property="og:image" content="https://svn11x.github.io/tesis_explain/img/social.png">
 <meta property="og:image:width" content="1200">
@@ -34,22 +34,34 @@
 <body data-pagina="replicar">
 <a class="saltar" href="#contenido">Saltar al contenido</a>
 <div id="cabecera"></div>
-<header class="cap-cab"><div class="wrap">
-<nav class="miga" aria-label="Ruta"><a href="index.html">Inicio</a><span aria-hidden="true">›</span><span data-cap-n>Guía</span></nav>
-<h1>Constrúyelo tú</h1>
-<p class="lead">Todo lo necesario para empezar un robot parecido, con lo que costó, de dónde viene cada pieza de software y las lecciones que este proyecto aprendió en el camino, para que no tengas que aprenderlas igual.</p>
-<div class="meta-cap"><span data-nivel class="etiqueta">Nivel</span><span class="etiqueta" data-lectura>Lectura</span><span class="etiqueta">Basado en la tesis, con fuentes externas marcadas</span></div>
-</div></header>
+<header class="tema-hero">
+  <div class="wrap">
+    <div class="tema-hero-txt">
+      <nav class="miga" aria-label="Ruta"><a href="index.html">Inicio</a><span aria-hidden="true">›</span><a href="index.html#temas">Temas</a><span aria-hidden="true">›</span><span data-cap-n>Tema</span></nav>
+      <p class="eyebrow" data-bloque>Evidencia y práctica</p>
+      <h1>Constrúyelo tú</h1>
+      <p class="lead">Todo lo necesario para repetir o mejorar este robot: la lista de materiales con precios reales, las conexiones, las versiones exactas, los repositorios de base, una ruta de videos para aprender y doce lecciones de taller.</p>
+      <div class="meta-cap"><span data-nivel class="etiqueta">Nivel</span><span class="etiqueta" data-lectura>Lectura</span></div>
+    </div>
+    <figure class="tema-hero-fig">
+      <picture><source srcset="img/fotos/robot-derecha.webp" type="image/webp"><img src="img/fotos/robot-derecha.jpg" width="1400" height="1133" alt="El robot visto desde su costado derecho, con la carcasa negra impresa en 3D, franjas amarillas, el láser arriba y los puertos de conexión atrás." fetchpriority="high"></picture>
+      <figcaption>El prototipo terminado. Fotografía del autor.</figcaption>
+    </figure>
+  </div>
+</header>
 <div class="wrap cap-layout">
-<aside class="lateral" id="lateral" aria-label="Navegación del capítulo"></aside>
+<aside class="lateral" id="lateral" aria-label="Navegación del tema"></aside>
 <main class="articulo" id="contenido">
-<section class="esencial" aria-label="Lo esencial">
-  <h2>Lo esencial</h2>
-  <ol>
-    <li>Los materiales montados en el robot costaron 444 643 pesos, y 582 447 con los accesorios de operación. Falta sumar un computador para el mapeo y la navegación.</li>
-    <li>El software parte de proyectos abiertos, todos citados aquí. Si empiezas hoy, usa una distribución vigente de ROS 2 y no Foxy.</li>
-    <li>Las lecciones más útiles no son de piezas, sino de cómo medir, registrar y leer código ajeno.</li>
-  </ol>
+
+<section class="en-breve" aria-labelledby="t-breve">
+  <h2 id="t-breve">En pocas palabras</h2>
+  <p>Los materiales montados en el robot costaron 444 643 pesos, y 582 447 con los accesorios de operación. Falta sumar un computador para el mapeo y la navegación. El software parte de proyectos abiertos, todos citados aquí, con una serie de videos que explica casi cada paso. Si empiezas hoy, usa una distribución vigente de ROS 2 y no Foxy. Las lecciones más útiles no son de piezas, sino de cómo medir, registrar y leer código ajeno.</p>
+  <div class="cifras-mini">
+    <div><b>582 447 <small>CLP</small></b><span>costo total del proyecto, sin el computador</span></div>
+    <div><b>127 234 <small>CLP</small></b><span>en tornillería y kits, el gasto más fácil de reducir</span></div>
+    <div><b>1 <small>kg</small></b><span>de filamento PLA+ para el chasis y las cubiertas</span></div>
+    <div><b>8</b><span>pasos en un orden de trabajo que funciona</span></div>
+  </div>
 </section>
 
 <section>
@@ -82,36 +94,43 @@
         <tr><td>Transmisor y receptor HDMI inalámbrico, cables micro HDMI y hub USB</td><td class="n">varios</td><td class="n">49 683</td></tr>
         <tr class="total"><td>Total del proyecto</td><td></td><td class="n">582 447</td></tr>
       </tbody>
-      <caption>Tabla A1.1 de la tesis. Pesos chilenos nominales pagados entre abril de 2024 y julio de 2026. Los kits se cuentan completos aunque se usó solo una parte, y ningún monto incluye el computador.</caption>
+      <caption>Tabla A1.1 de la tesis. Pesos chilenos pagados entre abril de 2024 y julio de 2026. Los kits se cuentan completos aunque se usó solo una parte, y ningún monto incluye el computador.</caption>
     </table>
   </div>
-  <div class="callout idea">
-    <div class="c-tit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg>Dónde está el gasto grande</div>
-    <p>La tornillería, los separadores y las tuercas de inserción suman 127 234 pesos, más que la Raspberry Pi o que el láser por separado, porque se compraron kits completos. Si construyes uno, comprar solo las piezas que necesitas baja bastante el costo del montaje.</p>
-  </div>
+  <p>La tornillería, los separadores y las tuercas de inserción suman 127 234 pesos, más que la Raspberry Pi o que el láser por separado, porque se compraron kits completos. Si construyes uno, comprar solo las piezas que necesitas baja bastante el costo del montaje <a class="ref" href="#f1">1</a>.</p>
 </section>
 
 <section>
   <h2 id="impresion">Chasis impreso en 3D</h2>
-  <p>El chasis y las cubiertas toman como referencia un diseño abierto de robot aspiradora <a class="cita" href="recursos.html#r-marcuslanzoni">(marcuslanzoni, 2020)</a>. Estos son los parámetros generales de impresión usados <span class="en-tesis">Tabla A1.3</span>.</p>
-  <div class="tabla-env" style="max-width:560px">
-    <table class="tabla" style="min-width:0">
-      <tbody>
-        <tr><th>Material</th><td>PLA+</td></tr>
-        <tr><th>Altura de capa</th><td>0,2 mm</td></tr>
-        <tr><th>Relleno</th><td>20 a 30 %</td></tr>
-        <tr><th>Paredes perimetrales</th><td>3</td></tr>
-        <tr><th>Temperatura de boquilla</th><td>205 a 215 °C</td></tr>
-        <tr><th>Temperatura de cama</th><td>55 a 60 °C</td></tr>
-        <tr><th>Velocidad de impresión</th><td>50 mm/s</td></tr>
-        <tr><th>Tolerancia de ensamblaje</th><td>0,2 a 0,4 mm</td></tr>
-      </tbody>
-    </table>
+  <div class="grid-2">
+    <div>
+      <p>El chasis y las cubiertas toman como referencia un diseño abierto de robot aspiradora publicado en Thingiverse <a class="ref" href="#f2">2</a>. La forma baja y redondeada deja el láser libre arriba y permite girar en pasillos estrechos.</p>
+      <p>Los parámetros generales de impresión son los de una impresora doméstica. La tolerancia de ensamblaje importa más que la calidad superficial, porque las piezas se atornillan con tuercas de inserción térmica <a class="ref" href="#f1">1</a>.</p>
+    </div>
+    <div class="tabla-env">
+      <table class="tabla" style="min-width:0">
+        <tbody>
+          <tr><th>Material</th><td>PLA+</td></tr>
+          <tr><th>Altura de capa</th><td>0,2 mm</td></tr>
+          <tr><th>Relleno</th><td>20 a 30 %</td></tr>
+          <tr><th>Paredes perimetrales</th><td>3</td></tr>
+          <tr><th>Temperatura de boquilla</th><td>205 a 215 °C</td></tr>
+          <tr><th>Temperatura de cama</th><td>55 a 60 °C</td></tr>
+          <tr><th>Velocidad de impresión</th><td>50 mm/s</td></tr>
+          <tr><th>Tolerancia de ensamblaje</th><td>0,2 a 0,4 mm</td></tr>
+        </tbody>
+        <caption>Tabla A1.3 de la tesis.</caption>
+      </table>
+    </div>
   </div>
 </section>
 
 <section>
   <h2 id="conexiones">Conexiones entre Arduino, driver y encoders</h2>
+  <figure class="fig">
+    <picture><source srcset="img/tesis/circuito-med.webp" type="image/webp"><img src="img/tesis/circuito-med.png" data-grande="img/tesis/circuito.png" width="1200" height="915" loading="lazy" decoding="async" alt="Esquema de conexiones en Fritzing con la batería, el fusible, el interruptor, los bloques de distribución de 12 V y 5 V, el regulador, el L298N, los dos motores con encoder, el Arduino Nano, la Raspberry Pi y el LiDAR."></picture>
+    <figcaption>Esquema completo de energía y datos. Haz clic para verlo en alta resolución. <small>Fig. 4.5 de la tesis.</small></figcaption>
+  </figure>
   <div class="tabla-env" style="max-width:640px">
     <table class="tabla" style="min-width:0">
       <thead><tr><th>Función</th><th>Pin del Arduino</th><th>Destino</th></tr></thead>
@@ -128,12 +147,12 @@
       <caption>Tabla A3.4 de la tesis.</caption>
     </table>
   </div>
-  <p>Para que los puertos no cambien de nombre al reconectar, se usan reglas udev. El Arduino queda como /dev/motor_controller y el láser como /dev/rplidar o /dev/rlidar_gpio, según si va por USB o por los pines de la Raspberry <span class="en-tesis">Anexo 3.3</span>. El esquema completo de energía y datos está en <a href="robot.html#energia">El robot por dentro</a>.</p>
+  <p>Para que los puertos no cambien de nombre al reconectar, se usan reglas udev. El Arduino queda como <code>/dev/motor_controller</code> y el láser como <code>/dev/rplidar</code> o <code>/dev/rlidar_gpio</code>, según si va por USB o por los pines de la Raspberry Pi <a class="ref" href="#f1">1</a>.</p>
 </section>
 
 <section>
   <h2 id="versiones">Versiones de software</h2>
-  <p>Estas son las versiones exactas con que se obtuvieron los resultados de la tesis <span class="en-tesis">Tabla A3.2</span>. Sirven para reproducirlos, no como recomendación para un proyecto nuevo.</p>
+  <p>Estas son las versiones exactas con que se obtuvieron los resultados de la tesis <a class="ref" href="#f1">1</a>. Sirven para reproducirlos, no como recomendación para un proyecto nuevo.</p>
   <div class="tabla-env" style="max-width:640px">
     <table class="tabla" style="min-width:0">
       <tbody>
@@ -152,64 +171,96 @@
     <div class="widget-cab"><h3 id="congelado">Por qué se congelaron</h3><span class="tipo datos">Datos de la tesis</span></div>
     <div class="vis" data-vis="versiones"><p class="vis-fallback">Ubuntu 20.04, ROS 2 Foxy, Gazebo Classic y los paquetes base se congelaron al inicio para asegurar la compatibilidad.</p></div>
   </div>
-  <div class="callout ojo">
-    <div class="c-tit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9.5 17H2.5z"/><path d="M12 10v4M12 17.5v.5"/></svg>Si empiezas hoy</div>
-    <p>ROS 2 Foxy dejó de tener soporte en junio de 2023 y Gazebo Classic en enero de 2025. Las distribuciones de ROS 2 que salen en años pares tienen cinco años de soporte. Jazzy Jalisco, de mayo de 2024, tiene soporte hasta mayo de 2029, y Lyrical Luth, de mayo de 2026, hasta mayo de 2031 <a class="cita" href="recursos.html#r-eol">(endoflife.date)</a>. Usa una de ellas con la versión de Gazebo que recomiende su documentación, y espera tener que ajustar los paquetes base, que fueron escritos para Foxy.</p>
+  <p>Si empiezas hoy, ten en cuenta que ROS 2 Foxy dejó de tener soporte en junio de 2023 y Gazebo Classic en enero de 2025. Las distribuciones de ROS 2 que salen en años pares tienen cinco años de soporte. Jazzy Jalisco, de mayo de 2024, tiene soporte hasta mayo de 2029 <a class="ref" href="#f3">3</a>. Usa una distribución vigente con la versión de Gazebo que recomiende su documentación, y espera tener que ajustar los paquetes base, que fueron escritos para Foxy.</p>
+</section>
+
+<section>
+  <h2 id="aprender">Una ruta de videos para aprender</h2>
+  <p>Los paquetes adaptados en esta tesis vienen de Articulated Robotics, el proyecto de Josh Newans, que documentó en video la construcción de un robot móvil muy parecido. Seguirlos en este orden es una forma ordenada de recorrer el mismo camino <a class="ref" href="#f4">4</a>.</p>
+  <div class="videos-grid">
+    <div class="vid-card">
+      <div class="video" data-yt="laWn7_cj434" data-titulo="Simulating Robots with Gazebo and ROS" data-sub="Paso 1, el gemelo digital"><a href="https://www.youtube.com/watch?v=laWn7_cj434">Ver en YouTube</a></div>
+      <p><b>1. Simular.</b> Modelar el robot y probarlo en Gazebo. <small>Relacionado con <a href="gemelo.html">El gemelo digital</a>.</small></p>
+    </div>
+    <div class="vid-card">
+      <div class="video" data-yt="4VVrTCnxvSw" data-titulo="Using ros2_control to drive our robot" data-sub="Paso 2, el control"><a href="https://www.youtube.com/watch?v=4VVrTCnxvSw">Ver en YouTube</a></div>
+      <p><b>2. Mover.</b> Conectar ros2_control con el hardware real. <small>Relacionado con <a href="robot.html#camino-orden">Anatomía del robot</a>.</small></p>
+    </div>
+    <div class="vid-card">
+      <div class="video" data-yt="ZaiA3hWaRzE" data-titulo="Easy SLAM with ROS using slam_toolbox" data-sub="Paso 3, el mapa"><a href="https://www.youtube.com/watch?v=ZaiA3hWaRzE">Ver en YouTube</a></div>
+      <p><b>3. Mapear.</b> Construir el mapa con slam_toolbox. <small>Relacionado con <a href="mapeo.html">Ver y mapear</a>.</small></p>
+    </div>
+    <div class="vid-card">
+      <div class="video" data-yt="jkoGkAd0GYk" data-titulo="Making robot navigation easy with Nav2 and ROS!" data-sub="Paso 4, la navegación"><a href="https://www.youtube.com/watch?v=jkoGkAd0GYk">Ver en YouTube</a></div>
+      <p><b>4. Navegar.</b> Configurar Nav2 sobre el mapa. <small>Relacionado con <a href="navegacion.html">Planificar y seguir rutas</a>.</small></p>
+    </div>
   </div>
 </section>
 
 <section>
-  <h2 id="repositorios">Repositorios y tutoriales de base</h2>
+  <h2 id="repositorios">Repositorios y documentación de base</h2>
   <div class="aprender">
     <a href="https://github.com/joshnewans/articubot_one"><b>articubot_one</b><span>Paquete de descripción, control, SLAM y navegación del que partió el robot.</span><small>github.com/joshnewans</small></a>
     <a href="https://github.com/joshnewans/diffdrive_arduino"><b>diffdrive_arduino</b><span>Interfaz de ros2_control para robots diferenciales con Arduino.</span><small>github.com/joshnewans</small></a>
-    <a href="https://github.com/joshnewans/ros_arduino_bridge"><b>ros_arduino_bridge</b><span>Firmware de encoders, motores y control, bifurcación del proyecto de HBRC.</span><small>github.com/joshnewans</small></a>
+    <a href="https://github.com/joshnewans/ros_arduino_bridge"><b>ros_arduino_bridge</b><span>Firmware de encoders, motores y control, bifurcación del proyecto del Home Brew Robotics Club.</span><small>github.com/joshnewans</small></a>
     <a href="https://github.com/robo-friends/m-explore-ros2"><b>m-explore-ros2</b><span>explore_lite para ROS 2, la exploración por fronteras.</span><small>github.com/robo-friends</small></a>
     <a href="https://github.com/SteveMacenski/slam_toolbox"><b>slam_toolbox</b><span>SLAM 2D por grafos de poses para ROS 2.</span><small>github.com/SteveMacenski</small></a>
     <a href="https://docs.nav2.org/"><b>Documentación de Nav2</b><span>Conceptos, configuración y guía de ajuste de la navegación.</span><small>docs.nav2.org</small></a>
-    <a href="https://articulatedrobotics.xyz/"><b>Articulated Robotics</b><span>Tutoriales de Josh Newans para construir un robot móvil con ROS 2, base de varios de estos paquetes.</span><small>articulatedrobotics.xyz</small></a>
+    <a href="https://articulatedrobotics.xyz/"><b>Articulated Robotics</b><span>Tutoriales escritos y en video para construir un robot móvil con ROS 2.</span><small>articulatedrobotics.xyz</small></a>
     <a href="https://www.thingiverse.com/thing:4459513"><b>Vacuum Robot en Thingiverse</b><span>El diseño abierto que sirvió de referencia para el chasis.</span><small>thingiverse.com</small></a>
-    <a href="https://github.com/TheNoobInventor/lidarbot"><b>Lidarbot</b><span>Otro robot diferencial de bajo costo con ros2_control, documentado por Amadi et al. (2024).</span><small>github.com/TheNoobInventor</small></a>
+    <a href="https://github.com/TheNoobInventor/lidarbot"><b>Lidarbot</b><span>Otro robot diferencial de bajo costo con ros2_control, documentado por Amadi y otros en 2024.</span><small>github.com/TheNoobInventor</small></a>
   </div>
 </section>
 
 <section>
   <h2 id="orden">Un orden de trabajo que funciona</h2>
-  <p>El mismo que siguió esta tesis, simular antes de construir y avanzar de abajo hacia arriba <span class="en-tesis">Metodología</span>.</p>
-  <ol>
-    <li><b>Modela el robot.</b> Escribe el URDF con las medidas reales y pruébalo en simulación hasta que la cadena de marcos esté completa y el robot se mueva como esperas.</li>
-    <li><b>Construye y cablea.</b> Separa el riel de motores del de electrónica y deja nombres fijos a los puertos.</li>
-    <li><b>Comprueba los encoders.</b> Gira cada rueda a mano, verifica el sentido del conteo y mide los ticks por vuelta, no confíes en el valor teórico.</li>
-    <li><b>Identifica y sintoniza cada rueda.</b> Captura su respuesta, ajusta un modelo, busca ganancias y refínalas en el robot.</li>
-    <li><b>Mide la odometría.</b> Contra una cinta, con repeticiones, antes de construir mapas sobre ella.</li>
-    <li><b>Teleopera y mapea.</b> Conduce con el mando mientras slam_toolbox construye el mapa.</li>
-    <li><b>Navega a metas puntuales.</b> Y mide cuántas alcanza y con qué error, lo que este trabajo dejó pendiente.</li>
-    <li><b>Explora.</b> Recién entonces suma el explorador de fronteras.</li>
+  <p>El mismo que siguió esta tesis. Simular antes de construir y avanzar de abajo hacia arriba, sin pasar a la capa siguiente hasta medir la anterior.</p>
+  <ol class="linea l4">
+    <li><b>Modela</b>URDF con medidas reales, probado en simulación.</li>
+    <li><b>Construye</b>Separa la energía de motores y electrónica.</li>
+    <li><b>Mide encoders</b>Sentido del conteo y pulsos por vuelta reales.</li>
+    <li><b>Sintoniza</b>Modelo de cada rueda, ganancias y ajuste en el robot.</li>
+    <li><b>Valida la odometría</b>Contra una cinta, con repeticiones.</li>
+    <li><b>Mapea</b>Conduce con el mando mientras se arma el mapa.</li>
+    <li><b>Navega</b>A metas fijas, midiendo llegadas y error.</li>
+    <li><b>Explora</b>Recién entonces suma las fronteras.</li>
   </ol>
 </section>
 
 <section>
-  <h2 id="lecciones">Doce lecciones aprendidas</h2>
-  <p>Cada una sale de un episodio concreto de la tesis, enlazado a su explicación.</p>
+  <h2 id="lecciones">Doce lecciones de taller</h2>
+  <p>Cada una sale de un episodio concreto de la tesis, enlazado a su explicación. Varias se desarrollan como ensayo en <a href="lecciones.html">Lecciones de ingeniería</a>.</p>
   <ol>
     <li><b>Mide contra algo independiente.</b> La odometría se comparó con una cinta, y el movimiento real se probó con el crecimiento del mapa, no con los encoders. <a href="movimiento.html#iteracion-2">Ver la corrida sin avance</a>.</li>
     <li><b>Diseña el ensayo para que mida lo que crees que mide.</b> Una orden de giro por sobre el límite del controlador mezcló dos efectos. <a href="movimiento.html#giro">Ver el ensayo de giro</a>.</li>
-    <li><b>Cuenta con identificadores únicos y guarda los datos crudos.</b> Los contadores automáticos contaban mensajes, no metas, y solo los datos crudos permitieron corregirlo. <a href="exploracion.html#medir-bien">Ver el caso</a>.</li>
+    <li><b>Cuenta con identificadores únicos y guarda los datos crudos.</b> Los contadores automáticos contaban mensajes, no metas. <a href="exploracion.html#medir-bien">Ver el caso</a>.</li>
     <li><b>Lee el código heredado antes de confiar en sus nombres.</b> Una ley llamada PID resultó ser un PI incremental. <a href="control.html#hallazgo">Ver el hallazgo</a>.</li>
     <li><b>Revisa los tipos de datos cuando cambias un cálculo.</b> Un entero de 16 bits anuló el término integral de una rueda. <a href="control.html#enteros">Ver por qué</a>.</li>
-    <li><b>Fija la semilla de todo método aleatorio.</b> Sin ella, el PSO da resultados distintos en cada ejecución. <a href="control.html#pso">Ver el PSO</a>.</li>
+    <li><b>Fija la semilla de todo método aleatorio.</b> Sin ella, el PSO da resultados distintos en cada ejecución. <a href="control.html#semilla">Ver el PSO</a>.</li>
     <li><b>Ponle la hora correcta a cada medición.</b> Un barrido con la hora de publicación queda asociado a una posición posterior. <a href="robot.html#lidar">Ver el láser</a>.</li>
     <li><b>Conoce la resolución de tu instrumento antes de informar decimales.</b> Con pasos de 0,01 m/s, un sobreimpulso pequeño no se ve. <a href="control.html#resolucion">Ver la resolución</a>.</li>
-    <li><b>Separa la energía de motores y electrónica.</b> Reduce la interferencia de los motores sobre la electrónica de control. <a href="robot.html#energia">Ver el esquema</a>.</li>
+    <li><b>Separa la energía de motores y electrónica.</b> Reduce la interferencia sobre los computadores. <a href="robot.html#energia">Ver el esquema</a>.</li>
     <li><b>Diseña la seguridad desde el comienzo.</b> Botón de hombre muerto, prioridad al mando y detención automática. <a href="robot.html#seguridad">Ver las tres capas</a>.</li>
     <li><b>Congela las versiones para avanzar, pero planifica la migración.</b> Lo que hoy da estabilidad mañana queda sin soporte. <a href="#versiones">Ver versiones</a>.</li>
-    <li><b>Cita y respeta el código que adaptas.</b> Decir qué es propio y qué es adaptado fortalece el trabajo, no lo debilita. <a href="robot.html#adaptado">Ver el origen de cada paquete</a>.</li>
+    <li><b>Cita y respeta el código que adaptas.</b> Decir qué es propio y qué es adaptado fortalece el trabajo. <a href="robot.html#adaptado">Ver el origen de cada paquete</a>.</li>
   </ol>
 </section>
-<nav id="nav-cap" aria-label="Capítulo anterior y siguiente"></nav>
+
+<section class="fuentes-tema">
+  <h2 id="fuentes">Fuentes de este tema</h2>
+  <ol class="refs-lista">
+    <li id="f1"><span><span class="tipo-ref">Tesis</span>Valderas Neculqueo, S. (2026). <em>Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial</em>. UTEM. Metodología, y Tablas A1.1, A1.3, A3.2 y A3.4.</span></li>
+    <li id="f2"><span><span class="tipo-ref">Modelo 3D</span>marcuslanzoni (2020). Vacuum Robot. Thingiverse. <a href="https://www.thingiverse.com/thing:4459513">thingiverse.com/thing:4459513</a></span></li>
+    <li id="f3"><span><span class="tipo-ref">Referencia</span>endoflife.date. ROS 2. <a href="https://endoflife.date/ros-2">endoflife.date/ros-2</a>. Y ROS 2 Documentation, End-of-Life Distributions. <a href="https://docs.ros.org/en/foxy/Releases/End-of-Life.html">docs.ros.org</a></span></li>
+    <li id="f4"><span><span class="tipo-ref">Videos</span>Articulated Robotics, canal de YouTube de Josh Newans. <a href="https://www.youtube.com/@ArticulatedRobotics">youtube.com/@ArticulatedRobotics</a></span></li>
+  </ol>
+</section>
+
+<nav id="nav-cap" aria-label="Tema anterior y siguiente"></nav>
 <p id="ayuda-pie" class="ayuda-pie"></p>
 </main>
 </div>
+
 <div id="pie"></div>
 </body>
 </html>

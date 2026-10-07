@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>El robot por dentro · Robot explorador</title>
-<meta name="description" content="Componentes, energía, costo y arquitectura distribuida de un robot diferencial con Arduino Nano, Raspberry Pi 4, RPLidar A1 y ROS 2. Qué corre en el robot, qué corre en el computador y cómo viaja una orden hasta el motor.">
+<title>Anatomía del robot · Robot explorador</title>
+<meta name="description" content="Las piezas del prototipo, su energía, la red dedicada, el reparto de trabajo entre Arduino, Raspberry Pi y computador, ROS 2 y el costo frente a plataformas comerciales.">
 <meta name="author" content="Sebastián Valderas Neculqueo">
 <link rel="canonical" href="https://svn11x.github.io/tesis_explain/robot.html">
 <meta property="og:type" content="article">
 <meta property="og:locale" content="es_CL">
 <meta property="og:site_name" content="Robot explorador">
-<meta property="og:title" content="El robot por dentro">
-<meta property="og:description" content="Componentes, energía, costo y arquitectura distribuida de un robot diferencial con Arduino Nano, Raspberry Pi 4, RPLidar A1 y ROS 2. Qué corre en el robot, qué corre en el computador y cómo viaja una orden hasta el motor.">
+<meta property="og:title" content="Anatomía del robot">
+<meta property="og:description" content="Las piezas del prototipo, su energía, la red dedicada, el reparto de trabajo entre Arduino, Raspberry Pi y computador, ROS 2 y el costo frente a plataformas comerciales.">
 <meta property="og:url" content="https://svn11x.github.io/tesis_explain/robot.html">
 <meta property="og:image" content="https://svn11x.github.io/tesis_explain/img/social.png">
 <meta property="og:image:width" content="1200">
@@ -34,111 +34,112 @@
 <body data-pagina="robot">
 <a class="saltar" href="#contenido">Saltar al contenido</a>
 <div id="cabecera"></div>
-<header class="cap-cab"><div class="wrap">
-<nav class="miga" aria-label="Ruta"><a href="index.html">Inicio</a><span aria-hidden="true">›</span><span data-cap-n>Guía</span></nav>
-<h1>El robot por dentro</h1>
-<p class="lead">Un robot del porte de una aspiradora robot pequeña, impreso en 3D, con tres cerebros que trabajan a ritmos distintos. Aquí se ve qué hace cada uno, cómo se alimentan, cómo conversan y cuánto costó.</p>
-<div class="meta-cap"><span data-nivel class="etiqueta">Nivel</span><span class="etiqueta" data-lectura>Lectura</span><span class="etiqueta">Basado en la tesis, con fuentes externas marcadas</span></div>
-</div></header>
+<header class="tema-hero">
+  <div class="wrap">
+    <div class="tema-hero-txt">
+      <nav class="miga" aria-label="Ruta"><a href="index.html">Inicio</a><span aria-hidden="true">›</span><a href="index.html#temas">Temas</a><span aria-hidden="true">›</span><span data-cap-n>Tema</span></nav>
+      <p class="eyebrow" data-bloque>El contexto</p>
+      <h1>Anatomía del robot</h1>
+      <p class="lead">Un chasis impreso en 3D, dos motores, un láser que gira y tres procesadores que se reparten el trabajo según la rapidez que necesita cada tarea. Este tema recorre el robot por dentro, desde la batería hasta la red.</p>
+      <div class="meta-cap"><span data-nivel class="etiqueta">Nivel</span><span class="etiqueta" data-lectura>Lectura</span></div>
+    </div>
+    <figure class="tema-hero-fig">
+      <picture><source srcset="img/fotos/robot-lateral.webp" type="image/webp"><img src="img/fotos/robot-lateral.jpg" width="1400" height="1108" alt="El robot visto en perspectiva: carcasa negra impresa en 3D con franjas amarillas, el sensor láser RPLidar sobre la cubierta y un visualizador de tensión." fetchpriority="high"></picture>
+      <figcaption>El prototipo construido. Fotografía del autor, Fig. 4.1 de la tesis.</figcaption>
+    </figure>
+  </div>
+</header>
 <div class="wrap cap-layout">
-<aside class="lateral" id="lateral" aria-label="Navegación del capítulo"></aside>
+<aside class="lateral" id="lateral" aria-label="Navegación del tema"></aside>
 <main class="articulo" id="contenido">
-<section class="esencial" aria-label="Lo esencial">
-  <h2>Lo esencial</h2>
-  <ol>
-    <li>El trabajo se reparte en tres niveles. El Arduino controla las ruedas, la Raspberry Pi hace de puente y calcula la odometría, y un computador mapea, navega y explora.</li>
-    <li>Los motores y la electrónica comparten la batería de 12 V, pero la electrónica recibe 5 V desde un regulador propio, lo que reduce la interferencia de los motores.</li>
-    <li>Los materiales montados en el robot costaron 444 643 pesos y el proyecto completo 582 447, sin contar el computador. Es un 32 % menos que el robot comercial más cercano, aunque sin sus mismas prestaciones.</li>
-  </ol>
+
+<section class="en-breve" aria-labelledby="t-breve">
+  <h2 id="t-breve">En pocas palabras</h2>
+  <p>El robot divide su trabajo en tres niveles. Un Arduino Nano controla las ruedas varias decenas de veces por segundo, una Raspberry Pi 4 hace de puente con ROS 2 y calcula la odometría, y un computador portátil mapea, navega y explora. Los motores y la electrónica comparten la batería, pero cada uno recibe su propia tensión para que los motores no perturben a los computadores.</p>
+  <div class="cifras-mini">
+    <div><b>444 643 <small>CLP</small></b><span>en materiales montados en el robot, sin contar el computador</span></div>
+    <div><b>12 V <small>y 5 V</small></b><span>dos rieles de energía separados, motores y electrónica</span></div>
+    <div><b>30 <small>Hz</small></b><span>ritmo del ciclo entre ROS 2 y el Arduino</span></div>
+    <div><b>2 <small>s</small></b><span>sin órdenes y el firmware detiene los motores</span></div>
+  </div>
 </section>
 
 <section>
-  <h2 id="piezas">Las piezas</h2>
+  <h2 id="piezas">Las piezas y su función</h2>
+  <p>La locomoción usa dos motorreductores JGA25-370 de 12 V, cada uno con un encoder de cuadratura que cuenta su giro, y una rueda loca de apoyo. Un Arduino Nano lee los encoders y ejecuta el control de velocidad de cada rueda, y un driver L298N entrega la potencia a los motores. Una Raspberry Pi 4 ejecuta la interfaz con ROS 2, lee el láser RPLidar A1 y se comunica con el computador <a class="ref" href="#f1">1</a>.</p>
+  <p>El chasis y las cubiertas se imprimieron en PLA+, un plástico común en impresoras 3D domésticas, a partir de un diseño abierto de robot aspiradora publicado en Thingiverse <a class="ref" href="#f2">2</a>. Esa elección no es estética. Una forma de aspiradora es baja y compacta, deja el láser libre arriba y cabe por pasillos estrechos.</p>
+  <div class="galeria g3">
+    <figure class="fig">
+      <picture><source srcset="img/fotos/robot-frente.webp" type="image/webp"><img src="img/fotos/robot-frente.jpg" width="1400" height="1156" loading="lazy" decoding="async" alt="Frente del robot: carcasa curva negra con franjas amarillas, el sensor láser arriba y un panel frontal con un lente."></picture>
+      <figcaption>Frente. El lente del panel frontal no forma parte del sistema evaluado. <small>Fotografía del autor.</small></figcaption>
+    </figure>
+    <figure class="fig">
+      <picture><source srcset="img/fotos/robot-derecha.webp" type="image/webp"><img src="img/fotos/robot-derecha.jpg" width="1400" height="1133" loading="lazy" decoding="async" alt="Costado derecho del robot con los puertos de conexión en la parte trasera."></picture>
+      <figcaption>Costado derecho, con los puertos de acceso atrás. <small>Fotografía del autor.</small></figcaption>
+    </figure>
+    <figure class="fig">
+      <picture><source srcset="img/fotos/robot-planta.webp" type="image/webp"><img src="img/fotos/robot-planta.jpg" data-grande="img/fotos/robot-planta-grande.jpg" width="900" height="958" loading="lazy" decoding="async" alt="Vista superior del robot: carcasa en forma de U, el RPLidar al centro, un botón de encendido y un visualizador de tensión y corriente."></picture>
+      <figcaption>Vista en planta, con el láser al centro. <small>Fotografía del autor, Fig. 4.4 de la tesis.</small></figcaption>
+    </figure>
+  </div>
+  <p>Cuatro números describen al robot para el software, y aparecen una y otra vez en esta guía. El radio de rueda es 0,0335 m, la separación entre ruedas 0,188 m, el encoder entrega 1980 pulsos por vuelta de rueda y la interfaz con ROS 2 trabaja a 30 ciclos por segundo <a class="ref" href="#f1">1</a>. Esos mismos valores alimentan al robot real y a su gemelo en simulación, como se explica en <a href="gemelo.html">El gemelo digital</a>.</p>
+  <p>La tesis declara que el robot no usa cámara ni unidad inercial. En las fotos se ve un lente montado en el frontal, pero la percepción evaluada se basa solo en el LiDAR 2D y en los encoders.</p>
+</section>
+
+<section>
+  <h2 id="energia">Energía: dos mundos que no deben mezclarse</h2>
+  <p>Un motor que arranca pide de golpe mucha corriente y llena la línea de alimentación de ruido eléctrico. Si la Raspberry Pi bebe de esa misma línea sin protección, puede reiniciarse justo cuando el robot empieza a moverse. Por eso la plataforma tiene dos dominios eléctricos <a class="ref" href="#f1">1</a>.</p>
+  <p>El dominio de potencia usa el bus de 12 V de la batería para mover los motores a través del L298N. Del mismo bus, un módulo reductor de 25 W genera un riel regulado de 5 V para la Raspberry Pi, el Arduino, el láser y los periféricos. Un interruptor y un fusible protegen la entrada, y un pequeño visualizador muestra la tensión y la corriente en la cubierta.</p>
+  <figure class="fig">
+    <picture><source srcset="img/tesis/circuito-med.webp" type="image/webp"><img src="img/tesis/circuito-med.png" data-grande="img/tesis/circuito.png" width="1200" height="915" loading="lazy" decoding="async" alt="Esquema de conexiones hecho en Fritzing: batería de tres celdas 18650 con fusible e interruptor, bloques de distribución de 12 V y de 5 V, regulador de tensión, multímetro, driver L298N conectado a los dos motores con encoder, Arduino Nano, Raspberry Pi y el LiDAR."></picture>
+    <figcaption>Esquema de conexiones eléctricas y de datos. Los cables rojos y negros llevan energía, los de colores llevan señales de los encoders y del PWM. Haz clic para ver el esquema en alta resolución. <small>Fig. 4.5 de la tesis, elaborada en Fritzing.</small></figcaption>
+  </figure>
+  <p>Las señales viajan por otro camino. El Arduino y la Raspberry Pi se hablan por un cable USB que funciona como puerto serie, y el láser se conecta a un puerto serie de la Raspberry Pi. Para que cada dispositivo conserve su nombre aunque se reconecte, unas reglas del sistema operativo los fijan. El Arduino aparece siempre como <code>/dev/motor_controller</code> y el láser como <code>/dev/rlidar_gpio</code> <a class="ref" href="#f1">1</a>.</p>
+</section>
+
+<section>
+  <h2 id="reparto">Quién hace qué, y por qué</h2>
+  <p>El robot solo no explora. Es una arquitectura distribuida en la que cada equipo hace lo que mejor le calza a su ritmo y a su capacidad de cálculo <a class="ref" href="#f1">1</a>. El argumento es simple. Lo que debe ocurrir decenas de veces por segundo sin fallar, como leer un encoder y corregir un motor, va en un microcontrolador dedicado. Lo que necesita memoria y procesador, como optimizar un mapa o planificar una ruta, va en el computador.</p>
+  <div class="widget">
+    <div class="widget-cab"><h3 id="reparto-vis">El reparto del trabajo</h3><span class="tipo datos">Datos de la tesis</span><p>Pasa por cada equipo para ver sus tareas.</p></div>
+    <div class="vis" data-vis="arquitectura"><p class="vis-fallback">Arduino: encoders y control de ruedas. Raspberry Pi: ros2_control, odometría y láser. Computador: SLAM, Nav2 y exploración.</p></div>
+  </div>
+  <p>Este patrón de un computador para pensar y un microcontrolador para actuar no es una invención de la tesis. El TurtleBot 3 combina una Raspberry Pi con una placa OpenCR que controla sus motores <a class="ref" href="#f3">3</a>, y los drones que usan PX4 separan el controlador de vuelo de un computador acompañante que ejecuta tareas pesadas como la visión <a class="ref" href="#f4">4</a>.</p>
+</section>
+
+<section>
+  <h2 id="ros2">ROS 2, explicado como una radio</h2>
+  <p>ROS 2 es un conjunto de bibliotecas y herramientas para armar sistemas robóticos con piezas independientes <a class="ref" href="#f5">5</a>. Cada pieza es un <span class="term" data-def="Un programa de ROS 2 que hace una sola tarea, por ejemplo leer el láser o planificar rutas.">nodo</span>. Los nodos conversan por <span class="term" data-def="Un canal con nombre, como /scan o /odom, donde unos nodos publican mensajes y otros los reciben sin conocerse entre sí.">tópicos</span>, que funcionan como canales de radio con nombre. Unos transmiten en un canal y otros lo sintonizan, sin saber quién está al otro lado. Eso permite cambiar una pieza sin tocar las demás.</p>
+  <p>Además de tópicos existen servicios, para preguntas con respuesta, y <span class="term" data-def="Un tipo de comunicación de ROS 2 para tareas largas, como ir a un destino. Quien la pide recibe avances y un estado final: completada, abortada o cancelada.">acciones</span>, para tareas largas que informan su avance. Las metas de navegación viajan como acciones, un detalle que será clave en <a href="exploracion.html#abortadas">Explorar por fronteras</a>. Por debajo, el estándar DDS descubre los nodos en la red y negocia la calidad de servicio, así que los programas pueden repartirse entre varios computadores sin un nodo maestro central <a class="ref" href="#f5">5</a>.</p>
+  <h3 id="red">Una red propia para el robot</h3>
   <div class="grid-2">
-    <figure class="foto">
-      <picture><source srcset="img/fotos/robot-planta.webp" type="image/webp"><img src="img/fotos/robot-planta.jpg" width="900" height="958" loading="lazy" decoding="async" alt="Vista superior del robot: carcasa negra en forma de U, sensor RPLidar al centro, botón de encendido y visualizador de tensión y corriente."></picture>
-      <figcaption>Vista en planta. El RPLidar A1 al centro, el botón de encendido y el visualizador de tensión y corriente. <small>Fotografía del autor, Fig. 4.4 de la tesis.</small></figcaption>
+    <figure class="fig">
+      <picture><source srcset="img/fotos/router-glinet.webp" type="image/webp"><img src="img/fotos/router-glinet.jpg" width="700" height="700" loading="lazy" decoding="async" alt="Router de viaje pequeño, de color amarillo, con un puerto USB y botón de reinicio."></picture>
+      <figcaption>Router de viaje GL.iNet GL-MT300N-V2, de 22 140 CLP. <small>Imagen del fabricante. Tabla A1.1 de la tesis.</small></figcaption>
     </figure>
     <div>
-      <p>La locomoción usa dos motorreductores JGA25-370 de 12 V con encoders de cuadratura, uno por rueda, y una rueda loca de apoyo. Un Arduino Nano lee los encoders y ejecuta el control de velocidad de cada rueda, y un driver L298N entrega la potencia a los motores. Una Raspberry Pi 4 ejecuta la interfaz con ROS 2, lee el láser y se comunica con el computador <span class="en-tesis">Sec. 4.1.1</span>.</p>
-      <p style="margin-top:14px">El chasis y las cubiertas se imprimieron en 3D con PLA+, tomando como referencia un diseño abierto de robot aspiradora publicado en Thingiverse <a class="cita" href="recursos.html#r-marcuslanzoni">(marcuslanzoni, 2020)</a>. Los parámetros de impresión están en <a href="replicar.html#impresion">Constrúyelo tú</a>.</p>
-      <div class="datos-fila" style="margin-top:16px">
-        <div class="dato"><b class="num">0,0335 m</b><span>radio de rueda</span></div>
-        <div class="dato"><b class="num">0,188 m</b><span>separación entre ruedas</span></div>
-        <div class="dato"><b class="num">1980</b><span>ticks del encoder por vuelta de rueda</span></div>
-        <div class="dato"><b class="num">30 Hz</b><span>ciclo de la interfaz con ROS 2</span></div>
-      </div>
-      <p class="vnota" style="margin-top:8px">Tabla 4.1 de la tesis.</p>
+      <p>La Raspberry Pi y el computador ejecutan la misma distribución de ROS 2 y se comunican por una red Wi-Fi dedicada, armada con un pequeño router de viaje y direcciones IP fijas <a class="ref" href="#f1">1</a>. El middleware registrado es CycloneDDS.</p>
+      <p>Una red propia evita depender de la red de la universidad, donde el descubrimiento automático de DDS suele estar bloqueado o mezclado con otros equipos. Es una decisión barata que ahorra horas de depuración.</p>
     </div>
-  </div>
-</section>
-
-<section>
-  <h2 id="energia">Energía y conexiones</h2>
-  <p>La plataforma tiene dos dominios eléctricos. El de potencia usa el bus de 12 V de la batería para mover los motores a través del L298N. Del mismo bus, un módulo reductor de 25 W genera un riel regulado de 5 V para la Raspberry Pi, el Arduino, el láser y los periféricos. Separar ambos rieles reduce la interferencia que los motores producen sobre la electrónica de control <span class="en-tesis">Sec. 4.3.1</span>.</p>
-  <div class="widget">
-    <div class="widget-cab"><h3 id="esquema">Esquema simplificado de energía y datos</h3><span class="tipo ilus">Diagrama</span><p>Basado en el esquema eléctrico de la Fig. 4.5 y en la asignación de dispositivos del Anexo 3.</p></div>
-    <div class="vis">
-      <h4 class="vsub">Energía</h4>
-      <div class="flujo">
-        <div class="caja ambar"><b>Batería 12 V, 3000 mAh</b><small>con fusible e interruptor</small></div><div class="flecha-d"></div>
-        <div class="caja ambar"><b>Distribución 12 V</b><small>bloques de conexión</small></div><div class="flecha-d"></div>
-        <div class="caja"><b>L298N → motores</b><small>potencia de tracción</small></div>
-      </div>
-      <div class="flujo">
-        <div class="caja ambar"><b>Distribución 12 V</b><small>misma batería</small></div><div class="flecha-d"></div>
-        <div class="caja ambar"><b>Reductor DC-DC 25 W</b><small>riel regulado de 5 V</small></div><div class="flecha-d"></div>
-        <div class="caja"><b>Raspberry Pi, Arduino, LiDAR</b><small>electrónica de control</small></div>
-      </div>
-      <h4 class="vsub">Datos</h4>
-      <div class="flujo">
-        <div class="caja"><b>Encoders</b><small>pulsos por interrupción</small></div><div class="flecha-d"></div>
-        <div class="caja azul"><b>Arduino Nano</b><small>control de ruedas, PWM al L298N</small></div><div class="flecha-d"><span>USB serie</span></div>
-        <div class="caja azul"><b>Raspberry Pi 4</b><small>ros2_control y odometría</small></div><div class="flecha-d punteada"><span>Wi-Fi</span></div>
-        <div class="caja azul"><b>Computador</b><small>mapa, navegación, exploración</small></div>
-      </div>
-      <div class="flujo">
-        <div class="caja"><b>RPLidar A1</b><small>barrido de 360°</small></div><div class="flecha-d"><span>UART</span></div>
-        <div class="caja azul"><b>Raspberry Pi 4</b><small>programa propio que publica /scan</small></div>
-      </div>
-      <p class="vnota">Reglas udev dan nombres fijos a los puertos. El Arduino aparece como /dev/motor_controller y el láser como /dev/rlidar_gpio cuando se conecta por los pines de la Raspberry <span class="en-tesis">Anexo 3.3</span>.</p>
-    </div>
-  </div>
-</section>
-
-<section>
-  <h2 id="arquitectura">Quién hace qué</h2>
-  <p>El robot solo no explora. Es una arquitectura distribuida en la que cada equipo hace lo que mejor le calza a su ritmo y a su capacidad de cálculo <span class="en-tesis">Cap. 2, Fig. 2.1</span>.</p>
-  <div class="widget">
-    <div class="widget-cab"><h3 id="reparto">El reparto del trabajo</h3><span class="tipo datos">Datos de la tesis</span></div>
-    <div class="vis" data-vis="arquitectura"><p class="vis-fallback">Diagrama del reparto entre robot y computador.</p></div>
-  </div>
-  <h3 id="ros2">ROS 2 en simple</h3>
-  <p>ROS 2 es un conjunto de bibliotecas y herramientas para armar sistemas robóticos con piezas independientes <a class="cita" href="recursos.html#r-macenski2022">(Macenski et al., 2022)</a>. Cada pieza es un nodo, un programa que hace una sola cosa, como leer el láser o planificar rutas. Los nodos conversan por tópicos, que funcionan como canales de radio con nombre. Unos transmiten mensajes en un canal y otros lo sintonizan, sin saber quién está al otro lado. Eso permite reemplazar una pieza sin tocar las demás <span class="en-tesis">Sec. 3.2</span>.</p>
-  <p>Además de tópicos existen servicios, para preguntas con respuesta, y acciones, para tareas largas que informan su avance. Las metas de navegación viajan como acciones, un detalle que será importante en el <a href="exploracion.html#abortadas">capítulo de exploración</a>. Por debajo, el estándar DDS descubre los nodos en la red y negocia la calidad de servicio, así que los programas pueden repartirse entre varios computadores sin un nodo maestro central.</p>
-  <p>En este robot, la misma distribución de ROS 2 corre en la Raspberry Pi y en el computador, que se comunican por una red Wi-Fi dedicada armada con un router de viaje y direcciones IP fijas. El middleware registrado es rmw_cyclonedds_cpp <span class="en-tesis">Anexo 3.1, Tabla A3.2</span>.</p>
-  <div class="callout aporte">
-    <div class="c-tit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M6 18l2.5-2.5M15.5 8.5L18 6"/></svg>Un tema implícito: el reloj compartido</div>
-    <p>Cuando un sistema se reparte entre dos equipos, cada mensaje del láser o de la odometría lleva una marca de tiempo, y los nodos usan esas marcas para saber dónde estaba el robot cuando se tomó cada medición. Si los relojes del robot y del computador no coinciden, el mapa puede asociar un barrido a la posición equivocada. Por eso, en sistemas ROS 2 distribuidos, es buena práctica sincronizar los relojes de todas las máquinas con un servicio de hora en la red local antes de mapear. La tesis no reporta mediciones de este efecto, pero sí documenta un problema cercano en la marca de tiempo del láser, que se explica más abajo.</p>
   </div>
 </section>
 
 <section>
   <h2 id="camino-orden">El camino de una orden, del computador al motor</h2>
-  <p>Cuando la navegación decide que el robot debe avanzar a cierta velocidad, esa orden cruza tres equipos y tres límites antes de mover una rueda. Presiona el botón para seguirla paso a paso.</p>
+  <p>Cuando la navegación decide que el robot debe avanzar a cierta velocidad, esa orden cruza tres equipos y tres conversiones antes de mover una rueda. Presiona el botón para seguirla paso a paso.</p>
   <div class="widget">
-    <div class="widget-cab"><h3 id="orden">Una orden de velocidad, paso a paso</h3><span class="tipo inter">Interactivo</span><p>Basado en las Sec. 4.3.3 a 4.3.5, los Alg. 4.1 y 4.2 y el Anexo 3.5.</p></div>
+    <div class="widget-cab"><h3 id="orden">Una orden de velocidad, paso a paso</h3><span class="tipo inter">Interactivo</span><p>Basado en las secciones 4.3.3 a 4.3.5, los algoritmos 4.1 y 4.2 y el Anexo 3.5 de la tesis.</p></div>
     <div class="vis" data-vis="camino"><p class="vis-fallback">Navegación, multiplexor, controlador diferencial, interfaz con el Arduino, control de rueda y motor.</p></div>
   </div>
-  <p>Hay dos ritmos que no están sincronizados entre sí. La interfaz de la Raspberry envía referencias y pide los encoders a 30 Hz. El firmware del Arduino programa su control cada 33 ms con su propio reloj. Que las frecuencias coincidan en número no significa que estén alineadas en el tiempo <span class="en-tesis">Anexo 3.5</span>.</p>
-  <h3 id="protocolo">El idioma entre la Raspberry y el Arduino</h3>
-  <p>Conversan con un protocolo de texto por el puerto serie, con comandos de una letra terminados en retorno de carro. Durante la operación normal se usan dos. El comando m fija la referencia de cada rueda en ticks por ciclo, y el comando e pide los conteos acumulados de los encoders <span class="en-tesis">Tabla A4.2</span>.</p>
+  <p>Hay dos relojes que no están sincronizados. La interfaz de la Raspberry Pi envía referencias y pide los encoders 30 veces por segundo. El firmware del Arduino programa su control cada 33 ms con su propio reloj. Que las frecuencias coincidan en número no significa que estén alineadas en el tiempo <a class="ref" href="#f1">1</a>.</p>
+  <h3 id="protocolo">El idioma entre la Raspberry Pi y el Arduino</h3>
+  <p>Se hablan con un protocolo de texto por el puerto serie, con comandos de una letra. Durante la operación normal se usan dos. El comando <code>m</code> fija la referencia de cada rueda y el comando <code>e</code> pide los conteos acumulados de los encoders <a class="ref" href="#f1">1</a>.</p>
   <div class="tabla-env">
     <table class="tabla">
       <thead><tr><th>Comando</th><th>Qué hace</th><th>Responde</th></tr></thead>
       <tbody>
         <tr><th><code>e</code></th><td>Lee los conteos acumulados de los encoders izquierdo y derecho.</td><td>dos enteros</td></tr>
-        <tr><th><code>m</code></th><td>Fija la referencia de cada rueda en ticks por ciclo. Con ambas en cero, detiene los motores y reinicia el control.</td><td>OK</td></tr>
+        <tr><th><code>m</code></th><td>Fija la referencia de cada rueda en pulsos por ciclo. Con ambas en cero, detiene los motores y reinicia el control.</td><td>OK</td></tr>
         <tr><th><code>k</code></th><td>Fija la referencia en m/s. Lo usaron los scripts de captura y sintonía.</td><td>OK</td></tr>
         <tr><th><code>j</code></th><td>Informa la última velocidad medida de cada rueda, en m/s.</td><td>dos valores</td></tr>
         <tr><th><code>o</code></th><td>Aplica un PWM directo a cada motor, sin control. Sirvió para identificar el modelo de las ruedas.</td><td>OK</td></tr>
@@ -151,35 +152,49 @@
 
 <section>
   <h2 id="lidar">Un programa propio para leer el láser</h2>
-  <p>En el robot real el RPLidar A1 no se lee con el controlador del fabricante, sino con un nodo escrito para este trabajo que se comunica a 115 200 baudios por el puerto serie de la Raspberry <span class="en-tesis">Anexo 3.4</span>. Al arrancar reinicia el sensor, consulta su estado de salud y no publica nada si el sensor informa un error.</p>
-  <p>Cada 50 ms lee lo que llegó, descarta los paquetes que no pasan la verificación del protocolo y agrupa las mediciones por vuelta. Una vuelta se publica solo si reúne al menos 180 mediciones. Luego reparte la vuelta en 230 sectores de unos 1,57°, guarda la distancia más corta de cada sector y deja como infinito lo que está fuera de 0,15 a 12 m. También invierte el sentido del ángulo, para que coincida con la convención de ROS, donde los ángulos crecen en sentido antihorario.</p>
-  <div class="callout ojo">
-    <div class="c-tit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9.5 17H2.5z"/><path d="M12 10v4M12 17.5v.5"/></svg>Un límite documentado</div>
-    <p>Cada barrido lleva la hora en que se publicó, no la hora de su primera medición. Por eso los nodos que lo usan lo asocian a una posición del robot algo posterior a la real, y el desfase crece con la velocidad, sobre todo en los giros. La tesis lo deja escrito y aclara que su efecto sobre los mapas no se cuantificó.</p>
-  </div>
+  <p>En el robot real el RPLidar A1 no se lee con el controlador del fabricante, sino con un nodo escrito para este trabajo que se comunica a 115 200 baudios por el puerto serie de la Raspberry Pi <a class="ref" href="#f1">1</a>. Al arrancar reinicia el sensor, consulta su estado de salud y no publica nada si el sensor informa un error. Es una forma sencilla de fallar con seguridad.</p>
+  <p>Cada 50 ms lee lo que llegó, descarta los paquetes que no pasan la verificación del protocolo y agrupa las mediciones por vuelta. Una vuelta se publica solo si reúne al menos 180 mediciones. Luego la reparte en 230 sectores de unos 1,57°, guarda la distancia más corta de cada sector y deja como infinito lo que está fuera de 0,15 a 12 m. También invierte el sentido del ángulo para respetar la convención de ROS, donde los ángulos crecen en sentido antihorario <a class="ref" href="#f6">6</a>.</p>
+  <p>Hay un límite que la tesis documenta con honestidad. Cada barrido lleva la hora en que se publicó, no la de su primera medición. Por eso los nodos que lo usan lo asocian a una posición del robot algo posterior a la real, y el desfase crece con la velocidad, sobre todo en los giros. Su efecto sobre los mapas no se cuantificó. En un sistema repartido entre dos equipos, además, conviene sincronizar los relojes de ambos antes de mapear, porque cada mensaje se ubica en el tiempo con esas marcas.</p>
 </section>
 
 <section>
-  <h2 id="seguridad">Seguridad: tres formas de detener el robot</h2>
-  <ul>
-    <li><b>Hombre muerto en el mando.</b> La teleoperación con mando inalámbrico solo envía órdenes mientras se mantiene presionado un botón. Al soltarlo, el robot se detiene <span class="en-tesis">Sec. 4.3.5</span>.</li>
-    <li><b>Prioridad humana.</b> El multiplexor twist_mux elige una sola fuente de órdenes y da prioridad al mando sobre Nav2, así que una persona puede retomar el control en cualquier momento.</li>
-    <li><b>Detención automática.</b> Si el Arduino pasa 2 segundos sin recibir órdenes de movimiento, detiene los motores. Protege ante una caída de la red o de un nodo <span class="en-tesis">Sec. 4.4.4</span>.</li>
-  </ul>
+  <h2 id="seguridad">Seguridad: tres formas de detenerse</h2>
+  <p>Un robot que se mueve solo tiene que poder detenerse aunque falle el software que lo guía. Este prototipo tiene tres mecanismos, y cada uno cubre una falla distinta <a class="ref" href="#f1">1</a>.</p>
+  <div class="decisiones">
+    <article class="decision"><span class="d-que">Falla humana</span><h4>Botón de hombre muerto</h4><p>La conducción manual con un mando inalámbrico solo envía órdenes mientras se mantiene presionado un botón. Si la persona lo suelta, el robot se detiene.</p></article>
+    <article class="decision"><span class="d-que">Conflicto de órdenes</span><h4>Prioridad de la persona</h4><p>El multiplexor twist_mux elige una sola fuente de órdenes y da prioridad al mando sobre Nav2. Una persona puede retomar el control en cualquier momento.</p></article>
+    <article class="decision"><span class="d-que">Falla de comunicación</span><h4>Detención automática</h4><p>Si el Arduino pasa 2 segundos sin recibir órdenes de movimiento, detiene los motores. Protege ante una caída de la red o de un nodo.</p></article>
+  </div>
+  <p>En la industria estas ideas se formalizan en normas de seguridad, como la ISO 3691-4 para vehículos industriales sin conductor. El tema se desarrolla en <a href="lecciones.html#seguridad">Lecciones de ingeniería</a>.</p>
 </section>
 
 <section>
   <h2 id="costo">Cuánto costó y con qué se compara</h2>
-  <p>Los montos son valores pagados entre abril de 2024 y julio de 2026, en pesos chilenos nominales. Los kits de tornillería y cables se cuentan completos, aunque se usó solo una parte. Ningún monto incluye el computador, que es necesario porque ahí corren el mapeo, la navegación y el explorador <span class="en-tesis">Anexo 1.1</span>.</p>
+  <p>Los montos son valores pagados entre abril de 2024 y julio de 2026, en pesos chilenos. Los kits de tornillería y cables se cuentan completos, aunque se usó solo una parte. Ningún monto incluye el computador, que es necesario porque ahí corren el mapeo, la navegación y el explorador <a class="ref" href="#f1">1</a>.</p>
+  <div class="tabla-env">
+    <table class="tabla">
+      <thead><tr><th>Componente principal</th><th class="n">Costo (CLP)</th></tr></thead>
+      <tbody>
+        <tr><th>Raspberry Pi 4 de 8 GB, carcasa y microSD</th><td class="n">91 759</td></tr>
+        <tr><th>RPLidar A1</th><td class="n">83 324</td></tr>
+        <tr><th>Batería de 12 V y 3000 mAh</th><td class="n">25 658</td></tr>
+        <tr><th>Módulo reductor DC-DC de 25 W</th><td class="n">18 858</td></tr>
+        <tr><th>Dos motorreductores con encoder y rueda</th><td class="n">18 038</td></tr>
+        <tr><th>Arduino Nano con placa base</th><td class="n">8 000</td></tr>
+        <tr><th>Driver L298N y rueda loca</th><td class="n">4 893</td></tr>
+        <tr><th>Energía, montaje, filamento y cableado</th><td class="n">194 113</td></tr>
+        <tr class="total"><th>Total del robot</th><td class="n">444 643</td></tr>
+        <tr><th>Red, cargador, baterías de repuesto y accesorios</th><td class="n">137 804</td></tr>
+        <tr class="total"><th>Total del proyecto</th><td class="n">582 447</td></tr>
+      </tbody>
+      <caption>Resumen de la Tabla A1.1 de la tesis.</caption>
+    </table>
+  </div>
   <div class="widget">
-    <div class="widget-cab"><h3 id="grafico-costo">Costo del prototipo y de dos plataformas comerciales</h3><span class="tipo datos">Datos de la tesis</span><p>Pesos chilenos. Precios comerciales de catálogo convertidos a 963 CLP por dólar, sin envío ni impuestos.</p></div>
+    <div class="widget-cab"><h3 id="grafico-costo">Costo del prototipo y de dos plataformas comerciales</h3><span class="tipo datos">Datos de la tesis</span><p>Precios comerciales de catálogo convertidos a 963 CLP por dólar, sin envío ni impuestos.</p></div>
     <div class="vis" data-vis="costo"><p class="vis-fallback">Robot 444 643 CLP. Proyecto completo 582 447 CLP. TurtleBot 3 Burger 656 092 CLP. TurtleBot 3 Waffle Pi 1 619 188 CLP.</p></div>
   </div>
-  <p>El tipo de cambio de 963 pesos por dólar es el promedio del dólar observado de octubre a diciembre de 2024, porque el 68 % del gasto se hizo ese año <span class="en-tesis">Anexo 1.2</span>. Con eso, el robot costó un 32 % menos que el TurtleBot 3 Burger y el proyecto completo un 11 % menos.</p>
-  <div class="callout idea">
-    <div class="c-tit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg>Más barato, pero no equivalente</div>
-    <p>El Burger trae una unidad inercial y actuadores con controlador y encoder integrados, que este robot reemplaza con piezas separadas de menor costo. La comparación dice que el prototipo queda por debajo del precio de la plataforma comercial de entrada, no que ofrezca lo mismo por menos <span class="en-tesis">Anexo 1.2</span>. Lo que sí gana quien lo construye es acceso a cada capa, desde el firmware hasta la exploración.</p>
-  </div>
+  <p>El tipo de cambio es el promedio del dólar observado de octubre a diciembre de 2024, porque el 68 % del gasto se hizo ese año. Con él, el robot costó un 32 % menos que el TurtleBot 3 Burger y el proyecto completo un 11 % menos. Pero más barato no significa equivalente. El Burger trae unidad inercial y actuadores con controlador integrado, que este robot reemplaza con piezas separadas de menor costo <a class="ref" href="#f1">1</a>. Lo que sí gana quien lo construye es acceso a cada capa del sistema.</p>
 </section>
 
 <section>
@@ -188,29 +203,65 @@
     <table class="tabla">
       <thead><tr><th>Paquete</th><th>Rol</th><th>Origen</th></tr></thead>
       <tbody>
-        <tr><th><code>articubot_one</code></th><td>Modelo URDF del robot, configuración de control, SLAM, navegación y simulación.</td><td>Adaptado de <a href="recursos.html#r-newans2023">Newans (2023)</a></td></tr>
-        <tr><th><code>diffdrive_arduino</code></th><td>Interfaz de ros2_control entre ROS 2 y el Arduino.</td><td>Adaptado de <a href="recursos.html#r-newans2022a">Newans (2022a)</a></td></tr>
-        <tr><th><code>ROSArduinoBridge</code></th><td>Firmware para encoders, motores y control de ruedas.</td><td>Adaptado de <a href="recursos.html#r-newans2022b">Newans (2022b)</a>, bifurcación de <a href="recursos.html#r-hbrc">HBRC</a></td></tr>
-        <tr><th><code>explore_lite</code></th><td>Exploración por fronteras.</td><td>Adaptado de <a href="recursos.html#r-alvarez2021">Alvarez (2021)</a>, port a ROS 2 de <a href="recursos.html#r-horner2017">Hörner (2017)</a></td></tr>
-        <tr><th><code>pid_config</code></th><td>Scripts de captura, identificación del modelo de cada rueda y sintonía con PSO.</td><td>Elaboración propia</td></tr>
+        <tr><th><code>articubot_one</code></th><td>Modelo URDF del robot, configuración de control, SLAM, navegación y simulación.</td><td>Adaptado de Newans <a class="ref" href="#f7">7</a></td></tr>
+        <tr><th><code>diffdrive_arduino</code></th><td>Interfaz de ros2_control entre ROS 2 y el Arduino.</td><td>Adaptado de Newans <a class="ref" href="#f7">7</a></td></tr>
+        <tr><th><code>ROSArduinoBridge</code></th><td>Firmware para encoders, motores y control de ruedas.</td><td>Adaptado de Newans, bifurcación del Home Brew Robotics Club <a class="ref" href="#f7">7</a></td></tr>
+        <tr><th><code>explore_lite</code></th><td>Exploración por fronteras.</td><td>Adaptado de Alvarez, versión para ROS 2 del proyecto de Hörner <a class="ref" href="#f8">8</a></td></tr>
+        <tr class="destacada"><th><code>pid_config</code></th><td>Captura, identificación de cada rueda y sintonía por PSO.</td><td>Propio</td></tr>
+        <tr class="destacada"><th><code>rplidar_serial_publisher.py</code></th><td>Lectura del láser por puerto serie.</td><td>Propio</td></tr>
       </tbody>
-      <caption>Tabla A3.1 de la tesis. Todos los paquetes externos se modificaron y configuraron para esta plataforma.</caption>
+      <caption>Basado en la Tabla A3.1 y el Anexo 3.4 de la tesis.</caption>
     </table>
   </div>
+  <p>El uso de ros2_control en robots diferenciales de bajo costo ya tenía antecedentes que orientaron esta integración, como el robot Lidarbot <a class="ref" href="#f9">9</a>. Si quieres recorrer el mismo camino, la serie de videos de Articulated Robotics en que se basan los paquetes adaptados es el mejor punto de partida. Está en <a href="replicar.html#aprender">Constrúyelo tú</a>.</p>
 </section>
 
 <section>
-  <div class="malentendidos">
-    <h3 id="malentendidos">Malentendidos frecuentes</h3>
-    <div class="mal"><div><span class="mal-et">Se suele decir</span><p>El computador es el maestro y el robot el esclavo.</p></div><div><span class="mal-et">Más preciso</span><p>ROS 2 no tiene nodo maestro. Es una arquitectura distribuida en la que el robot hace el control rápido y el computador el cálculo pesado.</p></div></div>
-    <div class="mal"><div><span class="mal-et">Se suele decir</span><p>Si la red se pone lenta, la odometría se equivoca.</p></div><div><span class="mal-et">Más preciso</span><p>La odometría se calcula en la Raspberry con sus propios conteos. Una red lenta puede retrasar órdenes, pero no inventa giros de rueda.</p></div></div>
-    <div class="mal"><div><span class="mal-et">Se suele decir</span><p>El firmware se programó desde cero.</p></div><div><span class="mal-et">Más preciso</span><p>Se adaptó de un proyecto abierto, con ganancias por rueda, bandas muertas y la resolución de los encoders de este robot.</p></div></div>
+  <h2 id="mundo-real">En el mundo real</h2>
+  <div class="casos">
+    <article class="caso">
+      <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><circle cx="32" cy="34" r="20"/><circle cx="32" cy="34" r="6"/><path d="M32 8v6M14 20l4 4M50 20l-4 4"/></svg></div>
+      <div class="caso-txt">
+        <span class="lugar">Docencia</span>
+        <h3>TurtleBot 3</h3>
+        <p>La plataforma educativa más usada con ROS reparte el trabajo igual que este robot. Una Raspberry Pi ejecuta ROS y una placa OpenCR, con microcontrolador y unidad inercial, maneja los motores.</p>
+        <p class="vinculo"><b>Relación:</b> el mismo reparto entre un computador que piensa y un microcontrolador que actúa.</p>
+        <p class="fuente-caso">Fuente <a class="ref" href="#f3">3</a></p>
+      </div>
+    </article>
+    <article class="caso">
+      <div class="caso-media icono" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M14 20h12M38 20h12M20 20v6h24v-6"/><rect x="24" y="26" width="16" height="12" rx="3"/><path d="M26 44l-6 8M38 44l6 8"/><circle cx="20" cy="20" r="6"/><circle cx="44" cy="20" r="6"/></svg></div>
+      <div class="caso-txt">
+        <span class="lugar">Drones</span>
+        <h3>Controlador de vuelo y computador acompañante</h3>
+        <p>En los drones con PX4, el controlador de vuelo mantiene estable la aeronave en tiempo real y un computador acompañante ejecuta tareas de más alto nivel, como visión o planificación.</p>
+        <p class="vinculo"><b>Relación:</b> separar lo crítico y rápido de lo pesado, como el Arduino y la estación de trabajo.</p>
+        <p class="fuente-caso">Fuente <a class="ref" href="#f4">4</a></p>
+      </div>
+    </article>
   </div>
 </section>
-<nav id="nav-cap" aria-label="Capítulo anterior y siguiente"></nav>
+
+<section class="fuentes-tema">
+  <h2 id="fuentes">Fuentes de este tema</h2>
+  <ol class="refs-lista">
+    <li id="f1"><span><span class="tipo-ref">Tesis</span>Valderas Neculqueo, S. (2026). <em>Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial</em>. UTEM. Secciones 3.2, 4.1 y 4.3 a 4.4, y Anexos 1, 3 y 4.3.</span></li>
+    <li id="f2"><span><span class="tipo-ref">Modelo 3D</span>marcuslanzoni (2020). Vacuum Robot. Thingiverse. <a href="https://www.thingiverse.com/thing:4459513">thingiverse.com/thing:4459513</a></span></li>
+    <li id="f3"><span><span class="tipo-ref">Documentación</span>ROBOTIS. OpenCR, controlador de TurtleBot 3. <a href="https://emanual.robotis.com/docs/en/parts/controller/opencr10/">emanual.robotis.com</a>. Y Open Robotics, ficha de OpenCR. <a href="https://robots.ros.org/opencr/">robots.ros.org/opencr</a></span></li>
+    <li id="f4"><span><span class="tipo-ref">Documentación</span>PX4 Autopilot. Companion Computers. <a href="https://docs.px4.io/main/en/companion_computer/">docs.px4.io</a></span></li>
+    <li id="f5"><span><span class="tipo-ref">Artículo</span>Macenski, S., Foote, T., Gerkey, B., Lalancette, C. y Woodall, W. (2022). Robot Operating System 2: Design, architecture, and uses in the wild. <em>Science Robotics, 7</em>(66). <a href="https://doi.org/10.1126/scirobotics.abm6074">doi.org/10.1126/scirobotics.abm6074</a></span></li>
+    <li id="f6"><span><span class="tipo-ref">Norma ROS</span>Foote, T. y Purvis, M. (2010). REP 103: Standard Units of Measure and Coordinate Conventions. <a href="https://www.ros.org/reps/rep-0103.html">ros.org/reps/rep-0103.html</a></span></li>
+    <li id="f7"><span><span class="tipo-ref">Código</span>Newans, J. articubot_one, diffdrive_arduino y ros_arduino_bridge. <a href="https://github.com/joshnewans">github.com/joshnewans</a>. Home Brew Robotics Club, ros_arduino_bridge. <a href="https://github.com/hbrobotics/ros_arduino_bridge">github.com/hbrobotics/ros_arduino_bridge</a></span></li>
+    <li id="f8"><span><span class="tipo-ref">Código</span>Alvarez, C. (2021). m-explore-ros2. <a href="https://github.com/robo-friends/m-explore-ros2">github.com/robo-friends/m-explore-ros2</a>. Hörner, J. (2017). m-explore. <a href="https://github.com/hrnr/m-explore">github.com/hrnr/m-explore</a></span></li>
+    <li id="f9"><span><span class="tipo-ref">Preprint</span>Amadi, C. A., Mbanisi, K. y Smit, W. J. (2024). An Introduction to the ros2_control framework using a low cost Differential Drive Robot. <a href="https://doi.org/10.13140/RG.2.2.15748.54408">doi.org/10.13140/RG.2.2.15748.54408</a></span></li>
+  </ol>
+</section>
+
+<nav id="nav-cap" aria-label="Tema anterior y siguiente"></nav>
 <p id="ayuda-pie" class="ayuda-pie"></p>
 </main>
 </div>
+
 <div id="pie"></div>
 </body>
 </html>
