@@ -6,59 +6,7 @@
   var NO = '<svg class="ico no" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7.5"/><path d="M5.2 5.2l5.6 5.6M10.8 5.2l-5.6 5.6"/></svg>';
   V.ICO = { OK: OK, NO: NO };
 
-  /* Grafo de poses y cierre de lazo */
-  V.lazo = function (el) {
-    var N = 16, d = 60, eps = 1.3 * Math.PI / 180, esc = 1.0, X0 = 70, Y0 = 80;
-    var rumbo = [];
-    [[0, 5], [90, 3], [180, 5], [270, 3]].forEach(function (s) { for (var i = 0; i < s[1]; i++) rumbo.push(s[0] * Math.PI / 180); });
-    var real = [[X0, Y0]], der = [[X0, Y0]];
-    var xr = X0, yr = Y0, xd = X0, yd = Y0;
-    for (var i = 0; i < N; i++) {
-      xr += d * Math.cos(rumbo[i]); yr += d * Math.sin(rumbo[i]); real.push([xr, yr]);
-      var h = rumbo[i] + (i + 1) * eps;
-      xd += d * esc * Math.cos(h); yd += d * esc * Math.sin(h); der.push([xd, yd]);
-    }
-    var cor = der.map(function (p, k) { return [real[k][0] + 0.12 * (p[0] - real[k][0]) * (1 - k / N), real[k][1] + 0.12 * (p[1] - real[k][1]) * (1 - k / N)]; });
-    var s = '<svg class="vsvg acotado" viewBox="0 0 430 330" role="img" aria-label="Grafo de poses con y sin cierre de lazo">';
-    s += '<path class="k-muted" fill="none" stroke-dasharray="4 5" stroke-width="1.5" d="M' + real.map(function (p) { return p[0] + ' ' + p[1]; }).join(' L') + '"/>';
-    s += '<g class="lz-aristas"></g><line class="lz-cierre k-verde" stroke-width="2.5" stroke-dasharray="6 4" opacity="0"/>';
-    s += '<g class="lz-nodos"></g>';
-    s += '<text class="t-s" x="52" y="74" text-anchor="end">inicio</text>';
-    s += '</svg>';
-    el.innerHTML =
-      '<div class="vctl"><button type="button" class="vbtn" data-a="cerrar">Cerrar el lazo</button><button type="button" class="vbtn sec" data-a="abrir">Ver la deriva</button><span class="vestado" aria-live="polite"></span></div>' + s +
-      '<div class="vley"><span><i class="lin-disc"></i>recorrido real</span><span><i class="pt azul"></i>poses estimadas</span><span><i class="lin verde"></i>restricción de cierre de lazo</span></div>' +
-      '<div class="cadena" aria-label="Cadena de marcos de referencia">' +
-      '<div class="eslabon"><b>map</b></div><div class="union"><span>slam_toolbox</span><small>corrige la deriva</small></div>' +
-      '<div class="eslabon"><b>odom</b></div><div class="union"><span>controlador diferencial</span><small>odometría de encoders</small></div>' +
-      '<div class="eslabon"><b>base_link</b></div><div class="union"><span>fija</span><small>sale del URDF</small></div>' +
-      '<div class="eslabon"><b>laser_frame</b></div></div>' +
-      '<p class="vnota">Ejemplo ilustrativo. La corrección de map a odom es la que absorbe el sesgo de los encoders, por eso no llega al mapa.</p>';
-    var gA = el.querySelector(".lz-aristas"), gN = el.querySelector(".lz-nodos"), cierre = el.querySelector(".lz-cierre"), estado = el.querySelector(".vestado");
-    var t = 0, parar = null;
-    function dibujar(k) {
-      var p = der.map(function (a, i) { return [a[0] + (cor[i][0] - a[0]) * k, a[1] + (cor[i][1] - a[1]) * k]; });
-      var a = "", n = "";
-      for (var i = 0; i < N; i++) a += '<line class="k-azul" stroke-width="2" x1="' + p[i][0].toFixed(1) + '" y1="' + p[i][1].toFixed(1) + '" x2="' + p[i + 1][0].toFixed(1) + '" y2="' + p[i + 1][1].toFixed(1) + '"/>';
-      for (var j = 0; j <= N; j++) n += '<circle class="' + (j === 0 ? 'f-verde' : 'f-azul') + '" r="' + (j === 0 || j === N ? 6 : 4.5) + '" cx="' + p[j][0].toFixed(1) + '" cy="' + p[j][1].toFixed(1) + '"/>';
-      gA.innerHTML = a; gN.innerHTML = n;
-      cierre.setAttribute("x1", p[N][0]); cierre.setAttribute("y1", p[N][1]); cierre.setAttribute("x2", p[0][0]); cierre.setAttribute("y2", p[0][1]);
-      cierre.setAttribute("opacity", k > 0 ? 1 : 0);
-      t = k;
-    }
-    function ir(meta) {
-      if (parar) parar();
-      var desde = t;
-      estado.textContent = meta ? "El robot vuelve a ver el inicio y el error se reparte en todo el recorrido." : "Sin cierre de lazo, la última pose queda lejos del inicio.";
-      parar = U.animar(900, function (k) { dibujar(desde + (meta - desde) * U.suave(k)); });
-    }
-    el.addEventListener("click", function (e) {
-      var b = e.target.closest("[data-a]"); if (!b) return;
-      ir(b.getAttribute("data-a") === "cerrar" ? 1 : 0);
-    });
-    dibujar(0);
-    estado.textContent = "Sin cierre de lazo, la última pose queda lejos del inicio.";
-  };
+  /* El capítulo 05 implementa esta visualización en js/mapeo.js. */
 
   /* A estrella frente a Dijkstra */
   V.astar = function (el) {
@@ -193,20 +141,7 @@
       '<p class="vnota">Mapa de ejemplo. La celda suelta del medio representa una lectura de ruido del láser.</p>';
   };
 
-  /* Trejos y slam_toolbox */
-  V.trejos = function (el) {
-    el.innerHTML =
-      '<div class="tj">' +
-      '<div class="caja ancha"><span class="eyebrow">Lo que comparó Trejos, 2022</span><small>Simulación en Gazebo con un TurtleBot 3 Burger simulado</small>' +
-      '<div class="algos"><span>Cartographer<small>mayor uso medio de CPU</small></span><span>GMapping</span><span>Hector</span><span class="gana">Karto<small>mejor opción global</small></span><span>RTAB Map</span></div></div>' +
-      '<div class="flujo"><div class="caja verde"><b>Karto</b><small>la mejor opción global de Trejos</small></div><div class="flecha-d" aria-hidden="true"></div>' +
-      '<div class="caja"><b>Open Karto</b><small>la base de Karto</small></div><div class="flecha-d" aria-hidden="true"></div>' +
-      '<div class="caja azul"><b>slam_toolbox</b><small>se construye sobre Open Karto, según Macenski y Jambrecic. Trejos no lo evaluó.</small></div><div class="flecha-d" aria-hidden="true"></div>' +
-      '<div class="caja"><b>El computador del proyecto</b><small>Intel Core i7 de clase portátil. CPU no medida.</small></div></div>' +
-      '</div>' +
-      '<div class="comparar tres"><div><b>GMapping</b><span>No detecta cierres de lazo y su paso a ROS 2 es más débil.</span></div><div><b>Hector SLAM</b><span>Exige un láser de alta tasa de barrido para contener la deriva.</span></div><div><b>Cartographer</b><span>Configuración compleja y el de mayor uso de CPU en Trejos.</span></div></div>' +
-      '<p class="vnota">Las otras alternativas, tal como las compara la Tabla 1.2 de la tesis.</p>';
-  };
+  /* El capítulo 05 implementa esta visualización en js/mapeo.js. */
 
   /* Reemplazo de metas */
   V.metas = function (el) {

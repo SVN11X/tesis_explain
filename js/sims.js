@@ -6,7 +6,7 @@
   exploracion  robot que explora un plano desconocido por fronteras (portada y capítulo 7)
   cinematica   dos velocidades de rueda y la trayectoria que resulta (capítulo 3)
   encoder      canales en cuadratura y conteo por cuatro (capítulo 3)
-  lidar        lo que ve un láser 2D, y lo que no ve (capítulo 5)
+  El LiDAR del capítulo 5 se implementa en js/mapeo.js.
   pid          respuesta de una rueda con P, I y D (capítulo 4)
   enjambre     optimización por enjambre de partículas sobre un costo (capítulo 4)
   inflacion    mapa de costos, radio de inflación y huella del robot (capítulo 6)
@@ -651,97 +651,7 @@
     el.estadoSim = function () { return { activo: B.activo, vel: vel, control: parseFloat(el.querySelector("#en-v").value), etiqueta: el.querySelector('[data-o="vel"]').textContent, ang: ang, cuenta: cuenta }; };
   };
 
-  /* 4. Qué ve un LiDAR 2D */
-  V.lidar = function (el) {
-    var P = paleta(), SECT = 230, RMIN = 0.15, RMAX = 12;
-    var Wm = 4.0, Hm = 2.6;   /* sala de 4 por 2,6 m */
-    var rob = { x: 1.0, y: 1.3 }, soloLaser = false, semilla = 7;
-    /* segmentos: [x0,y0,x1,y1,tipo]  tipo: pared, vidrio, oscuro */
-    var seg = [
-      [0, 0, 4, 0, "pared"], [4, 0, 4, 2.6, "pared"], [0, 2.6, 4, 2.6, "pared"], [0, 0, 0, 1.0, "pared"], [0, 1.0, 0, 1.9, "vidrio"], [0, 1.9, 0, 2.6, "pared"],
-      [2.6, 0.0, 2.6, 0.9, "pared"],
-      [3.0, 1.6, 3.8, 1.6, "oscuro"], [3.8, 1.6, 3.8, 2.4, "oscuro"], [3.0, 2.4, 3.8, 2.4, "oscuro"], [3.0, 1.6, 3.0, 2.4, "oscuro"]
-    ];
-    var patas = [[1.7, 1.75], [2.5, 1.75], [1.7, 2.35], [2.5, 2.35]];   /* mesa: solo las patas cortan el plano */
-    patas.forEach(function (p) { var d = 0.025; seg.push([p[0] - d, p[1] - d, p[0] + d, p[1] - d, "pata"], [p[0] + d, p[1] - d, p[0] + d, p[1] + d, "pata"], [p[0] - d, p[1] + d, p[0] + d, p[1] + d, "pata"], [p[0] - d, p[1] - d, p[0] - d, p[1] + d, "pata"]); });
-    var exterior = [[-0.9, 1.2, -0.9, 1.7, "pared"]];  /* pared detrás del vidrio, fuera de la sala */
-    seg = seg.concat(exterior);
-    el.innerHTML = '<div class="vctl"><div class="segmento" role="group" aria-label="Vista"><button type="button" data-m="0" aria-pressed="true">Sala y láser</button><button type="button" data-m="1" aria-pressed="false">Solo lo que ve el láser</button></div></div>' +
-      '<div class="li-l"></div>' +
-      '<div class="vley"><span><i class="cu" style="background:var(--ink)"></i>pared</span><span><i class="cu" style="background:var(--s1);opacity:.5"></i>vidrio</span><span><i class="cu" style="background:var(--obst)"></i>superficie muy oscura</span><span><i class="cu rech"></i>cubierta de mesa, sobre el plano</span><span><i class="cu ambar-s"></i>caja baja, bajo el plano</span><span><i class="pt rojo"></i>punto medido</span></div>' +
-      '<p class="vestado" aria-live="polite" data-o="info"></p>' +
-      '<p class="vnota">Arrastra el robot, o usa las flechas del teclado con el dibujo enfocado. 230 sectores por vuelta, de 1,57° cada uno, entre 0,15 y 12 m, como el nodo de lectura escrito para este trabajo. El vidrio, la superficie oscura y la mesa son ilustrativos.</p>';
-    var cont = el.querySelector(".li-l"), L = lienzo(cont, Wm / Hm * 1.0, function () { dibujar(); });
-    L.cv.classList.add("arrastrable"); L.cv.tabIndex = 0; L.cv.setAttribute("role", "img"); L.cv.setAttribute("aria-label", "Sala vista desde arriba con el robot y su barrido láser");
-    alTema(function () { P = paleta(); dibujar(); });
-    function azar(i) { var x = Math.sin(i * 12.9898 + semilla * 78.233) * 43758.5453; return x - Math.floor(x); }
-    function inter(ox, oy, dx, dy, s) {
-      var x1 = s[0], y1 = s[1], x2 = s[2], y2 = s[3], ex = x2 - x1, ey = y2 - y1, den = dx * ey - dy * ex;
-      if (Math.abs(den) < 1e-9) return null;
-      var tt = ((x1 - ox) * ey - (y1 - oy) * ex) / den, u = ((x1 - ox) * dy - (y1 - oy) * dx) / den;
-      if (tt > 1e-6 && u >= 0 && u <= 1) return tt; return null;
-    }
-    function barrer() {
-      var pts = [], perd = 0, vid = 0;
-      for (var k = 0; k < SECT; k++) {
-        var a = (k + .5) / SECT * Math.PI * 2, dx = Math.cos(a), dy = Math.sin(a), mejor = RMAX + 1, tipo = null;
-        seg.forEach(function (s) { if (s[4] === "vidrio") return; var tt = inter(rob.x, rob.y, dx, dy, s); if (tt !== null && tt < mejor) { mejor = tt; tipo = s[4]; } });
-        var cruzaVidrio = seg.some(function (s) { if (s[4] !== "vidrio") return false; var tt = inter(rob.x, rob.y, dx, dy, s); return tt !== null && tt < mejor; });
-        if (cruzaVidrio) vid++;
-        if (tipo === "oscuro" && azar(k) < 0.6) { perd++; pts.push([a, null, "perdido"]); continue; }
-        if (mejor < RMIN || mejor > RMAX) { pts.push([a, null, "fuera"]); continue; }
-        pts.push([a, mejor, tipo, cruzaVidrio]);
-      }
-      return { pts: pts, perd: perd, vid: vid };
-    }
-    function dibujar() {
-      var ctx = L.ctx, W = L.w, H = L.h, m = 14, esc = Math.min((W - 2 * m) / Wm, (H - 2 * m) / Hm), ox = (W - Wm * esc) / 2, oy = (H - Hm * esc) / 2;
-      function X(x) { return ox + x * esc; } function Y(y) { return oy + y * esc; }
-      ctx.clearRect(0, 0, W, H); ctx.fillStyle = soloLaser ? P.bg : P.sup; ctx.fillRect(0, 0, W, H);
-      var b = barrer();
-      if (!soloLaser) {
-        /* mesa y caja baja, que no cortan el plano del láser */
-        ctx.fillStyle = rgba(P.muted, .12); ctx.strokeStyle = P.muted; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.2;
-        ctx.fillRect(X(1.62), Y(1.67), 0.96 * esc, 0.76 * esc); ctx.strokeRect(X(1.62), Y(1.67), 0.96 * esc, 0.76 * esc);
-        ctx.fillStyle = rgba(P.ambar, .18); ctx.strokeStyle = P.ambar; ctx.fillRect(X(1.6), Y(0.35), 0.3 * esc, 0.25 * esc); ctx.strokeRect(X(1.6), Y(0.35), 0.3 * esc, 0.25 * esc);
-        ctx.setLineDash([]);
-        ctx.font = "11px Atkinson Hyperlegible, sans-serif"; ctx.fillStyle = P.muted;
-        ctx.fillText("cubierta de mesa", X(1.68), Y(2.05)); ctx.fillText("caja baja", X(1.6), Y(0.3));
-        ctx.fillText("vidrio", X(0.06), Y(1.48)); ctx.fillText("sofá oscuro", X(3.05), Y(2.02));
-        seg.forEach(function (s) {
-          ctx.lineCap = "round";
-          if (s[4] === "vidrio") { ctx.strokeStyle = rgba(P.s1, .55); ctx.lineWidth = 6; }
-          else if (s[4] === "oscuro") { ctx.strokeStyle = P.obst; ctx.lineWidth = 5; }
-          else if (s[4] === "pata") { ctx.strokeStyle = P.ink; ctx.lineWidth = 3; }
-          else { ctx.strokeStyle = P.ink; ctx.lineWidth = 5; }
-          ctx.beginPath(); ctx.moveTo(X(s[0]), Y(s[1])); ctx.lineTo(X(s[2]), Y(s[3])); ctx.stroke();
-        });
-        ctx.strokeStyle = rgba(P.azul, P.oscuro ? .14 : .1); ctx.lineWidth = 1; ctx.beginPath();
-        b.pts.forEach(function (p) { var d = p[1] == null ? 1.2 : p[1]; ctx.moveTo(X(rob.x), Y(rob.y)); ctx.lineTo(X(rob.x + Math.cos(p[0]) * d), Y(rob.y + Math.sin(p[0]) * d)); });
-        ctx.stroke();
-      }
-      ctx.fillStyle = P.rojo;
-      b.pts.forEach(function (p) { if (p[1] == null) return; var x = X(rob.x + Math.cos(p[0]) * p[1]), y = Y(rob.y + Math.sin(p[0]) * p[1]); ctx.beginPath(); ctx.arc(x, y, 2.2, 0, Math.PI * 2); ctx.fill(); });
-      ctx.fillStyle = P.azul; ctx.beginPath(); ctx.arc(X(rob.x), Y(rob.y), 0.14 * esc, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = P.sup; ctx.beginPath(); ctx.arc(X(rob.x), Y(rob.y), 0.05 * esc, 0, Math.PI * 2); ctx.fill();
-      var medidos = b.pts.filter(function (p) { return p[1] != null; }).length;
-      el.querySelector('[data-o="info"]').textContent = medidos + " de 230 sectores con medición. " + (b.perd ? b.perd + " se perdieron en la superficie oscura. " : "") + (b.vid ? b.vid + " atravesaron el vidrio y midieron lo que hay detrás. " : "") + "La cubierta de la mesa y la caja baja no aparecen.";
-    }
-    function mover(ev) {
-      var r = L.cv.getBoundingClientRect(), W = L.w, H = L.h, m = 14, esc = Math.min((W - 2 * m) / Wm, (H - 2 * m) / Hm), ox = (W - Wm * esc) / 2, oy = (H - Hm * esc) / 2;
-      rob.x = limitar((ev.clientX - r.left - ox) / esc, 0.2, Wm - 0.2); rob.y = limitar((ev.clientY - r.top - oy) / esc, 0.2, Hm - 0.2); dibujar();
-    }
-    var arr = false;
-    L.cv.addEventListener("pointerdown", function (e) { arr = true; L.cv.setPointerCapture(e.pointerId); mover(e); });
-    L.cv.addEventListener("pointermove", function (e) { if (arr) mover(e); });
-    L.cv.addEventListener("pointerup", function () { arr = false; });
-    L.cv.addEventListener("keydown", function (e) {
-      var d = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key]; if (!d) return;
-      e.preventDefault(); rob.x = limitar(rob.x + d[0] * 0.08, 0.2, Wm - 0.2); rob.y = limitar(rob.y + d[1] * 0.08, 0.2, Hm - 0.2); dibujar();
-    });
-    el.addEventListener("click", function (e) { var b = e.target.closest("[data-m]"); if (!b) return; soloLaser = b.getAttribute("data-m") === "1"; el.querySelectorAll("[data-m]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); dibujar(); });
-    dibujar();
-  };
+  /* El capítulo 05 implementa esta visualización en js/mapeo.js. */
 
   /* 5. PID de una rueda */
   V.pid = function (el) {

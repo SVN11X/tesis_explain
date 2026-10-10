@@ -19,7 +19,7 @@ Un robot de bajo costo, con ROS 2, que entra a un recinto que no conoce, lo reco
 | `robot.html` | Piezas, energía, red, reparto entre Arduino, Raspberry Pi y computador, ROS 2 y costo |
 | `movimiento.html` | Tracción diferencial, encoders, odometría y ensayos de recta y giro |
 | `control.html` | PID en tiempo discreto, la ley heredada que opera como PI, windup, FOPDT y PSO |
-| `mapeo.html` | LiDAR 2D, SLAM Toolbox, cierre de lazo, resultados de mapeo y privacidad |
+| `mapeo.html` | LiDAR 2D, rejilla de ocupación, REP 103/105 y TF, ajuste de barridos, grafo de poses, Ceres, capas de RViz y resultados de mapeo |
 | `navegacion.html` | Mapas de costos, inflación, A estrella, DWB y recuperaciones |
 | `exploracion.html` | Exploración por fronteras y por qué 53 de 54 metas abortadas fueron reemplazos |
 | `gemelo.html` | El modelo en Gazebo Classic y qué se compara con qué |
@@ -45,6 +45,8 @@ Las cifras y figuras del robot salen de la tesis y se citan con su sección, tab
 ├── js/vis1.js … vis3.js interactivos de cada tema
 ├── js/comun.js          utilidades compartidas
 ├── js/control-modelo.js cálculos verificables del capítulo de control
+├── js/mapeo.js          modelos y visualizaciones del capítulo 05
+├── css/mapeo.css        estilos exclusivos del capítulo 05
 ├── datos/indice.js      índice del buscador, generado
 ├── datos/ensayos/       tablas de los ensayos en CSV, con su origen en la tesis
 ├── herramientas/        índice del buscador y pruebas
@@ -89,12 +91,15 @@ Luego abre http://localhost:8000
 ```bash
 node herramientas/pruebas_unitarias.js
 node herramientas/pruebas_control.js
+node herramientas/pruebas_mapeo.js
 python3 herramientas/pruebas_control_navegador.py
 python3 -m http.server 8765 &
 python3 herramientas/pruebas_navegador.py
 ```
 
-Las pruebas de Node revisan la geometría, el reloj y los casos numéricos de control. `pruebas_control_navegador.py` inicia un servidor local temporal y comprueba los interactivos del capítulo 4 en escritorio, móvil de 390 y 320 px, modo oscuro y movimiento reducido. Requiere Playwright con Chromium instalado solo para desarrollo. `pruebas_navegador.py` usa Chromium con Playwright y recorre las páginas en escritorio, en teléfono y con movimiento reducido. Revisa errores, enlaces, anclas, el buscador, el glosario, los simuladores y el uso en teléfono.
+Las pruebas de Node revisan la geometría, el reloj y los casos numéricos de control. Las pruebas de mapeo añaden oclusión y colisiones del LiDAR, celdas no observadas, transformaciones SE(2) y optimización del grafo. `pruebas_control_navegador.py` inicia un servidor local temporal y comprueba los interactivos del capítulo 4 en escritorio, móvil de 390 y 320 px, modo oscuro y movimiento reducido. Requiere Playwright con Chromium instalado solo para desarrollo. `pruebas_navegador.py` usa Chromium con Playwright y recorre las páginas en escritorio, en teléfono y con movimiento reducido. Revisa errores, enlaces, anclas, el buscador, el glosario, los simuladores y el uso en teléfono.
+
+Los dibujos de respaldo del capítulo 05 se regeneran con `node herramientas/diagramas_mapeo.js`. Se guardan en `img/diagramas/` y permiten leer el capítulo sin JavaScript. Los modelos del capítulo están aislados en `js/mapeo.js`; no ejecutan SLAM Toolbox ni Ceres y no reemplazan las mediciones originales.
 
 ## Publicar en GitHub Pages
 
