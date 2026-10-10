@@ -23,6 +23,7 @@
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <script src="js/comun.js" defer></script>
 <script src="js/vis1.js" defer></script>
+<script src="js/control-modelo.js" defer></script>
 <script src="js/vis2.js" defer></script>
 <script src="js/vis3.js" defer></script>
 <script src="js/sims.js" defer></script>
@@ -54,17 +55,24 @@
   <h2 id="t-breve">Un PI que sigue 0,13 m/s</h2>
   <p>Cada rueda tiene su propio lazo de control en el Arduino. La ley heredada del firmware se llama <span class="term" data-def="Controlador que combina una acción proporcional al error, una integral del error pasado y una derivativa de su tendencia.">PID</span>, pero al leer su código vi que opera como un <span class="term" data-def="Controlador que en cada ciclo calcula cuánto cambiar la salida, en vez de calcularla completa.">PI incremental</span>, sin acción derivativa. Sus ganancias partieron de una búsqueda con enjambre de partículas sobre un modelo de cada rueda y las terminé de ajustar en el robot real. Con ellas, ambas ruedas siguen 0,13 m/s sin sobreimpulso apreciable dentro de lo que la medición alcanza a ver.</p>
   <div class="cifras-mini">
-    <div><b>0,002 <small>m/s</small></b><span>error estacionario máximo, en la rueda izquierda</span></div>
+    <div><b>0,002 <small>m/s</small></b><span><span class="term" data-def="Diferencia que queda entre la velocidad pedida y el promedio de la velocidad medida cuando el arranque ya terminó y la respuesta se estabilizó.">error estacionario</span> máximo, en la rueda izquierda</span></div>
     <div><b>0,8 <small>y</small> 1,4 <small>s</small></b><span>tiempo de subida de cada rueda, del 10 al 90 %</span></div>
     <div><b>50 × 150</b><span>partículas y generaciones del enjambre que buscó las ganancias</span></div>
-    <div><b>33 <small>ms</small></b><span>entre un cálculo de control y el siguiente</span></div>
+    <div><b>33 <small>ms</small></b><span>por ciclo de control · unos 30 cálculos por segundo</span></div>
   </div>
 </section>
 
 <section>
   <h2 id="lazo-cerrado">El lazo cerrado en una idea</h2>
   <p>Si a un motor se le da siempre la misma tensión, su velocidad cambia con la carga, la batería y el roce. Un lazo cerrado lo resuelve midiendo. Compara la velocidad que se quiere con la que se mide, y la diferencia, llamada error, decide cuánto subir o bajar la tensión media que recibe el motor <a class="ref" href="#f1">1</a>.</p>
-  <p>El controlador más usado para esto es el PID, que combina tres reacciones al error <a class="ref" href="#f2">2</a>. La proporcional mira el presente y empuja más mientras más lejos está la meta. La integral mira el pasado, suma el error acumulado y sigue empujando mientras quede una diferencia, aunque sea pequeña. Y la derivativa mira la tendencia, para frenar antes de pasarse.</p>
+  <p>El controlador más usado para esto es el PID, que combina tres reacciones al error <a class="ref" href="#f2">2</a>. La proporcional mira el presente y empuja más mientras más lejos está la meta. La integral mira el pasado, suma el error acumulado y sigue empujando mientras quede una diferencia, aunque sea pequeña. Y la derivativa mira la tendencia del error, o de la medición según la implementación, para amortiguar los cambios.</p>
+  <h3 id="error-estacionario">¿Qué es el error estacionario?</h3>
+  <p>Es la diferencia que queda <strong>después de que la rueda se estabiliza</strong>, no el error grande del arranque. Si se piden 0,130 m/s y el promedio final es 0,128 m/s, quedan 0,002 m/s de error. En la tesis ese promedio se calcula desde los 7 s <a class="ref" href="#f1">1</a>. La acción integral busca corregir diferencias persistentes, siempre dentro de los límites del motor y de la medición.</p>
+  <div class="widget">
+    <div class="widget-cab"><h3 id="sim-estacionario">La diferencia que permanece</h3><span class="tipo inter">Interactivo</span><p>Mueve el promedio de velocidad y observa la resta, con sus unidades.</p></div>
+    <div class="vis" data-vis="estacionario"><p class="vis-fallback">Referencia 0,130 m/s menos promedio 0,128 m/s: error estacionario de 0,002 m/s.</p></div>
+  </div>
+  <p>En los ejemplos también puedes activar una <span class="term" data-def="Rango de PWM bajo en que el conjunto driver y motor no vence el roce: recibe una orden, pero la rueda no gira. No es la banda del error definida en el software.">zona muerta</span>: una señal pequeña todavía no alcanza a mover la rueda. Más adelante se muestra <a href="#zonas-muertas">su diferencia con la banda del error</a>.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="sim-pid">Ajusta un PID</h3><span class="tipo inter">Interactivo</span><p>Prueba los ejemplos. Con solo P queda un error, con I desaparece, y con demasiado I la rueda se pasa de la referencia.</p></div>
     <div class="vis" data-vis="pid"><p class="vis-fallback">Simulador de un controlador PID sobre una rueda. Necesita JavaScript.</p></div>
@@ -78,65 +86,146 @@
 </section>
 
 <section>
-  <h2 id="tiempo-discreto">PID en tiempo discreto: posicional o incremental</h2>
-  <p>Un microcontrolador no calcula de forma continua. Lee, calcula y actúa a intervalos regulares, en este caso cada 33 ms. Hay dos maneras clásicas de escribir un PID en esas condiciones <a class="ref" href="#f2">2</a>. La forma posicional calcula en cada ciclo la salida completa y necesita guardar el error acumulado. La forma incremental calcula solo cuánto cambiar la salida y se lo suma a la anterior, lo que facilita proteger el integrador cuando el motor llega a su tope.</p>
-  <p>La diferencia parece un detalle de programación, pero tiene una consecuencia grande cuando se mezclan las dos ideas. Eso es justo lo que pasa en este firmware.</p>
+  <h2 id="tiempo-discreto">Continuo y discreto: cuándo se calcula el control</h2>
+  <h3 id="que-es-ciclo">Un ciclo es una vuelta completa de medir, comparar y actuar</h3>
+  <p>El Arduino cuenta los ticks del encoder, compara con la referencia, calcula la corrección y actualiza el PWM. Esa secuencia es un <span class="term" data-def="Una ejecución completa del lazo: leer lo medido desde la ejecución anterior, calcular el error y actualizar la orden al motor. En este firmware se programa aproximadamente cada 33 ms.">ciclo de control</span>. Después mantiene esa orden hasta el siguiente cálculo. La rueda sigue moviéndose entre ciclos.</p>
+  <p><strong>Frecuencia</strong> dice cuántos cálculos se hacen en un segundo; <strong>período</strong> dice cuánto tiempo hay entre ellos. Son inversos: T = 1/f. A 30 Hz, T = 1/30 s = 0,03333 s = 33,33 ms. El firmware calcula <code>1000 / 30</code> como entero y programa <strong>33 ms</strong>, por eso aquí se habla de unos 30 ciclos/s, no de una frecuencia medida exacta <a class="ref" href="#f10">10</a>.</p>
+  <div class="tabla-env">
+    <table class="tabla">
+      <thead><tr><th>Reloj</th><th>Qué ocurre</th><th>Intervalo</th></tr></thead>
+      <tbody>
+        <tr><th>Control de la rueda</th><td>Actualiza la corrección y el PWM, a 30 Hz nominales</td><td>33 ms programados</td></tr>
+        <tr><th>Captura para identificar el modelo</th><td>Registra una muestra del ensayo, a 10 Hz</td><td>100 ms = 0,1 s</td></tr>
+        <tr><th>Conmutación del PWM</th><td>Enciende y apaga el driver para regular la tensión media</td><td>Otro reloj; no es el ciclo de 33 ms</td></tr>
+      </tbody>
+      <caption>El intervalo de captura del ensayo no es el intervalo de cálculo del controlador.</caption>
+    </table>
+  </div>
+  <div class="widget">
+    <div class="widget-cab"><h3 id="continuo-discreto">Una curva continua y una orden mantenida por ciclos</h3><span class="tipo inter">Interactivo</span><p>Elige una frecuencia y avanza por los instantes de cálculo. Cada escalón azul mantiene una orden hasta la siguiente muestra.</p></div>
+    <div class="vis" data-vis="tiempo"><p class="vis-fallback">En tiempo continuo hay un valor para cada instante. En tiempo discreto se calcula en instantes separados y se mantiene la última orden entre ellos.</p></div>
+  </div>
+  <details class="detalle"><summary>Ver las ecuaciones de un PID tradicional</summary>
+    <div class="control-par">
+      <article><h4>Tiempo continuo</h4><p class="control-formula">u(t) = P·e(t) + I·∫e(t)dt + D·de(t)/dt</p><p>La integral acumula área en el tiempo. La derivada calcula la pendiente instantánea.</p></article>
+      <article><h4>Tiempo discreto</h4><p class="control-formula">u[k] = P·e[k] + I·T·Σe[j] + D·(e[k]−e[k−1])/T</p><p>La integral se aproxima con sumas y la derivada con diferencias entre muestras. Aquí k identifica el ciclo y T su período.</p></article>
+    </div>
+    <p class="vnota">Forma didáctica posicional, con integración rectangular y diferencia hacia atrás; en una implementación se filtra normalmente la derivada. P, I y D nombran acciones convencionales para no confundirlas con las variables Kp, Ki y Kd del firmware <a class="ref" href="#f12">12</a>.</p>
+  </details>
+  <h3 id="posicional-incremental">Posicional o incremental: qué se calcula</h3>
+  <p>Esta es otra elección, independiente de continuo o discreto. En un PID discreto <strong>posicional</strong> se calcula el PWM completo: u[k]. En uno <strong>incremental</strong> se calcula el cambio: Δu[k], y se guarda u[k] = u[k−1] + Δu[k]. Ambas formas pueden representar el mismo PID si las ecuaciones se transforman correctamente. Ninguna evita el <span class="term" data-def="Acumulación excesiva del integrador cuando el motor ya está en su tope. Puede mantener una orden demasiado alta después de liberar la rueda.">windup</span> por sí sola: hay que tratar la saturación y la memoria <a class="ref" href="#f2">2</a>.</p>
 </section>
 
 <section>
   <h2 id="hallazgo">Un PID que opera como PI</h2>
-  <p>El firmware del Arduino, ROSArduinoBridge, viene de un proyecto abierto, y su encabezado indica que el controlador se tomó en su mayor parte del código ArbotiX <a class="ref" href="#f1">1</a>. Sus ganancias se llaman Kp, Ki y Kd, como en un PID. Al leer la función que calcula el control, encontré que en cada ciclo se calcula un aumento con los tres términos, al estilo posicional, y ese aumento se suma a la salida anterior, al estilo incremental. Sumar ciclo tras ciclo es integrar, así que cada término sube un escalón.</p>
-  <aside class="nota-autor" hidden>
-    <p class="nota-autor-rotulo">Nota del autor</p>
-    <p>Al revisar la función doPID() del firmware vi que cada aumento de la salida se suma a la salida anterior.</p>
-    <!-- PENDIENTE AUTOR: completar esta nota en primera persona y quitar el atributo hidden. Pregunta: ¿En qué momento lo notaste al leer el código? -->
-  </aside>
+  <p>ROSArduinoBridge es el firmware abierto que ejecuta el Arduino. El código base llama Kp, Ki y Kd a sus ganancias, pero hay que mirar <strong>la ecuación y la memoria</strong> para saber qué acción producen <a class="ref" href="#f10">10</a>. Primero calcula una corrección y después la suma a la salida anterior. Esa segunda operación añade una acumulación a cada término.</p>
+  <div class="control-formula">
+    <p><strong>Corrección:</strong> Δu[k] = (Kp·e[k] − Kd·(m[k]−m[k−1]) + ITerm[k−1]) / Ko</p>
+    <p><strong>Salida:</strong> u[k] = limitar(u[k−1] + Δu[k], −255, 255)</p>
+    <p><strong>Memoria aparte:</strong> ITerm[k] = ITerm[k−1] + Ki·e[k], solo si la salida no toca el tope</p>
+    <small>e: error en ticks/ciclo; m: ticks contados durante un ciclo; u y Δu: PWM; ITerm: unidades internas del numerador. El firmware además trunca y aplica una banda al error. La fórmula describe el orden de actualización, antes de esos cortes.</small>
+  </div>
+  <h3 id="en-que-se-fija">La diferencia clave: error, medición y memoria</h3>
+  <div class="tabla-env">
+    <table class="tabla">
+      <thead><tr><th>Qué se observa</th><th>PID tradicional</th><th>Ley usada en el robot</th></tr></thead>
+      <tbody>
+        <tr><th>Acción proporcional</th><td>P multiplica el error: referencia − medición</td><td>Kd produce una acción proporcional negativa sobre la medición al sumar sus diferencias</td></tr>
+        <tr><th>Acción integral</th><td>I acumula el error una vez</td><td>Kp añade el error a la salida, que se guarda y se vuelve a incrementar</td></tr>
+        <tr><th>Acción derivativa efectiva</th><td>D responde a la tendencia del error; también puede derivar la medición</td><td>No queda una derivada efectiva: las diferencias de medición se acumulan y dan una acción proporcional</td></tr>
+        <tr><th>Cuando cambia la referencia</th><td>La acción P sobre el error cambia de inmediato</td><td>No hay ese salto proporcional de la referencia; el nuevo error sí entra en la acumulación mediante Kp</td></tr>
+        <tr><th>Variable llamada Ki</th><td>No es comparable directamente con I</td><td>Acumula error en ITerm y luego vuelve a acumularlo en la salida: dos sumas, casi anuladas por los enteros</td></tr>
+      </tbody>
+      <caption>Derivar la medición también es válido en un PID convencional. Aquí el cambio de papel viene de volver a sumar la corrección a la salida guardada.</caption>
+    </table>
+  </div>
   <div class="widget">
-    <div class="widget-cab"><h3 id="papeles">El papel real de cada ganancia</h3><span class="tipo inter">Interactivo</span><p>Avanza ciclo a ciclo para ver por qué el término de Kd termina actuando como proporcional.</p></div>
-    <div class="vis" data-vis="papeles"><p class="vis-fallback">Kp actúa como integral, Kd como proporcional sobre la medición y Ki como segunda integración.</p></div>
+    <div class="widget-cab"><h3 id="sim-leyes">Qué pasa si cambia la orden o si cambia la rueda</h3><span class="tipo inter">Interactivo</span><p>Alterna los dos casos. Se comparan las acciones proporcionales, con la misma escala y sin confundir un cambio de referencia con uno de medición.</p></div>
+    <div class="vis" data-vis="leyes"><p class="vis-fallback">Cambiar solo la referencia cambia el proporcional sobre el error, pero no el proporcional sobre la medición. La acción integral del firmware sí responde al nuevo error.</p></div>
+  </div>
+  <div class="widget">
+    <div class="widget-cab"><h3 id="papeles">El papel real de cada ganancia</h3><span class="tipo inter">Interactivo</span><p>Aísla una ganancia y avanza ciclo a ciclo. Compara lo que se añade ahora con lo que ya quedó guardado en la salida.</p></div>
+    <div class="vis" data-vis="papeles"><p class="vis-fallback">Kp suma el error a la salida, Kd suma diferencias de medición y Ki suma una memoria que ya había acumulado errores.</p></div>
   </div>
   <div class="argumento">
-    <div><span class="a-et">Kp actúa como integral</span><p>Multiplica el error de ahora. Al acumularse ciclo tras ciclo, la salida termina conteniendo el error acumulado.</p></div>
-    <div><span class="a-et">Kd actúa como proporcional</span><p>Multiplica el cambio de la medición. La suma de los cambios de algo devuelve ese algo, así que termina multiplicando la medición actual.</p></div>
-    <div><span class="a-et">Ki actúa como doble integral</span><p>Se acumula aparte y luego vuelve a sumarse, por lo que integra dos veces. En la práctica casi no actúa, como se verá más abajo.</p></div>
+    <div><span class="a-et">Kp: una suma de errores</span><p>Si cada ciclo añade 1 PWM por un error que persiste, la contribución guardada va 1, 2, 3… PWM. El nombre Kp no la hace proporcional: la memoria de salida convierte esos incrementos en una integral.</p></div>
+    <div><span class="a-et">Kd: sumar cambios devuelve una diferencia total</span><p>Si la medición sube y luego se mantiene, sus cambios dejan de aportar. La contribución acumulada depende de cuánto cambió la medición desde el inicio, no de su pendiente actual.</p></div>
+    <div><span class="a-et">Ki: guardar y después volver a sumar</span><p>El error se acumula primero en ITerm. Ese ITerm se añade a la salida en los ciclos siguientes, así que vuelve a integrarse. Los enteros eliminan muchos de sus pequeños incrementos.</p></div>
   </div>
-  <p>Sin el término de Ki, como en el firmware original, la ley coincide con la forma incremental del PI que describen Åström y Hägglund, con la referencia entrando solo en el término integral <a class="ref" href="#f2">2</a>. Esa forma evita saltos de la señal cuando cambia la referencia y reduce la sobreoscilación. No cambié la ley en ningún momento, así que todos los resultados corresponden a este controlador tal como es. Por eso el objetivo que pedía un PID se declara cumplido en forma parcial.</p>
+  <div class="widget">
+    <div class="widget-cab"><h3 id="kd-proporcional">Por qué Kd termina siendo proporcional</h3><span class="tipo inter">Interactivo</span><p>Las mediciones interiores se cancelan: quedan la final y la inicial. Prueba también un inicio distinto de cero y una disminución de la medición.</p></div>
+    <div class="vis" data-vis="cancelacion"><p class="vis-fallback">(m1−m0)+(m2−m1)+(m3−m2)=m3−m0. La contribución acumulada es −Kd/Ko por esa diferencia.</p></div>
+  </div>
+  <p>Si Ki es cero, la referencia permanece fija y se ignoran los cortes, la ley equivale a un PI incremental: P efectivo = Kd/Ko e I efectivo por ciclo = Kp/Ko, en la escala de ticks/ciclo <a class="ref" href="#f2">2</a>. Con referencia variable, la referencia entra solo en la acción integral. En las ganancias finales Ki no es literalmente cero, pero los enteros anulan su aporte en la derecha para los errores del ensayo y lo restringen en la izquierda. Por eso describo una operación esencialmente PI, no un PID completo.</p>
   <h3 id="por-que-se-conservo">¿Por qué no se reescribió?</h3>
-  <p>La conservé por dos razones. La interfaz diffdrive_arduino ya usa el protocolo de este firmware, y la forma incremental simplifica la protección contra el windup. También pesó que siguiera la referencia en los ensayos, pero no la comparé con otras leyes. Esa comparación queda como trabajo futuro.</p>
+  <p>Tres motivos aparecen en la guía: la compatibilidad con <code>diffdrive_arduino</code>, el tratamiento de los topes y el seguimiento de la referencia en los ensayos. Otros dos criterios técnicos son mantener los ensayos comparables y considerar las pruebas adicionales de una nueva ley. Estos últimos son un análisis de la decisión a partir de la evidencia disponible.</p>
+  <div class="tabla-env">
+    <table class="tabla">
+      <thead><tr><th>Argumento</th><th>Qué respalda y cuál es su límite</th></tr></thead>
+      <tbody>
+        <tr><th>Interfaz ya integrada</th><td>Conservar comandos y lectura de encoders evitó cambiar la comunicación. El protocolo no obliga a conservar la fórmula de doPID.</td></tr>
+        <tr><th>Protecciones ya presentes</th><td>Se guarda el PWM limitado y se congela ITerm al llegar al tope. Estas protecciones reducen el <span class="term" data-def="Acumulación excesiva del integrador mientras el motor ya llegó a su tope. Al liberar la rueda, esa memoria puede mantener una orden demasiado alta aunque el error ya haya bajado.">windup</span>. También pueden implementarse en un PID tradicional.</td></tr>
+        <tr><th>Respuesta medida en el robot</th><td>Los ajustes finales siguieron 0,13 m/s dentro de la resolución de medida. Eso respalda conservar una solución funcional en ese punto; no demuestra que sea la mejor ley.</td></tr>
+        <tr><th>Continuidad de la evidencia</th><td>Como criterio técnico, mantener la ley permite asociar las capturas y las ganancias a la misma implementación. Reescribirla exige repetir la validación para poder comparar.</td></tr>
+        <tr><th>Trabajo adicional que habría que validar</th><td>Un PID nuevo necesita revisar la escala de ganancias, el período, los estados, los enteros, el filtrado derivativo y la recuperación al saturarse. Es trabajo de diseño y prueba, no una imposibilidad del Arduino.</td></tr>
+      </tbody>
+      <caption>Razones documentadas y criterios técnicos de validación. No hubo una comparación experimental con otro PID ni un estudio de ahorro de tiempo.</caption>
+    </table>
+  </div>
+  <div class="widget">
+    <div class="widget-cab"><h3 id="sim-memoria-windup">Antes de seguir: cómo crece la memoria durante un bloqueo</h3><span class="tipo ilus">Ilustrativo</span><p>Aumenta los ciclos con la rueda trabada. Distingue la orden interna, el PWM que puede recibir el motor y la memoria que se guarda.</p></div>
+    <div class="vis" data-vis="acumulador"><p class="vis-fallback">Sin antiwindup, la memoria integral puede crecer más allá del PWM máximo. El firmware guarda la salida limitada y deja de actualizar ITerm en el tope.</p></div>
+  </div>
+  <p>Ese es el windup: acumular una corrección que el actuador ya no puede aplicar. La protección depende de los topes y del manejo de la memoria, no de llamar «incremental» al controlador <a class="ref" href="#f11">11</a>. <a href="#sim-windup">Más abajo puedes liberar la rueda y observar la recuperación</a>.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="protocolo-ley">El protocolo justifica los comandos, no la fórmula</h3><span class="tipo datos">Datos de la tesis</span><p>La ley vive en un archivo separado del manejo de comandos, así que se podía reescribir sin tocar la comunicación.</p></div>
     <div class="vis" data-vis="protocolo"><p class="vis-fallback">La interfaz envía referencias con el comando m y pide encoders con el comando e. La ley está en diff_controller.h.</p></div>
   </div>
-  <p class="destacado">Una ganancia no se lee por su nombre, se lee por la ecuación que la usa.</p>
+  <p>No se cambió esta ley, por lo que todos los resultados pertenecen a ella. El objetivo que pedía implementar un PID se declara cumplido en forma parcial. Una comparación con un PID estándar a varias velocidades sigue siendo trabajo futuro.</p>
+  <p class="destacado">Una ganancia se interpreta por la ecuación y por la memoria que la rodea.</p>
 </section>
 
 <section>
   <h2 id="enteros">Los decimales que se pierden</h2>
-  <p>El Arduino Nano guarda varios resultados intermedios como números enteros. Las ganancias se aplican con decimales, pero el error, el aumento de la salida y el término integral se recortan hacia cero al guardarse <a class="ref" href="#f1">1</a>. Si el aumento calculado es 0,9, se guarda 0 y el motor no cambia.</p>
+  <p>El Arduino Nano guarda varios resultados intermedios como números enteros. Las ganancias se aplican con decimales, pero el error, el aumento de la salida y el término integral se recortan hacia cero al guardarse <a class="ref" href="#f1">1</a>. Si el incremento calculado es 0,9 PWM, se guarda 0 PWM: la orden al motor no cambia en ese ciclo. No se guarda ese 0,9 para sumarlo después.</p>
   <details class="detalle"><summary>Ver el detalle técnico</summary>
   <div class="widget">
     <div class="widget-cab"><h3 id="ciclo">Un ciclo del firmware, con sus números</h3><span class="tipo inter">Interactivo</span><p>Elige una situación o mueve las mediciones. En rojo aparece cada corte.</p></div>
     <div class="vis" data-vis="ciclo"><p class="vis-fallback">Paso a paso del cálculo del control en el firmware.</p></div>
   </div>
-  <figure class="fig">
-    <img src="img/truncamiento.png" width="1360" height="560" loading="lazy" decoding="async" alt="Dos gráficos de la salida acumulada en diez ciclos. Con un error de 3 pulsos el aumento calculado es 0,99 y se guarda 0, así que la salida nunca sube. Con un error de 5 pulsos se calcula 1,64 y se guarda 1, y la salida sube más lento que guardando los decimales.">
-    <figcaption>Efecto acumulado del truncamiento en diez ciclos, con números de ejemplo. Guardando los decimales, la salida sube. Cortándolos en cada ciclo, sube menos o no sube. <small>Figura ilustrativa elaborada para esta guía.</small></figcaption>
-  </figure>
-  <p>Esto tiene un efecto directo sobre Ki. En la rueda derecha, con Ki de 0,001, el producto de Ki por el error solo llegaría a una unidad con errores de 1000 pulsos por ciclo, muy superiores a los del ensayo, así que su término integral queda siempre en cero. En la izquierda, con Ki de 0,075, solo crece con errores de al menos 14 pulsos por ciclo, cerca de 0,045 m/s, lo que pasa sobre todo al arrancar <a class="ref" href="#f1">1</a>.</p>
-  <p>En el firmware original las ganancias eran enteras, así que el producto de Ki por el error siempre era entero y no se perdía nada. Al pasar a ganancias con decimales, el estado integral siguió siendo un entero de 16 bits, y ahí aparecieron las pérdidas. Es un error muy común al adaptar código embebido, y por eso tiene su propia sección en <a href="lecciones.html#tipos">Lecciones de ingeniería</a>.</p>
+  </details>
+  <div class="widget">
+    <div class="widget-cab"><h3 id="sim-truncamiento">Diez ciclos: sumar decimales o perderlos cada vez</h3><span class="tipo ilus">Ilustrativo</span><p>Compara errores de 3 y 5 ticks/ciclo. Cambia el número de ciclos para ver cuánto PWM queda acumulado y cuánto tiempo ha pasado.</p></div>
+    <div class="vis" data-vis="truncamiento"><p class="vis-fallback">Con error constante de 3 ticks/ciclo se calcula 0,9852 PWM por ciclo y se guarda 0; en diez ciclos, conservar decimales daría 9,852 PWM y cortar cada incremento deja 0.</p></div>
+  </div>
+
+  <p>Esto tiene un efecto directo sobre Ki. En la rueda derecha, con Ki de 0,001, el producto de Ki por el error solo llegaría a una unidad interna desde ITerm=0, con un error positivo de al menos 1000 ticks/ciclo, muy superiores a los del ensayo, así que su término integral queda siempre en cero. En la izquierda, con Ki de 0,075, desde ITerm=0 solo crece con errores positivos de al menos 14 ticks/ciclo, cerca de 0,045 m/s, lo que pasa sobre todo al arrancar <a class="ref" href="#f1">1</a>.</p>
+  <p>En el firmware original Ki y el error eran enteros, así que su producto no tenía decimales que perder; la división por Ko sí podía truncar el incremento de salida. Al pasar a ganancias con decimales, el estado integral siguió siendo un entero de 16 bits, y ahí aparecieron las pérdidas. Es un error muy común al adaptar código embebido, y por eso tiene su propia sección en <a href="lecciones.html#tipos">Lecciones de ingeniería</a>.</p>
+  <p>Si ITerm ya es distinto de cero, el corte de la suma completa también importa: un error negativo pequeño puede bajar esa memoria al truncar hacia cero. El umbral de 14 ticks describe el crecimiento desde cero con error positivo, no todos los cambios posibles de ITerm.</p>
+</section>
+
+<section>
+  <h2 id="windup">Windup: qué pasa cuando la rueda vuelve a quedar libre</h2>
+  <p>El motor puede recibir como máximo ±255 PWM. Si la rueda está trabada, sigue habiendo error de velocidad, pero aumentar una orden interna por encima de ese máximo no da más fuerza. Un integrador sin protección sigue acumulando. Al liberar la rueda, puede mantener el PWM en el tope aunque la velocidad ya haya alcanzado la referencia: esa memoria excesiva tarda en descargarse.</p>
+  <p>Para verlo, hay que mirar <strong>la velocidad que observas</strong> y <strong>la orden que se calcula y se aplica</strong>. No son dos velocidades: una es la respuesta física en m/s; las otras son señales PWM dentro del controlador y hacia el motor.</p>
+  <div class="widget">
+    <div class="widget-cab"><h3 id="sim-windup">Rueda trabada, dos leyes</h3><span class="tipo ilus">Ilustrativo</span><p>Cambia la duración del bloqueo y el instante observado. Activa también antiwindup en el PID tradicional para comprobar que puede protegerse.</p></div>
+    <div class="vis" data-vis="windup"><p class="vis-fallback">Tres paneles sincronizados: velocidad en m/s, PWM pedido antes del tope y PWM aplicado limitado a ±255. La referencia es 0,13 m/s.</p></div>
+  </div>
+  <details class="detalle"><summary>Ver qué protecciones tiene este firmware y sus límites</summary>
+    <h4 id="windup-tecnico">La salida guardada y la integración condicional</h4>
+    <p>Se limita la nueva salida a ±255 antes de guardarla, de modo que el exceso calculado no pasa a la memoria de salida. Además, ITerm deja de actualizarse cuando la salida toca cualquiera de los topes. Esto es integración condicional en ese estado aparte <a class="ref" href="#f10">10</a>.</p>
+    <p>El firmware congela ITerm en ambos topes; una protección convencional más completa también considera si el error ayuda a salir de la saturación. No se demuestra aquí que esta estrategia sea óptima ni que elimine cualquier sobreimpulso. Un PID tradicional puede usar integración condicional o realimentar la diferencia entre la señal pedida y la aplicada para limitar su memoria <a class="ref" href="#f11">11</a>.</p>
   </details>
 </section>
 
 <section>
-  <h2 id="windup">Windup, el integrador que se infla</h2>
-  <p>Cuando el motor ya está al máximo y la rueda no alcanza la referencia, por ejemplo porque está trabada, la parte integral de un PI normal sigue acumulando error. Al liberarse la rueda, esa acumulación tarda en descargarse y la rueda se pasa de la velocidad pedida. Eso se llama windup, algo así como sobrecarga del integrador.</p>
-  <details class="detalle"><summary>Ver el detalle técnico</summary>
+  <h2 id="zonas-muertas">Dos zonas muertas que no significan lo mismo</h2>
+  <p>En el conjunto driver y motor, la <strong>zona muerta física</strong> se refiere a un rango de PWM que no consigue mover la rueda. En el firmware, la <span class="term" data-def="Intervalo de error que el software trata como cero: ±1 tick/ciclo en la derecha y ±2 en la izquierda. Se aplica al error, no al PWM del motor.">banda muerta del error</span> es una decisión del software para ignorar diferencias pequeñas. La primera usa PWM; la segunda, ticks/ciclo. No son intercambiables.</p>
   <div class="widget">
-    <div class="widget-cab"><h3 id="sim-windup">Rueda trabada, dos leyes</h3><span class="tipo ilus">Ilustrativo</span><p>Cambia cuánto tiempo pasa la rueda trabada.</p></div>
-    <div class="vis" data-vis="windup"><p class="vis-fallback">Comparación de un PI normal y uno incremental con tope cuando la rueda se traba.</p></div>
+    <div class="widget-cab"><h3 id="sim-zonas">Hay señal sin movimiento, o hay error que el software ignora</h3><span class="tipo inter">Interactivo</span><p>Primero mueve el PWM a través de un umbral supuesto. Luego cambia el error y la rueda para ver la banda documentada del firmware.</p></div>
+    <div class="vis" data-vis="zonas"><p class="vis-fallback">La zona muerta del motor relaciona PWM con velocidad. La banda del software trata como cero errores de hasta 1 tick/ciclo en la derecha y 2 en la izquierda.</p></div>
   </div>
-  <p>Este firmware tiene dos protecciones. Recorta la salida a 255 antes de guardarla, y deja de actualizar el término integral mientras la salida está en el tope, lo que se llama integración condicional <a class="ref" href="#f2">2</a>.</p>
-  </details>
 </section>
 
 <section>
@@ -146,30 +235,30 @@
     <table class="tabla">
       <thead><tr><th>Parámetro del modelo</th><th class="n">Rueda izquierda</th><th class="n">Rueda derecha</th></tr></thead>
       <tbody>
-        <tr><th>Ganancia, cuánto responde (m/s por unidad de PWM)</th><td class="n">0,000 913</td><td class="n">0,000 890</td></tr>
+        <tr><th>Ganancia, cuánto responde (m/s por unidad de PWM)</th><td class="n">0,000913</td><td class="n">0,000890</td></tr>
         <tr><th>Constante de tiempo, qué tan rápido</th><td class="n">0,3291 s</td><td class="n">0,3485 s</td></tr>
         <tr><th>Retardo, cuánta demora</th><td class="n">0,0001 s</td><td class="n">0,0692 s</td></tr>
       </tbody>
-      <caption>Tabla A4.4 de la tesis. Los dos retardos son menores que el período de captura de 0,1 s, así que en la práctica el modelo se comporta como uno de primer orden sin demora.</caption>
+      <caption>Tabla A4.4 de la tesis. Los retardos estimados son menores que el período de captura de 0,1 s: esos valores provienen del ajuste del modelo y no de una medición directa con esa precisión temporal.</caption>
     </table>
   </div>
   <figure class="fig">
     <picture><source srcset="img/tesis/pso-lambda.webp" type="image/webp"><img src="img/tesis/pso-lambda.png" width="1600" height="1461" loading="lazy" decoding="async" alt="Cuatro gráficos. A la izquierda, la identificación de cada rueda en lazo abierto: datos reales, datos suavizados y el modelo FOPDT, muy parecidos. A la derecha, una simulación del lazo cerrado con las ganancias finales y con una sintonía Lambda, que oscila mucho más."></picture>
     <figcaption>A la izquierda, el modelo de cada rueda calza con los datos reales. A la derecha, una comparación simulada con la sintonía Lambda, que presento solo como ilustración porque el modelo no tiene la zona muerta ni los tipos enteros del firmware. <small>Fig. A4.1 de la tesis.</small></figcaption>
   </figure>
-  <p>Que las dos ruedas tengan modelos distintos importa. Una tabla fija de sintonía daría las mismas ganancias a ambas, y este robot necesitaba ganancias propias para cada rueda.</p>
+  <p>Que las dos ruedas tengan modelos distintos importa. Cada modelo permite buscar y evaluar ganancias propias para esa rueda, en vez de suponer que ambas responderán igual.</p>
 </section>
 
 <section>
   <h2 id="pso">Buscar ganancias con un enjambre</h2>
-  <p>La optimización por enjambre de partículas, o <span class="term" data-def="Optimización por enjambre de partículas, que busca el mejor valor moviendo muchos candidatos que comparten lo que encuentran.">PSO</span>, se inspira en cómo se mueven las bandadas <a class="ref" href="#f4">4</a>. Cada partícula es un candidato, aquí un trío de ganancias. En cada generación, cada partícula se mueve combinando tres impulsos. Su velocidad anterior, la atracción hacia el mejor punto que ella misma encontró y la atracción hacia el mejor punto de todo el enjambre. No necesita derivadas ni un modelo exacto, solo poder evaluar qué tan bueno es cada candidato. Por eso es útil cuando se buscan varias ganancias a la vez.</p>
+  <p>La optimización por enjambre de partículas, o <span class="term" data-def="Optimización por enjambre de partículas, que busca el mejor valor moviendo muchos candidatos que comparten lo que encuentran.">PSO</span>, se inspira en cómo se mueve una <span class="term" data-def="Grupo de aves que se desplaza en conjunto. En esta analogía, cada ave representa una solución candidata que aprende de su experiencia y de las demás.">bandada de aves</span>, es decir, un grupo de pájaros que se desplaza en conjunto <a class="ref" href="#f4">4</a>. Cada partícula es un candidato, aquí un trío de ganancias. En cada generación, cada partícula se mueve combinando tres impulsos. Su velocidad anterior, la atracción hacia el mejor punto que ella misma encontró y la atracción hacia el mejor punto de todo el enjambre. No necesita derivadas ni un modelo exacto, solo poder evaluar qué tan bueno es cada candidato. Por eso es útil cuando se buscan varias ganancias a la vez.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="sim-enjambre">Un enjambre buscando el menor costo</h3><span class="tipo inter">Interactivo</span><p>Presiona Buscar y mira cómo las partículas pasan de explorar a converger.</p></div>
     <div class="vis" data-vis="enjambre"><p class="vis-fallback">Simulador de optimización por enjambre de partículas. Necesita JavaScript.</p></div>
   </div>
   <p>El script que escribí combina dos mejoras conocidas. Un factor de constricción de 0,7298, el valor que entrega la fórmula de Clerc y Kennedy con coeficientes de 2,05 <a class="ref" href="#f5">5</a>, y un peso de inercia que baja de forma lineal con las generaciones, mecanismo propuesto por Shi y Eberhart <a class="ref" href="#f6">6</a>. Usa 50 partículas y 150 generaciones. El costo de cada candidato es el error cuadrático medio de la velocidad simulada más una penalización por sobreimpulso que pesa el triple <a class="ref" href="#f1">1</a>. Como antecedente, Gökçe y otros usaron PSO para sintonizar el PID de un robot móvil agrícola <a class="ref" href="#f7">7</a>.</p>
   <h3 id="semilla">El PSO fue una semilla, el robot dio la última palabra</h3>
-  <p>Cargué en el robot las ganancias sugeridas por el PSO y aparecieron dos comportamientos que el modelo no anticipaba. La rueda izquierda se quedaba un escalón de medición por debajo de la referencia, y la derecha subía por tramos, con una detención cerca de 0,11 m/s. La causa principal es que el modelo de primer orden no tiene la <span class="term" data-def="Un rango de PWM bajo en que el motor no alcanza a vencer el roce y no gira, aunque reciba señal.">zona muerta</span> del driver <a class="ref" href="#f1">1</a>. Desliza el control para comparar ambas respuestas sobre los mismos ejes.</p>
+  <p>Cargué en el robot las ganancias sugeridas por el PSO y aparecieron dos comportamientos que el modelo no anticipaba. La rueda izquierda se quedaba un escalón de medición por debajo de la referencia, y la derecha subía por tramos, con una detención cerca de 0,11 m/s. La explicación propuesta es que el modelo de primer orden no incluye la <span class="term" data-def="Un rango de PWM bajo en que el motor no alcanza a vencer el roce y no gira, aunque reciba señal.">zona muerta</span> del driver <a class="ref" href="#f1">1</a>. Desliza el control para comparar ambas respuestas sobre los mismos ejes.</p>
   <figure class="desl-env">
     <div class="deslizar">
       <img class="c-a" src="img/tesis/escalon-pso.png" width="1281" height="1027" alt="Respuesta con las ganancias del PSO: la rueda izquierda queda bajo la referencia y la derecha sube por tramos con una detención cerca de 0,11 m/s.">
@@ -178,20 +267,20 @@
       <span class="c-linea" aria-hidden="true"></span>
       <span class="c-et a">Ganancias del PSO</span><span class="c-et b">Ganancias finales</span>
     </div>
-    <figcaption>Misma referencia de 0,13 m/s y mismo protocolo en el robot real. Con las ganancias finales desaparecen el error de la izquierda y la detención de la derecha. <small>Figs. 5.3 y 5.4 de la tesis.</small></figcaption>
+    <figcaption>Misma referencia de 0,13 m/s y mismo protocolo en el robot real. Con las ganancias finales se reduce el error de la izquierda y desaparece la detención de la derecha. <small>Figs. 5.3 y 5.4 de la tesis.</small></figcaption>
   </figure>
   <div class="widget">
-    <div class="widget-cab"><h3 id="cambios">Del PSO a las ganancias finales</h3><span class="tipo datos">Datos de la tesis</span></div>
+    <div class="widget-cab"><h3 id="cambios">Del PSO a las ganancias finales</h3><span class="tipo datos">Datos de la tesis</span><p>Cada par muestra los valores anteriores y finales de una rueda. El porcentaje indica el cambio relativo; Ki se expresa como factor de aumento para que se lea mejor.</p></div>
     <div class="vis" data-vis="pso"><p class="vis-fallback">Kp sube entre 28 y 63 %, Kd baja entre 41 y 45 % y Ki sube varios órdenes de magnitud.</p></div>
   </div>
-  <p>Subí Kp para atravesar más rápido la zona muerta, lo que en esta ley acelera el crecimiento de la salida. Eso, sobre una velocidad medida en escalones, volvió excesiva la acción de Kd, que bajé. Y subí el Ki de la rueda izquierda para eliminar su error estacionario. El aporte del PSO fue el de una semilla de búsqueda y no el de un ajuste final validado por sí solo <a class="ref" href="#f1">1</a>. Esto muestra el límite de cualquier optimización, que solo es tan buena como el modelo sobre el que busca.</p>
+  <p>Subí Kp para atravesar más rápido la zona muerta, lo que en esta ley acelera el crecimiento de la salida. Eso, sobre una velocidad medida en escalones, volvió excesiva la acción de Kd, que bajé. También subí Ki de la izquierda. En esta implementación su aporte crece sobre todo durante el arranque, cuando el error positivo alcanza al menos 14 ticks/ciclo; no se puede atribuir la corrección estacionaria solo a esa ganancia. El aporte del PSO fue el de una semilla de búsqueda y no el de un ajuste final validado por sí solo <a class="ref" href="#f1">1</a>. Esto muestra el límite de cualquier optimización, que solo es tan buena como el modelo sobre el que busca.</p>
   <div class="tabla-env">
     <table class="tabla">
       <thead><tr><th>Ganancia</th><th class="n">PSO izquierda</th><th class="n">Final izquierda</th><th class="n">PSO derecha</th><th class="n">Final derecha</th></tr></thead>
       <tbody>
         <tr><th>Kp</th><td class="n">12,48</td><td class="n">16,00</td><td class="n">10,10</td><td class="n">16,42</td></tr>
         <tr><th>Kd</th><td class="n">34,69</td><td class="n">20,30</td><td class="n">36,70</td><td class="n">20,05</td></tr>
-        <tr><th>Ki</th><td class="n">0,000 01</td><td class="n">0,075</td><td class="n">0,000 01</td><td class="n">0,001</td></tr>
+        <tr><th>Ki</th><td class="n">0,00001</td><td class="n">0,075</td><td class="n">0,00001</td><td class="n">0,001</td></tr>
         <tr><th>Ko</th><td class="n">50</td><td class="n">50</td><td class="n">50</td><td class="n">50</td></tr>
       </tbody>
       <caption>Tablas A4.4 y 4.4 de la tesis. Las ganancias están en la escala interna del firmware.</caption>
@@ -216,12 +305,12 @@
     </table>
   </div>
   <h3 id="resolucion">Lo que la medición alcanza a ver</h3>
-  <p>El firmware informa la velocidad con dos decimales, en pasos de 0,01 m/s, cerca de un 8 % de la referencia. Un sobreimpulso menor a un paso no se alcanza a ver, y por eso la frase correcta es sin sobreimpulso apreciable dentro de la resolución de medida. Por lo mismo no se informa un tiempo de establecimiento al 2 %. El 0,128 de la rueda izquierda es un promedio de muestras que oscilan entre dos pasos, no una medición más fina <a class="ref" href="#f1">1</a>.</p>
+  <p>El firmware informa la velocidad con dos decimales, en pasos de 0,01 m/s, cerca de un 7,7 % de la referencia. Un sobreimpulso pequeño puede quedar oculto por el redondeo, y por eso la frase correcta es sin sobreimpulso apreciable dentro de la resolución de medida. Por lo mismo no se informa un tiempo de establecimiento al 2 %. El 0,128 de la rueda izquierda es un promedio de muestras que oscilan entre dos pasos, no una medición más fina <a class="ref" href="#f1">1</a>.</p>
   <div class="widget">
-    <div class="widget-cab"><h3 id="ticks">Resolución y velocidad única</h3><span class="tipo datos">Datos de la tesis</span></div>
-    <div class="vis" data-vis="resolucion"><p class="vis-fallback">A 0,13 m/s cada rueda cuenta unos 41 pulsos por ciclo. En un giro a 0,35 rad/s, cerca de 10.</p></div>
+    <div class="widget-cab"><h3 id="ticks">Resolución y velocidad única</h3><span class="tipo inter">Interactivo</span><p>Compara la cantidad de ticks en recta y giro. Después prueba qué información se pierde al registrar dos decimales y cómo se calcula un promedio entre escalones.</p></div>
+    <div class="vis" data-vis="resolucion"><p class="vis-fallback">A 0,13 m/s la conversión da 40,76 ticks/ciclo; ROS 2 envía 40 al truncar. En el giro sobre el eje a 0,35 rad/s, la magnitud estimada es 10,32 ticks/ciclo y se envían 10.</p></div>
   </div>
-  <p>Evalué el control en un solo punto de operación, 0,13 m/s. En los giros sobre su eje, cada rueda cuenta cerca de 10 pulsos por ciclo en vez de 41, y ahí las bandas muertas de 1 y 2 pulsos pesan mucho más. Extender la evaluación a otras velocidades y compararla con un PID incremental estándar es parte del trabajo futuro.</p>
+  <p>Evalué el control en un solo punto de operación, 0,13 m/s. En los giros sobre su eje, la referencia de cada rueda es de unos 10 ticks/ciclo en vez de unos 41 (10 y 40 si el comando m trunca a entero), y ahí las bandas muertas de 1 y 2 pulsos pesan mucho más. Extender la evaluación a otras velocidades y compararla con un PID incremental estándar es parte del trabajo futuro.</p>
   <details class="profundizar">
     <summary>Para el curioso: la comparación con la sintonía Lambda</summary>
     <div>
@@ -259,6 +348,9 @@
     <li id="f7"><span><span class="tipo-ref">Artículo</span>Gökçe, B., Koca, Y. B., Aslan, Y. y Gökçe, C. O. (2021). Particle Swarm Optimization-Based Optimal PID Control of an Agricultural Mobile Robot. <em>Comptes rendus de l'Académie bulgare des Sciences, 74</em>(4). <a href="https://doi.org/10.7546/CRABS.2021.04.12">doi.org/10.7546/CRABS.2021.04.12</a></span></li>
     <li id="f8"><span><span class="tipo-ref">Libro abierto</span>Åström, K. J. y Murray, R. M. <em>Feedback Systems: An Introduction for Scientists and Engineers</em>, segunda edición. <a href="https://www.cds.caltech.edu/~murray/amwiki/Second_Edition.html">cds.caltech.edu</a></span></li>
     <li id="f9"><span><span class="tipo-ref">Video</span>MATLAB. Understanding PID Control, serie en YouTube. <a href="https://www.youtube.com/playlist?list=PLn8PRpmsu08pQBgjxYFXSsODEF3Jqmm-y">youtube.com</a>. Y MathWorks, PID Control. <a href="https://www.mathworks.com/discovery/pid-control.html">mathworks.com</a></span></li>
+    <li id="f10"><span><span class="tipo-ref">Código base</span>ROSArduinoBridge, proyecto base de <em>ros_arduino_bridge</em>. <a href="https://github.com/joshnewans/ros_arduino_bridge/blob/main/ROSArduinoBridge/diff_controller.h">diff_controller.h</a> y <a href="https://github.com/joshnewans/ros_arduino_bridge/blob/main/ROSArduinoBridge/ROSArduinoBridge.ino">ROSArduinoBridge.ino</a>. Documentan la estructura de la memoria, el orden de cálculo, la saturación y el reloj de 30 Hz. Las ganancias finales y las bandas adaptadas se transcriben de la tesis; el firmware adaptado todavía no está publicado, como se indica en <a href="recursos.html#materiales">Recursos</a>.</span></li>
+    <li id="f11"><span><span class="tipo-ref">Documentación</span>MathWorks. <em>Anti-Windup Control Using PID Controller Block</em>. <a href="https://www.mathworks.com/help/simulink/slref/anti-windup-control-using-a-pid-controller.html">mathworks.com</a>. Diferencia entre señal calculada y aplicada, integración condicional y realimentación para limitar la memoria.</span></li>
+    <li id="f12"><span><span class="tipo-ref">Documentación</span>MathWorks. <em>PID Controller</em>. <a href="https://www.mathworks.com/help/simulink/slref/pidcontroller.html">mathworks.com</a>. Formas continuas y discretas, estado integral y filtro derivativo.</span></li>
   </ol>
 </section>
 

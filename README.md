@@ -44,6 +44,7 @@ Las cifras y figuras del robot salen de la tesis y se citan con su sección, tab
 ├── js/sims.js           simulaciones en canvas
 ├── js/vis1.js … vis3.js interactivos de cada tema
 ├── js/comun.js          utilidades compartidas
+├── js/control-modelo.js cálculos verificables del capítulo de control
 ├── datos/indice.js      índice del buscador, generado
 ├── datos/ensayos/       tablas de los ensayos en CSV, con su origen en la tesis
 ├── herramientas/        índice del buscador y pruebas
@@ -52,6 +53,16 @@ Las cifras y figuras del robot salen de la tesis y se citan con su sección, tab
 ```
 
 No hay dependencias ni paso de compilación.
+
+## Capítulo 4: control por ciclos y límites del firmware
+
+`control.html` separa velocidad (m/s), conteo (ticks/ciclo), PWM e ITerm en la escala interna del numerador. Explica el error estacionario antes de usarlo, la diferencia entre 30 Hz nominales y el intervalo entero de 33 ms, y la separación entre tiempo continuo/discreto y forma posicional/incremental.
+
+Los interactivos permiten aislar Kp, Kd y Ki, avanzar por ciclos, cancelar visualmente las diferencias de medición, distinguir el cambio de referencia del cambio de medición, inspeccionar truncamientos y comparar memoria y recuperación tras un bloqueo. El ejemplo de windup también permite proteger el integrador de un PI tradicional (PID con D=0 para aislar el fenómeno).
+
+La comparación PSO/final muestra los seis pares de valores por rueda, con escalas explícitas e información sobre la validación. Los ejemplos de resolución separan el conteo del encoder, los dos decimales del registro y el promedio posterior; la recta está ensayada y el giro se identifica como estimación.
+
+`js/control-modelo.js` reúne las ganancias y cálculos que usan los interactivos y las pruebas. Las simulaciones de bloqueo no son mediciones ni reproducen exactamente el encoder físico. El umbral de 60 PWM del ejemplo de zona muerta es supuesto y ajustable, no un valor medido del robot. Las ganancias y bandas adaptadas provienen de los datos ya publicados en la guía; el código adaptado no está disponible, mientras que el código base se enlaza como referencia independiente. Las consideraciones adicionales sobre conservar la ley se distinguen de los motivos documentados.
 
 ## Cómo editar
 
@@ -77,11 +88,13 @@ Luego abre http://localhost:8000
 
 ```bash
 node herramientas/pruebas_unitarias.js
+node herramientas/pruebas_control.js
+python3 herramientas/pruebas_control_navegador.py
 python3 -m http.server 8765 &
 python3 herramientas/pruebas_navegador.py
 ```
 
-La primera revisa la geometría y el reloj de los simuladores. La segunda usa Chromium con Playwright y recorre las páginas en escritorio, en teléfono y con movimiento reducido. Revisa errores, enlaces, anclas, el buscador, el glosario, los simuladores y el uso en teléfono.
+Las pruebas de Node revisan la geometría, el reloj y los casos numéricos de control. `pruebas_control_navegador.py` inicia un servidor local temporal y comprueba los interactivos del capítulo 4 en escritorio, móvil de 390 y 320 px, modo oscuro y movimiento reducido. Requiere Playwright con Chromium instalado solo para desarrollo. `pruebas_navegador.py` usa Chromium con Playwright y recorre las páginas en escritorio, en teléfono y con movimiento reducido. Revisa errores, enlaces, anclas, el buscador, el glosario, los simuladores y el uso en teléfono.
 
 ## Publicar en GitHub Pages
 

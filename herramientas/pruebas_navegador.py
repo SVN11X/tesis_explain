@@ -126,10 +126,14 @@ def recorrer_paginas(nav, nombre, vista, extra):
         p.wait_for_timeout(250)
         if pag != 'preguntas.html':
             # baja por la página para montar todos los interactivos
-            alto = p.evaluate('document.body.scrollHeight')
-            for y in range(0, alto + 800, 700):
+            # La página crece al montar los widgets; recalcular el alto evita
+            # terminar antes de los últimos interactivos en capítulos largos.
+            y, pasos = 0, 0
+            while y < p.evaluate('document.body.scrollHeight') + 800 and pasos < 150:
                 p.evaluate('window.scrollTo(0, %d)' % y)
                 p.wait_for_timeout(15)
+                y += 700
+                pasos += 1
             p.wait_for_timeout(200)
             # los interactivos dentro de un details cerrado se montan al abrirlo, eso se prueba aparte
             info = p.evaluate("""() => ({
@@ -504,16 +508,16 @@ def probar_plegados(nav):
     r = p.evaluate("""() => { const h = document.getElementById('ciclo'), d = h.closest('details'), rc = h.getBoundingClientRect();
       return { abierto: d.open, arriba: Math.round(rc.top), alto: innerHeight }; }""")
     ok(r['abierto'] and 0 <= r['arriba'] < r['alto'], 'al cargar con un ancla plegada se abre el details y se llega al destino', r)
-    plegado = p.evaluate("!document.querySelector('[data-vis=windup]').closest('details').open")
+    plegado = p.evaluate("!document.getElementById('windup-tecnico').closest('details').open")
     ok(plegado, 'el otro bloque plegado sigue cerrado')
-    p.evaluate("location.hash = 'sim-windup'")
+    p.evaluate("location.hash = 'windup-tecnico'")
     p.wait_for_function("document.querySelector('[data-vis=windup]').getAttribute('data-montado')", polling=100)
     p.wait_for_timeout(400)
     r = p.evaluate("""() => { const el = document.querySelector('[data-vis=windup]'), svg = el.querySelector('svg');
-      return { abierto: el.closest('details').open, svg: svg ? svg.getBoundingClientRect().width : 0, caja: el.getBoundingClientRect().width,
+      return { abierto: document.getElementById('windup-tecnico').closest('details').open, svg: svg ? svg.getBoundingClientRect().width : 0, caja: el.getBoundingClientRect().width,
                ancho: document.documentElement.scrollWidth - innerWidth }; }""")
     ok(r['abierto'], 'al cambiar el ancla a un bloque plegado, el details se abre')
-    ok(0 < r['svg'] <= r['caja'] + 1 and r['ancho'] <= 1, 'el interactivo plegado toma el ancho de su contenedor al abrirse', r)
+    ok(0 < r['svg'] <= r['caja'] + 1 and r['ancho'] <= 1, 'el interactivo de windup toma el ancho de su contenedor al llegar al detalle', r)
     # resultado del buscador hacia un bloque plegado de la misma página
     p.goto(BASE + '/control.html')
     p.wait_for_timeout(200)
