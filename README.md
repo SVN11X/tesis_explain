@@ -17,7 +17,7 @@ Un robot de bajo costo, con ROS 2, que entra a un recinto que no conoce, lo reco
 | `index.html` | Portada, video, el ciclo en cuatro pasos, temas, cifras, casos reales y rutas de lectura |
 | `problema.html` | Autonomía en interiores, estado del arte y cada decisión frente a sus alternativas |
 | `robot.html` | Piezas, energía, red, reparto entre Arduino, Raspberry Pi y computador, ROS 2 y costo |
-| `movimiento.html` | Tracción diferencial, encoders, odometría y ensayos de recta y giro |
+| `movimiento.html` | Tracción diferencial y centro de giro, encoders, odometría, ensayos de recta y giro, qué corrige una calibración y el cuadrado en dos sentidos |
 | `control.html` | PID en tiempo discreto, la ley heredada que opera como PI, windup, FOPDT y PSO |
 | `mapeo.html` | LiDAR 2D, rejilla de ocupación, REP 103/105 y TF, ajuste de barridos, grafo de poses, Ceres, capas de RViz y resultados de mapeo |
 | `navegacion.html` | Mapas de costos, inflación, A estrella paso a paso, DWB y recuperaciones |
@@ -45,6 +45,9 @@ Las cifras y figuras del robot salen de la tesis y se citan con su sección, tab
 ├── js/vis1.js … vis3.js interactivos de cada tema
 ├── js/comun.js          utilidades compartidas
 ├── js/control-modelo.js cálculos verificables del capítulo de control
+├── js/movimiento-modelo.js cálculos verificables del capítulo 3
+├── js/movimiento.js     calibración de la recta y cuadrado en dos sentidos, en SVG
+├── css/movimiento.css   estilos exclusivos del capítulo 3
 ├── js/mapeo.js          modelos y visualizaciones del capítulo 05
 ├── css/mapeo.css        estilos exclusivos del capítulo 05
 ├── datos/indice.js      índice del buscador, generado
@@ -55,6 +58,18 @@ Las cifras y figuras del robot salen de la tesis y se citan con su sección, tab
 ```
 
 No hay dependencias ni paso de compilación.
+
+## Capítulo 3: centro de giro, sesgo y calibración
+
+`movimiento.html` explica la tracción diferencial con el centro de giro: el simulador dibuja ese punto, el círculo que seguirá el robot y el de cada rueda, y escribe las fórmulas con los valores de los deslizadores. Cuando el círculo cabe, el robot parte de modo que su centro de giro quede al medio del dibujo. La animación se pausa con un botón y espera a que la persona la inicie si el sistema pide reducir el movimiento.
+
+El encoder compara la cuenta con los cuatro flancos de A y B con la cuenta que usa solo las subidas de A, para ver la multiplicación por cuatro paso a paso. La resolución de 0,11 mm por flanco sale de 2π · 33,5 mm / 1980.
+
+El interactivo de calibración usa los errores de la Tabla A6.2 y separa sesgo, el error medio de 3,63 %, de dispersión, la desviación estándar de 0,44 %. Dividir por 1,0363 deja el error medio en cero y no quita la dispersión. Es un cálculo sobre los datos publicados: la tesis no aplicó esa corrección. El modo de simulación, rotulado como tal, prueba el factor en repeticiones nuevas.
+
+El cuadrado en dos sentidos ilustra el método UMBmark de Borenstein y Feng con una diferencia entre ruedas y una separación efectiva distinta de la configurada. Muestra que los dos errores pueden compensarse en un sentido y sumarse en el otro. Es ilustrativo: el robot no se ensayó así. El caso de los conteos medidos, 1976 y 1969 flancos por vuelta, supone radios iguales.
+
+`js/movimiento-modelo.js` reúne esos cálculos para los interactivos y las pruebas, y lee los mismos valores de `datos/ensayos/recta-2m-real.csv`, que las pruebas comparan.
 
 ## Capítulo 6: A estrella paso a paso
 
@@ -96,12 +111,14 @@ Luego abre http://localhost:8000
 node herramientas/pruebas_unitarias.js
 node herramientas/pruebas_control.js
 node herramientas/pruebas_mapeo.js
+node herramientas/pruebas_movimiento.js
 python3 herramientas/pruebas_control_navegador.py
+python3 herramientas/pruebas_movimiento_navegador.py
 python3 -m http.server 8765 &
 python3 herramientas/pruebas_navegador.py
 ```
 
-Las pruebas de Node revisan la geometría, el reloj y los casos numéricos de control. Las pruebas unitarias incluyen además la búsqueda A estrella, con su h admisible. Las pruebas de mapeo añaden oclusión y colisiones del LiDAR, celdas no observadas, transformaciones SE(2) y optimización del grafo. `pruebas_control_navegador.py` inicia un servidor local temporal y comprueba los interactivos del capítulo 4 en escritorio, móvil de 390 y 320 px, modo oscuro y movimiento reducido. Requiere Playwright con Chromium instalado solo para desarrollo. `pruebas_navegador.py` usa Chromium con Playwright y recorre las páginas en escritorio, en teléfono y con movimiento reducido. Revisa errores, enlaces, anclas, el buscador, el glosario, los simuladores y el uso en teléfono.
+Las pruebas de Node revisan la geometría, el reloj y los casos numéricos de control. Las pruebas del capítulo 3 comprueban la cinemática y el centro de giro, la integración sobre arcos, los datos de la recta frente a su CSV, la calibración y el cuadrado en dos sentidos. Las pruebas unitarias incluyen además la búsqueda A estrella, con su h admisible. `pruebas_movimiento_navegador.py` recorre el capítulo 3 y A estrella en escritorio, móvil de 390 y 320 px, modo oscuro y movimiento reducido. Las pruebas de mapeo añaden oclusión y colisiones del LiDAR, celdas no observadas, transformaciones SE(2) y optimización del grafo. `pruebas_control_navegador.py` inicia un servidor local temporal y comprueba los interactivos del capítulo 4 en escritorio, móvil de 390 y 320 px, modo oscuro y movimiento reducido. Requiere Playwright con Chromium instalado solo para desarrollo. `pruebas_navegador.py` usa Chromium con Playwright y recorre las páginas en escritorio, en teléfono y con movimiento reducido. Revisa errores, enlaces, anclas, el buscador, el glosario, los simuladores y el uso en teléfono.
 
 Los dibujos de respaldo del capítulo 05 se regeneran con `node herramientas/diagramas_mapeo.js`. Se guardan en `img/diagramas/` y permiten leer el capítulo sin JavaScript. Los modelos del capítulo están aislados en `js/mapeo.js`; no ejecutan SLAM Toolbox ni Ceres y no reemplazan las mediciones originales.
 

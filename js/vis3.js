@@ -71,16 +71,21 @@
       '<p class="vnota">Todos los giros superaron los 315°. La causa no se determinó. Los rosbag tienen /odom para revisarlo sin repetir el ensayo.</p>';
     var cont = el.querySelector(".gi-g"), med = [355.7, 340, 380, 370, 356];
     function dibujar() {
-      var W = Math.max(300, cont.clientWidth || 600), H = 120, a = 300, b = 390, l = 16, r = 16, yL = 64;
+      var W = Math.max(300, cont.clientWidth || 600), H = 150, a = 300, b = 390, l = 16, r = 16, yL = 76;
       var x = function (v) { return l + (v - a) / (b - a) * (W - l - r); };
-      var s = '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Ángulos medidos frente a 315 y 360 grados">';
+      var s = '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Ángulos medidos de 340, 355,7, 356, 370 y 380 grados, frente a 315 y 360 grados">';
       s += '<rect class="f-ambar-s" x="' + x(300) + '" y="' + (yL - 22) + '" width="' + (x(315) - x(300)) + '" height="44"/>';
       s += '<line class="k-linea" stroke-width="2" x1="' + l + '" x2="' + (W - r) + '" y1="' + yL + '" y2="' + yL + '"/>';
       for (var t = 300; t <= 390; t += 15) s += '<text class="t-s" x="' + x(t) + '" y="' + (H - 6) + '" text-anchor="middle">' + t + '°</text>';
-      s += '<line class="k-ambar" stroke-width="2.5" x1="' + x(315) + '" x2="' + x(315) + '" y1="' + (yL - 30) + '" y2="' + (yL + 26) + '"/>';
-      s += '<line class="k-muted" stroke-width="2" stroke-dasharray="4 4" x1="' + x(360) + '" x2="' + x(360) + '" y1="' + (yL - 30) + '" y2="' + (yL + 26) + '"/>';
-      med.forEach(function (m, i) { s += '<circle class="f-azul" cx="' + x(m) + '" cy="' + (yL + (i % 2 ? 10 : -10)) + '" r="6"><title>' + U.fmt(m, 1) + '°</title></circle>'; });
-      s += '<text class="t-s" x="' + (x(315) + 5) + '" y="' + (yL - 34) + '">315°</text><text class="t-s" x="' + (x(360) + 5) + '" y="' + (yL - 34) + '">360°</text>';
+      s += '<line class="k-ambar" stroke-width="2.5" x1="' + x(315) + '" x2="' + x(315) + '" y1="' + (yL - 20) + '" y2="' + (yL + 28) + '"/>';
+      s += '<line class="k-muted" stroke-width="2" stroke-dasharray="4 4" x1="' + x(360) + '" x2="' + x(360) + '" y1="' + (yL - 20) + '" y2="' + (yL + 28) + '"/>';
+      /* cada valor queda escrito junto a su punto, alternando arriba y abajo en orden creciente */
+      med.slice().sort(function (p, q) { return p - q; }).forEach(function (m, i) {
+        var arriba = i % 2 === 0, cy = yL + (arriba ? -10 : 10);
+        s += '<circle class="f-azul" cx="' + x(m) + '" cy="' + cy + '" r="6"/>';
+        s += '<text class="t-s" style="fill:var(--azul)" x="' + x(m) + '" y="' + (arriba ? cy - 12 : cy + 20) + '" text-anchor="middle">' + U.fmt(m, m % 1 ? 1 : 0) + '°</text>';
+      });
+      s += '<text class="t-s" x="' + (x(315) - 5) + '" y="' + (yL + 40) + '" text-anchor="end">315°</text><text class="t-s" x="' + (x(360) + 5) + '" y="' + (yL + 40) + '">360°</text>';
       cont.innerHTML = s + '</svg>';
     }
     dibujar();

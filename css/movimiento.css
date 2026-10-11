@@ -1,0 +1,19 @@
+/* Componentes del capítulo 03: fórmulas con valores, origen de los datos y figuras de calibración. */
+.ci-formula { font-family: var(--f-data); font-size: var(--t-xs); line-height: 1.7; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; margin: 0; overflow-wrap: anywhere; }
+.ci-formula b { color: var(--azul); font-weight: 600; }
+.ci-formula sub { font-size: .8em; }
+.cal-origen { font-size: var(--t-xs); font-family: var(--f-display); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; padding: 3px 8px; border-radius: 6px; }
+.cal-origen.datos { background: var(--verde-suave); color: var(--verde-texto); }
+.cal-origen.ilus { background: var(--surface-2); color: var(--muted); }
+.cal-g svg, .cu-pan svg { display: block; max-width: 100%; height: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+.cu-pan figure { margin: 0; min-width: 0; }
+.cu-pan figcaption span { display: block; }
+.mv-pasos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 10px; margin: 18px 0; padding: 0; list-style: none; counter-reset: paso; }
+.mv-pasos li { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: var(--t-sm); counter-increment: paso; }
+.mv-pasos li::before { content: counter(paso); display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--azul-suave); color: var(--azul); font-weight: 700; font-size: var(--t-xs); margin-inline-end: 8px; }
+.mv-pasos b { font-family: var(--f-display); }
+@media print {
+  .cal-g svg, .cu-pan svg { border-color: #999; }
+}
+body[data-pagina="movimiento"] .lecturas small { font-size: var(--t-xs); color: var(--muted); line-height: 1.35; }
+.cu-pan .k-sup { stroke: var(--surface); }
