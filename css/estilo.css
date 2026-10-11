@@ -449,6 +449,12 @@ table.tabla.dw-tabla { font-size: var(--t-xs); min-width: 0; }
 .as-cuenta span { font-size: var(--t-xs); color: var(--muted); }
 .as-cuenta b { font-size: var(--t-lg); }
 .as-cuenta small { font-size: var(--t-xs); color: var(--muted); }
+/* A estrella paso a paso: revisadas, pendientes y la celda actual se distinguen por relleno y borde */
+.as-rev { fill: var(--azul-medio); fill-opacity: .42; }
+.as-pend { fill: var(--ambar-suave); stroke: var(--ambar); stroke-width: 1.2; }
+.as-act { fill: var(--azul); }
+.vley i.cu.as-rev { background: var(--azul-suave); background: color-mix(in srgb, var(--azul-medio) 42%, var(--surface)); }
+.vley i.cu.as-pend { background: var(--ambar-suave); border-color: var(--ambar); }
 /* trejos */
 .tj { display: grid; gap: 8px; }
 .algos { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }

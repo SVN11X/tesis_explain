@@ -1,5 +1,5 @@
 /*
-  Pruebas unitarias de la geometría de la huella y del reloj de paso fijo.
+  Pruebas unitarias de la geometría de la huella, del reloj de paso fijo y de la búsqueda A estrella.
   No requieren navegador. Uso, desde la raíz del repositorio:
       node herramientas/pruebas_unitarias.js
   Las pruebas de búsqueda, interacción y páginas están en herramientas/pruebas_navegador.py.
@@ -94,6 +94,32 @@ for (var k = 0; k < 120; k++) suma += r2.pasos(1 / 120, 1);
 ok(suma === 30, "a 120 Hz y 1× las fracciones se conservan: 30 pasos en 1 s");
 r2.reiniciar();
 ok(r2.pendiente === 0, "reiniciar descarta la fracción pendiente");
+
+console.log("A estrella y Dijkstra, paso a paso");
+var ctxA = { window: { VISUALES: {}, U: {} }, Math: Math };
+vm.createContext(ctxA);
+vm.runInContext(fs.readFileSync(path.join(__dirname, "..", "js", "vis1.js"), "utf8"), ctxA);
+var AS = ctxA.window.ASTAR_PRUEBAS, bA = AS.buscar(true), bD = AS.buscar(false);
+ok(bA.llego && bD.llego && bA.camino.length - 1 === 27 && bD.camino.length - 1 === 27, "las dos búsquedas llegan con una ruta de 27 pasos");
+ok(bA.pasos.length === 111 && bD.pasos.length === 291, "A estrella revisa 111 celdas y Dijkstra 291", bA.pasos.length + " " + bD.pasos.length);
+/* distancia real hasta la meta, rodeando el muro, para comprobar que h nunca la supera */
+var real = {}, cola = [AS.B.join(",")];
+real[cola[0]] = 0;
+for (var qi = 0; qi < cola.length; qi++) {
+  var pq = cola[qi].split(",").map(Number);
+  [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(function (dd) {
+    var nx = pq[0] + dd[0], ny = pq[1] + dd[1], nk = nx + "," + ny;
+    if (nx < 0 || ny < 0 || nx >= AS.C || ny >= AS.R || AS.muro[nk] || real[nk] != null) return;
+    real[nk] = real[cola[qi]] + 1; cola.push(nk);
+  });
+}
+ok(Object.keys(real).every(function (k) { var c = k.split(",").map(Number); return AS.h(c[0], c[1]) <= real[k]; }), "h nunca supera la distancia real: es admisible");
+ok(bA.pasos.every(function (p) { return p.f === p.g + p.h && p.g === p.camino.length - 1; }), "en cada paso f = g + h y g es el largo del camino guardado");
+ok(bA.pasos.every(function (p, i) { return !i || p.f >= bA.pasos[i - 1].f; }), "A estrella revisa con f que nunca baja");
+ok(bD.pasos.every(function (p, i) { return p.h === 0 && (!i || p.g >= bD.pasos[i - 1].g); }), "Dijkstra no estima y revisa por distancia al robot");
+ok(bA.pasos.every(function (p) { return p.pendAntes >= 1 + p.empates; }), "las celdas empatadas son parte de las pendientes");
+ok(bA.camino.every(function (c, i) { var a = bA.camino[i - 1]; return !AS.muro[c.join(",")] && (!i || Math.abs(c[0] - a[0]) + Math.abs(c[1] - a[1]) === 1); }) &&
+  bA.camino[0].join(",") === AS.A.join(",") && bA.camino[bA.camino.length - 1].join(",") === AS.B.join(","), "la ruta va del robot a la meta por celdas vecinas y libres");
 
 console.log("\n" + (total - fallos) + " de " + total + " pruebas correctas");
 process.exit(fallos ? 1 : 0);

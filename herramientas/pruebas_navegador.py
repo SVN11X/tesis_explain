@@ -576,7 +576,7 @@ def probar_tactil(nav):
     print('Controles en un teléfono de 390 por 844')
     ctx = contexto(nav, viewport={'width': 390, 'height': 844}, has_touch=True, is_mobile=True, device_scale_factor=2)
     sel = '.lateral a, .miga a, .b-ctl, .cab button, .cab a.btn-icono, .b-ampliar, .vbtn, .chip, .segmento button, details.detalle > summary'
-    for pag in ['index.html', 'robot.html', 'control.html', 'exploracion.html', 'resultados.html', 'recursos.html']:
+    for pag in ['index.html', 'robot.html', 'control.html', 'navegacion.html', 'exploracion.html', 'resultados.html', 'recursos.html']:
         p = ctx.new_page()
         p.goto(BASE + '/' + pag)
         p.wait_for_timeout(250)
