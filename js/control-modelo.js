@@ -3,19 +3,14 @@
 (function () {
   "use strict";
   var C = {};
-  C.TS = 0.033; // intervalo entero del planificador, en segundos
-  C.FACTOR = 313.56; // (ticks/ciclo)/(m/s), conversión nominal a 30 Hz
-  C.REF = 0.13; // m/s
-  C.MAX = 255; // unidades de PWM; el signo indica el sentido
-  C.RUEDAS = {
-    der: { nombre: "Rueda derecha", Kp: 16.42, Kd: 20.05, Ki: 0.001, Ko: 50, banda: 1, K: 0.000890, tau: 0.3485, retardo: 0.0692 },
-    izq: { nombre: "Rueda izquierda", Kp: 16.00, Kd: 20.30, Ki: 0.075, Ko: 50, banda: 2, K: 0.000913, tau: 0.3291, retardo: 0.0001 }
-  };
-  C.GANANCIAS = [
-    { nombre: "Kp", izq: [12.48, 16.00], der: [10.10, 16.42], dec: 2 },
-    { nombre: "Kd", izq: [34.69, 20.30], der: [36.70, 20.05], dec: 2 },
-    { nombre: "Ki", izq: [0.00001, 0.075], der: [0.00001, 0.001], dec: 5 }
-  ];
+  var datos = typeof module !== "undefined" && module.exports ? require("../datos/proyecto.js") : window.PROYECTO;
+  var p = datos.parametros.control;
+  C.TS = p.periodo_planificador_s;
+  C.FACTOR = p.ticks_por_ciclo_por_m_s; // conversión nominal a 30 Hz, no medida del reloj real
+  C.REF = p.referencia_m_s;
+  C.MAX = p.pwm_max;
+  C.RUEDAS = p.ruedas;
+  C.GANANCIAS = p.ganancias;
   C.limitar = function (x) { return Math.max(-C.MAX, Math.min(C.MAX, x)); };
   /* Orden de doPID: error entero, banda, incremento entero, saturación,
      actualización de ITerm solo si NO se alcanzó el límite. */

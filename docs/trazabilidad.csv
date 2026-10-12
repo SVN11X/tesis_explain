@@ -1,0 +1,10 @@
+dominio,archivo_datos,visualizacion,referencia_en_guia,tipo,unidad,version_documento,fecha_datos,confirmacion
+movimiento,datos/ensayos/recta-2m-real.csv,movimiento.html#recta;laboratorio.html,Tabla A6.2,medicion resumida,m y porcentaje,,,version y fecha pendientes; porcentajes previos al redondeo
+movimiento,datos/ensayos/recta-2m-simulacion.csv,laboratorio.html,Tabla A6.1,simulacion registrada,m y porcentaje,,,sin pose verdadera Gazebo
+movimiento,datos/ensayos/giro-real.csv,movimiento.html;laboratorio.html,Tabla A6.4,medicion resumida,grados,,,metodo de medida fisica pendiente
+movimiento,datos/ensayos/giro-simulacion.csv,movimiento.html;laboratorio.html,Tabla A6.3,simulacion registrada,grados y porcentaje,,,comparacion con giro nominal
+control,datos/ensayos/escalon.csv,control.html;laboratorio.html,Tabla 5.3,indicadores resumidos,m/s y s,,,sin senal temporal original
+control,datos/parametros.json,control.html;js/control-modelo.js,Tablas A4.4 y 4.3 y guia,parametros transcritos,segun campo,,,firmware adaptado no publicado
+mapeo,datos/ensayos/mapeo.csv,mapeo.html;laboratorio.html,Tabla 5.4,indicadores resumidos,m2 y porcentaje,,,sin rejillas ni referencia geometrica externa
+navegacion,datos/ensayos/metas.csv,exploracion.html;laboratorio.html,Tabla A7.1,conteos clasificados,metas y s,,,aborto restante sin clasificar; sin tiempos por meta
+SLAM,,mapeo.html#grafo-poses;js/mapeo.js,modelo de la guia,ilustrativo,m y grados,,,no representa corridas ni ejecucion de Ceres

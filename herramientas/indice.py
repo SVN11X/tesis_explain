@@ -23,7 +23,7 @@ from bs4 import BeautifulSoup
 
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..') + os.sep
 ORDEN = ['index', 'problema', 'robot', 'movimiento', 'control', 'mapeo', 'navegacion', 'exploracion',
-         'gemelo', 'resultados', 'replicar', 'mundo-real', 'lecciones', 'preguntas', 'recursos']
+         'gemelo', 'resultados', 'replicar', 'mundo-real', 'lecciones', 'preguntas', 'laboratorio', 'recursos']
 LARGO_PARTE = 2400      # caracteres por parte en secciones largas
 SOLAPE = 300            # caracteres compartidos entre partes consecutivas
 RUIDO = re.compile(r'\s*Necesita JavaScript\.?', re.I)

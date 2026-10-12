@@ -2,8 +2,9 @@
 
 Uso, desde la raíz del repositorio:
     pip install playwright beautifulsoup4 && python3 -m playwright install chromium
-    python3 -m http.server 8765 &
     python3 herramientas/pruebas_navegador.py [http://localhost:8765]
+
+Sin argumento inicia un servidor local temporal.
 
 Comprueba: errores de consola y de carga en las 15 páginas, en escritorio y en móvil; que
 todos los interactivos se monten; desborde horizontal en móvil; enlaces internos, anclas y
@@ -15,12 +16,24 @@ y el panel de Temas dentro de la pantalla en varios anchos; y las herramientas d
 difíciles: búsqueda, filtros, modo práctica, pregunta al azar y lectura sin JavaScript.
 """
 import os, re, sys, json, glob
+from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
+from threading import Thread
+from functools import partial
 from urllib.parse import urlparse, unquote
 from bs4 import BeautifulSoup
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, expect
 
-BASE = (sys.argv[1] if len(sys.argv) > 1 else 'http://localhost:8765').rstrip('/')
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
+server = None
+if len(sys.argv) > 1:
+    BASE = sys.argv[1].rstrip('/')
+else:
+    class QuietHandler(SimpleHTTPRequestHandler):
+        def log_message(self, *args):
+            pass
+    server = ThreadingHTTPServer(('127.0.0.1', 0), partial(QuietHandler, directory=REPO))
+    Thread(target=server.serve_forever, daemon=True).start()
+    BASE = 'http://localhost:%d' % server.server_port
 PAGINAS = sorted(os.path.basename(p) for p in glob.glob(os.path.join(REPO, '*.html')))
 fallos, total = [], 0
 
@@ -132,11 +145,19 @@ def recorrer_paginas(nav, nombre, vista, extra):
             # terminar antes de los últimos interactivos en capítulos largos.
             y, pasos = 0, 0
             while y < p.evaluate('document.body.scrollHeight') + 800 and pasos < 150:
-                p.evaluate('window.scrollTo(0, %d)' % y)
+                # El desplazamiento suave del CSS puede quedarse atrás si se ordenan
+                # saltos cada 15 ms. Visitar posiciones reales hace determinista el montaje.
+                p.evaluate("window.scrollTo({top:%d,behavior:'instant'})" % y)
                 p.wait_for_timeout(15)
                 y += 700
                 pasos += 1
             p.wait_for_timeout(200)
+            # Un montaje anterior puede aumentar el alto y mover un widget que
+            # aún no entró en la vista. Visitarlo explícitamente evita saltárselo.
+            for visual in p.locator('[data-vis]').all():
+                if visual.evaluate("el => !el.closest('details:not([open])')") and not visual.get_attribute('data-montado'):
+                    visual.evaluate("el => el.scrollIntoView({block:'center',behavior:'instant'})")
+                    expect(visual).to_have_attribute('data-montado', '1', timeout=5000)
             # los interactivos dentro de un details cerrado se montan al abrirlo, eso se prueba aparte
             info = p.evaluate("""() => ({
               vis: [...document.querySelectorAll('[data-vis]')].filter(e => !e.closest('details:not([open])')).length,
@@ -486,9 +507,9 @@ def probar_recursos(nav):
                    numeros: [...l.querySelectorAll('.guia-lista .n')].map(x => x.textContent) };
         }""")
         ok(r['lat'] > 10 and r['enPagina'] >= 6 and r['alto'] > 40, '%s: el lateral de Recursos tiene índice útil' % nombre, r)
-        ok(r['nav'] == ['preguntas.html', 'index.html'], '%s: navegación anterior y siguiente de Recursos' % nombre, r['nav'])
+        ok(r['nav'] == ['laboratorio.html', 'index.html'], '%s: navegación anterior y siguiente de Recursos' % nombre, r['nav'])
         ok(r['actual'], '%s: Recursos aparece como página actual' % nombre)
-        ok(r['numeros'][:10] == ['%02d' % i for i in range(1, 11)] and r['numeros'][10:] == ['+', '+', '+', '+'], '%s: la numeración de los temas no cambia' % nombre, r['numeros'])
+        ok(r['numeros'][:10] == ['%02d' % i for i in range(1, 11)] and r['numeros'][10:] == ['+'] * 5, '%s: la numeración de los diez temas se conserva y hay cinco complementos' % nombre, r['numeros'])
         if nombre == 'escritorio':
             e = p.evaluate("""() => { const pie = document.querySelector('.pie'), ab = document.getElementById('abstract').closest('section');
               return { mit: !!pie.querySelector('a[href$="/LICENSE"]'), cc: !!pie.querySelector('a[href*="licenses/by/4.0"]'), rev: (pie.querySelector('time') || {}).textContent || '',
@@ -728,7 +749,7 @@ def probar_cabecera(nav):
                    enlaces: m.querySelectorAll('a').length }; }""")
         ok(r['visible'] and r['izq'] >= 0 and r['der'] <= r['ancho'] and r['abajo'] <= r['alto'], '%d px: el panel de Temas cabe completo en la pantalla' % ancho, r)
         ok(r['desborde'] <= 0 and r['pagina'] <= 1, '%d px: la barra de navegación no se desborda' % ancho, r)
-        ok(r['enlaces'] == 14, '%d px: el panel lleva los diez temas y los cuatro complementos' % ancho, r['enlaces'])
+        ok(r['enlaces'] == 15, '%d px: el panel lleva los diez temas y los cinco complementos' % ancho, r['enlaces'])
         if ancho == 1280:
             p.keyboard.press('Escape')
             ok(p.evaluate("document.getElementById('menu-guia').hidden && document.querySelector('.nav-btn').getAttribute('aria-expanded') === 'false'"), 'Escape cierra el panel de Temas')
@@ -892,4 +913,6 @@ with sync_playwright() as pw:
 print('\n%d de %d comprobaciones correctas' % (total - len(fallos), total))
 if fallos:
     print('Fallaron:\n  ' + '\n  '.join(fallos))
+if server:
+    server.shutdown()
 sys.exit(1 if fallos else 0)

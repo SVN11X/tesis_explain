@@ -112,3 +112,6 @@ details.pregunta:not(.velada) .q-velo { display: none; }
   details.pregunta .q-cuerpo, details.pregunta.velada .q-cuerpo > :not(.q-velo) { display: grid !important; }
   .q-ver a::before { content: "Ver en la guía: "; }
 }
+.q-respaldo-filtro { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin-block: .8rem; }
+.q-respaldo-filtro select { min-height: 44px; max-width: 100%; padding: .5rem; border: 1px solid var(--line-2); border-radius: .4rem; background: var(--surface); color: var(--ink); font: inherit; }
+.q-pendiente { border-left: 3px solid var(--ambar); padding: .6rem .8rem; background: var(--surface-2); }

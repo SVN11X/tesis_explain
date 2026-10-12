@@ -5,7 +5,7 @@
   ampliación de imágenes, secuencia de etapas y carga diferida de los interactivos.
 
   Para agregar o renombrar un tema basta con editar la lista CAPS.
-  Si la tesis se publica en PDF, pon su enlace en TESIS_PDF y aparecerá en el pie y en Recursos#materiales.
+  El PDF autorizado y los metadatos se editan en datos/academico.json; regenera con herramientas/datos.py.
 */
 (function () {
   "use strict";
@@ -13,12 +13,13 @@
   /* Enlace público a la tesis en PDF. Mientras esté vacío, el pie no muestra enlace y Recursos
      dice que la tesis no está publicada. Pon aquí solo una dirección verificada, por ejemplo la
      del repositorio institucional de la UTEM, nunca una copia sin procedencia. */
-  var TESIS_PDF = "";
-  /* Fecha de la última revisión del sitio, la del último commit publicado. */
-  var REVISION = { iso: "2026-10-12", texto: "12 de octubre de 2026" };
-  /* PENDIENTE AUTOR: fecha de la versión de la tesis en que se basa el sitio, por ejemplo "30 de septiembre de 2026".
+  var ACADEMICO = window.PROYECTO.academico;
+  var TESIS_PDF = ACADEMICO.tesis_pdf || "";
+  /* Fecha de esta actualización de plataforma, independiente del documento y de los ensayos. */
+  var REVISION = { iso: ACADEMICO.ultima_actualizacion_sitio, texto: new Date(ACADEMICO.ultima_actualizacion_sitio + "T12:00:00Z").toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }) };
+  /* PENDIENTE AUTOR: identificador o fecha de la versión del documento de referencia.
      Mientras esté vacía, la línea del pie queda oculta. */
-  var VERSION_TESIS = "";
+  var VERSION_TESIS = ACADEMICO.version_documento || "";
   var REPO = "https://github.com/SVN11X/tesis_explain";
   var VIDEO_ID = "iTTC10eGDmc";
 
@@ -39,6 +40,7 @@
     { id: "mundo-real", t: "En el mundo real", d: "Dónde se usan estas mismas ideas, de una aspiradora a una mina chilena y a Marte." },
     { id: "lecciones", t: "Lecciones de ingeniería", d: "Temas que la tesis deja implícitos: unidades, seguridad, privacidad, reproducibilidad." },
     { id: "preguntas", t: "Preguntas difíciles", d: "Las preguntas de quien leyó la tesis con lupa, con su respuesta y su respaldo." },
+    { id: "laboratorio", t: "Laboratorio de análisis", d: "Calcula métricas de tablas CSV localmente y consulta las reglas que las interpretan." },
     { id: "recursos", t: "Recursos", d: "Glosario, bibliografía, material para aprender y cómo citar." }
   ];
   /* Secuencia de lectura: los diez temas numerados y, después, los complementos sin número.
@@ -156,12 +158,41 @@
     });
     /* La cabecera queda fija arriba. Al bajar se marca con una sombra para separarla del contenido. */
     var pendCab = false;
-    function marcarCab() { pendCab = false; cab.classList.toggle("desplazada", window.scrollY > 4); }
+    function marcarCab() {
+      pendCab = false; cab.classList.toggle("desplazada", window.scrollY > 4);
+      var lat = document.getElementById('lateral');
+      // Al terminar el artículo, el contenedor sticky sale con su padre. Evitar
+      // enlaces parcialmente tapados por la cabecera; la navegación sigue en el pie.
+      if (lat) lat.classList.toggle('al-final', window.innerWidth > 860 && lat.getBoundingClientRect().top < cab.offsetHeight - 1 && !lat.contains(document.activeElement));
+    }
     window.addEventListener("scroll", function () { if (!pendCab) { pendCab = true; requestAnimationFrame(marcarCab); } }, { passive: true });
+    window.addEventListener('resize', marcarCab);
     marcarCab();
     var cajon = document.getElementById("cajon"), bm = document.getElementById("btn-menu");
-    function cerrarCajon() { if (!cajon.classList.contains("abierto")) return; cajon.classList.remove("abierto"); bm.setAttribute("aria-expanded", "false"); bm.focus(); }
-    bm.addEventListener("click", function () { cajon.classList.add("abierto"); bm.setAttribute("aria-expanded", "true"); var a = cajon.querySelector("a,button"); if (a) a.focus(); });
+    var aislados = [], overflowAnterior = "";
+    cajon.inert = true;
+    function cerrarCajon() {
+      if (!cajon.classList.contains("abierto")) return;
+      cajon.classList.remove("abierto"); cajon.inert = true; bm.setAttribute("aria-expanded", "false");
+      aislados.forEach(function (o) { o.el.inert = o.inert; }); aislados = [];
+      document.body.style.overflow = overflowAnterior; bm.focus();
+    }
+    bm.addEventListener("click", function () {
+      cerrarGuia();
+      aislados = [].slice.call(document.body.children).filter(function (el) { return el !== cont && el.tagName !== "SCRIPT"; }).map(function (el) { var o = { el: el, inert: el.inert }; el.inert = true; return o; });
+      [].forEach.call(cont.children, function (el) { if (el !== cajon) { aislados.push({ el: el, inert: el.inert }); el.inert = true; } });
+      overflowAnterior = document.body.style.overflow; document.body.style.overflow = "hidden";
+      cajon.inert = false; cajon.classList.add("abierto"); bm.setAttribute("aria-expanded", "true");
+      var a = cajon.querySelector("a,button"); if (a) a.focus();
+    });
+    cajon.addEventListener("keydown", function (e) {
+      if (e.key !== "Tab") return;
+      var controls = [].slice.call(cajon.querySelectorAll("a[href],button:not([disabled])"));
+      var first = controls[0], last = controls[controls.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    });
+    window.addEventListener("resize", function () { if (window.innerWidth > 860) cerrarCajon(); });
     cajon.addEventListener("click", function (e) { if (e.target.closest("[data-cerrar]")) cerrarCajon(); });
   }
 
@@ -174,8 +205,9 @@
       '<p>Los datos del robot vienen de la tesis y se citan con su sección. Los ejemplos del mundo real y los temas transversales se apoyan en fuentes externas, enlazadas en cada página.</p>' +
       (TESIS_PDF ? '<p><a href="' + esc(TESIS_PDF) + '">Descargar la tesis en PDF</a></p>' : '') +
       '<p>Código bajo licencia <a href="' + REPO + '/blob/main/LICENSE">MIT</a> y contenido bajo <a href="https://creativecommons.org/licenses/by/4.0/deed.es">CC BY 4.0</a>, salvo las excepciones indicadas en <a href="recursos.html#creditos">Créditos</a>.</p>' +
-      '<p>Última revisión del sitio: <time datetime="' + REVISION.iso + '">' + REVISION.texto + '</time>.</p>' +
-      (VERSION_TESIS ? '<p>Basado en la versión de la tesis del ' + esc(VERSION_TESIS) + '.</p>' : '<p hidden>Basado en la versión de la tesis del <!-- PENDIENTE AUTOR: fecha de la versión de la tesis, en VERSION_TESIS dentro de js/sitio.js --></p>') + '</div>' +
+      '<p><b>' + esc(ACADEMICO.estado_texto) + '.</b> El estado académico es distinto de la verificación de funcionamiento de un subsistema.</p>' +
+      '<p>Última actualización de la plataforma: <time datetime="' + REVISION.iso + '">' + REVISION.texto + '</time>.</p>' +
+      (VERSION_TESIS ? '<p>Versión del documento de referencia: ' + esc(VERSION_TESIS) + '.</p>' : '<p hidden>Basado en la versión de la tesis del <!-- PENDIENTE AUTOR: versión del documento en datos/academico.json --></p>') + '</div>' +
       '<div><h2>Temas</h2><ul>' + CAPS.map(function (c, i) { return '<li><a href="' + c.id + '.html">' + n2(i) + ' · ' + esc(c.t) + '</a></li>'; }).join("") + '</ul></div>' +
       '<div><h2>Más</h2><ul>' + EXTRAS.map(function (e) { return '<li><a href="' + e.id + '.html">' + esc(e.t) + '</a></li>'; }).join("") + '<li><a href="recursos.html#glosario">Glosario</a></li><li><a href="recursos.html#citar">Cómo citar</a></li><li><a href="recursos.html#autor">Sobre el autor</a></li><li><a href="recursos.html#abstract" hreflang="en">Abstract in English</a></li><li><a href="https://www.youtube.com/watch?v=' + VIDEO_ID + '">Video del robot en YouTube</a></li><li><a href="' + REPO + '">Código de este sitio</a></li><li><a href="' + REPO + '/issues">Reportar un error o sugerir una mejora</a></li></ul></div>' +
       '</div></footer>';
@@ -282,7 +314,7 @@
       var portada = v.getAttribute("data-portada");
       var img = portada ? '<picture><source srcset="' + esc(portada) + '.webp" type="image/webp"><img src="' + esc(portada) + '.jpg" alt="" loading="lazy" decoding="async" width="1280" height="720"></picture>'
         : (yt ? '<img src="https://i.ytimg.com/vi/' + esc(yt) + '/hqdefault.jpg" alt="" loading="lazy" decoding="async" onerror="this.remove()">' : '');
-      v.innerHTML = '<button type="button" class="yt" aria-label="Reproducir video: ' + esc(tit) + '">' + img + '<span class="yt-play" aria-hidden="true"></span><span class="yt-tit">' + esc(tit) + (sub ? '<small>' + esc(sub) + '</small>' : '') + '</span></button>';
+      v.innerHTML = '<button type="button" class="yt" aria-label="Reproducir video: ' + esc(tit + (sub ? ' ' + sub : '')) + '">' + img + '<span class="yt-play" aria-hidden="true"></span><span class="yt-tit">' + esc(tit) + (sub ? ' <small>' + esc(sub) + '</small>' : '') + '</span></button>';
       v.querySelector("button").addEventListener("click", function () {
         var f = document.createElement("iframe");
         f.src = yt ? "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(yt) + "?autoplay=1&rel=0" + (desde ? "&start=" + parseInt(desde, 10) : "")
@@ -567,8 +599,8 @@
       if (window.INDICE) { indice = window.INDICE; cb(); return; }
       if (cargando) return; cargando = true;
       var s = document.createElement("script"); s.src = "datos/indice.js";
-      s.onload = function () { indice = window.INDICE || []; cb(); };
-      s.onerror = function () { cargando = false; lista.innerHTML = '<li class="bus-vacio">No se pudo cargar el índice de búsqueda.</li>'; };
+      s.onload = function () { cargando = false; indice = window.INDICE || []; cb(); };
+      s.onerror = function () { cargando = false; s.remove(); lista.innerHTML = '<li class="bus-vacio">No se pudo cargar el índice. <button type="button" class="btn chico" data-reintentar>Reintentar</button> o consulta el <a href="index.html#temas">índice de temas</a>.</li>'; estado.textContent = "Error al cargar la búsqueda."; };
       document.head.appendChild(s);
     }
     function buscar() {
@@ -600,6 +632,7 @@
       if (e.key === "ArrowUp") { e.preventDefault(); if (i > 0) as[i - 1].focus(); else input.focus(); }
     });
     lista.addEventListener("click", function (e) { if (e.target.closest("a")) dlg.close(); });
+    lista.addEventListener("click", function (e) { if (e.target.closest("[data-reintentar]")) cargar(buscar); });
     document.addEventListener("keydown", function (e) {
       var tag = (document.activeElement && document.activeElement.tagName) || "";
       if (e.key === "/" && !/INPUT|TEXTAREA|SELECT/.test(tag) && !dlg.open) { e.preventDefault(); abrir(); }
@@ -628,6 +661,8 @@
         play.textContent = "Pausar"; play.setAttribute("aria-pressed", "true");
         timer = setInterval(function () { ir((i + 1) % btns.length); }, 2600);
       });
+      document.addEventListener("visibilitychange", function () { if (document.hidden) parar(); });
+      if (window.matchMedia) window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", function (e) { if (e.matches) parar(); });
       for (var n = 1; n <= btns.length; n++) { var a = new Image(); a.src = "img/fotos/etapa-" + n + "-mapa.jpg"; }
     });
   }
@@ -638,9 +673,17 @@
     function montar(el) {
       if (el.getAttribute("data-montado")) return;
       var f = window.VISUALES && window.VISUALES[el.getAttribute("data-vis")];
-      if (!f) return;
-      el.setAttribute("data-montado", "1");
-      try { f(el); } catch (e) { el.innerHTML = '<p class="vis-fallback">No se pudo cargar este interactivo en tu navegador.</p>'; if (window.console) console.error(e); }
+      if (!el.respaldoVis) el.respaldoVis = el.innerHTML;
+      if (!f) { fallo(el, "El módulo de este interactivo no está disponible."); return; }
+      try { f(el); el.setAttribute("data-montado", "1"); el.removeAttribute("data-error-vis"); }
+      catch (e) { fallo(el, "No se pudo cargar este interactivo en tu navegador."); if (window.console) console.error(e); }
+    }
+    function fallo(el, message) {
+      el.innerHTML = el.respaldoVis;
+      el.removeAttribute("data-montado"); el.setAttribute("data-error-vis", "1");
+      var p = document.createElement("p"); p.className = "vis-error"; p.setAttribute("role", "status"); p.textContent = message + " La explicación de respaldo permanece disponible. ";
+      var b = document.createElement("button"); b.type = "button"; b.className = "vbtn sec"; b.textContent = "Reintentar";
+      b.addEventListener("click", function () { montar(el); }); p.appendChild(b); el.appendChild(p);
     }
     if (!("IntersectionObserver" in window)) { els.forEach(montar); return; }
     /* Se montan con holgura, antes de que el lector llegue, para que el texto no salte al crecer cada interactivo. */
@@ -651,7 +694,7 @@
     /* En un enlace a una sección, se montan primero los interactivos anteriores y luego se vuelve al destino. */
     function alDestino() {
       if (!location.hash) return;
-      var dest = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+      var dest = destinoDe(location.hash);
       if (!dest) return;
       /* los que siguen dentro de un details cerrado se montan al abrirlo, cuando ya tienen ancho */
       var antes = Array.prototype.filter.call(els, function (el) { return !el.getAttribute("data-montado") && (el.compareDocumentPosition(dest) & 4) && !el.closest("details:not([open])"); });
@@ -699,7 +742,7 @@
   function destacarHash() {
     function marcar() {
       if (!location.hash) return;
-      var el = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+      var el = destinoDe(location.hash);
       if (!el) return;
       if (el.tagName === "DETAILS") el.open = true;
       el.classList.add("destacar");

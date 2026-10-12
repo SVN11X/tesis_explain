@@ -99,6 +99,7 @@
       Ki: ['Una segunda acumulación', 'ITerm nuevo = ITerm anterior + Ki × error; Δu = ITerm anterior/Ko', 'Primero se guarda error en ITerm. En el siguiente ciclo se añade ese ITerm a la salida. Con error constante, los incrementos van creciendo: la salida se curva, en vez de subir a ritmo constante.']
     };
     el.innerHTML = botones([["Kp", "Kp · suma el error"], ["Kd", "Kd · resta cambios"], ["Ki", "Ki · acumula dos veces"]], 'data-termino', termino, 'Aislar una ganancia') + ruedaBotones() + botones([["constante", "Error constante de 4 ticks/ciclo"], ["arranque", "La medición alcanza la referencia"]], 'data-escenario', escenario, 'Secuencia de ejemplo') + '<div class="pa-formula"></div><div class="control-graf pa-graf"></div><div class="vley"><span><i class="lin ambar"></i>lo añadido en un solo ciclo · ΔPWM</span><span><i class="lin azul"></i>lo acumulado en la salida · PWM</span></div>' + pasoBotones() + '<div class="pa-datos" aria-live="polite"></div><p class="pa-exp control-conclusion"></p><p class="vnota">Se usan las ganancias finales de la rueda elegida, aislando un término cada vez. Para entender su forma, se conservan decimales y se omiten banda y tope. Cada gráfico ajusta su escala: compara la forma, no la altura entre términos. El interactivo de truncamiento muestra lo que se pierde en el firmware real.</p>';
+    var reset = document.createElement('button'); reset.type = 'button'; reset.className = 'vbtn sec'; reset.dataset.a = 'restablecer'; reset.textContent = 'Restablecer ejemplo'; el.querySelector('.vctl').appendChild(reset);
     var cont = el.querySelector('.pa-graf');
     function pintar() {
       var g = C.RUEDAS[rueda], datos = C.papeles(g, termino, escenario), p = datos[k - 1];
@@ -115,6 +116,7 @@
       if (b.dataset.termino) { termino = b.dataset.termino; marcar(el, 'data-termino', termino); escenario = termino === 'Kd' ? 'arranque' : 'constante'; marcar(el, 'data-escenario', escenario); k = 3; }
       else if (b.dataset.rueda) { rueda = b.dataset.rueda; marcar(el, 'data-rueda', rueda); }
       else if (b.dataset.escenario) { escenario = b.dataset.escenario; marcar(el, 'data-escenario', escenario); k = 1; }
+      else if (b.dataset.a === 'restablecer') { termino = 'Kp'; rueda = 'der'; escenario = 'constante'; k = 3; marcar(el, 'data-termino', termino); marcar(el, 'data-rueda', rueda); marcar(el, 'data-escenario', escenario); }
       else if (b.dataset.a === 'paso') k = Math.min(7, k + 1); else if (b.dataset.a === 'atras') k = Math.max(1, k - 1); else if (b.dataset.a === 'reiniciar') k = 1;
       pintar();
     }); alAncho(cont, pintar);

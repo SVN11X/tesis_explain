@@ -2,6 +2,8 @@
 
 Guía abierta sobre el trabajo de titulación **"Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial"**, de Sebastián Valderas Neculqueo, con el profesor guía Patricio Galarce Acevedo. Ingeniería Civil Electrónica, Universidad Tecnológica Metropolitana (UTEM), 2026.
 
+**Estado académico: en revisión por comité; la tesis no está aprobada.** La versión del documento y la fecha de los datos deben confirmarse con el autor. Las cifras pueden cambiar sin que esta plataforma decida conclusiones académicas.
+
 **Sitio:** https://svn11x.github.io/tesis_explain/
 
 ![Una corrida real: a la izquierda la cámara cenital, a la derecha el mapa que construye el robot en RViz](img/mapa-crece.gif)
@@ -28,6 +30,7 @@ Un robot de bajo costo, con ROS 2, que entra a un recinto que no conoce, lo reco
 | `mundo-real.html` | Casos reales, de una aspiradora a la mina El Teniente y a Marte |
 | `lecciones.html` | Lecciones de ingeniería que la tesis deja implícitas |
 | `preguntas.html` | 54 preguntas difíciles en 10 temas y 3 niveles, con respuesta, repregunta probable, respaldo en la tesis y enlace al tema |
+| `laboratorio.html` | Análisis local de CSV, métricas con fórmula, reglas transparentes, validación, procedencia y exportación JSON sin LLM |
 | `recursos.html` | Glosario, bibliografía, fuentes externas, materiales, cómo citar y créditos |
 
 ## Criterios del contenido
@@ -96,9 +99,9 @@ El panel de Temas cuelga de la cabecera completa y se centra en ella, con un anc
 
 ## Preguntas difíciles
 
-`preguntas.html` reúne 54 preguntas en 10 temas, cada una en un `details` con ancla `#p-…`, legible sin JavaScript. Cada respuesta va en primera persona, con la repregunta más probable, la sección de la tesis que la respalda y el tema de la guía que la explica. El nivel va en `data-dificultad` (`general`, `tecnica` o `exigente`), no en `data-nivel`, que `js/sitio.js` reserva para la etiqueta de nivel de cada tema.
+`preguntas.html` reúne 54 preguntas en 10 temas, cada una en un `details` con ancla `#p-…`, legible sin JavaScript. Cada respuesta se redacta de forma impersonal, con la repregunta más probable, la sección de la tesis que la respalda y el tema de la guía que la explica. El nivel va en `data-dificultad` (`general`, `tecnica` o `exigente`), no en `data-nivel`, que `js/sitio.js` reserva para la etiqueta de nivel de cada tema.
 
-`js/preguntas.js` agrega la búsqueda, con la misma normalización del buscador del sitio, los filtros por tema y nivel, el modo práctica, que muestra primero un espacio para responder, y la pregunta al azar. Lo escrito en el modo práctica no se guarda. Los datos que solo el autor puede completar, como la razón de elegir 0,13 m/s, quedan en bloques ocultos con un comentario `PENDIENTE AUTOR`. El buscador del sitio indexa cada pregunta por separado.
+`js/preguntas.js` agrega la búsqueda, con la misma normalización del buscador del sitio, los filtros por tema y nivel, el modo práctica, que muestra primero un espacio para responder, y la pregunta al azar. Lo escrito en el modo práctica no se guarda. Los datos que solo el autor puede completar, como la razón de elegir 0,13 m/s, conservan su comentario `PENDIENTE AUTOR` y un aviso visible, sin completar la respuesta. Un filtro de respaldo permite ver las respuestas con confirmación pendiente. El buscador del sitio indexa cada pregunta por separado.
 
 ## Cómo editar
 
@@ -110,7 +113,8 @@ El panel de Temas cuelga de la cabecera completa y se centra en ella, con un anc
 6. **Interactivos.** Un elemento con `data-vis="nombre"` se monta al entrar en pantalla con la función `window.VISUALES.nombre`.
 7. **Contenido pendiente.** Los bloques ocultos con `hidden` llevan un comentario `PENDIENTE AUTOR` que dice qué falta.
    Los videos preparados usan `data-src` y `data-poster`. Basta con agregar los archivos y quitar `hidden`.
-8. **PDF de la tesis.** Cuando esté en el repositorio institucional, pon su enlace en `TESIS_PDF` dentro de `js/sitio.js`.
+8. **PDF de la tesis.** Solo cuando esté autorizado y disponible, registra una URL verificada en `tesis_pdf` de `datos/academico.json`.
+9. **Estado y parámetros.** Edita `datos/academico.json`, `datos/parametros.json` y los CSV autorizados. Ejecuta `python3 herramientas/datos.py` y después `python3 herramientas/indice.py`. Actualiza el HTML relacionado; los respaldos estáticos no se sustituyen por datos dinámicos. Consulta `datos/README.md` y `docs/trazabilidad.csv`.
 
 ## Ver el sitio en tu computador
 
@@ -130,7 +134,9 @@ node herramientas/pruebas_movimiento.js
 python3 herramientas/pruebas_control_navegador.py
 python3 herramientas/pruebas_mapeo_navegador.py
 python3 herramientas/pruebas_movimiento_navegador.py
-python3 -m http.server 8765 &
+node herramientas/pruebas_analisis.js
+python3 herramientas/verificar_sitio.py
+python3 herramientas/pruebas_laboratorio_navegador.py
 python3 herramientas/pruebas_navegador.py
 ```
 
@@ -159,11 +165,11 @@ git push origin main
 
 ## Accesibilidad
 
-El sitio respeta el modo oscuro y el movimiento reducido, se recorre con teclado y cada interactivo tiene un texto que explica lo que muestra.
+Se comprueban tema oscuro, movimiento reducido, navegación por teclado y respaldos. El menú móvil limita el foco y aísla el fondo; el aviso académico y la navegación esencial funcionan sin JavaScript. Las verificaciones automáticas y la revisión visual no son una certificación completa de WCAG 2.2 AA ni sustituyen pruebas con lectores de pantalla.
 
 ## Cómo citar
 
-Valderas Neculqueo, S. (2026). *Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial* [Trabajo de titulación para optar al título de Ingeniero Civil Electrónico]. Universidad Tecnológica Metropolitana.
+Valderas Neculqueo, S. (2026). *Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial* [Trabajo de titulación en revisión por comité; versión del documento pendiente de confirmación]. Universidad Tecnológica Metropolitana.
 
 El formato BibTeX está en `recursos.html#citar`.
 
@@ -174,3 +180,21 @@ El código del sitio, es decir `js/`, `css/`, `herramientas/` y la estructura de
 ## Créditos de imágenes
 
 Las fotos del prototipo, el recinto y las figuras técnicas son del autor y provienen de la tesis. Las imágenes de productos de terceros, como el RPLidar A1, el router GL.iNet, el Husky A300 y el LoCoBot, son de sus fabricantes y se usan para identificar los equipos. El detalle está en `recursos.html#creditos`.
+
+## Laboratorio de análisis local
+
+Elige una de las siete tablas ya disponibles o abre un CSV propio desde `laboratorio.html`. Se leen en memoria: no se suben, se guardan ni se procesan con IA. El análisis valida las columnas y unidades, distingue datos declarados de cálculos derivados y muestra condiciones y límites de cada regla. Se puede exportar JSON con procedencia, opciones y una huella local del texto UTF-8.
+
+Las tablas actuales no permiten reconstruir trayectorias, rejillas ni el establecimiento del escalón. Un formato temporal opcional puede analizar registros propios, sin atribuirlos al robot. Consulta `docs/laboratorio.md`. No se instalan modelos de IA ni servicios de inferencia.
+
+## Documentación y revisión
+
+- `docs/auditoria-inicial.md`: hallazgos y funcionalidades conservadas.
+- `docs/informe-tecnico.md`: cambios, pruebas, uso y entrega.
+- `docs/informe-academico.md`: integridad del contenido y asuntos que requieren confirmación.
+- `docs/decisiones.md`: razones de arquitectura y límites de la evolución.
+- `docs/trazabilidad.csv`, `docs/observaciones-comite.csv`, `docs/inventario-publicacion.csv`: fuentes, plantilla de observaciones reales y autorización de material.
+
+`.github/workflows/verificar.yml` comprueba modelos, datos generados, enlaces y navegador al abrir un PR o actualizar main. Su ejecución hospedada depende de habilitar Actions; no se ejecutó en GitHub durante esta entrega. Las dependencias de pruebas solo son para desarrollo. No se agregaron dependencias al sitio ni se publicó automáticamente la rama de trabajo.
+
+Para aplicar el parche, parte de la revisión base indicada en el informe, crea una rama independiente y ejecuta `git am tesis_explain.patch`. Revisa el PR y el resultado antes de incorporar cambios a main; el ZIP contiene todos los archivos versionados y carece de historia Git y dependencias temporales.

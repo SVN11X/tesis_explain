@@ -141,6 +141,8 @@
       dibujar(); marcar();
     });
     rango.addEventListener("input", function () { parar(); st.k = +rango.value; dibujar(); marcar(); });
+    document.addEventListener("visibilitychange", function () { if (document.hidden) parar(); });
+    if (window.matchMedia) window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", function (e) { if (e.matches) parar(); });
     dibujar(); marcar();
     el.estadoAstar = function () { var r = res[st.alg], act = st.k ? r.pasos[st.k - 1] : null; return { alg: st.alg, k: st.k, n: r.pasos.length, g: act && act.g, h: act && act.h, f: act && act.f, pend: act ? act.pend.length : 1, activo: !!anim, camino: el.querySelector(".as-camino").getAttribute("d") !== "" }; };
   };
@@ -297,7 +299,7 @@
     var libre = function (x, y) { return x < 6 && y < 4; }, ocupada = function (x, y) { return y === 4 && x === 5; };
     function conteo(cols) { var total = cols * 5, desc = total - LIBRES - 1; return { desc: desc, indice: LIBRES / (LIBRES + desc) }; }
     var base = conteo(6);
-    var it = [["1", 82.9, 3.510], ["3", 53.5, 3.540], ["4", 54.2, 3.478], ["5", 67.1, 3.483], ["6", 53.4, 3.478]];
+    var it = window.PROYECTO.ensayos.mapeo.filter(function (r) { return r.valida === "si"; }).map(function (r) { return [String(r.iteracion), r.cobertura_libre_pct, r.area_libre_m2]; });
     function barras(idx, max, fmt, unidad) {
       return '<div class="hbars">' + it.map(function (r) {
         return '<div class="hb"><span>It. ' + r[0] + '</span><i style="--w:' + (r[idx] / max * 100).toFixed(1) + '%"></i><b class="num">' + fmt(r[idx]) + unidad + '</b></div>';

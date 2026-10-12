@@ -120,6 +120,17 @@ p { margin: 0; }
 kbd, code { font-family: var(--f-data); font-size: .88em; background: var(--surface-2); border: 1px solid var(--line); border-radius: 5px; padding: .05em .35em; }
 abbr[title] { text-decoration: underline dotted; cursor: help; }
 
+.aviso-academico { background: var(--surface-2); border-bottom: 1px solid var(--line); font-size: .87rem; }
+.aviso-academico .wrap { display: flex; align-items: baseline; gap: .6rem 1rem; flex-wrap: wrap; padding-top: .6rem; padding-bottom: .6rem; }
+.aviso-academico b { color: var(--azul); }
+.aviso-academico span { flex: 1 1 24rem; }
+.nav-estatica { padding-block: 1rem; }
+.vis-error { padding: 1rem; border: 1px solid var(--rojo); border-radius: .6rem; }
+.guia-vis { margin-top: .8rem; border-top: 1px solid var(--line); padding-top: .7rem; font-size: .95rem; }
+.guia-vis summary { font-weight: 700; cursor: pointer; min-height: 44px; padding: .4rem 0; }
+.guia-vis li { margin-block: .6rem; }
+.guia-vis .btn { margin-top: .5rem; }
+
 /* 3. Cabecera, navegación y pie */
 .progreso-lectura { position: fixed; left: 0; top: 0; height: 3px; width: 100%; transform-origin: 0 50%; transform: scaleX(0); background: linear-gradient(90deg, var(--azul), var(--verde)); z-index: 60; }
 /* La cabecera fija es el contenedor #cabecera y no .cab: un elemento sticky solo se queda pegado
@@ -168,6 +179,7 @@ abbr[title] { text-decoration: underline dotted; cursor: help; }
 .pie ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .pie a { color: var(--ink-2); text-decoration: none; }
 .pie a:hover { color: var(--azul); text-decoration: underline; }
+.pie p a { text-decoration: underline; text-underline-offset: .15em; }
 .pie p + p { margin-top: 8px; }
 .pie .franja { height: 4px; background: linear-gradient(90deg, var(--azul) 0 72%, var(--verde) 72% 100%); }
 
@@ -220,6 +232,7 @@ abbr[title] { text-decoration: underline dotted; cursor: help; }
 .lateral ol, .lateral ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; }
 .lateral a { display: grid; grid-template-columns: 24px 1fr; gap: 6px; color: var(--ink-2); text-decoration: none; padding: 5px 8px; border-radius: 6px; line-height: 1.35; }
 .lateral a:hover { background: var(--surface-2); color: var(--azul); }
+.lateral.al-final { visibility: hidden; }
 .lateral a[aria-current="page"] { background: var(--azul-suave); color: var(--azul); font-weight: 700; }
 .lateral a .n { font-family: var(--f-data); font-size: var(--t-xs); color: var(--muted); padding-top: 1px; }
 .lateral .en-pagina a { grid-template-columns: 1fr; border-left: 2px solid var(--line); border-radius: 0 6px 6px 0; padding-left: 12px; }

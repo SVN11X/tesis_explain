@@ -5,24 +5,22 @@
 (function () {
   "use strict";
   var M = {};
-  M.R = 0.0335;   // radio de rueda configurado, m
-  M.B = 0.188;    // separación entre ruedas configurada, m
-  M.NE = 1980;    // flancos por vuelta de rueda que usa el firmware
-  M.HZ = 30;      // ciclos por segundo de la interfaz con ROS 2
-  M.VMAX = 0.13;  // límite de velocidad del controlador diferencial, m/s
-  M.WMAX = 0.35;  // límite de giro del controlador diferencial, rad/s
-  M.CONTEO = { der: 1976, izq: 1969 };   // promedios medidos en diez vueltas por rueda
+  var datos = typeof module !== "undefined" && module.exports ? require("../datos/proyecto.js") : window.PROYECTO;
+  var p = datos.parametros.movimiento;
+  M.R = p.radio_m;
+  M.B = p.separacion_m;
+  M.NE = p.flancos_vuelta;
+  M.HZ = p.frecuencia_nominal_hz;
+  M.VMAX = p.velocidad_max_m_s;
+  M.WMAX = p.giro_max_rad_s;
+  M.CONTEO = p.conteo_medido;
 
   /* Ensayo de la recta de 2 m en el robot real. Tabla A6.2. El error odométrico de cada
      prueba se toma de la tabla, que lo calcula antes de redondear las distancias. */
-  M.RECTA = [
-    { prueba: 1, odo: 1.920, cinta: 1.846, error: 4.01 },
-    { prueba: 2, odo: 1.922, cinta: 1.868, error: 2.88 },
-    { prueba: 3, odo: 1.923, cinta: 1.851, error: 3.87 },
-    { prueba: 4, odo: 1.926, cinta: 1.856, error: 3.78 },
-    { prueba: 5, odo: 1.928, cinta: 1.861, error: 3.61 }
-  ];
-  M.CINTA_MEDIA = 1.856;
+  M.RECTA = datos.ensayos['recta-2m-real'].map(function (r) {
+    return { prueba: r.prueba, odo: r.distancia_odometria_m, cinta: r.distancia_real_m, error: r.error_odometrico_pct };
+  });
+  M.CINTA_MEDIA = p.cinta_media_reportada_m;
 
   function envolver(a) { return Math.atan2(Math.sin(a), Math.cos(a)); }
   M.envolver = envolver;

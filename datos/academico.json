@@ -1,0 +1,25 @@
+{
+  "estado": "en_revision_comite",
+  "estado_texto": "En revisión por comité",
+  "nota": "La investigación está en revisión por comité. Sus explicaciones, parámetros y resultados pueden cambiar.",
+  "version_documento": null,
+  "fecha_datos": null,
+  "revision_datos": null,
+  "ultima_actualizacion_sitio": "2026-10-12",
+  "revision_base": "166d70e3f4d2b8e61daea9b1999fad859c28169b",
+  "tesis_pdf": null,
+  "pendientes": [
+    "Versión del documento académico y fecha de las tablas",
+    "Método de medida del ángulo físico del giro",
+    "Motivo de elegir 0,13 m/s como referencia",
+    "Motivo del tamaño mínimo de frontera",
+    "Autorización de publicación de firmware y registros originales"
+  ],
+  "historial": [
+    {
+      "fecha": "2026-10-12",
+      "tipo": "plataforma",
+      "cambio": "Estado académico explícito, análisis local y mejoras de accesibilidad; sin alterar las tablas experimentales."
+    }
+  ]
+}

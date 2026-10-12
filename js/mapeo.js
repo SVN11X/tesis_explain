@@ -406,7 +406,10 @@
 
   /* Grafo SE(2) pequeño. Los residuos comparan movimientos relativos medidos
      con los que implican las poses. Se fija la pose 0 para eliminar el gauge. */
-  M.grafoEjemplo = function () {
+  M.grafoEjemplo = function (options) {
+    options = options || {};
+    var escalaPct = options.escalaPct == null ? 4 : options.escalaPct, giroDeg = options.giroDeg == null ? 1 : options.giroDeg;
+    if (!Number.isFinite(escalaPct) || Math.abs(escalaPct) > 10 || !Number.isFinite(giroDeg) || Math.abs(giroDeg) > 3) throw new Error('Parámetros ilustrativos fuera de rango');
     var real = [[0, 0, 0]], edges = [], raw = [[0, 0, 0]];
     for (var k = 1; k <= 12; k++) {
       var side = Math.floor((k - 1) / 3), prev = real[k - 1], step = side % 2 ? 1 / 3 : .5;
@@ -414,7 +417,7 @@
       var pose = [prev[0] + step * Math.cos(heading), prev[1] + step * Math.sin(heading), wrap(Math.floor(k / 3) * Math.PI / 2)];
       real.push(pose);
       var z = M.componer(M.invertir(prev), pose);
-      z[0] *= 1.04; z[1] *= 1.04; z[2] = wrap(z[2] + Math.PI / 180);
+      z[0] *= 1 + escalaPct / 100; z[1] *= 1 + escalaPct / 100; z[2] = wrap(z[2] + giroDeg * Math.PI / 180);
       edges.push({ i: k - 1, j: k, z: z, w: [100, 100, 50] });
       raw.push(M.componer(raw[k - 1], z));
     }
@@ -506,7 +509,9 @@
     return [M.costoGrafo(graph.odom, graph.edges), M.costoGrafo(graph.odom, todas), M.costoGrafo(opt.poses, todas), M.costoGrafo(opt.poses, todas)];
   };
   V.lazo = function (el) {
-    var graph = M.grafoEjemplo(), edges = graph.edges.concat([graph.cierre]), opt = M.optimizarGrafo(graph.odom, edges), costos = M.desacuerdoPorPaso(graph, opt), iteraciones = opt.costos.length - 1;
+    var escalaPct = 4, giroDeg = 1, graph, edges, opt, costos, iteraciones;
+    function calcular() { graph = M.grafoEjemplo({ escalaPct: escalaPct, giroDeg: giroDeg }); edges = graph.edges.concat([graph.cierre]); opt = M.optimizarGrafo(graph.odom, edges); costos = M.desacuerdoPorPaso(graph, opt); iteraciones = opt.costos.length - 1; }
+    calcular();
     var phase = 0, selected = 12;
     var steps = ["1 · Acumular deriva", "2 · Reconocer el inicio", "3 · Optimizar las poses", "4 · Publicar map → odom"];
     var notes = [
@@ -521,11 +526,15 @@
       readings(["Separación del regreso en el grafo", "Giro residual en el regreso", "Separación en odom, sin cambiar", "Desacuerdo total del grafo"]) +
       '<p class="mp-status" data-costo-info></p><p class="mp-status" data-tf-info></p>' +
       '<div class="mp-ranges">' + range("mp-pose", "Inspeccionar pose", 0, 12, 1, selected) + '</div><p class="mp-status" data-pose-info></p>' +
-      '<p class="vnota">Grafo sintético: escala odométrica +4 % y error angular +1° por tramo. Un optimizador pequeño de mínimos cuadrados en JavaScript permite ver el ajuste; no ejecuta Ceres ni reproduce los ensayos de la tesis. La referencia es conocida solo en este ejemplo. Una restricción de regreso no basta para recuperar todas las longitudes exactas.</p></div>';
+      '<details class="guia-vis"><summary>Experimentar con la deriva del ejemplo</summary><p>Conserva el recorrido de referencia y cambia un error a la vez. Con giro de 0° y solo error de escala, el rectángulo puede cerrar y conservar longitudes incorrectas: cerrar no garantiza un mapa exacto.</p><div class="mp-ranges">' + range('mp-grafo-escala', 'Error de escala ilustrativo · %', -10, 10, 1, escalaPct) + range('mp-grafo-giro', 'Error angular por tramo · °', -3, 3, 0.25, giroDeg) + '</div><button type="button" class="vbtn sec" data-restablecer-grafo>Restablecer ejemplo</button></details>' +
+      '<p class="vnota" data-grafo-nota></p></div>';
     function draw() {
       var poses = phase >= 2 ? opt.poses : graph.odom, p = poses[selected], end = poses[12], raw = graph.odom[12];
       el.querySelector(".mp-chart").innerHTML = M.grafoSVG(graph, poses, phase, selected);
       el.querySelector("#mp-pose").value = selected;
+      el.querySelector('#mp-grafo-escala').value = escalaPct; el.querySelector('#mp-grafo-giro').value = giroDeg;
+      el.querySelector('[data-out="mp-grafo-escala"]').textContent = fmt(escalaPct, 0) + ' %'; el.querySelector('[data-out="mp-grafo-giro"]').textContent = fmt(giroDeg, 2) + '°';
+      el.querySelector('[data-grafo-nota]').textContent = 'Grafo sintético: escala odométrica ' + fmt(escalaPct, 0) + ' % y error angular ' + fmt(giroDeg, 2) + '° por tramo. El optimizador de mínimos cuadrados JavaScript no ejecuta Ceres ni reproduce los ensayos de la tesis. La referencia solo es conocida en este ejemplo. Una restricción de regreso no garantiza todas las longitudes exactas.';
       el.querySelector('[data-out="mp-pose"]').textContent = selected + " de 12";
       el.querySelector("[data-pose-info]").textContent = "Pose " + selected + ": x = " + fmt(p[0], 2) + " m, y = " + fmt(p[1], 2) + " m, θ = " + fmt(p[2] * 180 / Math.PI, 1) + "°. La flecha de cada nodo representa su orientación.";
       var gap = Math.hypot(end[0], end[1]) * 100;
@@ -548,12 +557,19 @@
       el.querySelector("[data-tf-info]").textContent = tfText;
     }
     el.addEventListener("click", function (e) {
-      var b = e.target.closest("[data-paso], [data-node]"); if (!b) return;
-      if (b.hasAttribute("data-paso")) { phase = +b.getAttribute("data-paso"); pressed(el, "data-paso", phase); }
+      var b = e.target.closest("[data-paso], [data-node], [data-restablecer-grafo]"); if (!b) return;
+      if (b.hasAttribute('data-restablecer-grafo')) { escalaPct = 4; giroDeg = 1; selected = 12; phase = 0; calcular(); pressed(el, 'data-paso', phase); }
+      else if (b.hasAttribute("data-paso")) { phase = +b.getAttribute("data-paso"); pressed(el, "data-paso", phase); }
       else selected = +b.getAttribute("data-node");
       draw();
     });
-    el.addEventListener("input", function (e) { if (e.target.id === "mp-pose") { selected = +e.target.value; draw(); } });
+    el.addEventListener("input", function (e) {
+      if (e.target.id === "mp-pose") { selected = +e.target.value; draw(); }
+      else if (e.target.id === 'mp-grafo-escala' || e.target.id === 'mp-grafo-giro') {
+        escalaPct = +el.querySelector('#mp-grafo-escala').value; giroDeg = +el.querySelector('#mp-grafo-giro').value;
+        phase = 0; calcular(); pressed(el, 'data-paso', phase); draw();
+      }
+    });
     el.estadoSim = function () { var p = phase >= 2 ? opt.poses : graph.odom; return { fase: phase, poses: p, odom: graph.odom, costoInicial: opt.costos[0], costoFinal: opt.costos[opt.costos.length - 1], desacuerdo: costos[phase], tf: phase === 3 ? M.correccionTF(p[12], graph.odom[12]) : [0, 0, 0] }; };
     draw();
   };

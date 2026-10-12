@@ -22,6 +22,7 @@
 <link rel="stylesheet" href="css/estilo.css">
 <link rel="stylesheet" href="css/movimiento.css">
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script src="datos/proyecto.js" defer></script>
 <script src="js/comun.js" defer></script>
 <script src="js/vis1.js" defer></script>
 <script src="js/vis2.js" defer></script>
@@ -34,6 +35,10 @@
 <body data-pagina="movimiento">
 <a class="saltar" href="#contenido">Saltar al contenido</a>
 <div id="cabecera"></div>
+<!-- ESTADO ACADEMICO: generado por herramientas/datos.py -->
+<aside class="aviso-academico" aria-label="Estado de la investigación"><div class="wrap"><b>En revisión por comité</b><span>La investigación está en revisión por comité. Sus explicaciones, parámetros y resultados pueden cambiar.</span><a href="recursos.html#estado-academico">Estado y procedencia</a></div></aside>
+<!-- FIN ESTADO ACADEMICO -->
+<noscript><nav class="nav-estatica wrap" aria-label="Navegación sin JavaScript"><a href="index.html#temas">Índice de temas</a> · <a href="preguntas.html">Preguntas</a> · <a href="laboratorio.html">Laboratorio</a> · <a href="recursos.html">Recursos y glosario</a></nav></noscript>
 <header class="tema-hero">
   <div class="wrap">
     <div class="tema-hero-txt">
@@ -159,6 +164,7 @@
   <div class="widget">
     <div class="widget-cab"><h3 id="sim-calibracion">Calibrar quita el sesgo, no la dispersión</h3><span class="tipo datos">Datos de la tesis</span><p>Cada fila es una prueba. El círculo vacío es su error medido y el lleno, el mismo error después de dividir por el factor. En Simular repeticiones puedes cambiar el sesgo y la variación, y probar el factor en repeticiones nuevas.</p></div>
     <div class="vis" data-vis="calibracion"><p class="vis-fallback">Al dividir la odometría por 1,0363, el error medio pasa de 3,63 % a 0 %, pero las cinco pruebas siguen separadas entre sí: quedan en 0,37, −0,72, 0,23, 0,14 y −0,02 %. Necesita JavaScript para la simulación.</p></div>
+    <details class="guia-vis"><summary>Separa sesgo y dispersión</summary><ol><li>La recta real compara el odómetro con la cinta, no con la orden nominal.</li><li>El factor hipotético corrige el error medio de esas repeticiones; no elimina su dispersión.</li><li>Revisa nuevas repeticiones ilustrativas: una corrección sobre la muestra no demuestra calibración del robot.</li></ol><p>Las acciones explican el modelo de esta guía. Los ejemplos ilustrativos no sustituyen registros del robot.</p></details>
   </div>
   <p>La tesis no aplicó esta corrección, y hay una razón para tomarla con cuidado. El factor sale de las mismas cinco pruebas con que se evalúa, así que en ellas siempre deja el error medio en cero. Para saber si sirve hay que medir repeticiones nuevas con el factor ya puesto, que es lo que muestra la simulación. Y como la causa del sesgo no se determinó, convendría comprobarlo también en recorridos distintos de una recta.</p>
 </section>

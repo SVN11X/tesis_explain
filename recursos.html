@@ -21,12 +21,17 @@
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
 <link rel="stylesheet" href="css/estilo.css">
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script src="datos/proyecto.js" defer></script>
 <script src="js/comun.js" defer></script>
 <script src="js/sitio.js" defer></script>
 </head>
 <body data-pagina="recursos">
 <a class="saltar" href="#contenido">Saltar al contenido</a>
 <div id="cabecera"></div>
+<!-- ESTADO ACADEMICO: generado por herramientas/datos.py -->
+<aside class="aviso-academico" aria-label="Estado de la investigación"><div class="wrap"><b>En revisión por comité</b><span>La investigación está en revisión por comité. Sus explicaciones, parámetros y resultados pueden cambiar.</span><a href="recursos.html#estado-academico">Estado y procedencia</a></div></aside>
+<!-- FIN ESTADO ACADEMICO -->
+<noscript><nav class="nav-estatica wrap" aria-label="Navegación sin JavaScript"><a href="index.html#temas">Índice de temas</a> · <a href="preguntas.html">Preguntas</a> · <a href="laboratorio.html">Laboratorio</a> · <a href="recursos.html">Recursos y glosario</a></nav></noscript>
 <header class="tema-hero">
   <div class="wrap">
     <div class="tema-hero-txt">
@@ -254,15 +259,23 @@
 </section>
 
 <section>
+  <h2 id="estado-academico">Estado académico y procedencia</h2>
+  <p><b>En revisión por comité.</b> La tesis no está aprobada. Las cifras de esta guía proceden de la versión transcrita disponible y pueden cambiar por observaciones del comité.</p>
+  <dl><dt>Versión del documento de referencia</dt><dd>Pendiente de confirmación del autor.</dd><dt>Fecha o revisión de los datos experimentales</dt><dd>Pendiente de confirmación del autor.</dd><dt>Actualización de la plataforma</dt><dd>12 de octubre de 2026. Es la fecha de esta actualización del sitio, distinta de la fecha de los experimentos.</dd></dl>
+  <p>Se conservan las tablas resumidas de <a href="datos/ensayos/README.md">ensayos</a>. No se han publicado el documento inédito, registros crudos ni firmware adaptado. El <a href="laboratorio.html">Laboratorio de análisis</a> permite revisar cálculos derivados sin enviar archivos.</p>
+  <p>Pendientes: versión del documento, método de medida angular, motivo de la referencia de velocidad y del tamaño mínimo de frontera, y autorización del material original. Consulta el <a href="docs/informe-academico.md">informe académico</a> y la <a href="docs/trazabilidad.csv">matriz de trazabilidad</a>.</p>
+</section>
+
+<section>
   <h2 id="citar">Cómo citar</h2>
   <p>Si usas este trabajo, cita la tesis. Si te sirvió la guía, puedes citarla también.</p>
   <h3 id="citar-tesis">La tesis</h3>
-  <pre class="cita-bloque">Valderas Neculqueo, S. (2026). Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial [Trabajo de titulación para optar al título de Ingeniero Civil Electrónico]. Universidad Tecnológica Metropolitana.</pre>
+  <pre class="cita-bloque">Valderas Neculqueo, S. (2026). Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial [Trabajo de titulación en revisión por comité; versión del documento pendiente de confirmación]. Universidad Tecnológica Metropolitana.</pre>
   <pre class="cita-bloque" style="margin-top:10px">@thesis{valderas2026navegacion,
   author = {Valderas Neculqueo, Sebasti{\'a}n},
   title  = {Navegaci{\'o}n y exploraci{\'o}n aut{\'o}noma de interiores utilizando un robot m{\'o}vil de tracci{\'o}n diferencial},
   school = {Universidad Tecnol{\'o}gica Metropolitana},
-  type   = {Trabajo de titulaci{\'o}n},
+  type   = {Trabajo de titulaci{\'o}n en revisi{\'o}n por comit{\'e}},
   address = {Santiago, Chile},
   year   = {2026}
 }</pre>

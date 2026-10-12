@@ -1,0 +1,39 @@
+name: Verificar sitio
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  pruebas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Dependencias solo de desarrollo
+        run: |
+          pip install beautifulsoup4 playwright
+          python -m playwright install --with-deps chromium
+      - name: Datos, índice y enlaces
+        run: python herramientas/verificar_sitio.py
+      - name: Modelos numéricos
+        run: |
+          node herramientas/pruebas_unitarias.js
+          node herramientas/pruebas_control.js
+          node herramientas/pruebas_mapeo.js
+          node herramientas/pruebas_movimiento.js
+          node herramientas/pruebas_analisis.js
+      - name: Navegador
+        run: |
+          python herramientas/pruebas_control_navegador.py
+          python herramientas/pruebas_mapeo_navegador.py
+          python herramientas/pruebas_movimiento_navegador.py
+          python herramientas/pruebas_laboratorio_navegador.py
+          python herramientas/pruebas_navegador.py

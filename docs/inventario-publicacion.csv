@@ -1,0 +1,9 @@
+material,ubicacion_mencionada_en_guia,disponibilidad_actual,autorizacion_nueva,accion
+Documento de tesis,recursos.html#materiales,no publicado,,confirmar version y permiso antes de enlazar
+Firmware adaptado,arduino_firmware/ROSArduinoBridge/,no publicado,,conservar pendiente
+Configuracion y descripcion del robot,articubot_one/config/ y description/,no publicadas,,confirmar permiso del autor
+Registros crudos,test/sesiones_mapeo/,no publicados,,no inferir ni generar registros sustitutos
+Programas propios,arduino_firmware/pid_config/ y articubot_one/scripts/,no publicados,,documentar origen y licencia antes de publicar
+Tablas resumidas,datos/ensayos/,ya publicas en revision base,,conservar valores y completar trazabilidad
+Figuras y videos existentes,img/,ya publicos en revision base,,conservar autoria y excepciones de licencia
+Video sincronizado nuevo,img/tesis/sim-vs-real.mp4,placeholder oculto sin archivo,,no completar con material inventado

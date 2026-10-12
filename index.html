@@ -21,6 +21,7 @@
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
 <link rel="stylesheet" href="css/estilo.css">
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script src="datos/proyecto.js" defer></script>
 <script src="js/comun.js" defer></script>
 <script src="js/vis1.js" defer></script>
 <script src="js/vis2.js" defer></script>
@@ -31,6 +32,10 @@
 <body data-pagina="inicio">
 <a class="saltar" href="#contenido">Saltar al contenido</a>
 <div id="cabecera"></div>
+<!-- ESTADO ACADEMICO: generado por herramientas/datos.py -->
+<aside class="aviso-academico" aria-label="Estado de la investigación"><div class="wrap"><b>En revisión por comité</b><span>La investigación está en revisión por comité. Sus explicaciones, parámetros y resultados pueden cambiar.</span><a href="recursos.html#estado-academico">Estado y procedencia</a></div></aside>
+<!-- FIN ESTADO ACADEMICO -->
+<noscript><nav class="nav-estatica wrap" aria-label="Navegación sin JavaScript"><a href="index.html#temas">Índice de temas</a> · <a href="preguntas.html">Preguntas</a> · <a href="laboratorio.html">Laboratorio</a> · <a href="recursos.html">Recursos y glosario</a></nav></noscript>
 <main id="contenido">
 <section class="portada" aria-labelledby="t-portada">
   <div class="wrap">
@@ -96,7 +101,7 @@
     </div>
     <div class="inicio-dos">
       <figure class="hero-sim" style="margin:0">
-        <div data-vis="exploracion" data-modo="hero" id="sim-hero" aria-label="Simulación de un robot que explora un plano desconocido"><p class="vis-fallback">Aquí se muestra una simulación del robot explorando. Necesita JavaScript.</p></div>
+        <div data-vis="exploracion" data-modo="hero" id="sim-hero" role="img" aria-label="Simulación de un robot que explora un plano desconocido"><p class="vis-fallback">Aquí se muestra una simulación del robot explorando. Necesita JavaScript.</p></div>
         <div class="sim-barra" data-sim-barra="sim-hero">
           <div class="sim-leyenda" aria-hidden="true">
             <span><i style="background:var(--surface);border:1px solid var(--line-2)"></i>conocido</span>
@@ -280,6 +285,12 @@
       <a class="btn" href="https://github.com/SVN11X/tesis_explain/issues">Sugerir una mejora</a>
     </div>
   </div>
+</section>
+<section class="seccion wrap" aria-labelledby="t-laboratorio">
+  <p class="eyebrow">Evidencia que puedes revisar</p>
+  <h2 id="t-laboratorio">Comprueba las cifras, paso a paso</h2>
+  <p>Abre una tabla de la guía o tu archivo CSV. El laboratorio calcula métricas localmente y muestra la fórmula, la condición de cada interpretación y lo que los datos no permiten concluir.</p>
+  <a class="btn prim" href="laboratorio.html">Abrir el Laboratorio de análisis</a>
 </section>
 </main>
 

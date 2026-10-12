@@ -22,6 +22,7 @@
 <link rel="stylesheet" href="css/estilo.css">
 <link rel="stylesheet" href="css/mapeo.css">
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script src="datos/proyecto.js" defer></script>
 <script src="js/comun.js" defer></script>
 <script src="js/vis1.js" defer></script>
 <script src="js/vis2.js" defer></script>
@@ -33,6 +34,10 @@
 <body data-pagina="mapeo">
 <a class="saltar" href="#contenido">Saltar al contenido</a>
 <div id="cabecera"></div>
+<!-- ESTADO ACADEMICO: generado por herramientas/datos.py -->
+<aside class="aviso-academico" aria-label="Estado de la investigación"><div class="wrap"><b>En revisión por comité</b><span>La investigación está en revisión por comité. Sus explicaciones, parámetros y resultados pueden cambiar.</span><a href="recursos.html#estado-academico">Estado y procedencia</a></div></aside>
+<!-- FIN ESTADO ACADEMICO -->
+<noscript><nav class="nav-estatica wrap" aria-label="Navegación sin JavaScript"><a href="index.html#temas">Índice de temas</a> · <a href="preguntas.html">Preguntas</a> · <a href="laboratorio.html">Laboratorio</a> · <a href="recursos.html">Recursos y glosario</a></nav></noscript>
 <header class="tema-hero">
   <div class="wrap">
     <div class="tema-hero-txt">
@@ -85,6 +90,7 @@
   <div class="widget">
     <div class="widget-cab"><h3 id="sim-rejilla">De un rayo a las celdas del mapa</h3><span class="tipo inter">Interactivo · ilustrativo</span><p>Avanza paso a paso: las celdas antes del impacto se observan libres, la del impacto ocupada y las de atrás siguen desconocidas. Después añade otro barrido o inspecciona cualquier celda. Las lecturas calculan también el área libre y el índice de cobertura que se usan en los resultados.</p></div>
     <div class="vis" data-vis="rejilla"><figure class="mp-fig"><img src="img/diagramas/rejilla-ocupacion.svg" width="360" height="280" loading="lazy" alt="Rejilla con celdas blancas libres, negras ocupadas y grises desconocidas. Un rayo atraviesa celdas libres y termina en una pared; detrás queda gris."><figcaption>Ejemplo de rejilla de ocupación. Cada cuadrado representa 5 × 5 cm, aunque se dibuja ampliado.</figcaption></figure></div>
+    <details class="guia-vis"><summary>Lee la rejilla sin confundir área y cobertura</summary><ol><li>Empieza desconocida. Un rayo deja libres solo las celdas anteriores al primer impacto.</li><li>Añade una observación desde otra posición: algunas celdas ocluidas pueden volverse observables.</li><li>Con teclado, usa las flechas para recorrer celdas. El área usa tamaño de celda; el índice excluye las ocupadas.</li></ol><p>Las acciones explican el modelo de esta guía. Los ejemplos ilustrativos no sustituyen registros del robot.</p></details>
   </div>
   <p>En el mensaje <code>nav_msgs/OccupancyGrid</code> se transportan valores cuyo significado depende del programa que publica el mapa. En este ejemplo usamos <b>0 = libre, 100 = ocupado y −1 = desconocido</b> <a class="ref" href="#f17">17</a>. El mapeo real combina varias observaciones y puede conservar valores intermedios de incertidumbre; no colorea todo el mapa de una vez.</p>
   <p>Sobre esa rejilla trabajan los demás módulos. La navegación agrega un margen de seguridad alrededor de los obstáculos, y el explorador busca los bordes entre lo libre y lo desconocido. Ambos temas tienen su propia página.</p>
@@ -135,6 +141,7 @@
   <div class="widget">
     <div class="widget-cab"><h3 id="sim-lazo">Grafo de poses y cierre de lazo</h3><span class="tipo inter">Interactivo · ilustrativo</span><p>Recorre cuatro pasos: acumular deriva, reconocer el inicio, optimizar las poses y publicar la corrección map → odom. Mira cómo el desacuerdo total sube al añadir el cierre y baja al optimizar. Inspecciona un nodo para ver su posición y orientación.</p></div>
     <div class="vis" data-vis="lazo"><p class="vis-fallback">Los nodos guardan poses y las líneas restricciones. El cierre de lazo añade una relación con el inicio que contradice a las demás: en este ejemplo el desacuerdo total pasa de 0 a 29,3. Optimizar cambia las poses del grafo y lo baja a 0,18. Publicar map → odom relaciona la pose actual corregida con la odometría, que sigue conservando su deriva. Necesita JavaScript.</p></div>
+    <details class="guia-vis"><summary>Recorre el cierre de lazo</summary><ol><li>Paso 1: inspecciona una pose y la deriva de odom.</li><li>Paso 2: se añade una restricción; las posiciones todavía no cambian y crece el desacuerdo.</li><li>Paso 3: compara el desacuerdo antes y después; la odometría naranja permanece como referencia.</li><li>Paso 4: TF relaciona las poses actuales. Experimenta con la deriva y comprueba que cerrar no garantiza longitudes exactas.</li></ol><p>Las acciones explican el modelo de esta guía. Los ejemplos ilustrativos no sustituyen registros del robot.</p></details>
   </div>
   <p>Al optimizar el grafo, el sistema busca poses que concuerden mejor con sus restricciones. Los barridos se recolocan con esas poses para reconstruir la rejilla. Después, la transformación <code>map → odom</code> permite expresar la pose odométrica actual en la referencia del mapa. <b>Reajustar los nodos históricos y corregir TF son operaciones relacionadas, pero distintas</b>: una transformación rígida actual no deforma por sí sola todo el recorrido pasado <a class="ref" href="#f6">6</a> <a class="ref" href="#f18">18</a>. El tutorial de Grisetti y otros amplía esta idea <a class="ref" href="#f8">8</a>.</p>
   <h3 id="slam-toolbox">SLAM Toolbox en este robot</h3>

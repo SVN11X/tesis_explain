@@ -1,0 +1,89 @@
+{
+  "movimiento": {
+    "radio_m": 0.0335,
+    "separacion_m": 0.188,
+    "flancos_vuelta": 1980,
+    "frecuencia_nominal_hz": 30,
+    "velocidad_max_m_s": 0.13,
+    "giro_max_rad_s": 0.35,
+    "conteo_medido": {
+      "der": 1976,
+      "izq": 1969
+    },
+    "cinta_media_reportada_m": 1.856,
+    "fuente": "Guía de referencia: sección 4.3.3, Tabla 4.3 y Tabla A6.2; documento completo pendiente"
+  },
+  "control": {
+    "periodo_planificador_s": 0.033,
+    "ticks_por_ciclo_por_m_s": 313.56,
+    "referencia_m_s": 0.13,
+    "pwm_max": 255,
+    "ruedas": {
+      "der": {
+        "nombre": "Rueda derecha",
+        "Kp": 16.42,
+        "Kd": 20.05,
+        "Ki": 0.001,
+        "Ko": 50,
+        "banda": 1,
+        "K": 0.00089,
+        "tau": 0.3485,
+        "retardo": 0.0692
+      },
+      "izq": {
+        "nombre": "Rueda izquierda",
+        "Kp": 16.0,
+        "Kd": 20.3,
+        "Ki": 0.075,
+        "Ko": 50,
+        "banda": 2,
+        "K": 0.000913,
+        "tau": 0.3291,
+        "retardo": 0.0001
+      }
+    },
+    "ganancias": [
+      {
+        "nombre": "Kp",
+        "izq": [
+          12.48,
+          16.0
+        ],
+        "der": [
+          10.1,
+          16.42
+        ],
+        "dec": 2
+      },
+      {
+        "nombre": "Kd",
+        "izq": [
+          34.69,
+          20.3
+        ],
+        "der": [
+          36.7,
+          20.05
+        ],
+        "dec": 2
+      },
+      {
+        "nombre": "Ki",
+        "izq": [
+          1e-05,
+          0.075
+        ],
+        "der": [
+          1e-05,
+          0.001
+        ],
+        "dec": 5
+      }
+    ],
+    "fuente": "Guía de referencia: Tablas A4.4, 4.3, 5.3; firmware adaptado no publicado"
+  },
+  "mapeo": {
+    "resolucion_reportada_m": 0.05,
+    "fuente": "Guía de referencia: Tabla 5.4; CSV resumido sin dimensiones de rejilla"
+  }
+}

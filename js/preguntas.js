@@ -15,6 +15,7 @@
     var preguntas = [].slice.call(document.querySelectorAll("details.pregunta"));
     var temas = [].slice.call(document.querySelectorAll("section.q-tema"));
     var entrada = document.getElementById("q-buscar"), seg = document.getElementById("q-nivel");
+    var respaldo = document.getElementById('q-estado');
     var cajaChips = document.getElementById("q-temas"), conteo = document.getElementById("q-conteo");
     var sinRes = document.getElementById("q-sin"), practica = document.getElementById("q-practica");
     var limpiar = document.getElementById("q-limpiar"), azar = document.getElementById("q-azar");
@@ -24,10 +25,10 @@
     var aparece = B ? function (t, tok) { return B.posiciones(t, tok, 1).length > 0; } : function (t, tok) { return t.indexOf(tok) >= 0; };
     var quieto = function () { return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches; };
 
-    var estado = { q: "", nivel: "todos", tema: "todos" };
+    var estado = { q: "", nivel: "todos", tema: "todos", respaldo: 'todos' };
     var datos = preguntas.map(function (d) {
       var sec = d.closest("section.q-tema");
-      return { el: d, tema: sec ? sec.getAttribute("data-tema") : "", nivel: d.getAttribute("data-dificultad"), texto: norm(d.textContent.replace(/\s+/g, " ")) };
+      return { el: d, tema: sec ? sec.getAttribute("data-tema") : "", nivel: d.getAttribute("data-dificultad"), respaldo: d.getAttribute('data-respuesta'), texto: norm(d.textContent.replace(/\s+/g, " ")) };
     });
 
     /* Chips de tema, con el número de preguntas que quedan con la búsqueda y el nivel actuales */
@@ -41,6 +42,7 @@
 
     function coincide(d, ignorarTema) {
       if (estado.nivel !== "todos" && d.nivel !== estado.nivel) return false;
+      if (estado.respaldo !== 'todos' && d.respaldo !== estado.respaldo) return false;
       if (!ignorarTema && estado.tema !== "todos" && d.tema !== estado.tema) return false;
       if (estado.q) {
         var ps = tokens(estado.q);
@@ -58,13 +60,13 @@
       [].forEach.call(cajaChips.querySelectorAll(".chip"), function (b) {
         var id = b.getAttribute("data-tema");
         var k = datos.filter(function (d) { return coincide(d, true) && (id === "todos" || d.tema === id); }).length;
-        b.querySelector(".c-n").textContent = k;
+        b.querySelector(".c-n").textContent = ' ' + k;
         b.setAttribute("aria-pressed", String(id === estado.tema));
         b.classList.toggle("vacio", k === 0);
-        b.setAttribute("aria-label", b.firstChild.textContent + ", " + k + (k === 1 ? " pregunta" : " preguntas"));
+        b.setAttribute("aria-label", b.firstChild.textContent + " " + k + (k === 1 ? " pregunta" : " preguntas"));
       });
       [].forEach.call(seg.querySelectorAll("button"), function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-n") === estado.nivel)); });
-      var filtrado = estado.q || estado.nivel !== "todos" || estado.tema !== "todos";
+      var filtrado = estado.q || estado.nivel !== "todos" || estado.tema !== "todos" || estado.respaldo !== 'todos';
       var txt = filtrado ? (n === 1 ? "Se muestra 1 de " : "Se muestran " + n + " de ") + datos.length + " preguntas." : datos.length + " preguntas. Ábrelas una por una o pide una al azar.";
       if (txt !== ultimoTexto) { conteo.textContent = txt; ultimoTexto = txt; }
       sinRes.hidden = n > 0;
@@ -73,7 +75,7 @@
     }
 
     function quitarFiltros() {
-      estado.q = ""; estado.nivel = "todos"; estado.tema = "todos"; entrada.value = "";
+      estado.q = ""; estado.nivel = "todos"; estado.tema = "todos"; estado.respaldo = 'todos'; respaldo.value = 'todos'; entrada.value = "";
       aplicar();
     }
 
@@ -94,6 +96,7 @@
       estado.tema = b.getAttribute("data-tema"); aplicar();
     });
     limpiar.addEventListener("click", function () { quitarFiltros(); entrada.focus(); });
+    respaldo.addEventListener('change', function () { estado.respaldo = respaldo.value; aplicar(); });
     document.getElementById("q-abrir").addEventListener("click", function () {
       preguntas.forEach(function (d) { if (!d.hidden) d.open = true; });
     });
@@ -160,7 +163,8 @@
 
     /* Un enlace a una pregunta que quedó oculta por un filtro quita los filtros */
     function alAncla() {
-      var id = decodeURIComponent((location.hash || "").slice(1));
+      var id;
+      try { id = decodeURIComponent((location.hash || "").slice(1)); } catch (e) { return; }
       var d = id && document.getElementById(id);
       if (!d || !d.classList.contains("pregunta")) return;
       if (d.hidden) quitarFiltros();

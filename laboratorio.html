@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<title>Laboratorio de análisis · Robot explorador</title>
+<meta name="description" content="Analiza tablas de movimiento, control, mapeo y navegación localmente, con fórmulas y reglas transparentes. Sin LLM ni envío de archivos.">
+<meta name="author" content="Sebastián Valderas Neculqueo">
+<link rel="canonical" href="https://svn11x.github.io/tesis_explain/laboratorio.html">
+<meta name="theme-color" content="#004EAA">
+<link rel="icon" href="img/icono.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/estilo.css">
+<link rel="stylesheet" href="css/laboratorio.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script src="datos/proyecto.js" defer></script>
+<script src="js/comun.js" defer></script>
+<script src="js/sitio.js" defer></script>
+<script src="js/analisis-modelo.js" defer></script>
+<script src="js/laboratorio.js" defer></script>
+</head>
+<body data-pagina="laboratorio">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<div id="cabecera"></div>
+<!-- ESTADO ACADEMICO: generado por herramientas/datos.py -->
+<aside class="aviso-academico" aria-label="Estado de la investigación"><div class="wrap"><b>En revisión por comité</b><span>La investigación está en revisión por comité. Sus explicaciones, parámetros y resultados pueden cambiar.</span><a href="recursos.html#estado-academico">Estado y procedencia</a></div></aside>
+<!-- FIN ESTADO ACADEMICO -->
+<noscript><nav class="nav-estatica wrap" aria-label="Navegación sin JavaScript"><a href="index.html#temas">Índice de temas</a> · <a href="preguntas.html">Preguntas</a> · <a href="laboratorio.html">Laboratorio</a> · <a href="recursos.html">Recursos y glosario</a></nav></noscript>
+<header class="tema-hero"><div class="wrap"><div class="tema-hero-txt">
+  <nav class="miga" aria-label="Ruta"><a href="index.html">Inicio</a><span aria-hidden="true">›</span><span data-cap-n>Complemento</span></nav>
+  <p class="eyebrow" data-bloque>Evidencia y práctica</p>
+  <h1>Laboratorio de análisis</h1>
+  <p class="lead">De una tabla a una conclusión que puedes comprobar. Calcula métricas, revisa su fórmula y descubre qué información falta antes de interpretar.</p>
+  <div class="meta-cap"><span class="etiqueta">Procesamiento local</span><span class="etiqueta">Sin LLM</span><span class="etiqueta">CSV hasta 2 MiB</span></div>
+</div></div></header>
+<div class="wrap cap-layout">
+<aside class="lateral" id="lateral" aria-label="Navegación de la página"></aside>
+<main class="articulo" id="contenido">
+<section class="en-breve" aria-labelledby="t-breve">
+  <h2 id="t-breve">Una regla siempre deja su rastro</h2>
+  <p>Una diferencia media positiva indica la dirección de la diferencia en esa muestra. No identifica su causa. Un aborto explicado por reemplazo no se cuenta como falla. Las celdas vacías de una corrida excluida no se convierten en ceros.</p>
+  <p>Tus archivos se leen en la memoria del navegador, no se suben ni se guardan. El sitio descarga sus recursos locales y la tabla elegida de la guía. Puedes exportar el resultado en JSON con fórmulas, límites y huella SHA-256 del archivo, cuando el navegador la permita.</p>
+</section>
+<section aria-labelledby="entrada">
+  <h2 id="entrada">1. Elige los datos</h2>
+  <div class="lab-entrada" id="lab-controles" hidden>
+    <div class="lab-origenes">
+      <div><h3>Tablas de la guía</h3><p>Transcripciones resumidas de la tesis en revisión.</p>
+        <label for="lab-ejemplo">Tabla que quieres analizar</label>
+        <select id="lab-ejemplo">
+          <option value="recta-2m-real.csv">Recta · robot real · Tabla A6.2</option>
+          <option value="recta-2m-simulacion.csv">Recta · simulación · Tabla A6.1</option>
+          <option value="giro-real.csv">Giro · robot real · Tabla A6.4</option>
+          <option value="giro-simulacion.csv">Giro · simulación · Tabla A6.3</option>
+          <option value="escalon.csv">Control · resumen del escalón · Tabla 5.3</option>
+          <option value="mapeo.csv">Mapeo · corridas · Tabla 5.4</option>
+          <option value="metas.csv">Navegación · metas · Tabla A7.1</option>
+        </select>
+        <button class="btn prim" type="button" id="lab-cargar">Analizar tabla elegida</button>
+      </div>
+      <div><h3>Tu archivo CSV</h3><p>Su procedencia queda como dato del usuario, pendiente de confirmar.</p>
+        <label for="lab-archivo">Abrir un archivo local</label>
+        <input type="file" id="lab-archivo" accept=".csv,text/csv" aria-describedby="lab-limite">
+        <p id="lab-limite">Máximo 2 MiB y 10 000 filas. Encabezados y unidades deben coincidir con un formato admitido.</p>
+      </div>
+    </div>
+    <details class="lab-opciones"><summary>Opciones de control</summary>
+      <p>Para el resumen del escalón, confirma la referencia: la tabla de la guía usa 0,13 m/s. En una serie temporal se usa la columna de referencia y el archivo debe comenzar al aplicar un único escalón.</p>
+      <label for="lab-referencia">Referencia del resumen · m/s<input id="lab-referencia" type="number" min="0.001" step="0.001" value="0.13"></label>
+      <label for="lab-banda">Banda de establecimiento de una serie · % de amplitud<input id="lab-banda" type="number" min="0.1" max="20" step="0.1" value="2"></label>
+      <button type="button" class="btn" id="lab-recalcular" disabled>Recalcular archivo actual</button>
+    </details>
+    <div class="lab-acciones"><button type="button" class="btn" id="lab-limpiar">Limpiar datos</button><button type="button" class="btn" id="lab-exportar" disabled>Exportar resultado JSON</button></div>
+  </div>
+  <p id="lab-estado" role="status" aria-live="polite">Activa JavaScript para calcular. Las tablas, fórmulas y límites siguen disponibles a continuación.</p>
+  <p id="lab-error" role="alert" hidden></p>
+  <noscript><p>El cálculo local necesita JavaScript. Puedes descargar las <a href="datos/ensayos/README.md">tablas originales</a> y aplicar las fórmulas de esta página.</p></noscript>
+</section>
+<section aria-labelledby="resultados-lab" id="lab-resultados" hidden>
+  <h2 id="resultados-lab" tabindex="-1">2. Lee el resultado</h2>
+  <p id="lab-procedencia"></p>
+  <div class="lab-metricas" id="lab-metricas"></div>
+  <figure class="lab-figura"><div id="lab-grafica"></div><figcaption id="lab-leyenda"></figcaption></figure>
+  <details class="lab-tabla"><summary>Ver los datos que respaldan el gráfico</summary><div class="tabla-env" tabindex="0" role="region" aria-label="Tabla de resultados, desplazable"><table class="tabla" id="lab-tabla"></table></div><p id="lab-filastruncadas"></p></details>
+  <h3>Interpretaciones y condiciones</h3><div id="lab-reglas"></div>
+  <h3>Límites de estos datos</h3><ul id="lab-limitaciones"></ul>
+</section>
+<section aria-labelledby="formatos">
+  <h2 id="formatos">3. Formatos y fórmulas verificables</h2>
+  <p>CSV UTF-8 con encabezados, punto decimal y separador coma o punto y coma. Se admiten campos entre comillas; no se ejecutan fórmulas. Las columnas pueden cambiar de orden, pero no de nombre ni de unidad. La referencia teórica, la física y la odométrica se mantienen separadas.</p>
+  <div class="tabla-env"><table class="tabla"><caption>Datos disponibles, cálculo y límite</caption><thead><tr><th scope="col">Archivo de la guía</th><th scope="col">Cálculo</th><th scope="col">Qué falta</th></tr></thead><tbody>
+    <tr><th scope="row"><a href="datos/ensayos/recta-2m-real.csv">Recta real</a></th><td>Sesgo = promedio(odómetro − cinta); error absoluto = |odómetro − cinta|; relativo = 100 · diferencia / cinta. El porcentaje declarado se informa aparte.</td><td>Trayectorias y valores anteriores al redondeo.</td></tr>
+    <tr><th scope="row"><a href="datos/ensayos/recta-2m-simulacion.csv">Recta simulada</a></th><td>Diferencia entre odómetro y distancia ordenada.</td><td>Pose verdadera de Gazebo; no es error odométrico frente a referencia física.</td></tr>
+    <tr><th scope="row"><a href="datos/ensayos/giro-real.csv">Giro real</a> y <a href="datos/ensayos/giro-simulacion.csv">simulado</a></th><td>Diferencia con signo y absoluta frente a giro nominal.</td><td>Medida física y odométrica sincronizadas; método angular por confirmar.</td></tr>
+    <tr><th scope="row"><a href="datos/ensayos/escalon.csv">Resumen de control</a></th><td>Referencia − velocidad estacionaria declarada. Tiempo de subida declarado, sin recalcular.</td><td>Señal temporal para establecimiento, saturación y sobreimpulso numérico.</td></tr>
+    <tr><th scope="row"><a href="datos/ensayos/mapeo.csv">Mapeo</a></th><td>Promedio y desviación del área libre y del índice declarado, solo en corridas válidas.</td><td>Rejillas, resolución dentro del archivo, marco, dimensiones, áreas ocupada y desconocida.</td></tr>
+    <tr><th scope="row"><a href="datos/ensayos/metas.csv">Metas</a></th><td>Suma por estado; abortadas sin clasificar = abortadas − reemplazadas.</td><td>Estados por identificador y marcas temporales. No equivale a número de fallas.</td></tr>
+  </tbody></table></div>
+  <p>Desviación muestral: √(Σ(x − promedio)² / (n − 1)). Con una repetición no está definida. Los promedios se calculan sobre los valores disponibles; las cifras originales pueden usar valores previos al redondeo.</p>
+  <details><summary>Formato opcional para una serie de control propia</summary>
+    <p>Encabezados: <code>tiempo_s,referencia_m_s,velocidad_m_s,pwm</code>. Tiempo no negativo y creciente, al menos cinco muestras, referencia constante, PWM entre −255 y 255. No se incluyen registros reales nuevos en esta entrega.</p>
+    <p>Sobreimpulso observado: max(0, (velocidad − referencia) / (referencia − velocidad inicial) · 100). Funciona para escalones de subida y bajada. Establecimiento: primera muestra posterior a la última fuera de la banda elegida, con al menos dos muestras restantes; solo describe la ventana observada. Saturación: porcentaje de muestras en el tope, distinto de porcentaje de tiempo.</p>
+    <p>El promedio del error en el 20 % final de tiempo se presenta como error final, sin certificar que sea estacionario. Debes confirmar origen, resolución, inicio del escalón y duración suficiente.</p>
+  </details>
+  <p>Consulta los <a href="docs/laboratorio.md">esquemas completos y la interfaz de extensión</a>. El laboratorio no ejecuta ROS 2, SLAM Toolbox, Ceres ni modelos de IA.</p>
+</section>
+<nav id="nav-cap" aria-label="Tema anterior y siguiente"></nav>
+<p id="ayuda-pie" class="ayuda-pie"></p>
+</main></div><div id="pie"></div>
+</body></html>

@@ -130,4 +130,20 @@ test("los SVG de la página no incluyen estilos que se filtren al documento; los
   M.svgEstatico = true; assert(M.trejosSVG().indexOf("<style>") > 0);
   M.svgEstatico = antes;
 });
+test("escala sin error angular puede cerrar conservando longitudes incorrectas", function () {
+  var graph = M.grafoEjemplo({ escalaPct: 10, giroDeg: 0 }), fin = graph.odom[12];
+  near(fin[0], 0); near(fin[1], 0); near(fin[2], 0);
+  assert(Math.abs(graph.odom[3][0] - graph.real[3][0]) > .1);
+});
+test("los extremos de deriva producen poses finitas y optimización reduce el costo", function () {
+  [-10, 10].forEach(function (escala) { [-3, 3].forEach(function (giro) {
+    var graph = M.grafoEjemplo({ escalaPct: escala, giroDeg: giro }), opt = M.optimizarGrafo(graph.odom, graph.edges.concat([graph.cierre]));
+    assert(opt.costos[opt.costos.length - 1] < opt.costos[0]);
+    assert(opt.poses.every(function (p) { return p.every(Number.isFinite); }));
+  }); });
+});
+test("el grafo rechaza deriva no finita o fuera del rango declarado", function () {
+  assert.throws(function () { M.grafoEjemplo({ escalaPct: Infinity }); });
+  assert.throws(function () { M.grafoEjemplo({ giroDeg: 4 }); });
+});
 console.log("\n" + total + " pruebas de mapeo correctas");
