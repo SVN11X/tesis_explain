@@ -13,10 +13,14 @@
   /* Enlace público a la tesis en PDF. Mientras esté vacío, el pie no muestra enlace y Recursos
      dice que la tesis no está publicada. Pon aquí solo una dirección verificada, por ejemplo la
      del repositorio institucional de la UTEM, nunca una copia sin procedencia. */
-  var ACADEMICO = window.PROYECTO.academico;
+  /* Si datos/proyecto.js no llega (bloqueado, caché corrupta o archivo ausente), la cabecera,
+     el pie y los respaldos deben seguir funcionando. El aviso estático del HTML conserva el estado. */
+  var ACADEMICO = (window.PROYECTO && window.PROYECTO.academico) || {
+    estado_texto: "En revisión por comité", tesis_pdf: null, version_documento: null, ultima_actualizacion_sitio: null, sinDatos: true
+  };
   var TESIS_PDF = ACADEMICO.tesis_pdf || "";
   /* Fecha de esta actualización de plataforma, independiente del documento y de los ensayos. */
-  var REVISION = { iso: ACADEMICO.ultima_actualizacion_sitio, texto: new Date(ACADEMICO.ultima_actualizacion_sitio + "T12:00:00Z").toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }) };
+  var REVISION = /^\d{4}-\d{2}-\d{2}$/.test(ACADEMICO.ultima_actualizacion_sitio || "") ? { iso: ACADEMICO.ultima_actualizacion_sitio, texto: new Date(ACADEMICO.ultima_actualizacion_sitio + "T12:00:00Z").toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }) } : null;
   /* PENDIENTE AUTOR: identificador o fecha de la versión del documento de referencia.
      Mientras esté vacía, la línea del pie queda oculta. */
   var VERSION_TESIS = ACADEMICO.version_documento || "";
@@ -206,7 +210,7 @@
       (TESIS_PDF ? '<p><a href="' + esc(TESIS_PDF) + '">Descargar la tesis en PDF</a></p>' : '') +
       '<p>Código bajo licencia <a href="' + REPO + '/blob/main/LICENSE">MIT</a> y contenido bajo <a href="https://creativecommons.org/licenses/by/4.0/deed.es">CC BY 4.0</a>, salvo las excepciones indicadas en <a href="recursos.html#creditos">Créditos</a>.</p>' +
       '<p><b>' + esc(ACADEMICO.estado_texto) + '.</b> El estado académico es distinto de la verificación de funcionamiento de un subsistema.</p>' +
-      '<p>Última actualización de la plataforma: <time datetime="' + REVISION.iso + '">' + REVISION.texto + '</time>.</p>' +
+      (REVISION ? '<p>Última actualización de la plataforma: <time datetime="' + REVISION.iso + '">' + REVISION.texto + '</time>.</p>' : '') +
       (VERSION_TESIS ? '<p>Versión del documento de referencia: ' + esc(VERSION_TESIS) + '.</p>' : '<p hidden>Basado en la versión de la tesis del <!-- PENDIENTE AUTOR: versión del documento en datos/academico.json --></p>') + '</div>' +
       '<div><h2>Temas</h2><ul>' + CAPS.map(function (c, i) { return '<li><a href="' + c.id + '.html">' + n2(i) + ' · ' + esc(c.t) + '</a></li>'; }).join("") + '</ul></div>' +
       '<div><h2>Más</h2><ul>' + EXTRAS.map(function (e) { return '<li><a href="' + e.id + '.html">' + esc(e.t) + '</a></li>'; }).join("") + '<li><a href="recursos.html#glosario">Glosario</a></li><li><a href="recursos.html#citar">Cómo citar</a></li><li><a href="recursos.html#autor">Sobre el autor</a></li><li><a href="recursos.html#abstract" hreflang="en">Abstract in English</a></li><li><a href="https://www.youtube.com/watch?v=' + VIDEO_ID + '">Video del robot en YouTube</a></li><li><a href="' + REPO + '">Código de este sitio</a></li><li><a href="' + REPO + '/issues">Reportar un error o sugerir una mejora</a></li></ul></div>' +
@@ -662,7 +666,11 @@
         timer = setInterval(function () { ir((i + 1) % btns.length); }, 2600);
       });
       document.addEventListener("visibilitychange", function () { if (document.hidden) parar(); });
-      if (window.matchMedia) window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", function (e) { if (e.matches) parar(); });
+      if (window.matchMedia) {
+        /* Safari anterior a la versión 14 solo ofrece addListener; sin esta guarda, el error detenía el resto del arranque. */
+        var mqm = window.matchMedia("(prefers-reduced-motion: reduce)"), alReducir = function (e) { if (e.matches) parar(); };
+        if (mqm.addEventListener) mqm.addEventListener("change", alReducir); else if (mqm.addListener) mqm.addListener(alReducir);
+      }
       for (var n = 1; n <= btns.length; n++) { var a = new Image(); a.src = "img/fotos/etapa-" + n + "-mapa.jpg"; }
     });
   }
@@ -735,7 +743,7 @@
     document.querySelectorAll("details").forEach(function (d) {
       d.addEventListener("toggle", function () { if (d.open) window.dispatchEvent(new Event("resize")); });
     });
-    window.addEventListener("beforeprint", function () { document.querySelectorAll("details.detalle").forEach(function (d) { d.open = true; }); });
+    window.addEventListener("beforeprint", function () { document.querySelectorAll("details.detalle, details.ficha-concepto").forEach(function (d) { d.open = true; }); });
   }
 
   /* Resaltar el destino de un enlace interno */
@@ -752,6 +760,33 @@
     setTimeout(marcar, 60);
   }
 
+  /* Tablas anchas. Una tabla que no cabe se desplaza dentro de .tabla-env; si ese contenedor no
+     puede recibir el foco, quien usa teclado no puede recorrer las columnas ocultas (WCAG 2.1.1).
+     Solo se vuelve enfocable cuando realmente desborda, con un nombre tomado de su caption. */
+  function tablasDesplazables() {
+    var envs = [].slice.call(document.querySelectorAll(".tabla-env"));
+    if (!envs.length) return;
+    function revisar() {
+      envs.forEach(function (env) {
+        if (env.hasAttribute("data-desplazable-fijo")) return;
+        var desborda = env.scrollWidth > env.clientWidth + 1;
+        if (desborda && !env.hasAttribute("data-desplazable")) {
+          var cap = env.querySelector("caption"), nombre = cap ? cap.textContent.trim().replace(/\s+/g, " ") : "Tabla";
+          env.setAttribute("data-desplazable", "1"); env.setAttribute("tabindex", "0"); env.setAttribute("role", "region");
+          env.setAttribute("aria-label", nombre.slice(0, 140) + ". Desplazable horizontalmente");
+        } else if (!desborda && env.hasAttribute("data-desplazable")) {
+          ["data-desplazable", "tabindex", "role", "aria-label"].forEach(function (a) { env.removeAttribute(a); });
+        }
+      });
+    }
+    /* Las que ya declaran su región en el HTML se respetan tal cual. */
+    envs.forEach(function (env) { if (env.hasAttribute("tabindex") && !env.hasAttribute("data-desplazable")) env.setAttribute("data-desplazable-fijo", "1"); });
+    revisar();
+    var t = null;
+    window.addEventListener("resize", function () { clearTimeout(t); t = setTimeout(revisar, 150); });
+    document.querySelectorAll("details").forEach(function (d) { d.addEventListener("toggle", function () { if (d.open) revisar(); }); });
+  }
+
   /* Estado del PDF de la tesis en Recursos */
   function materiales() {
     if (!TESIS_PDF) return;
@@ -761,7 +796,10 @@
   }
 
   function iniciar() {
-    cabecera(); pie(); capitulo(); progreso(); arriba(); videos(); bucles(); ampliar(); comparadores(); citasYTerminos(); buscador(); materiales(); etapas(); plegados(); interactivos(); destacarHash();
+    /* Cada parte arranca aislada: un fallo en una no impide montar las siguientes. */
+    [cabecera, pie, capitulo, progreso, arriba, videos, bucles, ampliar, comparadores, citasYTerminos, buscador, materiales, etapas, plegados, interactivos, destacarHash, tablasDesplazables].forEach(function (f) {
+      try { f(); } catch (e) { if (window.console) console.error("No se pudo iniciar " + (f.name || "una parte del sitio"), e); }
+    });
     document.documentElement.classList.add("js");
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", iniciar); else iniciar();

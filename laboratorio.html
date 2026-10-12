@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
 <title>Laboratorio de análisis · Robot explorador</title>
-<meta name="description" content="Analiza tablas de movimiento, control, mapeo y navegación localmente, con fórmulas y reglas transparentes. Sin LLM ni envío de archivos.">
+<meta name="description" content="Analiza tablas de movimiento, control, mapeo y navegación, mapas de ocupación PGM y registros de metas localmente, con fórmulas y reglas transparentes. Sin LLM ni envío de archivos.">
 <meta name="author" content="Sebastián Valderas Neculqueo">
 <link rel="canonical" href="https://svn11x.github.io/tesis_explain/laboratorio.html">
 <meta name="theme-color" content="#004EAA">
@@ -17,13 +17,14 @@
 <script src="js/comun.js" defer></script>
 <script src="js/sitio.js" defer></script>
 <script src="js/analisis-modelo.js" defer></script>
+<script src="js/analisis-mapa.js" defer></script>
 <script src="js/laboratorio.js" defer></script>
 </head>
 <body data-pagina="laboratorio">
 <a class="saltar" href="#contenido">Saltar al contenido</a>
 <div id="cabecera"></div>
 <!-- ESTADO ACADEMICO: generado por herramientas/datos.py -->
-<aside class="aviso-academico" aria-label="Estado de la investigación"><div class="wrap"><b>En revisión por comité</b><span>La investigación está en revisión por comité. Sus explicaciones, parámetros y resultados pueden cambiar.</span><a href="recursos.html#estado-academico">Estado y procedencia</a></div></aside>
+<aside class="aviso-academico" aria-label="Estado de la investigación"><div class="wrap"><b>En revisión por comité</b><span>Explicaciones, parámetros y resultados pueden cambiar tras la revisión.</span><a href="recursos.html#estado-academico">Estado y procedencia</a></div></aside>
 <!-- FIN ESTADO ACADEMICO -->
 <noscript><nav class="nav-estatica wrap" aria-label="Navegación sin JavaScript"><a href="index.html#temas">Índice de temas</a> · <a href="preguntas.html">Preguntas</a> · <a href="laboratorio.html">Laboratorio</a> · <a href="recursos.html">Recursos y glosario</a></nav></noscript>
 <header class="tema-hero"><div class="wrap"><div class="tema-hero-txt">
@@ -31,7 +32,7 @@
   <p class="eyebrow" data-bloque>Evidencia y práctica</p>
   <h1>Laboratorio de análisis</h1>
   <p class="lead">De una tabla a una conclusión que puedes comprobar. Calcula métricas, revisa su fórmula y descubre qué información falta antes de interpretar.</p>
-  <div class="meta-cap"><span class="etiqueta">Procesamiento local</span><span class="etiqueta">Sin LLM</span><span class="etiqueta">CSV hasta 2 MiB</span></div>
+  <div class="meta-cap"><span class="etiqueta">Procesamiento local</span><span class="etiqueta">Sin LLM</span><span class="etiqueta">CSV hasta 2 MiB</span><span class="etiqueta">PGM hasta 8 MiB</span></div>
 </div></div></header>
 <div class="wrap cap-layout">
 <aside class="lateral" id="lateral" aria-label="Navegación de la página"></aside>
@@ -62,7 +63,24 @@
         <label for="lab-archivo">Abrir un archivo local</label>
         <input type="file" id="lab-archivo" accept=".csv,text/csv" aria-describedby="lab-limite">
         <p id="lab-limite">Máximo 2 MiB y 10 000 filas. Encabezados y unidades deben coincidir con un formato admitido.</p>
+        <button class="btn" type="button" id="lab-ejemplo-metas">Probar con un registro sintético de metas</button>
       </div>
+    </div>
+    <div class="lab-mapas">
+      <h3>Mapa de ocupación PGM</h3>
+      <p>La imagen que guarda <code>map_saver</code>, con su archivo YAML si lo tienes. Se cuentan celdas libres, ocupadas y desconocidas. Con un segundo mapa se comparan celda a celda solo si comparten tamaño, resolución y origen.</p>
+      <div class="lab-mapas-campos">
+        <div><label for="lab-pgm-a">Mapa A · imagen PGM</label><input type="file" id="lab-pgm-a" accept=".pgm,image/x-portable-graymap"></div>
+        <div><label for="lab-yaml-a">YAML del mapa A · opcional</label><input type="file" id="lab-yaml-a" accept=".yaml,.yml"></div>
+        <div><label for="lab-pgm-b">Mapa B para comparar · opcional</label><input type="file" id="lab-pgm-b" accept=".pgm,image/x-portable-graymap"></div>
+        <div><label for="lab-yaml-b">YAML del mapa B · opcional</label><input type="file" id="lab-yaml-b" accept=".yaml,.yml"></div>
+      </div>
+      <div class="lab-mapas-campos">
+        <div><label for="lab-criterio">Cómo clasificar cada gris</label><select id="lab-criterio" aria-describedby="lab-criterio-ayuda"><option value="tesis">Umbrales de la tesis (Anexo 8.1)</option><option value="yaml">Umbrales del YAML (map_server)</option></select><p class="lab-nota" id="lab-criterio-ayuda">Tesis: libre desde 230 y ocupado hasta 50, en grises de 0 a 255. YAML: occupied_thresh y free_thresh del archivo.</p></div>
+        <div><label for="lab-resolucion">Resolución si no hay YAML · m/celda</label><input id="lab-resolucion" type="number" min="0.001" max="10" step="0.001" value="0.05"></div>
+      </div>
+      <div class="lab-acciones"><button class="btn prim" type="button" id="lab-analizar-mapa">Analizar mapa</button><button class="btn" type="button" id="lab-ejemplo-mapa">Probar con dos mapas sintéticos</button></div>
+      <p class="lab-nota">Los mapas y el registro de ejemplo son <a href="datos/ejemplos/README.md">sintéticos</a>: sirven para probar el formato y no son datos del robot. Los mapas originales del prototipo no están publicados.</p>
     </div>
     <details class="lab-opciones"><summary>Opciones de control</summary>
       <p>Para el resumen del escalón, confirma la referencia: la tabla de la guía usa 0,13 m/s. En una serie temporal se usa la columna de referencia y el archivo debe comenzar al aplicar un único escalón.</p>
@@ -80,7 +98,7 @@
   <h2 id="resultados-lab" tabindex="-1">2. Lee el resultado</h2>
   <p id="lab-procedencia"></p>
   <div class="lab-metricas" id="lab-metricas"></div>
-  <figure class="lab-figura"><div id="lab-grafica"></div><figcaption id="lab-leyenda"></figcaption></figure>
+  <figure class="lab-figura"><div id="lab-mapa" class="lab-mapa" hidden></div><div id="lab-grafica"></div><figcaption id="lab-leyenda"></figcaption></figure>
   <details class="lab-tabla"><summary>Ver los datos que respaldan el gráfico</summary><div class="tabla-env" tabindex="0" role="region" aria-label="Tabla de resultados, desplazable"><table class="tabla" id="lab-tabla"></table></div><p id="lab-filastruncadas"></p></details>
   <h3>Interpretaciones y condiciones</h3><div id="lab-reglas"></div>
   <h3>Límites de estos datos</h3><ul id="lab-limitaciones"></ul>
@@ -95,12 +113,23 @@
     <tr><th scope="row"><a href="datos/ensayos/escalon.csv">Resumen de control</a></th><td>Referencia − velocidad estacionaria declarada. Tiempo de subida declarado, sin recalcular.</td><td>Señal temporal para establecimiento, saturación y sobreimpulso numérico.</td></tr>
     <tr><th scope="row"><a href="datos/ensayos/mapeo.csv">Mapeo</a></th><td>Promedio y desviación del área libre y del índice declarado, solo en corridas válidas.</td><td>Rejillas, resolución dentro del archivo, marco, dimensiones, áreas ocupada y desconocida.</td></tr>
     <tr><th scope="row"><a href="datos/ensayos/metas.csv">Metas</a></th><td>Suma por estado; abortadas sin clasificar = abortadas − reemplazadas.</td><td>Estados por identificador y marcas temporales. No equivale a número de fallas.</td></tr>
+    <tr><th scope="row">Mapa PGM propio</th><td>Celdas por clase con umbrales declarados. Área = celdas × resolución². Índice = 100 · libres / (libres + desconocidas), en la imagen completa y en el rectángulo observado.</td><td>Una referencia geométrica externa: sin ella no se mide el error absoluto ni la escala del mapa.</td></tr>
+    <tr><th scope="row">Registro de estados de metas propio</th><td>Estado final por identificador, con prioridad éxito, aborto y cancelación. Reemplazo si la meta siguiente ya figura mientras la abortada sigue activa.</td><td>El motivo de los abortos sin clasificar y el resultado de las metas sin estado final.</td></tr>
   </tbody></table></div>
   <p>Desviación muestral: √(Σ(x − promedio)² / (n − 1)). Con una repetición no está definida. Los promedios se calculan sobre los valores disponibles; las cifras originales pueden usar valores previos al redondeo.</p>
   <details><summary>Formato opcional para una serie de control propia</summary>
     <p>Encabezados: <code>tiempo_s,referencia_m_s,velocidad_m_s,pwm</code>. Tiempo no negativo y creciente, al menos cinco muestras, referencia constante, PWM entre −255 y 255. No se incluyen registros reales nuevos en esta entrega.</p>
     <p>Sobreimpulso observado: max(0, (velocidad − referencia) / (referencia − velocidad inicial) · 100). Funciona para escalones de subida y bajada. Establecimiento: primera muestra posterior a la última fuera de la banda elegida, con al menos dos muestras restantes; solo describe la ventana observada. Saturación: porcentaje de muestras en el tope, distinto de porcentaje de tiempo.</p>
     <p>El promedio del error en el 20 % final de tiempo se presenta como error final, sin certificar que sea estacionario. Debes confirmar origen, resolución, inicio del escalón y duración suficiente.</p>
+  </details>
+  <details><summary>Formato del mapa de ocupación</summary>
+    <p>Imagen PGM binaria (P5) o de texto (P2), hasta 8 MiB y 4 millones de celdas. La fila superior de la imagen es el borde superior del mapa. Del YAML se leen <code>resolution</code>, <code>origin</code>, <code>negate</code>, <code>occupied_thresh</code>, <code>free_thresh</code> y <code>mode</code>. Otras claves se ignoran y no se ejecuta nada.</p>
+    <p>Con los umbrales de la tesis, un gris llevado a la escala de 0 a 255 es libre desde 230, ocupado hasta 50 y desconocido entre ambos. Con los del YAML, la ocupación es (255 − gris) / 255, o gris / 255 si <code>negate</code> vale 1: ocupada si supera <code>occupied_thresh</code>, libre si es menor que <code>free_thresh</code>. Los dos criterios pueden dar conteos distintos con la misma imagen.</p>
+    <p>El rectángulo observado es el menor que contiene todas las celdas libres u ocupadas. Se muestra para ver cuánto cambia el índice con el recorte, mientras el área libre no cambia.</p>
+  </details>
+  <details><summary>Formato del registro de estados de metas</summary>
+    <p>Encabezados: <code>mensaje,meta_id,estado,aceptada_s</code>. Una fila por cada meta presente en cada mensaje de estado de la acción <code>NavigateToPose</code>. <code>mensaje</code> es el número de orden del mensaje, <code>meta_id</code> el identificador de la meta, <code>estado</code> uno de ACCEPTED, EXECUTING, CANCELING, SUCCEEDED, CANCELED o ABORTED, o su código de 1 a 6, y <code>aceptada_s</code> el sello de aceptación de la meta en segundos.</p>
+    <p>El procedimiento sigue la descripción del Anexo 8.4 de la tesis, implementado de nuevo para esta guía: estado final con prioridad éxito sobre aborto sobre cancelación, y una abortada cuenta como reemplazada si en algún mensaje la meta siguiente ya figura mientras ella sigue aceptada o en ejecución. El tiempo activo es la diferencia entre su aceptación y la de la meta que la reemplazó.</p>
   </details>
   <p>Consulta los <a href="docs/laboratorio.md">esquemas completos y la interfaz de extensión</a>. El laboratorio no ejecuta ROS 2, SLAM Toolbox, Ceres ni modelos de IA.</p>
 </section>

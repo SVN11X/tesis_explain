@@ -4,6 +4,9 @@
   "use strict";
   var C = {};
   var datos = typeof module !== "undefined" && module.exports ? require("../datos/proyecto.js") : window.PROYECTO;
+  /* Sin datos/proyecto.js no hay parámetros que mostrar: el módulo no se define y cada
+     interactivo que lo necesita conserva su explicación de respaldo, con opción de reintentar. */
+  if (!datos || !datos.parametros) { if (typeof console !== "undefined") console.warn("Faltan los parámetros de datos/proyecto.js; window.CONTROL no se define."); return; }
   var p = datos.parametros.control;
   C.TS = p.periodo_planificador_s;
   C.FACTOR = p.ticks_por_ciclo_por_m_s; // conversión nominal a 30 Hz, no medida del reloj real
@@ -117,6 +120,59 @@
   C.fopdt = function (g, pwm, t) {
     if (t < g.retardo) return 0;
     return g.K * pwm * (1 - Math.exp(-(t - g.retardo) / g.tau));
+  };
+  /* Simulador PID ilustrativo de «Ajusta un PID». PID posicional con D sobre el error e
+     integración condicional al saturar, sobre una planta de primer orden con la ganancia y la
+     constante de tiempo del orden identificado para la rueda izquierda (Tabla A4.4). No es el
+     firmware: su ley, su escala y sus enteros se tratan en los otros interactivos. */
+  C.PID_ILUSTRATIVO = { REF: 0.13, DT: 1 / 30, T: 6, K: 0.000913, TAU: 0.33, ZONA: 60 };
+  C.simularPID = function (c) {
+    var S = C.PID_ILUSTRATIVO, y = 0, I = 0, ePrev = 0, out = [];
+    for (var t = 0; t <= S.T + 1e-9; t += S.DT) {
+      var e = S.REF - y;
+      I += e * S.DT;
+      var d = (e - ePrev) / S.DT; ePrev = e;
+      var u = c.kp * e + c.ki * I + c.kd * d;
+      var us = Math.max(-255, Math.min(255, u));
+      if (us !== u && c.ki) I -= e * S.DT;          /* integración condicional al saturar */
+      var efectivo = us;
+      if (c.zona) efectivo = Math.abs(us) < S.ZONA ? 0 : us - Math.sign(us) * S.ZONA;
+      y += S.DT / S.TAU * (S.K * efectivo * (c.zona ? 255 / (255 - S.ZONA) : 1) - y);
+      out.push([t, y, us]);
+    }
+    return out;
+  };
+  /* Lecturas del gráfico: el último segundo (30 muestras) se toma como valor estabilizado. */
+  C.medidasPID = function (d) {
+    var S = C.PID_ILUSTRATIVO, finv = d.slice(-30).reduce(function (a, p) { return a + p[1]; }, 0) / 30, maxv = Math.max.apply(null, d.map(function (p) { return p[1]; }));
+    var t10 = null, t90 = null; d.forEach(function (p) { if (t10 == null && p[1] >= .1 * S.REF) t10 = p[0]; if (t90 == null && p[1] >= .9 * S.REF) t90 = p[0]; });
+    var tope = d.filter(function (p) { return Math.abs(p[2]) >= 255; }).length;
+    return { fin: finv, err: Math.abs(S.REF - finv), os: maxv > S.REF * 1.005 ? (maxv - S.REF) / S.REF * 100 : 0, tr: (t10 != null && t90 != null) ? t90 - t10 : null, tope: tope * S.DT };
+  };
+  /* Interpretación por reglas. Cada lectura declara la condición que la activó y el cálculo
+     que la respalda, para que se pueda comprobar con los números de la pantalla. */
+  C.lecturaPID = function (c, m) {
+    var S = C.PID_ILUSTRATIVO, out = [];
+    function f(v, n) { return (Math.round(v * Math.pow(10, n)) / Math.pow(10, n)).toFixed(n).replace(".", ","); }
+    if (!c.kp && !c.ki) {
+      out.push({ id: "sin-control", texto: "Sin P ni I no hay una orden sostenida: la rueda no sigue la referencia.", condicion: "P = 0 e I = 0", calculo: "Con el error estable, la derivada vale 0 y la orden también." });
+      return out;
+    }
+    if (!c.ki && !c.zona) {
+      var teo = S.REF / (1 + S.K * c.kp);
+      out.push({ id: "error-sin-integral", texto: "Sin I queda un error permanente. Para sostener una velocidad v el motor necesita v/K PWM, y con solo P esa orden existe únicamente si queda error.",
+        condicion: "I = 0 y sin zona muerta", calculo: "error = referencia / (1 + K·P) = " + f(S.REF, 2) + " / (1 + " + String(S.K).replace(".", ",") + " · " + c.kp + ") = " + f(teo, 3) + " m/s. El gráfico mide " + f(m.err, 3) + " m/s." });
+    } else if (!c.ki && c.zona) {
+      out.push({ id: "zona-sin-integral", texto: "Con zona muerta y sin I el error crece: los primeros " + S.ZONA + " PWM no mueven la rueda y la orden solo los supera con más error.", condicion: "I = 0 y zona muerta activa", calculo: "Error final medido: " + f(m.err, 3) + " m/s." });
+    } else if (m.err < 0.001) {
+      out.push({ id: "integral-elimina", texto: "La memoria integral sostiene la orden que necesita la rueda sin dejar error" + (c.zona ? ", aunque haya zona muerta" : "") + ".", condicion: "I > 0 y error final < 0,001 m/s", calculo: "Error final medido: " + f(m.err, 4) + " m/s." });
+    } else {
+      out.push({ id: "integral-lenta", texto: "La integral todavía no termina de corregir en los 6 s simulados.", condicion: "I > 0 y error final ≥ 0,001 m/s", calculo: "Error final medido: " + f(m.err, 3) + " m/s." });
+    }
+    if (m.os > 2) out.push({ id: "sobreimpulso", texto: "La rueda supera la referencia. " + (c.ki ? "La integral acumulada durante la subida solo se descarga con error negativo, es decir, pasándose." : "La derivada sobre el error empuja en el arranque."), condicion: "sobreimpulso > 2 %", calculo: "Máximo " + f(m.os, 0) + " % sobre 0,13 m/s." });
+    if (m.tope > 0) out.push({ id: "saturacion", texto: "La orden llegó al tope de 255 PWM. Mientras está en el tope, subir P no acelera la respuesta.", condicion: "|orden| = 255 en alguna muestra", calculo: "Tiempo en el tope: " + f(m.tope, 2) + " s." });
+    if (m.tr === null) out.push({ id: "no-llega", texto: "La velocidad no alcanza el 90 % de la referencia, así que no hay tiempo de subida.", condicion: "nunca llega a 0,117 m/s", calculo: "Velocidad final " + f(m.fin, 3) + " m/s." });
+    return out;
   };
   C.registro = function (velocidad) { return Math.round((velocidad + 1e-10) * 100) / 100; };
   C.promedio = function (muestras) { return muestras.reduce(function (a, b) { return a + b; }, 0) / muestras.length; };

@@ -146,4 +146,36 @@ test("el grafo rechaza deriva no finita o fuera del rango declarado", function (
   assert.throws(function () { M.grafoEjemplo({ escalaPct: Infinity }); });
   assert.throws(function () { M.grafoEjemplo({ giroDeg: 4 }); });
 });
+test("mapa del grafo: con las poses reales las observaciones de cada pared coinciden y el ancho es el del recinto", function () {
+  var par = M.paredesGrafo(), g = M.grafoEjemplo(), obs = M.observacionesGrafo(g.real, par), m = M.metricasMapa(M.mapaDesdePoses(g.real, obs), par, 12);
+  near(m.inicioRegreso, 0, 1e-9); near(m.dispersion, 0, 1e-9); near(m.ancho, m.anchoReal, 1e-9);
+  assert(m.paredesComunes > 10, "la pose 0 y la 12 ven paredes en común");
+});
+test("mapa del grafo: la isla tapa lo que está detrás y nada queda fuera del alcance", function () {
+  var par = M.paredesGrafo(), g = M.grafoEjemplo(), obs = M.observacionesGrafo(g.real, par), isla = M.recintoGrafo.isla;
+  obs.forEach(function (o) { assert(Math.hypot(o.z[0], o.z[1]) <= M.recintoGrafo.alcance + 1e-9); });
+  /* desde la pose 0, en (0, 0), la cara superior de la isla queda oculta por la propia isla */
+  var tapadas = par.map(function (w, j) { return j; }).filter(function (j) { return par[j].pared === "isla" && Math.abs(par[j].p[1] - isla[3]) < 1e-9; });
+  assert(tapadas.every(function (j) { return !obs.some(function (o) { return o.i === 0 && o.j === j; }); }));
+});
+test("mapa del grafo: optimizar junta la pared vista al inicio y al regreso, pero no corrige un error de escala", function () {
+  var par = M.paredesGrafo(), g = M.grafoEjemplo(), obs = M.observacionesGrafo(g.real, par);
+  var opt = M.optimizarGrafo(g.odom, g.edges.concat([g.cierre]));
+  var antes = M.metricasMapa(M.mapaDesdePoses(g.odom, obs), par, 12), despues = M.metricasMapa(M.mapaDesdePoses(opt.poses, obs), par, 12);
+  assert(antes.inicioRegreso > .15 && despues.inicioRegreso < .005, antes.inicioRegreso + " → " + despues.inicioRegreso);
+  assert(despues.dispersion < antes.dispersion);
+  assert(despues.ancho - despues.anchoReal > .03, "el mapa coherente queda más ancho: " + despues.ancho);
+  /* solo escala: el cierre ya se cumple y la optimización no cambia nada */
+  var e = M.grafoEjemplo({ escalaPct: 4, giroDeg: 0 }), oe = M.optimizarGrafo(e.odom, e.edges.concat([e.cierre]));
+  var me = M.metricasMapa(M.mapaDesdePoses(oe.poses, M.observacionesGrafo(e.real, par)), par, 12);
+  near(me.inicioRegreso, 0, 1e-6); assert(me.ancho - me.anchoReal > .04);
+});
+test("el respaldo sin JavaScript del grafo repite las cifras del mapa calculado", function () {
+  var html = fs.readFileSync(path.join(__dirname, "..", "mapeo.html"), "utf8");
+  var texto = html.split('data-vis="lazo"><p class="vis-fallback">')[1].split("</p>")[0];
+  var par = M.paredesGrafo(), g = M.grafoEjemplo(), obs = M.observacionesGrafo(g.real, par), opt = M.optimizarGrafo(g.odom, g.edges.concat([g.cierre]));
+  var antes = M.metricasMapa(M.mapaDesdePoses(g.odom, obs), par, 12), despues = M.metricasMapa(M.mapaDesdePoses(opt.poses, obs), par, 12);
+  function f(v, n) { return (Math.round(v * Math.pow(10, n) + 1e-9) / Math.pow(10, n)).toFixed(n).replace(".", ","); }
+  [f(antes.inicioRegreso * 100, 1) + " cm", f(despues.ancho, 2) + " m", f(despues.anchoReal, 2) + " m"].forEach(function (c) { assert(texto.indexOf(c) >= 0, "falta " + c); });
+});
 console.log("\n" + total + " pruebas de mapeo correctas");

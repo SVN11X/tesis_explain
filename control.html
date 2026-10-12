@@ -34,7 +34,7 @@
 <a class="saltar" href="#contenido">Saltar al contenido</a>
 <div id="cabecera"></div>
 <!-- ESTADO ACADEMICO: generado por herramientas/datos.py -->
-<aside class="aviso-academico" aria-label="Estado de la investigación"><div class="wrap"><b>En revisión por comité</b><span>La investigación está en revisión por comité. Sus explicaciones, parámetros y resultados pueden cambiar.</span><a href="recursos.html#estado-academico">Estado y procedencia</a></div></aside>
+<aside class="aviso-academico" aria-label="Estado de la investigación"><div class="wrap"><b>En revisión por comité</b><span>Explicaciones, parámetros y resultados pueden cambiar tras la revisión.</span><a href="recursos.html#estado-academico">Estado y procedencia</a></div></aside>
 <!-- FIN ESTADO ACADEMICO -->
 <noscript><nav class="nav-estatica wrap" aria-label="Navegación sin JavaScript"><a href="index.html#temas">Índice de temas</a> · <a href="preguntas.html">Preguntas</a> · <a href="laboratorio.html">Laboratorio</a> · <a href="recursos.html">Recursos y glosario</a></nav></noscript>
 <header class="tema-hero">
@@ -85,7 +85,7 @@
   <p>En los ejemplos también puedes activar una <span class="term" data-def="Rango de PWM bajo en que el conjunto driver y motor no vence el roce: recibe una orden, pero la rueda no gira. No es la banda del error definida en el software.">zona muerta</span>: una señal pequeña todavía no alcanza a mover la rueda. Más adelante se muestra <a href="#zonas-muertas">su diferencia con la banda del error</a>.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="sim-pid">Ajusta un PID</h3><span class="tipo inter">Interactivo</span><p>Prueba los ejemplos. Con solo P queda un error, con I desaparece, y con demasiado I la rueda se pasa de la referencia.</p></div>
-    <div class="vis" data-vis="pid"><p class="vis-fallback">Simulador de un controlador PID sobre una rueda. Necesita JavaScript.</p></div>
+    <div class="vis" data-vis="pid"><figure class="vis-fig"><img src="img/diagramas/pid-respaldo.svg" width="640" height="330" loading="lazy" alt="Tres respuestas del modelo ilustrativo frente a la referencia de 0,13 m/s: solo P queda bajo la referencia, el PI equilibrado la alcanza sin pasarse y el PI agresivo sube más rápido y se pasa."><figcaption>Respuestas calculadas con el mismo modelo del simulador. Son ilustrativas, no mediciones del robot.</figcaption></figure><p class="vis-fallback" data-respaldo-pid>Con solo P = 1200 la rueda se estabiliza en 0,068 m/s y queda un error de 0,062 m/s, el mismo que da la fórmula 0,13 / (1 + 0,000913 · 1200). Con un PI equilibrado, P = 600 e I = 2600, el error final baja a cero y la subida del 10 al 90 % toma 0,83 s. Con un PI agresivo, P = 1500 e I = 9000, sube en 0,27 s, pero se pasa cerca de un 6,5 % de la referencia.</p></div>
   </div>
   <div class="videos-grid">
     <div class="vid-card">
@@ -135,6 +135,7 @@
     <p><strong>Memoria aparte:</strong> ITerm[k] = ITerm[k−1] + Ki·e[k], solo si la salida no toca el tope</p>
     <small>e: error en ticks/ciclo; m: ticks contados durante un ciclo; u y Δu: PWM; ITerm: unidades internas del numerador. El firmware además trunca y aplica una banda al error. La fórmula describe el orden de actualización, antes de esos cortes.</small>
   </div>
+  <details class="ficha-concepto"><summary>Ficha del concepto: la ley de control del firmware</summary><dl><dt>Qué es</dt><dd>La regla con que el Arduino calcula, en cada ciclo programado de 33 ms, la orden PWM de cada rueda a partir del error de velocidad en ticks por ciclo.</dd><dt>Para qué sirve</dt><dd>Mantener cada rueda en la velocidad pedida aunque cambien la carga, la batería o el roce.</dd><dt>Cómo funciona</dt><dd>Calcula una corrección con Kp por el error, menos Kd por el cambio de la medición, más la memoria ITerm. La divide por Ko = 50, la suma a la orden anterior y limita el resultado a ±255.</dd><dt>Dónde verlo</dt><dd><a href="#ciclo">Un ciclo del firmware, con sus números</a> y <a href="#papeles">el papel real de cada ganancia</a>.</dd><dt>Ejemplo numérico</dt><dd>A 0,13 m/s la referencia es 40,76 ticks por ciclo y ROS 2 envía 40. Con Ki = 0,075, la memoria de la rueda izquierda solo crece con errores de 14 ticks por ciclo o más.</dd><dt>En este robot</dt><dd>Como la corrección se suma a la orden anterior, Kp actúa como ganancia integral y Kd como ganancia proporcional sobre la medición. La ley opera como un PI incremental, sin acción derivativa efectiva.</dd><dt>Límites</dt><dd>Se evaluó en un solo punto de operación, 0,13 m/s. No se comparó con un PID incremental estándar ni se analizó su estabilidad.</dd></dl></details>
   <h3 id="en-que-se-fija">La diferencia clave: error, medición y memoria</h3>
   <div class="tabla-env">
     <table class="tabla">
@@ -212,7 +213,7 @@
   <details class="detalle"><summary>Ver el detalle técnico</summary>
   <div class="widget">
     <div class="widget-cab"><h3 id="ciclo">Un ciclo del firmware, con sus números</h3><span class="tipo inter">Interactivo</span><p>Elige una situación o mueve las mediciones. En rojo aparece cada corte.</p></div>
-    <div class="vis" data-vis="ciclo"><p class="vis-fallback">Paso a paso del cálculo del control en el firmware.</p></div>
+    <div class="vis" data-vis="ciclo"><p class="vis-fallback">En cada ciclo programado de 33 ms el firmware lee los encoders y calcula el error como referencia menos medición, en ticks por ciclo y como número entero. Si el error cabe en la banda, 1 tick en la rueda derecha y 2 en la izquierda, lo trata como cero. Luego forma Kp por el error, menos Kd por el cambio de la medición, más la memoria ITerm, divide por Ko = 50, corta los decimales del incremento, lo suma a la salida anterior y la limita a ±255 PWM. ITerm solo se actualiza si la salida no quedó en el tope.</p></div>
   </div>
   </details>
   <div class="widget">
@@ -281,7 +282,7 @@
   <p>La optimización por enjambre de partículas, o <span class="term" data-def="Optimización por enjambre de partículas, que busca el mejor valor moviendo muchos candidatos que comparten lo que encuentran.">PSO</span>, se inspira en cómo se mueve una <span class="term" data-def="Grupo de aves que se desplaza en conjunto. En esta analogía, cada ave representa una solución candidata que aprende de su experiencia y de las demás.">bandada de aves</span>, es decir, un grupo de pájaros que se desplaza en conjunto <a class="ref" href="#f4">4</a>. Cada partícula es un candidato, aquí un trío de ganancias. En cada generación, cada partícula se mueve combinando tres impulsos. Su velocidad anterior, la atracción hacia el mejor punto que ella misma encontró y la atracción hacia el mejor punto de todo el enjambre. No necesita derivadas ni un modelo exacto, solo poder evaluar qué tan bueno es cada candidato. Por eso es útil cuando se buscan varias ganancias a la vez.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="sim-enjambre">Un enjambre buscando el menor costo</h3><span class="tipo inter">Interactivo</span><p>Presiona Buscar y mira cómo las partículas pasan de explorar a converger.</p></div>
-    <div class="vis" data-vis="enjambre"><p class="vis-fallback">Simulador de optimización por enjambre de partículas. Necesita JavaScript.</p></div>
+    <div class="vis" data-vis="enjambre"><p class="vis-fallback">Cada partícula es un conjunto de ganancias candidato sobre un paisaje de costo de ejemplo. En cada generación su nueva velocidad combina tres tirones: lo que conserva de su velocidad anterior, que pesa cada vez menos porque el peso de inercia baja de 1 a 0, el regreso a su mejor posición propia y la atracción hacia la mejor del enjambre. El factor de constricción 0,7298 y los coeficientes 2,05 son los del script de la tesis. Con las generaciones el enjambre se junta cerca del menor costo. El paisaje es ilustrativo y tiene dos dimensiones, el script real busca tres ganancias.</p></div>
   </div>
   <p>El script que escribí combina dos mejoras conocidas. Un factor de constricción de 0,7298, el valor que entrega la fórmula de Clerc y Kennedy con coeficientes de 2,05 <a class="ref" href="#f5">5</a>, y un peso de inercia que baja de forma lineal con las generaciones, mecanismo propuesto por Shi y Eberhart <a class="ref" href="#f6">6</a>. Usa 50 partículas y 150 generaciones. El costo de cada candidato es el error cuadrático medio de la velocidad simulada más una penalización por sobreimpulso que pesa el triple <a class="ref" href="#f1">1</a>. Como antecedente, Gökçe y otros usaron PSO para sintonizar el PID de un robot móvil agrícola <a class="ref" href="#f7">7</a>.</p>
   <h3 id="semilla">El PSO fue una semilla, el robot dio la última palabra</h3>

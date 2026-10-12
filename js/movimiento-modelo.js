@@ -6,6 +6,9 @@
   "use strict";
   var M = {};
   var datos = typeof module !== "undefined" && module.exports ? require("../datos/proyecto.js") : window.PROYECTO;
+  /* Sin datos/proyecto.js no hay parámetros que mostrar: el módulo no se define y cada
+     interactivo que lo necesita conserva su explicación de respaldo, con opción de reintentar. */
+  if (!datos || !datos.parametros) { if (typeof console !== "undefined") console.warn("Faltan los parámetros de datos/proyecto.js; window.MOVIMIENTO no se define."); return; }
   var p = datos.parametros.movimiento;
   M.R = p.radio_m;
   M.B = p.separacion_m;

@@ -479,12 +479,90 @@
     }
     return { poses: poses, costos: history };
   };
-  M.grafoSVG = function (graph, poses, phase, selected) {
-    var all = graph.real.concat(graph.odom).concat(poses), xs = all.map(function (p) { return p[0]; }), ys = all.map(function (p) { return p[1]; });
+  /* El mapa que forman las observaciones. Cada pose del grafo guarda lo que vio el láser en su
+     propio marco; el mapa se arma colocando esas observaciones según la pose estimada. En este
+     ejemplo el láser mide sin error y solo falla la pose: así se aísla qué le hace al mapa una
+     pose equivocada y qué arregla optimizarla. Recinto, alcance y separación son ilustrativos. */
+  M.recintoGrafo = { exterior: [-0.3, -0.3, 1.8, 1.3], isla: [0.4, 0.3, 1.1, 0.7], paso: 0.1, alcance: 1.0 };
+  M.paredesGrafo = function () {
+    var R = M.recintoGrafo, out = [];
+    function lado(x0, y0, x1, y1, pared) {
+      var n = Math.round(Math.hypot(x1 - x0, y1 - y0) / R.paso);
+      for (var k = 0; k < n; k++) out.push({ p: [x0 + (x1 - x0) * (k + .5) / n, y0 + (y1 - y0) * (k + .5) / n], pared: pared });
+    }
+    var e = R.exterior, i = R.isla;
+    lado(e[0], e[1], e[2], e[1], "inferior"); lado(e[2], e[1], e[2], e[3], "derecha"); lado(e[2], e[3], e[0], e[3], "superior"); lado(e[0], e[3], e[0], e[1], "izquierda");
+    lado(i[0], i[1], i[2], i[1], "isla"); lado(i[2], i[1], i[2], i[3], "isla"); lado(i[2], i[3], i[0], i[3], "isla"); lado(i[0], i[3], i[0], i[1], "isla");
+    return out;
+  };
+  function cruzaSegmento(a, b, c, d) {
+    var r = [b[0] - a[0], b[1] - a[1]], q = [d[0] - c[0], d[1] - c[1]], den = r[0] * q[1] - r[1] * q[0];
+    if (Math.abs(den) < 1e-12) return false;
+    var t = ((c[0] - a[0]) * q[1] - (c[1] - a[1]) * q[0]) / den, u = ((c[0] - a[0]) * r[1] - (c[1] - a[1]) * r[0]) / den;
+    return t > 1e-9 && t < 1 - 1e-9 && u >= 0 && u <= 1;
+  }
+  /* Una pared se observa si está dentro del alcance y la isla no la tapa. */
+  M.observacionesGrafo = function (reales, paredes) {
+    var i = M.recintoGrafo.isla, bordes = [[[i[0], i[1]], [i[2], i[1]]], [[i[2], i[1]], [i[2], i[3]]], [[i[2], i[3]], [i[0], i[3]]], [[i[0], i[3]], [i[0], i[1]]]], obs = [];
+    reales.forEach(function (pose, k) {
+      paredes.forEach(function (w, j) {
+        var d = Math.hypot(w.p[0] - pose[0], w.p[1] - pose[1]);
+        if (d > M.recintoGrafo.alcance) return;
+        var fin = [w.p[0] - (w.p[0] - pose[0]) * 1e-3 / d, w.p[1] - (w.p[1] - pose[1]) * 1e-3 / d];
+        if (bordes.some(function (b) { return cruzaSegmento([pose[0], pose[1]], fin, b[0], b[1]); })) return;
+        obs.push({ i: k, j: j, z: M.componer(M.invertir(pose), [w.p[0], w.p[1], 0]) });
+      });
+    });
+    return obs;
+  };
+  M.mapaDesdePoses = function (poses, obs) {
+    return obs.map(function (o) { var q = M.componer(poses[o.i], o.z); return { i: o.i, j: o.j, p: [q[0], q[1]] }; });
+  };
+  /* Tres lecturas comprobables del mapa armado:
+     inicioRegreso: distancia media entre la misma pared colocada desde la pose 0 y desde la 12;
+     dispersion: separación cuadrática media de las observaciones de cada pared respecto de su promedio;
+     ancho: distancia entre el promedio de la pared derecha y el de la izquierda, frente al ancho real. */
+  M.metricasMapa = function (mapa, paredes, ultima) {
+    var grupos = {}, ini = {}, fin = {};
+    mapa.forEach(function (m) { (grupos[m.j] = grupos[m.j] || []).push(m.p); if (m.i === 0) ini[m.j] = m.p; if (m.i === ultima) fin[m.j] = m.p; });
+    var comunes = Object.keys(ini).filter(function (j) { return fin[j]; });
+    var inicioRegreso = comunes.length ? comunes.reduce(function (s, j) { return s + Math.hypot(ini[j][0] - fin[j][0], ini[j][1] - fin[j][1]); }, 0) / comunes.length : null;
+    var disp = [], xs = { derecha: [], izquierda: [] };
+    Object.keys(grupos).forEach(function (j) {
+      var g = grupos[j], cx = 0, cy = 0;
+      g.forEach(function (p) { cx += p[0] / g.length; cy += p[1] / g.length; });
+      if (g.length > 1) disp.push(Math.sqrt(g.reduce(function (s, p) { return s + Math.pow(p[0] - cx, 2) + Math.pow(p[1] - cy, 2); }, 0) / g.length));
+      var pared = paredes[j].pared;
+      if (xs[pared]) g.forEach(function (p) { xs[pared].push(p[0]); });
+    });
+    function prom(a) { return a.reduce(function (s, v) { return s + v; }, 0) / a.length; }
+    var e = M.recintoGrafo.exterior;
+    return { inicioRegreso: inicioRegreso, paredesComunes: comunes.length, dispersion: disp.length ? prom(disp) : 0,
+      ancho: xs.derecha.length && xs.izquierda.length ? prom(xs.derecha) - prom(xs.izquierda) : null, anchoReal: e[2] - e[0] };
+  };
+  M.grafoSVG = function (graph, poses, phase, selected, mapa) {
+    /* La escala incluye el recinto del ejemplo y todas las poses, así el dibujo no cambia de tamaño
+       al mostrar u ocultar el mapa ni al pasar de una etapa a otra. */
+    var e = M.recintoGrafo.exterior, all = graph.real.concat(graph.odom).concat(poses).concat([[e[0], e[1]], [e[2], e[3]]]);
+    if (mapa) all = all.concat(mapa.map(function (m) { return m.p; }));
+    var xs = all.map(function (p) { return p[0]; }), ys = all.map(function (p) { return p[1]; });
     var minx = Math.min.apply(null, xs), maxx = Math.max.apply(null, xs), miny = Math.min.apply(null, ys), maxy = Math.max.apply(null, ys);
-    var scale = Math.min(330 / (maxx - minx), 210 / (maxy - miny));
-    var X = function (x) { return 64 + (x - minx) * scale; }, Y = function (y) { return 270 - (y - miny) * scale; }, b = "";
+    var scale = Math.min(380 / (maxx - minx), 252 / (maxy - miny));
+    var X = function (x) { return 44 + (x - minx) * scale; }, Y = function (y) { return 300 - (y - miny) * scale; }, b = "";
     function path(points, cls, dash) { return '<path d="M' + points.map(function (p) { return X(p[0]) + " " + Y(p[1]); }).join(" L") + '" fill="none" class="' + cls + '" stroke-width="2"' + (dash ? ' stroke-dasharray="' + dash + '"' : "") + '/>'; }
+    if (mapa) {
+      var isla = M.recintoGrafo.isla;
+      /* Paredes de referencia, conocidas solo en este ejemplo, como banda clara bajo las observaciones. */
+      b += '<rect x="' + X(e[0]) + '" y="' + Y(e[3]) + '" width="' + (X(e[2]) - X(e[0])) + '" height="' + (Y(e[1]) - Y(e[3])) + '" class="mp-pared-ref" fill="none" stroke-width="7"/>';
+      b += '<rect x="' + X(isla[0]) + '" y="' + Y(isla[3]) + '" width="' + (X(isla[2]) - X(isla[0])) + '" height="' + (Y(isla[1]) - Y(isla[3])) + '" class="mp-pared-ref" fill="none" stroke-width="7"/>';
+      var ultima = poses.length - 1;
+      mapa.forEach(function (m) { if (m.i !== 0 && m.i !== ultima) b += '<circle cx="' + X(m.p[0]).toFixed(1) + '" cy="' + Y(m.p[1]).toFixed(1) + '" r="1.8" class="mp-obs"/>'; });
+      mapa.forEach(function (m) {
+        var x = X(m.p[0]), y = Y(m.p[1]);
+        if (m.i === 0) b += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="3" class="mp-obs-ini"/>';
+        else if (m.i === ultima) b += '<rect x="' + (x - 2.6).toFixed(1) + '" y="' + (y - 2.6).toFixed(1) + '" width="5.2" height="5.2" class="mp-obs-fin"/>';
+      });
+    }
     b += path(graph.real, "mp-border", "3 4") + path(graph.odom, "mp-orange", "7 5");
     b += path(poses, "mp-blue");
     if (phase >= 1) b += line(X(poses[0][0]), Y(poses[0][1]), X(poses[12][0]), Y(poses[12][1]), "mp-green", "5 3");
@@ -496,12 +574,12 @@
       if (i > 0 && i < 12) b += txt(x + 8, y - 9, String(i), 14);
     });
     b += txt(16, 24, phase >= 2 ? "Poses reajustadas · odometría conservada" : "Poses iniciales con deriva simulada", 17);
-    b += txt(16, 310, "0 · origen fijo", 15);
+    b += txt(16, 336, "0 · origen fijo", 15);
     b += txt(X(poses[0][0]) - 16, Y(poses[0][1]) - 10, "0", 14);
     b += txt(X(poses[12][0]) + 8, Y(poses[12][1]) + 25, "12", 15);
-    b += txt(290, 310, "12 · regreso", 15);
+    b += txt(290, 336, "12 · regreso", 15);
     if (phase === 3) b += line(X(graph.odom[12][0]), Y(graph.odom[12][1]), X(poses[12][0]), Y(poses[12][1]), "mp-green");
-    return svg(460, 320, "Grafo de trece poses. Línea naranja: odometría original. Azul: poses estimadas. Verde: cierre de lazo", b);
+    return svg(460, 346, "Grafo de trece poses. Línea naranja: odometría original. Azul: poses estimadas. Verde: cierre de lazo" + (mapa ? ". Puntos: paredes observadas colocadas según cada pose; círculos verdes desde la pose 0 y cuadrados violeta desde la 12" : ""), b);
   };
   /* Desacuerdo total en cada paso: sin cierre nada se contradice; el cierre lo hace subir; optimizar lo baja. */
   M.desacuerdoPorPaso = function (graph, opt) {
@@ -509,8 +587,8 @@
     return [M.costoGrafo(graph.odom, graph.edges), M.costoGrafo(graph.odom, todas), M.costoGrafo(opt.poses, todas), M.costoGrafo(opt.poses, todas)];
   };
   V.lazo = function (el) {
-    var escalaPct = 4, giroDeg = 1, graph, edges, opt, costos, iteraciones;
-    function calcular() { graph = M.grafoEjemplo({ escalaPct: escalaPct, giroDeg: giroDeg }); edges = graph.edges.concat([graph.cierre]); opt = M.optimizarGrafo(graph.odom, edges); costos = M.desacuerdoPorPaso(graph, opt); iteraciones = opt.costos.length - 1; }
+    var escalaPct = 4, giroDeg = 1, graph, edges, opt, costos, iteraciones, paredes = M.paredesGrafo(), obs, verMapa = true;
+    function calcular() { graph = M.grafoEjemplo({ escalaPct: escalaPct, giroDeg: giroDeg }); edges = graph.edges.concat([graph.cierre]); opt = M.optimizarGrafo(graph.odom, edges); costos = M.desacuerdoPorPaso(graph, opt); iteraciones = opt.costos.length - 1; obs = M.observacionesGrafo(graph.real, paredes); }
     calcular();
     var phase = 0, selected = 12;
     var steps = ["1 · Acumular deriva", "2 · Reconocer el inicio", "3 · Optimizar las poses", "4 · Publicar map → odom"];
@@ -521,16 +599,33 @@
       "SLAM usa la pose actual optimizada y la pose odométrica actual para calcular map → odom. Esta transformación lleva la estimación de odom a la de map sin recalibrar los encoders ni reescribir odom."
     ];
     el.innerHTML = '<div class="mp-panel"><div class="mp-steps" role="group" aria-label="Pasos del cierre de lazo">' + steps.map(function (s, i) { return '<button class="mp-step" type="button" data-paso="' + i + '" aria-pressed="' + (i === 0) + '">' + s + '</button>'; }).join("") + '</div>' +
-      '<div class="mp-chart"></div><div class="vley"><span><i class="lin-disc"></i>recorrido de referencia del ejemplo</span><span><i class="lin ambar"></i>odometría original (trazos)</span><span><i class="pt azul"></i>poses del grafo</span><span><i class="lin verde"></i>cierre / corrección actual</span></div>' +
+      '<div class="mp-controls"><label><input id="mp-grafo-mapa" type="checkbox" checked>Mostrar el mapa que forman las observaciones del láser</label></div>' +
+      '<div class="mp-chart"></div><div class="vley"><span><i class="lin-disc"></i>recorrido de referencia del ejemplo</span><span><i class="lin ambar"></i>odometría original (trazos)</span><span><i class="pt azul"></i>poses del grafo</span><span><i class="lin verde"></i>cierre / corrección actual</span>' +
+      '<span data-ley-mapa><i class="mp-ley-ref" aria-hidden="true"></i>pared real del ejemplo</span><span data-ley-mapa><i class="mp-ley-ini" aria-hidden="true"></i>pared vista desde la pose 0</span><span data-ley-mapa><i class="mp-ley-fin" aria-hidden="true"></i>vista desde la pose 12</span><span data-ley-mapa><i class="mp-ley-obs" aria-hidden="true"></i>vista desde las demás poses</span></div>' +
       '<p class="mp-status" data-stage-info aria-live="polite"></p>' +
       readings(["Separación del regreso en el grafo", "Giro residual en el regreso", "Separación en odom, sin cambiar", "Desacuerdo total del grafo"]) +
       '<p class="mp-status" data-costo-info></p><p class="mp-status" data-tf-info></p>' +
+      '<div class="mp-mapa-lect" data-bloque-mapa><h4>El mapa que resulta</h4><div class="mp-readings"><div><span>La misma pared, vista al inicio y al regreso</span><b data-mapa-read="0"></b></div><div><span>Dispersión media de cada pared</span><b data-mapa-read="1"></b></div><div><span>Ancho del recinto en el mapa</span><b data-mapa-read="2"></b></div></div>' +
+      '<p class="mp-status" data-mapa-info aria-live="polite"></p><p class="vnota">Cada pose guarda lo que midió el láser en su propio marco, aquí sin error y con 1 m de alcance. El mapa se arma poniendo esas medidas donde dice la pose estimada. Ancho real del recinto del ejemplo: ' + fmt(M.recintoGrafo.exterior[2] - M.recintoGrafo.exterior[0], 2) + ' m. En SLAM Toolbox las aristas entre poses vecinas también vienen del ajuste de barridos, que corrige parte de la escala. Aquí solo hay odometría y un cierre, para aislar ese efecto.</p></div>' +
       '<div class="mp-ranges">' + range("mp-pose", "Inspeccionar pose", 0, 12, 1, selected) + '</div><p class="mp-status" data-pose-info></p>' +
       '<details class="guia-vis"><summary>Experimentar con la deriva del ejemplo</summary><p>Conserva el recorrido de referencia y cambia un error a la vez. Con giro de 0° y solo error de escala, el rectángulo puede cerrar y conservar longitudes incorrectas: cerrar no garantiza un mapa exacto.</p><div class="mp-ranges">' + range('mp-grafo-escala', 'Error de escala ilustrativo · %', -10, 10, 1, escalaPct) + range('mp-grafo-giro', 'Error angular por tramo · °', -3, 3, 0.25, giroDeg) + '</div><button type="button" class="vbtn sec" data-restablecer-grafo>Restablecer ejemplo</button></details>' +
       '<p class="vnota" data-grafo-nota></p></div>';
+    function lecturaMapa(poses) { return M.metricasMapa(M.mapaDesdePoses(poses, obs), paredes, 12); }
     function draw() {
       var poses = phase >= 2 ? opt.poses : graph.odom, p = poses[selected], end = poses[12], raw = graph.odom[12];
-      el.querySelector(".mp-chart").innerHTML = M.grafoSVG(graph, poses, phase, selected);
+      var mapa = M.mapaDesdePoses(poses, obs), mm = M.metricasMapa(mapa, paredes, 12);
+      el.querySelector(".mp-chart").innerHTML = M.grafoSVG(graph, poses, phase, selected, verMapa ? mapa : null);
+      el.querySelectorAll("[data-ley-mapa]").forEach(function (n) { n.hidden = !verMapa; });
+      el.querySelector("[data-bloque-mapa]").hidden = !verMapa;
+      el.querySelector('[data-mapa-read="0"]').textContent = mm.inicioRegreso < .001 ? "< 0,1 cm" : fmt(mm.inicioRegreso * 100, 1) + " cm";
+      el.querySelector('[data-mapa-read="1"]').textContent = mm.dispersion < .001 ? "< 0,1 cm" : fmt(mm.dispersion * 100, 1) + " cm";
+      el.querySelector('[data-mapa-read="2"]').textContent = fmt(mm.ancho, 2) + " m";
+      /* Interpretación por reglas: umbral de 1 cm, la décima parte de la separación entre puntos de pared. */
+      var errAncho = mm.ancho - mm.anchoReal, txtMapa;
+      if (mm.inicioRegreso > .02) txtMapa = "Paredes dobladas: la pared vista al inicio y la misma pared vista al regreso quedan a " + fmt(mm.inicioRegreso * 100, 1) + " cm, porque la pose 12 está mal estimada. El láser midió bien; lo que falla es dónde se colocaron sus medidas.";
+      else if (Math.abs(errAncho) > .01) txtMapa = "El mapa parece cerrado: inicio y regreso coinciden. Aun así mide " + fmt(mm.ancho, 2) + " m de ancho frente a " + fmt(mm.anchoReal, 2) + " m del recinto, " + fmt(Math.abs(errAncho) * 100, 1) + " cm " + (errAncho > 0 ? "de más" : "de menos") + ". Un mapa coherente puede tener error de escala, y solo una medida externa lo detecta.";
+      else txtMapa = "Las observaciones coinciden y el ancho del mapa difiere en menos de 1 cm del recinto del ejemplo.";
+      el.querySelector("[data-mapa-info]").textContent = txtMapa;
       el.querySelector("#mp-pose").value = selected;
       el.querySelector('#mp-grafo-escala').value = escalaPct; el.querySelector('#mp-grafo-giro').value = giroDeg;
       el.querySelector('[data-out="mp-grafo-escala"]').textContent = fmt(escalaPct, 0) + ' %'; el.querySelector('[data-out="mp-grafo-giro"]').textContent = fmt(giroDeg, 2) + '°';
@@ -558,11 +653,12 @@
     }
     el.addEventListener("click", function (e) {
       var b = e.target.closest("[data-paso], [data-node], [data-restablecer-grafo]"); if (!b) return;
-      if (b.hasAttribute('data-restablecer-grafo')) { escalaPct = 4; giroDeg = 1; selected = 12; phase = 0; calcular(); pressed(el, 'data-paso', phase); }
+      if (b.hasAttribute('data-restablecer-grafo')) { escalaPct = 4; giroDeg = 1; selected = 12; phase = 0; verMapa = true; el.querySelector("#mp-grafo-mapa").checked = true; calcular(); pressed(el, 'data-paso', phase); }
       else if (b.hasAttribute("data-paso")) { phase = +b.getAttribute("data-paso"); pressed(el, "data-paso", phase); }
       else selected = +b.getAttribute("data-node");
       draw();
     });
+    el.querySelector("#mp-grafo-mapa").addEventListener("change", function (e) { verMapa = e.target.checked; draw(); });
     el.addEventListener("input", function (e) {
       if (e.target.id === "mp-pose") { selected = +e.target.value; draw(); }
       else if (e.target.id === 'mp-grafo-escala' || e.target.id === 'mp-grafo-giro') {
@@ -570,7 +666,7 @@
         phase = 0; calcular(); pressed(el, 'data-paso', phase); draw();
       }
     });
-    el.estadoSim = function () { var p = phase >= 2 ? opt.poses : graph.odom; return { fase: phase, poses: p, odom: graph.odom, costoInicial: opt.costos[0], costoFinal: opt.costos[opt.costos.length - 1], desacuerdo: costos[phase], tf: phase === 3 ? M.correccionTF(p[12], graph.odom[12]) : [0, 0, 0] }; };
+    el.estadoSim = function () { var p = phase >= 2 ? opt.poses : graph.odom; return { fase: phase, poses: p, odom: graph.odom, costoInicial: opt.costos[0], costoFinal: opt.costos[opt.costos.length - 1], desacuerdo: costos[phase], tf: phase === 3 ? M.correccionTF(p[12], graph.odom[12]) : [0, 0, 0], mapa: lecturaMapa(p), verMapa: verMapa }; };
     draw();
   };
   /* Open Karto es una base compartida, no una equivalencia de resultados. */

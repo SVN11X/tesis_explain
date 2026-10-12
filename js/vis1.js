@@ -142,7 +142,11 @@
     });
     rango.addEventListener("input", function () { parar(); st.k = +rango.value; dibujar(); marcar(); });
     document.addEventListener("visibilitychange", function () { if (document.hidden) parar(); });
-    if (window.matchMedia) window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", function (e) { if (e.matches) parar(); });
+    if (window.matchMedia) {
+      /* addListener cubre Safari anterior a la versión 14, donde MediaQueryList no tiene addEventListener */
+      var mqr = window.matchMedia("(prefers-reduced-motion: reduce)"), alReducir = function (e) { if (e.matches) parar(); };
+      if (mqr.addEventListener) mqr.addEventListener("change", alReducir); else if (mqr.addListener) mqr.addListener(alReducir);
+    }
     dibujar(); marcar();
     el.estadoAstar = function () { var r = res[st.alg], act = st.k ? r.pasos[st.k - 1] : null; return { alg: st.alg, k: st.k, n: r.pasos.length, g: act && act.g, h: act && act.h, f: act && act.f, pend: act ? act.pend.length : 1, activo: !!anim, camino: el.querySelector(".as-camino").getAttribute("d") !== "" }; };
   };

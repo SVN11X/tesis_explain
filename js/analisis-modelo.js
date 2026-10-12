@@ -12,8 +12,13 @@
     mapeo: ['iteracion', 'valida', 'duracion_min', 'distancia_odometria_m', 'cobertura_libre_pct', 'area_libre_m2'],
     metas: ['iteracion', 'metas_generadas', 'abortadas', 'reemplazadas_por_explorador', 'exitosas', 'sin_estado_terminal', 'tiempo_activo_mediano_s'],
     escalon: ['indicador', 'unidad', 'rueda_izquierda', 'rueda_derecha'],
-    'serie-control': ['tiempo_s', 'referencia_m_s', 'velocidad_m_s', 'pwm']
+    'serie-control': ['tiempo_s', 'referencia_m_s', 'velocidad_m_s', 'pwm'],
+    'estados-metas': ['mensaje', 'meta_id', 'estado', 'aceptada_s']
   };
+  /* Estados de action_msgs/GoalStatus. Se aceptan los nombres o sus códigos numéricos. */
+  var ESTADOS = { ACCEPTED: 1, EXECUTING: 2, CANCELING: 3, SUCCEEDED: 4, CANCELED: 5, ABORTED: 6 };
+  var CODIGOS = Object.keys(ESTADOS).reduce(function (o, k) { o[ESTADOS[k]] = k; return o; }, {});
+  A.ESTADOS_META = ESTADOS;
   A.ESQUEMAS = schemas;
   function fail(message) { throw new Error(message); }
   function finite(value, name, row) {
@@ -87,7 +92,7 @@
     var rows = parsed.rows, ids = new Set();
     rows.forEach(function (r, index) {
       var line = index + 2;
-      if (kind === 'escalon') return;
+      if (kind === 'escalon' || kind === 'estados-metas') return;
       if (kind === 'mapeo' && !/^(si|no)$/.test(r.valida)) fail('Fila ' + line + ': valida debe ser si o no.');
       parsed.headers.forEach(function (key) {
         if (key === 'valida') return;
@@ -240,8 +245,74 @@
       result.limitaciones.push('El usuario debe confirmar que el archivo empieza al aplicar un único escalón y documentar origen, resolución y sensor. Los promedios son entre muestras, sin ponderar por tiempo.');
       result.limitaciones.push('El establecimiento solo describe el intervalo observado y depende del muestreo y la banda. No certifica estabilidad futura ni error estacionario; no interpola entre muestras.');
     }
+    else if (kind === 'estados-metas') A.clasificarMetas(rows, options, result, metric, rule, bars);
     result.limitaciones.push('Las reglas son comprobables y limitadas; no identifican causas, no reemplazan al comité ni validan la tesis.');
     return result;
+  };
+  /* Registro de estados de la acción de navegación: una fila por meta presente en cada mensaje
+     de estado. Sigue el procedimiento que describe el Anexo 8.4 de la tesis, implementado aquí
+     de forma independiente: agrupar por identificador, tomar el estado terminal con prioridad
+     éxito > aborto > cancelación, y clasificar una abortada como reemplazada cuando en algún
+     mensaje la meta siguiente ya figura mientras la abortada sigue aceptada o en ejecución. */
+  A.clasificarMetas = function (rows, options, result, metric, rule, bars) {
+    var metas = Object.create(null), mensajes = Object.create(null), lista = [];
+    rows.forEach(function (r, index) {
+      var line = index + 2;
+      var m = finite(r.mensaje, 'mensaje', line); count(m, 'mensaje', line, true);
+      var id = r.meta_id;
+      if (!/^[0-9A-Za-z_-]{1,64}$/.test(id)) fail('Fila ' + line + ': meta_id debe tener de 1 a 64 letras, números, guiones o guiones bajos.');
+      var e = String(r.estado).trim().toUpperCase();
+      if (/^\d+$/.test(e)) { if (!CODIGOS[e]) fail('Fila ' + line + ': código de estado desconocido ' + e + '.'); e = CODIGOS[e]; }
+      if (!ESTADOS[e]) fail('Fila ' + line + ': estado desconocido. Usa ACCEPTED, EXECUTING, CANCELING, SUCCEEDED, CANCELED, ABORTED o sus códigos 1 a 6.');
+      var t = finite(r.aceptada_s, 'aceptada_s', line); positive(t, 'aceptada_s', line, true);
+      if (!metas[id]) { metas[id] = { id: id, aceptada: t, estados: Object.create(null), primerMensaje: m }; lista.push(metas[id]); }
+      else if (Math.abs(metas[id].aceptada - t) > 1e-9) fail('Fila ' + line + ': la meta ' + id + ' cambia su tiempo de aceptación.');
+      metas[id].estados[e] = true;
+      var msg = mensajes[m] = mensajes[m] || Object.create(null);
+      if (msg[id]) fail('Fila ' + line + ': la meta ' + id + ' aparece dos veces en el mensaje ' + m + '.');
+      msg[id] = e;
+      r.mensaje = m; r.estado = e; r.aceptada_s = t;
+    });
+    lista.sort(function (a, b) { return a.aceptada - b.aceptada || a.primerMensaje - b.primerMensaje; });
+    var ACTIVA = { ACCEPTED: 1, EXECUTING: 1 }, nums = Object.keys(mensajes).map(Number);
+    var c = { metas: lista.length, ejecutadas: 0, completadas: 0, abortadas: 0, reemplazadas: 0, sinClasificar: 0, canceladas: 0, sinTerminal: 0 }, tiempos = [];
+    lista.forEach(function (g, k) {
+      var est = g.estados;
+      g.terminal = est.SUCCEEDED ? 'SUCCEEDED' : est.ABORTED ? 'ABORTED' : est.CANCELED ? 'CANCELED' : null;
+      if (est.EXECUTING) c.ejecutadas++;
+      if (g.terminal === 'SUCCEEDED') c.completadas++;
+      else if (g.terminal === 'CANCELED') c.canceladas++;
+      else if (!g.terminal) c.sinTerminal++;
+      else {
+        c.abortadas++;
+        var sig = lista[k + 1];
+        g.reemplazada = !!sig && nums.some(function (m) { var msg = mensajes[m]; return msg[sig.id] && ACTIVA[msg[g.id]]; });
+        if (g.reemplazada) { c.reemplazadas++; tiempos.push(sig.aceptada - g.aceptada); } else c.sinClasificar++;
+      }
+    });
+    function mediana(v) { var s = v.slice().sort(function (a, b) { return a - b; }), n = s.length; return n ? (n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2) : null; }
+    metric('metas', 'Metas únicas', c.metas, 'metas', 'conteo de meta_id distintos');
+    metric('mensajes', 'Mensajes de estado', nums.length, 'mensajes', 'conteo de valores distintos de mensaje');
+    metric('ejecutadas', 'Llegaron a ejecución', c.ejecutadas, 'metas', 'metas con EXECUTING en algún mensaje');
+    metric('completadas', 'Completadas', c.completadas, 'metas', 'estado terminal SUCCEEDED');
+    metric('abortadas', 'Abortadas', c.abortadas, 'metas', 'estado terminal ABORTED, sin SUCCEEDED');
+    metric('reemplazadas', 'Abortadas por reemplazo', c.reemplazadas, 'metas', 'abortada activa en un mensaje donde ya figura la meta siguiente');
+    metric('sin-clasificar', 'Abortadas sin clasificar', c.sinClasificar, 'metas', 'abortadas − reemplazadas');
+    metric('canceladas', 'Canceladas', c.canceladas, 'metas', 'estado terminal CANCELED, sin SUCCEEDED ni ABORTED');
+    metric('sin-terminal', 'Sin estado terminal', c.sinTerminal, 'metas', 'sin SUCCEEDED, ABORTED ni CANCELED en el registro');
+    metric('mediana-activo', 'Tiempo activo mediano de las reemplazadas', mediana(tiempos), 's', 'mediana de (aceptación de la siguiente − aceptación propia). No definida sin reemplazos');
+    bars('Estado final de cada meta', ['Completadas', 'Reemplazadas', 'Abortadas sin clasificar', 'Canceladas', 'Sin terminal'], [{ nombre: 'Metas', valores: [c.completadas, c.reemplazadas, c.sinClasificar, c.canceladas, c.sinTerminal] }], 'metas');
+    result.metas = lista.map(function (g) { return { meta_id: g.id, aceptada_s: g.aceptada, estado_final: g.terminal || 'sin terminal', reemplazada: g.terminal === 'ABORTED' ? g.reemplazada : null }; });
+    if (c.reemplazadas) rule('reemplazo-no-fallo', 'Hay metas abortadas porque llegó la siguiente', 'abortada aún activa cuando ya figura la meta siguiente', c.reemplazadas + ' de ' + c.abortadas + ' abortadas', 'Nav2 informa como abortada la meta que se reemplaza; eso no es una falla de navegación.', 'Para medir éxito, ensayar metas fijas o cancelar la meta en curso antes de enviar otra.', 'No se sabe si las metas reemplazadas habrían llegado a completarse.');
+    if (c.sinClasificar) rule('aborto-sin-clasificar', 'Hay abortos que este registro no explica', 'abortada sin mensaje que la muestre activa junto a la siguiente', c.sinClasificar + (c.sinClasificar === 1 ? ' meta' : ' metas'), 'No se cuentan como fallas ni como reemplazos.', 'Revisar el registro de bt_navigator o del controlador alrededor de su aceptación.', 'Una meta que ya aparece abortada en el primer mensaje no puede clasificarse.');
+    if (c.sinTerminal) rule('sin-terminal', 'El registro termina con metas activas', 'sin estado terminal', c.sinTerminal + (c.sinTerminal === 1 ? ' meta' : ' metas'), 'Su resultado es desconocido, por ejemplo si el registro se cerró durante una cancelación.', 'Cerrar el registro después de que la última meta informe su estado final.', 'No se completan con supuestos.');
+    var periodo = options.periodoExplorador;
+    if (periodo && tiempos.length) {
+      var med = mediana(tiempos);
+      if (Math.abs(med - periodo) <= 0.1 * periodo) rule('periodo-explorador', 'El tiempo activo típico coincide con el período del explorador', '|mediana − período| ≤ 10 % del período', 'mediana ' + med.toFixed(3).replace('.', ',') + ' s y período configurado ' + periodo.toFixed(3).replace('.', ',') + ' s', 'Es compatible con reemplazos periódicos del explorador.', 'Confirmar con el registro del explorador cuándo envía cada meta.', 'La coincidencia no prueba la causa de cada reemplazo.');
+    }
+    result.limitaciones.push('No se calcula tasa de éxito: las metas reemplazadas y las sin terminal no tienen un resultado propio.');
+    result.limitaciones.push('El análisis confía en el orden de los mensajes y en los tiempos de aceptación del archivo. No corrige relojes distintos entre equipos.');
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = A;
   else root.ANALISIS = A;

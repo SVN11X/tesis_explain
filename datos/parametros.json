@@ -84,6 +84,17 @@
   },
   "mapeo": {
     "resolucion_reportada_m": 0.05,
-    "fuente": "Guía de referencia: Tabla 5.4; CSV resumido sin dimensiones de rejilla"
+    "umbral_libre_pgm": 230,
+    "umbral_ocupado_pgm": 50,
+    "fuente": "Guía de referencia: Tabla 5.4 y Anexo 8.1 (umbrales de intensidad de la imagen PGM). CSV resumido sin dimensiones de rejilla"
+  },
+  "exploracion": {
+    "planner_frequency_hz": 0.3,
+    "periodo_efectivo_s": 3.333,
+    "progress_timeout_s": 10.0,
+    "potential_scale": 3.0,
+    "gain_scale": 1.0,
+    "min_frontier_size_m": 0.05,
+    "fuente": "Guía de referencia: Tabla A5.4 y Anexo 5.6. El período efectivo de 3333 ms sale de truncar 1/0,3 s a milisegundos enteros"
   }
 }

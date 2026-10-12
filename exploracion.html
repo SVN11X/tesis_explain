@@ -33,7 +33,7 @@
 <a class="saltar" href="#contenido">Saltar al contenido</a>
 <div id="cabecera"></div>
 <!-- ESTADO ACADEMICO: generado por herramientas/datos.py -->
-<aside class="aviso-academico" aria-label="Estado de la investigación"><div class="wrap"><b>En revisión por comité</b><span>La investigación está en revisión por comité. Sus explicaciones, parámetros y resultados pueden cambiar.</span><a href="recursos.html#estado-academico">Estado y procedencia</a></div></aside>
+<aside class="aviso-academico" aria-label="Estado de la investigación"><div class="wrap"><b>En revisión por comité</b><span>Explicaciones, parámetros y resultados pueden cambiar tras la revisión.</span><a href="recursos.html#estado-academico">Estado y procedencia</a></div></aside>
 <!-- FIN ESTADO ACADEMICO -->
 <noscript><nav class="nav-estatica wrap" aria-label="Navegación sin JavaScript"><a href="index.html#temas">Índice de temas</a> · <a href="preguntas.html">Preguntas</a> · <a href="laboratorio.html">Laboratorio</a> · <a href="recursos.html">Recursos y glosario</a></nav></noscript>
 <header class="tema-hero">
@@ -78,7 +78,7 @@
   <p>Este simulador hace el mismo ciclo que el robot real. Mide con un láser, actualiza el mapa, busca fronteras, elige la de mejor puntaje con una mezcla de cercanía y tamaño, planifica con <span class="term" data-def="Algoritmo que busca la ruta de menor costo en una rejilla sumando lo recorrido y una estimación de lo que falta.">A estrella</span> y se mueve. Igual que el explorador del robot, vuelve a elegir cada 3,3 s, y cuenta las metas que cambia antes de llegar.</p>
   <div class="widget sim-grande">
     <div class="widget-cab"><h3 id="sim-exploracion">Exploración por fronteras</h3><span class="tipo inter">Interactivo</span><p>Presiona Explorar. Activa el mapa de costos o el plano real para comparar lo que el robot sabe con lo que hay.</p></div>
-    <div class="vis" data-vis="exploracion"><p class="vis-fallback">Simulador de exploración por fronteras. Necesita JavaScript.</p></div>
+    <div class="vis" data-vis="exploracion"><p class="vis-fallback">El simulador repite el ciclo del robot real en un plano de ejemplo. Mide con un láser, marca celdas libres, ocupadas y desconocidas, busca fronteras entre lo libre y lo desconocido, elige la de mejor puntaje entre cercanía y tamaño, planifica con A estrella y avanza. Vuelve a elegir cada 3,3 s, como explore_lite, y cuenta las metas que cambia antes de llegar. Termina cuando no quedan fronteras alcanzables.</p></div>
   </div>
   <p class="vnota" style="margin-top:8px">Simulación ilustrativa con un plano inventado inspirado en el recinto de pruebas. La regla de puntaje y el período de 3,3 s imitan a explore_lite. La dinámica del robot, el láser y la planificación están simplificados.</p>
 </section>
@@ -144,7 +144,7 @@
         <tr><th>6</th><td class="n">10</td><td class="n">9</td><td class="n">9</td><td class="n">0</td><td class="n">1</td><td class="n">3,3 s</td></tr>
         <tr class="total"><th>Total</th><td class="n">60</td><td class="n">54</td><td class="n">53</td><td class="n">1</td><td class="n">5</td><td class="n">no aplica</td></tr>
       </tbody>
-      <caption>Tabla A7.1 de la tesis. La iteración 2 se excluyó porque el robot no se movió.</caption>
+      <caption>Tabla A7.1 de la tesis. La iteración 2 se excluyó: el robot no se desplazó y su mapa no quedó guardado.</caption>
     </table>
   </div>
   <div class="argumento">

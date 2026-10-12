@@ -27,5 +27,18 @@
 .lab-regla dt { font-weight: 700; }
 .lab-regla dd { margin: 0; overflow-wrap: anywhere; }
 #lab-tabla th, #lab-tabla td { overflow-wrap: anywhere; }
-@media(max-width:600px) { .lab-origenes, .lab-metricas { grid-template-columns: minmax(0,1fr); } .lab-regla dl { display: block; } .lab-regla dd { margin: .2rem 0 .6rem; } }
+/* Mapas de ocupación */
+.lab-mapas { border-top: 1px solid var(--line); margin-top: 1.4rem; padding-top: 1rem; }
+.lab-mapas-campos { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0 1.5rem; }
+.lab-mapas-campos > div { min-width: 0; }
+.lab-entrada > .lab-origenes .btn:not(.prim) { margin-top: .6rem; }
+.lab-nota { font-size: .9rem; color: var(--muted); margin-top: .8rem; }
+.lab-mapa { display: grid; gap: .8rem; margin-bottom: 1rem; }
+.lab-mapa-paneles { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,260px),1fr)); gap: .8rem; }
+.lab-mapa figure { margin: 0; }
+.lab-mapa canvas { display: block; width: 100%; height: auto; image-rendering: pixelated; border: 1px solid var(--line); border-radius: .4rem; background: #fff; }
+.lab-mapa figcaption { font-size: .85rem; color: var(--muted); margin-top: .3rem; }
+.lab-mapa-ley { display: flex; flex-wrap: wrap; gap: .4rem 1rem; font-size: .85rem; margin: 0; padding: 0; list-style: none; }
+.lab-mapa-ley i { display: inline-block; width: .9rem; height: .9rem; border: 1px solid var(--line-2); border-radius: 2px; vertical-align: -2px; margin-right: .35rem; }
+@media(max-width:600px) { .lab-origenes, .lab-metricas, .lab-mapas-campos { grid-template-columns: minmax(0,1fr); } .lab-regla dl { display: block; } .lab-regla dd { margin: .2rem 0 .6rem; } }
 @media print { .lab-entrada, #lab-estado, #lab-error { display: none!important; } .lab-metrica, .lab-regla { break-inside: avoid; } }

@@ -31,6 +31,13 @@ else:
     class QuietHandler(SimpleHTTPRequestHandler):
         def log_message(self, *args):
             pass
+
+        def handle(self):
+            # El navegador corta descargas al cambiar de página; no es un fallo del sitio.
+            try:
+                super().handle()
+            except (BrokenPipeError, ConnectionResetError):
+                pass
     server = ThreadingHTTPServer(('127.0.0.1', 0), partial(QuietHandler, directory=REPO))
     Thread(target=server.serve_forever, daemon=True).start()
     BASE = 'http://localhost:%d' % server.server_port

@@ -124,8 +124,20 @@ abbr[title] { text-decoration: underline dotted; cursor: help; }
 .aviso-academico .wrap { display: flex; align-items: baseline; gap: .6rem 1rem; flex-wrap: wrap; padding-top: .6rem; padding-bottom: .6rem; }
 .aviso-academico b { color: var(--azul); }
 .aviso-academico span { flex: 1 1 24rem; }
+/* En teléfono el aviso ocupa una línea corrida y no desplaza el contenido: sigue visible, pero discreto. */
+@media (max-width: 600px) {
+  .aviso-academico { font-size: .8rem; line-height: 1.45; }
+  .aviso-academico .wrap { display: block; padding-top: .45rem; padding-bottom: .45rem; }
+  .aviso-academico b::after { content: "."; }
+  .aviso-academico span { margin-left: .3em; }
+  .aviso-academico a { margin-left: .3em; white-space: nowrap; }
+}
 .nav-estatica { padding-block: 1rem; }
 .vis-error { padding: 1rem; border: 1px solid var(--rojo); border-radius: .6rem; }
+/* Figura estática de respaldo dentro de un interactivo: se ve sin JavaScript o si el interactivo falla. */
+.vis-fig { margin: 0; }
+.vis-fig img { display: block; width: 100%; max-width: 680px; height: auto; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+.vis-fig figcaption { font-size: var(--t-xs); color: var(--muted); margin-top: 6px; }
 .guia-vis { margin-top: .8rem; border-top: 1px solid var(--line); padding-top: .7rem; font-size: .95rem; }
 .guia-vis summary { font-weight: 700; cursor: pointer; min-height: 44px; padding: .4rem 0; }
 .guia-vis li { margin-block: .6rem; }
@@ -248,6 +260,21 @@ abbr[title] { text-decoration: underline dotted; cursor: help; }
 .articulo p, .articulo ul, .articulo ol, .articulo dl { max-width: var(--lectura); }
 .articulo p + p, .articulo p + ul, .articulo ul + p, .articulo p + ol, .articulo ol + p { margin-top: 14px; }
 .articulo ul, .articulo ol { padding-left: 1.3em; margin: 14px 0 0; display: grid; gap: 6px; }
+/* Ficha del concepto: lectura progresiva de una idea difícil, plegada para no alargar el tema. */
+.articulo .ficha-concepto { margin-top: 18px; max-width: var(--lectura); border: 1px solid var(--line); border-left: 4px solid var(--verde-texto); border-radius: var(--r); background: var(--surface); padding: 0 16px; }
+.ficha-concepto summary { min-height: 44px; padding: 10px 0; font-weight: 700; cursor: pointer; }
+.ficha-concepto dl { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); gap: 8px 16px; margin: 0 0 14px; }
+.ficha-concepto dt { font-weight: 700; }
+.ficha-concepto dd { margin: 0; }
+.ficha-concepto + * { margin-top: 18px; }
+@media (max-width: 600px) { .ficha-concepto dl { grid-template-columns: minmax(0, 1fr); gap: 2px 0; } .ficha-concepto dd + dt { margin-top: 10px; } }
+@media print { .ficha-concepto { break-inside: avoid; } }
+/* Estado académico generado desde datos/academico.json */
+.estado-dl { display: grid; grid-template-columns: minmax(10rem, 16rem) 1fr; gap: 8px 18px; margin-top: 16px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+.estado-dl dt { font-weight: 700; }
+.estado-dl dd { margin: 0; color: var(--ink-2, inherit); }
+.estado-historial time { font-family: var(--f-data); font-size: .9em; }
+@media (max-width: 600px) { .estado-dl { grid-template-columns: 1fr; gap: 2px 0; } .estado-dl dd + dt { margin-top: 10px; } }
 .articulo li::marker { color: var(--azul); }
 .articulo > section > * + .widget, .articulo > section > * + figure, .articulo > section > * + .callout, .articulo > section > * + .tabla-env, .articulo > section > * + .grid-2, .articulo > section > * + .etapas, .articulo > section > * + .video { margin-top: 22px; }
 .articulo > section > .widget + *, .articulo > section > figure + *, .articulo > section > .callout + *, .articulo > section > .tabla-env + *, .articulo > section > .grid-2 + *, .articulo > section > .etapas + *, .articulo > section > .video + * { margin-top: 22px; }
@@ -459,6 +486,12 @@ table.tabla.dw-tabla { font-size: var(--t-xs); min-width: 0; }
 .lecturas div { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; display: grid; }
 .lecturas span { font-size: var(--t-xs); color: var(--muted); }
 .lecturas b { font-family: var(--f-data); font-size: var(--t-md); font-weight: 600; }
+/* Lecturas por regla: el texto explica, la línea pequeña muestra la condición y el cálculo que la respaldan. */
+.pid-lectura { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--azul); border-radius: 8px; padding: 10px 14px; }
+.pid-lectura h4 { margin: 0 0 6px; font-size: var(--t-sm); }
+.pid-lectura ul { margin: 0 !important; padding-left: 1.1em !important; display: grid; gap: 8px; }
+.pid-lectura li { font-size: var(--t-sm); }
+.pid-lectura small { display: block; margin-top: 2px; font-family: var(--f-data); font-size: var(--t-xs); color: var(--muted); }
 /* lazo */
 .cadena { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
 .eslabon { font-family: var(--f-data); font-size: var(--t-sm); padding: 5px 10px; border-radius: 6px; background: var(--azul-suave); color: var(--azul); }

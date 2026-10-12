@@ -41,9 +41,51 @@ fallback = ('<noscript><nav class="nav-estatica wrap" aria-label="Navegación si
             '<a href="index.html#temas">Índice de temas</a> · <a href="preguntas.html">Preguntas</a> · '
             '<a href="laboratorio.html">Laboratorio</a> · <a href="recursos.html">Recursos y glosario</a>'
             '</nav></noscript>')
+MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
+
+
+def fecha(iso):
+    if not iso or not re.fullmatch(r'\d{4}-\d{2}-\d{2}', iso):
+        return None
+    y, m, d = (int(x) for x in iso.split('-'))
+    return '%d de %s de %d' % (d, MESES[m - 1], y)
+
+
+def dato(valor, pendiente='Pendiente de confirmación del autor.'):
+    return html.escape(str(valor)) if valor not in (None, '') else pendiente
+
+
+def pendiente_html(p):
+    # Admite el formato anterior (texto) y el actual ({texto, enlace}).
+    texto, enlace = (p, None) if isinstance(p, str) else (p.get('texto', ''), p.get('enlace'))
+    if enlace:
+        return '<li><a href="%s">%s</a></li>' % (html.escape(enlace), html.escape(texto))
+    return '<li>%s</li>' % html.escape(texto)
+
+
+actualizado = fecha(academic.get('ultima_actualizacion_sitio'))
+detalle = ('<!-- ESTADO DETALLE: generado por herramientas/datos.py desde datos/academico.json -->\n'
+           '<dl class="estado-dl">'
+           '<dt>Versión del documento de referencia</dt><dd>' + dato(academic.get('version_documento')) + '</dd>'
+           '<dt>Fecha de los datos experimentales</dt><dd>' + dato(academic.get('fecha_datos')) + '</dd>'
+           '<dt>Revisión de los datos</dt><dd>' + dato(academic.get('revision_datos')) + '</dd>'
+           '<dt>Actualización de la plataforma</dt><dd>' + (actualizado + '. Es la fecha de esta actualización del sitio, distinta de la fecha del documento y de los experimentos.' if actualizado else 'Sin fecha registrada.') + '</dd>'
+           '</dl>\n'
+           '<h3 id="estado-pendientes">Pendiente de confirmación del autor</h3>\n'
+           '<ul class="estado-pendientes">' + ''.join(pendiente_html(p) for p in academic.get('pendientes', [])) + '</ul>\n'
+           '<h3 id="estado-historial">Historial de cambios del sitio</h3>\n'
+           '<ol class="estado-historial" reversed>' + ''.join(
+               '<li><time datetime="%s">%s</time> · %s. %s</li>' % (html.escape(h['fecha']), fecha(h['fecha']) or html.escape(h['fecha']),
+                                                                    'Plataforma' if h.get('tipo') == 'plataforma' else 'Contenido académico' if h.get('tipo') == 'contenido' else html.escape(h.get('tipo', 'Cambio')),
+                                                                    html.escape(h['cambio']))
+               for h in reversed(academic.get('historial', []))) + '</ol>\n'
+           '<!-- FIN ESTADO DETALLE -->')
+
 for path in sorted(ROOT.glob('*.html')):
     original = path.read_text(encoding='utf-8')
     text = original
+    if 'ESTADO DETALLE:' in text:
+        text = re.sub(r'<!-- ESTADO DETALLE:.*?<!-- FIN ESTADO DETALLE -->', lambda _: detalle, text, flags=re.S)
     if 'ESTADO ACADEMICO:' in text:
         text = re.sub(r'<!-- ESTADO ACADEMICO:.*?<!-- FIN ESTADO ACADEMICO -->', lambda _: note, text, flags=re.S)
     else:

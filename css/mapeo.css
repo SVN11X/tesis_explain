@@ -26,6 +26,18 @@
 .mp-svg .mp-node { fill: var(--azul); stroke: var(--surface); stroke-width: 1.2; }
 .mp-svg .mp-anillo { stroke: var(--ink); }
 .mp-svg .mp-selected { fill: var(--verde-texto); stroke: var(--ink); stroke-width: 2; }
+/* Mapa armado desde las poses del grafo */
+.mp-svg .mp-pared-ref { stroke: var(--line); }
+.mp-svg .mp-obs { fill: var(--muted); opacity: .6; }
+.mp-svg .mp-obs-ini { fill: var(--verde-texto); }
+.mp-svg .mp-obs-fin { fill: var(--violeta); }
+.mp-ley-ref, .mp-ley-ini, .mp-ley-fin, .mp-ley-obs { display: inline-block; vertical-align: middle; margin-right: 6px; }
+.mp-ley-ref { width: 18px; height: 6px; background: var(--line); border-radius: 2px; }
+.mp-ley-ini { width: 8px; height: 8px; border-radius: 50%; background: var(--verde-texto); }
+.mp-ley-fin { width: 8px; height: 8px; background: var(--violeta); }
+.mp-ley-obs { width: 5px; height: 5px; border-radius: 50%; background: var(--muted); }
+.mp-mapa-lect { border-top: 1px solid var(--line); padding-top: 10px; display: grid; gap: 8px; }
+.mp-mapa-lect h4 { margin: 0; font-size: var(--t-sm); }
 .mp-panel { display: grid; gap: 14px; }
 .mp-chart { width: 100%; max-width: 650px; margin-inline: auto; }
 .mp-columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: 14px; }

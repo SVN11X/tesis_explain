@@ -699,7 +699,10 @@
 
   /* 5. PID de una rueda. Al cambiar las ganancias queda dibujada la curva anterior, para comparar. */
   V.pid = function (el) {
-    var P = paleta(), REF = 0.13, DT = 1 / 30, T = 6, K = 0.000913, TAU = 0.33;
+    /* El modelo y sus lecturas viven en js/control-modelo.js, donde se prueban en Node. */
+    var CM = window.CONTROL;
+    if (!CM || !CM.simularPID) throw new Error("Falta el modelo del capítulo 4");
+    var P = paleta(), REF = CM.PID_ILUSTRATIVO.REF, T = CM.PID_ILUSTRATIVO.T;
     var PRE = { p: [1200, 0, 0], pi: [600, 2600, 0], agr: [1500, 9000, 0], pid: [1500, 9000, 25] };
     var NOMBRE = { p: "Solo P", pi: "PI equilibrado", agr: "PI agresivo", pid: "PID, con D que amortigua" };
     var st = { kp: 1200, ki: 0, kd: 0, zona: false, accion: false }, confirmado = copia(st), anterior = null, editando = false;
@@ -716,31 +719,13 @@
       '<div class="vley"><span><i class="lin" style="background:var(--s1)"></i>velocidad con los valores actuales</span><span data-o="ley-ant" hidden><i class="lin" style="background:var(--muted);opacity:.6;height:4px"></i><span data-o="ant"></span></span><span><i class="lin-disc" style="border-color:var(--ink)"></i>referencia 0,13 m/s</span></div>' +
       '<div class="lecturas"><div><span>Velocidad al final</span><b data-o="fin"></b></div><div><span>Error estacionario</span><b data-o="err"></b></div><div><span>Sobreimpulso</span><b data-o="os"></b></div><div><span>Tiempo de subida, 10 a 90 %</span><b data-o="tr"></b></div></div>' +
       '<p class="vestado" aria-live="polite" data-o="cmp"></p>' +
+      '<div class="pid-lectura" data-o="lectura"><h4>Qué dice esta curva</h4><ul></ul></div>' +
       '<div class="vctl"><button type="button" class="vbtn sec" data-a="borrar" disabled>Quitar la curva anterior</button></div>' +
       '<p class="vnota">Modelo ilustrativo de una rueda con un retardo de primer orden, una ganancia y una constante de tiempo del orden de las que identifiqué, y el PWM limitado a 255. Unidades de este simulador: P en PWM por cada m/s de error. I en PWM por cada m/s de error sostenido durante 1 s. D en PWM por cada m/s de error que cambia en 1 s. Estas ganancias no son las del firmware, que usa otra escala y otra ley. Las lecturas usan el último segundo como valor estabilizado.</p>';
     var cont = el.querySelector(".pid-l"), L = lienzo(cont, function (w) { return w < 520 ? 4 / 3 : 16 / 7; }, function () { dibujar(); });
     alTema(function () { P = paleta(); dibujar(); });
-    function sim(c) {
-      var y = 0, I = 0, ePrev = 0, out = [];
-      for (var t = 0; t <= T + 1e-9; t += DT) {
-        var e = REF - y;
-        I += e * DT;
-        var d = (e - ePrev) / DT; ePrev = e;
-        var u = c.kp * e + c.ki * I + c.kd * d;
-        var us = limitar(u, -255, 255);
-        if (us !== u && c.ki) I -= e * DT;          /* integración condicional al saturar */
-        var efectivo = us;
-        if (c.zona) efectivo = Math.abs(us) < 60 ? 0 : us - Math.sign(us) * 60;
-        y += DT / TAU * (K * efectivo * (c.zona ? 255 / 195 : 1) - y);
-        out.push([t, y, us]);
-      }
-      return out;
-    }
-    function medidas(d) {
-      var finv = d.slice(-30).reduce(function (a, p) { return a + p[1]; }, 0) / 30, maxv = Math.max.apply(null, d.map(function (p) { return p[1]; }));
-      var t10 = null, t90 = null; d.forEach(function (p) { if (t10 == null && p[1] >= .1 * REF) t10 = p[0]; if (t90 == null && p[1] >= .9 * REF) t90 = p[0]; });
-      return { fin: finv, err: Math.abs(REF - finv), os: maxv > REF * 1.005 ? (maxv - REF) / REF * 100 : 0, tr: (t10 != null && t90 != null) ? t90 - t10 : null };
-    }
+    function sim(c) { return CM.simularPID(c); }
+    function medidas(d) { return CM.medidasPID(d); }
     function dibujar() {
       var d = sim(st), ctx = L.ctx, W = L.w, H = L.h, angosto = W < 420, ml = angosto ? 40 : 52, mr = st.accion ? (angosto ? 34 : 44) : 14, mt = angosto ? 24 : 14, mb = 26;
       var x = function (t) { return ml + t / T * (W - ml - mr); }, y = function (v) { return mt + (1 - v / 0.2) * (H - mt - mb); };
@@ -775,6 +760,10 @@
         partes.push("sobreimpulso " + (a.os > 0 ? fmt(a.os, 0) + " %" : "no hay") + " → " + (m.os > 0 ? fmt(m.os, 0) + " %" : "no hay"));
         o("cmp").textContent = "Comparado con la curva gris: " + partes.join("; ") + ".";
       } else o("cmp").textContent = "Cambia un valor o elige otro ejemplo: la curva actual quedará en gris para comparar.";
+      /* Lecturas por regla: texto, condición que la activó y cálculo que la respalda. */
+      o("lectura").querySelector("ul").innerHTML = CM.lecturaPID(st, m).map(function (r) {
+        return '<li data-regla="' + r.id + '">' + U.esc(r.texto) + '<small>Regla: ' + U.esc(r.condicion) + '. ' + U.esc(r.calculo) + '</small></li>';
+      }).join("");
       el.querySelectorAll("[data-v]").forEach(function (b) { b.textContent = st[b.getAttribute("data-v")]; });
       el.querySelectorAll("input[data-k]").forEach(function (i) { i.value = st[i.getAttribute("data-k")]; });
       el.querySelectorAll("input[data-c]").forEach(function (i) { i.checked = !!st[i.getAttribute("data-c")]; });
@@ -798,7 +787,7 @@
       confirmado = copia(st); editando = false;
       el.querySelectorAll("[data-p]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === p)); }); dibujar();
     });
-    el.estadoSim = function () { return { actual: medidas(sim(st)), anterior: anterior ? medidas(sim(anterior)) : null, ganancias: copia(st) }; };
+    el.estadoSim = function () { var m = medidas(sim(st)); return { actual: m, anterior: anterior ? medidas(sim(anterior)) : null, ganancias: copia(st), reglas: CM.lecturaPID(st, m).map(function (r) { return r.id; }) }; };
     dibujar();
   };
 

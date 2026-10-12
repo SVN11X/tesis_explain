@@ -117,4 +117,40 @@ comprobar("Tras liberar, el PI sin protección sigue más tiempo en el tope que 
   var corto = C.windup("der", 1, false), largo = C.windup("der", 4, false);
   assert.ok(C.tiempoEnTope(largo.tradicional, largo.liberacion) > C.tiempoEnTope(corto.tradicional, corto.liberacion));
 });
+comprobar("Simulador PID ilustrativo: con solo P el error final coincide con referencia / (1 + K·P)", function () {
+  var S = C.PID_ILUSTRATIVO;
+  [300, 1200, 2400, 3000].forEach(function (kp) {
+    var d = C.simularPID({ kp: kp, ki: 0, kd: 0, zona: false }), m = C.medidasPID(d);
+    assert.ok(Math.abs(m.err - S.REF / (1 + S.K * kp)) < 5e-4, "P = " + kp + ": " + m.err);
+    /* la fórmula vale porque en el último segundo la orden ya no está en el tope */
+    assert.ok(d.slice(-30).every(function (p) { return Math.abs(p[2]) < 255; }), "sin saturación al final con P = " + kp);
+  });
+  /* D no cambia el valor final cuando el error ya no varía */
+  var conD = C.medidasPID(C.simularPID({ kp: 1200, ki: 0, kd: 40, zona: false })), sinD = C.medidasPID(C.simularPID({ kp: 1200, ki: 0, kd: 0, zona: false }));
+  assert.ok(Math.abs(conD.err - sinD.err) < 5e-4);
+});
+comprobar("Lecturas por regla: cada ejemplo activa reglas con condición y cálculo comprobables", function () {
+  function ids(c) { var m = C.medidasPID(C.simularPID(c)); return C.lecturaPID(c, m).map(function (r) { assert.ok(r.texto && r.condicion && r.calculo); return r.id; }); }
+  assert.deepEqual(ids({ kp: 1200, ki: 0, kd: 0, zona: false }), ["error-sin-integral", "no-llega"]);
+  assert.deepEqual(ids({ kp: 600, ki: 2600, kd: 0, zona: false }), ["integral-elimina"]);
+  assert.ok(ids({ kp: 1500, ki: 9000, kd: 0, zona: false }).indexOf("sobreimpulso") >= 0);
+  assert.ok(ids({ kp: 1500, ki: 9000, kd: 25, zona: false }).indexOf("saturacion") >= 0);
+  assert.deepEqual(ids({ kp: 1200, ki: 0, kd: 0, zona: true }).slice(0, 1), ["zona-sin-integral"]);
+  assert.deepEqual(ids({ kp: 0, ki: 0, kd: 10, zona: false }), ["sin-control"]);
+  /* El texto del cálculo repite el valor que muestra el gráfico */
+  var c = { kp: 1200, ki: 0, kd: 0, zona: false }, m = C.medidasPID(C.simularPID(c));
+  assert.ok(C.lecturaPID(c, m)[0].calculo.indexOf("= 0,062 m/s") > 0);
+});
+comprobar("El respaldo sin JavaScript de «Ajusta un PID» repite las cifras del modelo y su figura está al día", function () {
+  var fs = require("fs"), path = require("path"), D = require("./diagramas_control.js");
+  var html = fs.readFileSync(path.join(__dirname, "../control.html"), "utf8");
+  var texto = html.split("data-respaldo-pid>")[1].split("</p>")[0];
+  function f(v, n) { return (Math.round(v * Math.pow(10, n) + 1e-9) / Math.pow(10, n)).toFixed(n).replace(".", ","); }
+  var c = D.cifras();
+  [f(c[0].fin, 3) + " m/s", f(c[0].err, 3) + " m/s", f(c[1].tr, 2) + " s", f(c[2].tr, 2) + " s", f(c[2].os, 1) + " %"].forEach(function (cifra) {
+    assert.ok(texto.indexOf(cifra) >= 0, "falta " + cifra + " en el respaldo");
+  });
+  assert.ok(c[1].err < 1e-4 && c[2].err < 1e-4 && c[0].tr === null);
+  assert.equal(fs.readFileSync(path.join(__dirname, "../img/diagramas/pid-respaldo.svg"), "utf8"), D.pidRespaldo() + "\n", "regenera con node herramientas/diagramas_control.js");
+});
 console.log("\n" + total + " pruebas de control correctas");
