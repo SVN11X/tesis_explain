@@ -65,6 +65,11 @@
 <section>
   <h2 id="lazo-cerrado">El lazo cerrado en una idea</h2>
   <p>Si a un motor se le da siempre la misma tensión, su velocidad cambia con la carga, la batería y el roce. Un lazo cerrado lo resuelve midiendo. Compara la velocidad que se quiere con la que se mide, y la diferencia, llamada error, decide cuánto subir o bajar la tensión media que recibe el motor <a class="ref" href="#f1">1</a>.</p>
+  <p>En este robot las señales del lazo no usan todas la misma unidad. Lo pedido y lo medido se cuentan en <span class="term" data-def="Flancos del encoder contados durante un ciclo de control de 33 ms. A 30 Hz nominales, 1 m/s de la rueda equivale a 313,56 ticks/ciclo.">ticks por ciclo</span>, la orden al motor es <span class="term" data-def="Modulación por ancho de pulso: el driver enciende y apaga el motor muy rápido. El firmware la expresa como un número entre −255 y 255. El signo indica el sentido.">PWM</span> y la rueda responde con una velocidad física en m/s. El dibujo sigue un ciclo completo con esas unidades.</p>
+  <div class="widget">
+    <div class="widget-cab"><h3 id="sim-lazo-rueda">El lazo de una rueda, señal por señal</h3><span class="tipo inter">Interactivo</span><p>Elige una etapa del ciclo para ver qué bloque actúa, qué señal recibe y en qué unidad.</p></div>
+    <div class="vis" data-vis="lazo-rueda"><p class="vis-fallback">Referencia en ticks/ciclo → comparación con el conteo medido → error en ticks/ciclo → doPID en el Arduino → orden PWM entre −255 y 255 → driver L298N y motor → velocidad de la rueda en m/s → encoder → conteo en ticks/ciclo, que vuelve a la comparación. La carga, la batería y el roce actúan sobre el motor y la rueda.</p></div>
+  </div>
   <p>El controlador más usado para esto es el PID, que combina tres reacciones al error <a class="ref" href="#f2">2</a>. La proporcional mira el presente y empuja más mientras más lejos está la meta. La integral mira el pasado, suma el error acumulado y sigue empujando mientras quede una diferencia, aunque sea pequeña. Y la derivativa mira la tendencia del error, o de la medición según la implementación, para amortiguar los cambios.</p>
   <h3 id="error-estacionario">¿Qué es el error estacionario?</h3>
   <p>Es la diferencia que queda <strong>después de que la rueda se estabiliza</strong>, no el error grande del arranque. Si se piden 0,130 m/s y el promedio final es 0,128 m/s, quedan 0,002 m/s de error. En la tesis ese promedio se calcula desde los 7 s <a class="ref" href="#f1">1</a>. La acción integral busca corregir diferencias persistentes, siempre dentro de los límites del motor y de la medición.</p>
@@ -107,8 +112,8 @@
   </div>
   <details class="detalle"><summary>Ver las ecuaciones de un PID tradicional</summary>
     <div class="control-par">
-      <article><h4>Tiempo continuo</h4><p class="control-formula">u(t) = P·e(t) + I·∫e(t)dt + D·de(t)/dt</p><p>La integral acumula área en el tiempo. La derivada calcula la pendiente instantánea.</p></article>
-      <article><h4>Tiempo discreto</h4><p class="control-formula">u[k] = P·e[k] + I·T·Σe[j] + D·(e[k]−e[k−1])/T</p><p>La integral se aproxima con sumas y la derivada con diferencias entre muestras. Aquí k identifica el ciclo y T su período.</p></article>
+      <article><h4>Tiempo continuo</h4><p class="control-formula">u(t) = P·e(t) + I·∫e(t)dt + D·de(t)/dt</p><p>∫e(t)dt se lee «el área acumulada bajo la curva del error». de(t)/dt se lee «qué tan rápido cambia el error en ese instante».</p></article>
+      <article><h4>Tiempo discreto</h4><p class="control-formula">u[k] = P·e[k] + I·T·(e[1] + e[2] + … + e[k]) + D·(e[k]−e[k−1])/T</p><p>La integral se aproxima sumando los errores de cada ciclo, multiplicados por la duración T del ciclo, y la derivada con la diferencia entre dos muestras seguidas. Aquí k identifica el ciclo.</p></article>
     </div>
     <p class="vnota">Forma didáctica posicional, con integración rectangular y diferencia hacia atrás; en una implementación se filtra normalmente la derivada. P, I y D nombran acciones convencionales para no confundirlas con las variables Kp, Ki y Kd del firmware <a class="ref" href="#f12">12</a>.</p>
   </details>
@@ -156,6 +161,15 @@
     <div class="widget-cab"><h3 id="kd-proporcional">Por qué Kd termina siendo proporcional</h3><span class="tipo inter">Interactivo</span><p>Las mediciones interiores se cancelan: quedan la final y la inicial. Prueba también un inicio distinto de cero y una disminución de la medición.</p></div>
     <div class="vis" data-vis="cancelacion"><p class="vis-fallback">(m1−m0)+(m2−m1)+(m3−m2)=m3−m0. La contribución acumulada es −Kd/Ko por esa diferencia.</p></div>
   </div>
+  <details class="detalle"><summary>Ver la cuenta en tres pasos, sin cortes enteros</summary>
+    <p>Se supone Ki = 0 y una referencia fija r, para ver solo el efecto de Kp y Kd.</p>
+    <ol>
+      <li><strong>Cada ciclo suma una corrección.</strong> u[k] = u[k−1] + (Kp·e[k] − Kd·(m[k] − m[k−1])) / Ko.</li>
+      <li><strong>Al juntar todos los ciclos desde el inicio,</strong> las correcciones se acumulan: u[k] = u[0] + (Kp/Ko)·(e[1] + e[2] + … + e[k]) − (Kd/Ko)·(m[k] − m[0]). Las diferencias de medición intermedias se cancelan, como muestra el interactivo de arriba.</li>
+      <li><strong>Como la referencia no cambia,</strong> un aumento de la medición es una disminución igual del error: m[k] − m[0] = e[0] − e[k]. Queda u[k] = u[0] − (Kd/Ko)·e[0] + (Kd/Ko)·e[k] + (Kp/Ko)·(e[1] + … + e[k]).</li>
+    </ol>
+    <p>El término con e[k] actúa sobre el error de ahora, como una acción proporcional de tamaño Kd/Ko. El término con la suma de errores es una acción integral de tamaño Kp/Ko por ciclo. Los primeros dos términos son constantes del arranque.</p>
+  </details>
   <p>Si Ki es cero, la referencia permanece fija y se ignoran los cortes, la ley equivale a un PI incremental: P efectivo = Kd/Ko e I efectivo por ciclo = Kp/Ko, en la escala de ticks/ciclo <a class="ref" href="#f2">2</a>. Con referencia variable, la referencia entra solo en la acción integral. En las ganancias finales Ki no es literalmente cero, pero los enteros anulan su aporte en la derecha para los errores del ensayo y lo restringen en la izquierda. Por eso describo una operación esencialmente PI, no un PID completo.</p>
   <h3 id="por-que-se-conservo">¿Por qué no se reescribió?</h3>
   <p>Tres motivos aparecen en la guía: la compatibilidad con <code>diffdrive_arduino</code>, el tratamiento de los topes y el seguimiento de la referencia en los ensayos. Otros dos criterios técnicos son mantener los ensayos comparables y considerar las pruebas adicionales de una nueva ley. Estos últimos son un análisis de la decisión a partir de la evidencia disponible.</p>
@@ -241,6 +255,11 @@
       </tbody>
       <caption>Tabla A4.4 de la tesis. Los retardos estimados son menores que el período de captura de 0,1 s: esos valores provienen del ajuste del modelo y no de una medición directa con esa precisión temporal.</caption>
     </table>
+  </div>
+  <p>Los tres números se leen sobre la curva. La <strong>ganancia</strong> dice a qué velocidad llega la rueda por cada unidad de PWM, una vez que la respuesta se estabiliza. La <strong>constante de tiempo</strong> es lo que tarda en recorrer el 63 % del camino hacia ese valor. El <strong>retardo</strong> es el tiempo en que todavía no reacciona.</p>
+  <div class="widget">
+    <div class="widget-cab"><h3 id="sim-fopdt">Dónde se ve cada número del modelo</h3><span class="tipo inter">Interactivo · modelo de la tesis</span><p>Cambia el escalón de PWM y elige qué rueda anotar. Compara las dos curvas con los mismos ejes.</p></div>
+    <div class="vis" data-vis="fopdt"><p class="vis-fallback">Con 143 PWM, el modelo de la rueda izquierda llega a 0,131 m/s y alcanza el 63 % de ese valor a los 0,33 s. El de la derecha llega a 0,127 m/s y alcanza el 63 % a los 0,42 s, porque además tiene un retardo de 0,07 s.</p></div>
   </div>
   <figure class="fig">
     <picture><source srcset="img/tesis/pso-lambda.webp" type="image/webp"><img src="img/tesis/pso-lambda.png" width="1600" height="1461" loading="lazy" decoding="async" alt="Cuatro gráficos. A la izquierda, la identificación de cada rueda en lazo abierto: datos reales, datos suavizados y el modelo FOPDT, muy parecidos. A la derecha, una simulación del lazo cerrado con las ganancias finales y con una sintonía Lambda, que oscila mucho más."></picture>

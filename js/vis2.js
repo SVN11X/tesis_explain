@@ -36,7 +36,15 @@
       if (a.puntosVisibles) a.puntos.forEach(function (p) { s += '<circle class="' + a.clase + '" fill="var(--surface)" stroke-width="2" r="3" cx="' + x(p[0]) + '" cy="' + y(p[1]) + '"/>'; });
     });
     if (o.cursor != null) s += '<line class="k-ink" stroke-width="1.5" stroke-dasharray="2 3" x1="' + x(o.cursor) + '" x2="' + x(o.cursor) + '" y1="' + mt + '" y2="' + (H - mb) + '"/>';
-    return s + '</g></svg>';
+    s += '</g>';
+    /* Anotaciones propias de cada interactivo, en las mismas coordenadas del gráfico. */
+    if (o.extra) s += o.extra(x, y, { W: W, H: H, ml: ml, mr: mr, mt: mt, mb: mb });
+    return s + '</svg>';
+  }
+  /* Marcas del eje vertical sin etiquetas encimadas: el cero siempre, los extremos si están lejos de él. */
+  function marcasY(min, max) {
+    var rango = max - min;
+    return [min, 0, max].filter(function (v, i) { return i === 1 || Math.abs(v) > rango * .18; });
   }
   function alAncho(cont, pintar) { pintar(); U.alCambiarAncho(cont, pintar); }
 
@@ -96,7 +104,7 @@
       var g = C.RUEDAS[rueda], datos = C.papeles(g, termino, escenario), p = datos[k - 1];
       var min = Math.min(0, p.acumulado, ...datos.map(function (q) { return Math.min(q.delta, q.acumulado); })), max = Math.max(.0001, ...datos.map(function (q) { return Math.max(q.delta, q.acumulado); }));
       var margen = (max - min) * .12; min -= margen; max += margen;
-      cont.innerHTML = grafico(cont, { titulo: textos[termino][0] + ' · PWM', ejeX: 'Ciclo de control · 33 ms por intervalo', xMax: 7, xTicks: [1, 3, 5, 7], yMin: min, yMax: max, yTicks: [min, 0, max], decY: termino === 'Ki' ? 3 : 1, cursor: k, series: [{ clase: 'k-ambar', discontinua: true, puntos: datos.slice(0, k).map(function (q) { return [q.ciclo, q.delta]; }), puntosVisibles: true }, { clase: 'k-azul', puntos: datos.slice(0, k).map(function (q) { return [q.ciclo, q.acumulado]; }), puntosVisibles: true }] });
+      cont.innerHTML = grafico(cont, { titulo: textos[termino][0] + ' · PWM', ejeX: 'Ciclo de control · 33 ms por intervalo', xMax: 7, xTicks: [1, 3, 5, 7], yMin: min, yMax: max, yTicks: marcasY(min, max), decY: termino === 'Ki' ? 3 : 1, cursor: k, series: [{ clase: 'k-ambar', discontinua: true, puntos: datos.slice(0, k).map(function (q) { return [q.ciclo, q.delta]; }), puntosVisibles: true }, { clase: 'k-azul', puntos: datos.slice(0, k).map(function (q) { return [q.ciclo, q.acumulado]; }), puntosVisibles: true }] });
       el.querySelector('.pa-formula').innerHTML = '<p class="control-formula"><b>' + textos[termino][1] + '</b><small>' + g.nombre + ' · ' + termino + '=' + f(g[termino], termino === 'Ki' ? 3 : 2) + ', Ko=50 · referencia 40 ticks/ciclo.</small></p>';
       el.querySelector('.pa-datos').innerHTML = tarjetas([["Ciclo seleccionado", k + ' de 7', 'Medición ' + p.med + '; error ' + p.error + ' ticks/ciclo.'], ["Incremento de este ciclo", signo(p.delta, 4) + ' PWM', termino === 'Ki' ? 'ITerm anterior: ' + f(p.integral, 3) + ' unidades internas.' : 'Cambio de medición: ' + signo(p.cambio, 0) + ' ticks/ciclo.'], ["Contribución acumulada", signo(p.acumulado, 4) + ' PWM', 'Se suman los incrementos desde el primer ciclo.']]);
       el.querySelector('.pa-exp').textContent = textos[termino][2];
@@ -114,7 +122,7 @@
 
   V.cancelacion = function (el) {
     var base = 30, n = 3;
-    el.innerHTML = botones([[30, "Medición inicial: 30 ticks/ciclo"], [0, "Medición inicial: 0 ticks/ciclo"]], 'data-base', base, 'Medición al inicio') + pasoBotones() + '<ol class="kd-secuencia" aria-label="Mediciones por ciclo"></ol><p class="vnota">Se resta cada medición anterior de la nueva. Los valores interiores tachados se cancelan al sumar; los extremos permanecen.</p><div class="kd-cancelacion" aria-label="Suma de diferencias"></div><div class="kd-datos" aria-live="polite"></div><p class="control-conclusion">Σ(m[k] − m[k−1]) = m[último] − m[inicial]. Por eso la contribución de Kd es proporcional al cambio total de medición respecto del inicio. Solo coincide con la medición actual cuando la inicial es cero.</p><p class="vnota">Ejemplo algebraico con Kd=20,05 y Ko=50 (rueda derecha), sin truncamiento ni saturación. La contribución entra con signo menos: cuando aumenta la medición, reduce el PWM.</p>';
+    el.innerHTML = botones([[30, "Medición inicial: 30 ticks/ciclo"], [0, "Medición inicial: 0 ticks/ciclo"]], 'data-base', base, 'Medición al inicio') + pasoBotones() + '<ol class="kd-secuencia" aria-label="Mediciones por ciclo"></ol><p class="vnota">Se resta cada medición anterior de la nueva. Los valores interiores tachados se cancelan al sumar; los extremos permanecen.</p><div class="kd-cancelacion" aria-label="Suma de diferencias"></div><div class="kd-datos" aria-live="polite"></div><p class="control-conclusion">(m[1] − m[0]) + (m[2] − m[1]) + … + (m[k] − m[k−1]) = m[k] − m[0]. Por eso la contribución de Kd es proporcional al cambio total de medición respecto del inicio. Solo coincide con la medición actual cuando la inicial es cero.</p><p class="vnota">Ejemplo algebraico con Kd=20,05 y Ko=50 (rueda derecha), sin truncamiento ni saturación. La contribución entra con signo menos: cuando aumenta la medición, reduce el PWM.</p>';
     function pintar() {
       var med = [0, 4, 8, 10, 10, 9].map(function (v) { return v + base; }), r = C.telescopio(med, n, C.RUEDAS.der.Kd / 50);
       el.querySelector('.kd-secuencia').innerHTML = med.map(function (v, i) { return '<li class="' + (i === n ? 'actual' : '') + '"><small>' + (i === 0 ? 'Inicial m[0]' : 'm[' + i + ']') + '</small><b>' + v + '</b><small>ticks/ciclo</small></li>'; }).join('');
@@ -177,13 +185,19 @@
 
   V.acumulador = function (el) {
     var n = 30, rueda = 'der';
-    el.innerHTML = ruedaBotones() + '<label class="desl-linea" for="aw-n">Ciclos con la rueda bloqueada <b class="num" data-v></b><input id="aw-n" type="range" min="1" max="90" step="1" value="30"></label><div class="aw-par" aria-live="polite"></div><p class="vnota">Referencia 0,13 m/s y velocidad 0 m/s desde el inicio de este ejemplo. En el PID tradicional se fija D=0 (PI) y se usan P e I equivalentes, sin antiwindup. El firmware usa sus ganancias finales y cortes enteros. Es una demostración de memoria durante el bloqueo, no un ensayo del robot.</p>';
+    el.innerHTML = ruedaBotones() + '<label class="desl-linea" for="aw-n">Ciclos con la rueda bloqueada <b class="num" data-v></b><input id="aw-n" type="range" min="1" max="90" step="1" value="30"></label><div class="control-graf aw-graf"></div><div class="vley"><span><i class="lin rojo"></i>PID tradicional sin antiwindup · pedido interno</span><span><i class="lin azul"></i>firmware · salida guardada</span><span><i class="lin-disc"></i>tope del motor · 255 PWM</span></div><div class="aw-par" aria-live="polite"></div><p class="vnota">Referencia 0,13 m/s y velocidad 0 m/s desde el inicio de este ejemplo. En el PID tradicional se fija D=0 (PI) y se usan P e I equivalentes, sin antiwindup. El firmware usa sus ganancias finales y cortes enteros. Es una demostración de memoria durante el bloqueo, no un ensayo del robot.</p>';
+    var cont = el.querySelector('.aw-graf');
     function pintar() {
-      var g = C.RUEDAS[rueda], r = C.bloqueo(g, n), a = r.tradicional, b = r.firmware;
+      var g = C.RUEDAS[rueda], r = C.bloqueo(g, n), a = r.tradicional, b = r.firmware, serie = C.bloqueoSerie(g, 90);
+      var techo = Math.ceil(Math.max(255, serie[90].pedidoTradicional) / 255) * 255;
+      cont.innerHTML = grafico(cont, { titulo: 'Memoria durante el bloqueo · PWM', ejeX: 'Ciclos bloqueados · 33 ms cada uno', xMax: 90, xTicks: [0, 30, 60, 90], yMin: 0, yMax: techo, yTicks: [0, 255, techo], limite: 255, cursor: n,
+        series: [{ clase: 'k-rojo', discontinua: true, puntos: serie.map(function (p) { return [p.ciclo, p.pedidoTradicional]; }) }, { clase: 'k-azul', puntos: serie.map(function (p) { return [p.ciclo, p.guardadoFirmware]; }) }],
+        alt: 'El pedido interno del PID tradicional sube en línea recta sin límite. La salida guardada del firmware sube hasta 255 PWM y se queda ahí.',
+        extra: function (x, y, d) { return '<text class="t-s" x="' + (d.ml + 8) + '" y="' + (d.mt + 14) + '">Ciclo ' + n + ': pedido ' + f(a.pedido, 0) + ' PWM</text>'; } });
       el.querySelector('[data-v]').textContent = n + ' ciclos · ' + n * 33 + ' ms';
       el.querySelector('.aw-par').innerHTML = '<div class="control-par"><article><h4>PID tradicional · sin antiwindup</h4><p>La memoria integral sigue sumando el error aunque el PWM aplicado no pueda subir más.</p>' + tarjetas([["Pedido interno", f(a.pedido, 1) + ' PWM'], ["Aplicado al motor", f(a.aplicado, 0) + ' PWM'], ["Memoria integral", f(a.integral, 1) + ' PWM', 'Habrá que descargar esta acumulación al liberar la rueda.']]) + '</article><article><h4>Firmware · con sus topes</h4><p>La salida guardada nunca supera ±255. ITerm deja de actualizarse cuando se toca el tope.</p>' + tarjetas([["Candidato antes del tope", b.pedido + ' PWM'], ["Aplicado y guardado", b.aplicado + ' PWM'], ["ITerm guardado", b.integral + ' u.int.', b.saturado ? 'Congelado: el exceso de la salida se descarta.' : 'Todavía no se alcanza el tope.']]) + '</article></div>';
     }
-    el.addEventListener('input', function (e) { n = +e.target.value; pintar(); }); el.addEventListener('click', function (e) { var b = e.target.closest('[data-rueda]'); if (!b) return; rueda = b.dataset.rueda; marcar(el, 'data-rueda', rueda); pintar(); }); pintar();
+    el.addEventListener('input', function (e) { n = +e.target.value; pintar(); }); el.addEventListener('click', function (e) { var b = e.target.closest('[data-rueda]'); if (!b) return; rueda = b.dataset.rueda; marcar(el, 'data-rueda', rueda); pintar(); }); alAncho(cont, pintar);
   };
 
   V.windup = function (el) {
@@ -205,7 +219,10 @@
       el.querySelector('.wu-estado').textContent = 'Instante ' + f(pa.t, 2) + ' s: ' + (pa.trabada ? 'la rueda está bloqueada y su velocidad se fuerza a cero. El error persiste, aunque el motor llegue a su tope.' : pa.t >= datos.liberacion ? 'la rueda ya está libre. Observa cuánto tarda cada orden en bajar del tope.' : 'la rueda gira antes del bloqueo, que comienza a los 1,5 s.');
       el.querySelector('.wu-datos').innerHTML = tarjetas([["Tradicional · velocidad", f(pa.velocidad, 3) + ' m/s', 'Pedido ' + f(pa.pedido, 1) + ' PWM → aplicado ' + f(pa.aplicado, 1) + ' PWM.'], ["Firmware · velocidad", f(pb.velocidad, 3) + ' m/s', 'Pedido ' + pb.pedido + ' PWM → aplicado ' + pb.aplicado + ' PWM.']]);
       var maxA = Math.max(...a.filter(function (p) { return p.t >= datos.liberacion; }).map(function (p) { return p.velocidad; })), maxB = Math.max(...b.filter(function (p) { return p.t >= datos.liberacion; }).map(function (p) { return p.velocidad; }));
-      el.querySelector('.wu-res').innerHTML = tarjetas([["Pico tras liberar · tradicional", f(maxA, 3) + ' m/s', 'Sobre la referencia: ' + f(Math.max(0, maxA - C.REF), 3) + ' m/s.'], ["Pico tras liberar · firmware", f(maxB, 3) + ' m/s', 'Limitar la memoria reduce el windup; no garantiza cero sobreimpulso.']]);
+      var topeA = C.tiempoEnTope(a, datos.liberacion), topeB = C.tiempoEnTope(b, datos.liberacion);
+      function enTope(s) { return s < 1e-9 ? 'Baja del tope en el mismo ciclo en que se libera.' : 'Sigue en ±255 PWM durante ' + f(s, 2) + ' s después de liberar.'; }
+      el.querySelector('.wu-res').innerHTML = tarjetas([["Pico tras liberar · tradicional", f(maxA, 3) + ' m/s', 'Sobre la referencia: ' + f(Math.max(0, maxA - C.REF), 3) + ' m/s. ' + enTope(topeA)], ["Pico tras liberar · firmware", f(maxB, 3) + ' m/s', 'Sobre la referencia: ' + f(Math.max(0, maxB - C.REF), 3) + ' m/s. ' + enTope(topeB)]]) +
+        '<p class="control-conclusion">El tiempo en el tope mide la memoria que hay que descargar: mientras el motor sigue en ±255, la rueda ya libre acelera por encima de la referencia. Limitar la memoria reduce el windup, pero no garantiza cero sobreimpulso.</p>';
       el.querySelector('[data-v=duracion]').textContent = duracion + ' s'; el.querySelector('[data-v=instante]').textContent = f(instante, 2) + ' s'; el.querySelector('#wu-t').value = instante;
     }
     el.addEventListener('input', function (e) { if (e.target.id === 'wu-l') { duracion = +e.target.value; var fase = el.querySelector('[data-fase][aria-pressed=true]'); if (fase) instante = { antes: 1.2, bloqueo: 1.5 + duracion / 2, liberar: 1.5 + duracion + .3, final: 11.9 }[fase.dataset.fase]; } else if (e.target.id === 'wu-t') { instante = +e.target.value; marcar(el, 'data-fase', ''); } else return; pintar(); });
@@ -252,6 +269,96 @@
       el.querySelector('.re-muestras').innerHTML = [.13, .12, .13, .13, .13, .13, .12, .13, .13, .13].map(function (v, i) { return '<li><small>' + (i + 1) + '</small><b>' + f(v, 2) + '</b></li>'; }).join('');
     }
     el.addEventListener('click', function (e) { var b = e.target.closest('[data-caso]'); if (!b) return; caso = b.dataset.caso; marcar(el, 'data-caso', caso); pintar(); }); el.addEventListener('input', function (e) { real = +e.target.value; pintar(); }); pintar();
+  };
+
+  /* El lazo de una rueda: bloques, señales con su unidad y las cuatro etapas de un ciclo.
+     Dos disposiciones del mismo dibujo: horizontal en pantallas anchas y vertical en teléfonos. */
+  var idLazo = 0;
+  V["lazo-rueda"] = function (el) {
+    var paso = 0, marca = 'lr-flecha-' + (++idLazo);
+    var MED = 36, REFT = 40, ERR = REFT - MED;
+    var PASOS = [
+      { t: 'Ver todo', b: [], f: [], txt: 'Cada flecha lleva una señal con su unidad. Lo pedido y lo medido se comparan en la misma unidad, ticks por ciclo. La orden al motor es PWM. La rueda responde con una velocidad física, en m/s. Elige una etapa para seguir un ciclo.' },
+      { t: '1 · Medir', b: ['encoder', 'rueda'], f: ['giro', 'conteo'], txt: 'El encoder cuenta los ticks que avanzó la rueda durante el último ciclo de 33 ms. En el ejemplo cuenta ' + MED + ' ticks/ciclo, unos ' + f(MED / C.FACTOR, 3) + ' m/s.' },
+      { t: '2 · Comparar', b: ['ref', 'suma'], f: ['pedido', 'conteo', 'error'], txt: 'Se resta lo medido de lo pedido: ' + REFT + ' − ' + MED + ' = ' + ERR + ' ticks/ciclo de error. El pedido viene de la Raspberry Pi con el comando m; ' + REFT + ' ticks/ciclo son unos 0,13 m/s.' },
+      { t: '3 · Calcular', b: ['pid'], f: ['error', 'orden'], txt: 'doPID convierte el error en un cambio de PWM y lo suma a la orden guardada del ciclo anterior. La ecuación exacta, y por qué opera como un PI, se ven más abajo.' },
+      { t: '4 · Aplicar', b: ['motor', 'rueda'], f: ['orden', 'vel'], txt: 'El driver L298N recibe la nueva orden, entre −255 y 255 PWM, y la mantiene hasta el próximo cálculo. La carga, la batería y el roce también cambian la velocidad: por eso hay que volver a medir.' }
+    ];
+    /* Coordenadas de cada disposición. Cajas: [x, y, ancho, alto]. Flechas: lista de puntos. */
+    var ANCHO = {
+      W: 780, H: 285, suma: [230, 100, 20],
+      cajas: { ref: [10, 70, 130, 60], pid: [340, 70, 170, 60], motor: [600, 70, 170, 60], rueda: [600, 205, 170, 60], encoder: [340, 205, 170, 60] },
+      flechas: { pedido: [[140, 100], [210, 100]], error: [[250, 100], [340, 100]], orden: [[510, 100], [600, 100]], vel: [[685, 130], [685, 205]], giro: [[600, 235], [510, 235]], conteo: [[340, 235], [230, 235], [230, 120]], pert: [[685, 22], [685, 70]] },
+      textos: [['pedido', 172, 90, 'pedido', 'middle'], ['error', 295, 90, 'error', 'middle'], ['error', 295, 120, 'ticks/ciclo', 'middle', 1], ['orden', 555, 90, 'orden', 'middle'], ['orden', 555, 120, 'PWM ±255', 'middle', 1],
+        ['vel', 675, 163, 'velocidad', 'end'], ['vel', 675, 180, 'm/s', 'end', 1], ['giro', 555, 226, 'giro del eje', 'middle'], ['conteo', 220, 180, 'conteo medido', 'end'], ['conteo', 220, 197, 'ticks/ciclo', 'end', 1], ['pert', 675, 34, 'carga, batería, roce', 'end', 1]],
+      signos: [[201, 90, '+'], [243, 142, '−']]
+    };
+    var ANGOSTO = {
+      W: 340, H: 560, suma: [110, 130, 20],
+      cajas: { ref: [20, 10, 180, 56], pid: [20, 210, 180, 56], motor: [20, 330, 180, 56], rueda: [20, 470, 180, 56], encoder: [232, 330, 100, 56] },
+      flechas: { pedido: [[110, 66], [110, 110]], error: [[110, 150], [110, 210]], orden: [[110, 266], [110, 330]], vel: [[110, 386], [110, 470]], giro: [[200, 498], [282, 498], [282, 386]], conteo: [[282, 330], [282, 130], [130, 130]] },
+      textos: [['pedido', 122, 92, 'pedido', 'start'], ['error', 122, 178, 'error', 'start'], ['error', 122, 193, 'ticks/ciclo', 'start', 1], ['orden', 122, 294, 'orden', 'start'], ['orden', 122, 309, 'PWM ±255', 'start', 1],
+        ['vel', 122, 424, 'velocidad', 'start'], ['vel', 122, 439, 'm/s', 'start', 1], ['giro', 241, 488, 'giro', 'middle'], ['conteo', 214, 106, 'conteo', 'middle'], ['conteo', 214, 121, 'ticks/ciclo', 'middle', 1]],
+      signos: [[97, 104, '+'], [142, 122, '−']]
+    };
+    var NOMBRES = { ref: ['Referencia', REFT + ' ticks/ciclo'], pid: ['doPID · Arduino', 'calcula la corrección'], motor: ['Driver y motor', 'L298N'], rueda: ['Rueda', 'gira con la carga'], encoder: ['Encoder', 'cuenta ticks'] };
+    el.innerHTML = '<div class="chips" role="group" aria-label="Etapa del ciclo">' + PASOS.map(function (p, i) { return '<button type="button" class="chip" data-paso="' + i + '" aria-pressed="' + (i === 0) + '">' + p.t + '</button>'; }).join('') + '</div><div class="lr-dibujo"></div><p class="lr-estado control-conclusion" aria-live="polite"></p><p class="vnota">Valores de ejemplo: ' + REFT + ' ticks/ciclo pedidos y ' + MED + ' medidos. Un tick es un flanco del encoder; 313,56 ticks/ciclo equivalen a 1 m/s de la rueda. El dibujo resume el lazo y no muestra la conmutación interna del PWM.</p>';
+    var cont = el.querySelector('.lr-dibujo');
+    function puntos(ps) { return ps.map(function (p) { return p[0] + ',' + p[1]; }).join(' '); }
+    function pintar() {
+      var L = (cont.clientWidth || 600) < 620 ? ANGOSTO : ANCHO, p = PASOS[paso], foco = paso > 0;
+      cont.classList.toggle('lr-angosto', L === ANGOSTO);
+      function clase(lista, id) { return !foco ? '' : lista.indexOf(id) >= 0 ? ' lr-on' : ' lr-dim'; }
+      var s = '<svg class="lr-svg" viewBox="0 0 ' + L.W + ' ' + L.H + '" role="img" aria-label="Lazo cerrado de una rueda: referencia, comparación, doPID, driver y motor, rueda y encoder que vuelve a la comparación."><defs><marker id="' + marca + '" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="lr-punta"/></marker></defs>';
+      Object.keys(L.flechas).forEach(function (k) {
+        if (!L.flechas[k]) return;
+        s += '<polyline class="lr-flecha' + (k === 'pert' ? ' lr-pert' : '') + clase(p.f, k) + '" points="' + puntos(L.flechas[k]) + '" marker-end="url(#' + marca + ')"/>';
+      });
+      L.textos.forEach(function (t) { s += '<text class="' + (t[5] ? 'lr-unidad' : 'lr-senal') + clase(p.f, t[0]) + '" x="' + t[1] + '" y="' + t[2] + '" text-anchor="' + t[4] + '">' + U.esc(t[3]) + '</text>'; });
+      Object.keys(L.cajas).forEach(function (k) {
+        var c = L.cajas[k];
+        s += '<g class="lr-caja' + clase(p.b, k) + '"><rect x="' + c[0] + '" y="' + c[1] + '" width="' + c[2] + '" height="' + c[3] + '" rx="8"/><text class="lr-nombre" x="' + (c[0] + c[2] / 2) + '" y="' + (c[1] + c[3] / 2 - 3) + '" text-anchor="middle">' + U.esc(NOMBRES[k][0]) + '</text><text class="lr-unidad" x="' + (c[0] + c[2] / 2) + '" y="' + (c[1] + c[3] / 2 + 15) + '" text-anchor="middle">' + U.esc(NOMBRES[k][1]) + '</text></g>';
+      });
+      var sm = L.suma;
+      s += '<g class="lr-caja lr-suma' + clase(p.b, 'suma') + '"><circle cx="' + sm[0] + '" cy="' + sm[1] + '" r="' + sm[2] + '"/><path d="M' + (sm[0] - 8) + ' ' + sm[1] + 'h16M' + sm[0] + ' ' + (sm[1] - 8) + 'v16" class="lr-cruz"/></g>';
+      L.signos.forEach(function (g) { s += '<text class="lr-nombre' + clase(p.b, 'suma') + '" x="' + g[0] + '" y="' + g[1] + '" text-anchor="middle">' + g[2] + '</text>'; });
+      cont.innerHTML = s + '</svg>';
+      el.querySelector('.lr-estado').textContent = p.txt;
+    }
+    el.addEventListener('click', function (e) { var b = e.target.closest('[data-paso]'); if (!b) return; paso = +b.dataset.paso; marcar(el, 'data-paso', paso); pintar(); });
+    alAncho(cont, pintar);
+  };
+
+  /* Modelo FOPDT de cada rueda: dónde se leen la ganancia, la constante de tiempo y el retardo. */
+  V.fopdt = function (el) {
+    var rueda = 'izq', pwm = 143;
+    el.innerHTML = botones([["izq", "Anotar la rueda izquierda"], ["der", "Anotar la rueda derecha"]], 'data-rueda', rueda, 'Rueda anotada') + '<label class="desl-linea" for="fo-pwm">Escalón de PWM aplicado en t = 0 <b class="num" data-v></b><input id="fo-pwm" type="range" min="0" max="255" step="1" value="143"></label><div class="control-graf fo-graf"></div><div class="vley"><span><i class="lin azul"></i>modelo de la rueda izquierda</span><span><i class="lin ambar"></i>modelo de la rueda derecha</span><span><i class="lin-disc"></i>valor final y 63 % de la rueda anotada</span></div><div class="fo-datos" aria-live="polite"></div><p class="fo-aviso control-conclusion"></p><p class="vnota">Curvas calculadas con los parámetros de la Tabla A4.4, no la captura original. 143 PWM es el escalón del ensayo de identificación. El modelo es lineal: el doble de PWM da el doble de velocidad final y no tiene zona muerta. Se ajustó con un solo escalón. Lejos de 143 PWM, sus predicciones no se comprobaron.</p>';
+    var cont = el.querySelector('.fo-graf');
+    function pintar() {
+      var g = C.RUEDAS[rueda], otra = C.RUEDAS[rueda === 'izq' ? 'der' : 'izq'], fin = g.K * pwm, t63 = g.retardo + g.tau, N = 120, T = 2;
+      function curva(r) { var out = []; for (var i = 0; i <= N; i++) { var t = i * T / N; out.push([t, C.fopdt(r, pwm, t)]); } return out; }
+      var yMax = .25;
+      cont.innerHTML = grafico(cont, { titulo: 'Velocidad que predice el modelo · m/s', ejeX: 'Tiempo desde el escalón · s', xMax: T, xTicks: [0, .5, 1, 1.5, 2], decX: 1, yMin: 0, yMax: yMax, yTicks: [0, .05, .1, .15, .2, .25], decY: 2, limite: fin,
+        series: [{ clase: 'k-azul', puntos: curva(C.RUEDAS.izq) }, { clase: 'k-ambar', puntos: curva(C.RUEDAS.der), discontinua: true }],
+        alt: 'Respuesta al escalón de ambos modelos. La rueda anotada muestra su valor final, el 63 % y el instante retardo más constante de tiempo.',
+        extra: function (x, y, d) {
+          var s = '<line class="k-muted" stroke-dasharray="3 3" x1="' + x(t63) + '" x2="' + x(t63) + '" y1="' + y(0) + '" y2="' + y(.632 * fin) + '"/><line class="k-muted" stroke-dasharray="3 3" x1="' + d.ml + '" x2="' + x(t63) + '" y1="' + y(.632 * fin) + '" y2="' + y(.632 * fin) + '"/>';
+          s += '<circle class="' + (rueda === 'izq' ? 'k-azul' : 'k-ambar') + '" fill="var(--surface)" stroke-width="2.5" r="5" cx="' + x(t63) + '" cy="' + y(.632 * fin) + '"/>';
+          s += '<text class="t-s" x="' + (d.W - d.mr - 4) + '" y="' + (y(0) - 8) + '" text-anchor="end">○ 63 % a los ' + f(t63, 2) + ' s</text>';
+          s += '<text class="t-s" x="' + (d.W - d.mr - 4) + '" y="' + Math.max(d.mt + 10, y(fin) - 6) + '" text-anchor="end">valor final ' + f(fin, 3) + ' m/s</text>';
+          if (g.retardo > .01) s += '<rect class="f-desc" opacity=".7" x="' + x(0) + '" y="' + (y(0) - 10) + '" width="' + (x(g.retardo) - x(0)) + '" height="10"/><text class="t-s" x="' + (x(g.retardo) + 4) + '" y="' + (y(0) - 2) + '">retardo</text>';
+          return s;
+        } });
+      el.querySelector('[data-v]').textContent = pwm + ' PWM';
+      el.querySelector('.fo-datos').innerHTML = tarjetas([
+        ["Ganancia K · cuánto responde", f(g.K, 6) + ' × ' + pwm + ' = ' + f(fin, 3) + ' m/s', 'Velocidad final del modelo. La otra rueda llegaría a ' + f(otra.K * pwm, 3) + ' m/s con el mismo PWM.'],
+        ["Constante de tiempo τ · qué tan rápido", f(g.tau, 4) + ' s', 'Después del retardo, en τ segundos se alcanza el 63 % del valor final. En 3τ, el 95 %.'],
+        ["Retardo θ · cuánta demora", f(g.retardo, 4) + ' s', g.retardo < .01 ? 'Prácticamente cero: la curva empieza a subir de inmediato.' : 'Equivale a unos ' + f(g.retardo / C.TS, 1) + ' ciclos de control de 33 ms.']]);
+      el.querySelector('.fo-aviso').textContent = pwm === 0 ? 'Sin PWM, el modelo predice que la rueda queda detenida.' : pwm < 60 ? 'Con PWM bajo el modelo predice movimiento, ' + f(fin, 3) + ' m/s, porque no incluye la zona muerta. Si el umbral real estuviera sobre ' + pwm + ' PWM, la rueda no se movería. La tesis propone esa diferencia como explicación de lo que pasó con las ganancias del PSO.' : 'Las dos curvas casi se superponen, pero no son iguales: la derecha responde un poco menos y más tarde. Por eso se buscaron ganancias para cada rueda.';
+    }
+    el.addEventListener('input', function (e) { if (e.target.id !== 'fo-pwm') return; pwm = +e.target.value; pintar(); });
+    el.addEventListener('click', function (e) { var b = e.target.closest('[data-rueda]'); if (!b) return; rueda = b.dataset.rueda; marcar(el, 'data-rueda', rueda); pintar(); });
+    alAncho(cont, pintar);
   };
 
   /* El protocolo serial y la ley */

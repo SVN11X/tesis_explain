@@ -18,7 +18,7 @@ Un robot de bajo costo, con ROS 2, que entra a un recinto que no conoce, lo reco
 | `problema.html` | Autonomía en interiores, estado del arte y cada decisión frente a sus alternativas |
 | `robot.html` | Piezas, energía, red, reparto entre Arduino, Raspberry Pi y computador, ROS 2 y costo |
 | `movimiento.html` | Tracción diferencial y centro de giro, encoders, odometría, ensayos de recta y giro, qué corrige una calibración y el cuadrado en dos sentidos |
-| `control.html` | PID en tiempo discreto, la ley heredada que opera como PI, windup, FOPDT y PSO |
+| `control.html` | El lazo de una rueda con sus unidades, PID en tiempo discreto, la ley heredada que opera como PI, windup, el modelo FOPDT y PSO |
 | `mapeo.html` | LiDAR 2D, rejilla de ocupación, REP 103/105 y TF, ajuste de barridos, grafo de poses, Ceres, capas de RViz y resultados de mapeo |
 | `navegacion.html` | Mapas de costos, inflación, A estrella paso a paso, DWB y recuperaciones |
 | `exploracion.html` | Exploración por fronteras y por qué 53 de 54 metas abortadas fueron reemplazos |
@@ -82,6 +82,8 @@ El interactivo de búsqueda guarda cada paso de Dijkstra y de A estrella. Se pue
 Los interactivos permiten aislar Kp, Kd y Ki, avanzar por ciclos, cancelar visualmente las diferencias de medición, distinguir el cambio de referencia del cambio de medición, inspeccionar truncamientos y comparar memoria y recuperación tras un bloqueo. El ejemplo de windup también permite proteger el integrador de un PI tradicional (PID con D=0 para aislar el fenómeno).
 
 La comparación PSO/final muestra los seis pares de valores por rueda, con escalas explícitas e información sobre la validación. Los ejemplos de resolución separan el conteo del encoder, los dos decimales del registro y el promedio posterior; la recta está ensayada y el giro se identifica como estimación.
+
+El capítulo parte con un diagrama del lazo de una rueda que se recorre en cuatro etapas, medir, comparar, calcular y aplicar, con la unidad de cada señal: ticks/ciclo para lo pedido y lo medido, PWM para la orden y m/s para la rueda. El simulador PID deja la curva anterior en gris al cambiar las ganancias, para comparar error estacionario y sobreimpulso. El interactivo del modelo FOPDT dibuja las curvas de ambas ruedas con los parámetros de la Tabla A4.4 y marca dónde se leen la ganancia, la constante de tiempo y el retardo. Con PWM bajo advierte que el modelo no tiene zona muerta. El bloqueo dibuja cómo crece cada memoria y el windup informa cuánto sigue el motor en el tope después de liberar la rueda. El enjambre muestra la generación, el peso de inercia y la dispersión, con el eje vertical creciendo hacia arriba.
 
 `js/control-modelo.js` reúne las ganancias y cálculos que usan los interactivos y las pruebas. Las simulaciones de bloqueo no son mediciones ni reproducen exactamente el encoder físico. El umbral de 60 PWM del ejemplo de zona muerta es supuesto y ajustable, no un valor medido del robot. Las ganancias y bandas adaptadas provienen de los datos ya publicados en la guía; el código adaptado no está disponible, mientras que el código base se enlaza como referencia independiente. Las consideraciones adicionales sobre conservar la ley se distinguen de los motivos documentados.
 

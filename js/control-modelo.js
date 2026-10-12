@@ -98,6 +98,31 @@
     resultados.liberacion = inicio + duracion;
     return resultados;
   };
+  /* Serie del bloqueo, ciclo a ciclo, para dibujar cómo crece cada memoria. */
+  C.bloqueoSerie = function (g, N) {
+    var r = C.REF * C.FACTOR, integral = 0, salida = 0, it = 0, out = [{ ciclo: 0, pedidoTradicional: 0, guardadoFirmware: 0, iterm: 0 }];
+    for (var k = 1; k <= N; k++) {
+      integral += g.Kp / g.Ko * r;
+      var c = C.ciclo(g, { ref: r, med: 0, ant: 0, integral: it, salida: salida });
+      salida = c.salida; it = c.integral;
+      out.push({ ciclo: k, pedidoTradicional: g.Kd / g.Ko * r + integral, guardadoFirmware: salida, iterm: it });
+    }
+    return out;
+  };
+  /* Tiempo que la orden aplicada sigue en ±255 justo después de liberar la rueda. */
+  C.tiempoEnTope = function (serie, liberacion) {
+    var i = 0;
+    while (i < serie.length && serie[i].t < liberacion - 1e-9) i++;
+    var inicio = i;
+    while (i < serie.length && Math.abs(serie[i].aplicado) >= C.MAX) i++;
+    return (i - inicio) * C.TS;
+  };
+  /* Respuesta del modelo FOPDT a un escalón de PWM aplicado en t = 0.
+     v(t) = 0 antes del retardo; después, K·PWM·(1 − e^(−(t − retardo)/tau)). */
+  C.fopdt = function (g, pwm, t) {
+    if (t < g.retardo) return 0;
+    return g.K * pwm * (1 - Math.exp(-(t - g.retardo) / g.tau));
+  };
   C.registro = function (velocidad) { return Math.round((velocidad + 1e-10) * 100) / 100; };
   C.promedio = function (muestras) { return muestras.reduce(function (a, b) { return a + b; }, 0) / muestras.length; };
   if (typeof module !== "undefined" && module.exports) module.exports = C;

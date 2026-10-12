@@ -82,4 +82,39 @@ comprobar("Un PID tradicional también puede proteger su memoria y reducir el pi
 comprobar("Redondear dos decimales puede ocultar 0,132 m/s, pero cambia al cruzar 0,135", function () {
   assert.equal(C.registro(.132), .13); assert.equal(C.registro(.134), .13); assert.equal(C.registro(.135), .14);
 });
+comprobar("El modelo FOPDT llega a K·PWM, cruza el 63 % en retardo + τ y no se mueve antes del retardo", function () {
+  ["izq", "der"].forEach(function (rueda) {
+    var g = C.RUEDAS[rueda];
+    cerca(C.fopdt(g, 143, 50), g.K * 143);
+    assert.ok(Math.abs(C.fopdt(g, 143, g.retardo + g.tau) - (1 - Math.exp(-1)) * g.K * 143) < 1e-12);
+    assert.equal(C.fopdt(g, 143, g.retardo / 2), 0);
+    cerca(C.fopdt(g, 0, 1), 0);
+    cerca(C.fopdt(g, 200, 1) / C.fopdt(g, 100, 1), 2); // lineal: sin zona muerta
+  });
+  assert.ok(Math.abs(C.fopdt(C.RUEDAS.izq, 143, 50) - .1306) < 5e-4 && Math.abs(C.fopdt(C.RUEDAS.der, 143, 50) - .1273) < 5e-4);
+});
+comprobar("Durante el bloqueo, el pedido tradicional crece sin límite y la salida del firmware se queda en 255", function () {
+  ["der", "izq"].forEach(function (rueda) {
+    var g = C.RUEDAS[rueda], s = C.bloqueoSerie(g, 90);
+    assert.equal(s.length, 91);
+    for (var k = 1; k < s.length; k++) {
+      assert.ok(s[k].pedidoTradicional > s[k - 1].pedidoTradicional);
+      assert.ok(s[k].guardadoFirmware <= 255 && s[k].guardadoFirmware >= s[k - 1].guardadoFirmware);
+    }
+    assert.equal(s[90].guardadoFirmware, 255);
+    var b = C.bloqueo(g, 30); cerca(s[30].pedidoTradicional, b.tradicional.pedido); assert.equal(s[30].guardadoFirmware, b.firmware.aplicado);
+  });
+  assert.equal(C.bloqueoSerie(C.RUEDAS.der, 90)[90].iterm, 0); // Ki 0,001 no alcanza a guardar nada
+});
+comprobar("Tras liberar, el PI sin protección sigue más tiempo en el tope que el firmware y que el PI protegido", function () {
+  ["der", "izq"].forEach(function (rueda) {
+    [1, 2, 3, 4].forEach(function (d) {
+      var sin = C.windup(rueda, d, false), con = C.windup(rueda, d, true);
+      var tSin = C.tiempoEnTope(sin.tradicional, sin.liberacion), tFw = C.tiempoEnTope(sin.firmware, sin.liberacion), tCon = C.tiempoEnTope(con.tradicional, con.liberacion);
+      assert.ok(tSin > tFw && tSin > tCon && tSin > 1, rueda + " " + d + " s");
+    });
+  });
+  var corto = C.windup("der", 1, false), largo = C.windup("der", 4, false);
+  assert.ok(C.tiempoEnTope(largo.tradicional, largo.liberacion) > C.tiempoEnTope(corto.tradicional, corto.liberacion));
+});
 console.log("\n" + total + " pruebas de control correctas");

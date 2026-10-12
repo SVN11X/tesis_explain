@@ -15,7 +15,7 @@
      del repositorio institucional de la UTEM, nunca una copia sin procedencia. */
   var TESIS_PDF = "";
   /* Fecha de la última revisión del sitio, la del último commit publicado. */
-  var REVISION = { iso: "2026-10-07", texto: "7 de octubre de 2026" };
+  var REVISION = { iso: "2026-10-11", texto: "11 de octubre de 2026" };
   /* PENDIENTE AUTOR: fecha de la versión de la tesis en que se basa el sitio, por ejemplo "30 de septiembre de 2026".
      Mientras esté vacía, la línea del pie queda oculta. */
   var VERSION_TESIS = "";
