@@ -8,3 +8,8 @@ control,datos/parametros.json,control.html;js/control-modelo.js,Tablas A4.4 y 4.
 mapeo,datos/ensayos/mapeo.csv,mapeo.html;laboratorio.html,Tabla 5.4,indicadores resumidos,m2 y porcentaje,,,sin rejillas ni referencia geometrica externa
 navegacion,datos/ensayos/metas.csv,exploracion.html;laboratorio.html,Tabla A7.1,conteos clasificados,metas y s,,,aborto restante sin clasificar; sin tiempos por meta
 SLAM,,mapeo.html#grafo-poses;js/mapeo.js,modelo de la guia,ilustrativo,m y grados,,,no representa corridas ni ejecucion de Ceres
+control,datos/parametros.json,control.html#sim-pid;img/diagramas/pid-respaldo.svg,Tabla A4.4 (orden de K y tau de la rueda izquierda),ilustrativo,m/s y PWM,,,modelo de primer orden sin retardo; no es el firmware ni una medicion
+SLAM,,mapeo.html#sim-lazo,modelo de la guia,ilustrativo,m y cm,,,"recinto inventado de 2,10 m de ancho; laser sin error; no representa corridas ni Ceres"
+mapeo,datos/parametros.json,laboratorio.html,Anexo 8.1 (umbrales 230 y 50) y Ec. 5.4 y 5.5,parametros transcritos,niveles de gris y m2,,,umbrales sujetos a revision; mapas originales no publicados
+navegacion,datos/parametros.json,laboratorio.html,Anexo 8.4 (procedimiento) y Tabla A5.4 (periodo 3333 ms),procedimiento reimplementado,metas y s,,,script original del autor no publicado; registros crudos no publicados
+laboratorio,datos/ejemplos/,laboratorio.html,ninguna,sintetico,segun archivo,,,no son datos del robot ni de la tesis

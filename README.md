@@ -30,7 +30,7 @@ Un robot de bajo costo, con ROS 2, que entra a un recinto que no conoce, lo reco
 | `mundo-real.html` | Casos reales, de una aspiradora a la mina El Teniente y a Marte |
 | `lecciones.html` | Lecciones de ingeniería que la tesis deja implícitas |
 | `preguntas.html` | 54 preguntas difíciles en 10 temas y 3 niveles, con respuesta, repregunta probable, respaldo en la tesis y enlace al tema |
-| `laboratorio.html` | Análisis local de CSV, métricas con fórmula, reglas transparentes, validación, procedencia y exportación JSON sin LLM |
+| `laboratorio.html` | Análisis local de CSV, de mapas de ocupación PGM y de registros de estados de metas, con métricas con fórmula, reglas transparentes, validación, procedencia y exportación JSON sin LLM |
 | `recursos.html` | Glosario, bibliografía, fuentes externas, materiales, cómo citar y créditos |
 
 ## Criterios del contenido
@@ -52,11 +52,20 @@ Las cifras y figuras del robot salen de la tesis y se citan con su sección, tab
 ├── css/movimiento.css   estilos exclusivos del capítulo 3
 ├── js/mapeo.js          modelos y visualizaciones del capítulo 05
 ├── css/mapeo.css        estilos exclusivos del capítulo 05
+├── js/analisis-modelo.js análisis de CSV y de registros de estados de metas, sin DOM
+├── js/analisis-mapa.js  lectura de PGM y YAML, conteo de celdas y comparación de mapas, sin DOM
+├── js/laboratorio.js    presentación del laboratorio
+├── css/laboratorio.css  estilos exclusivos del laboratorio
 ├── js/preguntas.js      búsqueda, filtros, modo práctica y pregunta al azar de Preguntas difíciles
 ├── css/preguntas.css    estilos exclusivos de Preguntas difíciles
 ├── datos/indice.js      índice del buscador, generado
+├── datos/academico.json estado académico, pendientes del autor e historial de cambios del sitio
+├── datos/parametros.json parámetros ya publicados en la guía, con su fuente
+├── datos/proyecto.js    módulo generado desde los JSON y los CSV
 ├── datos/ensayos/       tablas de los ensayos en CSV, con su origen en la tesis
-├── herramientas/        índice del buscador y pruebas
+├── datos/ejemplos/      archivos SINTÉTICOS para probar el laboratorio, no son datos del robot
+├── docs/                auditorías, informes, decisiones, trazabilidad y plantillas de revisión
+├── herramientas/        generadores, índice del buscador y pruebas
 ├── fuentes/             tipografías locales con su licencia OFL
 └── img/                 fotos, figuras de la tesis, animaciones y miniaturas
 ```
@@ -87,6 +96,8 @@ Los interactivos permiten aislar Kp, Kd y Ki, avanzar por ciclos, cancelar visua
 
 La comparación PSO/final muestra los seis pares de valores por rueda, con escalas explícitas e información sobre la validación. Los ejemplos de resolución separan el conteo del encoder, los dos decimales del registro y el promedio posterior; la recta está ensayada y el giro se identifica como estimación.
 
+El simulador «Ajusta un PID» toma su modelo de `js/control-modelo.js` y agrega lecturas por regla. Cada lectura dice qué condición la activó y con qué cálculo se comprueba. Con solo P, por ejemplo, el error final coincide con referencia / (1 + K·P), y la lectura lo escribe con los números del gráfico. La figura de respaldo `img/diagramas/pid-respaldo.svg` se genera con el mismo modelo mediante `node herramientas/diagramas_control.js`, y una prueba compara sus cifras con el texto sin JavaScript.
+
 El capítulo parte con un diagrama del lazo de una rueda que se recorre en cuatro etapas, medir, comparar, calcular y aplicar, con la unidad de cada señal: ticks/ciclo para lo pedido y lo medido, PWM para la orden y m/s para la rueda. El simulador PID deja la curva anterior en gris al cambiar las ganancias, para comparar error estacionario y sobreimpulso. El interactivo del modelo FOPDT dibuja las curvas de ambas ruedas con los parámetros de la Tabla A4.4 y marca dónde se leen la ganancia, la constante de tiempo y el retardo. Con PWM bajo advierte que el modelo no tiene zona muerta. El bloqueo dibuja cómo crece cada memoria y el windup informa cuánto sigue el motor en el tope después de liberar la rueda. El enjambre muestra la generación, el peso de inercia y la dispersión, con el eje vertical creciendo hacia arriba.
 
 `js/control-modelo.js` reúne las ganancias y cálculos que usan los interactivos y las pruebas. Las simulaciones de bloqueo no son mediciones ni reproducen exactamente el encoder físico. El umbral de 60 PWM del ejemplo de zona muerta es supuesto y ajustable, no un valor medido del robot. Las ganancias y bandas adaptadas provienen de los datos ya publicados en la guía; el código adaptado no está disponible, mientras que el código base se enlaza como referencia independiente. Las consideraciones adicionales sobre conservar la ley se distinguen de los motivos documentados.
@@ -115,6 +126,8 @@ El panel de Temas cuelga de la cabecera completa y se centra en ella, con un anc
    Los videos preparados usan `data-src` y `data-poster`. Basta con agregar los archivos y quitar `hidden`.
 8. **PDF de la tesis.** Solo cuando esté autorizado y disponible, registra una URL verificada en `tesis_pdf` de `datos/academico.json`.
 9. **Estado y parámetros.** Edita `datos/academico.json`, `datos/parametros.json` y los CSV autorizados. Ejecuta `python3 herramientas/datos.py` y después `python3 herramientas/indice.py`. Actualiza el HTML relacionado; los respaldos estáticos no se sustituyen por datos dinámicos. Consulta `datos/README.md` y `docs/trazabilidad.csv`.
+10. **Pendientes e historial.** Los pendientes del autor y el historial de cambios viven en `datos/academico.json`. `herramientas/datos.py` los escribe como HTML estático en `recursos.html#estado-academico`, entre los comentarios `ESTADO DETALLE`. Cada pendiente puede llevar un enlace a la pregunta o sección donde se nota.
+11. **Figuras y ejemplos generados.** `node herramientas/diagramas_control.js` regenera la figura de respaldo del PID y `node herramientas/ejemplos_laboratorio.js` los archivos sintéticos del laboratorio; con `--comprobar` solo verifica que estén al día.
 
 ## Ver el sitio en tu computador
 
@@ -137,8 +150,12 @@ python3 herramientas/pruebas_movimiento_navegador.py
 node herramientas/pruebas_analisis.js
 python3 herramientas/verificar_sitio.py
 python3 herramientas/pruebas_laboratorio_navegador.py
+python3 herramientas/pruebas_robustez_navegador.py
 python3 herramientas/pruebas_navegador.py
+node herramientas/ejemplos_laboratorio.js --comprobar
 ```
+
+`pruebas_robustez_navegador.py` bloquea `datos/proyecto.js` y quita `MediaQueryList.addEventListener` para comprobar que la cabecera, el pie y los interactivos sigan funcionando. También recorre con teclado las tablas anchas en un teléfono, mide la altura del aviso académico en móvil, revisa las lecturas por regla del PID, el mapa armado del grafo de poses, las fichas del concepto y el estado académico sin JavaScript.
 
 `pruebas_navegador.py` también comprueba que la cabecera quede fija al bajar, que el panel de Temas quepa en la pantalla entre 862 y 1920 px y que las herramientas de Preguntas difíciles funcionen con y sin JavaScript.
 
@@ -149,6 +166,10 @@ Las pruebas de Node revisan la geometría, el reloj y los casos numéricos de co
 El LiDAR tiene leyenda, escala de 1 m y un robot que no se confunde con un botón. La rejilla calcula el área libre y el índice de cobertura con la misma fórmula de los resultados. La cadena TF se dibuja en el marco map: al aplicar map → odom se mueve el origen de odom y la flecha de las ruedas conserva su largo. El ajuste de barridos muestra la curva del desacuerdo total, con mínimo en 30 cm frente a los 40 cm que estiman las ruedas. El grafo de poses informa el desacuerdo en cada paso: 0 sin cierre, 29,3 al añadirlo y 0,18 después de optimizar. El ejemplo de cobertura conserva la celda ocupada en ambas imágenes y permite agrandar el margen desconocido para ver que el índice baja mientras el área no cambia.
 
 Los SVG en línea no llevan estilos propios, para que no afecten al resto de la página ni al tema oscuro. Los archivos exportados a `img/diagramas/` sí los incluyen.
+
+El grafo de poses también arma el mapa que forman las observaciones. Cada pose guarda lo que vio el láser en su propio marco, sin error en este ejemplo, y el mapa se dibuja donde dice la pose estimada. Antes del cierre, la pared vista al inicio y al regreso queda a 17,7 cm de sí misma. Después de optimizar coinciden, pero el mapa mide 2,15 m de ancho frente a 2,10 m del recinto del ejemplo: un mapa coherente puede conservar un error de escala. Es un recinto ilustrativo y no reemplaza una medición del prototipo.
+
+Control, navegación y mapeo tienen una ficha del concepto plegable, con qué es, para qué sirve, cómo funciona, dónde verlo, un ejemplo numérico, cómo se usa en el robot y sus límites.
 
 Los dibujos de respaldo del capítulo 05 se regeneran con `node herramientas/diagramas_mapeo.js`. Se guardan en `img/diagramas/` y permiten leer el capítulo sin JavaScript. Los modelos del capítulo están aislados en `js/mapeo.js`; no ejecutan SLAM Toolbox ni Ceres y no reemplazan las mediciones originales.
 
@@ -165,7 +186,7 @@ git push origin main
 
 ## Accesibilidad
 
-Se comprueban tema oscuro, movimiento reducido, navegación por teclado y respaldos. El menú móvil limita el foco y aísla el fondo; el aviso académico y la navegación esencial funcionan sin JavaScript. Las verificaciones automáticas y la revisión visual no son una certificación completa de WCAG 2.2 AA ni sustituyen pruebas con lectores de pantalla.
+Se comprueban tema oscuro, movimiento reducido, navegación por teclado y respaldos. El menú móvil limita el foco y aísla el fondo; el aviso académico y la navegación esencial funcionan sin JavaScript. Una tabla que no cabe en la pantalla se vuelve una región enfocable con nombre, para recorrerla con las flechas, y deja de serlo cuando vuelve a caber. Cada parte del arranque se inicia aislada: si una falla, las demás siguen. Las verificaciones automáticas y la revisión visual no son una certificación completa de WCAG 2.2 AA ni sustituyen pruebas con lectores de pantalla.
 
 ## Cómo citar
 
@@ -185,12 +206,14 @@ Las fotos del prototipo, el recinto y las figuras técnicas son del autor y prov
 
 Elige una de las siete tablas ya disponibles o abre un CSV propio desde `laboratorio.html`. Se leen en memoria: no se suben, se guardan ni se procesan con IA. El análisis valida las columnas y unidades, distingue datos declarados de cálculos derivados y muestra condiciones y límites de cada regla. Se puede exportar JSON con procedencia, opciones y una huella local del texto UTF-8.
 
-Las tablas actuales no permiten reconstruir trayectorias, rejillas ni el establecimiento del escalón. Un formato temporal opcional puede analizar registros propios, sin atribuirlos al robot. Consulta `docs/laboratorio.md`. No se instalan modelos de IA ni servicios de inferencia.
+Las tablas actuales no permiten reconstruir trayectorias, rejillas ni el establecimiento del escalón. Un formato temporal opcional puede analizar registros propios, sin atribuirlos al robot.
+
+También lee mapas de ocupación PGM, con su YAML si existe. Cuenta celdas libres, ocupadas y desconocidas con los umbrales de la tesis o los del YAML, calcula áreas y el índice de cobertura en la imagen completa y en el rectángulo observado, y compara dos mapas celda a celda solo si comparten tamaño, resolución y origen. Un registro de estados de metas, con una fila por meta en cada mensaje de estado, se clasifica por identificador como en el Anexo 8.4: completadas, abortadas por reemplazo, abortadas sin clasificar, canceladas y sin estado final. Los botones de ejemplo usan archivos sintéticos de `datos/ejemplos/`, rotulados como tales. Consulta `docs/laboratorio.md`. No se instalan modelos de IA ni servicios de inferencia.
 
 ## Documentación y revisión
 
-- `docs/auditoria-inicial.md`: hallazgos y funcionalidades conservadas.
-- `docs/informe-tecnico.md`: cambios, pruebas, uso y entrega.
+- `docs/auditoria-inicial.md` y `docs/auditoria-e876140.md`: hallazgos y funcionalidades conservadas en cada revisión.
+- `docs/informe-tecnico.md`: cambios, pruebas, uso y entrega de la revisión más reciente. Los informes anteriores están en `docs/historial/`.
 - `docs/informe-academico.md`: integridad del contenido y asuntos que requieren confirmación.
 - `docs/decisiones.md`: razones de arquitectura y límites de la evolución.
 - `docs/trazabilidad.csv`, `docs/observaciones-comite.csv`, `docs/inventario-publicacion.csv`: fuentes, plantilla de observaciones reales y autorización de material.

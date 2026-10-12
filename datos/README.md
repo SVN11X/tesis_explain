@@ -9,3 +9,9 @@
 `proyecto.js` se genera desde los dos JSON y los CSV con `python3 herramientas/datos.py`. Es un módulo local sin descargas externas, importable en Node para pruebas; evita peticiones asíncronas antes de montar diagramas. El mismo comando actualiza el aviso **HTML estático**, legible sin JavaScript. Ejecuta luego `python3 herramientas/indice.py`.
 
 No muevas indiscriminadamente los textos HTML aquí. Si el comité cambia un parámetro, confirma su nueva fuente, actualiza el JSON, las explicaciones y respaldos HTML que lo citan, regenera ambos módulos y revisa las pruebas numéricas. Un nuevo dato no autoriza publicar su registro original.
+
+`parametros.json` también reúne los umbrales de intensidad con que la tesis clasifica la imagen PGM del mapa (Anexo 8.1) y los parámetros del explorador de la Tabla A5.4. El laboratorio los usa como valores por defecto y los muestra con su fuente.
+
+`academico.json` guarda los pendientes como objetos `{texto, enlace}` y un `historial` de cambios del sitio. `herramientas/datos.py` los escribe como HTML estático en `recursos.html#estado-academico`. Un cambio de plataforma se registra con `tipo: plataforma` y uno de contenido académico, autorizado por el autor, con `tipo: contenido`.
+
+`ejemplos/` contiene archivos **sintéticos** para probar el laboratorio. Se generan con `node herramientas/ejemplos_laboratorio.js` y no son datos del robot ni de la tesis.

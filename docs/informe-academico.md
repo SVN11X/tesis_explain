@@ -27,6 +27,27 @@ Las respuestas de práctica se redactaron en forma impersonal. Conservan la refe
 
 El error porcentual de recta declarado usa valores anteriores al redondeo de distancias. Los nuevos recálculos pueden diferir: se muestran por separado, no se modifica la tabla para forzar coincidencia. Las respuestas que infieren movimiento a partir de mapa creciente deben conservar su carácter de inferencia y contrastarse con evidencia externa si se propone validación cuantitativa.
 
+## Revisión sobre e876140
+
+Esta revisión contrastó las siete tablas de `datos/ensayos/` y los parámetros de `datos/parametros.json` con una copia del documento facilitada por el autor. Coinciden valor por valor. El documento sigue inédito y en revisión, por eso el detalle del contraste se entregó al autor por separado y no se publica aquí.
+
+Contenido que no se alteró: tablas experimentales, cifras de resultados, ecuaciones del controlador, conclusiones sobre los objetivos y resultados de navegación. Las respuestas pendientes de Preguntas difíciles siguen sin completar.
+
+Dos frases se corrigieron porque contradecían o simplificaban el Anexo 7. En `mapeo.html` el sitio decía que el robot recorrió el recinto en seis ejecuciones, pero en la iteración 2 no se desplazó. En `exploracion.html` el motivo de exclusión de esa iteración ahora incluye que su mapa no quedó guardado. Ambas quedan en el historial de `recursos.html#estado-academico`.
+
+Material nuevo y su carácter:
+
+| Elemento | Carácter | Fuente o límite |
+|---|---|---|
+| Lecturas por regla del simulador PID | Ilustrativo | Modelo de primer orden con K y τ del orden de la Tabla A4.4. No es el firmware ni una medición. |
+| Mapa armado en el grafo de poses | Ilustrativo | Recinto inventado de 2,10 m de ancho y láser sin error. No representa corridas ni a Ceres. |
+| Fichas del concepto | Resumen de la guía | Cada afirmación ya estaba en el tema o cita su sección de la tesis. |
+| Umbrales del PGM y parámetros del explorador | Parámetros transcritos | Anexo 8.1 y Tabla A5.4, sujetos a la revisión del comité. |
+| Clasificación de registros de metas | Procedimiento reimplementado | Sigue la descripción del Anexo 8.4. El script del autor no está publicado. |
+| Ejemplos de `datos/ejemplos/` | Sintéticos | No son datos del robot ni de la tesis. |
+
+Asuntos que siguen requiriendo confirmación del autor: versión del documento y fecha de los datos, método de medida del giro físico, motivo de la referencia de 0,13 m/s, motivo del tamaño mínimo de frontera y autorización para publicar mapas, registros de estados y firmware. Si se autorizan mapas PGM o registros de estados, el laboratorio puede analizarlos sin cambios, pero deben publicarse en una carpeta propia con versión, fecha y procedencia.
+
 ## Mantenimiento fuera del código
 
 1. Mantener el documento privado con versión identificable y registro de cambios. Conservar una copia del documento que sustenta cada release del sitio sin convertirla automáticamente en pública.
