@@ -15,7 +15,7 @@
      del repositorio institucional de la UTEM, nunca una copia sin procedencia. */
   var TESIS_PDF = "";
   /* Fecha de la última revisión del sitio, la del último commit publicado. */
-  var REVISION = { iso: "2026-10-11", texto: "11 de octubre de 2026" };
+  var REVISION = { iso: "2026-10-12", texto: "12 de octubre de 2026" };
   /* PENDIENTE AUTOR: fecha de la versión de la tesis en que se basa el sitio, por ejemplo "30 de septiembre de 2026".
      Mientras esté vacía, la línea del pie queda oculta. */
   var VERSION_TESIS = "";
@@ -38,6 +38,7 @@
   var EXTRAS = [
     { id: "mundo-real", t: "En el mundo real", d: "Dónde se usan estas mismas ideas, de una aspiradora a una mina chilena y a Marte." },
     { id: "lecciones", t: "Lecciones de ingeniería", d: "Temas que la tesis deja implícitos: unidades, seguridad, privacidad, reproducibilidad." },
+    { id: "preguntas", t: "Preguntas difíciles", d: "Las preguntas de quien leyó la tesis con lupa, con su respuesta y su respaldo." },
     { id: "recursos", t: "Recursos", d: "Glosario, bibliografía, material para aprender y cómo citar." }
   ];
   /* Secuencia de lectura: los diez temas numerados y, después, los complementos sin número.
@@ -102,15 +103,20 @@
         return '<a href="' + c.id + '.html"' + (c.id === pagina ? ' aria-current="page"' : '') + '><span class="n">' + n2(i) + '</span><b>' + esc(c.t) + '</b><small>' + esc(c.d) + '</small></a>';
       }).join("") + '</div>';
     }).join("");
-    var extra = '<div class="mg-extra">' + EXTRAS.map(function (e) { return enlace(e.id, esc(e.t)); }).join("") + '</div>';
+    var extra = '<div class="mg-extra"><span>Complementos</span>' + EXTRAS.map(function (e) { return enlace(e.id, esc(e.t)); }).join("") + '</div>';
+    /* El panel de Temas cuelga de la cabecera completa y no del botón, para que nunca quede
+       fuera de la pantalla aunque el botón esté lejos del borde derecho. */
     cont.innerHTML =
       '<div class="cab"><div class="wrap">' +
       '<a class="marca" href="index.html">' + ICONO + '<span>Robot explorador<small>Guía abierta de una tesis de la UTEM</small></span></a>' +
       '<nav class="nav-principal" aria-label="Principal">' +
       '<a class="nav-texto" href="index.html"' + (pagina === "inicio" ? ' aria-current="page"' : '') + '>Inicio</a>' +
-      '<div class="nav-guia nav-texto"><button type="button" class="nav-btn" aria-expanded="false" aria-controls="menu-guia">Temas ' + SVG.abajo + '</button><div class="menu-guia" id="menu-guia" hidden>' + cols + extra + '</div></div>' +
-      '<span class="nav-texto">' + enlace("mundo-real", "En el mundo real") + '</span>' +
-      '<span class="nav-texto">' + enlace("lecciones", "Lecciones") + '</span>' +
+      '<div class="nav-guia nav-texto"><button type="button" class="nav-btn' + (esCap ? ' activo' : '') + '" aria-expanded="false" aria-controls="menu-guia"' + (esCap ? ' aria-describedby="tema-actual"' : '') + '>Temas ' + SVG.abajo + '</button>' +
+      (esCap ? '<span class="sr" id="tema-actual">Estás en un tema de la guía</span>' : '') +
+      '<div class="menu-guia" id="menu-guia" hidden>' + cols + extra + '</div></div>' +
+      '<span class="nav-texto nav-opcional">' + enlace("mundo-real", "En el mundo real") + '</span>' +
+      '<span class="nav-texto nav-opcional">' + enlace("lecciones", "Lecciones") + '</span>' +
+      '<span class="nav-texto">' + enlace("preguntas", "Preguntas") + '</span>' +
       '<span class="nav-texto">' + enlace("recursos", "Recursos") + '</span>' +
       '</nav>' +
       '<button type="button" class="btn-buscar" id="btn-buscar" aria-label="Buscar en el sitio">' + SVG.lupa + '<span class="bb-txt">Buscar</span><kbd>/</kbd></button>' +
@@ -130,11 +136,29 @@
       var t = temaActual(), i = TEMAS.indexOf(t);
       aplicarTema(TEMAS[(i + 1) % TEMAS.length]);
     });
-    var bg = cont.querySelector(".nav-btn"), mg = document.getElementById("menu-guia");
-    function cerrarGuia() { mg.hidden = true; bg.setAttribute("aria-expanded", "false"); }
-    bg.addEventListener("click", function (e) { e.stopPropagation(); var ab = mg.hidden; mg.hidden = !ab; bg.setAttribute("aria-expanded", String(ab)); });
+    var bg = cont.querySelector(".nav-btn"), mg = document.getElementById("menu-guia"), cab = cont.querySelector(".cab");
+    function cerrarGuia(volver) {
+      if (mg.hidden) return;
+      mg.hidden = true; bg.setAttribute("aria-expanded", "false"); cab.classList.remove("menu-abierto");
+      if (volver) bg.focus();
+    }
+    bg.addEventListener("click", function (e) {
+      e.stopPropagation();
+      var ab = mg.hidden; mg.hidden = !ab; bg.setAttribute("aria-expanded", String(ab)); cab.classList.toggle("menu-abierto", ab);
+    });
     document.addEventListener("click", function (e) { if (!e.target.closest(".nav-guia")) cerrarGuia(); });
-    document.addEventListener("keydown", function (e) { if (e.key === "Escape") { cerrarGuia(); cerrarCajon(); } });
+    /* al salir del panel con Tab se cierra, para que no tape la página mientras se recorre con teclado */
+    cont.querySelector(".nav-guia").addEventListener("focusout", function (e) { if (e.relatedTarget && !e.currentTarget.contains(e.relatedTarget)) cerrarGuia(); });
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape") return;
+      var enPanel = !mg.hidden && document.activeElement && document.activeElement.closest && document.activeElement.closest(".nav-guia");
+      cerrarGuia(enPanel); cerrarCajon();
+    });
+    /* La cabecera queda fija arriba. Al bajar se marca con una sombra para separarla del contenido. */
+    var pendCab = false;
+    function marcarCab() { pendCab = false; cab.classList.toggle("desplazada", window.scrollY > 4); }
+    window.addEventListener("scroll", function () { if (!pendCab) { pendCab = true; requestAnimationFrame(marcarCab); } }, { passive: true });
+    marcarCab();
     var cajon = document.getElementById("cajon"), bm = document.getElementById("btn-menu");
     function cerrarCajon() { if (!cajon.classList.contains("abierto")) return; cajon.classList.remove("abierto"); bm.setAttribute("aria-expanded", "false"); bm.focus(); }
     bm.addEventListener("click", function () { cajon.classList.add("abierto"); bm.setAttribute("aria-expanded", "true"); var a = cajon.querySelector("a,button"); if (a) a.focus(); });
@@ -223,7 +247,8 @@
     var art = document.querySelector(".articulo");
     if (!art) return;
     var barra = document.createElement("div"); barra.className = "progreso-lectura"; barra.setAttribute("aria-hidden", "true");
-    document.body.appendChild(barra);
+    /* va en el borde inferior de la cabecera fija, así se ve siempre bajo ella */
+    (document.querySelector(".cab") || document.body).appendChild(barra);
     var pend = false;
     function act() {
       pend = false;

@@ -10,6 +10,8 @@ Qué indexa:
   * Una entrada por cada h3 con id, con su texto y el de los elementos que le siguen hasta el
     próximo encabezado, para que el resultado lleve directo al bloque.
   * El resumen de cada tema y cada término del glosario.
+  * En preguntas.html, una entrada por pregunta, con su respuesta, que lleva directo a ella.
+    Las secciones de cada tema de preguntas solo indexan su introducción.
 
 No se recorta el texto buscable. Las secciones muy largas se dividen en partes de unos
 LARGO_PARTE caracteres que se solapan, todas con el mismo enlace, para que el extracto que
@@ -21,7 +23,7 @@ from bs4 import BeautifulSoup
 
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..') + os.sep
 ORDEN = ['index', 'problema', 'robot', 'movimiento', 'control', 'mapeo', 'navegacion', 'exploracion',
-         'gemelo', 'resultados', 'replicar', 'mundo-real', 'lecciones', 'recursos']
+         'gemelo', 'resultados', 'replicar', 'mundo-real', 'lecciones', 'preguntas', 'recursos']
 LARGO_PARTE = 2400      # caracteres por parte en secciones largas
 SOLAPE = 300            # caracteres compartidos entre partes consecutivas
 RUIDO = re.compile(r'\s*Necesita JavaScript\.?', re.I)
@@ -71,6 +73,13 @@ def generar():
         url = pid + '.html'
         for x in s.select('script, style, .fuentes-tema, nav, .lateral, #cabecera, #pie, [hidden]'):
             x.decompose()
+        if pid == 'preguntas':
+            for d in s.select('details.pregunta[id]'):
+                q = d.select_one('.q-t')
+                cuerpo = d.select_one('.q-cuerpo')
+                if q and cuerpo:
+                    for k, x in enumerate(partes(limpio(cuerpo.get_text(' ')))):
+                        ent.append(dict(u=url + '#' + d['id'], t=limpio(q.get_text(' ')), p=titulo, x=x, k=k))
         if pid == 'recursos':
             for g in s.select('[id^=g-]'):
                 dt, dd = g.find('dt'), g.find('dd')
@@ -110,6 +119,10 @@ def generar():
             if pid == 'index' and h.name == 'h2' and sec.get('id'):
                 ancla = sec['id']
             texto = texto.replace(t, '', 1).strip()
+            if pid == 'preguntas' and sec.select_one('details.pregunta'):
+                # cada pregunta ya tiene su propia entrada; aquí basta la introducción del tema
+                intro = sec.select_one('.q-intro')
+                texto = limpio(intro.get_text(' ')) if intro else ''
             if pid == 'recursos' and hid == 'glosario':
                 # los términos ya tienen su propia entrada; aquí basta la introducción
                 intro = sec.find('p')

@@ -10,7 +10,9 @@ todos los interactivos se monten; desborde horizontal en móvil; enlaces interno
 recursos locales; el buscador; las definiciones con ratón, toque y teclado; los simuladores
 de inflación, DWB, exploración y encoder; la página de Recursos; el contenido plegado y sus
 anclas; el botón Ampliar; el alto mínimo de los controles en un teléfono; el visor de fotos,
-el esquema con puntos, la línea de tiempo y los bloques de video preparados.
+el esquema con puntos, la línea de tiempo y los bloques de video preparados; la cabecera fija
+y el panel de Temas dentro de la pantalla en varios anchos; y las herramientas de Preguntas
+difíciles: búsqueda, filtros, modo práctica, pregunta al azar y lectura sin JavaScript.
 """
 import os, re, sys, json, glob
 from urllib.parse import urlparse, unquote
@@ -124,7 +126,7 @@ def recorrer_paginas(nav, nombre, vista, extra):
         p.on('response', lambda r: errores.append('%d %s' % (r.status, r.url)) if r.url.startswith(BASE) and r.status >= 400 else None)
         p.goto(BASE + '/' + pag, wait_until='load')
         p.wait_for_timeout(250)
-        if pag != 'preguntas.html':
+        if True:
             # baja por la página para montar todos los interactivos
             # La página crece al montar los widgets; recalcular el alto evita
             # terminar antes de los últimos interactivos en capítulos largos.
@@ -197,7 +199,6 @@ def probar_buscador(nav):
       INDICE.forEach(e => { const k = e.u.split('#')[0]; por[k] = (por[k] || '') + ' ' + B.norm(e.t) + ' ' + B.norm(e.x); });
       const out = [];
       for (const pg of paginas) {
-        if (pg === 'preguntas.html') continue;
         const html = await (await fetch(pg)).text();
         const d = new DOMParser().parseFromString(html, 'text/html');
         d.querySelectorAll('script, style, .fuentes-tema, nav, .lateral, #cabecera, #pie, [hidden]').forEach(x => x.remove());
@@ -485,9 +486,9 @@ def probar_recursos(nav):
                    numeros: [...l.querySelectorAll('.guia-lista .n')].map(x => x.textContent) };
         }""")
         ok(r['lat'] > 10 and r['enPagina'] >= 6 and r['alto'] > 40, '%s: el lateral de Recursos tiene índice útil' % nombre, r)
-        ok(r['nav'] == ['lecciones.html', 'index.html'], '%s: navegación anterior y siguiente de Recursos' % nombre, r['nav'])
+        ok(r['nav'] == ['preguntas.html', 'index.html'], '%s: navegación anterior y siguiente de Recursos' % nombre, r['nav'])
         ok(r['actual'], '%s: Recursos aparece como página actual' % nombre)
-        ok(r['numeros'][:10] == ['%02d' % i for i in range(1, 11)] and r['numeros'][10:] == ['+', '+', '+'], '%s: la numeración de los temas no cambia' % nombre, r['numeros'])
+        ok(r['numeros'][:10] == ['%02d' % i for i in range(1, 11)] and r['numeros'][10:] == ['+', '+', '+', '+'], '%s: la numeración de los temas no cambia' % nombre, r['numeros'])
         if nombre == 'escritorio':
             e = p.evaluate("""() => { const pie = document.querySelector('.pie'), ab = document.getElementById('abstract').closest('section');
               return { mit: !!pie.querySelector('a[href$="/LICENSE"]'), cc: !!pie.querySelector('a[href*="licenses/by/4.0"]'), rev: (pie.querySelector('time') || {}).textContent || '',
@@ -575,8 +576,8 @@ def probar_ampliar(nav):
 def probar_tactil(nav):
     print('Controles en un teléfono de 390 por 844')
     ctx = contexto(nav, viewport={'width': 390, 'height': 844}, has_touch=True, is_mobile=True, device_scale_factor=2)
-    sel = '.lateral a, .miga a, .b-ctl, .cab button, .cab a.btn-icono, .b-ampliar, .vbtn, .chip, .segmento button, details.detalle > summary'
-    for pag in ['index.html', 'robot.html', 'movimiento.html', 'control.html', 'navegacion.html', 'exploracion.html', 'resultados.html', 'recursos.html']:
+    sel = '.lateral a, .miga a, .b-ctl, .cab button, .cab a.btn-icono, .b-ampliar, .vbtn, .chip, .segmento button, details.detalle > summary, details.pregunta > summary, .q-herramientas .btn, .q-interruptor'
+    for pag in ['index.html', 'robot.html', 'movimiento.html', 'control.html', 'navegacion.html', 'exploracion.html', 'resultados.html', 'preguntas.html', 'recursos.html']:
         p = ctx.new_page()
         p.goto(BASE + '/' + pag)
         p.wait_for_timeout(250)
@@ -712,6 +713,159 @@ def probar_preparados(nav):
     ctx.close()
 
 
+def probar_cabecera(nav):
+    print('Cabecera fija y panel de Temas')
+    # el panel de Temas queda dentro de la pantalla en cualquier ancho de escritorio, también con zoom
+    for ancho in (1920, 1532, 1366, 1280, 1180, 1100, 1024, 900, 862):
+        ctx = contexto(nav, viewport={'width': ancho, 'height': 760})
+        p = ctx.new_page()
+        p.goto(BASE + '/recursos.html')
+        p.wait_for_timeout(150)
+        p.click('.nav-btn')
+        r = p.evaluate("""() => { const m = document.getElementById('menu-guia'), rm = m.getBoundingClientRect(), w = document.querySelector('.cab .wrap');
+          return { izq: rm.left, der: rm.right, abajo: rm.bottom, ancho: document.documentElement.clientWidth, alto: innerHeight, visible: !m.hidden,
+                   desborde: w.scrollWidth - w.clientWidth, pagina: document.documentElement.scrollWidth - innerWidth,
+                   enlaces: m.querySelectorAll('a').length }; }""")
+        ok(r['visible'] and r['izq'] >= 0 and r['der'] <= r['ancho'] and r['abajo'] <= r['alto'], '%d px: el panel de Temas cabe completo en la pantalla' % ancho, r)
+        ok(r['desborde'] <= 0 and r['pagina'] <= 1, '%d px: la barra de navegación no se desborda' % ancho, r)
+        ok(r['enlaces'] == 14, '%d px: el panel lleva los diez temas y los cuatro complementos' % ancho, r['enlaces'])
+        if ancho == 1280:
+            p.keyboard.press('Escape')
+            ok(p.evaluate("document.getElementById('menu-guia').hidden && document.querySelector('.nav-btn').getAttribute('aria-expanded') === 'false'"), 'Escape cierra el panel de Temas')
+            p.click('.nav-btn')
+            p.focus('#menu-guia a')
+            p.keyboard.press('Escape')
+            ok(p.evaluate("document.activeElement.classList.contains('nav-btn')"), 'con el foco dentro del panel, Escape lo cierra y vuelve al botón')
+            p.click('.nav-btn')
+            p.mouse.click(5, 700)
+            ok(p.evaluate("document.getElementById('menu-guia').hidden"), 'un clic fuera cierra el panel')
+        ctx.close()
+    # la cabecera queda fija al bajar, en escritorio y en teléfono
+    for nombre, kw in [('escritorio', {'viewport': {'width': 1366, 'height': 800}}), ('teléfono', {'viewport': {'width': 390, 'height': 844}, 'has_touch': True, 'is_mobile': True})]:
+        ctx = contexto(nav, **kw)
+        p = ctx.new_page()
+        p.goto(BASE + '/control.html')
+        p.wait_for_timeout(150)
+        p.evaluate('window.scrollTo(0, 3000)')
+        p.wait_for_timeout(200)
+        r = p.evaluate("""() => { const c = document.querySelector('.cab'), rc = c.getBoundingClientRect(), b = c.querySelector('.progreso-lectura');
+          const arriba = document.elementFromPoint(innerWidth / 2, 10);
+          return { top: rc.top, alto: rc.height, y: scrollY, sombra: c.classList.contains('desplazada'), barra: !!b, barraAbajo: b ? Math.round(b.getBoundingClientRect().bottom - rc.bottom) : null,
+                   encima: !!(arriba && arriba.closest('#cabecera')) }; }""")
+        ok(r['y'] > 1000 and r['top'] == 0 and r['encima'], '%s: la cabecera sigue arriba después de bajar' % nombre, r)
+        ok(r['sombra'] and r['barra'] and abs(r['barraAbajo']) <= 1, '%s: al bajar se marca con sombra y la barra de lectura va en su borde inferior' % nombre, r)
+        if nombre == 'teléfono':
+            p.click('#btn-menu')
+            p.wait_for_timeout(150)
+            rc = p.evaluate("(() => { const r = document.querySelector('.cajon-panel').getBoundingClientRect(); return { top: r.top, bottom: r.bottom, alto: innerHeight }; })()")
+            ok(rc['top'] == 0 and rc['bottom'] >= rc['alto'] - 1, 'teléfono: el menú lateral cubre la pantalla completa aunque la página esté desplazada', rc)
+            ok(p.evaluate("!!document.querySelector('.cajon-panel a[href=\"preguntas.html\"]')"), 'teléfono: el menú lateral lleva a Preguntas difíciles')
+            p.keyboard.press('Escape')
+        else:
+            ok(p.evaluate("document.querySelector('.nav-btn').classList.contains('activo')"), 'en un tema, el botón Temas se marca como sección actual')
+        ctx.close()
+
+
+def probar_preguntas(nav):
+    print('Preguntas difíciles')
+    EST = "document.getElementById('q-herramientas').estadoPreguntas()"
+    estatico = BeautifulSoup(open(os.path.join(REPO, 'preguntas.html'), encoding='utf-8').read(), 'html.parser')
+    ds = estatico.select('details.pregunta')
+    clases = {'general': 'basico', 'tecnica': 'intermedio', 'exigente': 'avanzado'}
+    ok(len(ds) == 54 and all(d.get('id', '').startswith('p-') for d in ds), '54 preguntas, cada una con su ancla', len(ds))
+    ok(all(clases[d['data-dificultad']] in d.select_one('summary .etiqueta')['class'] for d in ds), 'la etiqueta de cada pregunta coincide con su nivel')
+    ok(all(d.select_one('.q-respaldo') and d.select_one('.q-ver a') for d in ds), 'cada pregunta indica su respaldo en la tesis y su tema en la guía')
+    texto = ' '.join(d.get_text(' ') for d in ds)
+    ok(';' not in texto and ' — ' not in texto and ' – ' not in texto, 'las respuestas no usan punto y coma ni guiones como separadores')
+    ctx = contexto(nav, viewport={'width': 1280, 'height': 900})
+    p = ctx.new_page()
+    errores = []
+    p.on('pageerror', lambda e: errores.append(str(e)))
+    p.goto(BASE + '/preguntas.html')
+    p.wait_for_timeout(250)
+    e = p.evaluate(EST)
+    ok(len(e['visibles']) == 54 and len(e['temasVisibles']) == 10 and e['abiertas'] == 0, 'parten las 54 preguntas visibles y plegadas, en 10 temas', e['conteo'])
+    p.fill('#q-buscar', '3.63'); p.wait_for_timeout(300)
+    ok(p.evaluate(EST)['visibles'] == ['p-dos-errores'], 'buscar 3.63 encuentra la pregunta que dice 3,63', p.evaluate(EST)['visibles'])
+    p.fill('#q-buscar', '444643'); p.wait_for_timeout(300)
+    ok(p.evaluate(EST)['visibles'] == ['p-costo'], 'buscar 444643 encuentra 444 643 pesos')
+    p.fill('#q-buscar', 'ganancia derivativa'); p.wait_for_timeout(300)
+    ok('p-kd' in p.evaluate(EST)['visibles'], 'la búsqueda ignora tildes y exige todas las palabras')
+    p.fill('#q-buscar', ''); p.wait_for_timeout(300)
+    p.click('#q-nivel button[data-n="general"]')
+    e = p.evaluate(EST)
+    ok(len(e['visibles']) == 10 and p.get_attribute('#q-nivel button[data-n="general"]', 'aria-pressed') == 'true', 'el nivel Para todo público deja 10 preguntas', e['conteo'])
+    p.click('#q-temas .chip[data-tema="gemelo"]')
+    e = p.evaluate(EST)
+    ok(e['visibles'] == ['p-para-que-sim', 'p-video'] and e['temasVisibles'] == ['gemelo'], 'tema y nivel se combinan y los temas vacíos se ocultan', e)
+    ok('2 de 54' in e['conteo'] and p.get_attribute('#q-conteo', 'role') == 'status', 'el conteo se anuncia a lectores de pantalla', e['conteo'])
+    p.click('#q-limpiar')
+    ok(len(p.evaluate(EST)['visibles']) == 54 and p.is_hidden('#q-limpiar'), 'Quitar filtros vuelve a mostrar todo')
+    p.fill('#q-buscar', 'palabraquenoexiste'); p.wait_for_timeout(300)
+    ok(p.is_visible('#q-sin') and p.is_disabled('#q-azar'), 'sin coincidencias se avisa y la pregunta al azar se desactiva')
+    p.fill('#q-buscar', ''); p.wait_for_timeout(300)
+    # modo práctica
+    p.check('#q-practica')
+    ok(p.evaluate(EST)['veladas'] == 54, 'el modo práctica vela todas las respuestas')
+    p.click('#p-kd summary')
+    r = p.evaluate("(() => { const d = document.getElementById('p-kd'); return [getComputedStyle(d.querySelector('.q-velo')).display, getComputedStyle(d.querySelector('.q-cuerpo > p')).display, !!d.querySelector('.q-velo label[for=\"tu-p-kd\"]')]; })()")
+    ok(r[0] != 'none' and r[1] == 'none' and r[2], 'al abrir en modo práctica se ve el espacio para responder y no la respuesta', r)
+    p.fill('#tu-p-kd', 'El firmware suma incrementos')
+    p.click('#p-kd .q-velo button')
+    r = p.evaluate("(() => { const d = document.getElementById('p-kd'); return [d.classList.contains('velada'), getComputedStyle(d.querySelector('.q-cuerpo > p:not([hidden])')).display, (d.querySelector('.q-tu-respuesta') || {}).textContent || '', document.activeElement === d.querySelector('.q-cuerpo')]; })()")
+    ok(not r[0] and r[1] != 'none' and 'suma incrementos' in r[2] and r[3], 'Mostrar la respuesta la revela junto a lo escrito y lleva el foco a ella', r)
+    p.uncheck('#q-practica')
+    ok(p.evaluate(EST)['veladas'] == 0, 'al salir del modo práctica no queda nada velado')
+    # pregunta al azar
+    vistos = []
+    for _ in range(5):
+        p.click('#q-azar'); p.wait_for_timeout(80)
+        h = p.evaluate('location.hash')
+        vistos.append(h)
+        ok(h.startswith('#p-') and p.evaluate("document.getElementById(location.hash.slice(1)).open"), 'la pregunta al azar se abre y deja su enlace (%s)' % h)
+    ok(all(x != y for x, y in zip(vistos, vistos[1:])), 'dos clics seguidos no repiten la misma pregunta', vistos)
+    p.click('#q-nivel button[data-n="exigente"]')
+    for _ in range(4):
+        p.click('#q-azar'); p.wait_for_timeout(60)
+        ok(p.evaluate("document.getElementById(location.hash.slice(1)).dataset.dificultad") == 'exigente', 'la pregunta al azar respeta el filtro de nivel')
+    # un enlace a una pregunta que el filtro ocultaba
+    p.click('#q-nivel button[data-n="general"]')
+    # la pregunta al azar pudo dejar #p-trejos en la dirección: se parte de una dirección sin ancla
+    p.evaluate("history.replaceState(null, '', location.pathname); location.hash = 'p-trejos'"); p.wait_for_timeout(300)
+    e = p.evaluate(EST)
+    ok('p-trejos' in e['visibles'] and e['nivel'] == 'todos' and p.evaluate("document.getElementById('p-trejos').open"), 'un enlace a una pregunta filtrada quita los filtros y la abre')
+    # un enlace al mismo ancla que ya tiene la dirección, con la pregunta oculta por un filtro
+    p.click('#q-nivel button[data-n="general"]')
+    ok('p-trejos' not in p.evaluate(EST)['visibles'], 'el filtro vuelve a ocultar la pregunta')
+    p.evaluate("""() => { const a = document.createElement('a'); a.href = '#p-trejos'; a.id = 'prueba-ancla'; a.textContent = 'x'; document.querySelector('main').prepend(a); }""")
+    p.click('#prueba-ancla'); p.wait_for_timeout(200)
+    ok('p-trejos' in p.evaluate(EST)['visibles'], 'un enlace al ancla actual también quita el filtro que la ocultaba')
+    p.evaluate("document.getElementById('prueba-ancla').remove()")
+    p.click('#q-abrir')
+    ok(p.evaluate(EST)['abiertas'] == 54, 'Abrir todas abre las 54')
+    p.click('#q-cerrar')
+    ok(p.evaluate(EST)['abiertas'] == 0, 'Cerrar todas las pliega')
+    ok(not errores, 'sin errores de JavaScript en Preguntas', errores[:3])
+    ctx.close()
+    # carga directa con ancla
+    ctx = contexto(nav, viewport={'width': 390, 'height': 844}, has_touch=True, is_mobile=True)
+    p = ctx.new_page()
+    p.goto(BASE + '/preguntas.html#p-inflacion')
+    p.wait_for_timeout(500)
+    r = p.evaluate("(() => { const d = document.getElementById('p-inflacion'), rc = d.getBoundingClientRect(), cab = document.querySelector('.cab').getBoundingClientRect(); return { abierta: d.open, top: rc.top, cab: cab.bottom, alto: innerHeight, ancho: document.documentElement.scrollWidth - innerWidth }; })()")
+    ok(r['abierta'] and r['cab'] - 1 <= r['top'] < r['alto'] and r['ancho'] <= 1, 'teléfono: un enlace directo abre la pregunta y la deja bajo la cabecera fija', r)
+    ctx.close()
+    # sin JavaScript todo se puede leer
+    ctx = nav.new_context(java_script_enabled=False, viewport={'width': 1280, 'height': 900})
+    p = ctx.new_page()
+    p.goto(BASE + '/preguntas.html')
+    n = p.locator('details.pregunta').count()
+    oculto = p.locator('#q-herramientas').is_hidden()
+    p.locator('#p-costo summary').click()
+    ok(n == 54 and oculto and p.locator('#p-costo .q-cuerpo p').first.is_visible(), 'sin JavaScript se ven las 54 preguntas, se abren y las herramientas quedan ocultas')
+    ctx.close()
+
+
 with sync_playwright() as pw:
     nav = pw.chromium.launch()
     revisar_enlaces()
@@ -731,6 +885,8 @@ with sync_playwright() as pw:
     probar_vistas(nav)
     probar_esquema(nav)
     probar_preparados(nav)
+    probar_cabecera(nav)
+    probar_preguntas(nav)
     nav.close()
 
 print('\n%d de %d comprobaciones correctas' % (total - len(fallos), total))

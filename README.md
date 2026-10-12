@@ -14,7 +14,7 @@ Un robot de bajo costo, con ROS 2, que entra a un recinto que no conoce, lo reco
 
 | Página | Tema |
 |---|---|
-| `index.html` | Portada, video, el ciclo en cuatro pasos, temas, cifras, casos reales y rutas de lectura |
+| `index.html` | Portada, video, el ciclo en cuatro pasos, temas, cifras, casos reales, una muestra de preguntas y rutas de lectura |
 | `problema.html` | Autonomía en interiores, estado del arte y cada decisión frente a sus alternativas |
 | `robot.html` | Piezas, energía, red, reparto entre Arduino, Raspberry Pi y computador, ROS 2 y costo |
 | `movimiento.html` | Tracción diferencial y centro de giro, encoders, odometría, ensayos de recta y giro, qué corrige una calibración y el cuadrado en dos sentidos |
@@ -27,9 +27,8 @@ Un robot de bajo costo, con ROS 2, que entra a un recinto que no conoce, lo reco
 | `replicar.html` | Materiales, conexiones, versiones, repositorios base y videos para aprender |
 | `mundo-real.html` | Casos reales, de una aspiradora a la mina El Teniente y a Marte |
 | `lecciones.html` | Lecciones de ingeniería que la tesis deja implícitas |
+| `preguntas.html` | 54 preguntas difíciles en 10 temas y 3 niveles, con respuesta, repregunta probable, respaldo en la tesis y enlace al tema |
 | `recursos.html` | Glosario, bibliografía, fuentes externas, materiales, cómo citar y créditos |
-
-`preguntas.html` solo redirige a `lecciones.html`.
 
 ## Criterios del contenido
 
@@ -40,7 +39,7 @@ Las cifras y figuras del robot salen de la tesis y se citan con su sección, tab
 ```
 ├── *.html               páginas del sitio
 ├── css/estilo.css       diseño, tema claro y oscuro, impresión
-├── js/sitio.js          cabecera, menú, pie, índice lateral, buscador, citas, glosario, imágenes y videos
+├── js/sitio.js          cabecera fija, menú, pie, índice lateral, buscador, citas, glosario, imágenes y videos
 ├── js/sims.js           simulaciones en canvas
 ├── js/vis1.js … vis3.js interactivos de cada tema
 ├── js/comun.js          utilidades compartidas
@@ -50,6 +49,8 @@ Las cifras y figuras del robot salen de la tesis y se citan con su sección, tab
 ├── css/movimiento.css   estilos exclusivos del capítulo 3
 ├── js/mapeo.js          modelos y visualizaciones del capítulo 05
 ├── css/mapeo.css        estilos exclusivos del capítulo 05
+├── js/preguntas.js      búsqueda, filtros, modo práctica y pregunta al azar de Preguntas difíciles
+├── css/preguntas.css    estilos exclusivos de Preguntas difíciles
 ├── datos/indice.js      índice del buscador, generado
 ├── datos/ensayos/       tablas de los ensayos en CSV, con su origen en la tesis
 ├── herramientas/        índice del buscador y pruebas
@@ -87,6 +88,18 @@ El capítulo parte con un diagrama del lazo de una rueda que se recorre en cuatr
 
 `js/control-modelo.js` reúne las ganancias y cálculos que usan los interactivos y las pruebas. Las simulaciones de bloqueo no son mediciones ni reproducen exactamente el encoder físico. El umbral de 60 PWM del ejemplo de zona muerta es supuesto y ajustable, no un valor medido del robot. Las ganancias y bandas adaptadas provienen de los datos ya publicados en la guía; el código adaptado no está disponible, mientras que el código base se enlaza como referencia independiente. Las consideraciones adicionales sobre conservar la ley se distinguen de los motivos documentados.
 
+## Cabecera fija y panel de Temas
+
+La cabecera queda arriba al bajar por cualquier página. El elemento fijo es el contenedor `#cabecera`, porque un elemento `sticky` solo se queda pegado dentro de su padre. Al bajar se marca con una sombra y la barra de lectura corre por su borde inferior. Una franja azul y verde en el borde superior repite la del pie.
+
+El panel de Temas cuelga de la cabecera completa y se centra en ella, con un ancho máximo de 1000 px y un alto que no supera la pantalla. Así no queda cortado aunque el botón esté lejos del borde o el navegador tenga zoom. Entre 861 y 1180 px, En el mundo real y Lecciones salen de la barra y quedan en la fila de complementos del panel. Bajo 861 px la navegación pasa al menú lateral. En un tema, el botón Temas se marca como sección actual.
+
+## Preguntas difíciles
+
+`preguntas.html` reúne 54 preguntas en 10 temas, cada una en un `details` con ancla `#p-…`, legible sin JavaScript. Cada respuesta va en primera persona, con la repregunta más probable, la sección de la tesis que la respalda y el tema de la guía que la explica. El nivel va en `data-dificultad` (`general`, `tecnica` o `exigente`), no en `data-nivel`, que `js/sitio.js` reserva para la etiqueta de nivel de cada tema.
+
+`js/preguntas.js` agrega la búsqueda, con la misma normalización del buscador del sitio, los filtros por tema y nivel, el modo práctica, que muestra primero un espacio para responder, y la pregunta al azar. Lo escrito en el modo práctica no se guarda. Los datos que solo el autor puede completar, como la razón de elegir 0,13 m/s, quedan en bloques ocultos con un comentario `PENDIENTE AUTOR`. El buscador del sitio indexa cada pregunta por separado.
+
 ## Cómo editar
 
 1. **Temas.** La lista vive en `CAPS`, al inicio de `js/sitio.js`. Las páginas complementarias están en `EXTRAS`.
@@ -120,6 +133,8 @@ python3 herramientas/pruebas_movimiento_navegador.py
 python3 -m http.server 8765 &
 python3 herramientas/pruebas_navegador.py
 ```
+
+`pruebas_navegador.py` también comprueba que la cabecera quede fija al bajar, que el panel de Temas quepa en la pantalla entre 862 y 1920 px y que las herramientas de Preguntas difíciles funcionen con y sin JavaScript.
 
 Las pruebas de Node revisan la geometría, el reloj y los casos numéricos de control. Las pruebas del capítulo 3 comprueban la cinemática y el centro de giro, la integración sobre arcos, los datos de la recta frente a su CSV, la calibración y el cuadrado en dos sentidos. Las pruebas unitarias incluyen además la búsqueda A estrella, con su h admisible. `pruebas_movimiento_navegador.py` recorre el capítulo 3 y A estrella en escritorio, móvil de 390 y 320 px, modo oscuro y movimiento reducido. Las pruebas de mapeo añaden oclusión y colisiones del LiDAR, celdas no observadas, el índice de cobertura, la curva de desacuerdo de los barridos, transformaciones SE(2) y optimización del grafo. `pruebas_control_navegador.py` inicia un servidor local temporal y comprueba los interactivos del capítulo 4 en escritorio, móvil de 390 y 320 px, modo oscuro y movimiento reducido. `pruebas_mapeo_navegador.py` hace lo mismo con los siete interactivos del capítulo 05: teclado, lecturas de área e índice, la cadena TF, la curva de los barridos, el desacuerdo del grafo y que los SVG en línea no traigan estilos. Requiere Playwright con Chromium instalado solo para desarrollo. `pruebas_navegador.py` usa Chromium con Playwright y recorre las páginas en escritorio, en teléfono y con movimiento reducido. Revisa errores, enlaces, anclas, el buscador, el glosario, los simuladores y el uso en teléfono.
 
