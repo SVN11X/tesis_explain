@@ -11,9 +11,13 @@
   function fmt(n, d) { return U ? U.fmt(n, d) : n.toFixed(d == null ? 2 : d).replace(".", ","); }
   function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
   function wrap(x) { return Math.atan2(Math.sin(x), Math.cos(x)); }
+  /* Las figuras exportadas a img/diagramas llevan sus propios estilos. En la página no se incluyen:
+     un <style> dentro de un SVG en línea no queda aislado y afectaría a todo el documento,
+     también en el tema oscuro. Allí los colores vienen de css/mapeo.css. */
+  M.svgEstatico = false;
   function svg(w, h, title, body) {
     return '<svg xmlns="http://www.w3.org/2000/svg" class="mp-svg" viewBox="0 0 ' + w + ' ' + h + '" role="img" aria-label="' + esc(title) + '">' +
-      '<style>text{font-family:Arial,sans-serif;fill:#1e2632}.mp-bg{fill:#fff}.mp-room{fill:#eef2f8}.mp-beam{stroke:#004eaa;stroke-width:1;opacity:.15}.mp-border{stroke:#cbd3de}.mp-muted{fill:#5a6371}.mp-blue{stroke:#004eaa}.mp-green{stroke:#3a6b0e}.mp-orange{stroke:#9a4505}.mp-node{fill:#004eaa;stroke:#fff;stroke-width:1.2}.mp-selected{fill:#3a6b0e;stroke:#1e2632;stroke-width:2}</style>' +
+      (M.svgEstatico ? '<style>text{font-family:Arial,sans-serif;fill:#1e2632}.mp-bg{fill:#fff}.mp-room{fill:#eef2f8}.mp-beam{stroke:#004eaa;stroke-width:1;opacity:.15}.mp-border{stroke:#cbd3de}.mp-muted{fill:#5a6371}.mp-blue{stroke:#004eaa}.mp-green{stroke:#3a6b0e}.mp-orange{stroke:#9a4505}.mp-node{fill:#004eaa;stroke:#fff;stroke-width:1.2}.mp-selected{fill:#3a6b0e;stroke:#1e2632;stroke-width:2}</style>' : '') +
       '<rect class="mp-bg" width="' + w + '" height="' + h + '"/>' + body + '</svg>';
   }
   function txt(x, y, s, size, cls) { return '<text x="' + x + '" y="' + y + '" font-size="' + (size || 14) + '" class="' + (cls || "mp-ink") + '">' + esc(s) + '</text>'; }
@@ -99,12 +103,18 @@
         var color = s[4] === "vidrio" ? "#2a78d6" : "#3b4250", dash = s[4] === "vidrio" ? ' stroke-dasharray="6 4"' : "";
         b += '<line x1="' + X(s[0]) + '" y1="' + Y(s[1]) + '" x2="' + X(s[2]) + '" y2="' + Y(s[3]) + '" class="' + (s[4] === "vidrio" ? "mp-glass" : "mp-wall") + '" stroke="' + color + '" stroke-width="' + (s[4] === "pata" ? 3 : 4) + '"' + dash + '/>';
       });
-      b += txt(X(1.62), Y(1.58), "mesa", 14) + txt(X(1.6), Y(.25), "caja baja", 14) + txt(X(3.06), Y(2.05), "oscuro", 14) + txt(10, 154, "vidrio", 14);
+      b += txt(X(1.62), Y(1.58), "mesa", 16) + txt(X(1.6), Y(.25), "caja baja", 16) + txt(X(3.06), Y(2.05), "oscuro", 16);
+      /* Rótulos verticales: «vidrio» junto al tramo de vidrio y «exterior» junto a la pared de afuera. */
+      b += '<text class="mp-ink" font-size="15" text-anchor="middle" transform="translate(' + (X(0) - 9) + ' ' + Y(1.45) + ') rotate(-90)">vidrio</text>';
+      b += '<text class="mp-muted" font-size="13" text-anchor="middle" transform="translate(' + (X(-.6) - 8) + ' ' + Y(1.45) + ') rotate(-90)">exterior</text>';
       rays.forEach(function (p) { if (p.d !== null) b += line(X(rob.x), Y(rob.y), X(rob.x + Math.cos(p.a) * p.d), Y(rob.y + Math.sin(p.a) * p.d), "mp-beam"); });
     }
-    rays.forEach(function (p) { if (p.d !== null) b += '<circle cx="' + X(rob.x + Math.cos(p.a) * p.d) + '" cy="' + Y(rob.y + Math.sin(p.a) * p.d) + '" r="2" class="mp-return" fill="#b42318"/>'; });
-    b += '<circle cx="' + X(rob.x) + '" cy="' + Y(rob.y) + '" r="13" fill="#004eaa" stroke="#fff" stroke-width="2"/><path d="M' + (X(rob.x) - 4) + ' ' + (Y(rob.y) - 5) + 'l9 5-9 5z" fill="#fff"/>';
-    b += txt(16, 303, solo ? "Solo puntos de este barrido · no es un mapa" : "Vista superior · escenario de ejemplo", 15);
+    rays.forEach(function (p) { if (p.d !== null) b += '<circle cx="' + X(rob.x + Math.cos(p.a) * p.d) + '" cy="' + Y(rob.y + Math.sin(p.a) * p.d) + '" r="2.4" class="mp-return" fill="#b42318"/>'; });
+    /* El robot: un círculo azul con el LiDAR al centro. El sensor mide en 360°, por eso no se dibuja una dirección. */
+    b += '<circle cx="' + X(rob.x) + '" cy="' + Y(rob.y) + '" r="13" class="mp-robot"/><circle cx="' + X(rob.x) + '" cy="' + Y(rob.y) + '" r="4.5" class="mp-sensor"/>';
+    /* Escala gráfica de 1 m, igual en las dos vistas. */
+    b += '<path d="M' + X(3) + ' 300v-7M' + X(3) + ' 296.5H' + X(4) + 'M' + X(4) + ' 300v-7" class="mp-escala" fill="none" stroke-width="2"/>' + '<text class="mp-ink" font-size="14" text-anchor="middle" x="' + X(3.5) + '" y="316">1 m</text>';
+    b += txt(16, 316, solo ? "Solo puntos de este barrido · no es un mapa" : "Vista superior · escenario de ejemplo", 16);
     return svg(490, 324, "Barrido LiDAR y robot. Controles de posición debajo del dibujo", b);
   };
   V.lidar = function (el) {
@@ -119,9 +129,10 @@
     el.innerHTML = '<div class="mp-panel"><div class="mp-cases" role="group" aria-label="Casos del LiDAR">' + Object.keys(casos).map(function (k) { return '<button class="vbtn sec" type="button" data-caso="' + k + '" aria-pressed="' + (k === caso) + '">' + casos[k] + '</button>'; }).join("") + '</div>' +
       '<div class="mp-controls" role="group" aria-label="Vista del barrido"><button class="vbtn sec" type="button" data-vista="sala" aria-pressed="true">Sala y láser</button><button class="vbtn sec" type="button" data-vista="puntos" aria-pressed="false">Solo puntos</button><button class="vbtn sec" type="button" data-reset>Restablecer posición</button></div>' +
       '<div class="mp-chart mp-lidar-scene" tabindex="0" role="group" aria-label="Mover el robot con las flechas o arrastrar en el dibujo"></div>' +
+      '<div class="mp-legend"><span><i class="mp-dot mp-dot-rojo" aria-hidden="true"></i>punto medido: donde volvió el láser</span><span><i class="mp-raya" aria-hidden="true"></i>rayo que llegó a un obstáculo</span><span><i class="mp-dot mp-dot-azul" aria-hidden="true"></i>robot con el LiDAR al centro</span><span><i class="mp-contorno" aria-hidden="true"></i>objeto fuera de la altura del láser</span><span><i class="mp-raya mp-raya-vidrio" aria-hidden="true"></i>vidrio</span></div>' +
       '<div class="mp-ranges">' + range("mp-lidar-x", "Posición horizontal", .15, 3.85, .01, rob.x) + range("mp-lidar-y", "Posición vertical en el dibujo", .15, 2.45, .01, rob.y) + '</div>' +
       readings(["Sectores con retorno", "Sectores sin retorno"]) +
-      '<p class="mp-status" aria-live="polite"></p><figure class="mp-fig">' + M.lidarLateralSVG() + '<figcaption>Vista lateral de ejemplo. El plano cruza las patas; no cruza la cubierta ni la caja. No representa las cotas del prototipo.</figcaption></figure>' +
+      '<p class="mp-status" aria-live="polite"></p><figure class="mp-fig mp-lateral">' + M.lidarLateralSVG() + '<figcaption>Vista lateral de ejemplo. El plano cruza las patas; no cruza la cubierta ni la caja. No representa las cotas del prototipo.</figcaption></figure>' +
       '<p class="vnota">230 sectores por vuelta, rango 0,15–12 m, según el nodo descrito en la tesis. La escena es un modelo idealizado, sin ruido ni movimiento durante el barrido. La posición del robot se conoce en esta ilustración; el LiDAR solo no resuelve su localización. Los dos dibujos usan la misma referencia para comparar.</p></div>';
     var chart = el.querySelector(".mp-lidar-scene");
     function draw() {
@@ -191,6 +202,8 @@
     if (fase >= 3) scan(13, 5);
     return { C: C, F: F, data: data, fase: fase, origen: fase >= 3 ? [13, 5] : [2, 5] };
   };
+  /* Índice de cobertura libre de la tesis (Ec. 5.4): las celdas ocupadas no cuentan. */
+  M.indiceCobertura = function (libres, desconocidas) { return libres + desconocidas > 0 ? libres / (libres + desconocidas) : 0; };
   M.rejillaSVG = function (g, selected, interactive) {
     var s = "", colors = { "-1": "#aeb6c2", "0": "#fff", "100": "#222831" };
     for (var i = 0; i < g.data.length; i++) {
@@ -210,7 +223,8 @@
     var notes = ["Todo es desconocido: todavía no hay evidencia.", "El rayo atraviesa espacio libre y termina en la pared. Detrás de la pared no hay evidencia de este rayo.", "Los rayos del mismo barrido observan más celdas, pero el tabique oculta parte del sector derecho.", "El robot llegó al otro lado rodeando el tabique. Un segundo barrido descubre celdas que antes estaban ocultas."];
     el.innerHTML = '<div class="mp-panel"><div class="mp-steps" role="group" aria-label="Observaciones acumuladas">' + labels.map(function (s, i) { return '<button class="mp-step" type="button" data-fase="' + i + '" aria-pressed="' + (i === 0) + '">' + s + '</button>'; }).join("") +
       '</div><div class="mp-chart"></div><div class="mp-legend"><span><i class="mp-swatch" style="background:#fff"></i>0 · libre</span><span><i class="mp-swatch" style="background:#222831"></i>100 · ocupado</span><span><i class="mp-swatch" style="background:#aeb6c2"></i>−1 · desconocido</span></div>' +
-      '<p class="mp-status" aria-live="polite"></p><p class="mp-status" data-cell-info aria-live="polite"></p>' + readings(["Celdas libres", "Celdas ocupadas", "Celdas desconocidas"]) +
+      '<p class="mp-status" aria-live="polite"></p><p class="mp-status" data-cell-info aria-live="polite"></p>' + readings(["Celdas libres", "Celdas ocupadas", "Celdas desconocidas", "Área libre del ejemplo", "Índice de cobertura libre"]) +
+      '<p class="mp-status" data-indice></p>' +
       '<p class="vnota">Toca una celda o recorre la rejilla con las flechas. La celda seleccionada tiene un borde azul. El punto azul indica dónde se toma el barrido. Se usa una clasificación ideal para enseñar el proceso; el mapa real fusiona observaciones con incertidumbre.</p></div>';
     var chart = el.querySelector(".mp-chart");
     function info() {
@@ -220,7 +234,11 @@
     function draw() {
       g = M.rejilla(fase); chart.innerHTML = M.rejillaSVG(g, selected, true);
       el.querySelector(".mp-status").textContent = notes[fase]; info();
-      [0, 100, -1].forEach(function (v, i) { el.querySelector('[data-read="' + i + '"]').textContent = g.data.filter(function (d) { return d === v; }).length; });
+      var n = [0, 100, -1].map(function (v, i) { var c = g.data.filter(function (d) { return d === v; }).length; el.querySelector('[data-read="' + i + '"]').textContent = c; return c; });
+      var ind = M.indiceCobertura(n[0], n[2]);
+      el.querySelector('[data-read="3"]').textContent = fmt(n[0] * .0025, 3) + " m²";
+      el.querySelector('[data-read="4"]').textContent = fmt(ind * 100, 1) + " %";
+      el.querySelector("[data-indice]").textContent = "Si esta rejilla fuera la imagen guardada: área libre = " + n[0] + " × 0,0025 m² = " + fmt(n[0] * .0025, 3) + " m². Índice = libres / (libres + desconocidas) = " + n[0] + " / " + (n[0] + n[2]) + " = " + fmt(ind * 100, 1) + " %. Son las mismas dos medidas de los resultados de mapeo, más abajo.";
     }
     function select(i, focus) {
       selected = clamp(i, 0, 159);
@@ -263,30 +281,55 @@
     var odom = d * (1 + sesgo / 100), correction = activo ? d - odom : 0;
     return { odom: odom, correccion: correction, mapa: odom + correction };
   };
+  /* Pequeños ejes de un marco: origen, x hacia la derecha e y hacia arriba en el dibujo. */
+  function ejesMarco(x, y, cls, nombre, abajo) {
+    return '<path d="M' + x + ' ' + y + 'h24M' + x + ' ' + y + 'v-20" class="' + cls + '" stroke-width="2.5" fill="none"/><path d="M' + (x + 24) + ' ' + (y - 4) + 'l6 4-6 4z" class="' + cls + '-f"/><circle cx="' + x + '" cy="' + y + '" r="3.5" class="' + cls + '-f"/>' +
+      '<text x="' + x + '" y="' + (abajo ? y + 21 : y - 26) + '" font-size="15" text-anchor="middle" class="mp-ink">' + esc(nombre) + '</text>';
+  }
+  function flechaH(x1, x2, y, cls) {
+    if (Math.abs(x2 - x1) < 2) return '<circle cx="' + x1 + '" cy="' + y + '" r="3" class="' + cls + '-f"/>';
+    var dir = x2 > x1 ? 1 : -1;
+    return '<path d="M' + x1 + ' ' + y + 'H' + (x2 - dir * 6) + '" class="' + cls + '" stroke-width="3" fill="none"/><path d="M' + x2 + ' ' + y + 'l' + (-dir * 8) + ' -5v10z" class="' + cls + '-f"/>';
+  }
   V["marcos-mapeo"] = function (el) {
     var d = 2, bias = 4, active = false;
-    el.innerHTML = '<div class="mp-panel"><div class="mp-ranges">' + range("mp-tf-distancia", "Avance de referencia del ejemplo", 0, 2, .05, d) + range("mp-tf-sesgo", "Error de escala simulado de la odometría", -10, 10, .5, bias) +
+    el.innerHTML = '<div class="mp-panel"><div class="mp-ranges">' + range("mp-tf-distancia", "Avance real del robot en el ejemplo", 0, 2, .05, d) + range("mp-tf-sesgo", "Error de escala simulado de la odometría", -10, 10, .5, bias) +
       '</div><div class="mp-controls"><label><input id="mp-tf-activo" type="checkbox">Aplicar map → odom estimado por SLAM</label></div><div class="mp-chart"></div>' +
+      '<div class="mp-legend"><span><i class="mp-raya mp-raya-verde" aria-hidden="true"></i>map → odom · lo publica SLAM</span><span><i class="mp-raya mp-raya-ambar" aria-hidden="true"></i>odom → base_link · lo calculan las ruedas</span><span><i class="mp-raya mp-raya-disc" aria-hidden="true"></i>posición real del ejemplo</span></div>' +
       readings(["odom → base_link", "map → odom", "Pose en map"]) + '<div class="mp-equation"></div><p class="mp-status" aria-live="polite"></p>' +
       '<p class="vnota">Ejemplo rectilíneo sin giro. Se supone que el láser aporta una referencia exacta para aislar el efecto de TF. El 4 % es un parámetro didáctico, no el 3,63 % medido en la tesis. En un robot real la corrección también tiene incertidumbre y puede incluir giro.</p></div>';
     function draw() {
-      var t = M.tfRecta(d, bias, active), X = function (v) { return 50 + v / 2.4 * 370; }, b = "";
-      b += line(50, 78, 435, 78, "mp-border") + line(50, 158, 435, 158, "mp-border");
-      b += line(X(d), 44, X(d), 179, "mp-border", "4 4") + txt(14, 28, "Referencia de ejemplo: " + fmt(d, 2) + " m", 15);
-      b += txt(14, 64, "map", 14) + txt(14, 144, "odom", 14);
-      b += '<circle cx="' + X(t.mapa) + '" cy="78" r="8" fill="' + (active ? "#3a6b0e" : "#9a4505") + '"/><circle cx="' + X(t.odom) + '" cy="158" r="8" fill="#9a4505"/>';
-      if (active && Math.abs(t.correccion) > 1e-8) b += line(X(t.odom), 106, X(t.mapa), 106, "mp-green") + '<path d="M' + X(t.mapa) + ' 102v8" stroke="#3a6b0e"/>';
-      b += txt(50, 206, "Ruedas: " + fmt(t.odom, 2) + " m · corrección: " + fmt(t.correccion, 2) + " m", 14);
-      el.querySelector(".mp-chart").innerHTML = svg(460, 228, "Comparación de la pose odométrica y la pose expresada en el mapa", b);
+      /* En un teléfono se usa un lienzo más angosto para que los textos no se achiquen demasiado. */
+      var chart = el.querySelector(".mp-chart"), angosto = (chart.clientWidth || 460) < 440, W = angosto ? 340 : 460, F = angosto ? 15 : 13;
+      var t = M.tfRecta(d, bias, active), X = function (v) { return (angosto ? 34 : 52) + (v + .3) / 2.8 * (W - (angosto ? 58 : 80)); }, b = "";
+      b += txt(14, 22, "Todo dibujado en el marco map", F + 3);
+      /* Posición real del ejemplo: línea discontinua vertical. */
+      var xr = X(d), ladoReal = xr > W * .72 ? "end" : xr < W * .26 ? "start" : "middle";
+      b += line(xr, 50, xr, 104, "mp-real", "4 3") + '<text x="' + xr + '" y="44" font-size="' + F + '" text-anchor="' + ladoReal + '" class="mp-muted">posición real</text>';
+      /* Regla en metros del marco map. */
+      b += line(X(-.3), 104, X(2.5), 104, "mp-border");
+      [0, .5, 1, 1.5, 2].forEach(function (v) { b += line(X(v), 100, X(v), 108, "mp-border") + '<text x="' + X(v) + '" y="' + (120 + F / 3) + '" font-size="' + F + '" text-anchor="middle" class="mp-muted">' + fmt(v, 1) + (v === 0 ? " m" : "") + '</text>'; });
+      var xb = X(t.mapa), izq = xb > W * .72;
+      b += '<circle cx="' + xb + '" cy="78" r="9" class="mp-pose"/><text x="' + (xb + (izq ? -14 : 14)) + '" y="83" font-size="' + (F + 1) + '" text-anchor="' + (izq ? "end" : "start") + '" class="mp-ink">base_link</text>';
+      /* Orígenes de los marcos y la cadena map → odom → base_link. */
+      b += flechaH(X(0), X(t.correccion), 150, "mp-flecha-verde");
+      b += '<text x="' + (X(0) + 34) + '" y="155" font-size="' + F + '" class="mp-ink">map → odom: ' + fmt(t.correccion, 2) + ' m</text>';
+      b += ejesMarco(X(0), 186, "mp-eje-map", "map", true);
+      b += ejesMarco(X(t.correccion), 236, "mp-eje-odom", "odom", true);
+      b += line(xb, 88, xb, 98, "mp-border", "3 4") + line(xb, 132, xb, 258, "mp-border", "3 4");
+      b += flechaH(X(t.correccion), xb, 266, "mp-flecha-ambar");
+      b += '<text x="' + Math.max(W * .3, Math.min(W * .7, (X(t.correccion) + xb) / 2)) + '" y="290" font-size="' + F + '" text-anchor="middle" class="mp-ink">odom → base_link: ' + fmt(t.odom, 2) + ' m</text>';
+      chart.innerHTML = svg(W, 300, "Cadena de transformaciones en el marco map: el origen de odom se desplaza con la corrección y la flecha de las ruedas conserva su largo", b);
       [t.odom, t.correccion, t.mapa].forEach(function (v, i) { el.querySelector('[data-read="' + i + '"]').textContent = fmt(v, 2) + " m"; });
-      el.querySelector(".mp-equation").textContent = fmt(t.correccion, 2) + " m + " + fmt(t.odom, 2) + " m = " + fmt(t.mapa, 2) + " m";
-      el.querySelector(".mp-status").textContent = active ? "SLAM ajusta map → odom. La pose en map coincide con la referencia ideal de este ejemplo; odom → base_link sigue indicando " + fmt(t.odom, 2) + " m. Los encoders no cambiaron." : "Sin corrección global, la pose en map conserva el error de las ruedas. Activa map → odom para ver dónde se compensa.";
+      el.querySelector(".mp-equation").textContent = "map → odom + odom → base_link = pose en map: " + fmt(t.correccion, 2) + " m + " + fmt(t.odom, 2) + " m = " + fmt(t.mapa, 2) + " m";
+      el.querySelector(".mp-status").textContent = active ? "SLAM movió el origen de odom " + fmt(Math.abs(t.correccion), 2) + " m hacia " + (t.correccion < 0 ? "atrás" : t.correccion > 0 ? "adelante" : "ningún lado") + ". La flecha de las ruedas conserva su largo, " + fmt(t.odom, 2) + " m: los encoders no cambiaron. Ahora base_link queda sobre la posición real del ejemplo." : "Sin corrección, el origen de odom coincide con el de map y la pose en map hereda el error de las ruedas: " + fmt(t.odom, 2) + " m en vez de " + fmt(d, 2) + " m. Activa map → odom para ver dónde se compensa.";
       el.querySelector('[data-out="mp-tf-distancia"]').textContent = fmt(d, 2) + " m";
       el.querySelector('[data-out="mp-tf-sesgo"]').textContent = fmt(bias, 1) + " %";
     }
     el.addEventListener("input", function (e) { if (e.target.id === "mp-tf-distancia") d = +e.target.value; if (e.target.id === "mp-tf-sesgo") bias = +e.target.value; draw(); });
     el.querySelector("#mp-tf-activo").addEventListener("change", function (e) { active = e.target.checked; draw(); });
     el.estadoSim = function () { return M.tfRecta(d, bias, active); }; draw();
+    if (U && U.alCambiarAncho) U.alCambiarAncho(el.querySelector(".mp-chart"), draw);
   };
   /* Dos observaciones locales de una esquina estática, con 30 cm de avance. */
   M.esquina = [[-.3, .8], [0, .8], [.3, .8], [.6, .8], [.9, .8], [.9, .5], [.9, .2]];
@@ -297,45 +340,68 @@
       ajuste: .3, error: Math.abs(dx - .3)
     };
   };
-  function puntosBarrido(points, shift, color, triangle, X, Y) {
-    return points.map(function (p) {
-      var x = X(p[0] + shift), y = Y(p[1]);
-      return triangle ? '<path d="M' + x + ' ' + (y - 5) + 'l5 9h-10z" fill="' + color + '"/>' : '<circle cx="' + x + '" cy="' + y + '" r="4.5" fill="' + color + '"/>';
-    }).join("");
+  /* Desacuerdo total: suma de las distancias al cuadrado entre puntos comunes, en m².
+     Es la cantidad que un ajuste por mínimos cuadrados intenta reducir. */
+  M.costoBarridos = function (dx) {
+    var data = M.barridos(dx);
+    return data.a.reduce(function (s, p, i) { var q = data.b[i]; return s + Math.pow(q[0] + dx - p[0], 2) + Math.pow(q[1] - p[1], 2); }, 0);
+  };
+  M.ODOM_BARRIDOS = .4; // avance que sugieren las ruedas en el ejemplo
+  function marcaBarrido(x, y, b) { return b ? '<path d="M' + x + ' ' + (y - 5) + 'l5 9h-10z" class="mp-b-f"/>' : '<circle cx="' + x + '" cy="' + y + '" r="4.5" class="mp-a-f"/>'; }
+  function puntosBarrido(points, shift, triangle, X, Y) {
+    return points.map(function (p) { return marcaBarrido(X(p[0] + shift), Y(p[1]), triangle); }).join("");
   }
-  function barridoLocal(points, title) {
+  function barridoLocal(points, title, esB) {
     var X = function (x) { return 125 + x * 110; }, Y = function (y) { return 155 - y * 110; };
-    var b = txt(16, 25, title, 15) + line(26, 155, 259, 155, "mp-border") + line(125, 45, 125, 176, "mp-border");
-    b += puntosBarrido(points, 0, "#004eaa", false, X, Y) + '<circle cx="125" cy="155" r="7" fill="#3a6b0e"/>' + txt(139, 173, "sensor", 13) + txt(236, 150, "x", 13) + txt(130, 49, "y", 13);
+    var b = txt(16, 25, title, 16) + line(26, 155, 259, 155, "mp-border") + line(125, 45, 125, 176, "mp-border");
+    b += puntosBarrido(points, 0, esB, X, Y) + (esB ? '<path d="M125 147l7 13h-14z" class="mp-b-f"/>' : '<circle cx="125" cy="155" r="7" class="mp-a-f"/>') + txt(139, 176, "sensor " + (esB ? "B" : "A"), 14) + txt(236, 150, "x", 14) + txt(130, 49, "y", 14);
     return svg(280, 190, title + ". El sensor es el origen del marco local", b);
   }
+  function curvaCosto(dx) {
+    var X = function (v) { return 60 + (v - .1) / .4 * 370; }, cmax = M.costoBarridos(.5) * 1e4, Y = function (c) { return 150 - c / cmax * 115; }, b = "", pts = [];
+    for (var v = .1; v <= .5001; v += .01) pts.push(X(v).toFixed(1) + " " + Y(M.costoBarridos(v) * 1e4).toFixed(1));
+    b += txt(14, 22, "Desacuerdo total según la traslación probada", 18);
+    b += line(60, 150, 430, 150, "mp-border") + line(60, 30, 60, 150, "mp-border");
+    [.1, .2, .3, .4, .5].forEach(function (v) { b += '<text x="' + X(v) + '" y="172" font-size="16" text-anchor="middle" class="mp-muted">' + fmt(v * 100, 0) + '</text>'; });
+    b += '<text x="245" y="194" font-size="16" text-anchor="middle" class="mp-muted">traslación aplicada a B · cm</text>';
+    b += '<text x="54" y="' + (Y(cmax) + 5) + '" font-size="15" text-anchor="end" class="mp-muted">' + fmt(cmax, 0) + '</text><text x="54" y="155" font-size="15" text-anchor="end" class="mp-muted">0</text><text x="54" y="' + (Y(cmax) + 22) + '" font-size="15" text-anchor="end" class="mp-muted">cm²</text>';
+    b += '<path d="M' + pts.join(" L") + '" fill="none" class="mp-blue" stroke-width="2.5"/>';
+    b += line(X(.3), 34, X(.3), 150, "mp-green", "4 3") + '<text x="' + (X(.3) + 6) + '" y="46" font-size="16" class="mp-ink">mínimo · 30 cm</text>';
+    b += line(X(M.ODOM_BARRIDOS), 60, X(M.ODOM_BARRIDOS), 150, "mp-orange", "2 3") + '<text x="' + (X(M.ODOM_BARRIDOS) + 6) + '" y="74" font-size="15" class="mp-muted">ruedas</text>';
+    b += '<circle cx="' + X(dx) + '" cy="' + Y(M.costoBarridos(dx) * 1e4) + '" r="7" class="mp-b-f" stroke="var(--surface)" stroke-width="2"/>';
+    return svg(460, 204, "Curva del desacuerdo total: baja hasta un mínimo en 30 cm y vuelve a subir. El punto marca la traslación elegida.", b);
+  }
   V.barridos = function (el) {
-    var dx = .4, data = M.barridos(dx);
-    el.innerHTML = '<div class="mp-panel"><div class="mp-columns"><figure><figcaption>A · antes de avanzar</figcaption>' + barridoLocal(data.a, "Coordenadas respecto de A") +
-      '</figure><figure><figcaption>B · después de avanzar</figcaption>' + barridoLocal(data.b, "Coordenadas respecto de B") + '</figure></div>' +
+    var dx = M.ODOM_BARRIDOS, data = M.barridos(dx);
+    el.innerHTML = '<div class="mp-panel"><div class="mp-columns"><figure><figcaption>A · antes de avanzar</figcaption>' + barridoLocal(data.a, "Coordenadas respecto de A", false) +
+      '</figure><figure><figcaption>B · después de avanzar</figcaption>' + barridoLocal(data.b, "Coordenadas respecto de B", true) + '</figure></div>' +
       '<div class="mp-ranges">' + range("mp-barrido-dx", "Traslación aplicada a B para llevarlo al marco de A", .1, .5, .01, dx) + '</div>' +
-      '<div class="mp-controls"><button class="vbtn" type="button" data-fit>Ajustar barridos</button><button class="vbtn sec" type="button" data-guess>Volver a la estimación inicial</button></div>' +
-      '<div class="mp-chart"></div><div class="mp-legend"><span>● Azul · barrido A</span><span>▲ Naranja · barrido B trasladado</span></div>' +
-      readings(["Desplazamiento estimado", "Desajuste de puntos comunes"]) + '<p class="mp-status" aria-live="polite"></p>' +
-      '<p class="vnota">Ejemplo con traslación de 30 cm, sin giro ni ruido, y correspondencias conocidas. El ajuste real busca coincidencias con incertidumbre y también estima orientación. Ver una pared nueva por sí sola no implica un cierre de lazo.</p></div>';
+      '<div class="mp-controls"><button class="vbtn" type="button" data-fit>Ajustar barridos</button><button class="vbtn sec" type="button" data-guess>Volver a lo que dicen las ruedas · 40 cm</button></div>' +
+      '<div class="mp-chart" data-superpuesto></div><div class="mp-legend"><span><i class="mp-dot mp-dot-azul" aria-hidden="true"></i>barrido A</span><span><i class="mp-tri" aria-hidden="true"></i>barrido B trasladado</span><span><i class="mp-raya mp-raya-ambar" aria-hidden="true"></i>distancia entre un punto de A y el mismo punto en B</span></div>' +
+      readings(["Las ruedas estimaron", "Traslación probada", "Desajuste de cada punto", "Desacuerdo total"]) + '<div class="mp-chart" data-costo></div><p class="mp-status" aria-live="polite"></p>' +
+      '<p class="vnota">Ejemplo con traslación de 30 cm, sin giro ni ruido, y correspondencias conocidas. El desacuerdo total suma las distancias al cuadrado de los siete puntos comunes. Elevar al cuadrado deja un mínimo claro y castiga más los desajustes grandes. El ajuste real busca coincidencias con incertidumbre y también estima orientación. Ver una pared nueva por sí sola no implica un cierre de lazo.</p></div>';
     function draw() {
       data = M.barridos(dx);
       var X = function (x) { return 140 + x * 240; }, Y = function (y) { return 236 - y * 200; };
-      var b = txt(16, 26, "B expresado en el marco de A", 16) + line(30, 236, 440, 236, "mp-border");
+      var b = txt(16, 28, "B expresado en el marco de A", 18) + line(30, 236, 440, 236, "mp-border");
       data.a.forEach(function (p, i) { b += line(X(p[0]), Y(p[1]), X(data.b[i][0] + dx), Y(data.b[i][1]), "mp-orange"); });
-      b += puntosBarrido(data.a, 0, "#004eaa", false, X, Y) + puntosBarrido(data.b, dx, "#d95926", true, X, Y);
-      b += '<circle cx="' + X(0) + '" cy="236" r="7" fill="#004eaa"/><path d="M' + X(dx) + ' 230l6 11h-12z" fill="#d95926"/>';
-      b += txt(X(0) - 7, 264, "A", 14) + txt(X(dx) - 7, 264, "B", 14);
-      el.querySelector(".mp-chart").innerHTML = svg(460, 284, "Superposición de barridos de la misma esquina. Las líneas unen puntos comunes", b);
-      el.querySelector('[data-read="0"]').textContent = fmt(dx * 100, 0) + " cm";
-      el.querySelector('[data-read="1"]').textContent = fmt(data.error * 100, 0) + " cm";
+      b += puntosBarrido(data.a, 0, false, X, Y) + puntosBarrido(data.b, dx, true, X, Y);
+      b += '<circle cx="' + X(0) + '" cy="236" r="7" class="mp-a-f"/><path d="M' + X(dx) + ' 230l6 11h-12z" class="mp-b-f"/>';
+      b += txt(X(0) - 7, 266, "A", 18) + txt(X(dx) - 7, 266, "B", 18);
+      el.querySelector("[data-superpuesto]").innerHTML = svg(460, 284, "Superposición de barridos de la misma esquina. Las líneas unen puntos comunes", b);
+      el.querySelector("[data-costo]").innerHTML = curvaCosto(dx);
+      var costo = M.costoBarridos(dx) * 1e4;
+      el.querySelector('[data-read="0"]').textContent = fmt(M.ODOM_BARRIDOS * 100, 0) + " cm";
+      el.querySelector('[data-read="1"]').textContent = fmt(dx * 100, 0) + " cm";
+      el.querySelector('[data-read="2"]').textContent = fmt(data.error * 100, 0) + " cm";
+      el.querySelector('[data-read="3"]').textContent = fmt(costo, 0) + " cm²";
       el.querySelector('[data-out="mp-barrido-dx"]').textContent = fmt(dx * 100, 0) + " cm";
       el.querySelector("#mp-barrido-dx").value = dx;
-      el.querySelector(".mp-status").textContent = data.error < 1e-8 ? "Los puntos comunes coinciden: el avance estimado es 30 cm. El robot se movió; la esquina permaneció fija." : "B aparece desplazado respecto de A. Las líneas muestran el desacuerdo: ajustar el movimiento estimado permite superponer la misma esquina.";
+      el.querySelector(".mp-status").textContent = data.error < 1e-8 ? "Los puntos comunes coinciden: el desacuerdo total es cero y el avance estimado es 30 cm, no los 40 cm de las ruedas. El robot se movió; la esquina permaneció fija." : "Con " + fmt(dx * 100, 0) + " cm, cada punto de B queda a " + fmt(data.error * 100, 0) + " cm del mismo punto de A. Siete puntos × (" + fmt(data.error * 100, 0) + " cm)² = " + fmt(costo, 0) + " cm². El ajuste busca la traslación donde la curva de abajo llega a su mínimo.";
     }
     el.addEventListener("input", function (e) { if (e.target.id === "mp-barrido-dx") { dx = +e.target.value; draw(); } });
-    el.addEventListener("click", function (e) { if (e.target.closest("[data-fit]")) { dx = .3; draw(); } if (e.target.closest("[data-guess]")) { dx = .4; draw(); } });
-    el.estadoSim = function () { return { desplazamiento: dx, desajuste: data.error }; }; draw();
+    el.addEventListener("click", function (e) { if (e.target.closest("[data-fit]")) { dx = .3; draw(); } if (e.target.closest("[data-guess]")) { dx = M.ODOM_BARRIDOS; draw(); } });
+    el.estadoSim = function () { return { desplazamiento: dx, desajuste: data.error, costo: M.costoBarridos(dx) }; }; draw();
   };
 
   /* Grafo SE(2) pequeño. Los residuos comparan movimientos relativos medidos
@@ -421,20 +487,26 @@
     if (phase >= 1) b += line(X(poses[0][0]), Y(poses[0][1]), X(poses[12][0]), Y(poses[12][1]), "mp-green", "5 3");
     poses.forEach(function (p, i) {
       var x = X(p[0]), y = Y(p[1]);
-      b += line(x, y, x + 13 * Math.cos(p[2]), y - 13 * Math.sin(p[2]), i === selected ? "mp-green" : "mp-blue");
-      b += '<circle cx="' + x + '" cy="' + y + '" r="' + (i === selected ? 7 : 4.5) + '" class="' + (i === selected ? "mp-selected" : "mp-node") + '" data-node="' + i + '"/>';
-      if (i > 0 && i < 12) b += txt(x + 7, y - 8, String(i), 12);
+      b += line(x, y, x + 15 * Math.cos(p[2]), y - 15 * Math.sin(p[2]), "mp-blue");
+      if (i === selected) b += '<circle cx="' + x + '" cy="' + y + '" r="11" class="mp-anillo" fill="none" stroke-width="2.5"/>';
+      b += '<circle cx="' + x + '" cy="' + y + '" r="' + (i === selected ? 6 : 4.5) + '" class="mp-node" data-node="' + i + '"/>';
+      if (i > 0 && i < 12) b += txt(x + 8, y - 9, String(i), 14);
     });
-    b += txt(16, 24, phase >= 2 ? "Poses reajustadas · odometría conservada" : "Poses iniciales con deriva simulada", 15);
-    b += txt(16, 310, "0 · origen fijo", 13);
-    b += txt(X(poses[0][0]) - 14, Y(poses[0][1]) - 10, "0", 12);
-    b += txt(X(poses[12][0]) + 8, Y(poses[12][1]) + 23, "12", 13);
-    b += txt(300, 310, "12 · regreso", 13);
+    b += txt(16, 24, phase >= 2 ? "Poses reajustadas · odometría conservada" : "Poses iniciales con deriva simulada", 17);
+    b += txt(16, 310, "0 · origen fijo", 15);
+    b += txt(X(poses[0][0]) - 16, Y(poses[0][1]) - 10, "0", 14);
+    b += txt(X(poses[12][0]) + 8, Y(poses[12][1]) + 25, "12", 15);
+    b += txt(290, 310, "12 · regreso", 15);
     if (phase === 3) b += line(X(graph.odom[12][0]), Y(graph.odom[12][1]), X(poses[12][0]), Y(poses[12][1]), "mp-green");
     return svg(460, 320, "Grafo de trece poses. Línea naranja: odometría original. Azul: poses estimadas. Verde: cierre de lazo", b);
   };
+  /* Desacuerdo total en cada paso: sin cierre nada se contradice; el cierre lo hace subir; optimizar lo baja. */
+  M.desacuerdoPorPaso = function (graph, opt) {
+    var todas = graph.edges.concat([graph.cierre]);
+    return [M.costoGrafo(graph.odom, graph.edges), M.costoGrafo(graph.odom, todas), M.costoGrafo(opt.poses, todas), M.costoGrafo(opt.poses, todas)];
+  };
   V.lazo = function (el) {
-    var graph = M.grafoEjemplo(), edges = graph.edges.concat([graph.cierre]), opt = M.optimizarGrafo(graph.odom, edges);
+    var graph = M.grafoEjemplo(), edges = graph.edges.concat([graph.cierre]), opt = M.optimizarGrafo(graph.odom, edges), costos = M.desacuerdoPorPaso(graph, opt), iteraciones = opt.costos.length - 1;
     var phase = 0, selected = 12;
     var steps = ["1 · Acumular deriva", "2 · Reconocer el inicio", "3 · Optimizar las poses", "4 · Publicar map → odom"];
     var notes = [
@@ -445,9 +517,10 @@
     ];
     el.innerHTML = '<div class="mp-panel"><div class="mp-steps" role="group" aria-label="Pasos del cierre de lazo">' + steps.map(function (s, i) { return '<button class="mp-step" type="button" data-paso="' + i + '" aria-pressed="' + (i === 0) + '">' + s + '</button>'; }).join("") + '</div>' +
       '<div class="mp-chart"></div><div class="vley"><span><i class="lin-disc"></i>recorrido de referencia del ejemplo</span><span><i class="lin ambar"></i>odometría original (trazos)</span><span><i class="pt azul"></i>poses del grafo</span><span><i class="lin verde"></i>cierre / corrección actual</span></div>' +
+      '<p class="mp-status" data-stage-info aria-live="polite"></p>' +
+      readings(["Separación del regreso en el grafo", "Giro residual en el regreso", "Separación en odom, sin cambiar", "Desacuerdo total del grafo"]) +
+      '<p class="mp-status" data-costo-info></p><p class="mp-status" data-tf-info></p>' +
       '<div class="mp-ranges">' + range("mp-pose", "Inspeccionar pose", 0, 12, 1, selected) + '</div><p class="mp-status" data-pose-info></p>' +
-      readings(["Separación del regreso en el grafo", "Giro residual en el regreso", "Separación en odom, sin cambiar"]) +
-      '<p class="mp-status" data-stage-info aria-live="polite"></p><p class="mp-status" data-tf-info></p>' +
       '<p class="vnota">Grafo sintético: escala odométrica +4 % y error angular +1° por tramo. Un optimizador pequeño de mínimos cuadrados en JavaScript permite ver el ajuste; no ejecuta Ceres ni reproduce los ensayos de la tesis. La referencia es conocida solo en este ejemplo. Una restricción de regreso no basta para recuperar todas las longitudes exactas.</p></div>';
     function draw() {
       var poses = phase >= 2 ? opt.poses : graph.odom, p = poses[selected], end = poses[12], raw = graph.odom[12];
@@ -459,6 +532,13 @@
       el.querySelector('[data-read="0"]').textContent = gap > 0 && gap < .1 ? "< 0,1 cm" : fmt(gap, 1) + " cm";
       el.querySelector('[data-read="1"]').textContent = fmt(Math.abs(end[2]) * 180 / Math.PI, 1) + "°";
       el.querySelector('[data-read="2"]').textContent = fmt(Math.hypot(raw[0], raw[1]) * 100, 1) + " cm";
+      el.querySelector('[data-read="3"]').textContent = costos[phase] < 1e-6 ? "0" : fmt(costos[phase], costos[phase] < 1 ? 2 : 1);
+      el.querySelector("[data-costo-info]").textContent = [
+        "Desacuerdo total: cada arista compara el movimiento medido con el que implican las poses. Esas diferencias se elevan al cuadrado, se multiplican por un peso y se suman. Sin cierre, las poses se armaron con las mismas mediciones y no se contradicen: el total es 0.",
+        "La nueva restricción dice «el regreso coincide con el inicio», pero las poses dicen que quedaron a " + fmt(Math.hypot(raw[0], raw[1]) * 100, 1) + " cm. El desacuerdo total sube de 0 a " + fmt(costos[1], 1) + ".",
+        "El optimizador repartió la corrección entre todas las poses en " + iteraciones + " iteraciones: el desacuerdo bajó de " + fmt(costos[1], 1) + " a " + fmt(costos[2], 2) + ". No llega a cero porque las mediciones de las ruedas y el cierre no pueden cumplirse todos a la vez.",
+        "La corrección se publica sin volver a optimizar: el desacuerdo sigue en " + fmt(costos[3], 2) + ". Lo que cambia es la transformación que relaciona odom con map."
+      ][phase];
       el.querySelector("[data-stage-info]").textContent = notes[phase];
       var tfText;
       if (phase === 3) {
@@ -474,7 +554,7 @@
       draw();
     });
     el.addEventListener("input", function (e) { if (e.target.id === "mp-pose") { selected = +e.target.value; draw(); } });
-    el.estadoSim = function () { var p = phase >= 2 ? opt.poses : graph.odom; return { fase: phase, poses: p, odom: graph.odom, costoInicial: opt.costos[0], costoFinal: opt.costos[opt.costos.length - 1], tf: phase === 3 ? M.correccionTF(p[12], graph.odom[12]) : [0, 0, 0] }; };
+    el.estadoSim = function () { var p = phase >= 2 ? opt.poses : graph.odom; return { fase: phase, poses: p, odom: graph.odom, costoInicial: opt.costos[0], costoFinal: opt.costos[opt.costos.length - 1], desacuerdo: costos[phase], tf: phase === 3 ? M.correccionTF(p[12], graph.odom[12]) : [0, 0, 0] }; };
     draw();
   };
   /* Open Karto es una base compartida, no una equivalencia de resultados. */

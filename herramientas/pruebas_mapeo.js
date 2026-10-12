@@ -103,4 +103,31 @@ test("las poses optimizadas permanecen finitas y TF relaciona los extremos", fun
   var end = out.poses[12], actual = M.componer(M.correccionTF(end, graph.odom[12]), graph.odom[12]);
   actual.forEach(function (v, i) { near(v, end[i]); });
 });
+test("el índice de cobertura ignora las ocupadas y baja si se agregan desconocidas", function () {
+  near(M.indiceCobertura(24, 5), 24 / 29);
+  near(M.indiceCobertura(24, 20), 24 / 44);
+  assert(M.indiceCobertura(24, 20) < M.indiceCobertura(24, 5));
+  near(M.indiceCobertura(0, 0), 0);
+  var g = M.rejilla(3), libres = g.data.filter(function (v) { return v === 0; }).length, desc = g.data.filter(function (v) { return v === -1; }).length;
+  near(M.indiceCobertura(libres, desc), libres / (libres + desc));
+});
+test("el desacuerdo de los barridos es mínimo y cero en 30 cm, y crece hacia ambos lados", function () {
+  near(M.costoBarridos(.3), 0, 1e-20);
+  near(M.costoBarridos(.4), 7 * .01);
+  near(M.costoBarridos(.2), M.costoBarridos(.4));
+  for (var v = .1; v < .29; v += .01) assert(M.costoBarridos(v) > M.costoBarridos(v + .01));
+  for (var w = .31; w <= .5; w += .01) assert(M.costoBarridos(w) > M.costoBarridos(w - .01));
+});
+test("el cierre de lazo hace subir el desacuerdo y la optimización lo baja sin llegar a cero", function () {
+  var graph = M.grafoEjemplo(), opt = M.optimizarGrafo(graph.odom, graph.edges.concat([graph.cierre])), c = M.desacuerdoPorPaso(graph, opt);
+  near(c[0], 0, 1e-12);
+  assert(c[1] > 1 && c[2] < c[1] / 100 && c[2] > 0);
+  near(c[3], c[2]);
+});
+test("los SVG de la página no incluyen estilos que se filtren al documento; los exportados sí", function () {
+  var antes = M.svgEstatico;
+  M.svgEstatico = false; assert(M.trejosSVG().indexOf("<style>") < 0);
+  M.svgEstatico = true; assert(M.trejosSVG().indexOf("<style>") > 0);
+  M.svgEstatico = antes;
+});
 console.log("\n" + total + " pruebas de mapeo correctas");
