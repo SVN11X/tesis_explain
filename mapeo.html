@@ -29,6 +29,7 @@
 <script src="js/vis3.js" defer></script>
 <script src="js/sims.js" defer></script>
 <script src="js/mapeo.js" defer></script>
+<script src="js/slam-proceso.js" defer></script>
 <script src="js/sitio.js" defer></script>
 </head>
 <body data-pagina="mapeo">
@@ -139,6 +140,25 @@
   <h3 id="grafo-poses">Qué es un grafo de poses</h3>
   <p>Es una red de estimaciones de dónde estuvo el robot. Una <span class="term" data-def="Posición del robot en el plano (x, y) y orientación (θ) en un instante.">pose</span> incluye <b>x, y y orientación θ</b>. Un <b>nodo</b> guarda una pose y el barrido asociado; una <b>arista</b> expresa una restricción de movimiento relativo entre dos poses. No es una rejilla de paredes ni un conjunto de destinos de navegación.</p>
   <div class="mp-tarjetas"><div><b>Nodo · «estuve aquí»</b><p>Un círculo con una flecha: posición y dirección del robot cuando se tomó una observación.</p></div><div><b>Arista · «me moví así»</b><p>Relaciona dos nodos con un desplazamiento y un giro estimados a partir de odometría y ajuste de barridos.</p></div><div><b>Cierre de lazo · «ya conocía este lugar»</b><p>Una observación compatible une el presente con una pose antigua y añade una restricción para corregir la trayectoria.</p></div></div>
+  <h3 id="componentes-slam">Cuatro trabajos distintos dentro de SLAM</h3>
+  <p>La charla de Macenski distingue cuatro componentes <a class="ref" href="#f10">10</a>. Separarlos permite entender quién propone una coincidencia, quién la comprueba y quién corrige las poses.</p>
+  <div class="tabla-env"><table class="tabla">
+    <thead><tr><th>Componente</th><th>Qué recibe y qué produce</th><th>Pregunta que responde</th></tr></thead>
+    <tbody>
+      <tr><th>Ajuste de observaciones</th><td>Compara geometría del láser, con una estimación inicial del movimiento, para obtener una pose relativa y su incertidumbre.</td><td>¿Qué desplazamiento y giro hacen compatibles estas observaciones?</td></tr>
+      <tr><th>Grafo de poses</th><td>Conserva poses, barridos asociados y restricciones entre poses.</td><td>¿Qué relaciones debemos satisfacer conjuntamente?</td></tr>
+      <tr><th>Selector de candidatos</th><td>Busca poses anteriores cercanas en el espacio que no pertenecen a la cadena reciente. Su geometría todavía debe comprobarse.</td><td>¿Con qué observaciones antiguas conviene intentar un cierre?</td></tr>
+      <tr><th>Optimizador</th><td>Recibe el grafo y ajusta sus poses para reducir el costo ponderado de las restricciones.</td><td>¿Qué conjunto de poses satisface mejor las relaciones aceptadas?</td></tr>
+    </tbody>
+  </table></div>
+  <p>En SLAM Toolbox la base de Open Karto aporta el ajuste de barridos y la construcción del grafo; Ceres es el resolvedor utilizado aquí <a class="ref" href="#f21">21</a>. El ejemplo anterior de siete puntos conserva correspondencias conocidas y solo busca una traslación. Sirve para entender un ajuste, pero el programa real también busca coincidencias y estima orientación.</p>
+  <div class="widget">
+    <div class="widget-cab"><h3 id="sim-candidatos">Estar cerca no basta para cerrar un lazo</h3><span class="tipo inter">Interactivo · ilustrativo</span><p>Elige una observación antigua y recorre tres pasos: filtrar, comparar y decidir. Un pasillo parecido puede pasar el filtro espacial y fallar la comprobación geométrica.</p></div>
+    <div class="vis" data-vis="candidatos-slam"><figure class="mp-fig"><img src="img/diagramas/candidatos-cierre.svg" width="340" height="240" loading="lazy" alt="Cinco pares de puntos superpuestos: círculos de una observación actual y cuadrados de una observación antigua compatible, en metros."><figcaption>Comparación ilustrativa después de alinear los barridos.</figcaption></figure><p class="vis-fallback">Ejemplo: la pose 0, antigua y a 0,40 m, pasa el filtro espacial y su desajuste es de 2 cm, menor que el umbral ilustrativo de 6 cm. La pose 5, a 0,45 m, pasa el filtro, pero sus 19 cm de desajuste rechazan el cierre. La pose 11 pertenece a la cadena reciente y la pose 3 está fuera del radio de búsqueda de 1 m. Ninguno de estos números es un parámetro ni un resultado del robot.</p></div>
+  </div>
+  <h3 id="incertidumbre-grafo">Cuánto confiamos en cada restricción</h3>
+  <p>Una restricción contiene una estimación de movimiento y una <b>incertidumbre</b>: no todas las direcciones ni todas las observaciones son igualmente precisas. Una matriz de <b>covarianza</b> describe esa incertidumbre y sus relaciones. En una formulación usual, su inversa es la matriz de información Ω, que pondera los residuos en el costo <code>E = Σ rᵀ Ω r</code> <a class="ref" href="#f8">8</a>. Un residuo es la diferencia entre la relación medida y la que implican las poses estimadas.</p>
+  <p>Con el resto fijo, dar más peso a una restricción exige cumplirla más estrechamente. Esto no transforma una asociación falsa en una buena medición. Primero hay que comprobar la coincidencia; después se optimiza. El siguiente ejemplo permite cambiar el peso de un cierre que se supone válido.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="sim-lazo">Grafo de poses y cierre de lazo</h3><span class="tipo inter">Interactivo · ilustrativo</span><p>Recorre cuatro pasos: acumular deriva, reconocer el inicio, optimizar las poses y publicar la corrección map → odom. Mira cómo el desacuerdo total sube al añadir el cierre y baja al optimizar, y cómo cambia el mapa que forman las paredes vistas desde cada pose. Inspecciona un nodo para ver su posición y orientación.</p></div>
     <div class="vis" data-vis="lazo"><p class="vis-fallback">Los nodos guardan poses y las líneas restricciones. El cierre de lazo añade una relación con el inicio que contradice a las demás: en este ejemplo el desacuerdo total pasa de 0 a 29,3. Optimizar cambia las poses del grafo y lo baja a 0,18. Publicar map → odom relaciona la pose actual corregida con la odometría, que sigue conservando su deriva. Si el mapa se arma con lo que vio el láser desde cada pose, antes del cierre la misma pared vista al inicio y al regreso queda a 17,7 cm de sí misma. Después de optimizar coinciden, pero el mapa mide 2,15 m de ancho frente a 2,10 m del recinto del ejemplo: un mapa coherente puede conservar un error de escala. Necesita JavaScript para recorrer los pasos.</p></div>
@@ -152,7 +172,9 @@
   <p><b>Ceres Solver es una biblioteca de optimización numérica</b>. Un resolvedor es el componente que busca una solución a un problema matemático. Aquí recibe las poses iniciales y las restricciones del grafo, y ajusta posiciones y orientaciones para reducir la suma ponderada de las discrepancias, llamadas <b>residuos</b> <a class="ref" href="#f18">18</a> <a class="ref" href="#f19">19</a>. En el <a href="#sim-lazo">interactivo del grafo</a> esa suma aparece como «desacuerdo total», y en el de los <a href="#sim-barridos">dos barridos</a> se ve la misma idea con una sola incógnita, la traslación.</p>
   <div class="mp-tarjetas mp-ceres"><div><b>Entrada</b><p>«Las ruedas indican este movimiento; el láser indica que volví a una zona conocida». Las mediciones pueden contradecirse.</p></div><div><b>Trabajo del resolvedor</b><p>Prueba ajustes de x, y y θ para disminuir el desacuerdo total, teniendo en cuenta los pesos de las restricciones.</p></div><div><b>Salida</b><p>Un conjunto de poses más consistente. SLAM Toolbox lo usa para actualizar el mapa y calcular la corrección de TF.</p></div></div>
   <p class="mp-clave">Ceres no mide distancias ni reconoce por sí solo un lugar: esas observaciones y asociaciones las prepara SLAM. Puede quedar error residual; una asociación incorrecta o mediciones pobres no se vuelven correctas solo por optimizar.</p>
+  <p>En el grafo ilustrativo, «desacuerdo total» es un costo con pesos elegidos para enseñar el proceso, no un error del mapa en centímetros. Compara el costo antes y después de optimizar <b>manteniendo los mismos pesos</b>. Cambiar los pesos cambia también la escala del costo; para comparar esos escenarios observa la separación del regreso y las poses.</p>
   <p>En los resultados el cierre de lazo figura como no determinado, porque el análisis posterior no detecta automáticamente si ocurrió. La consistencia de los mapas la evalué a la vista.</p>
+  <p>La asociación temporal también importa: cada barrido se transforma usando la pose correspondiente a su instante. El <a href="robot.html#lidar">nodo propio del láser y su límite de marcas temporales</a> se explican en Anatomía del robot. No se cuantificó el efecto de ese desfase sobre los mapas.</p>
   <div class="videos-grid">
     <div class="vid-card">
       <div class="video" data-vimeo="378682207" data-titulo="On Use of SLAM Toolbox" data-sub="Charla de Steve Macenski en ROSCon 2019, en inglés"><a href="https://vimeo.com/378682207">Ver la charla en Vimeo</a></div>
@@ -163,6 +185,66 @@
       <p>Un tutorial práctico del mismo autor de los paquetes en que se basa este robot. <small>Fuente <a class="ref" href="#f11">11</a></small></p>
     </div>
   </div>
+</section>
+
+<section>
+  <h2 id="modos-procesamiento">Síncrono y asíncrono: qué ocurre si llegan más barridos</h2>
+  <p>En modo <b>síncrono</b> se procesan las mediciones admitidas, aunque una cola pueda introducir retraso. «Admitidas» importa: siguen existiendo filtros de tiempo, movimiento y validez. En modo <b>asíncrono</b> el procesamiento se hace según la capacidad disponible y pueden omitirse mediciones; no garantiza carga nula ni cualquier plazo de tiempo real <a class="ref" href="#f10">10</a> <a class="ref" href="#f21">21</a>.</p>
+  <div class="widget">
+    <div class="widget-cab"><h3 id="sim-cola">La misma llegada de datos, dos decisiones de procesamiento</h3><span class="tipo inter">Interactivo · ilustrativo</span><p>Avanza de 100 en 100 ms. Compara conservar todos los barridos admitidos con omitir los que llegan mientras el procesador está ocupado. Cambia el tiempo de cálculo y observa la cola y las omisiones.</p></div>
+    <div class="vis" data-vis="cola-slam"><p class="vis-fallback">Modelo con un barrido cada 100 ms y 150 ms de cálculo por barrido. A los 500 ms llegaron seis: el caso síncrono terminó tres, procesa uno y tiene dos esperando; el asíncrono terminó dos, procesa uno y omitió tres. Es una política simplificada para enseñar el compromiso, no la ejecución interna de SLAM Toolbox ni una medición del computador del robot.</p></div>
+  </div>
+  <p>La guía documenta que el prototipo utilizó el modo asíncrono en línea. No se midieron aquí CPU, latencia ni barridos omitidos. El ejemplo explica un compromiso de diseño y no demuestra cuánto trabajo ahorró ese modo en los ensayos.</p>
+</section>
+
+<section>
+  <h2 id="guardar-sesion">Guardar la imagen y guardar la sesión son operaciones diferentes</h2>
+  <p>SLAM Toolbox puede generar una rejilla para navegar y también serializar la sesión que permitió construirla. <b>Serializar</b> significa guardar estructuras de datos para recuperarlas después; no consiste en tomar una captura de RViz <a class="ref" href="#f21">21</a>.</p>
+  <div class="tabla-env"><table class="tabla">
+    <thead><tr><th>Salida</th><th>Qué conserva</th><th>Para qué sirve</th></tr></thead>
+    <tbody><tr><th>Imagen PGM y YAML</th><td>Celdas e información para interpretarlas, como resolución, origen y umbrales.</td><td>Visualización, análisis de celdas y localización con herramientas compatibles, como AMCL. No conserva el grafo original ni todos los barridos.</td></tr>
+      <tr><th>Sesión serializada</th><td>Archivos de grafo y datos asociados, habitualmente <code>.posegraph</code> y <code>.data</code>.</td><td>Continuar o refinar el mapeo, manipular el grafo o usar la localización de SLAM Toolbox. Requiere compatibilidad con la versión que los lee.</td></tr></tbody>
+  </table></div>
+  <p class="mp-clave"><b>Qué respalda esta guía:</b> los indicadores publicados provienen del análisis de imágenes PGM guardadas. Este repositorio ofrece las tablas resumidas; no publica los mapas originales ni acredita que se conservaran sesiones serializadas del prototipo. Cinco mapas independientes no equivalen a cinco partes de un único grafo. Una imagen sola no permite reconstruir los cierres de lazo que ocurrieron.</p>
+  <h3 id="mapeo-localizacion">Construir, localizarse, continuar y mantener un mapa</h3>
+  <div class="tabla-env"><table class="tabla">
+    <thead><tr><th>Capacidad</th><th>Qué hace</th><th>Situación en este proyecto</th></tr></thead>
+    <tbody>
+      <tr><th>Mapeo</th><td>Estima la trayectoria mientras construye el mapa.</td><td>Usado durante las exploraciones documentadas.</td></tr>
+      <tr><th>Localización de SLAM Toolbox</th><td>Carga un grafo previo y usa una ventana de barridos recientes. Al salir de la ventana se retiran; el mapa base no se actualiza permanentemente.</td><td>Capacidad de la herramienta; no documentada como ensayo del prototipo.</td></tr>
+      <tr><th>Continuación del mapeo</th><td>Recupera una sesión, relocaliza y amplía o refina el grafo.</td><td>No documentada como ensayo del prototipo.</td></tr>
+      <tr><th>Lifelong mapping</th><td>Además de incorporar información, retira nodos antiguos o redundantes para limitar el crecimiento del grafo y su costo.</td><td>La eliminación de nodos se presenta como experimental en la charla de 2019 y la documentación consultada de Foxy. No se probó aquí.</td></tr>
+    </tbody>
+  </table></div>
+  <p>La localización de SLAM Toolbox ofrece una alternativa a AMCL, con necesidades de ajuste y odometría propias <a class="ref" href="#f21">21</a>. Por eso <a href="navegacion.html#amcl">navegar sobre un mapa previo</a> no obliga a utilizar AMCL. El protocolo pendiente descrito en esta tesis sí lo contemplaba.</p>
+</section>
+
+<section>
+  <h2 id="configuracion-slam">Conectar la explicación con la configuración del robot</h2>
+  <p>Los nombres siguientes se contrastaron con la documentación y el ejemplo de configuración de <b>Foxy</b> <a class="ref" href="#f21">21</a> <a class="ref" href="#f22">22</a>. Un valor predeterminado del paquete no demuestra qué valor se usó en el prototipo. El YAML original de SLAM Toolbox no está publicado en este repositorio.</p>
+  <div class="tabla-env"><table class="tabla">
+    <thead><tr><th>Dato o parámetro</th><th>Qué explica</th><th>Evidencia disponible en la guía</th></tr></thead>
+    <tbody>
+      <tr><th>Modo y nodo de ejecución</th><td>Mapeo/localización y política síncrona/asíncrona son decisiones distintas; también importa el nodo lanzado.</td><td>Se declara mapeo asíncrono en línea en el computador. Lanzamiento y YAML originales no publicados.</td></tr>
+      <tr><th><code>solver_plugin</code></th><td>Resolvedor que optimiza las poses.</td><td>Se declara Ceres; no se publican las opciones exactas de su configuración.</td></tr>
+      <tr><th><code>do_loop_closing</code></th><td>Habilita la búsqueda de cierres; no prueba que ocurrieran.</td><td>Se declara activado. Ocurrencia en las corridas: no determinada.</td></tr>
+      <tr><th><code>map_frame</code>, <code>odom_frame</code>, <code>base_frame</code>, <code>scan_topic</code></th><td>Conectan el grafo, TF y las mediciones.</td><td>La guía explica la cadena conceptual. Los nombres literales deben contrastarse con el YAML y URDF originales, incluidos marcos intermedios.</td></tr>
+      <tr><th><code>minimum_travel_distance</code>, <code>minimum_travel_heading</code></th><td>Criterios de movimiento para incorporar observaciones.</td><td>Valores del prototipo no publicados aquí; no se sustituyen por los del ejemplo del paquete.</td></tr>
+      <tr><th><code>loop_search_maximum_distance</code>, <code>loop_match_minimum_response_fine</code></th><td>Búsqueda espacial y aceptación geométrica de cierres.</td><td>Valores del prototipo no publicados aquí. Los umbrales del interactivo son supuestos didácticos.</td></tr>
+      <tr><th><code>resolution</code></th><td>Tamaño de celda; no es la resolución del ajuste de barridos ni un error de posición.</td><td>0,05 m por celda, según la Tabla 5.4 y <a href="datos/parametros.json">los parámetros transcritos</a>.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Documentar esos archivos, si se dispone de ellos, es una tarea de trazabilidad. No cambia las mediciones ni convierte una capacidad del paquete en un resultado experimental.</p>
+  <h3 id="guia-roscon">Recorrer la charla con una pregunta por tramo</h3>
+  <ul>
+    <li><a href="https://vimeo.com/378682207#t=3m54s">03:54–05:43 · Grafo y cierre de lazo.</a> ¿Quién selecciona candidatos, quién compara y quién optimiza?</li>
+    <li><a href="https://vimeo.com/378682207#t=7m18s">07:18–08:14 · Modos de procesamiento.</a> ¿Qué ocurre con las mediciones cuando el cálculo se atrasa?</li>
+    <li><a href="https://vimeo.com/378682207#t=8m38s">08:38–09:12 · Serialización.</a> ¿Qué información conserva una sesión que no aparece en una imagen?</li>
+    <li><a href="https://vimeo.com/378682207#t=9m59s">09:59–11:27 · Localización.</a> ¿Para qué sirve la ventana de observaciones recientes?</li>
+    <li><a href="https://vimeo.com/378682207#t=11m33s">11:33–13:44 · Continuación y lifelong mapping.</a> ¿Qué diferencia hay entre añadir nodos y retirar información redundante?</li>
+    <li><a href="https://vimeo.com/378682207#t=15m38s">15:38–17:27 · Configuración.</a> ¿Qué parámetro corresponde a cada etapa?</li>
+  </ul>
+  <p>La charla es una fuente histórica de 2019, no un estudio comparativo de este prototipo. Sus opiniones sobre otros paquetes y sus cifras de grandes superficies no son mediciones de esta tesis. Los nombres correctos son <b>Steve Macenski, Open Karto, Ceres y pose graph</b>; la transcripción automática puede confundirlos.</p>
 </section>
 
 <section>
@@ -207,7 +289,7 @@
       <button type="button" aria-pressed="true" data-alt="Mapa en RViz al comienzo: solo un pasillo estrecho alrededor del robot, con la ruta verde hacia adelante."><b>1 · Inicio</b><small>Un pasillo estrecho</small></button>
       <button type="button" aria-pressed="false" data-alt="Mapa en RViz con el contorno exterior y un tabique ya detectados, y la ruta verde hacia una frontera."><b>2 · Expansión</b><small>Aparecen los tabiques</small></button>
       <button type="button" aria-pressed="false" data-alt="Mapa en RViz con la mayor parte del recinto descubierto y una ruta verde curva hacia el sector superior derecho."><b>3 · Cobertura amplia</b><small>Con ruta activa</small></button>
-      <button type="button" aria-pressed="false" data-alt="Mapa en RViz casi completo del recinto, con todos los pasillos y la ruta verde hacia el último rincón."><b>4 · Cierre</b><small>Mayor cobertura</small></button>
+      <button type="button" aria-pressed="false" data-alt="Mapa en RViz casi completo del recinto, con todos los pasillos y la ruta verde hacia el último rincón."><b>4 · Etapa final</b><small>Mayor cobertura</small></button>
     </div>
     <div class="etapas-pie"><span>Explora cada etapa a tu ritmo con los botones.</span><button type="button" class="vbtn sec" data-play aria-pressed="false">Reproducir secuencia</button></div>
   </div>
@@ -277,6 +359,8 @@
     <li id="f18"><span><span class="tipo-ref">Documentación</span>SLAM Toolbox. Funcionamiento del grafo, reconstrucción del mapa, publicación de map → odom y resolvedores de optimización. <a href="https://index.ros.org/p/slam_toolbox/">ROS Index · SLAM Toolbox</a>.</span></li>
     <li id="f19"><span><span class="tipo-ref">Documentación</span>Ceres Solver. Non-linear Least Squares. <a href="https://ceres-solver.readthedocs.io/latest/nnls_tutorial.html">Tutorial oficial de Ceres</a>.</span></li>
     <li id="f20"><span><span class="tipo-ref">Código RViz</span>ROS 2 RViz. Construcción de la paleta de costos. <a href="https://github.com/ros2/rviz/blob/rolling/rviz_default_plugins/src/rviz_default_plugins/displays/map/palette_builder.cpp">Paletas de Map Display</a>. Los colores de las capturas se contrastaron con las imágenes originales del repositorio.</span></li>
+    <li id="f21"><span><span class="tipo-ref">Documentación</span>SLAM Toolbox, rama <code>foxy-devel</code>. Modos, Open Karto, localización, serialización y parámetros. <a href="https://github.com/SteveMacenski/slam_toolbox/blob/foxy-devel/README.md">README para Foxy</a>. Consultado el 22 de octubre de 2026; no acredita la revisión exacta instalada en el robot.</span></li>
+    <li id="f22"><span><span class="tipo-ref">Configuración de referencia</span>SLAM Toolbox, rama <code>foxy-devel</code>. <a href="https://github.com/SteveMacenski/slam_toolbox/blob/foxy-devel/config/mapper_params_online_async.yaml">mapper_params_online_async.yaml</a>. Ejemplo del paquete, no configuración medida del prototipo.</span></li>
   </ol>
 </section>
 

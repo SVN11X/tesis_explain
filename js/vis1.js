@@ -340,9 +340,9 @@
       '<p>' + OK + 'Navegar hacia destinos que genera el explorador</p>' +
       '<p>' + OK + 'Cadena completa en el robot real, del láser al motor</p>' +
       '<p>' + OK + '5 de 6 corridas terminaron solas, sin fronteras</p></div>' +
-      '<div class="lista-ico"><span class="eyebrow">Lo que exige medir con metas fijas</span>' +
+      '<div class="lista-ico"><span class="eyebrow">El protocolo pendiente de metas fijas</span>' +
       '<p>' + NO + 'Un mapa guardado</p>' +
-      '<p>' + NO + 'AMCL activo y ajustado. Está con valores por defecto, sin ejecutar</p>' +
+      '<p>' + NO + 'AMCL era la opción prevista: quedó sin ejecutar ni ajustar. No es un requisito general de las metas fijas</p>' +
       '<p>' + NO + 'Puntos medidos en el recinto</p>' +
       '<p>' + NO + 'Script preparado, sin registros y sin error de posición final</p></div></div>' +
       '<h4 class="vsub">Cómo quedan los objetivos específicos</h4>' +

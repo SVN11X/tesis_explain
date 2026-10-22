@@ -51,6 +51,7 @@ Las cifras y figuras del robot salen de la tesis y se citan con su sección, tab
 ├── js/movimiento.js     calibración de la recta y cuadrado en dos sentidos, en SVG
 ├── css/movimiento.css   estilos exclusivos del capítulo 3
 ├── js/mapeo.js          modelos y visualizaciones del capítulo 05
+├── js/slam-proceso.js   candidatos de cierre y colas de procesamiento ilustrativas
 ├── css/mapeo.css        estilos exclusivos del capítulo 05
 ├── js/analisis-modelo.js análisis de CSV y de registros de estados de metas, sin DOM
 ├── js/analisis-mapa.js  lectura de PGM y YAML, conteo de celdas y comparación de mapas, sin DOM
@@ -143,6 +144,7 @@ Luego abre http://localhost:8000
 node herramientas/pruebas_unitarias.js
 node herramientas/pruebas_control.js
 node herramientas/pruebas_mapeo.js
+node herramientas/pruebas_slam_proceso.js
 node herramientas/pruebas_movimiento.js
 python3 herramientas/pruebas_control_navegador.py
 python3 herramientas/pruebas_mapeo_navegador.py
@@ -159,9 +161,13 @@ node herramientas/ejemplos_laboratorio.js --comprobar
 
 `pruebas_navegador.py` también comprueba que la cabecera quede fija al bajar, que el panel de Temas quepa en la pantalla entre 862 y 1920 px y que las herramientas de Preguntas difíciles funcionen con y sin JavaScript.
 
-Las pruebas de Node revisan la geometría, el reloj y los casos numéricos de control. Las pruebas del capítulo 3 comprueban la cinemática y el centro de giro, la integración sobre arcos, los datos de la recta frente a su CSV, la calibración y el cuadrado en dos sentidos. Las pruebas unitarias incluyen además la búsqueda A estrella, con su h admisible. `pruebas_movimiento_navegador.py` recorre el capítulo 3 y A estrella en escritorio, móvil de 390 y 320 px, modo oscuro y movimiento reducido. Las pruebas de mapeo añaden oclusión y colisiones del LiDAR, celdas no observadas, el índice de cobertura, la curva de desacuerdo de los barridos, transformaciones SE(2) y optimización del grafo. `pruebas_control_navegador.py` inicia un servidor local temporal y comprueba los interactivos del capítulo 4 en escritorio, móvil de 390 y 320 px, modo oscuro y movimiento reducido. `pruebas_mapeo_navegador.py` hace lo mismo con los siete interactivos del capítulo 05: teclado, lecturas de área e índice, la cadena TF, la curva de los barridos, el desacuerdo del grafo y que los SVG en línea no traigan estilos. Requiere Playwright con Chromium instalado solo para desarrollo. `pruebas_navegador.py` usa Chromium con Playwright y recorre las páginas en escritorio, en teléfono y con movimiento reducido. Revisa errores, enlaces, anclas, el buscador, el glosario, los simuladores y el uso en teléfono.
+Las pruebas de Node revisan la geometría, el reloj y los casos numéricos de control. Las pruebas del capítulo 3 comprueban la cinemática y el centro de giro, la integración sobre arcos, los datos de la recta frente a su CSV, la calibración y el cuadrado en dos sentidos. Las pruebas unitarias incluyen además la búsqueda A estrella, con su h admisible. `pruebas_movimiento_navegador.py` recorre el capítulo 3 y A estrella en escritorio, móvil de 390 y 320 px, modo oscuro y movimiento reducido. Las pruebas de mapeo añaden oclusión y colisiones del LiDAR, celdas no observadas, el índice de cobertura, la curva de desacuerdo de los barridos, transformaciones SE(2) y optimización del grafo. `pruebas_control_navegador.py` inicia un servidor local temporal y comprueba los interactivos del capítulo 4 en escritorio, móvil de 390 y 320 px, modo oscuro y movimiento reducido. `pruebas_mapeo_navegador.py` hace lo mismo con los nueve interactivos del capítulo 05: teclado, lecturas de área e índice, la cadena TF, la curva de los barridos, el desacuerdo del grafo y que los SVG en línea no traigan estilos. Requiere Playwright con Chromium instalado solo para desarrollo. `pruebas_navegador.py` usa Chromium con Playwright y recorre las páginas en escritorio, en teléfono y con movimiento reducido. Revisa errores, enlaces, anclas, el buscador, el glosario, los simuladores y el uso en teléfono.
 
 ## Capítulo 05: lo que mide cada interactivo
+
+La ampliación del 22 de octubre de 2026 explica los cuatro componentes de SLAM por grafos, la selección y comprobación de candidatos, la covarianza y el costo ponderado. `js/slam-proceso.js` añade dos modelos locales: el selector con un pasillo compatible, otro parecido, una pose reciente y una lejana; y una comparación por eventos de colas síncronas y omisiones asíncronas. Ambos tienen controles por pasos, reinicio, respaldo sin JavaScript y supuestos explícitos. No ejecutan SLAM Toolbox ni usan registros experimentales. El grafo permite variar el peso del cierre manteniendo las mediciones, con los mismos resultados iniciales por defecto.
+
+Se distinguen PGM/YAML y sesión serializada, mapeo, localización, continuación y lifelong mapping, con enlaces por minutos a ROSCon 2019. La tabla de parámetros separa lo declarado en la guía de los valores que no se publicaron: no copia valores predeterminados al prototipo. AMCL se presenta como la opción del protocolo pendiente y se precisan las descripciones de GMapping y del marco map en todas las páginas relacionadas. El estado académico y las tablas originales se conservan. Detalle y aplicación del parche en [docs/mejoras-slam-20261022.md](docs/mejoras-slam-20261022.md).
 
 El LiDAR tiene leyenda, escala de 1 m y un robot que no se confunde con un botón. La rejilla calcula el área libre y el índice de cobertura con la misma fórmula de los resultados. La cadena TF se dibuja en el marco map: al aplicar map → odom se mueve el origen de odom y la flecha de las ruedas conserva su largo. El ajuste de barridos muestra la curva del desacuerdo total, con mínimo en 30 cm frente a los 40 cm que estiman las ruedas. El grafo de poses informa el desacuerdo en cada paso: 0 sin cierre, 29,3 al añadirlo y 0,18 después de optimizar. El ejemplo de cobertura conserva la celda ocupada en ambas imágenes y permite agrandar el margen desconocido para ver que el índice baja mientras el área no cambia.
 

@@ -13,3 +13,6 @@ SLAM,,mapeo.html#sim-lazo,modelo de la guia,ilustrativo,m y cm,,,"recinto invent
 mapeo,datos/parametros.json,laboratorio.html,Anexo 8.1 (umbrales 230 y 50) y Ec. 5.4 y 5.5,parametros transcritos,niveles de gris y m2,,,umbrales sujetos a revision; mapas originales no publicados
 navegacion,datos/parametros.json,laboratorio.html,Anexo 8.4 (procedimiento) y Tabla A5.4 (periodo 3333 ms),procedimiento reimplementado,metas y s,,,script original del autor no publicado; registros crudos no publicados
 laboratorio,datos/ejemplos/,laboratorio.html,ninguna,sintetico,segun archivo,,,no son datos del robot ni de la tesis
+SLAM,js/slam-proceso.js,mapeo.html#sim-candidatos;img/diagramas/candidatos-cierre.svg,ROSCon 2019 03:54-05:43;modelo de la guia,ilustrativo,m y cm,,,pares conocidos ya alineados; RMS y umbrales supuestos; no ejecuta Open Karto
+SLAM,js/slam-proceso.js,mapeo.html#sim-cola,ROSCon 2019 07:18-08:14;modelo de eventos,ilustrativo,ms y barridos,,,un servidor; llegada cada 100 ms; no es latencia medida de SLAM Toolbox
+SLAM,js/mapeo.js,mapeo.html#incertidumbre-grafo,Grisetti 2010;modelo de la guia,ilustrativo,costo ponderado y cm,,,peso de cierre ajustable; sin covarianza experimental; datos iniciales conservados

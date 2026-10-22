@@ -8,11 +8,13 @@ var fs = require("fs"), path = require("path"), vm = require("vm");
 var raiz = path.resolve(__dirname, ".."), ctx = { window: {}, Math: Math };
 vm.createContext(ctx);
 vm.runInContext(fs.readFileSync(path.join(raiz, "js/mapeo.js"), "utf8"), ctx);
+vm.runInContext(fs.readFileSync(path.join(raiz, "js/slam-proceso.js"), "utf8"), ctx);
 var M = ctx.window.MAPEO, destino = path.join(raiz, "img/diagramas");
 /* Los archivos sueltos necesitan sus estilos, porque no cargan css/mapeo.css. */
 M.svgEstatico = true;
 fs.mkdirSync(destino, { recursive: true });
 var figuras = {
+  "candidatos-cierre.svg": ctx.window.SLAM_PROCESO.candidatosSVG(0, true),
   "lidar-plano.svg": M.lidarLateralSVG(),
   "rejilla-ocupacion.svg": M.rejillaSVG(M.rejilla(2), null, false),
   "trejos-karto.svg": M.trejosSVG(),

@@ -52,7 +52,7 @@ with sync_playwright() as pw:
         ('movimiento reducido', {'viewport': {'width': 1280, 'height': 900}, 'reduced_motion': 'reduce'}),
         ('oscuro', {'viewport': {'width': 1366, 'height': 900}, 'color_scheme': 'dark'})
     ]
-    visuales = ['lidar', 'rejilla', 'marcos-mapeo', 'barridos', 'lazo', 'rviz-colores', 'cobertura']
+    visuales = ['lidar', 'rejilla', 'marcos-mapeo', 'barridos', 'lazo', 'rviz-colores', 'cobertura', 'candidatos-slam', 'cola-slam']
     for name, options in configurations:
         ctx = browser.new_context(**options)
         ctx.route(re.compile(r'^https?://(?!localhost)'), lambda r: r.fulfill(status=200, body=''))
@@ -64,7 +64,7 @@ with sync_playwright() as pw:
         for v in visuales:
             p.locator('[data-vis="%s"]' % v).scroll_into_view_if_needed()
             p.wait_for_selector('[data-vis="%s"][data-montado="1"]' % v)
-        check(not errors, name + ': los siete interactivos del capítulo montan sin errores')
+        check(not errors, name + ': los nueve interactivos del capítulo montan sin errores')
         check(p.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), name + ': no hay desborde horizontal')
         check(p.locator('[data-vis][data-montado] .vis-fallback').count() == 0, name + ': no quedan fallbacks visibles')
         check(p.locator('.vis svg style').count() == 0, name + ': los SVG en línea no traen estilos que afecten al resto de la página')
@@ -119,6 +119,50 @@ with sync_playwright() as pw:
         check('map → odom: x =' in text_of(p, 'lazo'), name + ': el paso 4 informa la transformación publicada')
         set_range(p, '#mp-pose', 0)
         check('Pose 0: x = 0,00 m' in text_of(p, 'lazo'), name + ': el origen queda fijo')
+
+        # Peso del cierre: modifica el cálculo y se restablece junto con el resto
+        p.locator('[data-vis=lazo] details').last.locator('summary').click()
+        set_range(p, '#mp-grafo-peso', .2)
+        weak = p.locator('[data-vis=lazo]').evaluate('el => Math.hypot(el.estadoSim().poses[12][0], el.estadoSim().poses[12][1])')
+        set_range(p, '#mp-grafo-peso', 5)
+        strong = p.locator('[data-vis=lazo]').evaluate('el => Math.hypot(el.estadoSim().poses[12][0], el.estadoSim().poses[12][1])')
+        check(strong < weak and '2500, 2500, 1250' in text_of(p, 'lazo'), name + ': el peso del cierre cambia las poses y explica su escala')
+        p.locator('[data-vis=lazo]').get_by_text('Experimentar con la deriva del ejemplo', exact=True).click()
+        p.locator('[data-vis=lazo] [data-restablecer-grafo]').click()
+        check(p.locator('#mp-grafo-peso').input_value() == '1' and lectura(p, 'lazo', 3) == '0', name + ': reiniciar recupera peso, fase y datos de ejemplo')
+
+        # Candidato cercano, geometría incompatible, cadena reciente y reinicio
+        candidates = p.locator('[data-vis=candidatos-slam]')
+        candidates.locator('[data-etapa="2"]').click()
+        check('Se acepta el cierre' in candidates.inner_text(), name + ': el candidato compatible se acepta')
+        candidates.locator('[data-candidato="5"]').click()
+        candidates.locator('[data-etapa="1"]').click()
+        check(candidates.locator('[data-geometria]').is_visible() and '19,0 cm' in candidates.inner_text(), name + ': el pasillo parecido expone el desajuste geométrico')
+        candidates.locator('[data-etapa="2"]').click()
+        check('Se rechaza el cierre' in candidates.inner_text(), name + ': la proximidad sola no acepta el cierre')
+        candidates.locator('[data-candidato="11"]').click()
+        candidates.locator('[data-etapa="2"]').click()
+        check('cadena reciente' in candidates.inner_text() and not candidates.locator('[data-geometria]').is_visible(), name + ': no se comprueba geometría de la cadena reciente')
+        candidates.locator('[data-candidato="3"]').click()
+        check('Fuera del radio' in candidates.inner_text(), name + ': el candidato lejano queda fuera')
+        candidates.locator('[data-reset-candidatos]').click()
+        candidates.locator('[data-etapa="1"]').focus()
+        p.keyboard.press('Enter')
+        check(candidates.locator('[data-geometria]').is_visible() and candidates.locator('[data-candidato="0"]').get_attribute('aria-pressed') == 'true', name + ': el reinicio y el teclado funcionan')
+
+        # Misma llegada de barridos; espera frente a omisión
+        queue = p.locator('[data-vis=cola-slam]')
+        set_range(p, '#sp-tiempo', 500)
+        state = queue.evaluate('el => el.estadoSim()')
+        check(len(state['sincrono']['esperando']) == 2 and len(state['asincrono']['omitidos']) == 3, name + ': la cola muestra los conteos del respaldo')
+        set_range(p, '#sp-calculo', 100)
+        check(queue.locator('[data-estado="en cola"], [data-estado="omitido"]').count() == 0, name + ': el cálculo rápido elimina espera y omisiones')
+        set_range(p, '#sp-tiempo', 1200)
+        check(queue.locator('[data-avanzar-cola]').is_disabled(), name + ': el último paso no sobrepasa el tiempo máximo')
+        queue.locator('[data-reset-cola]').click()
+        queue.locator('[data-avanzar-cola]').focus()
+        p.keyboard.press('Enter')
+        check(queue.evaluate('el => el.estadoSim().ahora') == 100 and p.locator('#sp-calculo').input_value() == '150', name + ': la cola se reinicia y avanza con teclado')
 
         # RViz y cobertura
         p.locator('[data-vis=rviz-colores] [data-color=inscrito]').click()

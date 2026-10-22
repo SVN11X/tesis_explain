@@ -139,7 +139,7 @@ with sync_playwright() as pw:
     check(box.locator('[data-termino=Kp]').get_attribute('aria-pressed') == 'true' and box.locator('[data-rueda=der]').get_attribute('aria-pressed') == 'true', 'Restablecimiento de control restaura término y rueda')
     if os.environ.get('EVIDENCIA_DIR'): p.screenshot(path=str(Path(os.environ['EVIDENCIA_DIR'])/'despues-control.png'))
     p.goto(BASE + '/mapeo.html'); box = p.locator('[data-vis=lazo]'); box.scroll_into_view_if_needed(); p.wait_for_selector('[data-vis=lazo][data-montado]')
-    box.locator('details summary').click()
+    box.get_by_text('Experimentar con la deriva del ejemplo', exact=True).click()
     p.locator('#mp-grafo-giro').evaluate("el=>{el.value=0;el.dispatchEvent(new Event('input',{bubbles:true}));}")
     state = box.evaluate('el=>el.estadoSim()')
     check(abs(state['odom'][-1][0]) < 1e-10 and abs(state['odom'][-1][1]) < 1e-10, 'Error de escala sin giro cierra el recorrido sin garantizar longitudes')

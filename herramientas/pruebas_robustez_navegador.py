@@ -143,7 +143,7 @@ with sync_playwright() as pw:
         check(box.locator('[data-read="2"]').inner_text() == '19,1 cm' and box.locator('[data-read="3"]').inner_text() == '0,18', nombre + ': las lecturas previas del grafo no cambian')
         box.locator('#mp-grafo-mapa').uncheck()
         check(box.locator('.mp-obs').count() == 0 and box.locator('[data-bloque-mapa]').is_hidden() and box.locator('[data-ley-mapa]').first.is_hidden(), nombre + ': ocultar el mapa quita puntos, lecturas y leyenda')
-        box.locator('details summary').click(); box.locator('[data-restablecer-grafo]').click()
+        box.get_by_text('Experimentar con la deriva del ejemplo', exact=True).click(); box.locator('[data-restablecer-grafo]').click()
         check(box.locator('#mp-grafo-mapa').is_checked() and box.evaluate('el => el.estadoSim().verMapa'), nombre + ': restablecer vuelve a mostrar el mapa')
         check(p.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), nombre + ': sin desborde horizontal')
         check(not errores, nombre + ': grafo sin errores JavaScript', errores)

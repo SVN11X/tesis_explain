@@ -134,7 +134,7 @@
   <details class="pregunta" id="p-metas-fijas" data-respuesta="guia" data-dificultad="tecnica">
     <summary><span class="q-n" aria-hidden="true">04</span><span class="q-t">¿Por qué no ensayó la navegación hacia metas fijas?</span><span class="etiqueta intermedio">Técnica</span></summary>
     <div class="q-cuerpo">
-      <p>Lo comprometido en el objetivo general es navegar hacia destinos generados por el explorador, y así se evaluó. Un protocolo con metas fijas exige un mapa guardado, la localización con AMCL activa y puntos medidos en el recinto, y esas condiciones no se configuraron. Por eso quedó fuera del alcance, declarado desde la introducción.</p>
+      <p>Lo comprometido en el objetivo general es navegar hacia destinos generados por el explorador, y así se evaluó. El protocolo con metas fijas planteado para este trabajo contemplaba un mapa guardado, la localización con AMCL activa y puntos medidos en el recinto, y esas condiciones no se configuraron. Por eso quedó fuera del alcance, declarado desde la introducción. AMCL era una opción de ese protocolo. No es un requisito general para enviar metas fijas.</p>
       <p>El script para ese ensayo quedó preparado, pero no tiene registros de salida, no mide el error de posición final y sus poses objetivo solo están definidas para el mundo simulado. Ejecutarlo es el punto 1 del trabajo futuro.</p>
       <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Alcances y limitaciones, Sección 5.4 y Anexo 8.3 <a class="ref" href="#f1">1</a>.</p>
       <p class="q-ver"><a href="navegacion.html#evaluacion">Qué se evaluó de la navegación</a></p>
@@ -428,7 +428,7 @@
   <details class="pregunta" id="p-slam-toolbox" data-respuesta="guia" data-dificultad="tecnica">
     <summary><span class="q-n" aria-hidden="true">30</span><span class="q-t">¿Por qué eligió slam_toolbox y no otro algoritmo de SLAM?</span><span class="etiqueta intermedio">Técnica</span></summary>
     <div class="q-cuerpo">
-      <p>Por su integración nativa con ROS 2, su enfoque de grafo de poses y porque permite guardar y cargar mapas. GMapping no detecta cierres de lazo y su paso a ROS 2 es más débil. Hector SLAM exige un láser de alta tasa de barrido para contener la deriva. Cartographer tiene una configuración compleja y, en la comparación de Trejos y colaboradores, fue el de mayor uso medio de CPU <a class="ref" href="#f3">3</a>.</p>
+      <p>Por su integración nativa con ROS 2, su enfoque de grafo de poses y porque permite guardar y cargar mapas. GMapping usa un filtro de partículas, sin el mismo esquema explícito de cierre y optimización de un grafo de poses. Su integración con ROS 2 fue una limitación para este proyecto. Hector SLAM exige un láser de alta tasa de barrido para contener la deriva. Cartographer tiene una configuración compleja y, en la comparación de Trejos y colaboradores, fue el de mayor uso medio de CPU <a class="ref" href="#f3">3</a>.</p>
       <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Tabla 1.2 y Secciones 2.1 y 4.5.1 <a class="ref" href="#f1">1</a>.</p>
       <p class="q-ver"><a href="mapeo.html#por-que-slam-toolbox">Por qué slam_toolbox y no otro</a></p>
     </div>
@@ -448,7 +448,7 @@
   <details class="pregunta" id="p-cierre-lazo" data-respuesta="guia" data-dificultad="exigente">
     <summary><span class="q-n" aria-hidden="true">32</span><span class="q-t">¿Qué es un cierre de lazo y por qué en su tesis figura como no determinado?</span><span class="etiqueta avanzado">Exigente</span></summary>
     <div class="q-cuerpo">
-      <p>En el SLAM por grafos, cada nodo es una pose del robot y cada arista es una restricción entre dos poses, que sale de la odometría o de alinear dos barridos del láser. Cuando el robot vuelve a ver una zona que ya conocía se agrega una restricción de cierre de lazo, y al optimizar el grafo el error acumulado se reparte a lo largo de toda la trayectoria.</p>
+      <p>En el SLAM por grafos, cada nodo es una pose del robot y cada arista es una restricción entre dos poses, que sale de la odometría o de alinear dos barridos del láser. La búsqueda selecciona observaciones anteriores como candidatas y el ajuste comprueba su compatibilidad. Solo una coincidencia aceptada añade una restricción de cierre de lazo. Al optimizar, las poses se reajustan según las restricciones y sus pesos. Volver a ver una zona o un pasillo parecido no garantiza un cierre válido.</p>
       <p>En slam_toolbox el cierre de lazo estaba activado, pero el análisis posterior documentado no detecta de forma automática si ocurrió. Por eso figura como no determinado, y la consistencia del mapa se evaluó solo a la vista.</p>
       <div class="q-sigue"><p class="q-rot">Si la pregunta sigue</p><p>El repositorio tiene scripts preparados para medir el cierre de lazo, pero sus carpetas no tienen registros de salida, así que no aportan mediciones a la tesis.</p></div>
       <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Secciones 3.8 y 5.3, Tabla A5.3 y Anexos 8.1 y 8.3 <a class="ref" href="#f1">1</a>.</p>
@@ -531,7 +531,7 @@
     <summary><span class="q-n" aria-hidden="true">40</span><span class="q-t">¿Qué es AMCL y por qué no lo usó?</span><span class="etiqueta intermedio">Técnica</span></summary>
     <div class="q-cuerpo">
       <p>AMCL es una localización con filtro de partículas sobre un mapa ya guardado. Cada partícula es una posible pose del robot. Las partículas se mueven con la odometría, se ponderan según qué tan bien calza el láser con el mapa y luego se remuestrean hacia las más probables.</p>
-      <p>En este trabajo la localización la hace slam_toolbox mientras construye el mapa. AMCL está en la pila de navegación con sus parámetros por defecto, pero no se ajustó ni se ejecutó, y queda fuera del alcance. Usarlo es el punto 7 del trabajo futuro.</p>
+      <p>En este trabajo la localización la hace slam_toolbox mientras construye el mapa. AMCL está en la pila de navegación con sus parámetros por defecto, pero no se ajustó ni se ejecutó, y queda fuera del alcance. Usarlo es el punto 7 del trabajo futuro. SLAM Toolbox también ofrece localización sobre un grafo serializado y una ventana de barridos recientes. Esa capacidad tampoco se presenta como ensayada en este robot. <a href="mapeo.html#guardar-sesion">Una imagen del mapa y una sesión serializada conservan información diferente</a>.</p>
       <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Secciones 3.9 y 4.5.2, y Anexo 5.1 <a class="ref" href="#f1">1</a>.</p>
       <p class="q-ver"><a href="navegacion.html#amcl">Ubicarse en un mapa ya hecho</a></p>
     </div>

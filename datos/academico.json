@@ -5,8 +5,8 @@
   "version_documento": null,
   "fecha_datos": null,
   "revision_datos": null,
-  "ultima_actualizacion_sitio": "2026-10-12",
-  "revision_base": "e876140d3e9a31041289536dede50bc2d12e450e",
+  "ultima_actualizacion_sitio": "2026-10-22",
+  "revision_base": "a92a333e1952ae0ea8ff763278254329162d8e6d",
   "tesis_pdf": null,
   "pendientes": [
     {
@@ -40,6 +40,11 @@
       "fecha": "2026-10-12",
       "tipo": "plataforma",
       "cambio": "Arranque tolerante a fallos, tablas desplazables con teclado, lecturas con regla en el simulador PID, mapa reconstruido en el grafo de poses, análisis local de mapas PGM y de registros de metas. Dos frases corregidas para coincidir con el Anexo 7 de la tesis. Las tablas experimentales no cambian."
+    },
+    {
+      "fecha": "2026-10-22",
+      "tipo": "contenido",
+      "cambio": "Explicaciones de selección y confianza de cierres, procesamiento síncrono/asíncrono, formatos de mapa y sesión, localización y parámetros de Foxy. Nuevos ejemplos sintéticos; precisiones sobre AMCL, GMapping y el marco map. Sin cambios en las tablas experimentales."
     }
   ]
 }

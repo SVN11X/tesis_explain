@@ -31,6 +31,7 @@ jobs:
           node herramientas/pruebas_unitarias.js
           node herramientas/pruebas_control.js
           node herramientas/pruebas_mapeo.js
+          node herramientas/pruebas_slam_proceso.js
           node herramientas/pruebas_movimiento.js
           node herramientas/pruebas_analisis.js
       - name: Navegador
