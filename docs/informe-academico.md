@@ -12,6 +12,8 @@ Las respuestas de práctica se redactaron en forma impersonal. Conservan la refe
 
 ## Confirmaciones necesarias
 
+Tabla de la primera auditoría. La sección «Revisión sobre b922205» indica cuáles resolvió la versión de octubre de 2026.
+
 | Asunto | Evidencia disponible | Confirmación requerida |
 |---|---|---|
 | Versión académica y procedencia | Referencias por sección, tabla y figura; sin documento público | Identificador y fecha de la versión que revisa el comité; versión o fecha de cada conjunto de datos |
@@ -48,6 +50,31 @@ Material nuevo y su carácter:
 
 Asuntos que siguen requiriendo confirmación del autor: versión del documento y fecha de los datos, método de medida del giro físico, motivo de la referencia de 0,13 m/s, motivo del tamaño mínimo de frontera y autorización para publicar mapas, registros de estados y firmware. Si se autorizan mapas PGM o registros de estados, el laboratorio puede analizarlos sin cambios, pero deben publicarse en una carpeta propia con versión, fecha y procedencia.
 
+## Revisión sobre b922205
+
+Esta revisión contrastó el sitio con la versión de octubre de 2026 del documento, de 152 páginas, facilitada por el autor. Las siete tablas de `datos/ensayos/` coinciden valor por valor con ella. Las frases que habían quedado atrás y su corrección están en `auditoria-b922205.md`.
+
+Ninguna cifra experimental cambió. Sí cambió la forma de leer cuatro resultados, y el sitio sigue la redacción de la tesis:
+
+1. Los 53 abortos se presentan como asociados a reemplazos por un criterio temporal. Esa coexistencia no identifica la causa de cada aborto ni descarta fallas de Nav2 al mismo tiempo. La mediana de 3,3 s es entre aceptaciones sucesivas y es compatible con el período del explorador, no una prueba.
+2. La exactitud de los mapas ya tiene una referencia externa, un plano medido con huincha. La comparación no incluye la incertidumbre de la huincha ni la del alineamiento, y el sitio no la presenta como exactitud global.
+3. La estabilidad del lazo de velocidad se verificó sobre un modelo lineal. Ese análisis no incluye la saturación, la banda sin corrección, la zona muerta ni los truncamientos enteros, y el desempeño sigue medido en un solo punto de operación.
+4. Las medias de cinco repeticiones llevan su intervalo de confianza, y la proporción de exploraciones válidas el de Clopper y Pearson. La tesis considera muy bajo el número de ensayos y propone de 6 a 10 repeticiones válidas por ensayo.
+
+La versión de octubre resolvió estos pendientes: la versión del documento, la fecha de los datos de exploración y mapeo, el motivo de la referencia de 0,13 m/s y los motivos de fijar la combinación de versiones de ROS 2, de conservar la ley del firmware y del lugar de Trejos en la elección de SLAM. Las respuestas correspondientes de `preguntas.html` citan ahora la sección que las sostiene.
+
+Siguen pendientes el método de medida del giro físico, el motivo del tamaño mínimo de frontera y la autorización para publicar firmware, registros y programas propios. También conviene que el autor confirme que la geometría del recinto de ensayo, transcrita de la Fig. A8.1, puede quedar pública, como indica `inventario-publicacion.csv`. La tesis no fecha los demás ensayos, y `revision_datos` sigue vacío en `datos/academico.json`.
+
+Material nuevo y su carácter:
+
+| Elemento | Carácter | Fuente o límite |
+|---|---|---|
+| Tablas de `datos/analisis/` | Transcritas | Tablas A4.5, A8.2, A8.3 y A8.4. No se recalculan con datos crudos, que no están publicados. |
+| Modelo de estabilidad | Reimplementación de la guía | Reproduce la Tabla A4.5 y el barrido del Anexo 4.12. Fuera de esos casos, el interactivo rotula sus cifras como cálculo con el mismo modelo. Es un modelo lineal, no el firmware. |
+| Plano del recinto | Esquema transcrito | Fig. A8.1 y Tabla A8.3. El tabique cuyo largo no se midió se dibuja aproximado. |
+| Intervalos y proyección | Cálculo de la guía con datos de la tesis | Reproduce la Tabla A8.4. La proyección supone la misma media y la misma dispersión, y un ensayo nuevo puede cambiarlas. |
+| Preguntas nuevas | Respuestas redactadas para la guía | Cada una cita la sección que la sostiene. No representan palabras del autor. |
+
 ## Mantenimiento fuera del código
 
 1. Mantener el documento privado con versión identificable y registro de cambios. Conservar una copia del documento que sustenta cada release del sitio sin convertirla automáticamente en pública.
@@ -59,6 +86,6 @@ Asuntos que siguen requiriendo confirmación del autor: versión del documento y
 
 ## Comparaciones futuras propuestas, no ejecutadas
 
-Proponer al comité un protocolo de metas fijas con referencia geométrica externa, conservación de estados por identificador y tiempos. Registrar pose verdadera de simulación y comparar la misma variable en ambos entornos. Evaluar más referencias de velocidad, resolución de medida, memoria y saturación antes de conclusiones sobre estabilidad. Comparar mapas bajo marcos, resolución y región de interés compatibles. Valorar la calibración bidireccional con ensayo independiente de la muestra usada para obtener el factor.
+Proponer al comité un protocolo de metas fijas con referencia geométrica externa, conservación de estados por identificador y tiempos. Registrar pose verdadera de simulación y comparar la misma variable en ambos entornos. Evaluar más referencias de velocidad, resolución de medida, memoria y saturación antes de extender a todo el rango de operación lo que el análisis lineal dice sobre la estabilidad. Comparar mapas bajo marcos, resolución y región de interés compatibles. Valorar la calibración bidireccional con ensayo independiente de la muestra usada para obtener el factor.
 
 Estas propuestas no son nuevos resultados ni compromisos aprobados. Publicación de firmware, rosbag, planos de interiores, videos nuevos o tesis requiere autorización del propietario y condiciones institucionales. Las licencias MIT y CC BY 4.0 existentes se mantienen: corresponde al autor confirmar que dispone de los permisos de cada pieza; no se cambia el régimen de contenido provisional sin autorización.

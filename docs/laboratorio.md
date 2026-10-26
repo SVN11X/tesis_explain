@@ -22,7 +22,7 @@ CSV UTF-8, hasta 2 MiB y 10 000 filas, coma o punto y coma como separador, punto
 
 Identificadores enteros positivos sin repetición; conteos enteros no negativos; todos los números finitos. Referencias nominales y distancia física positivas. Cobertura de 0 a 100 %. En mapeo, `valida` es `si` o `no`; una corrida `no` deja vacías las métricas, no ceros. Las filas sin datos se rechazan en los demás tipos.
 
-En metas, `abortadas + exitosas + sin_estado_terminal = metas_generadas` y `reemplazadas_por_explorador ≤ abortadas`. Los abortos restantes quedan sin clasificar, nunca se convierten automáticamente en fallas. Las medianas por corrida no se combinan como una mediana global.
+En metas, `abortadas + exitosas + sin_estado_terminal = metas_generadas` y `reemplazadas_por_explorador ≤ abortadas`. Los abortos restantes quedan sin clasificar, nunca se convierten automáticamente en fallas. Las medianas por corrida no se combinan como una mediana global. Los nombres `reemplazadas_por_explorador` y `tiempo_activo_mediano_s` se conservan por compatibilidad con los archivos ya preparados. En la versión de octubre de 2026 de la tesis, la Tabla A7.1 llama a esas columnas «abortos asociados a reemplazos» y «mediana entre metas»: la asociación es temporal y no descarta fallas concurrentes, y la mediana se mide entre la aceptación de una meta y la de la siguiente.
 
 El resumen de escalón requiere exactamente los cuatro indicadores de `escalon.csv`, sin repeticiones, con unidades `m/s`, `m/s`, `s` y vacío para el texto cualitativo de sobreimpulso. La opción de referencia es explícita; 0,13 m/s es la de la guía. El error declarado se conserva y el recalculado se informa aparte. Si difieren más de 0,0005 m/s se activa una regla de confirmación, basada en medio paso de la precisión de tres decimales de esa tabla. No es un umbral de desempeño físico.
 
@@ -35,8 +35,8 @@ Una fila por cada meta presente en cada mensaje de estado de la acción `Navigat
 El cálculo sigue la descripción del Anexo 8.4 de la tesis, implementado de nuevo para la guía. El script original del autor no está publicado.
 
 1. Estado final por identificador, con prioridad SUCCEEDED, luego ABORTED, luego CANCELED. Sin ninguno de ellos, la meta queda sin estado terminal.
-2. Las metas se ordenan por su sello de aceptación. Una abortada cuenta como reemplazada si en algún mensaje la meta siguiente ya figura mientras ella sigue ACCEPTED o EXECUTING.
-3. Tiempo activo de una reemplazada: aceptación de la siguiente menos aceptación propia. Se informa la mediana.
+2. Las metas se ordenan por su sello de aceptación. Una abortada se asocia a un reemplazo si en algún mensaje la meta siguiente ya figura, en cualquier estado, mientras ella sigue ACCEPTED o EXECUTING.
+3. Intervalo entre metas de una asociada a reemplazo: aceptación de la siguiente menos aceptación propia. Se informa la mediana. No es una medición de cuándo terminó la anterior.
 4. Las abortadas que no cumplen la condición quedan sin clasificar. Nunca se cuentan como fallas.
 
 No se calcula tasa de éxito. Si se conoce el período del explorador, la regla `periodo-explorador` compara la mediana con él; con los parámetros de la guía, 3,333 s según la Tabla A5.4. Una coincidencia no prueba la causa de cada reemplazo.

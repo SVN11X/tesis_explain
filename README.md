@@ -2,7 +2,7 @@
 
 Guía abierta sobre el trabajo de titulación **"Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial"**, de Sebastián Valderas Neculqueo, con el profesor guía Patricio Galarce Acevedo. Ingeniería Civil Electrónica, Universidad Tecnológica Metropolitana (UTEM), 2026.
 
-**Estado académico: en revisión por comité; la tesis no está aprobada.** La versión del documento y la fecha de los datos deben confirmarse con el autor. Las cifras pueden cambiar sin que esta plataforma decida conclusiones académicas.
+**Estado académico: en revisión por comité. La tesis no está aprobada.** La guía sigue la versión de octubre de 2026 del documento. Las cifras pueden cambiar tras la revisión, sin que esta plataforma decida conclusiones académicas.
 
 **Sitio:** https://svn11x.github.io/tesis_explain/
 
@@ -20,16 +20,16 @@ Un robot de bajo costo, con ROS 2, que entra a un recinto que no conoce, lo reco
 | `problema.html` | Autonomía en interiores, estado del arte y cada decisión frente a sus alternativas |
 | `robot.html` | Piezas, energía, red, reparto entre Arduino, Raspberry Pi y computador, ROS 2 y costo |
 | `movimiento.html` | Tracción diferencial y centro de giro, encoders, odometría, ensayos de recta y giro, qué corrige una calibración y el cuadrado en dos sentidos |
-| `control.html` | El lazo de una rueda con sus unidades, PID en tiempo discreto, la ley heredada que opera como PI, windup, el modelo FOPDT y PSO |
-| `mapeo.html` | LiDAR 2D, rejilla de ocupación con área e índice, REP 103/105 y TF, ajuste de barridos con su curva de desacuerdo, grafo de poses, Ceres, capas de RViz y resultados de mapeo |
+| `control.html` | El lazo de una rueda con sus unidades, PID en tiempo discreto, la ley heredada que opera como PI, windup, el modelo FOPDT, PSO y la estabilidad del lazo discreto con sus márgenes |
+| `mapeo.html` | LiDAR 2D, rejilla de ocupación con área e índice, REP 103/105 y TF, ajuste de barridos con su curva de desacuerdo, grafo de poses, Ceres, capas de RViz, resultados de mapeo y comparación con el plano medido del recinto |
 | `navegacion.html` | Mapas de costos, inflación, A estrella paso a paso, DWB y recuperaciones |
-| `exploracion.html` | Exploración por fronteras y por qué 53 de 54 metas abortadas fueron reemplazos |
+| `exploracion.html` | Exploración por fronteras y por qué 53 de 54 metas abortadas se asocian a reemplazos del propio explorador |
 | `gemelo.html` | El modelo en Gazebo Classic y qué se compara con qué |
-| `resultados.html` | Niveles de evidencia, los cuatro objetivos, limitaciones y trabajo futuro |
+| `resultados.html` | Niveles de evidencia, los cuatro objetivos, intervalos de confianza y repeticiones, limitaciones y trabajo futuro |
 | `replicar.html` | Materiales, conexiones, versiones, repositorios base y videos para aprender |
 | `mundo-real.html` | Casos reales, de una aspiradora a la mina El Teniente y a Marte |
 | `lecciones.html` | Lecciones de ingeniería que la tesis deja implícitas |
-| `preguntas.html` | 54 preguntas difíciles en 10 temas y 3 niveles, con respuesta, repregunta probable, respaldo en la tesis y enlace al tema |
+| `preguntas.html` | 106 preguntas difíciles en 15 temas y 3 niveles, con respuesta, repregunta probable, respaldo en la tesis y enlace al tema |
 | `laboratorio.html` | Análisis local de CSV, de mapas de ocupación PGM y de registros de estados de metas, con métricas con fórmula, reglas transparentes, validación, procedencia y exportación JSON sin LLM |
 | `recursos.html` | Glosario, bibliografía, fuentes externas, materiales, cómo citar y créditos |
 
@@ -53,6 +53,10 @@ Las cifras y figuras del robot salen de la tesis y se citan con su sección, tab
 ├── js/mapeo.js          modelos y visualizaciones del capítulo 05
 ├── js/slam-proceso.js   candidatos de cierre y colas de procesamiento ilustrativas
 ├── css/mapeo.css        estilos exclusivos del capítulo 05
+├── js/estabilidad-modelo.js análisis lineal del lazo de velocidad del Anexo 4.12, sin DOM
+├── js/estadistica-modelo.js intervalos de confianza, Clopper y Pearson y prueba binomial, sin DOM
+├── js/evidencia.js      interactivos de estabilidad, mapa frente al plano y repeticiones
+├── css/evidencia.css    estilos de esos tres interactivos
 ├── js/analisis-modelo.js análisis de CSV y de registros de estados de metas, sin DOM
 ├── js/analisis-mapa.js  lectura de PGM y YAML, conteo de celdas y comparación de mapas, sin DOM
 ├── js/laboratorio.js    presentación del laboratorio
@@ -64,6 +68,7 @@ Las cifras y figuras del robot salen de la tesis y se citan con su sección, tab
 ├── datos/parametros.json parámetros ya publicados en la guía, con su fuente
 ├── datos/proyecto.js    módulo generado desde los JSON y los CSV
 ├── datos/ensayos/       tablas de los ensayos en CSV, con su origen en la tesis
+├── datos/analisis/      tablas que la tesis calcula sobre los ensayos: estabilidad, intervalos y plano
 ├── datos/ejemplos/      archivos SINTÉTICOS para probar el laboratorio, no son datos del robot
 ├── docs/                auditorías, informes, decisiones, trazabilidad y plantillas de revisión
 ├── herramientas/        generadores, índice del buscador y pruebas
@@ -103,6 +108,18 @@ El capítulo parte con un diagrama del lazo de una rueda que se recorre en cuatr
 
 `js/control-modelo.js` reúne las ganancias y cálculos que usan los interactivos y las pruebas. Las simulaciones de bloqueo no son mediciones ni reproducen exactamente el encoder físico. El umbral de 60 PWM del ejemplo de zona muerta es supuesto y ajustable, no un valor medido del robot. Las ganancias y bandas adaptadas provienen de los datos ya publicados en la guía; el código adaptado no está disponible, mientras que el código base se enlaza como referencia independiente. Las consideraciones adicionales sobre conservar la ley se distinguen de los motivos documentados.
 
+## Evidencia analítica: estabilidad, plano y repeticiones
+
+La actualización del 26 de octubre de 2026 sigue la versión de octubre de 2026 de la tesis. Agrega tres secciones con su interactivo, sus tablas y su respaldo sin JavaScript.
+
+- `control.html#estabilidad` explica el análisis del lazo discreto del Anexo 4.12, con la Tabla A4.5, los criterios de estabilidad, el barrido de 625 combinaciones, la banda en que la salida no cambia y la comparación entre las ganancias del PSO, las definitivas y las originales. El interactivo dibuja los polos y la curva de Nyquist de cada rueda y recalcula los márgenes al mover el retardo, la ganancia o la constante de tiempo de la planta. Cada cifra dice si es una fila de la tesis o un cálculo con el mismo modelo.
+- `mapeo.html#exactitud` presenta la comparación de los cinco mapas con el plano medido con huincha, del Anexo 8.5, con el esquema del recinto, las once distancias de la Tabla A8.3 y la media y el percentil 95 por mapa en ambos sentidos.
+- `resultados.html#confianza` presenta el alcance estadístico de la Sección 5.6 y del Anexo 8.6, con la Tabla A8.4, la prueba binomial exacta y el número de repeticiones que haría falta.
+
+`js/estabilidad-modelo.js` es un port del análisis lineal de la tesis. `herramientas/pruebas_estabilidad.js` comprueba que reproduce cada fila de la Tabla A4.5 con el redondeo de la tesis, el barrido y las cifras del texto. `js/estadistica-modelo.js` calcula los intervalos, y `herramientas/pruebas_estadistica.js` recalcula la Tabla A8.4 con los valores por repetición de `datos/`. El esquema estático del plano, `img/diagramas/plano-recinto.svg`, se genera con `node herramientas/diagramas_plano.js` desde la misma geometría que usa el interactivo.
+
+Los gráficos de todos los interactivos ahora se dibujan con el ancho real de su contenedor desde el primer montaje. Antes, los que medían su contenedor mientras se montaban leían un ancho de cero, se dibujaban a 600 px y en un teléfono quedaban reducidos.
+
 ## Cabecera fija y panel de Temas
 
 La cabecera queda arriba al bajar por cualquier página. El elemento fijo es el contenedor `#cabecera`, porque un elemento `sticky` solo se queda pegado dentro de su padre. Al bajar se marca con una sombra y la barra de lectura corre por su borde inferior. Una franja azul y verde en el borde superior repite la del pie.
@@ -111,9 +128,9 @@ El panel de Temas cuelga de la cabecera completa y se centra en ella, con un anc
 
 ## Preguntas difíciles
 
-`preguntas.html` reúne 54 preguntas en 10 temas, cada una en un `details` con ancla `#p-…`, legible sin JavaScript. Cada respuesta se redacta de forma impersonal, con la repregunta más probable, la sección de la tesis que la respalda y el tema de la guía que la explica. El nivel va en `data-dificultad` (`general`, `tecnica` o `exigente`), no en `data-nivel`, que `js/sitio.js` reserva para la etiqueta de nivel de cada tema.
+`preguntas.html` reúne 106 preguntas en 15 temas, cada una en un `details` con ancla `#p-…`, legible sin JavaScript. Cada respuesta se redacta de forma impersonal, con la repregunta más probable, la sección de la tesis que la respalda y el tema de la guía que la explica. El nivel va en `data-dificultad` (`general`, `tecnica` o `exigente`), no en `data-nivel`, que `js/sitio.js` reserva para la etiqueta de nivel de cada tema.
 
-`js/preguntas.js` agrega la búsqueda, con la misma normalización del buscador del sitio, los filtros por tema y nivel, el modo práctica, que muestra primero un espacio para responder, y la pregunta al azar. Lo escrito en el modo práctica no se guarda. Los datos que solo el autor puede completar, como la razón de elegir 0,13 m/s, conservan su comentario `PENDIENTE AUTOR` y un aviso visible, sin completar la respuesta. Un filtro de respaldo permite ver las respuestas con confirmación pendiente. El buscador del sitio indexa cada pregunta por separado.
+`js/preguntas.js` agrega la búsqueda, con la misma normalización del buscador del sitio, los filtros por tema y nivel, el modo práctica, que muestra primero un espacio para responder, y la pregunta al azar. Lo escrito en el modo práctica no se guarda. Los cinco temas agregados con la versión de octubre de 2026 cubren la estabilidad del control, la exactitud de los mapas, las repeticiones y la confianza, las fuentes citadas y la implementación descrita en los anexos. Los datos que solo el autor puede completar, como el método de medida del giro, conservan su comentario `PENDIENTE AUTOR` y un aviso visible, sin completar la respuesta. Un filtro de respaldo permite ver las respuestas con confirmación pendiente. El buscador del sitio indexa cada pregunta por separado.
 
 ## Cómo editar
 
@@ -128,7 +145,7 @@ El panel de Temas cuelga de la cabecera completa y se centra en ella, con un anc
 8. **PDF de la tesis.** Solo cuando esté autorizado y disponible, registra una URL verificada en `tesis_pdf` de `datos/academico.json`.
 9. **Estado y parámetros.** Edita `datos/academico.json`, `datos/parametros.json` y los CSV autorizados. Ejecuta `python3 herramientas/datos.py` y después `python3 herramientas/indice.py`. Actualiza el HTML relacionado; los respaldos estáticos no se sustituyen por datos dinámicos. Consulta `datos/README.md` y `docs/trazabilidad.csv`.
 10. **Pendientes e historial.** Los pendientes del autor y el historial de cambios viven en `datos/academico.json`. `herramientas/datos.py` los escribe como HTML estático en `recursos.html#estado-academico`, entre los comentarios `ESTADO DETALLE`. Cada pendiente puede llevar un enlace a la pregunta o sección donde se nota.
-11. **Figuras y ejemplos generados.** `node herramientas/diagramas_control.js` regenera la figura de respaldo del PID y `node herramientas/ejemplos_laboratorio.js` los archivos sintéticos del laboratorio; con `--comprobar` solo verifica que estén al día.
+11. **Figuras y ejemplos generados.** `node herramientas/diagramas_control.js` regenera la figura de respaldo del PID, `node herramientas/diagramas_plano.js` el esquema del plano del recinto y `node herramientas/ejemplos_laboratorio.js` los archivos sintéticos del laboratorio. Con `--comprobar`, los dos últimos solo verifican que estén al día.
 
 ## Ver el sitio en tu computador
 
@@ -150,24 +167,28 @@ python3 herramientas/pruebas_control_navegador.py
 python3 herramientas/pruebas_mapeo_navegador.py
 python3 herramientas/pruebas_movimiento_navegador.py
 node herramientas/pruebas_analisis.js
+node herramientas/pruebas_estabilidad.js
+node herramientas/pruebas_estadistica.js
 python3 herramientas/verificar_sitio.py
 python3 herramientas/pruebas_laboratorio_navegador.py
 python3 herramientas/pruebas_robustez_navegador.py
+python3 herramientas/pruebas_evidencia_navegador.py
 python3 herramientas/pruebas_navegador.py
 node herramientas/ejemplos_laboratorio.js --comprobar
+node herramientas/diagramas_plano.js --comprobar
 ```
 
 `pruebas_robustez_navegador.py` bloquea `datos/proyecto.js` y quita `MediaQueryList.addEventListener` para comprobar que la cabecera, el pie y los interactivos sigan funcionando. También recorre con teclado las tablas anchas en un teléfono, mide la altura del aviso académico en móvil, revisa las lecturas por regla del PID, el mapa armado del grafo de poses, las fichas del concepto y el estado académico sin JavaScript.
 
 `pruebas_navegador.py` también comprueba que la cabecera quede fija al bajar, que el panel de Temas quepa en la pantalla entre 862 y 1920 px y que las herramientas de Preguntas difíciles funcionen con y sin JavaScript.
 
-Las pruebas de Node revisan la geometría, el reloj y los casos numéricos de control. Las pruebas del capítulo 3 comprueban la cinemática y el centro de giro, la integración sobre arcos, los datos de la recta frente a su CSV, la calibración y el cuadrado en dos sentidos. Las pruebas unitarias incluyen además la búsqueda A estrella, con su h admisible. `pruebas_movimiento_navegador.py` recorre el capítulo 3 y A estrella en escritorio, móvil de 390 y 320 px, modo oscuro y movimiento reducido. Las pruebas de mapeo añaden oclusión y colisiones del LiDAR, celdas no observadas, el índice de cobertura, la curva de desacuerdo de los barridos, transformaciones SE(2) y optimización del grafo. `pruebas_control_navegador.py` inicia un servidor local temporal y comprueba los interactivos del capítulo 4 en escritorio, móvil de 390 y 320 px, modo oscuro y movimiento reducido. `pruebas_mapeo_navegador.py` hace lo mismo con los nueve interactivos del capítulo 05: teclado, lecturas de área e índice, la cadena TF, la curva de los barridos, el desacuerdo del grafo y que los SVG en línea no traigan estilos. Requiere Playwright con Chromium instalado solo para desarrollo. `pruebas_navegador.py` usa Chromium con Playwright y recorre las páginas en escritorio, en teléfono y con movimiento reducido. Revisa errores, enlaces, anclas, el buscador, el glosario, los simuladores y el uso en teléfono.
+Las pruebas de Node revisan la geometría, el reloj y los casos numéricos de control. Las pruebas del capítulo 3 comprueban la cinemática y el centro de giro, la integración sobre arcos, los datos de la recta frente a su CSV, la calibración y el cuadrado en dos sentidos. Las pruebas unitarias incluyen además la búsqueda A estrella, con su h admisible. `pruebas_movimiento_navegador.py` recorre el capítulo 3 y A estrella en escritorio, móvil de 390 y 320 px, modo oscuro y movimiento reducido. Las pruebas de mapeo añaden oclusión y colisiones del LiDAR, celdas no observadas, el índice de cobertura, la curva de desacuerdo de los barridos, transformaciones SE(2) y optimización del grafo. `pruebas_control_navegador.py` inicia un servidor local temporal y comprueba los interactivos del capítulo 4 en escritorio, móvil de 390 y 320 px, modo oscuro y movimiento reducido. `pruebas_evidencia_navegador.py` recorre los interactivos de estabilidad, del plano y de las repeticiones en escritorio, en teléfonos de 390 y 320 px y en tema oscuro, y lee sus respaldos sin JavaScript. `pruebas_mapeo_navegador.py` hace lo mismo con los diez interactivos del capítulo 05: teclado, lecturas de área e índice, la cadena TF, la curva de los barridos, el desacuerdo del grafo y que los SVG en línea no traigan estilos. Requiere Playwright con Chromium instalado solo para desarrollo. `pruebas_navegador.py` usa Chromium con Playwright y recorre las páginas en escritorio, en teléfono y con movimiento reducido. Revisa errores, enlaces, anclas, el buscador, el glosario, los simuladores y el uso en teléfono.
 
 ## Capítulo 05: lo que mide cada interactivo
 
 La ampliación del 22 de octubre de 2026 explica los cuatro componentes de SLAM por grafos, la selección y comprobación de candidatos, la covarianza y el costo ponderado. `js/slam-proceso.js` añade dos modelos locales: el selector con un pasillo compatible, otro parecido, una pose reciente y una lejana; y una comparación por eventos de colas síncronas y omisiones asíncronas. Ambos tienen controles por pasos, reinicio, respaldo sin JavaScript y supuestos explícitos. No ejecutan SLAM Toolbox ni usan registros experimentales. El grafo permite variar el peso del cierre manteniendo las mediciones, con los mismos resultados iniciales por defecto.
 
-Se distinguen PGM/YAML y sesión serializada, mapeo, localización, continuación y lifelong mapping, con enlaces por minutos a ROSCon 2019. La tabla de parámetros separa lo declarado en la guía de los valores que no se publicaron: no copia valores predeterminados al prototipo. AMCL se presenta como la opción del protocolo pendiente y se precisan las descripciones de GMapping y del marco map en todas las páginas relacionadas. El estado académico y las tablas originales se conservan. Detalle y aplicación del parche en [docs/mejoras-slam-20261022.md](docs/mejoras-slam-20261022.md).
+Se distinguen PGM/YAML y sesión serializada, mapeo, localización, continuación y lifelong mapping, con enlaces por minutos a ROSCon 2019. La tabla de parámetros separa lo declarado en la guía de los valores que no se publicaron: no copia valores predeterminados al prototipo. AMCL se presenta como una de las localizaciones posibles de un protocolo de metas fijas, junto con la de SLAM, y se precisan las descripciones de GMapping y del marco map en todas las páginas relacionadas. El estado académico y las tablas originales se conservan. Detalle y aplicación del parche en [docs/mejoras-slam-20261022.md](docs/mejoras-slam-20261022.md).
 
 El LiDAR tiene leyenda, escala de 1 m y un robot que no se confunde con un botón. La rejilla calcula el área libre y el índice de cobertura con la misma fórmula de los resultados. La cadena TF se dibuja en el marco map: al aplicar map → odom se mueve el origen de odom y la flecha de las ruedas conserva su largo. El ajuste de barridos muestra la curva del desacuerdo total, con mínimo en 30 cm frente a los 40 cm que estiman las ruedas. El grafo de poses informa el desacuerdo en cada paso: 0 sin cierre, 29,3 al añadirlo y 0,18 después de optimizar. El ejemplo de cobertura conserva la celda ocupada en ambas imágenes y permite agrandar el margen desconocido para ver que el índice baja mientras el área no cambia.
 
@@ -196,13 +217,13 @@ Se comprueban tema oscuro, movimiento reducido, navegación por teclado y respal
 
 ## Cómo citar
 
-Valderas Neculqueo, S. (2026). *Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial* [Trabajo de titulación en revisión por comité; versión del documento pendiente de confirmación]. Universidad Tecnológica Metropolitana.
+Valderas Neculqueo, S. (2026). *Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial* [Trabajo de titulación en revisión por comité, versión de octubre de 2026]. Universidad Tecnológica Metropolitana.
 
 El formato BibTeX está en `recursos.html#citar`.
 
 ## Licencia
 
-El código del sitio, es decir `js/`, `css/`, `herramientas/` y la estructura de las páginas HTML, usa la licencia MIT del archivo `LICENSE`. Los textos, diagramas, fotos, figuras propias y las tablas de `datos/ensayos/` usan CC BY 4.0, como detalla `LICENSE-contenido.md`. Las imágenes de productos de terceros quedan fuera de esa licencia y las tipografías de `fuentes/` se rigen por la licencia OFL. Titular: Sebastián Valderas Neculqueo, 2026.
+El código del sitio, es decir `js/`, `css/`, `herramientas/` y la estructura de las páginas HTML, usa la licencia MIT del archivo `LICENSE`. Los textos, diagramas, fotos, figuras propias y las tablas de `datos/ensayos/` y `datos/analisis/` usan CC BY 4.0, como detalla `LICENSE-contenido.md`. Las imágenes de productos de terceros quedan fuera de esa licencia y las tipografías de `fuentes/` se rigen por la licencia OFL. Titular: Sebastián Valderas Neculqueo, 2026.
 
 ## Créditos de imágenes
 
@@ -214,16 +235,17 @@ Elige una de las siete tablas ya disponibles o abre un CSV propio desde `laborat
 
 Las tablas actuales no permiten reconstruir trayectorias, rejillas ni el establecimiento del escalón. Un formato temporal opcional puede analizar registros propios, sin atribuirlos al robot.
 
-También lee mapas de ocupación PGM, con su YAML si existe. Cuenta celdas libres, ocupadas y desconocidas con los umbrales de la tesis o los del YAML, calcula áreas y el índice de cobertura en la imagen completa y en el rectángulo observado, y compara dos mapas celda a celda solo si comparten tamaño, resolución y origen. Un registro de estados de metas, con una fila por meta en cada mensaje de estado, se clasifica por identificador como en el Anexo 8.4: completadas, abortadas por reemplazo, abortadas sin clasificar, canceladas y sin estado final. Los botones de ejemplo usan archivos sintéticos de `datos/ejemplos/`, rotulados como tales. Consulta `docs/laboratorio.md`. No se instalan modelos de IA ni servicios de inferencia.
+También lee mapas de ocupación PGM, con su YAML si existe. Cuenta celdas libres, ocupadas y desconocidas con los umbrales de la tesis o los del YAML, calcula áreas y el índice de cobertura en la imagen completa y en el rectángulo observado, y compara dos mapas celda a celda solo si comparten tamaño, resolución y origen. Un registro de estados de metas, con una fila por meta en cada mensaje de estado, se clasifica por identificador como en el Anexo 8.4: completadas, abortadas asociadas a reemplazo, abortadas sin clasificar, canceladas y sin estado final. La asociación es temporal y no descarta fallas concurrentes. Los botones de ejemplo usan archivos sintéticos de `datos/ejemplos/`, rotulados como tales. Consulta `docs/laboratorio.md`. No se instalan modelos de IA ni servicios de inferencia.
 
 ## Documentación y revisión
 
-- `docs/auditoria-inicial.md` y `docs/auditoria-e876140.md`: hallazgos y funcionalidades conservadas en cada revisión.
+- `docs/auditoria-inicial.md`, `docs/auditoria-e876140.md` y `docs/auditoria-b922205.md`: hallazgos y funcionalidades conservadas en cada revisión. La última contrasta el sitio con la versión de octubre de 2026 de la tesis.
 - `docs/informe-tecnico.md`: cambios, pruebas, uso y entrega de la revisión más reciente. Los informes anteriores están en `docs/historial/`.
 - `docs/informe-academico.md`: integridad del contenido y asuntos que requieren confirmación.
 - `docs/decisiones.md`: razones de arquitectura y límites de la evolución.
+- `docs/mejoras-slam-20261022.md`: explicaciones de SLAM agregadas el 22 de octubre de 2026.
 - `docs/trazabilidad.csv`, `docs/observaciones-comite.csv`, `docs/inventario-publicacion.csv`: fuentes, plantilla de observaciones reales y autorización de material.
 
 `.github/workflows/verificar.yml` comprueba modelos, datos generados, enlaces y navegador al abrir un PR o actualizar main. Su ejecución hospedada depende de habilitar Actions; no se ejecutó en GitHub durante esta entrega. Las dependencias de pruebas solo son para desarrollo. No se agregaron dependencias al sitio ni se publicó automáticamente la rama de trabajo.
 
-Para aplicar el parche, parte de la revisión base indicada en el informe, crea una rama independiente y ejecuta `git am tesis_explain.patch`. Revisa el PR y el resultado antes de incorporar cambios a main; el ZIP contiene todos los archivos versionados y carece de historia Git y dependencias temporales.
+Para aplicar un parche, parte de la revisión base indicada en el informe técnico, crea una rama independiente y ejecuta `git am` con el archivo del parche. Revisa el resultado antes de incorporar los cambios a main.

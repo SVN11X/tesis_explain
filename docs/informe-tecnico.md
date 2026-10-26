@@ -1,79 +1,78 @@
-# Informe técnico de la entrega sobre e876140
+# Informe técnico de la entrega sobre b922205
 
-Esta entrega hace más robusto el arranque del sitio, cierra los problemas de accesibilidad que detectó axe, agrega interpretación por reglas al simulador PID, muestra cómo cambia el mapa al optimizar un grafo de poses, añade fichas del concepto y amplía el laboratorio a mapas de ocupación y registros de estados de metas. Las tablas experimentales no cambian. La tesis sigue en revisión por comité.
+Esta entrega pone el sitio al día con la versión de octubre de 2026 de la tesis. Agrega tres temas que el documento desarrolla y el sitio no tenía: la estabilidad del lazo de velocidad, la comparación de los mapas con un plano medido del recinto y el alcance estadístico de los ensayos. Corrige las frases que habían quedado atrás, amplía las preguntas de práctica de 54 a 106 y arregla un error de montaje que dejaba reducidos 14 gráficos en los teléfonos. Las tablas experimentales no cambian. La tesis sigue en revisión por comité.
 
-Base: `e876140d3e9a31041289536dede50bc2d12e450e` de `main`. Rama local: `mejora/evolucion-2026-10-12`. La entrega no modifica el remoto ni publica cambios en `main`. La auditoría de partida está en `auditoria-e876140.md` y el informe de la entrega anterior en `historial/informe-tecnico-166d70e.md`.
+Base: `b9222051979bb092dbc16f850ac1e7e4169b212e` de `main`. Rama local: `actualiza/tesis-20261023`. La entrega no modifica el remoto ni publica cambios en `main`. La auditoría de partida está en `auditoria-b922205.md` y el informe de la entrega anterior en `historial/informe-tecnico-e876140.md`.
 
 ## Errores corregidos
 
-1. **Sitio sin datos.** Si `datos/proyecto.js` no llegaba, `js/sitio.js` fallaba en su primera línea y la página quedaba sin cabecera, sin pie y sin interactivos. Ahora usa valores de respaldo para el estado académico y arranca cada parte aislada. Los módulos de modelo no se definen si faltan sus datos, y cada interactivo conserva su explicación con un botón de reintento.
-2. **Navegadores sin `MediaQueryList.addEventListener`.** En Safari anterior a la versión 14, la secuencia de etapas detenía el arranque de `mapeo.html` y A estrella caía a su respaldo. Ahora se usa `addListener` cuando hace falta.
-3. **Atributo ARIA no permitido.** La cuadrícula de ticks de control tenía `aria-label` sin rol. Ahora es una imagen con nombre.
-4. **Tablas anchas sin teclado.** En teléfono, 18 tablas de 11 páginas se desplazaban solo con el dedo o el ratón. Ahora cada tabla que desborda es una región enfocable con el nombre de su título, y deja de serlo cuando vuelve a caber.
+1. **Gráficos reducidos en teléfono.** `js/sitio.js` marcaba un interactivo como montado después de dibujarlo. Mientras faltaba esa marca, el CSS centraba el contenido, y los gráficos que miden su contenedor al dibujarse leían un ancho de cero y usaban 600 px. En un teléfono de 390 px quedaban 14 gráficos de 12 interactivos de Control, Movimiento y Exploración a 332 px, con el texto a un 55 % de su tamaño. Ahora la marca se pone antes de dibujar y se quita si el montaje falla. Ningún gráfico queda reducido.
+2. **Textos atrasados frente a la versión de octubre.** Son los nueve hallazgos de información académica de `auditoria-b922205.md`. Los principales: los 53 abortos se presentaban como reemplazos y no como una asociación temporal, se decía que no hubo plano del recinto ni análisis de estabilidad, y el protocolo de metas fijas aparecía atado a AMCL.
 
 ## Mejoras y funcionalidades nuevas
 
 | Área | Archivos | Resultado |
 |---|---|---|
-| Aviso académico | `css/estilo.css`, `datos/academico.json`, las 16 páginas | En teléfono ocupa una línea corrida de 71 px, antes 131 px, sin repetir el estado. |
-| Estado y procedencia | `herramientas/datos.py`, `recursos.html`, `datos/academico.json` | Versión, fechas, pendientes enlazados a su pregunta e historial de cambios se generan como HTML estático desde el JSON. |
-| Simulador PID | `js/control-modelo.js`, `js/sims.js`, `control.html` | El modelo pasa a `control-modelo.js` y agrega lecturas por regla, cada una con su condición y su cálculo. Con solo P la lectura escribe referencia / (1 + K·P) con los números del gráfico. |
-| Respaldos sin JavaScript | `control.html`, `navegacion.html`, `exploracion.html`, `index.html`, `img/diagramas/pid-respaldo.svg`, `herramientas/diagramas_control.js` | Siete respaldos dicen ahora qué muestra el interactivo y con qué cifras. El del PID incluye una figura generada con el mismo modelo. |
-| Grafo de poses | `js/mapeo.js`, `css/mapeo.css`, `mapeo.html` | El mapa que forman las observaciones se dibuja sobre el grafo. Tres lecturas: la misma pared vista al inicio y al regreso, la dispersión de cada pared y el ancho del recinto en el mapa. Con la deriva por defecto pasan de 17,7 cm, 4,1 cm y 2,11 m a 0,2 cm, 1,8 cm y 2,15 m, frente a 2,10 m reales del ejemplo. |
-| Fichas del concepto | `control.html`, `navegacion.html`, `mapeo.html`, `css/estilo.css` | Ley de control del firmware, A estrella y SLAM por grafo de poses, en siete pasos y plegadas. |
-| Laboratorio, mapas | `js/analisis-mapa.js`, `js/laboratorio.js`, `laboratorio.html`, `css/laboratorio.css` | PGM P5 y P2 con YAML opcional. Umbrales de la tesis o del YAML, áreas, índice en la imagen y en el rectángulo observado, comparación celda a celda solo con marco compatible, dibujo en lienzo con alternativa textual. |
-| Laboratorio, metas | `js/analisis-modelo.js` | Registro con una fila por meta en cada mensaje de estado. Estado final por identificador, reemplazos según el Anexo 8.4, abortos sin clasificar, metas sin estado final y tiempo activo mediano. |
-| Ejemplos sintéticos | `datos/ejemplos/`, `herramientas/ejemplos_laboratorio.js` | Dos mapas y un registro inventados para probar formatos, rotulados como sintéticos. |
-| Parámetros | `datos/parametros.json` | Umbrales del Anexo 8.1 y parámetros del explorador de la Tabla A5.4, con su fuente. |
-| Calidad | `herramientas/pruebas_robustez_navegador.py`, pruebas de Node, `.github/workflows/verificar.yml` | Fallos inducidos, teclado en tablas, aviso en móvil, lecturas del PID, mapa del grafo, fichas, respaldos y estado sin JavaScript. |
-| Documentación | `README.md`, `docs/` | Auditoría de esta revisión, decisiones, laboratorio, trazabilidad y datos. |
-
-Dos frases cambiaron para coincidir con el Anexo 7 de la tesis: en la iteración 2 el robot no se desplazó, así que el sitio ya no dice que recorrió el recinto seis veces. No cambió ninguna cifra ni conclusión.
+| Estabilidad del lazo | `control.html#estabilidad`, `js/estabilidad-modelo.js`, `js/evidencia.js`, `css/evidencia.css` | Port propio del análisis lineal del Anexo 4.12: la ley escrita como PI en forma de velocidad, el modelo de cada rueda discretizado a 33 ms con retenedor de orden cero y medición promediada, polos, márgenes de ganancia, fase y retardo, y sensibilidad máxima. Reproduce cada fila de la Tabla A4.5 y el barrido de 625 combinaciones. |
+| Interactivo de estabilidad | `js/evidencia.js` | Rueda, cuatro conjuntos de ganancias (definitivas, PSO con el Kd evaluado, PSO con el Kd informado y firmware original), retardo, ganancia y constante de tiempo de la planta, Ki tratado como lineal y acercamiento a z = 1. Dibuja los polos y la curva de Nyquist con el círculo de distancia 1/Ms, y una nota dice si las cifras son de la tesis o un cálculo con el mismo modelo. |
+| Mapa frente al plano | `mapeo.html#exactitud`, `datos/parametros.json`, `herramientas/diagramas_plano.js`, `img/diagramas/plano-recinto.svg` | Plano del recinto de la Fig. A8.1 con sus once cotas, la diferencia media de cada distancia y la distancia de cada mapa en ambos sentidos. El esquema estático se genera con la misma geometría que el interactivo. |
+| Repeticiones y confianza | `resultados.html#confianza`, `js/estadistica-modelo.js` | Media e intervalo t de Student de seis indicadores, intervalo proyectado al cambiar el número de repeticiones y el intervalo de Clopper y Pearson para una proporción, con los casos 5 de 6, 15 de 15 y 17 de 17. |
+| Tablas del análisis | `datos/analisis/`, `herramientas/datos.py` | Cuatro CSV transcritos de las Tablas A4.5, A8.2, A8.3 y A8.4, publicados como `PROYECTO.analisis`, con su README. |
+| Textos | 13 páginas | Asociación temporal de los abortos, mediana entre aceptaciones, requisitos del protocolo de metas fijas y estado de su script, intervalos junto a cada media, Kd evaluado por el costo, tres razones de la tesis para conservar la ley, versión del documento, resumen y 72 referencias. |
+| Preguntas | `preguntas.html` | 52 preguntas nuevas, 106 en total, y cinco temas nuevos: estabilidad, exactitud de los mapas, repeticiones y confianza, las fuentes que cita y del documento al código. Cuatro respuestas pendientes quedaron respaldadas por la versión de octubre. |
+| Estado académico | `datos/academico.json`, `recursos.html` | Versión y fecha de los datos, tres pendientes en lugar de cinco e historial de esta actualización. |
+| Calidad | `herramientas/pruebas_estabilidad.js`, `herramientas/pruebas_estadistica.js`, `herramientas/pruebas_evidencia_navegador.py`, pruebas existentes, `.github/workflows/verificar.yml` | Cifras de las Tablas A4.5 y A8.4 recalculadas en Node, interactivos nuevos en escritorio, teléfono, tema oscuro y sin JavaScript, ancho real de los gráficos al montarse y esquema del plano al día. |
+| Documentación | `README.md`, `datos/`, `docs/` | Auditoría de esta revisión, decisiones, informe académico, trazabilidad y datos. |
 
 ## Decisiones técnicas
 
-No se agregaron frameworks, compiladores ni dependencias para visitantes. Las lecturas del PID viven en el modelo y no en la vista, para probarlas en Node. El mapa del grafo usa observaciones exactas, para aislar el efecto de la pose. El módulo de mapas es separado porque trabaja con bytes. Los mapas no se alinean automáticamente, porque eso cambiaría lo que se mide. Las razones completas están en `decisiones.md`.
+No se agregaron frameworks, compiladores ni dependencias para visitantes. El análisis de estabilidad se reimplementó en JavaScript para que la página calcule lo que muestra y para probarlo en Node contra la Tabla A4.5, sin publicar el script del autor. Los temas nuevos son secciones dentro de los capítulos que ya los trataban, no páginas aparte. Los encabezados de `metas.csv` se conservan aunque la tesis renombró esas columnas. Las razones completas están en `decisiones.md`.
 
 ## Pruebas ejecutadas
 
-Entorno: Node 22.22.0, Python 3.13.16, Playwright 1.56.0 y Chromium 141.0.7390.37. axe-core 4.10.2 se instaló fuera del repositorio solo para la auditoría.
+Entorno: Node 22.22.0, Python 3.13.17, Playwright 1.63.0 y Chromium 153.0.8010.12. axe-core 4.10.2 se instaló fuera del repositorio solo para la auditoría.
 
 | Verificación | Base | Entrega |
 |---|---:|---:|
 | `node herramientas/pruebas_unitarias.js` | 40 | 40 |
-| `node herramientas/pruebas_control.js` | 18 | 21 |
-| `node herramientas/pruebas_mapeo.js` | 24 | 28 |
+| `node herramientas/pruebas_control.js` | 21 | 21 |
+| `node herramientas/pruebas_mapeo.js` | 28 | 28 |
+| `node herramientas/pruebas_slam_proceso.js` | 10 | 10 |
 | `node herramientas/pruebas_movimiento.js` | 23 | 23 |
-| `node herramientas/pruebas_analisis.js` | 43 | 57 |
-| `python3 herramientas/verificar_sitio.py` | 1 432 | 1 454 |
-| `node herramientas/ejemplos_laboratorio.js --comprobar` | No existía | correcta |
-| `python3 herramientas/pruebas_control_navegador.py` | 320 | 320 |
-| `python3 herramientas/pruebas_mapeo_navegador.py` | 186 | 186 |
+| `node herramientas/pruebas_analisis.js` | 57 | 57 |
+| `node herramientas/pruebas_estabilidad.js` | No existía | 13 |
+| `node herramientas/pruebas_estadistica.js` | No existía | 11 |
+| `python3 herramientas/verificar_sitio.py` | 1 489 | 1 910 |
+| `node herramientas/ejemplos_laboratorio.js --comprobar` | correcta | correcta |
+| `node herramientas/diagramas_plano.js --comprobar` | No existía | correcta |
+| `python3 herramientas/pruebas_control_navegador.py` | 320 | 325 |
+| `python3 herramientas/pruebas_mapeo_navegador.py` | 256 | 261 |
 | `python3 herramientas/pruebas_movimiento_navegador.py` | 214 | 214 |
-| `python3 herramientas/pruebas_laboratorio_navegador.py` | 155 | 195 |
-| `python3 herramientas/pruebas_robustez_navegador.py` | No existía | 71 |
+| `python3 herramientas/pruebas_laboratorio_navegador.py` | 195 | 195 |
+| `python3 herramientas/pruebas_robustez_navegador.py` | 71 | 71 |
+| `python3 herramientas/pruebas_evidencia_navegador.py` | No existía | 131 |
 | `python3 herramientas/pruebas_navegador.py` | 479 | 479 |
 
-Totales de la entrega: **169 pruebas numéricas, 1 465 comprobaciones de navegador y 1 454 verificaciones estáticas, todas correctas**. Todos los JavaScript pasan `node --check` y todos los scripts de Python compilan.
+Totales de la entrega: **203 pruebas numéricas, 1 676 comprobaciones de navegador y 1 910 verificaciones estáticas, todas correctas**. Todos los JavaScript pasan `node --check` y todos los scripts de Python compilan.
 
-axe-core revisó las 16 páginas con los interactivos montados, en escritorio claro, escritorio oscuro y teléfono de 390 px, y el laboratorio con resultados de mapas y metas en claro y oscuro. En la base encontró una infracción grave repetida en tres escenarios y 18 regiones desplazables sin foco. En la entrega no encontró infracciones. Esto no es una certificación completa de WCAG 2.2 AA ni reemplaza pruebas con lectores de pantalla.
+axe-core revisó las 16 páginas en escritorio claro, escritorio oscuro y teléfono de 390 px, con todos los bloques plegables abiertos y todos los interactivos montados. No encontró infracciones de reglas WCAG A ni AA, ni en la base ni en la entrega. Informa además cuatro recomendaciones de buenas prácticas, `region`, `heading-order`, `landmark-unique` y `landmark-complementary-is-top-level`, que son las mismas en ambas. Esto no es una certificación completa de WCAG 2.2 AA ni reemplaza pruebas con lectores de pantalla.
 
-Los fallos se reprodujeron en la base y se comprobaron corregidos en la rama: con `datos/proyecto.js` bloqueado, `control.html` pasó de 0 a 4 interactivos montados, con cabecera y pie. Otros 12 muestran su respaldo con un botón de reintento y el último, dentro de un bloque plegado, hace lo mismo al abrirlo. Con el `matchMedia` de Safari anterior a 14, `mapeo.html` pasó de 0 a 7 de 7. Se inspeccionaron capturas de escritorio, teléfono y tema oscuro de los objetos cambiados; las pareadas antes y después acompañan la entrega como evidencia.
+El error de montaje se reprodujo en la base y se comprobó corregido en la rama, midiendo en un teléfono de 390 px el ancho de cada gráfico frente al de su contenedor en las 16 páginas. Se inspeccionaron capturas de escritorio, teléfono y tema oscuro de los tres interactivos nuevos.
 
 ## Uso y despliegue
 
 Para aplicar la entrega en una copia limpia:
 
 ```bash
-git switch -c mejora/evolucion-2026-10-12 e876140d3e9a31041289536dede50bc2d12e450e
-git am /ruta/tesis_explain-evolucion.patch
+git switch -c actualiza/tesis-20261023 b9222051979bb092dbc16f850ac1e7e4169b212e
+git am /ruta/tesis_explain-actualiza-tesis-20261023.patch
 ```
 
 Para revisar el sitio localmente, desde la raíz: `python3 -m http.server 8000` y abrir `http://localhost:8000`. Después de editar texto o datos: `python3 herramientas/datos.py`, `python3 herramientas/indice.py` y las pruebas del README. GitHub Pages sigue publicando desde `main` y la raíz. Corresponde al propietario revisar la rama o el PR y decidir si la incorpora. No se comprobó una ejecución hospedada de Actions.
 
 ## Lo pendiente
 
-1. La versión del documento, la fecha de los datos y los motivos señalados en Recursos siguen pendientes del autor.
-2. No hay mapas, registros de estados ni series de control originales publicados. El laboratorio los puede analizar cuando el autor los autorice, pero no los reemplaza con los ejemplos sintéticos.
-3. No se probaron Safari ni Firefox reales, ni lectores de pantalla. El caso de Safari anterior a 14 se simuló en Chromium.
-4. La descripción y los temas del repositorio en GitHub se editan a mano. Propuesta: «Guía educativa de robótica móvil con ROS 2: tesis en revisión, simulaciones y análisis local de datos», con `robotics`, `ros2`, `slam`, `nav2`, `pid-control`, `education` y `github-pages`.
+1. El método de medida del giro físico y el motivo del tamaño mínimo de frontera siguen pendientes del autor. La versión de octubre no describe el método ni el motivo.
+2. No hay mapas, registros de estados ni series de control originales publicados. Las tablas de `datos/analisis/` son transcripciones y los programas que las calculan siguen sin publicar. La geometría del recinto de ensayo se publica transcrita de la Fig. A8.1, y el autor debe confirmar que puede quedar pública.
+3. No se probaron Safari ni Firefox reales, ni lectores de pantalla.
+4. Las cuatro recomendaciones de buenas prácticas de axe vienen de revisiones anteriores y pueden atenderse en una entrega de plataforma.

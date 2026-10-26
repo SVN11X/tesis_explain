@@ -1,18 +1,25 @@
 dominio,archivo_datos,visualizacion,referencia_en_guia,tipo,unidad,version_documento,fecha_datos,confirmacion
-movimiento,datos/ensayos/recta-2m-real.csv,movimiento.html#recta;laboratorio.html,Tabla A6.2,medicion resumida,m y porcentaje,,,version y fecha pendientes; porcentajes previos al redondeo
-movimiento,datos/ensayos/recta-2m-simulacion.csv,laboratorio.html,Tabla A6.1,simulacion registrada,m y porcentaje,,,sin pose verdadera Gazebo
-movimiento,datos/ensayos/giro-real.csv,movimiento.html;laboratorio.html,Tabla A6.4,medicion resumida,grados,,,metodo de medida fisica pendiente
-movimiento,datos/ensayos/giro-simulacion.csv,movimiento.html;laboratorio.html,Tabla A6.3,simulacion registrada,grados y porcentaje,,,comparacion con giro nominal
-control,datos/ensayos/escalon.csv,control.html;laboratorio.html,Tabla 5.3,indicadores resumidos,m/s y s,,,sin senal temporal original
-control,datos/parametros.json,control.html;js/control-modelo.js,Tablas A4.4 y 4.3 y guia,parametros transcritos,segun campo,,,firmware adaptado no publicado
-mapeo,datos/ensayos/mapeo.csv,mapeo.html;laboratorio.html,Tabla 5.4,indicadores resumidos,m2 y porcentaje,,,sin rejillas ni referencia geometrica externa
-navegacion,datos/ensayos/metas.csv,exploracion.html;laboratorio.html,Tabla A7.1,conteos clasificados,metas y s,,,aborto restante sin clasificar; sin tiempos por meta
+movimiento,datos/ensayos/recta-2m-real.csv,movimiento.html#recta;laboratorio.html,Tabla A6.2,medicion resumida,m y porcentaje,octubre de 2026,,fecha no indicada en la tesis. Porcentajes previos al redondeo
+movimiento,datos/ensayos/recta-2m-simulacion.csv,laboratorio.html,Tabla A6.1,simulacion registrada,m y porcentaje,octubre de 2026,,sin pose verdadera Gazebo
+movimiento,datos/ensayos/giro-real.csv,movimiento.html;laboratorio.html,Tabla A6.4,medicion resumida,grados,octubre de 2026,,metodo de medida fisica pendiente
+movimiento,datos/ensayos/giro-simulacion.csv,movimiento.html;laboratorio.html,Tabla A6.3,simulacion registrada,grados y porcentaje,octubre de 2026,,comparacion con giro nominal
+control,datos/ensayos/escalon.csv,control.html;laboratorio.html,Tabla 5.3,indicadores resumidos,m/s y s,octubre de 2026,,sin senal temporal original
+control,datos/parametros.json,control.html;js/control-modelo.js,Tablas A4.4 y 4.3 y guia,parametros transcritos,segun campo,octubre de 2026,,firmware adaptado no publicado
+mapeo,datos/ensayos/mapeo.csv,mapeo.html;laboratorio.html,Tabla 5.4,indicadores resumidos,m2 y porcentaje,octubre de 2026,2026-06-22,rejillas no publicadas. La referencia geometrica externa es el plano de la Tabla A8.3
+navegacion,datos/ensayos/metas.csv,exploracion.html;laboratorio.html,Tabla A7.1,conteos clasificados,metas y s,octubre de 2026,2026-06-22,abortos asociados a reemplazos por criterio temporal que no descarta fallas concurrentes. Aborto restante sin clasificar. Sin tiempos por meta
 SLAM,,mapeo.html#grafo-poses;js/mapeo.js,modelo de la guia,ilustrativo,m y grados,,,no representa corridas ni ejecucion de Ceres
-control,datos/parametros.json,control.html#sim-pid;img/diagramas/pid-respaldo.svg,Tabla A4.4 (orden de K y tau de la rueda izquierda),ilustrativo,m/s y PWM,,,modelo de primer orden sin retardo; no es el firmware ni una medicion
+control,datos/parametros.json,control.html#sim-pid;img/diagramas/pid-respaldo.svg,Tabla A4.4 (orden de K y tau de la rueda izquierda),ilustrativo,m/s y PWM,octubre de 2026,,modelo de primer orden sin retardo; no es el firmware ni una medicion
 SLAM,,mapeo.html#sim-lazo,modelo de la guia,ilustrativo,m y cm,,,"recinto inventado de 2,10 m de ancho; laser sin error; no representa corridas ni Ceres"
-mapeo,datos/parametros.json,laboratorio.html,Anexo 8.1 (umbrales 230 y 50) y Ec. 5.4 y 5.5,parametros transcritos,niveles de gris y m2,,,umbrales sujetos a revision; mapas originales no publicados
-navegacion,datos/parametros.json,laboratorio.html,Anexo 8.4 (procedimiento) y Tabla A5.4 (periodo 3333 ms),procedimiento reimplementado,metas y s,,,script original del autor no publicado; registros crudos no publicados
+mapeo,datos/parametros.json,laboratorio.html,Anexo 8.1 (umbrales 230 y 50) y Ec. 5.4 y 5.5,parametros transcritos,niveles de gris y m2,octubre de 2026,,umbrales sujetos a revision; mapas originales no publicados
+navegacion,datos/parametros.json,laboratorio.html,Anexo 8.4 (procedimiento) y Tabla A5.4 (periodo 3333 ms),procedimiento reimplementado,metas y s,octubre de 2026,,script original del autor no publicado; registros crudos no publicados
 laboratorio,datos/ejemplos/,laboratorio.html,ninguna,sintetico,segun archivo,,,no son datos del robot ni de la tesis
 SLAM,js/slam-proceso.js,mapeo.html#sim-candidatos;img/diagramas/candidatos-cierre.svg,ROSCon 2019 03:54-05:43;modelo de la guia,ilustrativo,m y cm,,,pares conocidos ya alineados; RMS y umbrales supuestos; no ejecuta Open Karto
 SLAM,js/slam-proceso.js,mapeo.html#sim-cola,ROSCon 2019 07:18-08:14;modelo de eventos,ilustrativo,ms y barridos,,,un servidor; llegada cada 100 ms; no es latencia medida de SLAM Toolbox
 SLAM,js/mapeo.js,mapeo.html#incertidumbre-grafo,Grisetti 2010;modelo de la guia,ilustrativo,costo ponderado y cm,,,peso de cierre ajustable; sin covarianza experimental; datos iniciales conservados
+control,datos/analisis/estabilidad.csv,control.html#estabilidad;js/estabilidad-modelo.js,Tabla A4.5 y Anexo 4.12,tabla transcrita,grados y dB y s,octubre de 2026,,"modelo lineal discretizado a 33 ms sin saturacion ni banda ni zona muerta ni enteros. El escenario de 0,1 s es de sensibilidad y no un retardo medido"
+control,js/estabilidad-modelo.js,control.html#estabilidad,Anexo 4.12 y Tabla A4.5,modelo reimplementado,grados y dB y s,octubre de 2026,,reproduce la Tabla A4.5 y el barrido de 625 combinaciones. Otros estados del interactivo son calculo de la guia con el mismo modelo
+estadistica,datos/analisis/intervalos.csv,resultados.html#confianza;movimiento.html;replicar.html,Tabla A8.4 y Anexo 8.6,tabla transcrita,segun indicador,octubre de 2026,,t de Student para medias y Clopper y Pearson para la proporcion. Recalculada en pruebas_estadistica.js
+estadistica,js/estadistica-modelo.js,resultados.html#confianza,Ec. A8.2 y Anexo 8.6,calculo de la guia,segun indicador,octubre de 2026,,la proyeccion supone la misma media y la misma dispersion
+mapeo,datos/analisis/plano.csv,mapeo.html#exactitud,Tabla A8.3,tabla transcrita,m y cm,octubre de 2026,,mapas del 22 de junio de 2026 y plano sin fecha indicada. No incluye la incertidumbre de la huincha ni la del alineamiento
+mapeo,datos/analisis/plano-iteraciones.csv,mapeo.html#exactitud;resultados.html#confianza,Tabla A8.2,tabla transcrita,cm,octubre de 2026,,mapas del 22 de junio de 2026 y plano sin fecha indicada. Solo puntos del plano observados en el mapa
+mapeo,datos/parametros.json,mapeo.html#exactitud;img/diagramas/plano-recinto.svg,Fig. A8.1,esquema transcrito,m,octubre de 2026,,tabique inferior de largo no medido dibujado aproximado

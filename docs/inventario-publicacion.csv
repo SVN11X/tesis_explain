@@ -3,7 +3,9 @@ Documento de tesis,recursos.html#materiales,no publicado,,confirmar version y pe
 Firmware adaptado,arduino_firmware/ROSArduinoBridge/,no publicado,,conservar pendiente
 Configuracion y descripcion del robot,articubot_one/config/ y description/,no publicadas,,confirmar permiso del autor
 Registros crudos,test/sesiones_mapeo/,no publicados,,no inferir ni generar registros sustitutos
-Programas propios,arduino_firmware/pid_config/ y articubot_one/scripts/,no publicados,,documentar origen y licencia antes de publicar
+Programas propios,arduino_firmware/pid_config/ (incluye AnalisisEstabilidadPID.py) y articubot_one/scripts/ y test/mapas_vs_plano/,no publicados,,documentar origen y licencia antes de publicar
 Tablas resumidas,datos/ensayos/,ya publicas en revision base,,conservar valores y completar trazabilidad
+Tablas del analisis,datos/analisis/,transcritas de la tesis en esta revision,,conservar valores y trazabilidad. No contienen datos crudos
+Plano del recinto de ensayo,datos/parametros.json y img/diagramas/plano-recinto.svg,transcrito de la Fig. A8.1 en esta revision,,confirmar con el autor que autoriza publicar la geometria del recinto
 Figuras y videos existentes,img/,ya publicos en revision base,,conservar autoria y excepciones de licencia
 Video sincronizado nuevo,img/tesis/sim-vs-real.mp4,placeholder oculto sin archivo,,no completar con material inventado
