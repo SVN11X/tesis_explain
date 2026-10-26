@@ -32,12 +32,12 @@
     { id: "problema", t: "Autonomía en interiores", d: "Qué significa que un robot sea autónomo, qué existía y qué decisiones se tomaron.", nivel: "básico", bloque: 1 },
     { id: "robot", t: "Anatomía del robot", d: "Piezas, energía, red, ROS 2 y el camino de una orden hasta el motor.", nivel: "básico", bloque: 1 },
     { id: "movimiento", t: "Moverse y medir el avance", d: "Tracción diferencial, encoders y odometría, con sus errores medidos.", nivel: "intermedio", bloque: 2 },
-    { id: "control", t: "Control de velocidad de las ruedas", d: "PID en tiempo discreto, la ley heredada que opera como PI y la sintonía con PSO.", nivel: "avanzado", bloque: 2 },
-    { id: "mapeo", t: "Ver y mapear con LiDAR y SLAM", d: "Cómo mide el láser, cómo se arma el mapa y cómo se corrige la deriva.", nivel: "intermedio", bloque: 2 },
+    { id: "control", t: "Control de velocidad de las ruedas", d: "PID en tiempo discreto, la ley heredada que opera como PI, la sintonía con PSO y su estabilidad.", nivel: "avanzado", bloque: 2 },
+    { id: "mapeo", t: "Ver y mapear con LiDAR y SLAM", d: "Cómo mide el láser, cómo se arma el mapa, cómo se corrige la deriva y qué tan cerca queda del plano.", nivel: "intermedio", bloque: 2 },
     { id: "navegacion", t: "Planificar y seguir rutas con Nav2", d: "Mapas de costos, A estrella, ventana dinámica y recuperaciones.", nivel: "intermedio", bloque: 2 },
     { id: "exploracion", t: "Explorar por fronteras", d: "Cómo decide el robot a dónde ir y cómo leer las metas abortadas.", nivel: "intermedio", bloque: 2 },
     { id: "gemelo", t: "El gemelo digital", d: "Qué se comprueba en simulación y qué solo en el robot real.", nivel: "básico", bloque: 2 },
-    { id: "resultados", t: "La evidencia: qué se demostró", d: "Verificar frente a validar, los cuatro objetivos, límites y trabajo futuro.", nivel: "básico", bloque: 3 },
+    { id: "resultados", t: "La evidencia: qué se demostró", d: "Verificar frente a validar, los cuatro objetivos, cuánto dicen las repeticiones, límites y trabajo futuro.", nivel: "básico", bloque: 3 },
     { id: "replicar", t: "Constrúyelo tú", d: "Materiales, versiones, repositorios base y lecciones de taller.", nivel: "intermedio", bloque: 3 }
   ];
   var EXTRAS = [
@@ -683,7 +683,10 @@
       var f = window.VISUALES && window.VISUALES[el.getAttribute("data-vis")];
       if (!el.respaldoVis) el.respaldoVis = el.innerHTML;
       if (!f) { fallo(el, "El módulo de este interactivo no está disponible."); return; }
-      try { f(el); el.setAttribute("data-montado", "1"); el.removeAttribute("data-error-vis"); }
+      /* El atributo va antes de montar. Mientras falta, el CSS centra el respaldo, y los gráficos que
+         miden su contenedor al dibujarse leían un ancho de cero y quedaban a 600 px, reducidos en un teléfono.
+         Si el montaje falla, fallo() lo quita. */
+      try { el.setAttribute("data-montado", "1"); f(el); el.removeAttribute("data-error-vis"); }
       catch (e) { fallo(el, "No se pudo cargar este interactivo en tu navegador."); if (window.console) console.error(e); }
     }
     function fallo(el, message) {

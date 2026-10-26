@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Explorar por fronteras · Robot explorador</title>
-<meta name="description" content="Exploración autónoma por fronteras, cómo decide explore_lite y por qué 53 de 54 metas abortadas fueron reemplazos hechos por el propio explorador.">
+<meta name="description" content="Exploración autónoma por fronteras, cómo decide explore_lite y por qué 53 de 54 metas abortadas se asocian a reemplazos hechos por el propio explorador.">
 <meta name="author" content="Sebastián Valderas Neculqueo">
 <link rel="canonical" href="https://svn11x.github.io/tesis_explain/exploracion.html">
 <meta property="og:type" content="article">
 <meta property="og:locale" content="es_CL">
 <meta property="og:site_name" content="Robot explorador">
 <meta property="og:title" content="Explorar por fronteras">
-<meta property="og:description" content="Exploración autónoma por fronteras, cómo decide explore_lite y por qué 53 de 54 metas abortadas fueron reemplazos hechos por el propio explorador.">
+<meta property="og:description" content="Exploración autónoma por fronteras, cómo decide explore_lite y por qué 53 de 54 metas abortadas se asocian a reemplazos hechos por el propio explorador.">
 <meta property="og:url" content="https://svn11x.github.io/tesis_explain/exploracion.html">
 <meta property="og:image" content="https://svn11x.github.io/tesis_explain/img/social.png">
 <meta property="og:image:width" content="1200">
@@ -42,7 +42,7 @@
       <nav class="miga" aria-label="Ruta"><a href="index.html">Inicio</a><span aria-hidden="true">›</span><a href="index.html#temas">Temas</a><span aria-hidden="true">›</span><span data-cap-n>Tema</span></nav>
       <p class="eyebrow" data-bloque>Cómo funciona</p>
       <h1>Explorar por fronteras</h1>
-      <p class="lead">Nadie le dice al robot a dónde ir. Mira su mapa, busca los bordes entre lo que conoce y lo que no, y se dirige al más prometedor hasta que no queda ninguno. Este tema explica esa regla y por qué casi todas las metas abortadas eran reemplazos.</p>
+      <p class="lead">Nadie le dice al robot a dónde ir. Mira su mapa, busca los bordes entre lo que conoce y lo que no, y se dirige al más prometedor hasta que no queda ninguno. Este tema explica esa regla y por qué casi todas las metas abortadas coinciden con un reemplazo hecho por el propio explorador.</p>
       <div class="meta-cap"><span data-nivel class="etiqueta">Nivel</span><span class="etiqueta" data-lectura>Lectura</span></div>
     </div>
     <figure class="tema-hero-fig">
@@ -57,10 +57,10 @@
 
 <section class="en-breve" aria-labelledby="t-breve">
   <h2 id="t-breve">Explorar hasta que no queden fronteras</h2>
-  <p>Una <span class="term" data-t="Frontera" data-def="Borde entre el espacio libre conocido y lo desconocido en un mapa.">frontera</span> es el borde entre el espacio libre conocido y lo desconocido. Ir hacia las fronteras hasta que no quede ninguna es una forma simple y efectiva de explorar, y cinco de seis exploraciones del robot real terminaron solas por ese criterio. El explorador vuelve a elegir destino cada 3,3 s y manda la nueva meta sin cancelar la anterior, que <span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span> cierra como abortada. Por eso 53 de las 54 metas abortadas fueron reemplazos y no fallas.</p>
+  <p>Una <span class="term" data-t="Frontera" data-def="Borde entre el espacio libre conocido y lo desconocido en un mapa.">frontera</span> es el borde entre el espacio libre conocido y lo desconocido. Ir hacia las fronteras hasta que no quede ninguna es una forma simple y efectiva de explorar, y cinco de seis exploraciones del robot real terminaron solas por ese criterio. El explorador vuelve a elegir destino cada 3,3 s y manda la nueva meta sin cancelar la anterior, que <span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span> cierra como abortada. Por eso 53 de las 54 metas abortadas cumplen un criterio temporal de asociación a reemplazos. El criterio es compatible con ese mecanismo, pero no descarta fallas de Nav2 al mismo tiempo.</p>
   <div class="cifras-mini">
     <div><b>5 <small>de 6</small></b><span>exploraciones terminaron solas, sin intervención del operador</span></div>
-    <div><b>53 <small>de 54</small></b><span>metas abortadas fueron reemplazos hechos por el propio explorador</span></div>
+    <div><b>53 <small>de 54</small></b><span>metas abortadas coinciden en el tiempo con un reemplazo del propio explorador</span></div>
     <div><b>3,3 <small>s</small></b><span>período con que el explorador vuelve a elegir destino</span></div>
     <div><b>17</b><span>veces que el explorador vació su lista negra en las corridas válidas</span></div>
   </div>
@@ -114,28 +114,29 @@
 </section>
 
 <section>
-  <h2 id="abortadas">Metas abortadas que eran reemplazos</h2>
+  <h2 id="abortadas">Metas abortadas asociadas a reemplazos</h2>
   <p>En las cinco exploraciones válidas se generaron 60 metas. A primera vista el resultado es alarmante. 54 quedaron abortadas, una se completó y cinco no alcanzaron a registrar su estado final <a class="ref" href="#f1">1</a>. ¿Falló la navegación casi siempre?</p>
   <aside class="nota-autor" hidden>
     <p class="nota-autor-rotulo">Nota del autor</p>
     <p>De las 60 metas de las cinco corridas válidas, 54 quedaron registradas como abortadas.</p>
     <!-- PENDIENTE AUTOR: completar esta nota en primera persona y quitar el atributo hidden. Pregunta: ¿Qué pensaste al ver 54 abortos y cómo llegaste a la explicación? -->
   </aside>
-  <p>No. En la versión de Nav2 usada, cuando llega una meta nueva mientras otra está en ejecución, la anterior se termina con estado abortado <a class="ref" href="#f6">6</a>. Y el explorador manda una meta nueva cada 3,3 s sin cancelar la anterior. El mismo estado registra entonces dos cosas muy distintas, los reemplazos que hace el explorador y las fallas reales de Nav2.</p>
+  <p>No se puede leer así. En la versión de Nav2 usada, cuando llega una meta nueva mientras otra está en ejecución, la anterior se termina con estado abortado <a class="ref" href="#f6">6</a>. Y el explorador vuelve a elegir destino cada 3,3 s y manda una meta nueva cada vez que el punto elegido cambia en 1 cm o más, sin cancelar la anterior. El mismo estado registra entonces dos cosas muy distintas, los reemplazos que hace el explorador y las fallas propias de Nav2.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="reemplazo">Cómo se ve un reemplazo en el tiempo</h3><span class="tipo inter">Interactivo</span><p>Reproduce 20 segundos con el período del explorador. Abajo, el resultado real de las 60 metas.</p></div>
-    <div class="vis" data-vis="metas"><p class="vis-fallback">Cada 3,3 s se envía una meta nueva y la anterior queda abortada. De 60 metas, 53 fueron abortadas por reemplazo.</p></div>
+    <div class="vis" data-vis="metas"><p class="vis-fallback">Cada 3,3 s se envía una meta nueva y la anterior queda abortada. De 60 metas, 53 quedaron abortadas en coincidencia con un reemplazo, 1 abortada sin clasificar, 1 completada y 5 sin estado terminal.</p></div>
   </div>
   <!-- PENDIENTE AUTOR: clip de unos 10 segundos en que el explorador reemplaza una meta en curso. Guárdalo en MP4 sin audio como img/tesis/meta-reemplazada.mp4, con su portada en JPG como img/tesis/meta-reemplazada-poster.jpg. Ajusta width y height a las del video y quita el atributo hidden de la figura siguiente. -->
   <figure class="bucle-env" hidden>
     <div class="bucle"><video autoplay muted loop playsinline preload="metadata" data-poster="img/tesis/meta-reemplazada-poster.jpg" width="1280" height="720" aria-label="Clip de una meta reemplazada: el explorador envía un destino nuevo y la ruta cambia antes de llegar al anterior."><source data-src="img/tesis/meta-reemplazada.mp4" type="video/mp4"></video></div>
     <figcaption>Una meta reemplazada. El explorador envía un destino nuevo cada 3,3 s y Nav2 cierra la meta anterior como abortada. <small>Video del autor, en bucle.</small></figcaption>
   </figure>
-  <h3 id="como-se-separo">Cómo se separaron reemplazos de fallas</h3>
-  <p>Cada meta de navegación tiene un identificador único de 16 bytes. Reconstruí el historial de cada una a partir del flujo de estados de la acción de navegación, que quedó registrado completo en cada sesión. Clasifiqué una meta abortada como reemplazada cuando la meta siguiente ya figuraba en ejecución mientras la abortada seguía activa <a class="ref" href="#f1">1</a>.</p>
+  <h3 id="como-se-separo">Cómo se asoció cada aborto a un reemplazo</h3>
+  <p>Cada meta de navegación tiene un identificador único de 16 bytes. Reconstruí el historial de cada una a partir del flujo de estados de la acción de navegación, que quedó registrado completo en cada sesión. Una meta abortada cumple el criterio cuando hay un mensaje en que la meta siguiente ya figura, en cualquier estado, mientras la abortada sigue aceptada o en ejecución <a class="ref" href="#f1">1</a>.</p>
+  <p>No usé la hora escrita en cada línea del registro, porque tiene resolución de un segundo y marca cuándo se escribió la línea, no cuándo se publicó el mensaje. Los tiempos salen del sello de aceptación que trae cada meta. El procedimiento quedó en un script propio, y el comportamiento de Nav2 ante una meta nueva se verificó en su código fuente para Foxy <a class="ref" href="#f6">6</a>.</p>
   <div class="tabla-env">
     <table class="tabla">
-      <thead><tr><th>Iteración</th><th class="n">Generadas</th><th class="n">Abortadas</th><th class="n">Reemplazadas por el explorador</th><th class="n">Exitosas</th><th class="n">Sin estado final</th><th class="n">Tiempo activo mediano</th></tr></thead>
+      <thead><tr><th>Iteración</th><th class="n">Generadas</th><th class="n">Abortadas</th><th class="n">Abortos asociados a reemplazos</th><th class="n">Exitosas</th><th class="n">Sin estado final</th><th class="n">Mediana entre metas</th></tr></thead>
       <tbody>
         <tr><th>1</th><td class="n">18</td><td class="n">17</td><td class="n">16</td><td class="n">0</td><td class="n">1</td><td class="n">3,3 s</td></tr>
         <tr><th>3</th><td class="n">9</td><td class="n">8</td><td class="n">8</td><td class="n">0</td><td class="n">1</td><td class="n">3,3 s</td></tr>
@@ -144,15 +145,15 @@
         <tr><th>6</th><td class="n">10</td><td class="n">9</td><td class="n">9</td><td class="n">0</td><td class="n">1</td><td class="n">3,3 s</td></tr>
         <tr class="total"><th>Total</th><td class="n">60</td><td class="n">54</td><td class="n">53</td><td class="n">1</td><td class="n">5</td><td class="n">no aplica</td></tr>
       </tbody>
-      <caption>Tabla A7.1 de la tesis. La iteración 2 se excluyó: el robot no se desplazó y su mapa no quedó guardado.</caption>
+      <caption>Tabla A7.1 de la tesis. La iteración 2 se excluyó: el robot no se desplazó y su mapa no quedó guardado. La mediana se mide entre la aceptación de una meta y la de la siguiente, en los casos asociados a reemplazos, y no es una medición independiente de cuándo terminó la anterior. Su máximo fue de 16,7 s en la iteración 1 y de 6,7 s en las demás.</caption>
     </table>
   </div>
   <div class="argumento">
-    <div><span class="a-et">Lo que se observó</span><p>En 53 de 54 abortos la meta siguiente ya estaba en ejecución mientras la abortada seguía activa. El aborto restante, la primera meta de la iteración 1, no se pudo clasificar.</p></div>
-    <div><span class="a-et">La prueba que lo amarra</span><p>El tiempo mediano que cada meta estuvo activa fue 3,3 s en las cinco corridas, exactamente el período del explorador. Una falla de navegación no tendría por qué durar siempre lo mismo.</p></div>
-    <div><span class="a-et">Lo que no se puede afirmar</span><p>No se identificó ningún aborto causado por Nav2, pero tampoco se puede saber si las metas reemplazadas habrían llegado a completarse.</p></div>
+    <div><span class="a-et">Lo que se observó</span><p>En 53 de 54 abortos hubo un mensaje en que la meta siguiente ya figuraba mientras la abortada seguía aceptada o en ejecución. El aborto restante, la primera meta de la iteración 1, ya figuraba abortada en el primer mensaje registrado y no se pudo clasificar.</p></div>
+    <div><span class="a-et">Lo que lo hace compatible</span><p>La mediana entre la aceptación de una meta y la de la siguiente fue 3,3 s en las cinco corridas, igual al período con que el explorador reevalúa. Es lo que se espera si cada reevaluación reemplaza la meta en curso.</p></div>
+    <div><span class="a-et">Lo que no se puede afirmar</span><p>La coexistencia no identifica por sí sola la causa de cada aborto ni descarta fallas de Nav2 al mismo tiempo, y el registro no permite contarlas por separado. Tampoco se sabe si las metas reemplazadas habrían llegado a completarse.</p></div>
   </div>
-  <p>Las cinco metas sin estado final son la última de cada corrida. Al no encontrar fronteras, el explorador pidió cancelarlas, y el registro se cerró antes de que la cancelación terminara. Entonces, ¿qué significa una meta completada de 60? Indica cuántas veces el robot llegó a menos de 10 cm del punto de una frontera antes de que el explorador cambiara de destino. No es una tasa de éxito de la navegación ni de la exploración. Lo que muestra que el robot va hacia donde se le manda es que el mapa creció en cada corrida hasta que no quedaron fronteras.</p>
+  <p>Las cinco metas sin estado final son la última de cada corrida. Al no encontrar fronteras, el explorador pidió cancelarlas, y el registro se cerró antes de que la cancelación terminara. Entonces, ¿qué significa una meta completada de 60? Indica cuántas veces el robot llegó a menos de 10 cm del punto de una frontera antes de que el explorador cambiara de destino. No es una tasa de éxito de la navegación ni de la exploración. Lo que muestra que el robot va hacia donde se le manda es que el mapa creció en cada corrida hasta que no quedaron fronteras. En las cinco corridas válidas, Nav2 condujo al robot durante 12,7 min y 21,9 m de recorrido odométrico, sin intervención manual <a class="ref" href="#f1">1</a>.</p>
 </section>
 
 <section>

@@ -222,9 +222,9 @@
   V.metas = function (el) {
     el.innerHTML = '<div class="vctl"><button type="button" class="vbtn" data-a="play">Reproducir 20 segundos</button><span class="vestado" aria-live="polite"></span></div><div class="mt-graf"></div>' +
       '<div class="vley"><span><i class="cu azul"></i>meta activa</span><span><i class="x-rojo"></i>Nav2 la cierra como abortada</span><span><i class="lin-disc"></i>el explorador vuelve a elegir</span></div>' +
-      '<h4 class="vsub">Las 60 metas de las cinco corridas</h4><div class="waffle" role="img" aria-label="60 metas: 1 completada, 53 abortadas por reemplazo, 1 abortada sin clasificar y 5 con otro estado"></div>' +
-      '<div class="vley"><span><i class="cu verde"></i>1 completada</span><span><i class="cu azul"></i>53 abortadas por reemplazo</span><span><i class="cu obst"></i>1 abortada sin clasificar</span><span><i class="cu gris"></i>5 ni completadas ni abortadas</span></div>' +
-      '<p class="vnota">El tiempo mediano que cada meta estuvo activa fue 3,3 s, igual al período del explorador. Línea de tiempo de ejemplo con ese período.</p>';
+      '<h4 class="vsub">Las 60 metas de las cinco corridas</h4><div class="waffle" role="img" aria-label="60 metas: 1 completada, 53 abortadas asociadas a un reemplazo, 1 abortada sin clasificar y 5 sin estado terminal"></div>' +
+      '<div class="vley"><span><i class="cu verde"></i>1 completada</span><span><i class="cu azul"></i>53 abortadas asociadas a un reemplazo</span><span><i class="cu obst"></i>1 abortada sin clasificar</span><span><i class="cu gris"></i>5 sin estado terminal</span></div>' +
+      '<p class="vnota">La mediana entre la aceptación de una meta y la de la siguiente fue 3,3 s en las cinco corridas, igual al período del explorador. La línea de tiempo de arriba es un ejemplo con ese período. La asociación es temporal: no descarta fallas de Nav2 al mismo tiempo.</p>';
     var w = "";
     w += '<i class="w-ok"></i>';
     for (var i = 0; i < 53; i++) w += '<i class="w-rem"></i>';
@@ -252,13 +252,13 @@
             abo++;
             var cx = x((k + 1) * P), cy = y + fila / 2;
             s += '<path class="k-rojo" stroke-width="2.4" d="M' + (cx - 5) + ' ' + (cy - 5) + ' l10 10 M' + (cx + 5) + ' ' + (cy - 5) + ' l-10 10"/>';
-            if (k === 0 && !chico) s += '<text class="t-m" x="' + (cx + 9) + '" y="' + (cy + 4) + '">abortada, aunque el robot no falló</text>';
+            if (k === 0 && !chico) s += '<text class="t-m" x="' + (cx + 9) + '" y="' + (cy + 4) + '">abortada al llegar la siguiente</text>';
           }
         }
       }
       s += '<line class="k-ink" stroke-width="2" x1="' + x(Tact) + '" x2="' + x(Tact) + '" y1="' + (mt - 10) + '" y2="' + (H - 24) + '"/>';
       cont.innerHTML = s + '</svg>';
-      estado.textContent = "Enviadas " + env + ". Abortadas por reemplazo " + abo + ".";
+      estado.textContent = "Enviadas " + env + ". Abortadas al llegar la siguiente " + abo + ".";
     }
     el.addEventListener("click", function (e) {
       if (!e.target.closest('[data-a="play"]')) return;
@@ -340,15 +340,15 @@
       '<p>' + OK + 'Navegar hacia destinos que genera el explorador</p>' +
       '<p>' + OK + 'Cadena completa en el robot real, del láser al motor</p>' +
       '<p>' + OK + '5 de 6 corridas terminaron solas, sin fronteras</p></div>' +
-      '<div class="lista-ico"><span class="eyebrow">El protocolo pendiente de metas fijas</span>' +
-      '<p>' + NO + 'Un mapa guardado</p>' +
-      '<p>' + NO + 'AMCL era la opción prevista: quedó sin ejecutar ni ajustar. No es un requisito general de las metas fijas</p>' +
-      '<p>' + NO + 'Puntos medidos en el recinto</p>' +
-      '<p>' + NO + 'Script preparado, sin registros y sin error de posición final</p></div></div>' +
+      '<div class="lista-ico"><span class="eyebrow">Lo que exigiría medir con metas fijas</span>' +
+      '<p>' + NO + 'Metas definidas y referencias físicas medidas en el recinto</p>' +
+      '<p>' + NO + 'Una localización coherente en el marco del mapa, con SLAM mientras mapea o con AMCL sobre un mapa guardado</p>' +
+      '<p>' + NO + 'Registrar aparte la pose final y, por meta, el resultado, el error de posición, el tiempo y el largo recorrido</p>' +
+      '<p>' + NO + 'El script preparado tiene 3 escenarios con 5 repeticiones, pero no mide el error final, sus metas solo existen en el mundo simulado y no tiene registros</p></div></div>' +
       '<h4 class="vsub">Cómo quedan los objetivos específicos</h4>' +
       '<ul class="oes">' +
       '<li class="ok"><b>OE1</b><span>Construcción y gemelo digital</span><em>Cumplido</em></li>' +
-      '<li class="par"><b>OE2</b><span>Control de bajo nivel. Pedía un PID y opera como PI, evaluado en un solo punto</span><em>Parcial</em></li>' +
+      '<li class="par"><b>OE2</b><span>Control de bajo nivel. Estabilidad verificada sobre un modelo lineal y desempeño medido en un solo punto</span><em>Parcial</em></li>' +
       '<li class="par"><b>OE3</b><span>Localización, mapeo y navegación. Sin indicador cuantitativo de navegación</span><em>Parcial</em></li>' +
       '<li class="ok"><b>OE4</b><span>Exploración autónoma por fronteras</span><em>Cumplido</em></li></ul>';
   };

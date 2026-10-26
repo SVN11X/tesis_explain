@@ -355,7 +355,7 @@
       el.querySelector('.fo-datos').innerHTML = tarjetas([
         ["Ganancia K · cuánto responde", f(g.K, 6) + ' × ' + pwm + ' = ' + f(fin, 3) + ' m/s', 'Velocidad final del modelo. La otra rueda llegaría a ' + f(otra.K * pwm, 3) + ' m/s con el mismo PWM.'],
         ["Constante de tiempo τ · qué tan rápido", f(g.tau, 4) + ' s', 'Después del retardo, en τ segundos se alcanza el 63 % del valor final. En 3τ, el 95 %.'],
-        ["Retardo θ · cuánta demora", f(g.retardo, 4) + ' s', g.retardo < .01 ? 'Prácticamente cero: la curva empieza a subir de inmediato.' : 'Equivale a unos ' + f(g.retardo / C.TS, 1) + ' ciclos de control de 33 ms.']]);
+        ["Retardo θ · cuánta demora", f(g.retardo, 4) + ' s', g.retardo < .01 ? 'Prácticamente cero: la curva empieza a subir de inmediato.' : 'Equivaldría a unos ' + f(g.retardo / C.TS, 1) + ' ciclos de 33 ms, pero es menor que la captura de 0,1 s: no se distingue de cero y el modelo ajustado se comporta como uno sin retardo.']]);
       el.querySelector('.fo-aviso').textContent = pwm === 0 ? 'Sin PWM, el modelo predice que la rueda queda detenida.' : pwm < 60 ? 'Con PWM bajo el modelo predice movimiento, ' + f(fin, 3) + ' m/s, porque no incluye la zona muerta. Si el umbral real estuviera sobre ' + pwm + ' PWM, la rueda no se movería. La tesis propone esa diferencia como explicación de lo que pasó con las ganancias del PSO.' : 'Las dos curvas casi se superponen, pero no son iguales: la derecha responde un poco menos y más tarde. Por eso se buscaron ganancias para cada rueda.';
     }
     el.addEventListener('input', function (e) { if (e.target.id !== 'fo-pwm') return; pwm = +e.target.value; pintar(); });

@@ -53,7 +53,7 @@
 
 <section class="en-breve" aria-labelledby="t-breve">
   <h2 id="t-breve">Por qué esta página</h2>
-  <p>El aporte de la tesis es la integración de un robot propio. Al validarlo aparecieron resultados que explican el alcance de cada objetivo, como que la ley llamada <span class="term" data-def="Controlador que combina una acción proporcional al error, una integral del error pasado y una derivativa de su tendencia.">PID</span> opera como <span class="term" data-def="Controlador con acción proporcional e integral, sin la acción derivativa de un PID.">PI</span>, que casi todas las metas abortadas eran reemplazos y que el índice de cobertura depende del encuadre del mapa. Detrás de cada uno hay una lección de método que sirve en cualquier proyecto.</p>
+  <p>El aporte de la tesis es la integración de un robot propio. Al validarlo aparecieron resultados que explican el alcance de cada objetivo, como que la ley llamada <span class="term" data-def="Controlador que combina una acción proporcional al error, una integral del error pasado y una derivativa de su tendencia.">PID</span> opera como <span class="term" data-def="Controlador con acción proporcional e integral, sin la acción derivativa de un PID.">PI</span>, que casi todas las metas abortadas coinciden con reemplazos del propio explorador y que el índice de cobertura depende del encuadre del mapa. Detrás de cada uno hay una lección de método que sirve en cualquier proyecto.</p>
   <div class="cifras-mini">
     <div><b>1999</b><span>año en que una mezcla de unidades costó una sonda a Marte</span></div>
     <div><b>3</b><span>capas de seguridad del robot, de la persona a la red</span></div>
@@ -88,7 +88,7 @@
 
 <section>
   <h2 id="metricas">Qué significa una meta abortada</h2>
-  <p>De 60 metas de navegación, 54 quedaron abortadas. Leído a la ligera, el robot fallaba casi siempre. Leído con cuidado, 53 de esos abortos eran reemplazos hechos por el propio explorador, que cambia de destino cada 3,3 s, y <span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span> informa ese reemplazo con la misma palabra que una falla <a class="ref" href="#f4">4</a>.</p>
+  <p>De 60 metas de navegación, 54 quedaron abortadas. Leído a la ligera, el robot fallaba casi siempre. Leído con cuidado, 53 de esos abortos coinciden en el tiempo con reemplazos hechos por el propio explorador, que cambia de destino cada 3,3 s, y <span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span> informa ese reemplazo con la misma palabra que una falla <a class="ref" href="#f4">4</a>. La lectura cuidadosa también tiene su límite, y conviene decirlo: un criterio temporal no descarta que alguna falla haya ocurrido al mismo tiempo.</p>
   <p>El mismo episodio trae una segunda lección. Los contadores automáticos del ensayo contaban mensajes de estado y no metas únicas, y uno de ellos quedó en cero porque buscaba un texto que nunca se imprimía. Se pudo corregir porque los datos crudos se guardaron completos. De ahí dos prácticas que sirven en cualquier experimento. Registrar identificadores únicos de cada evento que se quiera contar, y guardar los datos crudos además de los resúmenes. Ver <a href="exploracion.html#abortadas">Explorar por fronteras</a>.</p>
   <p class="destacado">Antes de confiar en un contador, pregunta qué cuenta exactamente.</p>
 </section>
@@ -97,6 +97,7 @@
   <h2 id="ensayos">Un ensayo tiene que medir lo que uno cree que mide</h2>
   <p>El ensayo de giro pidió 0,4 rad/s cuando el controlador estaba limitado a 0,35 rad/s, así que el resultado mezcló el error que se quería estudiar con el efecto del límite. Y los giros medidos superaron lo que ese límite permitía, sin que se pudiera explicar por qué. Lo reporté como desviación respecto de una referencia nominal y no como error de odometría angular <a class="ref" href="#f4">4</a>.</p>
   <p>Algo parecido ocurre con el índice de cobertura del mapa, que dependía del tamaño de la imagen y no del recinto. Elegí como evidencia principal el área libre, que fue estable, y dejé el índice como complemento. La lección es diseñar el ensayo pensando en la conclusión que se quiere sostener, y elegir el indicador que no dependa de detalles ajenos al fenómeno. Ver <a href="movimiento.html#giro">El ensayo de giro</a> y <a href="mapeo.html#resultados">Resultados de mapeo</a>.</p>
+  <p>Hay dos lecciones más en el mismo capítulo. La primera es que repetible no es lo mismo que exacto. El área libre casi no cambió entre corridas, pero eso no dice si el mapa coincide con el recinto, y para saberlo hubo que medir un plano y comparar. La segunda es que repetir también se diseña. Con cinco repeticiones cada resultado se informa con su intervalo de confianza, y con seis exploraciones una sola falla basta para no poder descartar que el sistema funcione la mitad de las veces. Por eso la tesis propone un mínimo de 6 a 10 repeticiones válidas por ensayo. Ver <a href="mapeo.html#exactitud">El mapa frente al plano medido</a> y <a href="resultados.html#confianza">Cuánto dicen cinco repeticiones</a>.</p>
 </section>
 
 <section>
@@ -119,7 +120,7 @@
 
 <section>
   <h2 id="limites">Declarar los límites</h2>
-  <p>Desde la introducción declaré qué no haría, como medir la navegación hacia metas fijas o localizarse sobre un mapa guardado, y en las conclusiones enumeré las limitaciones, desde la deriva sin unidad inercial hasta el recinto único. También dije con precisión qué código adapté y qué es propio <a class="ref" href="#f4">4</a>.</p>
+  <p>Desde la introducción declaré qué no haría, como medir la navegación hacia metas fijas o localizarse sobre un mapa guardado, y en las conclusiones enumeré las limitaciones, desde la deriva sin unidad inercial hasta el recinto único y las pocas repeticiones. También dije con precisión qué código adapté y qué es propio, y separé lo que verifica un modelo, como la estabilidad del control, de lo que se midió en el robot <a class="ref" href="#f4">4</a>.</p>
   <p>Así quien lee sabe exactamente hasta dónde llega cada afirmación, y quien quiera continuar sabe por dónde empezar. La brecha entre simulación y realidad es un buen ejemplo. La uso para explicar por qué medí en el robot real, y la investigación en robótica la trata como un problema propio, con técnicas como variar al azar los parámetros de la simulación <a class="ref" href="#f7">7</a>.</p>
   <p class="destacado">Un resultado acotado sirve de base para el siguiente trabajo. Uno inflado hay que desarmarlo primero.</p>
 </section>

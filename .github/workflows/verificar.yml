@@ -26,6 +26,7 @@ jobs:
       - name: Ejemplos sintéticos y figuras de respaldo al día
         run: |
           node herramientas/ejemplos_laboratorio.js --comprobar
+          node herramientas/diagramas_plano.js --comprobar
       - name: Modelos numéricos
         run: |
           node herramientas/pruebas_unitarias.js
@@ -34,6 +35,8 @@ jobs:
           node herramientas/pruebas_slam_proceso.js
           node herramientas/pruebas_movimiento.js
           node herramientas/pruebas_analisis.js
+          node herramientas/pruebas_estabilidad.js
+          node herramientas/pruebas_estadistica.js
       - name: Navegador
         run: |
           python herramientas/pruebas_control_navegador.py
@@ -41,4 +44,5 @@ jobs:
           python herramientas/pruebas_movimiento_navegador.py
           python herramientas/pruebas_laboratorio_navegador.py
           python herramientas/pruebas_robustez_navegador.py
+          python herramientas/pruebas_evidencia_navegador.py
           python herramientas/pruebas_navegador.py

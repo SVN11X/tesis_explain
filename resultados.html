@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>La evidencia: qué se demostró · Robot explorador</title>
-<meta name="description" content="Verificar frente a validar, el estado de cada subsistema, los cuatro objetivos, las limitaciones, dónde fallaría el robot y el trabajo futuro.">
+<meta name="description" content="Verificar frente a validar, el estado de cada subsistema, los cuatro objetivos, cuánto dicen cinco repeticiones, las limitaciones, dónde fallaría el robot y el trabajo futuro.">
 <meta name="author" content="Sebastián Valderas Neculqueo">
 <link rel="canonical" href="https://svn11x.github.io/tesis_explain/resultados.html">
 <meta property="og:type" content="article">
 <meta property="og:locale" content="es_CL">
 <meta property="og:site_name" content="Robot explorador">
 <meta property="og:title" content="La evidencia: qué se demostró">
-<meta property="og:description" content="Verificar frente a validar, el estado de cada subsistema, los cuatro objetivos, las limitaciones, dónde fallaría el robot y el trabajo futuro.">
+<meta property="og:description" content="Verificar frente a validar, el estado de cada subsistema, los cuatro objetivos, cuánto dicen cinco repeticiones, las limitaciones, dónde fallaría el robot y el trabajo futuro.">
 <meta property="og:url" content="https://svn11x.github.io/tesis_explain/resultados.html">
 <meta property="og:image" content="https://svn11x.github.io/tesis_explain/img/social.png">
 <meta property="og:image:width" content="1200">
@@ -20,6 +20,7 @@
 <meta name="theme-color" content="#004EAA">
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
 <link rel="stylesheet" href="css/estilo.css">
+<link rel="stylesheet" href="css/evidencia.css">
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <script src="datos/proyecto.js" defer></script>
 <script src="js/comun.js" defer></script>
@@ -27,6 +28,8 @@
 <script src="js/vis2.js" defer></script>
 <script src="js/vis3.js" defer></script>
 <script src="js/sims.js" defer></script>
+<script src="js/estadistica-modelo.js" defer></script>
+<script src="js/evidencia.js" defer></script>
 <script src="js/sitio.js" defer></script>
 </head>
 <body data-pagina="resultados">
@@ -42,7 +45,7 @@
       <nav class="miga" aria-label="Ruta"><a href="index.html">Inicio</a><span aria-hidden="true">›</span><a href="index.html#temas">Temas</a><span aria-hidden="true">›</span><span data-cap-n>Tema</span></nav>
       <p class="eyebrow" data-bloque>Evidencia y práctica</p>
       <h1>La evidencia: qué se demostró</h1>
-      <p class="lead">Un resultado vale tanto como la forma en que se midió. Este tema reúne lo que demuestra el trabajo, con qué nivel de evidencia, qué quedó parcial, dónde fallaría el robot y qué viene después.</p>
+      <p class="lead">Un resultado vale tanto como la forma en que se midió. Este tema reúne lo que demuestra el trabajo, con qué nivel de evidencia, cuánto permiten afirmar sus pocas repeticiones, qué quedó parcial, dónde fallaría el robot y qué viene después.</p>
       <div class="meta-cap"><span data-nivel class="etiqueta">Nivel</span><span class="etiqueta" data-lectura>Lectura</span></div>
     </div>
     <div class="tema-hero-fig">
@@ -58,11 +61,12 @@
 
 <section class="en-breve" aria-labelledby="t-breve">
   <h2 id="t-breve">Qué se logró y con qué evidencia</h2>
-  <p>Sí fue posible mapear y explorar un interior con un robot de bajo costo. Cinco de seis ejecuciones produjeron un mapa válido y terminaron solas, sin intervención. La <span class="term" data-t="Odometría" data-def="Estimación de la posición sumando el giro medido de las ruedas.">odometría</span> quedó validada con mediciones, el control se evaluó en el robot real y el mapeo, la navegación y la exploración quedaron verificados en funcionamiento. Dos objetivos se cumplieron y dos quedaron parciales, y explico por qué con datos.</p>
+  <p>Sí fue posible mapear y explorar un interior con un robot de bajo costo. Cinco de seis ejecuciones produjeron un mapa válido y terminaron solas, sin intervención. La <span class="term" data-t="Odometría" data-def="Estimación de la posición sumando el giro medido de las ruedas.">odometría</span> quedó validada con mediciones, el control se evaluó en el robot real y su estabilidad se verificó con un modelo, y el mapeo, la navegación y la exploración quedaron verificados en funcionamiento. Los mapas, además, quedaron a 3,4 cm en promedio de un plano medido del recinto. Dos objetivos se cumplieron y dos quedaron parciales, y explico por qué con datos.</p>
+  <p>Hay que leer todo esto con una advertencia. Los ensayos se repitieron muy pocas veces, cinco o seis, así que sus resultados se informan con intervalos de confianza y como una verificación en el entorno ensayado, no como una tasa que se pueda generalizar. Cuánto permiten afirmar está en <a href="#confianza">Cuánto dicen cinco repeticiones</a>.</p>
   <div class="cifras-mini">
     <div><b>5 <small>de 6</small></b><span>exploraciones que terminaron solas con un mapa válido</span></div>
-    <div><b>3,63 <small>%</small></b><span>error de la odometría, validado con cinta métrica</span></div>
-    <div><b>3,50 <small>m²</small></b><span>área libre mapeada en promedio</span></div>
+    <div><b>3,63 <small>%</small></b><span>error de la odometría frente a la cinta, con intervalo de 3,08 a 4,18 %</span></div>
+    <div><b>3,4 <small>cm</small></b><span>distancia media entre los muros del mapa y los del plano medido</span></div>
     <div><b>60</b><span>metas de navegación generadas sin intervención</span></div>
   </div>
 </section>
@@ -75,6 +79,7 @@
     <article class="decision"><span class="d-que"><span class="estado ok">Evaluado experimentalmente</span></span><h4>Medido en el robot, en condiciones acotadas</h4><p>Con indicadores reales, pero en un caso particular. Ejemplo, el control de velocidad a 0,13 m/s.</p></article>
     <article class="decision"><span class="d-que"><span class="estado par">Verificado funcionalmente</span></span><h4>Funciona de punta a punta</h4><p>Sin un indicador cuantitativo de desempeño. Ejemplo, la navegación hacia las metas del explorador.</p></article>
   </div>
+  <p>El control agrega una evidencia de otro tipo, una verificación analítica. La estabilidad y los márgenes se calcularon sobre el modelo identificado de cada rueda. No reemplaza a la medición en el robot, la complementa, y vale solo para el modelo lineal <a class="ref" href="#f1">1</a>.</p>
   <p class="destacado">En este sitio cada resultado dice en cuál de los tres niveles está.</p>
 </section>
 
@@ -84,12 +89,12 @@
     <table class="tabla">
       <thead><tr><th>Subsistema</th><th>Estado</th><th>Evidencia y lo que falta</th></tr></thead>
       <tbody>
-        <tr><th>Odometría</th><td><span class="estado val">Validada cuantitativamente</span></td><td>Recta de 2 m, cinco repeticiones, error medio de 3,63 % frente a cinta. En simulación no hubo referencia independiente y el giro no mide error odométrico angular.</td></tr>
-        <tr><th>Control de velocidad</th><td><span class="estado ok">Evaluado experimentalmente</span></td><td>Captura real en lazo cerrado a 0,13 m/s, error estacionario de 0,002 m/s o menos, sin sobreimpulso apreciable. Un solo punto de operación.</td></tr>
-        <tr><th>SLAM</th><td><span class="estado par">Verificado y caracterizado</span></td><td>Cobertura y área libre en cinco iteraciones. Paredes evaluadas a la vista, sin un plano medido para el error absoluto.</td></tr>
-        <tr><th>Nav2</th><td><span class="estado par">Verificada funcionalmente</span></td><td>Ejecutó 59 metas del explorador. 53 de 54 abortos fueron reemplazos, así que no hay tasa de éxito. Metas fijas fuera del alcance.</td></tr>
-        <tr><th>Exploración</th><td><span class="estado par">Verificada funcionalmente</span></td><td>Cinco de seis ejecuciones terminaron solas con mapa válido. Cobertura media de 62,2 % y área libre media de 3,50 m².</td></tr>
-        <tr><th>Localización</th><td><span class="estado par">Verificada funcionalmente</span></td><td>Resuelta por slam_toolbox durante el mapeo. AMCL sobre un mapa guardado no se ensayó.</td></tr>
+        <tr><th>Odometría</th><td><span class="estado val">Validada cuantitativamente</span></td><td>Recta de 2 m, cinco repeticiones, error medio de 3,63 % frente a cinta, con intervalo de confianza al 95 % de 3,08 a 4,18 %. En simulación no hubo referencia independiente y el protocolo angular no mide error odométrico angular.</td></tr>
+        <tr><th>Control de velocidad</th><td><span class="estado ok">Evaluado experimentalmente y verificado analíticamente</span></td><td>Captura real en lazo cerrado a 0,13 m/s, error estacionario de 0,002 m/s o menos, sin sobreimpulso apreciable. Estabilidad y márgenes verificados con el modelo identificado, en la Tabla A4.5. Un solo punto de operación.</td></tr>
+        <tr><th>SLAM</th><td><span class="estado par">Verificado y caracterizado cuantitativamente</span></td><td>Cobertura y área libre en cinco iteraciones válidas. Posición de los muros comparada con el plano medido del recinto, con una distancia media de 3,4 cm.</td></tr>
+        <tr><th>Nav2</th><td><span class="estado par">Verificada funcionalmente</span></td><td>Ejecutó 59 metas del explorador durante 21,9 m de recorrido. De los 54 abortos, 53 cumplen el criterio temporal de asociación a reemplazos, así que el resultado de las metas no mide una tasa de éxito. Metas fijas fuera del alcance declarado.</td></tr>
+        <tr><th>Exploración</th><td><span class="estado par">Verificada funcionalmente</span></td><td>Cinco de seis ejecuciones terminaron solas al no quedar fronteras, sin intervención y con mapa válido. Cobertura libre media de 62,2 % y área libre media de 3,50 m².</td></tr>
+        <tr><th>Localización</th><td><span class="estado par">Verificada funcionalmente</span></td><td>Resuelta por slam_toolbox durante el mapeo en línea, en las cinco iteraciones válidas. AMCL sobre un mapa guardado queda fuera del alcance declarado y no se ensayó.</td></tr>
       </tbody>
       <caption>Tabla 5.5 de la tesis.</caption>
     </table>
@@ -115,12 +120,12 @@
 <section>
   <h2 id="objetivos">Los cuatro objetivos, uno por uno</h2>
   <ul class="oes">
-    <li class="ok"><b>OE1</b><span><b style="font-family:inherit">Construcción y gemelo digital.</b> Se construyó la plataforma y se verificó su gemelo con cuatro criterios de funcionamiento. No incluyó una comparación cuantitativa entre simulación y hardware sobre una misma variable.</span><em>Cumplido</em></li>
-    <li class="par"><b>OE2</b><span><b style="font-family:inherit">Control de bajo nivel.</b> Se implementaron <span class="term" data-t="Encoder" data-def="Sensor que produce dos señales desfasadas al girar un eje, para contar el giro y saber su sentido.">encoders</span>, estados de rueda, control y odometría. Pero la ley heredada opera como un <span class="term" data-def="Controlador que en cada ciclo calcula cuánto cambiar la salida, en vez de calcularla completa.">PI incremental</span> sin acción derivativa efectiva, y se evaluó en un solo punto de operación.</span><em>Parcial</em></li>
-    <li class="par"><b>OE3</b><span><b style="font-family:inherit">Localización, mapeo y navegación.</b> Mapeo y localización verificados en el robot real, con cobertura y área. <span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span> llevó al robot hacia las metas del explorador, pero sin un indicador cuantitativo de su desempeño.</span><em>Parcial</em></li>
-    <li class="ok"><b>OE4</b><span><b style="font-family:inherit">Exploración autónoma.</b> Generó 60 metas sin intervención y cinco de seis ejecuciones terminaron solas con mapa válido. Su principal limitación es que tacha metas que él mismo reemplaza.</span><em>Cumplido</em></li>
+    <li class="ok"><b>OE1</b><span><b style="font-family:inherit">Construcción y gemelo digital.</b> Se construyó la plataforma y se verificó su gemelo con el backend de ros2_control en Gazebo Classic, según los cuatro criterios de funcionamiento de la Tabla A2.2. No incluyó una comparación cuantitativa entre simulación y hardware sobre una misma variable, porque la distancia simulada sale de la propia odometría.</span><em>Cumplido</em></li>
+    <li class="par"><b>OE2</b><span><b style="font-family:inherit">Control de bajo nivel.</b> Se implementaron <span class="term" data-t="Encoder" data-def="Sensor que produce dos señales desfasadas al girar un eje, para contar el giro y saber su sentido.">encoders</span>, estados de rueda, control y odometría. La estabilidad de la ley ejecutada, un <span class="term" data-def="Controlador que en cada ciclo calcula cuánto cambiar la salida, en vez de calcularla completa.">PI incremental</span> heredado, se verificó sobre su idealización lineal. Ese análisis no incluye los efectos no lineales del firmware, y el desempeño se midió en un solo punto de operación.</span><em>Parcial</em></li>
+    <li class="par"><b>OE3</b><span><b style="font-family:inherit">Localización, mapeo y navegación.</b> Mapeo y localización verificados en el robot real, con cobertura y área. <span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span> llevó al robot hacia las metas del explorador en las cinco ejecuciones válidas, con 21,9 m de recorrido autónomo. De los 54 abortos, 53 cumplen el criterio temporal de asociación a reemplazos, sin que eso descarte fallas concurrentes. Falta un indicador cuantitativo del desempeño de la navegación.</span><em>Parcial</em></li>
+    <li class="ok"><b>OE4</b><span><b style="font-family:inherit">Exploración autónoma.</b> Generó 60 metas sin intervención y cinco de seis ejecuciones terminaron solas con mapa válido. En la restante el robot no se desplazó y la causa no se determinó. Sus mapas se compararon con un plano medido. Su principal limitación es que tacha metas que él mismo reemplaza.</span><em>Cumplido</em></li>
   </ul>
-  <p>Respecto de la pregunta de investigación, la respuesta es afirmativa para mapear y explorar en el entorno ensayado. La navegación funciona de extremo a extremo, y lo que queda abierto es medirla con un protocolo de metas fijas <a class="ref" href="#f1">1</a>.</p>
+  <p>Respecto de la pregunta de investigación, la respuesta es afirmativa para mapear y explorar en el entorno ensayado. Con seis ejecuciones, el cinco de seis se considera descriptivo y no se generaliza como tasa de desempeño. La navegación funciona de extremo a extremo, y lo que queda abierto es medirla con un protocolo de metas fijas <a class="ref" href="#f1">1</a>.</p>
 </section>
 
 <section>
@@ -131,9 +136,46 @@
     <div class="dato"><b class="num">0,002 m/s</b><span>error estacionario de la rueda izquierda a 0,13 m/s, y 0 en la derecha</span></div>
     <div class="dato"><b class="num">3,50 m²</b><span>área libre mapeada media, con desviación de 0,03 m²</span></div>
     <div class="dato"><b class="num">62,2 %</b><span>índice medio de cobertura libre, relativo a la imagen del mapa y no al recinto</span></div>
-    <div class="dato"><b class="num">53 de 54</b><span>metas abortadas que fueron reemplazos del explorador, no fallas</span></div>
+    <div class="dato"><b class="num">53 de 54</b><span>abortos que cumplen el criterio temporal de asociación a reemplazos del explorador</span></div>
+    <div class="dato"><b class="num">3,4 cm</b><span>distancia media del plano medido a los mapas, con 3,17 a 3,72 cm según la corrida</span></div>
+    <div class="dato"><b class="num">21,9 m</b><span>recorridos por Nav2 en las cinco corridas válidas, durante 12,7 min y sin intervención</span></div>
   </div>
-  <p>Tres lecturas apresuradas que conviene evitar. Decir que el robot cubre el 62 % del recinto, cuando ese índice depende del tamaño de la imagen. Decir que solo una de cada sesenta metas se cumplió, cuando 53 de los 54 abortos fueron reemplazos. Y decir que el robot exploró todo el recinto, cuando lo que se sabe es que no quedaron fronteras y que las cinco corridas llegaron a la misma área libre.</p>
+  <p>Cuatro lecturas apresuradas que conviene evitar. Decir que el robot cubre el 62 % del recinto, cuando ese índice depende del tamaño de la imagen. Decir que solo una de cada sesenta metas se cumplió, cuando 53 de los 54 abortos coinciden en el tiempo con reemplazos que hace el propio explorador. Decir que el robot exploró todo el recinto, cuando lo que se sabe es que no quedaron fronteras y que las cinco corridas llegaron a la misma área libre. Y decir que cinco de seis es una tasa de éxito de 83 %, cuando con seis ejecuciones solo se puede afirmar que supera el 35,9 %.</p>
+</section>
+
+<section>
+  <h2 id="confianza">Cuánto dicen cinco repeticiones</h2>
+  <p>Una media calculada con cinco ensayos no es la media verdadera. Es una estimación, y su intervalo de confianza al 95 % dice entre qué valores es razonable que esté la verdadera. Se calcula con la media, la desviación estándar y un factor de la distribución t de Student, que con cinco repeticiones vale 2,776 <a class="ref" href="#f4">4</a>. Para una proporción, como cinco exploraciones válidas de seis, se usa el intervalo exacto de Clopper y Pearson, uno de los más usados para tasas de éxito en la evaluación de robots <a class="ref" href="#f5">5</a>.</p>
+  <div class="tabla-env">
+    <table class="tabla">
+      <thead><tr><th>Indicador</th><th class="n">n</th><th class="n">Media</th><th class="n">Intervalo al 95 %</th></tr></thead>
+      <tbody>
+        <tr><th>Error odométrico</th><td class="n">5</td><td class="n">3,63 %</td><td class="n">3,08 a 4,18 %</td></tr>
+        <tr><th>Error de seguimiento</th><td class="n">5</td><td class="n">7,18 %</td><td class="n">6,65 a 7,71 %</td></tr>
+        <tr><th>Desviación angular respecto de 360°</th><td class="n">5</td><td class="n">11,7°</td><td class="n">1,8 a 21,6°</td></tr>
+        <tr><th>Índice de cobertura libre</th><td class="n">5</td><td class="n">62,2 %</td><td class="n">46,2 a 78,3 %</td></tr>
+        <tr><th>Área libre mapeada</th><td class="n">5</td><td class="n">3,50 m²</td><td class="n">3,46 a 3,53 m²</td></tr>
+        <tr><th>Distancia media del plano al mapa</th><td class="n">5</td><td class="n">3,4 cm</td><td class="n">3,1 a 3,7 cm</td></tr>
+        <tr><th>Exploraciones válidas</th><td class="n">6</td><td class="n">83,3 %</td><td class="n">35,9 a 99,6 %</td></tr>
+      </tbody>
+      <caption>Tabla A8.4 de la tesis. Intervalos de la media con la t de Student, salvo la proporción de exploraciones válidas, con Clopper y Pearson.</caption>
+    </table>
+  </div>
+  <p>Los indicadores con poca dispersión, como el error odométrico, el área libre y la distancia al plano, quedan bien acotados aun con cinco repeticiones. La cobertura libre y la desviación angular, en cambio, tienen intervalos muy amplios. El control de velocidad tiene una sola captura por conjunto de ganancias, así que no admite un intervalo <a class="ref" href="#f1">1</a>.</p>
+  <div class="widget">
+    <div class="widget-cab"><h3 id="sim-repeticiones">Intervalos de confianza con los datos de la tesis</h3><span class="tipo inter">Interactivo · datos de la tesis</span><p>Elige un indicador para ver sus cinco repeticiones y su intervalo, y mueve el número de repeticiones para ver cómo se angostaría con la misma dispersión. Abajo, prueba cuántos éxitos hacen falta para afirmar una tasa.</p></div>
+    <div class="vis" data-vis="repeticiones"><p class="vis-fallback">Con cinco repeticiones, el error odométrico queda entre 3,08 y 4,18 %. Con diez y la misma dispersión, la semiamplitud del intervalo bajaría cerca de un 42 %, porque el factor t dividido por la raíz de n baja de 1,24 a 0,72. Cinco éxitos en seis intentos solo permiten afirmar que la tasa supera el 35,9 %. Quince de quince permitirían afirmar que supera el 78 %, y para pasar del 80 % harían falta al menos 17 intentos seguidos sin fallas.</p></div>
+  </div>
+  <h3 id="prueba-binomial">Una prueba que lo deja claro</h3>
+  <p>Supongamos que el sistema fuera una moneda, con 50 % de probabilidad de dar un mapa válido. ¿Qué tan raro sería ver cinco éxitos o más en seis intentos? La prueba binomial exacta responde que pasaría 7 de cada 64 veces, p = 0,109375. Eso no basta para descartar la moneda al nivel habitual de 0,05. Con seis intentos, el único resultado que lo permitiría es seis de seis, con p = 1/64, así que una sola falla basta para perder la significancia <a class="ref" href="#f4">4</a>. Por eso, y porque todo ocurrió en un único recinto, la tesis presenta los resultados como una verificación funcional en el entorno ensayado.</p>
+  <h3 id="cuantas-repeticiones">¿Cuántas repeticiones harían falta?</h3>
+  <p>La tesis considera admisible un mínimo de 6 a 10 repeticiones válidas por ensayo, con 10 por condición como objetivo de partida y un total que dependa de la dispersión y de la precisión buscada. Ese criterio es coherente con la guía Eurachem de validación de métodos analíticos, que considera necesarias de 6 a 15 repeticiones para estimar una desviación estándar y señala que a menudo se recomiendan 10, aunque no se refiere a ensayos robóticos <a class="ref" href="#f6">6</a>.</p>
+  <div class="argumento">
+    <div><span class="a-et">Con diez repeticiones</span><p>Con la misma dispersión, los intervalos de la media se angostarían cerca de un 42 %, porque el factor t dividido por la raíz de n baja de 1,24 a 0,72.</p></div>
+    <div><span class="a-et">Metas más exigentes</span><p>Reducir a la mitad el intervalo del error odométrico pediría unas 13 repeticiones. Afirmar una tasa de éxito sobre el 80 % pediría al menos 17 ejecuciones seguidas sin fallas.</p></div>
+    <div><span class="a-et">Lo que hace la literatura</span><p>Liu y otros hacen diez ejecuciones por algoritmo en su ensayo real. Placed y otros señalan que faltan métricas y bancos de prueba estandarizados para comparar exploración, y Trejos y otros acompañan su comparación de SLAM con pruebas estadísticas <a class="ref" href="#f7">7</a> <a class="ref" href="#f8">8</a> <a class="ref" href="#f9">9</a>.</p></div>
+  </div>
+  <p class="destacado">Un intervalo honesto vale más que una media sola. Dice cuánto se sabe y cuánto falta medir.</p>
 </section>
 
 <section>
@@ -141,11 +183,17 @@
   <p>Estas son las limitaciones que reconoce la tesis <a class="ref" href="#f1">1</a>.</p>
   <div class="decisiones">
     <article class="decision"><span class="d-que">Percepción y movimiento</span><h4>Deriva odométrica</h4><p>Sin unidad inercial, la odometría acumula error en giros y recorridos largos.</p></article>
-    <article class="decision"><span class="d-que">Ensayos</span><h4>Recinto único y reducido</h4><p>3,50 m² de área libre media y cinco iteraciones. No se generaliza a espacios mayores, y la superficie del recinto no se midió aparte del mapa.</p></article>
-    <article class="decision"><span class="d-que">Navegación</span><h4>Sin tasa de éxito</h4><p>Los contadores no identificaban metas únicas y el resultado se reconstruyó después. No hay tasa de éxito ni error de posición final hacia metas fijas.</p></article>
-    <article class="decision"><span class="d-que">Control</span><h4>Ley heredada sin análisis de estabilidad</h4><p>Opera como PI incremental y no se comparó con un <span class="term" data-def="Controlador que combina una acción proporcional al error, una integral del error pasado y una derivativa de su tendencia.">PID</span> incremental estándar. Los sobreimpulsos simulados no se mezclan con la medición real.</p></article>
+    <article class="decision"><span class="d-que">Ensayos</span><h4>Recinto único y reducido</h4><p>El espacio disponible limita los recorridos largos y condiciona la geometría de los mapas de costos.</p></article>
+    <article class="decision"><span class="d-que">Navegación</span><h4>Sin tasa de éxito</h4><p>Los contadores no identificaban metas únicas y el resultado se reconstruyó después. Sin un protocolo con metas fijas, no hay tasa de éxito ni error de posición final.</p></article>
+    <article class="decision"><span class="d-que">Mapeo</span><h4>Exactitud medida con huincha</h4><p>El plano se midió a mano. El espesor de los muros explica a lo sumo 4 de los 12 cm en que los pasillos salen más anchos, y el resto puede venir de la medición o del mapa.</p></article>
+    <article class="decision"><span class="d-que">Control</span><h4>Métricas que no se mezclan</h4><p>Los indicadores de la Tabla 5.3 vienen de la captura real. Los sobreimpulsos de 10,7 a 15,6 % vienen de una simulación ilustrativa y no son la misma prueba.</p></article>
+    <article class="decision"><span class="d-que">Control</span><h4>Modelo y sintonía</h4><p>La captura de 0,1 s no resuelve el retardo, el único escalón no representa la zona muerta y la simulación del costo del <span class="term" data-def="Optimización por enjambre de partículas, que busca el mejor valor moviendo muchos candidatos que comparten lo que encuentran.">PSO</span> no replica los enteros del firmware.</p></article>
+    <article class="decision"><span class="d-que">Control</span><h4>Ley heredada</h4><p>Kp actúa como ganancia integral, Kd como proporcional sobre la medición y Ki como segunda integración. Su estabilidad se verificó con un análisis lineal, sin compararla con un <span class="term" data-def="Controlador que combina una acción proporcional al error, una integral del error pasado y una derivativa de su tendencia.">PID</span> incremental estándar ni caracterizarla a baja velocidad.</p></article>
+    <article class="decision"><span class="d-que">Simulación</span><h4>Fidelidad limitada</h4><p>Gazebo Classic no reproduce del todo la fricción, la zona muerta del driver, el ruido de los sensores ni las latencias reales.</p></article>
     <article class="decision"><span class="d-que">Software</span><h4>Versiones en fin de vida</h4><p><span class="term" data-def="Conjunto de bibliotecas y herramientas de código abierto para construir sistemas robóticos modulares y distribuidos.">ROS 2</span> Foxy y <span class="term" data-def="Simulador 3D de robots, aquí en su versión 11, que llegó al fin de soporte en enero de 2025.">Gazebo Classic</span> ya no reciben soporte oficial.</p></article>
-    <article class="decision"><span class="d-que">Integración</span><h4>Detalles conservados del código</h4><p>Lectura no atómica de encoders, <span class="term" data-def="Optimización por enjambre de partículas, que busca el mejor valor moviendo muchos candidatos que comparten lo que encuentran.">PSO</span> sin semilla fija, puntaje de fronteras con unidades mezcladas y metas reemplazadas que entran a la lista negra.</p></article>
+    <article class="decision"><span class="d-que">Validez externa</span><h4>Pocas repeticiones</h4><p>Un único recinto, de 3,50 m² de área libre media, y cinco iteraciones. Los intervalos son amplios en la cobertura, la desviación angular y la proporción de exploraciones válidas.</p></article>
+    <article class="decision"><span class="d-que">Integración</span><h4>Detalles conservados del código</h4><p>Lectura no atómica de encoders, posición global del PSO copiada desde la posición actual y sin semilla fija, y puntaje de fronteras con unidades mezcladas. Se documentan tal como se ejecutan.</p></article>
+    <article class="decision"><span class="d-que">Integración</span><h4>Explorador y Nav2</h4><p>El explorador envía una meta nueva sin cancelar la anterior y Nav2 la informa como abortada. Por eso el resultado de las metas no mide éxito, y la lista negra recibe fronteras que no fallaron.</p></article>
   </div>
 </section>
 
@@ -161,17 +209,20 @@
 
 <section>
   <h2 id="futuro">Trabajo futuro</h2>
-  <p>Propongo nueve líneas de trabajo, en este orden. Cada una es un buen punto de partida para otro proyecto de título o para un curso.</p>
+  <p>Propongo doce líneas de trabajo, en este orden. Cada una es un buen punto de partida para otro proyecto de título o para un curso.</p>
   <ol>
-    <li>Ejecutar el protocolo cuantitativo de navegación en un entorno mayor, registrando cada meta y su resultado de forma unívoca.</li>
+    <li>Ejecutar el protocolo cuantitativo de navegación con metas fijas en un entorno mayor, registrando cada meta y su resultado de forma unívoca, con la tasa de éxito y el error de posición final.</li>
     <li>Integrar una unidad inercial con el paquete robot_localization para reducir la deriva angular.</li>
     <li>Migrar a una distribución vigente de ROS 2 y, en el mismo paso, a una versión vigente de Gazebo.</li>
     <li>Evaluar la navegación en espacios estrechos con una configuración acorde a la geometría del robot.</li>
-    <li>Registrar por separado los reemplazos de meta y las fallas de Nav2, cancelando la meta en curso antes de enviar la siguiente, y evaluar el efecto de la frecuencia del explorador.</li>
-    <li>Evaluar el control en otras velocidades y compararlo con un PID incremental estándar, con estado integral en punto flotante y lectura atómica de encoders.</li>
+    <li>Registrar por separado los reemplazos de meta y las fallas de Nav2, cancelando la meta en curso antes de enviar la siguiente o conservando el registro de bt_navigator, y evaluar el efecto de la frecuencia del explorador.</li>
+    <li>Evaluar el control en otras referencias, en especial a baja velocidad y con cambios de sentido, y compararlo con un PID incremental estándar, con estado integral en punto flotante y lectura atómica de encoders.</li>
     <li>Localizar sobre un mapa guardado con <span class="term" data-def="Localización de Monte Carlo adaptativa, que ubica al robot en un mapa ya guardado con un filtro de partículas.">AMCL</span>, comparando con posiciones marcadas en el recinto.</li>
-    <li>Repetir el ensayo de giro con un giro controlado hasta un ángulo fijo.</li>
+    <li>Repetir el ensayo de giro con un giro controlado hasta un ángulo fijo y verificar la velocidad angular efectiva en /odom.</li>
     <li>Registrar la pose verdadera de Gazebo Classic en los ensayos simulados.</li>
+    <li>Medir el recinto con un instrumento de mayor precisión y repetir con esas medidas la comparación de los mapas con el plano.</li>
+    <li>Llegar al mínimo de 6 a 10 repeticiones válidas por ensayo, con 10 por condición como punto de partida, y ajustar el total según la dispersión y la precisión requerida.</li>
+    <li>Repetir la identificación del modelo con un muestreo más rápido y escalones de distinta amplitud, y reformular el PSO con la aritmética entera del firmware, salida recortada y semilla fija.</li>
   </ol>
   <p>Si quieres tomar uno de estos puntos, <a href="replicar.html">Constrúyelo tú</a> reúne lo necesario para empezar, y en el <a href="https://github.com/SVN11X/tesis_explain/issues">repositorio del sitio</a> puedes dejar una nota de lo que estás haciendo.</p>
 </section>
@@ -179,9 +230,15 @@
 <section class="fuentes-tema">
   <h2 id="fuentes">Fuentes de este tema</h2>
   <ol class="refs-lista">
-    <li id="f1"><span><span class="tipo-ref">Tesis</span>Valderas Neculqueo, S. (2026). <em>Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial</em>. UTEM. Capítulo 5, Tabla 5.5 y Conclusiones, con sus limitaciones y trabajo futuro.</span></li>
+    <li id="f1"><span><span class="tipo-ref">Tesis</span>Valderas Neculqueo, S. (2026). <em>Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial</em>. UTEM. Introducción, Capítulo 5 con la Tabla 5.5 y la Sección 5.6, Anexos 4.12, 8.5 y 8.6 con la Tabla A8.4, y Conclusiones, con sus limitaciones y trabajo futuro.</span></li>
     <li id="f2"><span><span class="tipo-ref">NASA</span>NASA (2016). NASA Systems Engineering Handbook, Sec. 2.4, Distinctions between Product Verification and Product Validation. <a href="https://www.nasa.gov/reference/2-4-distinctions-between-product-verification-and-product-validation/">nasa.gov</a></span></li>
     <li id="f3"><span><span class="tipo-ref">Video</span>Valderas Neculqueo, S. (2026, 29 de septiembre). Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial. YouTube. <a href="https://www.youtube.com/watch?v=iTTC10eGDmc">youtube.com/watch?v=iTTC10eGDmc</a></span></li>
+    <li id="f4"><span><span class="tipo-ref">Libro</span>Devore, J. L., Berk, K. N. y Carlton, M. A. (2021). <em>Modern Mathematical Statistics with Applications</em> (3.ª ed.). Springer. Sección 8.2 y Capítulo 9. <a href="https://doi.org/10.1007/978-3-030-55156-8">doi.org/10.1007/978-3-030-55156-8</a></span></li>
+    <li id="f5"><span><span class="tipo-ref">Artículo</span>Vincent, J. A., Nishimura, H., Itkina, M., Shah, P., Schwager, M. y Kollar, T. (2024). How Generalizable Is My Behavior Cloning Policy? A Statistical Approach to Trustworthy Performance Evaluation. <em>IEEE Robotics and Automation Letters, 9</em>(10). <a href="https://doi.org/10.1109/LRA.2024.3445635">doi.org/10.1109/LRA.2024.3445635</a></span></li>
+    <li id="f6"><span><span class="tipo-ref">Guía</span>Cantwell, H. (Ed.) (2025). <em>Eurachem Guide: The Fitness for Purpose of Analytical Methods</em> (3.ª ed.). Eurachem. Sección 5.3.2. <a href="https://www.eurachem.org/images/stories/Guides/pdf/MV_guide_3rd_ed_V1_EN.pdf">eurachem.org</a></span></li>
+    <li id="f7"><span><span class="tipo-ref">Artículo</span>Liu, C. y otros (2025). Enhancing autonomous exploration for robotics via real time map optimization and improved frontier costs. <em>Scientific Reports, 15</em>. <a href="https://doi.org/10.1038/s41598-025-97231-9">doi.org/10.1038/s41598-025-97231-9</a></span></li>
+    <li id="f8"><span><span class="tipo-ref">Artículo</span>Placed, J. A. y otros (2023). A Survey on Active Simultaneous Localization and Mapping: State of the Art and New Frontiers. <em>IEEE Transactions on Robotics, 39</em>(3). <a href="https://doi.org/10.1109/TRO.2023.3248510">doi.org/10.1109/TRO.2023.3248510</a></span></li>
+    <li id="f9"><span><span class="tipo-ref">Artículo</span>Trejos, K., Rincón, L., Bolaños, M., Fallas, J. y Marín, L. (2022). 2D SLAM Algorithms Characterization, Calibration, and Comparison Considering Pose Error, Map Accuracy as Well as CPU and Memory Usage. <em>Sensors, 22</em>(18). <a href="https://doi.org/10.3390/s22186903">doi.org/10.3390/s22186903</a></span></li>
   </ol>
 </section>
 

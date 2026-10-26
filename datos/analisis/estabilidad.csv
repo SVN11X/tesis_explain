@@ -1,0 +1,7 @@
+escenario,retardo_s,caso,polo_max,margen_fase_grados,margen_ganancia_db,margen_retardo_s,sensibilidad_maxima
+sin_retardo,0.0,izquierda_sin_ki,0.947,56.9,38.9,0.45,1.35
+sin_retardo,0.0,izquierda_con_ki,0.995,53.4,38.9,0.42,1.39
+sin_retardo,0.0,derecha,0.950,55.5,39.4,0.44,1.38
+sensibilidad,0.1,izquierda_sin_ki,0.961,44.1,13.4,0.35,1.78
+sensibilidad,0.1,izquierda_con_ki,0.995,40.7,13.1,0.32,1.85
+sensibilidad,0.1,derecha,0.964,42.9,13.3,0.34,1.81

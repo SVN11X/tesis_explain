@@ -11,13 +11,14 @@
       "izq": 1969
     },
     "cinta_media_reportada_m": 1.856,
-    "fuente": "Guía de referencia: sección 4.3.3, Tabla 4.3 y Tabla A6.2; documento completo pendiente"
+    "fuente": "Tesis: sección 4.3.3, Tablas 4.1, 4.3 y A6.2 y Anexo 4.1"
   },
   "control": {
     "periodo_planificador_s": 0.033,
     "ticks_por_ciclo_por_m_s": 313.56,
     "referencia_m_s": 0.13,
     "pwm_max": 255,
+    "periodo_captura_s": 0.1,
     "ruedas": {
       "der": {
         "nombre": "Rueda derecha",
@@ -80,13 +81,231 @@
         "dec": 5
       }
     ],
-    "fuente": "Guía de referencia: Tablas A4.4, 4.3, 5.3; firmware adaptado no publicado"
+    "fuente": "Tesis: Tablas 4.3, 4.4, 5.3 y A4.4 y Anexos 4.5, 4.8 y 4.10. Firmware adaptado no publicado",
+    "ganancias_originales_firmware": {
+      "Kp": 20.0,
+      "Kd": 12.0,
+      "Ki": 0.0,
+      "Ko": 50,
+      "fuente": "Anexo 4.5: ganancias enteras del firmware original, comunes a ambas ruedas"
+    },
+    "kd_evaluado_por_costo": 25.0,
+    "estabilidad_fuente": "Anexo 4.12 y Tabla A4.5: lazo discreto con el modelo FOPDT de cada rueda a 33 ms, sin saturación, banda del error, zona muerta ni truncamientos"
   },
   "mapeo": {
     "resolucion_reportada_m": 0.05,
     "umbral_libre_pgm": 230,
     "umbral_ocupado_pgm": 50,
-    "fuente": "Guía de referencia: Tabla 5.4 y Anexo 8.1 (umbrales de intensidad de la imagen PGM). CSV resumido sin dimensiones de rejilla"
+    "fuente": "Tesis: Tabla 5.4 y Anexo 8.1 (umbrales de intensidad de la imagen PGM). CSV resumido sin dimensiones de rejilla",
+    "plano_recinto": {
+      "ancho_m": 2.14,
+      "alto_m": 1.91,
+      "muros": [
+        [
+          [
+            0,
+            0
+          ],
+          [
+            2.14,
+            0
+          ]
+        ],
+        [
+          [
+            2.14,
+            0
+          ],
+          [
+            2.14,
+            1.91
+          ]
+        ],
+        [
+          [
+            0,
+            1.91
+          ],
+          [
+            2.14,
+            1.91
+          ]
+        ],
+        [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1.91
+          ]
+        ],
+        [
+          [
+            0.58,
+            0
+          ],
+          [
+            0.58,
+            1.23
+          ]
+        ],
+        [
+          [
+            1.16,
+            0.68
+          ],
+          [
+            1.16,
+            1.91
+          ]
+        ],
+        [
+          [
+            1.74,
+            1.51
+          ],
+          [
+            2.14,
+            1.51
+          ]
+        ],
+        [
+          [
+            1.16,
+            1.08
+          ],
+          [
+            1.56,
+            1.08
+          ]
+        ]
+      ],
+      "tabique_sin_largo": [
+        [
+          1.53,
+          0
+        ],
+        [
+          1.53,
+          0.3
+        ]
+      ],
+      "cotas": {
+        "alto": [
+          [
+            -0.12,
+            0
+          ],
+          [
+            -0.12,
+            1.91
+          ]
+        ],
+        "pasillo-1": [
+          [
+            0,
+            0.45
+          ],
+          [
+            0.58,
+            0.45
+          ]
+        ],
+        "pasillo-2": [
+          [
+            0.58,
+            0.95
+          ],
+          [
+            1.16,
+            0.95
+          ]
+        ],
+        "pasillo-3": [
+          [
+            1.16,
+            1.3
+          ],
+          [
+            2.14,
+            1.3
+          ]
+        ],
+        "paso-1": [
+          [
+            0.58,
+            1.23
+          ],
+          [
+            0.58,
+            1.91
+          ]
+        ],
+        "paso-2": [
+          [
+            1.16,
+            0
+          ],
+          [
+            1.16,
+            0.68
+          ]
+        ],
+        "tabique-largo": [
+          [
+            1.16,
+            1.14
+          ],
+          [
+            1.56,
+            1.14
+          ]
+        ],
+        "tabique-altura": [
+          [
+            1.22,
+            0.68
+          ],
+          [
+            1.22,
+            1.08
+          ]
+        ],
+        "tabique-superior-distancia": [
+          [
+            1.94,
+            1.51
+          ],
+          [
+            1.94,
+            1.91
+          ]
+        ],
+        "tabique-superior-largo": [
+          [
+            1.74,
+            1.45
+          ],
+          [
+            2.14,
+            1.45
+          ]
+        ],
+        "tabique-inferior": [
+          [
+            1.53,
+            0.15
+          ],
+          [
+            2.14,
+            0.15
+          ]
+        ]
+      },
+      "fuente": "Fig. A8.1 y Tabla A8.3 de la tesis: distancias entre muros medidas con huincha, con los muros dibujados como líneas. El largo del tabique unido al muro inferior no se midió. Se dibuja aproximado y no entra en la Tabla A8.3"
+    }
   },
   "exploracion": {
     "planner_frequency_hz": 0.3,
@@ -95,6 +314,6 @@
     "potential_scale": 3.0,
     "gain_scale": 1.0,
     "min_frontier_size_m": 0.05,
-    "fuente": "Guía de referencia: Tabla A5.4 y Anexo 5.6. El período efectivo de 3333 ms sale de truncar 1/0,3 s a milisegundos enteros"
+    "fuente": "Tesis: Tabla A5.4 y Anexo 5.6. El período efectivo de 3333 ms sale de truncar 1/0,3 s a milisegundos enteros"
   }
 }

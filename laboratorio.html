@@ -39,7 +39,7 @@
 <main class="articulo" id="contenido">
 <section class="en-breve" aria-labelledby="t-breve">
   <h2 id="t-breve">Una regla siempre deja su rastro</h2>
-  <p>Una diferencia media positiva indica la dirección de la diferencia en esa muestra. No identifica su causa. Un aborto explicado por reemplazo no se cuenta como falla. Las celdas vacías de una corrida excluida no se convierten en ceros.</p>
+  <p>Una diferencia media positiva indica la dirección de la diferencia en esa muestra. No identifica su causa. Un aborto asociado a un reemplazo no se cuenta como falla, aunque la asociación tampoco descarta una falla al mismo tiempo. Las celdas vacías de una corrida excluida no se convierten en ceros.</p>
   <p>Tus archivos se leen en la memoria del navegador, no se suben ni se guardan. El sitio descarga sus recursos locales y la tabla elegida de la guía. Puedes exportar el resultado en JSON con fórmulas, límites y huella SHA-256 del archivo, cuando el navegador la permita.</p>
 </section>
 <section aria-labelledby="entrada">
@@ -114,7 +114,7 @@
     <tr><th scope="row"><a href="datos/ensayos/mapeo.csv">Mapeo</a></th><td>Promedio y desviación del área libre y del índice declarado, solo en corridas válidas.</td><td>Rejillas, resolución dentro del archivo, marco, dimensiones, áreas ocupada y desconocida.</td></tr>
     <tr><th scope="row"><a href="datos/ensayos/metas.csv">Metas</a></th><td>Suma por estado; abortadas sin clasificar = abortadas − reemplazadas.</td><td>Estados por identificador y marcas temporales. No equivale a número de fallas.</td></tr>
     <tr><th scope="row">Mapa PGM propio</th><td>Celdas por clase con umbrales declarados. Área = celdas × resolución². Índice = 100 · libres / (libres + desconocidas), en la imagen completa y en el rectángulo observado.</td><td>Una referencia geométrica externa: sin ella no se mide el error absoluto ni la escala del mapa.</td></tr>
-    <tr><th scope="row">Registro de estados de metas propio</th><td>Estado final por identificador, con prioridad éxito, aborto y cancelación. Reemplazo si la meta siguiente ya figura mientras la abortada sigue activa.</td><td>El motivo de los abortos sin clasificar y el resultado de las metas sin estado final.</td></tr>
+    <tr><th scope="row">Registro de estados de metas propio</th><td>Estado final por identificador, con prioridad éxito, aborto y cancelación. Asociada a reemplazo si la meta siguiente ya figura mientras la abortada sigue activa.</td><td>El motivo de los abortos sin clasificar y el resultado de las metas sin estado final.</td></tr>
   </tbody></table></div>
   <p>Desviación muestral: √(Σ(x − promedio)² / (n − 1)). Con una repetición no está definida. Los promedios se calculan sobre los valores disponibles; las cifras originales pueden usar valores previos al redondeo.</p>
   <details><summary>Formato opcional para una serie de control propia</summary>
@@ -129,7 +129,7 @@
   </details>
   <details><summary>Formato del registro de estados de metas</summary>
     <p>Encabezados: <code>mensaje,meta_id,estado,aceptada_s</code>. Una fila por cada meta presente en cada mensaje de estado de la acción <code>NavigateToPose</code>. <code>mensaje</code> es el número de orden del mensaje, <code>meta_id</code> el identificador de la meta, <code>estado</code> uno de ACCEPTED, EXECUTING, CANCELING, SUCCEEDED, CANCELED o ABORTED, o su código de 1 a 6, y <code>aceptada_s</code> el sello de aceptación de la meta en segundos.</p>
-    <p>El procedimiento sigue la descripción del Anexo 8.4 de la tesis, implementado de nuevo para esta guía: estado final con prioridad éxito sobre aborto sobre cancelación, y una abortada cuenta como reemplazada si en algún mensaje la meta siguiente ya figura mientras ella sigue aceptada o en ejecución. El tiempo activo es la diferencia entre su aceptación y la de la meta que la reemplazó.</p>
+    <p>El procedimiento sigue la descripción del Anexo 8.4 de la tesis, implementado de nuevo para esta guía: estado final con prioridad éxito sobre aborto sobre cancelación, y una abortada se asocia a un reemplazo si en algún mensaje la meta siguiente ya figura mientras ella sigue aceptada o en ejecución. El intervalo que se informa es la diferencia entre su aceptación y la de la meta siguiente. No mide cuándo terminó la anterior, y la asociación no descarta fallas al mismo tiempo.</p>
   </details>
   <p>Consulta los <a href="docs/laboratorio.md">esquemas completos y la interfaz de extensión</a>. El laboratorio no ejecuta ROS 2, SLAM Toolbox, Ceres ni modelos de IA.</p>
 </section>

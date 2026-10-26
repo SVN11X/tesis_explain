@@ -52,7 +52,7 @@ with sync_playwright() as pw:
         ('movimiento reducido', {'viewport': {'width': 1280, 'height': 900}, 'reduced_motion': 'reduce'}),
         ('oscuro', {'viewport': {'width': 1366, 'height': 900}, 'color_scheme': 'dark'})
     ]
-    visuales = ['lidar', 'rejilla', 'marcos-mapeo', 'barridos', 'lazo', 'rviz-colores', 'cobertura', 'candidatos-slam', 'cola-slam']
+    visuales = ['lidar', 'rejilla', 'marcos-mapeo', 'barridos', 'lazo', 'rviz-colores', 'cobertura', 'plano-mapa', 'candidatos-slam', 'cola-slam']
     for name, options in configurations:
         ctx = browser.new_context(**options)
         ctx.route(re.compile(r'^https?://(?!localhost)'), lambda r: r.fulfill(status=200, body=''))
@@ -64,7 +64,7 @@ with sync_playwright() as pw:
         for v in visuales:
             p.locator('[data-vis="%s"]' % v).scroll_into_view_if_needed()
             p.wait_for_selector('[data-vis="%s"][data-montado="1"]' % v)
-        check(not errors, name + ': los nueve interactivos del capítulo montan sin errores')
+        check(not errors, name + ': los diez interactivos del capítulo montan sin errores')
         check(p.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), name + ': no hay desborde horizontal')
         check(p.locator('[data-vis][data-montado] .vis-fallback').count() == 0, name + ': no quedan fallbacks visibles')
         check(p.locator('.vis svg style').count() == 0, name + ': los SVG en línea no traen estilos que afecten al resto de la página')

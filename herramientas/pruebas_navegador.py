@@ -520,9 +520,9 @@ def probar_recursos(nav):
         if nombre == 'escritorio':
             e = p.evaluate("""() => { const pie = document.querySelector('.pie'), ab = document.getElementById('abstract').closest('section');
               return { mit: !!pie.querySelector('a[href$="/LICENSE"]'), cc: !!pie.querySelector('a[href*="licenses/by/4.0"]'), rev: (pie.querySelector('time') || {}).textContent || '',
-                       autor: !!pie.querySelector('a[href="recursos.html#autor"]'), versionOculta: [...pie.querySelectorAll('p[hidden]')].some(x => x.textContent.includes('Basado en la versión')),
+                       autor: !!pie.querySelector('a[href="recursos.html#autor"]'), version: [...pie.querySelectorAll('p:not([hidden])')].some(x => x.textContent.includes('Versión del documento de referencia: octubre de 2026')),
                        lang: ab.getAttribute('lang'), abstract: ab.textContent.includes('Keywords'), ocultos: document.querySelectorAll('#autor ~ * [hidden], #autor ~ [hidden]').length }; }""")
-            ok(e['mit'] and e['cc'] and e['rev'] and e['autor'] and e['versionOculta'], 'el pie muestra la licencia, la fecha de revisión y el enlace al autor, con la versión de la tesis pendiente y oculta', e)
+            ok(e['mit'] and e['cc'] and e['rev'] and e['autor'] and e['version'], 'el pie muestra la licencia, la fecha de revisión, el enlace al autor y la versión de la tesis de referencia', e)
             ok(e['lang'] == 'en' and e['abstract'] and e['ocultos'] >= 3, 'el abstract va en inglés y los datos pendientes del autor quedan ocultos', e)
         ctx.close()
 
@@ -800,7 +800,7 @@ def probar_preguntas(nav):
     estatico = BeautifulSoup(open(os.path.join(REPO, 'preguntas.html'), encoding='utf-8').read(), 'html.parser')
     ds = estatico.select('details.pregunta')
     clases = {'general': 'basico', 'tecnica': 'intermedio', 'exigente': 'avanzado'}
-    ok(len(ds) == 54 and all(d.get('id', '').startswith('p-') for d in ds), '54 preguntas, cada una con su ancla', len(ds))
+    ok(len(ds) == 106 and all(d.get('id', '').startswith('p-') for d in ds), '106 preguntas, cada una con su ancla', len(ds))
     ok(all(clases[d['data-dificultad']] in d.select_one('summary .etiqueta')['class'] for d in ds), 'la etiqueta de cada pregunta coincide con su nivel')
     ok(all(d.select_one('.q-respaldo') and d.select_one('.q-ver a') for d in ds), 'cada pregunta indica su respaldo en la tesis y su tema en la guía')
     texto = ' '.join(d.get_text(' ') for d in ds)
@@ -812,7 +812,7 @@ def probar_preguntas(nav):
     p.goto(BASE + '/preguntas.html')
     p.wait_for_timeout(250)
     e = p.evaluate(EST)
-    ok(len(e['visibles']) == 54 and len(e['temasVisibles']) == 10 and e['abiertas'] == 0, 'parten las 54 preguntas visibles y plegadas, en 10 temas', e['conteo'])
+    ok(len(e['visibles']) == 106 and len(e['temasVisibles']) == 15 and e['abiertas'] == 0, 'parten las 106 preguntas visibles y plegadas, en 15 temas', e['conteo'])
     p.fill('#q-buscar', '3.63'); p.wait_for_timeout(300)
     ok(p.evaluate(EST)['visibles'] == ['p-dos-errores'], 'buscar 3.63 encuentra la pregunta que dice 3,63', p.evaluate(EST)['visibles'])
     p.fill('#q-buscar', '444643'); p.wait_for_timeout(300)
@@ -822,19 +822,19 @@ def probar_preguntas(nav):
     p.fill('#q-buscar', ''); p.wait_for_timeout(300)
     p.click('#q-nivel button[data-n="general"]')
     e = p.evaluate(EST)
-    ok(len(e['visibles']) == 10 and p.get_attribute('#q-nivel button[data-n="general"]', 'aria-pressed') == 'true', 'el nivel Para todo público deja 10 preguntas', e['conteo'])
+    ok(len(e['visibles']) == 13 and p.get_attribute('#q-nivel button[data-n="general"]', 'aria-pressed') == 'true', 'el nivel Para todo público deja 13 preguntas', e['conteo'])
     p.click('#q-temas .chip[data-tema="gemelo"]')
     e = p.evaluate(EST)
     ok(e['visibles'] == ['p-para-que-sim', 'p-video'] and e['temasVisibles'] == ['gemelo'], 'tema y nivel se combinan y los temas vacíos se ocultan', e)
-    ok('2 de 54' in e['conteo'] and p.get_attribute('#q-conteo', 'role') == 'status', 'el conteo se anuncia a lectores de pantalla', e['conteo'])
+    ok('2 de 106' in e['conteo'] and p.get_attribute('#q-conteo', 'role') == 'status', 'el conteo se anuncia a lectores de pantalla', e['conteo'])
     p.click('#q-limpiar')
-    ok(len(p.evaluate(EST)['visibles']) == 54 and p.is_hidden('#q-limpiar'), 'Quitar filtros vuelve a mostrar todo')
+    ok(len(p.evaluate(EST)['visibles']) == 106 and p.is_hidden('#q-limpiar'), 'Quitar filtros vuelve a mostrar todo')
     p.fill('#q-buscar', 'palabraquenoexiste'); p.wait_for_timeout(300)
     ok(p.is_visible('#q-sin') and p.is_disabled('#q-azar'), 'sin coincidencias se avisa y la pregunta al azar se desactiva')
     p.fill('#q-buscar', ''); p.wait_for_timeout(300)
     # modo práctica
     p.check('#q-practica')
-    ok(p.evaluate(EST)['veladas'] == 54, 'el modo práctica vela todas las respuestas')
+    ok(p.evaluate(EST)['veladas'] == 106, 'el modo práctica vela todas las respuestas')
     p.click('#p-kd summary')
     r = p.evaluate("(() => { const d = document.getElementById('p-kd'); return [getComputedStyle(d.querySelector('.q-velo')).display, getComputedStyle(d.querySelector('.q-cuerpo > p')).display, !!d.querySelector('.q-velo label[for=\"tu-p-kd\"]')]; })()")
     ok(r[0] != 'none' and r[1] == 'none' and r[2], 'al abrir en modo práctica se ve el espacio para responder y no la respuesta', r)
@@ -870,7 +870,7 @@ def probar_preguntas(nav):
     ok('p-trejos' in p.evaluate(EST)['visibles'], 'un enlace al ancla actual también quita el filtro que la ocultaba')
     p.evaluate("document.getElementById('prueba-ancla').remove()")
     p.click('#q-abrir')
-    ok(p.evaluate(EST)['abiertas'] == 54, 'Abrir todas abre las 54')
+    ok(p.evaluate(EST)['abiertas'] == 106, 'Abrir todas abre las 106')
     p.click('#q-cerrar')
     ok(p.evaluate(EST)['abiertas'] == 0, 'Cerrar todas las pliega')
     ok(not errores, 'sin errores de JavaScript en Preguntas', errores[:3])
@@ -890,7 +890,7 @@ def probar_preguntas(nav):
     n = p.locator('details.pregunta').count()
     oculto = p.locator('#q-herramientas').is_hidden()
     p.locator('#p-costo summary').click()
-    ok(n == 54 and oculto and p.locator('#p-costo .q-cuerpo p').first.is_visible(), 'sin JavaScript se ven las 54 preguntas, se abren y las herramientas quedan ocultas')
+    ok(n == 106 and oculto and p.locator('#p-costo .q-cuerpo p').first.is_visible(), 'sin JavaScript se ven las 106 preguntas, se abren y las herramientas quedan ocultas')
     ctx.close()
 
 

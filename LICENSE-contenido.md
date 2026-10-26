@@ -11,7 +11,7 @@ Texto de la licencia: https://creativecommons.org/licenses/by/4.0/deed.es
 1. Los textos de las páginas.
 2. Los diagramas, interactivos y figuras elaborados para esta guía.
 3. Las fotos del prototipo y del recinto, las capturas de RViz y Gazebo, el esquema eléctrico y los gráficos de resultados, que son del autor y provienen de la tesis.
-4. Las tablas de los ensayos en `datos/ensayos/`.
+4. Las tablas de los ensayos en `datos/ensayos/` y las del análisis en `datos/analisis/`.
 
 ## Qué no cubre
 

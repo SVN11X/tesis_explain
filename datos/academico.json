@@ -2,24 +2,16 @@
   "estado": "en_revision_comite",
   "estado_texto": "En revisión por comité",
   "nota": "Explicaciones, parámetros y resultados pueden cambiar tras la revisión.",
-  "version_documento": null,
-  "fecha_datos": null,
+  "version_documento": "octubre de 2026, 152 páginas",
+  "fecha_datos": "Exploración y mapeo, 22 de junio de 2026 (Anexo 7). La tesis no fecha los demás ensayos.",
   "revision_datos": null,
-  "ultima_actualizacion_sitio": "2026-10-22",
-  "revision_base": "a92a333e1952ae0ea8ff763278254329162d8e6d",
+  "ultima_actualizacion_sitio": "2026-10-26",
+  "revision_base": "b9222051979bb092dbc16f850ac1e7e4169b212e",
   "tesis_pdf": null,
   "pendientes": [
     {
-      "texto": "Versión del documento académico y fecha de las tablas",
-      "enlace": null
-    },
-    {
       "texto": "Método de medida del ángulo físico del giro",
       "enlace": "preguntas.html#p-giro"
-    },
-    {
-      "texto": "Motivo de elegir 0,13 m/s como referencia",
-      "enlace": "preguntas.html#p-solo-013"
     },
     {
       "texto": "Motivo del tamaño mínimo de frontera",
@@ -45,6 +37,11 @@
       "fecha": "2026-10-22",
       "tipo": "contenido",
       "cambio": "Explicaciones de selección y confianza de cierres, procesamiento síncrono/asíncrono, formatos de mapa y sesión, localización y parámetros de Foxy. Nuevos ejemplos sintéticos; precisiones sobre AMCL, GMapping y el marco map. Sin cambios en las tablas experimentales."
+    },
+    {
+      "fecha": "2026-10-26",
+      "tipo": "contenido",
+      "cambio": "Actualización a la versión de octubre de 2026 de la tesis: análisis de estabilidad del lazo de velocidad, comparación de los mapas con el plano medido, alcance estadístico de los ensayos, requisitos del protocolo de metas fijas y criterio temporal de asociación de los abortos a reemplazos. Nuevas tablas de análisis, tres interactivos y 106 preguntas en 15 temas. Las tablas experimentales no cambian."
     }
   ]
 }

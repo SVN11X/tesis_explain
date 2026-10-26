@@ -16,7 +16,7 @@ Notas para leerlas.
 
 1. En simulación la pose verdadera de Gazebo Classic no quedó registrada, así que `recta-2m-simulacion.csv` compara la odometría con los 2 m ordenados y no con una medición externa. No se compara con el error odométrico del robot real.
 2. La iteración 2 de `mapeo.csv` quedó incompleta y sin mapa, por eso sus valores están vacíos. La Tabla 5.4 la excluye de las medias.
-3. `metas.csv` no incluye la iteración 2, igual que la Tabla A7.1. Los totales de la tesis son 60 metas, 54 abortadas, 53 reemplazadas por el explorador, 1 exitosa y 5 sin estado terminal.
+3. `metas.csv` no incluye la iteración 2, igual que la Tabla A7.1. Los totales de la tesis son 60 metas, 54 abortadas, 53 asociadas a reemplazos del explorador, 1 exitosa y 5 sin estado terminal. Las columnas `reemplazadas_por_explorador` y `tiempo_activo_mediano_s` conservan su nombre por compatibilidad con el laboratorio. En la versión de octubre de 2026 de la tesis se llaman «abortos asociados a reemplazos», un criterio temporal que no descarta fallas concurrentes, y «mediana entre metas», medida entre la aceptación de una meta y la de la siguiente.
 4. Las medias calculadas con estos valores pueden diferir en el último decimal de las que informa la tesis, porque la tesis las calcula antes de redondear cada repetición.
 
 Licencia CC BY 4.0, como el resto del contenido del sitio. Ver `LICENSE-contenido.md` en la raíz del repositorio.

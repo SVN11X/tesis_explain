@@ -1,4 +1,4 @@
-"""Sincroniza metadatos estáticos y un módulo local desde JSON/CSV.
+"""Sincroniza metadatos estáticos y un módulo local desde JSON/CSV de datos/ensayos y datos/analisis.
 python3 herramientas/datos.py [--comprobar]
 No transforma documentos ni conclusiones; no requiere bibliotecas externas.
 """
@@ -19,13 +19,20 @@ def write(path, content):
 
 academic = json.loads((ROOT / 'datos/academico.json').read_text())
 params = json.loads((ROOT / 'datos/parametros.json').read_text())
-trials = {}
-for path in sorted((ROOT / 'datos/ensayos').glob('*.csv')):
-    rows = []
-    for row in csv.DictReader(path.open(encoding='utf-8', newline='')):
-        rows.append({k: (None if v == '' else float(v) if re.fullmatch(r'-?\d+(?:\.\d+)?', v) else v) for k, v in row.items()})
-    trials[path.stem] = rows
-payload = json.dumps(dict(academico=academic, parametros=params, ensayos=trials), ensure_ascii=False, separators=(',', ':'))
+def tablas(carpeta):
+    out = {}
+    for path in sorted((ROOT / carpeta).glob('*.csv')):
+        rows = []
+        for row in csv.DictReader(path.open(encoding='utf-8', newline='')):
+            rows.append({k: (None if v == '' else float(v) if re.fullmatch(r'-?\d+(?:\.\d+)?', v) else v) for k, v in row.items()})
+        out[path.stem] = rows
+    return out
+
+
+# ensayos: tablas resumidas de los ensayos. analisis: tablas que la tesis calcula sobre ellos.
+trials = tablas('datos/ensayos')
+analysis = tablas('datos/analisis')
+payload = json.dumps(dict(academico=academic, parametros=params, ensayos=trials, analisis=analysis), ensure_ascii=False, separators=(',', ':'))
 module = ('/* Generado por herramientas/datos.py desde JSON y CSV; no editar a mano. */\n'
           '(function(r){"use strict";var d=' + payload + ';'
           'if(typeof module!=="undefined"&&module.exports)module.exports=d;else r.PROYECTO=d;'

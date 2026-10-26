@@ -1,0 +1,12 @@
+id,tipo,distancia,plano_m,media_mapas_m,minimo_mapas_m,maximo_mapas_m,diferencia_media_cm
+alto,recinto,Alto interior del recinto,1.91,1.89,1.89,1.90,-1.7
+pasillo-1,pasillo,Ancho del primer pasillo,0.58,0.62,0.61,0.64,4.1
+pasillo-2,pasillo,Ancho del segundo pasillo,0.58,0.60,0.59,0.61,2.4
+pasillo-3,pasillo,Ancho del tercer pasillo,0.98,1.03,1.02,1.05,5.2
+paso-1,paso,Paso sobre el primer muro largo,0.68,0.69,0.68,0.69,0.5
+paso-2,paso,Paso bajo el segundo muro largo,0.68,0.67,0.67,0.68,-0.8
+tabique-largo,tabique,Largo del tabique unido al segundo muro largo,0.40,0.34,0.32,0.38,-6.1
+tabique-altura,tabique,Altura de ese tabique sobre el extremo del muro,0.40,0.39,0.38,0.40,-0.5
+tabique-superior-distancia,tabique,Distancia del tabique superior del tercer pasillo al muro superior,0.40,0.32,0.31,0.34,-7.8
+tabique-superior-largo,tabique,Largo del tabique superior del tercer pasillo,0.40,0.38,0.34,0.41,-2.3
+tabique-inferior,tabique,Distancia del tabique corto inferior al muro derecho,0.61,0.70,0.69,0.71,9.3

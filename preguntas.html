@@ -41,7 +41,7 @@
       <p class="eyebrow" data-bloque>Complemento de la guía</p>
       <h1>Preguntas difíciles</h1>
       <p class="lead">Las preguntas que haría alguien que leyó la tesis con lupa, cada una con una respuesta directa, el dato que la respalda y la sección de la tesis donde está. Sirven para entender el trabajo a fondo, para ponerse a prueba o para preparar una defensa propia.</p>
-      <div class="meta-cap"><span class="etiqueta" data-lectura>Lectura</span><span class="etiqueta">54 preguntas en 10 temas</span></div>
+      <div class="meta-cap"><span class="etiqueta" data-lectura>Lectura</span><span class="etiqueta">106 preguntas en 15 temas</span></div>
     </div>
     <aside class="q-hero-niveles" aria-labelledby="t-niveles">
       <h2 id="t-niveles">Tres niveles de dificultad</h2>
@@ -50,7 +50,7 @@
         <div><dt><span class="etiqueta intermedio">Técnica</span></dt><dd>Cómo funciona cada pieza y si los resultados respaldan los objetivos.</dd></div>
         <div><dt><span class="etiqueta avanzado">Exigente</span></dt><dd>Buscan el punto débil: una cifra que no mide lo que parece, una decisión sin comparar o una causa sin determinar.</dd></div>
       </dl>
-      <p>Las respuestas siguen las referencias de esta guía. La versión completa del documento y los motivos señalados como pendientes deben contrastarse con el autor. La tesis está en revisión.</p>
+      <p>Las respuestas siguen la versión de octubre de 2026 de la tesis. Los dos motivos señalados como pendientes deben contrastarse con el autor. La tesis está en revisión.</p>
     </aside>
   </div>
 </header>
@@ -61,7 +61,7 @@
 <section class="en-breve" aria-labelledby="t-breve">
   <h2 id="t-breve">Cómo usar esta página</h2>
   <p>Cada pregunta se abre para mostrar su respuesta. Debajo vienen la repregunta más probable, la sección de la tesis que la respalda y un enlace al tema de la guía que la explica con calma. Puedes buscar una palabra o una cifra, filtrar por tema y por nivel, o pedir una pregunta al azar.</p>
-  <p class="q-procedencia">El respaldo indica lo que cita la guía disponible, no una comprobación independiente del documento inédito. Las decisiones pendientes siguen abiertas. las respuestas no representan palabras del autor.</p>
+  <p class="q-procedencia">El respaldo indica la sección de la tesis que sostiene cada respuesta, en su versión de octubre de 2026. Las dos decisiones marcadas como pendientes siguen abiertas, y las respuestas no representan palabras del autor.</p>
   <p>El <b>modo práctica</b> esconde las respuestas. Al abrir una pregunta primero aparece un espacio para pensar o escribir tu respuesta, y la respuesta de la tesis se muestra recién cuando la pides. Así puedes comparar lo que dijiste con lo que respalda el documento.</p>
 </section>
 
@@ -103,9 +103,9 @@
     <summary><span class="q-n" aria-hidden="true">01</span><span class="q-t">¿Se cumplió el objetivo general y cómo sabe que el robot realmente se movió?</span><span class="etiqueta intermedio">Técnica</span></summary>
     <div class="q-cuerpo">
       <p>Para mapear y explorar, sí. En cinco de las seis ejecuciones el robot construyó un mapa 2D y terminó solo, cuando el explorador ya no encontró fronteras. La guía infiere su desplazamiento porque el mapa creció en cada corrida, con coberturas de entre 53,4 y 82,9 %, y eso exige que el láser vea geometría nueva desde otras posiciones.</p>
-      <p>La navegación funcionó de punta a punta y llevó al robot hacia las metas del explorador, pero no se documenta un indicador cuantitativo de su desempeño. Por eso la guía presenta como cumplidos el OE1 y el OE4, y cumplidos en parte el OE2 y el OE3.</p>
+      <p>La navegación funcionó de punta a punta y llevó al robot hacia las metas del explorador, pero no se documenta un indicador cuantitativo de su desempeño. Por eso la guía presenta como cumplidos el OE1 y el OE4, y cumplidos en parte el OE2 y el OE3. Los mapas, además, quedan a 3,4 cm en promedio de un plano medido del recinto, y con seis ejecuciones el cinco de seis se lee como un dato descriptivo, no como una tasa.</p>
       <div class="q-sigue"><p class="q-rot">Si la pregunta sigue</p><p>Las metas generadas no prueban movimiento. En la corrida excluida hubo 14 metas y el robot no se movió. Tampoco lo prueba la línea verde de RViz, que es la ruta que planifica Nav2 hacia la frontera y no el camino que hizo el robot.</p></div>
-      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 5.4, Tabla 5.5, Anexo 7 y Conclusiones <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Secciones 5.4 y 5.6, Tabla 5.5, Anexos 7 y 8.5 y Conclusiones <a class="ref" href="#f1">1</a>.</p>
       <p class="q-ver"><a href="resultados.html#objetivos">Los cuatro objetivos, uno por uno</a></p>
     </div>
   </details>
@@ -113,7 +113,7 @@
   <details class="pregunta" id="p-oe3-parcial" data-respuesta="guia" data-dificultad="tecnica">
     <summary><span class="q-n" aria-hidden="true">02</span><span class="q-t">El OE3 incluye navegación autónoma. ¿Por qué lo declara cumplido solo en parte?</span><span class="etiqueta intermedio">Técnica</span></summary>
     <div class="q-cuerpo">
-      <p>Porque sus partes quedaron con distinto nivel de evidencia. El mapeo y la localización mientras se construye el mapa quedaron verificados en el robot real y caracterizados con cobertura y área libre. La navegación solo quedó verificada en funcionamiento. Nav2 llevó al robot hacia las metas del explorador en las cinco corridas válidas, sin abortos atribuibles a fallas en el registro, pero no se documenta un indicador como una tasa de éxito o un error de posición final.</p>
+      <p>Porque sus partes quedaron con distinto nivel de evidencia. El mapeo y la localización mientras se construye el mapa quedaron verificados en el robot real y caracterizados con cobertura y área libre. La navegación solo quedó verificada en funcionamiento. Nav2 llevó al robot hacia las metas del explorador en las cinco corridas válidas, con 21,9 m de recorrido autónomo. De los 54 abortos, 53 cumplen el criterio temporal de asociación a reemplazos, sin que eso descarte fallas al mismo tiempo, y no se documenta un indicador como una tasa de éxito o un error de posición final.</p>
       <p>Verificar es comprobar que algo funciona como se diseñó. Validar es medir con números que cumple lo que se necesita. La navegación quedó en el primer nivel.</p>
       <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Tabla 5.5 y Conclusiones, OE3 <a class="ref" href="#f1">1</a>.</p>
       <p class="q-ver"><a href="resultados.html#palabras">Validado, evaluado y verificado</a></p>
@@ -123,19 +123,20 @@
   <details class="pregunta" id="p-una-de-sesenta" data-respuesta="guia" data-dificultad="general">
     <summary><span class="q-n" aria-hidden="true">03</span><span class="q-t">Si de 60 destinos el robot llegó a uno, ¿cómo me convence de que sabe ir a donde se le pide?</span><span class="etiqueta basico">Para todo público</span></summary>
     <div class="q-cuerpo">
-      <p>Esa cifra no mide si el robot llega. El programa de exploración vuelve a elegir destino cada 3,3 segundos y manda el nuevo sin cancelar el anterior. Nav2, en la versión empleada en el proyecto, cierra el anterior como abortado. La clasificación reconstruyó cada meta por su identificador y en 53 de los 54 abortos fue eso. Además, el tiempo mediano que cada meta estuvo activa fue 3,3 segundos, igual al período del explorador.</p>
-      <p>Lo que muestra que el robot va hacia donde se le manda es que en cinco de seis corridas el mapa creció hasta que no quedaron fronteras. Medirlo con destinos fijos es el punto 1 del trabajo futuro.</p>
-      <div class="q-sigue"><p class="q-rot">Si la pregunta sigue</p><p>El aborto restante es la primera meta de la iteración 1, que ya figuraba abortada en el primer mensaje registrado y no se pudo clasificar. Con los datos registrados no se identificó ningún aborto causado por una falla de Nav2, y tampoco se puede saber si las metas reemplazadas habrían llegado.</p></div>
+      <p>Esa cifra no mide si el robot llega. El programa de exploración vuelve a elegir destino cada 3,3 segundos y manda el nuevo sin cancelar el anterior. Nav2, en la versión empleada en el proyecto, cierra el anterior como abortado. La clasificación reconstruyó cada meta por su identificador, y en 53 de los 54 abortos la meta siguiente ya figuraba mientras la anterior seguía activa. Además, la mediana entre la aceptación de una meta y la de la siguiente fue 3,3 segundos, igual al período del explorador.</p>
+      <p>Lo que muestra que el robot va hacia donde se le manda es que en cinco de seis corridas el mapa creció hasta que no quedaron fronteras, con 21,9 m recorridos sin intervención manual. Medirlo con destinos fijos es el punto 1 del trabajo futuro.</p>
+      <div class="q-sigue"><p class="q-rot">Si la pregunta sigue</p><p>El aborto restante es la primera meta de la iteración 1, que ya figuraba abortada en el primer mensaje registrado y no se pudo clasificar. La asociación es temporal: no descarta fallas de Nav2 al mismo tiempo, el registro no permite contarlas por separado y tampoco se puede saber si las metas reemplazadas habrían llegado.</p></div>
       <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 5.4, Tabla A7.1 y Anexo 8.4 <a class="ref" href="#f1">1</a>.</p>
-      <p class="q-ver"><a href="exploracion.html#abortadas">Metas abortadas que eran reemplazos</a></p>
+      <p class="q-ver"><a href="exploracion.html#abortadas">Metas abortadas asociadas a reemplazos</a></p>
     </div>
   </details>
 
   <details class="pregunta" id="p-metas-fijas" data-respuesta="guia" data-dificultad="tecnica">
     <summary><span class="q-n" aria-hidden="true">04</span><span class="q-t">¿Por qué no ensayó la navegación hacia metas fijas?</span><span class="etiqueta intermedio">Técnica</span></summary>
     <div class="q-cuerpo">
-      <p>Lo comprometido en el objetivo general es navegar hacia destinos generados por el explorador, y así se evaluó. El protocolo con metas fijas planteado para este trabajo contemplaba un mapa guardado, la localización con AMCL activa y puntos medidos en el recinto, y esas condiciones no se configuraron. Por eso quedó fuera del alcance, declarado desde la introducción. AMCL era una opción de ese protocolo. No es un requisito general para enviar metas fijas.</p>
-      <p>El script para ese ensayo quedó preparado, pero no tiene registros de salida, no mide el error de posición final y sus poses objetivo solo están definidas para el mundo simulado. Ejecutarlo es el punto 1 del trabajo futuro.</p>
+      <p>Porque lo comprometido en el objetivo general es navegar hacia destinos generados por el explorador, y así se evaluó. Medir metas fijas exige definir las metas, medir referencias físicas en el recinto y registrar de forma independiente la pose final, y ese conjunto de mediciones no se obtuvo. Por eso quedó fuera del alcance, declarado desde la introducción.</p>
+      <p>La localización no era el obstáculo. Puede venir de SLAM mientras mapea o de AMCL sobre un mapa guardado, porque Nav2 acepta metas mientras SLAM publica el mapa. El script preparado define tres escenarios con cinco repeticiones, pero no tiene registros, no mide el error de posición final y sus poses solo existen en el mundo simulado. Ejecutar el protocolo es el punto 1 del trabajo futuro.</p>
+      <div class="q-sigue"><p class="q-rot">Si la pregunta sigue</p><p>La tolerancia que el script imprime para el modo real, 0,22 m, no coincide con los 0,10 m configurados en Nav2. No interviene en la clasificación, pero habría que corregirla antes de usarlo. Con esas tres metas y cinco repeticiones, 15 éxitos en 15 permitirían afirmar una tasa de éxito sobre el 78 %.</p></div>
       <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Alcances y limitaciones, Sección 5.4 y Anexo 8.3 <a class="ref" href="#f1">1</a>.</p>
       <p class="q-ver"><a href="navegacion.html#evaluacion">Qué se evaluó de la navegación</a></p>
     </div>
@@ -144,11 +145,33 @@
   <details class="pregunta" id="p-exploro-todo" data-respuesta="guia" data-dificultad="exigente">
     <summary><span class="q-n" aria-hidden="true">05</span><span class="q-t">Si la superficie del recinto no se midió aparte del mapa, ¿cómo sabe que el robot exploró todo?</span><span class="etiqueta avanzado">Exigente</span></summary>
     <div class="q-cuerpo">
-      <p>No se puede afirmar que se exploró todo el recinto: su superficie no se midió de forma independiente. La guía presenta dos evidencias. Las cinco corridas válidas terminaron solas porque el explorador ya no encontró fronteras en el mapa de costos. Y el área libre fue casi igual en las cinco, entre 3,478 y 3,540 m², con una desviación estándar de 0,03 m², lo que indica que todas llegaron al mismo espacio alcanzable.</p>
+      <p>No se puede afirmar que se exploró todo el recinto: su superficie no se midió de forma independiente. La guía presenta dos evidencias. Las cinco corridas válidas terminaron solas porque el explorador ya no encontró fronteras en el mapa de costos. Y el área libre fue casi igual en las cinco, entre 3,478 y 3,540 m², con una desviación estándar de 0,03 m², lo que indica que todas llegaron al mismo espacio alcanzable. La comparación con el plano agrega una tercera pista: entre el 92 y el 93 % de los puntos de los muros del plano tienen una celda libre del mapa a menos de 10 cm, así que el robot llegó a ver casi todos los muros.</p>
       <p>El índice de cobertura se calcula sobre la imagen del mapa y no sobre la sala, por eso varía tanto entre corridas. Lo correcto es decir índice medio de cobertura libre de 62,2 %, no que el robot cubre el 62 % del recinto.</p>
       <div class="q-sigue"><p class="q-rot">Si la pregunta sigue</p><p>La iteración 1 tiene 82,9 % y la 6 tiene 53,4 %, pero casi la misma área libre, 3,51 y 3,48 m². El índice depende de cuántas celdas desconocidas quedan dentro de la imagen, no del área mapeada.</p></div>
-      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 5.3, Tabla 5.4 y Limitaciones, validez externa <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 5.3, Tabla 5.4, Anexo 8.5 y Limitaciones, validez externa <a class="ref" href="#f1">1</a>.</p>
       <p class="q-ver"><a href="mapeo.html#cobertura">Mismo espacio, distinto índice</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-oe2-parcial" data-respuesta="guia" data-dificultad="tecnica">
+    <summary><span class="q-n" aria-hidden="true">06</span><span class="q-t">Si las ruedas siguen la referencia, ¿por qué el OE2 queda cumplido solo en parte?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <div class="q-cuerpo">
+      <p>Porque lo implementado y lo demostrado no tienen el mismo alcance. Se implementaron la lectura de encoders, los estados de rueda, el control de velocidad y la odometría, y la estabilidad de la ley ejecutada, un PI incremental heredado, se verificó sobre su idealización lineal con el modelo identificado de cada rueda.</p>
+      <p>Pero ese análisis no incluye los efectos no lineales del firmware, como la saturación, la zona muerta y los truncamientos enteros, y el desempeño se midió en un único punto de operación, 0,13 m/s. Por eso queda en parte.</p>
+      <div class="q-sigue"><p class="q-rot">Si la pregunta sigue</p><p>¿Y que la ley sea un PI y no un PID? La tesis la llama PI incremental, un PID sin acción derivativa, y conserva el nombre PID para la familia de controladores y para el objetivo. El carácter parcial viene de lo que la verificación no cubre, no del nombre.</p></div>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 4.4.3, Sección 5.2 y Conclusiones, OE2 <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-ver"><a href="control.html#estabilidad">¿Es estable el lazo? El análisis del lazo discreto</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-aporte" data-respuesta="guia" data-dificultad="tecnica">
+    <summary><span class="q-n" aria-hidden="true">07</span><span class="q-t">Si todas las piezas de software ya existían, ¿cuál es su aporte?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <div class="q-cuerpo">
+      <p>La contribución está en la adaptación e integración de esas piezas en un robot propio, la parametrización geométrica compartida por la simulación y el robot, la identificación de un modelo de cada rueda, la sintonía del PI incremental con ajuste en el robot real, con PSO como apoyo para las ganancias iniciales, y el análisis de estabilidad de la ley ejecutada. También es propio el nodo que lee el RPLidar por puerto serie.</p>
+      <p>Además, la validación dejó resultados que cambian cómo leer el sistema. La ley llamada PID opera como un PI incremental, y 53 de los 54 abortos de metas coinciden en el tiempo con reemplazos del propio explorador.</p>
+      <div class="q-sigue"><p class="q-rot">Si la pregunta sigue</p><p>El firmware y la interfaz de hardware no se escribieron desde cero. Vienen de proyectos abiertos, y su origen se declara en el Anexo 3.1. Decirlo deja claro dónde está el trabajo propio.</p></div>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Introducción, Anexo 3.1 y Conclusiones <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-ver"><a href="problema.html#aporte">Qué aporta este trabajo</a></p>
     </div>
   </details>
 </section>
@@ -158,7 +181,7 @@
   <p class="q-intro">Las preguntas de quien no es especialista. La respuesta tiene que caber en pocas frases y sin siglas. Más contexto en <a href="problema.html">Autonomía en interiores</a> y en <a href="robot.html#costo">Cuánto costó</a>.</p>
 
   <details class="pregunta" id="p-en-simple" data-respuesta="guia" data-dificultad="general">
-    <summary><span class="q-n" aria-hidden="true">06</span><span class="q-t">Explíqueme, como a alguien sin formación técnica, qué hace su robot y dónde podría servir.</span><span class="etiqueta basico">Para todo público</span></summary>
+    <summary><span class="q-n" aria-hidden="true">08</span><span class="q-t">Explíqueme, como a alguien sin formación técnica, qué hace su robot y dónde podría servir.</span><span class="etiqueta basico">Para todo público</span></summary>
     <div class="q-cuerpo">
       <p>Es un robot que entra a un espacio interior que no conoce, decide solo hacia dónde avanzar y va dibujando el plano del lugar hasta que no le queda nada nuevo por mirar. Es un prototipo, no un producto terminado, y el cálculo pesado lo hace un computador que se comunica con el robot por una red propia.</p>
       <p>Sirve para docencia e investigación, y la misma idea la usan robots de inspección o de logística en interiores. Se probó en un recinto pequeño, así que el paso siguiente es un espacio mayor.</p>
@@ -168,7 +191,7 @@
   </details>
 
   <details class="pregunta" id="p-costo" data-respuesta="guia" data-dificultad="general">
-    <summary><span class="q-n" aria-hidden="true">07</span><span class="q-t">¿Cuánto costó el robot y ese monto incluye todo lo necesario para que funcione?</span><span class="etiqueta basico">Para todo público</span></summary>
+    <summary><span class="q-n" aria-hidden="true">09</span><span class="q-t">¿Cuánto costó el robot y ese monto incluye todo lo necesario para que funcione?</span><span class="etiqueta basico">Para todo público</span></summary>
     <div class="q-cuerpo">
       <p>Los materiales montados en el robot costaron 444&nbsp;643 pesos. El proyecto completo llega a 582&nbsp;447 pesos, porque suma el router de viaje, los cables de red, el cargador, las baterías de repuesto y los accesorios de desarrollo. Ningún monto incluye el computador, que es necesario porque ahí corren el mapeo, la navegación y el explorador. Por eso el bajo costo se refiere a lo que va en el robot.</p>
       <p>Frente al TurtleBot 3 Burger, el robot cuesta un 32 % menos y el proyecto completo un 11 % menos, con precios de catálogo sin envío ni impuestos. No se afirma que ofrezca lo mismo, porque el Burger trae unidad inercial y actuadores con controlador integrado.</p>
@@ -179,7 +202,7 @@
   </details>
 
   <details class="pregunta" id="p-ahorro" data-respuesta="guia" data-dificultad="general">
-    <summary><span class="q-n" aria-hidden="true">08</span><span class="q-t">¿Por qué el robot sale un 32 % más barato, pero el proyecto completo ahorra solo un 11 %?</span><span class="etiqueta basico">Para todo público</span></summary>
+    <summary><span class="q-n" aria-hidden="true">10</span><span class="q-t">¿Por qué el robot sale un 32 % más barato, pero el proyecto completo ahorra solo un 11 %?</span><span class="etiqueta basico">Para todo público</span></summary>
     <div class="q-cuerpo">
       <p>Porque el proyecto suma 137&nbsp;804 pesos en cosas que no van montadas en el robot, como la red dedicada, el cargador, dos baterías de repuesto y los accesorios para trabajar con la Raspberry Pi durante el desarrollo. El precio del Burger ya incluye batería y cargador, así que esos gastos extra se comen parte de la diferencia.</p>
       <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Tablas A1.1 y A1.2 <a class="ref" href="#f1">1</a>.</p>
@@ -188,7 +211,7 @@
   </details>
 
   <details class="pregunta" id="p-comprar" data-respuesta="guia" data-dificultad="general">
-    <summary><span class="q-n" aria-hidden="true">09</span><span class="q-t">¿Por qué construir este robot en vez de comprar un TurtleBot 3 Burger?</span><span class="etiqueta basico">Para todo público</span></summary>
+    <summary><span class="q-n" aria-hidden="true">11</span><span class="q-t">¿Por qué construir este robot en vez de comprar un TurtleBot 3 Burger?</span><span class="etiqueta basico">Para todo público</span></summary>
     <div class="q-cuerpo">
       <p>No se afirma que este prototipo ofrezca lo mismo más barato. El Burger trae unidad inercial y actuadores con controlador integrado, y sus precios son de catálogo, sin envío ni impuestos. Lo que gana un estudiante al construirlo es poder documentar y modificar cada capa, desde el firmware hasta la exploración.</p>
       <p>Dos ejemplos concretos. La revisión del firmware muestra que la ley llamada PID opera en realidad como un PI incremental. Y se escribió un programa propio para leer el láser por el puerto serie.</p>
@@ -198,7 +221,7 @@
   </details>
 
   <details class="pregunta" id="p-sin-computador" data-respuesta="guia" data-dificultad="general">
-    <summary><span class="q-n" aria-hidden="true">10</span><span class="q-t">¿El robot podría explorar solo, sin el computador?</span><span class="etiqueta basico">Para todo público</span></summary>
+    <summary><span class="q-n" aria-hidden="true">12</span><span class="q-t">¿El robot podría explorar solo, sin el computador?</span><span class="etiqueta basico">Para todo público</span></summary>
     <div class="q-cuerpo">
       <p>No. Es una arquitectura distribuida. En el robot va lo rápido y crítico. El Arduino lee los encoders y controla la velocidad de cada rueda, y si deja de recibir órdenes detiene los motores. La Raspberry Pi corre la interfaz con ros2_control, calcula la odometría y lee el láser. En el computador va lo que exige más cálculo, que es el mapeo con slam_toolbox, la navegación con Nav2 y el explorador.</p>
       <p>Los dos equipos se comunican por una red Wi-Fi dedicada, y ROS 2 no necesita un nodo maestro central.</p>
@@ -207,18 +230,38 @@
       <p class="q-ver"><a href="robot.html#reparto">Quién hace qué, y por qué</a></p>
     </div>
   </details>
+
+  <details class="pregunta" id="p-estable-simple" data-respuesta="guia" data-dificultad="general">
+    <summary><span class="q-n" aria-hidden="true">13</span><span class="q-t">Sin matemáticas, ¿qué significa que el control de las ruedas sea estable?</span><span class="etiqueta basico">Para todo público</span></summary>
+    <div class="q-cuerpo">
+      <p>Que si algo saca a la rueda de la velocidad pedida, el control la devuelve y la diferencia se apaga, en vez de crecer en una oscilación cada vez mayor. En el modelo de cada rueda se comprobó que eso ocurre.</p>
+      <p>Los márgenes dicen cuánta holgura queda. Sin retardo, la ganancia del lazo podría crecer unas 88 veces antes de oscilar, y con un retardo extra de 0,1 s, unas 4,7 veces. Es un cálculo sobre el modelo, no una prueba en el robot.</p>
+      <div class="q-sigue"><p class="q-rot">Si la pregunta sigue</p><p>¿Por qué no basta con que la rueda haya seguido la referencia? Porque esa prueba se hizo en un solo punto. El análisis dice cuánto podría cambiar la rueda antes de que el control falle, algo que una prueba sola no muestra.</p></div>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 4.4.3, Anexo 4.12 y Tabla A4.5. Las 88 y 4,7 veces convierten a veces los márgenes de 38,9 y 13,4 dB <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-ver"><a href="control.html#estabilidad">¿Es estable el lazo? El análisis del lazo discreto</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-exactitud-simple" data-respuesta="guia" data-dificultad="general">
+    <summary><span class="q-n" aria-hidden="true">14</span><span class="q-t">¿Qué tan parecido es el mapa que hizo el robot al lugar real?</span><span class="etiqueta basico">Para todo público</span></summary>
+    <div class="q-cuerpo">
+      <p>Bastante, dentro de lo que se pudo medir. Se dibujó un plano del recinto con huincha y se comparó con cada mapa. En promedio, los muros del mapa quedan a 3,4 cm de donde los pone el plano, menos que el lado de una celda del mapa, que mide 5 cm.</p>
+      <p>Las mayores diferencias, de 6 a 9 cm, están en los tabiques cortos, que el mapa dibuja con pocas celdas. Y los tres pasillos salen en total 12 cm más anchos en los mapas que en el plano, sin que se pueda saber si el error está en la huincha o en el mapa.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 5.3 y Anexo 8.5, con las Tablas A8.2 y A8.3 <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-ver"><a href="mapeo.html#exactitud">El mapa frente al plano medido</a></p>
+    </div>
+  </details>
 </section>
 
 <section class="q-tema" data-tema="decisiones" data-corto="Decisiones">
   <h2 id="decisiones">Decisiones de diseño</h2>
   <p class="q-intro">Por qué esta pieza y no otra. Cada alternativa está comparada en <a href="problema.html#estado-del-arte">El estado del arte y cada decisión</a>.</p>
 
-  <details class="pregunta" id="p-foxy" data-respuesta="pendiente" data-dificultad="exigente">
-    <summary><span class="q-n" aria-hidden="true">11</span><span class="q-t">Descartó ROS 1 porque su soporte terminó, pero usa ROS 2 Foxy y Gazebo Classic, que también están sin soporte. ¿No es contradictorio?</span><span class="etiqueta avanzado">Exigente</span></summary>
+  <details class="pregunta" id="p-foxy" data-respuesta="guia" data-dificultad="exigente">
+    <summary><span class="q-n" aria-hidden="true">15</span><span class="q-t">Descartó ROS 1 porque su soporte terminó, pero usa ROS 2 Foxy y Gazebo Classic, que también están sin soporte. ¿No es contradictorio?</span><span class="etiqueta avanzado">Exigente</span></summary>
     <div class="q-cuerpo">
-      <p class="q-pendiente">Contrastar con el autor los motivos de fijar esta combinación de versiones.</p>
-      <p>La guía reconoce esta contradicción aparente. Describe la elección de ROS 2 por su arquitectura distribuida, sin un nodo maestro central, y por el ecosistema de Nav2, no por el soporte. La tesis dice que el fin de soporte de ROS 1 no se usó como criterio, justamente porque Foxy también está fuera de soporte.</p>
-      <p>La guía describe que Foxy, Ubuntu 20.04 y Gazebo Classic se fijaron al inicio para asegurar que toda la cadena de paquetes funcionara con el hardware del proyecto. Migrar a mitad del proyecto significaba rehacer y volver a probar todo. El fin de vida se declara como limitación y la migración es el punto 3 del trabajo futuro.</p>
+      <p>Es una contradicción aparente, y la tesis la resuelve así. ROS 2 se eligió por su arquitectura distribuida, sin un nodo maestro central, y por su ecosistema de mapeo, navegación y exploración, no por el soporte. El fin de soporte de ROS 1 no se usó como criterio, justamente porque Foxy también está fuera de soporte.</p>
+      <p>Foxy, Ubuntu 20.04 y Gazebo Classic se congelaron al inicio del proyecto para garantizar la compatibilidad de la cadena completa de paquetes con el hardware disponible. Migrar a mitad del proyecto habría obligado a rehacer y volver a probar esa cadena. El fin de vida se declara como limitación y la migración es el punto 3 del trabajo futuro.</p>
       <div class="q-sigue"><p class="q-rot">Si la pregunta sigue</p><p>Se empleó Gazebo Classic y no el Gazebo actual porque los complementos de simulación y de ros2_control del paquete base adaptado están disponibles para Foxy sobre Ubuntu 20.04, y esa es la base del sistema.</p></div>
       <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Alcances y limitaciones, Sección 2.1, Limitaciones y Tabla A3.2 <a class="ref" href="#f1">1</a>.</p>
       <p class="q-ver"><a href="replicar.html#congelado">Por qué se congelaron las versiones</a></p>
@@ -226,7 +269,7 @@
   </details>
 
   <details class="pregunta" id="p-fronteras-vs" data-respuesta="guia" data-dificultad="tecnica">
-    <summary><span class="q-n" aria-hidden="true">12</span><span class="q-t">¿Por qué exploración por fronteras y no un método de ganancia de información o de active SLAM?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <summary><span class="q-n" aria-hidden="true">16</span><span class="q-t">¿Por qué exploración por fronteras y no un método de ganancia de información o de active SLAM?</span><span class="etiqueta intermedio">Técnica</span></summary>
     <div class="q-cuerpo">
       <p>Porque es de menor complejidad y se integra fácil con el mapa de ocupación y con Nav2. Los métodos de <span class="term" data-def="Eligen el próximo destino estimando cuánto se aprendería del entorno desde cada posición.">ganancia de información</span> y de <span class="term" data-def="Estrategias que deciden a dónde ir considerando a la vez lo que falta por mapear, la incertidumbre de la ubicación y la calidad del mapa.">active SLAM</span> pueden tomar decisiones más informadas, pero exigen modelos y cálculo adicionales.</p>
       <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Secciones 1.4.2 y 2.1 <a class="ref" href="#f1">1</a>.</p>
@@ -235,17 +278,17 @@
   </details>
 
   <details class="pregunta" id="p-adaptado" data-respuesta="guia" data-dificultad="tecnica">
-    <summary><span class="q-n" aria-hidden="true">13</span><span class="q-t">¿Qué programó usted y qué adaptó de otros proyectos?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <summary><span class="q-n" aria-hidden="true">17</span><span class="q-t">¿Qué programó usted y qué adaptó de otros proyectos?</span><span class="etiqueta intermedio">Técnica</span></summary>
     <div class="q-cuerpo">
       <p>articubot_one y diffdrive_arduino vienen de proyectos de Josh Newans. El firmware ROSArduinoBridge viene de la versión de Newans derivada del Home Brew Robotics Club. explore_lite es el port a ROS 2 de Alvarez. Todos los modifiqué y configuré para este robot.</p>
-      <p>Lo propio son los scripts de captura, identificación del modelo de cada rueda y búsqueda de ganancias con PSO, el nodo que lee el RPLidar por el puerto serie, la parametrización geométrica del modelo y la integración completa.</p>
-      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Justificación, Tabla A3.1 y Anexo 3.4 <a class="ref" href="#f1">1</a>.</p>
+      <p>Lo propio son los scripts de captura, identificación del modelo de cada rueda y búsqueda de ganancias con PSO, el nodo que lee el RPLidar por el puerto serie, la parametrización geométrica del modelo, el análisis de estabilidad de la ley ejecutada y la integración completa.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Introducción, Tabla A3.1 y Anexos 3.1 y 3.4 <a class="ref" href="#f1">1</a>.</p>
       <p class="q-ver"><a href="robot.html#adaptado">Qué se adaptó y qué es propio</a></p>
     </div>
   </details>
 
   <details class="pregunta" id="p-energia" data-respuesta="guia" data-dificultad="tecnica">
-    <summary><span class="q-n" aria-hidden="true">14</span><span class="q-t">¿Cómo se alimenta el robot?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <summary><span class="q-n" aria-hidden="true">18</span><span class="q-t">¿Cómo se alimenta el robot?</span><span class="etiqueta intermedio">Técnica</span></summary>
     <div class="q-cuerpo">
       <p>Una batería de 12 V alimenta un bus que mueve los motores a través del driver L298N. Del mismo bus, un módulo reductor de 25 W genera 5 V para la Raspberry Pi, el Arduino y el LiDAR. Separar la potencia de la lógica reduce el ruido eléctrico de los motores sobre la electrónica de control. La Raspberry Pi y el Arduino se comunican por un enlace serial USB.</p>
       <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 4.3.1 y Figura 4.5 <a class="ref" href="#f1">1</a>.</p>
@@ -254,7 +297,7 @@
   </details>
 
   <details class="pregunta" id="p-red" data-respuesta="guia" data-dificultad="tecnica">
-    <summary><span class="q-n" aria-hidden="true">15</span><span class="q-t">¿Cómo es la red entre el robot y el computador, y pudo afectar los ensayos?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <summary><span class="q-n" aria-hidden="true">19</span><span class="q-t">¿Cómo es la red entre el robot y el computador, y pudo afectar los ensayos?</span><span class="etiqueta intermedio">Técnica</span></summary>
     <div class="q-cuerpo">
       <p>Es una red Wi-Fi dedicada, armada con un router de viaje y con direcciones IP fijas. Una red lenta puede retrasar órdenes, pero no puede hacer que los encoders sumen distancia, porque la odometría se calcula en la Raspberry Pi a partir de sus propios conteos. Por eso la red no explica la corrida en que la odometría avanzó y el robot no.</p>
       <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Anexo 3.1 y Tabla A1.1 <a class="ref" href="#f1">1</a>.</p>
@@ -268,7 +311,7 @@
   <p class="q-intro">Las cifras de la recta y del giro, y qué mide cada una. Explicado en <a href="movimiento.html">Moverse y medir el avance</a>.</p>
 
   <details class="pregunta" id="p-dos-errores" data-respuesta="guia" data-dificultad="tecnica">
-    <summary><span class="q-n" aria-hidden="true">16</span><span class="q-t">¿Qué diferencia hay entre el 7,18 % y el 3,63 %?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <summary><span class="q-n" aria-hidden="true">20</span><span class="q-t">¿Qué diferencia hay entre el 7,18 % y el 3,63 %?</span><span class="etiqueta intermedio">Técnica</span></summary>
     <div class="q-cuerpo">
       <p>Las dos cifras son del robot real y de la misma recta. Le ordené avanzar 2 metros a 0,13 m/s durante 15,4 segundos. Los encoders estimaron 1,924 metros y la cinta midió 1,856 metros, en promedio de cinco repeticiones.</p>
       <p>El 7,18 % es el error de seguimiento. Compara la cinta con lo ordenado y dice que el robot avanzó menos de lo pedido. Una parte ya la registran los encoders, que marcan 3,8 % menos que lo nominal, y es compatible con el tiempo que tardan las ruedas en acelerar, porque la referencia se define por tiempo y no por posición.</p>
@@ -279,7 +322,7 @@
   </details>
 
   <details class="pregunta" id="p-cinta" data-respuesta="guia" data-dificultad="exigente">
-    <summary><span class="q-n" aria-hidden="true">17</span><span class="q-t">¿Cómo sabe que la cinta métrica es más confiable que los encoders y no al revés?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <summary><span class="q-n" aria-hidden="true">21</span><span class="q-t">¿Cómo sabe que la cinta métrica es más confiable que los encoders y no al revés?</span><span class="etiqueta avanzado">Exigente</span></summary>
     <div class="q-cuerpo">
       <p>La cinta es una referencia externa e independiente de los encoders. Los encoders miden cuánto giraron las ruedas, no cuánto avanzó el robot, así que no pueden detectar un deslizamiento ni un radio mal calibrado. La cinta sí, porque mide el resultado físico.</p>
       <p>La medición con cinta tiene su propia incertidumbre, y no se cuantificó por separado. Lo que muestran los datos es que la diferencia entre encoders y cinta se repitió en las cinco pruebas, entre 5,4 y 7,4 cm, y eso apunta a un sesgo del robot más que a un error de lectura al azar.</p>
@@ -289,17 +332,17 @@
   </details>
 
   <details class="pregunta" id="p-sesgo-mapa" data-respuesta="guia" data-dificultad="tecnica">
-    <summary><span class="q-n" aria-hidden="true">18</span><span class="q-t">Si ese sesgo de la odometría se acumula durante una exploración, ¿qué le pasa al mapa?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <summary><span class="q-n" aria-hidden="true">22</span><span class="q-t">Si ese sesgo de la odometría se acumula durante una exploración, ¿qué le pasa al mapa?</span><span class="etiqueta intermedio">Técnica</span></summary>
     <div class="q-cuerpo">
       <p>slam_toolbox corrige la deriva con el láser. Estima la pose del robot alineando los barridos y optimizando el grafo de poses, y publica la corrección como la transformación entre el marco map y el marco odom. Así la odometría puede derivar sin que esa deriva se acumule en el mapa.</p>
-      <p>No se documenta una referencia geométrica externa para medir el error absoluto del mapa. La consistencia de las paredes se evaluó a la vista.</p>
-      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Secciones 3.8, 4.3.2 y 5.3, y Tabla 5.5 <a class="ref" href="#f1">1</a>.</p>
+      <p>El mapa se comparó después con un plano del recinto medido con huincha, alineándolo sin ajustar su escala. Sus muros quedan en promedio a 3,4 cm del plano, y los pasillos salen en total 12 cm más anchos, una diferencia sin causa determinada. Es una evidencia indirecta de que la deriva no se acumuló en el mapa, no una medición de la deriva.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Secciones 3.8, 4.3.2 y 5.3, Tabla 5.5 y Anexo 8.5 <a class="ref" href="#f1">1</a>.</p>
       <p class="q-ver"><a href="mapeo.html#sim-tf">Dónde se compensa la deriva: map → odom</a></p>
     </div>
   </details>
 
   <details class="pregunta" id="p-giro" data-respuesta="pendiente" data-dificultad="exigente">
-    <summary><span class="q-n" aria-hidden="true">19</span><span class="q-t">En la prueba de giro el script ordena 0,4 rad/s, pero el controlador limita a 0,35. ¿Por qué diseñó así el ensayo?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <summary><span class="q-n" aria-hidden="true">23</span><span class="q-t">En la prueba de giro el script ordena 0,4 rad/s, pero el controlador limita a 0,35. ¿Por qué diseñó así el ensayo?</span><span class="etiqueta avanzado">Exigente</span></summary>
     <div class="q-cuerpo">
       <p>Fue un error de diseño del ensayo. El script pide 0,4 rad/s durante el tiempo que tomaría una vuelta a esa velocidad, pero el controlador limita a 0,35, así que con un límite ideal el robot llegaría a 315 grados. Por eso la tesis no lo llama error de odometría, sino desviación respecto de 360 grados nominales.</p>
       <p>Todos los giros superaron los 315 grados y la causa no la determiné. Los registros de cada prueba guardan la odometría y permiten revisar la velocidad angular que realmente se aplicó sin repetir el ensayo. Lo corregiría con un giro controlado hasta un ángulo fijo, que es el punto 8 del trabajo futuro.</p>
@@ -315,7 +358,7 @@
   <p class="q-intro">El tema donde más fácil es equivocarse en una sala. Cada idea está desarrollada con interactivos en <a href="control.html">Control de velocidad de las ruedas</a>.</p>
 
   <details class="pregunta" id="p-pid-discreto" data-respuesta="guia" data-dificultad="tecnica">
-    <summary><span class="q-n" aria-hidden="true">20</span><span class="q-t">Explique con sus palabras el control PID en tiempo discreto.</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <summary><span class="q-n" aria-hidden="true">24</span><span class="q-t">Explique con sus palabras el control PID en tiempo discreto.</span><span class="etiqueta intermedio">Técnica</span></summary>
     <div class="q-cuerpo">
       <p>El Arduino no trabaja en tiempo continuo. Cada 33 milisegundos compara la velocidad pedida con la medida, las dos en pulsos de encoder por ciclo, y obtiene el error. En la forma clásica, la orden al motor suma tres partes. Una proporcional al error de ahora, otra proporcional al error acumulado y otra proporcional a qué tan rápido cambia.</p>
       <p>En el firmware descrito la ley es incremental. Calcula cuánto cambiar la orden, lo suma a la orden anterior, la limita entre −255 y 255 y la aplica como PWM. Por esa suma, cada término sube un orden de integración, y la ley termina operando como un PI.</p>
@@ -325,29 +368,29 @@
   </details>
 
   <details class="pregunta" id="p-kd" data-respuesta="guia" data-dificultad="exigente">
-    <summary><span class="q-n" aria-hidden="true">21</span><span class="q-t">El código tiene una ganancia llamada Kd cercana a 20. ¿Por qué dice que la ley no tiene acción derivativa?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <summary><span class="q-n" aria-hidden="true">25</span><span class="q-t">El código tiene una ganancia llamada Kd cercana a 20. ¿Por qué dice que la ley no tiene acción derivativa?</span><span class="etiqueta avanzado">Exigente</span></summary>
     <div class="q-cuerpo">
       <p>El firmware no calcula la orden completa en cada ciclo. Calcula un aumento y lo suma a la orden anterior, y esa suma hace que cada término suba un orden de integración. Kp multiplica el error y, al acumularse, actúa como integral. Kd multiplica el cambio de la medición y, al acumularse, actúa como proporcional sobre la medición, así que deja de ser derivativo. Ki se acumula dos veces y queda como una segunda integración.</p>
-      <p>Sin Ki, la ley coincide con un <span class="term" data-def="Controlador que en cada ciclo calcula cuánto cambiar la orden, con una acción proporcional y una integral, y sin acción derivativa.">PI incremental</span> como el que describen Åström y Hägglund <a class="ref" href="#f5">5</a>. Así opera la rueda derecha, porque su estado integral se guarda como entero y, con errores tan pequeños, el producto de Ki por el error nunca llega a una unidad. El objetivo pedía un PID, el resultado es un PI, y por eso el OE2 queda cumplido en parte.</p>
+      <p>Sin Ki, la ley coincide con un <span class="term" data-def="Controlador que en cada ciclo calcula cuánto cambiar la orden, con una acción proporcional y una integral, y sin acción derivativa.">PI incremental</span> como el que describen Åström y Hägglund <a class="ref" href="#f5">5</a>. Así opera la rueda derecha, porque su estado integral se guarda como entero y, con errores tan pequeños, el producto de Ki por el error nunca llega a una unidad. Con las ganancias definitivas equivale a una ganancia proporcional de 0,41 y 0,40 PWM por tick/ciclo y a tiempos integrales de 42 y 40 ms. La tesis la llama PI incremental, un PID sin acción derivativa, y conserva el nombre PID para la familia de controladores y para el objetivo.</p>
       <div class="q-sigue"><p class="q-rot">Si la pregunta sigue</p><p>Un ejemplo con números. Si la velocidad medida va 0, 2, 5 y 6, los cambios son 2, 3 y 1. Al sumar esos cambios se obtiene 2, 5 y 6, que es la velocidad misma. Sumar los cambios de algo devuelve ese algo, y por eso Kd termina multiplicando la medición actual.</p></div>
-      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 4.4.3 con la Ecuación 4.1, y Anexos 4.4 y 4.5 <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 4.4.3 con la Ecuación 4.1, Tabla 4.4 y Anexos 4.4, 4.5 y 4.12 <a class="ref" href="#f1">1</a>.</p>
       <p class="q-ver"><a href="control.html#papeles">El papel real de cada ganancia</a></p>
     </div>
   </details>
 
-  <details class="pregunta" id="p-no-reemplazo" data-respuesta="pendiente" data-dificultad="exigente">
-    <summary><span class="q-n" aria-hidden="true">22</span><span class="q-t">Si ya sabía que no era un PID, ¿por qué no la reemplazó por un PID incremental estándar?</span><span class="etiqueta avanzado">Exigente</span></summary>
+  <details class="pregunta" id="p-no-reemplazo" data-respuesta="guia" data-dificultad="exigente">
+    <summary><span class="q-n" aria-hidden="true">26</span><span class="q-t">Si ya sabía que no era un PID, ¿por qué no la reemplazó por un PID incremental estándar?</span><span class="etiqueta avanzado">Exigente</span></summary>
     <div class="q-cuerpo">
-      <p class="q-pendiente">Contrastar con el autor los motivos de conservar la ley. El comportamiento matemático no justifica por sí solo una decisión.</p>
-      <p>La guía vincula conservar esta ley con el seguimiento de referencia observado y la protección de su memoria frente al windup. No documenta una comparación de desempeño con otras leyes. Esa comparación con un PID incremental estándar es el punto 6 del trabajo futuro. Por eso las ganancias del proyecto describen esta ley y no deben leerse por su nombre.</p>
+      <p>La tesis da tres razones. La primera es que el PI incremental es uno de los controladores más usados, también en el lazo de velocidad de robots móviles y de plataformas ROS 2 que envían las consignas por puerto serie. La segunda, que conservarla permitió reutilizar una implementación ya integrada con diffdrive_arduino y concentrar el trabajo en la navegación y la exploración. La tercera, que la forma incremental simplifica la protección contra el windup <a class="ref" href="#f5">5</a>.</p>
+      <p>Ninguna es una comparación de desempeño, y la tesis lo dice: comparar con un PID incremental estándar no era parte de los objetivos y es el punto 6 del trabajo futuro. Por eso las ganancias del proyecto describen esta ley y no deben leerse por su nombre.</p>
       <div class="q-sigue"><p class="q-rot">Si la pregunta sigue</p><p>La tesis también menciona que la interfaz diffdrive_arduino usa el protocolo serial de este firmware. Ese protocolo solo transporta referencias con el comando m y conteos de encoder con el comando e, y la ley está en un archivo aparte, diff_controller.h. El protocolo justifica conservar el firmware y sus comandos, no la fórmula.</p></div>
       <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 4.4.3, Anexo 4.5 y Limitaciones, ley de control <a class="ref" href="#f1">1</a>.</p>
-      <p class="q-ver"><a href="control.html#protocolo-ley">El protocolo justifica los comandos, no la fórmula</a></p>
+      <p class="q-ver"><a href="control.html#por-que-se-conservo">¿Por qué no se reescribió?</a></p>
     </div>
   </details>
 
   <details class="pregunta" id="p-windup" data-respuesta="guia" data-dificultad="tecnica">
-    <summary><span class="q-n" aria-hidden="true">23</span><span class="q-t">¿Qué es el windup y cómo lo evita el firmware?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <summary><span class="q-n" aria-hidden="true">27</span><span class="q-t">¿Qué es el windup y cómo lo evita el firmware?</span><span class="etiqueta intermedio">Técnica</span></summary>
     <div class="q-cuerpo">
       <p>El windup ocurre cuando el motor ya está al máximo y la parte integral del controlador sigue acumulando error. Cuando el error cambia de signo, esa acumulación tarda en descargarse y la respuesta se atrasa o se pasa. Lo que crece es la parte integral, no el error.</p>
       <p>El firmware lo limita de dos maneras. Guarda la orden ya recortada a 255, así que la memoria de la forma incremental no se infla. Y su estado integral solo se actualiza cuando la orden no está saturada, lo que se llama integración condicional <a class="ref" href="#f5">5</a>.</p>
@@ -357,7 +400,7 @@
   </details>
 
   <details class="pregunta" id="p-por-que-pso" data-respuesta="guia" data-dificultad="tecnica">
-    <summary><span class="q-n" aria-hidden="true">24</span><span class="q-t">¿Por qué usó PSO y no una sintonía clásica, como Ziegler y Nichols?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <summary><span class="q-n" aria-hidden="true">28</span><span class="q-t">¿Por qué usó PSO y no una sintonía clásica, como Ziegler y Nichols?</span><span class="etiqueta intermedio">Técnica</span></summary>
     <div class="q-cuerpo">
       <p>Para no buscar las tres ganancias por prueba y error desde cero. Identifiqué un <span class="term" data-def="Modelo de primer orden con retardo. Resume cada rueda con tres números: cuánto responde, qué tan rápido y con cuánto retardo.">modelo de primer orden con retardo</span> para cada rueda y sobre él apliqué PSO, un método de optimización que no necesita derivadas ni un modelo exacto y que busca las tres ganancias a la vez. Busca las que hacen menor un costo que combina el error cuadrático medio y una penalización por sobreimpulso. Como las ruedas no son idénticas, cada una tuvo su propio modelo y sus propias ganancias.</p>
       <p>La tesis no compara con Ziegler y Nichols. Como referencia analítica se usó la sintonía Lambda, solo de forma ilustrativa y en simulación.</p>
@@ -367,18 +410,18 @@
   </details>
 
   <details class="pregunta" id="p-aporte-pso" data-respuesta="guia" data-dificultad="exigente">
-    <summary><span class="q-n" aria-hidden="true">25</span><span class="q-t">¿Qué aportó realmente el PSO, si después del ajuste en el robot las ganancias cambiaron tanto?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <summary><span class="q-n" aria-hidden="true">29</span><span class="q-t">¿Qué aportó realmente el PSO, si después del ajuste en el robot las ganancias cambiaron tanto?</span><span class="etiqueta avanzado">Exigente</span></summary>
     <div class="q-cuerpo">
       <p>Proporcionó un punto de partida para las tres ganancias a la vez, calculado sobre el modelo de cada rueda. No fue el ajuste final. Con esas ganancias apareció un error estacionario en la rueda izquierda y una detención intermedia en la derecha, que el modelo no anticipaba porque no representa la zona muerta del driver. Se corrigieron en el robot, subiendo Kp entre 28 y 63 %, bajando Kd entre 41 y 45 % y subiendo Ki en varios órdenes de magnitud.</p>
-      <p>No se comparó con las ganancias originales del firmware, que eran Kp 20, Kd 12 y Ki 0, así que no se puede afirmar que haya ahorrado tiempo. Tampoco se documenta un análisis de estabilidad. Lo que la guía reporta es que con las ganancias finales el robot siguió la referencia de 0,13 m/s sin sobreimpulso apreciable.</p>
-      <div class="q-sigue"><p class="q-rot">Si la pregunta sigue</p><p>Lo propio no es el PSO por sí solo, sino el procedimiento completo. Identificar un modelo por rueda, obtener una semilla con PSO y ajustarla en el robot, dejando escrito por qué el modelo falla, que es la zona muerta del driver y la cuantización de los encoders.</p></div>
-      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Secciones 4.4.5 y 5.2, Anexos 4.5 y 4.10, y Limitaciones <a class="ref" href="#f1">1</a>.</p>
+      <p>En el robot no se compararon con las ganancias originales del firmware, Kp 20, Kd 12 y Ki 0, así que no se puede afirmar que el PSO haya ahorrado tiempo. Sí se compararon en el modelo: las del PSO dan un lazo estable con más margen que las definitivas y que las originales, y quedan en el mismo orden de magnitud que las definitivas.</p>
+      <div class="q-sigue"><p class="q-rot">Si la pregunta sigue</p><p>Lo propio no es el PSO por sí solo, sino el procedimiento completo. Identificar un modelo por rueda, obtener una semilla con PSO y ajustarla en el robot, dejando escrito por qué el modelo falla. La tesis lo explica con tres factores: el modelo, sin zona muerta ni aritmética entera, la función objetivo, que evalúa un solo escalón, y el optimizador, que informó un Kd distinto del que evaluó su costo.</p></div>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Secciones 4.4.5 y 5.2, Anexos 4.5, 4.10 y 4.12, y Limitaciones <a class="ref" href="#f1">1</a>.</p>
       <p class="q-ver"><a href="control.html#semilla">El PSO fue una semilla, el robot dio la última palabra</a></p>
     </div>
   </details>
 
   <details class="pregunta" id="p-resolucion" data-respuesta="guia" data-dificultad="exigente">
-    <summary><span class="q-n" aria-hidden="true">26</span><span class="q-t">¿Cómo informa un error de 0,002 m/s si la resolución de la medición es 0,01 m/s?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <summary><span class="q-n" aria-hidden="true">30</span><span class="q-t">¿Cómo informa un error de 0,002 m/s si la resolución de la medición es 0,01 m/s?</span><span class="etiqueta avanzado">Exigente</span></summary>
     <div class="q-cuerpo">
       <p>El 0,128 m/s de la rueda izquierda es el promedio de las muestras tomadas desde los 7 segundos. Cada muestra viene en pasos de 0,01 m/s, pero al promediar valores que oscilan entre dos pasos el resultado queda entre ellos. Es un promedio, no una medición más fina.</p>
       <p>Por lo mismo, no se puede distinguir un sobreimpulso menor a un paso, que equivale a cerca del 8 % de la referencia. Por eso la guía dice sin sobreimpulso apreciable dentro de la resolución de medida, y no informa tiempo de establecimiento al 2 %.</p>
@@ -388,19 +431,18 @@
     </div>
   </details>
 
-  <details class="pregunta" id="p-solo-013" data-respuesta="pendiente" data-dificultad="tecnica">
-    <summary><span class="q-n" aria-hidden="true">27</span><span class="q-t">Evaluó el control solo a 0,13 m/s. ¿Qué espera a velocidades más bajas, por ejemplo en los giros?</span><span class="etiqueta intermedio">Técnica</span></summary>
+  <details class="pregunta" id="p-solo-013" data-respuesta="guia" data-dificultad="tecnica">
+    <summary><span class="q-n" aria-hidden="true">31</span><span class="q-t">Evaluó el control solo a 0,13 m/s. ¿Qué espera a velocidades más bajas, por ejemplo en los giros?</span><span class="etiqueta intermedio">Técnica</span></summary>
     <div class="q-cuerpo">
-      <p>Es un solo punto de operación, y por eso el OE2 es parcial. Esa velocidad coincide con el límite lineal del controlador diferencial y con la de la prueba de 2 metros. A velocidades bajas se plantea un seguimiento peor como hipótesis, sin mediciones que lo confirmen.</p>
-      <p>A 0,13 m/s cada rueda cuenta unos 41 pulsos por ciclo de control. En un giro sobre su eje a 0,35 rad/s, cada rueda va a unos 0,033 m/s, cerca de 10 pulsos por ciclo. Ahí la banda muerta de 1 y 2 pulsos pesa mucho más, y el término integral de la rueda izquierda casi no actúa, porque solo crece con errores de al menos 14 pulsos. Extender la evaluación a otras referencias es el punto 6 del trabajo futuro.</p>
-      <p class="q-pendiente"><!-- PENDIENTE AUTOR: una frase con la razón por la que se eligió 0,13 m/s como referencia del ensayo. La tesis solo muestra que coincide con el límite lineal de la Tabla 4.3 y con la prueba de la recta. -->Confirmación del autor pendiente: motivo de elegir 0,13 m/s.</p>
-      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Tabla 4.3, Sección 5.2, Anexo 4.4 y Nomenclatura, con el factor de 313,56 pulsos por ciclo por cada m/s. Los 10 pulsos del giro son un cálculo con esos datos <a class="ref" href="#f1">1</a>.</p>
+      <p>Porque 0,13 m/s es el límite de velocidad lineal que impone el controlador diferencial, la mayor referencia que recibe una rueda en línea recta, y la velocidad de la prueba de 2 metros. Su escalón es además mayor que los cambios de referencia de la navegación normal, en la que DWB limita la aceleración a 0,25 m/s². Es un solo punto de operación, y por eso el desempeño no se generaliza.</p>
+      <p>A 0,13 m/s cada rueda cuenta unos 41 pulsos por ciclo de control. En un giro sobre su eje a 0,35 rad/s, cada rueda va a unos 0,033 m/s, cerca de 10 pulsos por ciclo. Ahí la banda muerta de 1 y 2 pulsos pesa mucho más, y el término integral de la rueda izquierda casi no actúa, porque solo crece con errores de al menos 14 pulsos. El análisis de estabilidad lo confirma: a unos 10 pulsos por ciclo, la banda en que la salida no cambia es cerca de un 30 % de la referencia. Extender la evaluación a otras referencias es el punto 6 del trabajo futuro.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Tabla 4.3, Sección 5.2, Anexos 4.4 y 4.12, Tabla A5.1 y Nomenclatura, con el factor de 313,56 pulsos por ciclo por cada m/s <a class="ref" href="#f1">1</a>.</p>
       <p class="q-ver"><a href="control.html#ticks">Resolución y velocidad única</a></p>
     </div>
   </details>
 
   <details class="pregunta" id="p-camino-orden" data-respuesta="guia" data-dificultad="tecnica">
-    <summary><span class="q-n" aria-hidden="true">28</span><span class="q-t">Explíquenos cómo llega una orden de velocidad desde Nav2 hasta el motor.</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <summary><span class="q-n" aria-hidden="true">32</span><span class="q-t">Explíquenos cómo llega una orden de velocidad desde Nav2 hasta el motor.</span><span class="etiqueta intermedio">Técnica</span></summary>
     <div class="q-cuerpo">
       <p>Nav2 publica una velocidad lineal y una angular. El controlador local DWB puede pedir hasta 0,15 m/s. La orden pasa por twist_mux, que da prioridad al mando manual, y llega al controlador diferencial en la Raspberry Pi. Ese controlador la limita a 0,13 m/s y 0,35 rad/s y, con el modelo cinemático, calcula la velocidad de cada rueda.</p>
       <p>La interfaz DiffDriveArduino la convierte a pulsos por ciclo, la trunca a entero y la envía al Arduino con el comando m, en un ciclo de 30 Hz. En el Arduino, cada 33 ms el controlador compara esa referencia con los pulsos que contaron las interrupciones del encoder, calcula el PWM, lo limita a 255 y lo aplica al driver L298N. Si pasan 2 segundos sin órdenes, detiene los motores.</p>
@@ -411,12 +453,22 @@
   </details>
 
   <details class="pregunta" id="p-decimales" data-respuesta="guia" data-dificultad="tecnica">
-    <summary><span class="q-n" aria-hidden="true">29</span><span class="q-t">¿Dónde se pierden decimales en el firmware y qué efecto tiene?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <summary><span class="q-n" aria-hidden="true">33</span><span class="q-t">¿Dónde se pierden decimales en el firmware y qué efecto tiene?</span><span class="etiqueta intermedio">Técnica</span></summary>
     <div class="q-cuerpo">
       <p>Las ganancias se aplican con decimales, pero el error, el aumento de la orden y el término integral se guardan como enteros y se truncan hacia cero. Cortar al final no molesta, porque el PWM igual es entero. Lo que pierde información es cortar el aumento de cada ciclo antes de sumarlo.</p>
-      <p>Con las ganancias de la rueda derecha y la rueda girando pareja, un error de 3 pulsos da un aumento de 0,99, que se corta a cero, y la orden no se mueve. Eso crea una pequeña zona sin corrección y anula el Ki de la rueda derecha. Pasar esos estados a punto flotante es parte del punto 6 del trabajo futuro.</p>
-      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Anexos 4.4 y 4.5 y Sección 5.2. El 0,99 es un cálculo con las ganancias de la Tabla 4.4 <a class="ref" href="#f1">1</a>.</p>
+      <p>Con las ganancias de la rueda derecha y la rueda girando pareja, un error de 3 pulsos da un aumento de 0,99, que se corta a cero, y la orden no se mueve. Eso crea una pequeña zona sin corrección y anula el Ki de la rueda derecha. El análisis de estabilidad lo generaliza: con el estado integral en cero, la salida no cambia ante errores de hasta 3 ticks/ciclo con las ganancias definitivas, cerca de 0,01 m/s, y el error estacionario medido cae dentro de esa banda. Pasar esos estados a punto flotante es parte del punto 6 del trabajo futuro.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Anexos 4.4, 4.5 y 4.12 y Sección 5.2. El 0,99 es un cálculo con las ganancias de la Tabla 4.4 <a class="ref" href="#f1">1</a>.</p>
       <p class="q-ver"><a href="control.html#enteros">Los decimales que se pierden</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-pi-adecuado" data-respuesta="guia" data-dificultad="tecnica">
+    <summary><span class="q-n" aria-hidden="true">34</span><span class="q-t">¿Es razonable un PI, sin acción derivativa, para controlar la velocidad de estos motores?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <div class="q-cuerpo">
+      <p>Para este caso sí. Un PI es adecuado para procesos que se comportan esencialmente como de primer orden, y el modelo identificado de cada rueda lo es. Ese modelo, con retardo cero, contiene el de un motor de corriente continua cuando se desprecia la inductancia de armadura.</p>
+      <p>El PI es además el controlador más común, y su forma incremental se usa en lazos de velocidad de robots diferenciales y de plataformas ROS 2 que, como esta, envían las consignas por puerto serie. Que sea común no prueba que sea la mejor opción. La tesis no compara su desempeño con otras leyes y deja esa comparación como trabajo futuro.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 4.4.3 y Anexo 4.6 <a class="ref" href="#f1">1</a> <a class="ref" href="#f5">5</a> <a class="ref" href="#f20">20</a> <a class="ref" href="#f15">15</a>.</p>
+      <p class="q-ver"><a href="control.html#por-que-se-conservo">¿Por qué no se reescribió?</a></p>
     </div>
   </details>
 </section>
@@ -426,7 +478,7 @@
   <p class="q-intro">Cómo se arma el mapa y por qué con esta herramienta. Explicado en <a href="mapeo.html">Ver y mapear con LiDAR y SLAM</a>.</p>
 
   <details class="pregunta" id="p-slam-toolbox" data-respuesta="guia" data-dificultad="tecnica">
-    <summary><span class="q-n" aria-hidden="true">30</span><span class="q-t">¿Por qué eligió slam_toolbox y no otro algoritmo de SLAM?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <summary><span class="q-n" aria-hidden="true">35</span><span class="q-t">¿Por qué eligió slam_toolbox y no otro algoritmo de SLAM?</span><span class="etiqueta intermedio">Técnica</span></summary>
     <div class="q-cuerpo">
       <p>Por su integración nativa con ROS 2, su enfoque de grafo de poses y porque permite guardar y cargar mapas. GMapping usa un filtro de partículas, sin el mismo esquema explícito de cierre y optimización de un grafo de poses. Su integración con ROS 2 fue una limitación para este proyecto. Hector SLAM exige un láser de alta tasa de barrido para contener la deriva. Cartographer tiene una configuración compleja y, en la comparación de Trejos y colaboradores, fue el de mayor uso medio de CPU <a class="ref" href="#f3">3</a>.</p>
       <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Tabla 1.2 y Secciones 2.1 y 4.5.1 <a class="ref" href="#f1">1</a>.</p>
@@ -434,22 +486,22 @@
     </div>
   </details>
 
-  <details class="pregunta" id="p-trejos" data-respuesta="pendiente" data-dificultad="exigente">
-    <summary><span class="q-n" aria-hidden="true">31</span><span class="q-t">¿Trejos evaluó slam_toolbox? ¿Qué peso tiene el argumento de CPU si usted no la midió?</span><span class="etiqueta avanzado">Exigente</span></summary>
+  <details class="pregunta" id="p-trejos" data-respuesta="guia" data-dificultad="exigente">
+    <summary><span class="q-n" aria-hidden="true">36</span><span class="q-t">¿Trejos evaluó slam_toolbox? ¿Qué peso tiene el argumento de CPU si usted no la midió?</span><span class="etiqueta avanzado">Exigente</span></summary>
     <div class="q-cuerpo">
-      <p class="q-pendiente">Contrastar con el autor la prioridad de los criterios de elección. no hay mediciones locales de CPU.</p>
       <p>No lo evaluó. Trejos comparó Cartographer, GMapping, Hector, Karto y RTAB-Map en simulación con Gazebo, y en su clasificación global Karto resultó la mejor opción <a class="ref" href="#f3">3</a>. slam_toolbox se construye sobre Open Karto <a class="ref" href="#f4">4</a>.</p>
-      <p>Aun así, el argumento de CPU pesa poco en este proyecto. slam_toolbox corre en el computador, que tiene un procesador Intel de clase portátil, no en la Raspberry Pi, y no se midió su consumo. La guía describe que se eligió sobre todo por su integración, su grafo de poses y el manejo de mapas.</p>
-      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Tabla 1.2, Sección 4.5.1, Tabla A3.2 y Anexo 8.3 <a class="ref" href="#f1">1</a>.</p>
+      <p>Aun así, el argumento de CPU pesa poco en este proyecto. slam_toolbox corre en el computador, que tiene un procesador Intel de clase portátil, no en la Raspberry Pi, y no se midió su consumo. La tesis lo eligió por su integración nativa con ROS 2, su enfoque de grafo de poses y su capacidad de guardar y cargar mapas.</p>
+      <div class="q-sigue"><p class="q-rot">Si la pregunta sigue</p><p>De Trejos sí se tomó otra cosa: su métrica de exactitud del mapa, la distancia de cada punto del muro de referencia a la celda ocupada más cercana, que se aplicó contra el plano del recinto.</p></div>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Tabla 1.2, Secciones 2.1 y 4.5.1, Tabla A3.2 y Anexos 8.3 y 8.5 <a class="ref" href="#f1">1</a>.</p>
       <p class="q-ver"><a href="mapeo.html#trejos">Qué comparó Trejos y cómo se conecta</a></p>
     </div>
   </details>
 
   <details class="pregunta" id="p-cierre-lazo" data-respuesta="guia" data-dificultad="exigente">
-    <summary><span class="q-n" aria-hidden="true">32</span><span class="q-t">¿Qué es un cierre de lazo y por qué en su tesis figura como no determinado?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <summary><span class="q-n" aria-hidden="true">37</span><span class="q-t">¿Qué es un cierre de lazo y por qué en su tesis figura como no determinado?</span><span class="etiqueta avanzado">Exigente</span></summary>
     <div class="q-cuerpo">
       <p>En el SLAM por grafos, cada nodo es una pose del robot y cada arista es una restricción entre dos poses, que sale de la odometría o de alinear dos barridos del láser. La búsqueda selecciona observaciones anteriores como candidatas y el ajuste comprueba su compatibilidad. Solo una coincidencia aceptada añade una restricción de cierre de lazo. Al optimizar, las poses se reajustan según las restricciones y sus pesos. Volver a ver una zona o un pasillo parecido no garantiza un cierre válido.</p>
-      <p>En slam_toolbox el cierre de lazo estaba activado, pero el análisis posterior documentado no detecta de forma automática si ocurrió. Por eso figura como no determinado, y la consistencia del mapa se evaluó solo a la vista.</p>
+      <p>En slam_toolbox el cierre de lazo estaba activado, pero el análisis posterior documentado no detecta de forma automática si ocurrió. Por eso figura como no determinado. La consistencia global se valoró a la vista, y la exactitud de los muros se comparó después con un plano medido del recinto.</p>
       <div class="q-sigue"><p class="q-rot">Si la pregunta sigue</p><p>El repositorio tiene scripts preparados para medir el cierre de lazo, pero sus carpetas no tienen registros de salida, así que no aportan mediciones a la tesis.</p></div>
       <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Secciones 3.8 y 5.3, Tabla A5.3 y Anexos 8.1 y 8.3 <a class="ref" href="#f1">1</a>.</p>
       <p class="q-ver"><a href="mapeo.html#grafo-poses">Qué es un grafo de poses</a></p>
@@ -457,7 +509,7 @@
   </details>
 
   <details class="pregunta" id="p-marcos" data-respuesta="guia" data-dificultad="tecnica">
-    <summary><span class="q-n" aria-hidden="true">33</span><span class="q-t">¿Qué marcos de referencia usa y quién publica cada uno?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <summary><span class="q-n" aria-hidden="true">38</span><span class="q-t">¿Qué marcos de referencia usa y quién publica cada uno?</span><span class="etiqueta intermedio">Técnica</span></summary>
     <div class="q-cuerpo">
       <p>La cadena es map, odom, base_link y laser_frame. slam_toolbox publica de map a odom. El controlador diferencial publica de odom a base_link con la odometría de los encoders. Y de base_link a laser_frame hay una transformación fija que sale de la descripción del robot. La organización sigue las convenciones REP 103 y REP 105 de ROS.</p>
       <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Secciones 3.1, 4.2.2 y 4.3.2, y Anexo 2.1 <a class="ref" href="#f1">1</a>.</p>
@@ -466,7 +518,7 @@
   </details>
 
   <details class="pregunta" id="p-lidar-2d" data-respuesta="guia" data-dificultad="tecnica">
-    <summary><span class="q-n" aria-hidden="true">34</span><span class="q-t">¿Por qué un LiDAR 2D y no una cámara?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <summary><span class="q-n" aria-hidden="true">39</span><span class="q-t">¿Por qué un LiDAR 2D y no una cámara?</span><span class="etiqueta intermedio">Técnica</span></summary>
     <div class="q-cuerpo">
       <p>Para interiores es suficiente, y tiene menor costo y menor carga de procesamiento que una cámara de profundidad o un LiDAR 3D. En robots de interiores, el SLAM con LiDAR 2D es la alternativa predominante <a class="ref" href="#f6">6</a>. El precio de esa elección es que el láser solo ve un plano horizontal.</p>
       <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Secciones 1.3 y 2.1 <a class="ref" href="#f1">1</a>.</p>
@@ -475,7 +527,7 @@
   </details>
 
   <details class="pregunta" id="p-lee-laser" data-respuesta="guia" data-dificultad="tecnica">
-    <summary><span class="q-n" aria-hidden="true">35</span><span class="q-t">¿Cómo lee el robot el láser?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <summary><span class="q-n" aria-hidden="true">40</span><span class="q-t">¿Cómo lee el robot el láser?</span><span class="etiqueta intermedio">Técnica</span></summary>
     <div class="q-cuerpo">
       <p>No se empleó el programa del fabricante. Se escribió un nodo propio que recibe las mediciones del RPLidar A1 por el puerto serie. Al arrancar revisa el estado del sensor y, si hay una falla, no publica. Luego junta las mediciones de cada vuelta, las reparte en 230 sectores y guarda la distancia más cercana de cada uno. Por eso el láser real entrega 230 sectores y el simulado 360 puntos sin ruido.</p>
       <p>Un límite conocido es que cada barrido lleva la hora de publicación y no la de medición. No se midió cuánto afecta al mapa.</p>
@@ -490,7 +542,7 @@
   <p class="q-intro">Cómo se calcula la ruta y cómo se sigue sin chocar. Con simuladores en <a href="navegacion.html">Planificar y seguir rutas con Nav2</a>.</p>
 
   <details class="pregunta" id="p-astar" data-respuesta="guia" data-dificultad="tecnica">
-    <summary><span class="q-n" aria-hidden="true">36</span><span class="q-t">¿Cómo decide A estrella qué ruta tomar y qué cambia respecto de Dijkstra?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <summary><span class="q-n" aria-hidden="true">41</span><span class="q-t">¿Cómo decide A estrella qué ruta tomar y qué cambia respecto de Dijkstra?</span><span class="etiqueta intermedio">Técnica</span></summary>
     <div class="q-cuerpo">
       <p>A estrella recorre la rejilla del mapa de costos desde la posición del robot. A cada celda candidata le asigna la suma de dos cosas. Lo que ya cuesta llegar desde el origen hasta esa celda, y una estimación de lo que falta para llegar a la meta. Siempre avanza primero por la celda con la menor suma. Esa estimación orienta la búsqueda hacia la meta y evita revisar celdas en todas direcciones, como haría Dijkstra.</p>
       <p>En Nav2 lo activo con la opción use_astar del planificador NavFn. No uso la optimalidad de la ruta como criterio, porque Nav2 agrega costos propios del mapa cuyo escalamiento no se reconstruyó. Lo que valido es que la ruta pueda ser seguida por el controlador local DWB.</p>
@@ -500,7 +552,7 @@
   </details>
 
   <details class="pregunta" id="p-admisible" data-respuesta="guia" data-dificultad="exigente">
-    <summary><span class="q-n" aria-hidden="true">37</span><span class="q-t">¿Qué condición tiene que cumplir esa estimación para que A estrella garantice la ruta de menor costo?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <summary><span class="q-n" aria-hidden="true">42</span><span class="q-t">¿Qué condición tiene que cumplir esa estimación para que A estrella garantice la ruta de menor costo?</span><span class="etiqueta avanzado">Exigente</span></summary>
     <div class="q-cuerpo">
       <p>Tiene que ser admisible, es decir, nunca debe estimar más de lo que realmente falta. Con una estimación admisible, A estrella encuentra la ruta de menor costo. En este trabajo no se usan ni la admisibilidad ni la optimalidad como criterio de validación, porque Nav2 agrega costos propios del mapa cuyo escalamiento no se reconstruyó.</p>
       <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 3.10 <a class="ref" href="#f1">1</a>.</p>
@@ -509,7 +561,7 @@
   </details>
 
   <details class="pregunta" id="p-inflacion" data-respuesta="guia" data-dificultad="exigente">
-    <summary><span class="q-n" aria-hidden="true">38</span><span class="q-t">El radio de inflación es 0,15 m y la esquina del robot está a 0,24 m del centro. ¿Cómo asegura que la ruta no pase por donde el robot no cabe?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <summary><span class="q-n" aria-hidden="true">43</span><span class="q-t">El radio de inflación es 0,15 m y la esquina del robot está a 0,24 m del centro. ¿Cómo asegura que la ruta no pase por donde el robot no cabe?</span><span class="etiqueta avanzado">Exigente</span></summary>
     <div class="q-cuerpo">
       <p>No lo garantizo, y la tesis lo declara. El <span class="term" data-def="Zona de seguridad que el mapa de costos agrega alrededor de cada obstáculo para que el robot no pase demasiado cerca.">radio de inflación</span> es menor que la distancia a la esquina, así que entre 0,15 y 0,24 m de un obstáculo el costo es nulo aunque la esquina del robot pueda llegar ahí. El planificador trata al robot como un punto y el crítico de obstáculos de DWB solo revisa la celda bajo el centro, así que ninguno revisa el contorno completo.</p>
       <p>Su efecto en las corridas no se cuantificó. Evaluar la navegación en pasos estrechos con una configuración acorde es el punto 4 del trabajo futuro.</p>
@@ -519,7 +571,7 @@
   </details>
 
   <details class="pregunta" id="p-dwb" data-respuesta="guia" data-dificultad="tecnica">
-    <summary><span class="q-n" aria-hidden="true">39</span><span class="q-t">¿Qué hace el controlador local DWB?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <summary><span class="q-n" aria-hidden="true">44</span><span class="q-t">¿Qué hace el controlador local DWB?</span><span class="etiqueta intermedio">Técnica</span></summary>
     <div class="q-cuerpo">
       <p>Toma solo las velocidades que el robot puede alcanzar desde su estado actual, simula hacia adelante la trayectoria de cada una y la puntúa con criterios como la cercanía a obstáculos, la alineación con la ruta y el avance hacia la meta. Elige la de menor puntaje. En el robot trabaja a 8 Hz y puede pedir hasta 0,15 m/s, aunque el controlador diferencial limita a 0,13.</p>
       <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 3.10 con la Ecuación 3.16, Tabla 4.5 y Tabla A5.1 <a class="ref" href="#f1">1</a>.</p>
@@ -528,7 +580,7 @@
   </details>
 
   <details class="pregunta" id="p-amcl" data-respuesta="guia" data-dificultad="tecnica">
-    <summary><span class="q-n" aria-hidden="true">40</span><span class="q-t">¿Qué es AMCL y por qué no lo usó?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <summary><span class="q-n" aria-hidden="true">45</span><span class="q-t">¿Qué es AMCL y por qué no lo usó?</span><span class="etiqueta intermedio">Técnica</span></summary>
     <div class="q-cuerpo">
       <p>AMCL es una localización con filtro de partículas sobre un mapa ya guardado. Cada partícula es una posible pose del robot. Las partículas se mueven con la odometría, se ponderan según qué tan bien calza el láser con el mapa y luego se remuestrean hacia las más probables.</p>
       <p>En este trabajo la localización la hace slam_toolbox mientras construye el mapa. AMCL está en la pila de navegación con sus parámetros por defecto, pero no se ajustó ni se ejecutó, y queda fuera del alcance. Usarlo es el punto 7 del trabajo futuro. SLAM Toolbox también ofrece localización sobre un grafo serializado y una ventana de barridos recientes. Esa capacidad tampoco se presenta como ensayada en este robot. <a href="mapeo.html#guardar-sesion">Una imagen del mapa y una sesión serializada conservan información diferente</a>.</p>
@@ -543,17 +595,17 @@
   <p class="q-intro">Cómo elige destino el explorador y por qué casi todas sus metas aparecen abortadas. Explicado en <a href="exploracion.html">Explorar por fronteras</a>.</p>
 
   <details class="pregunta" id="p-logica-explorador" data-respuesta="guia" data-dificultad="exigente">
-    <summary><span class="q-n" aria-hidden="true">41</span><span class="q-t">Explíqueme la lógica de su explorador. ¿Cuándo manda una meta nueva y por qué aparece abortada aunque el robot no haya fallado?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <summary><span class="q-n" aria-hidden="true">46</span><span class="q-t">Explíqueme la lógica de su explorador. ¿Cuándo manda una meta nueva y por qué aparece abortada aunque el robot no haya fallado?</span><span class="etiqueta avanzado">Exigente</span></summary>
     <div class="q-cuerpo">
       <p>El explorador revisa el mapa de costos global cada 3,3 segundos, porque su frecuencia está configurada en 0,3 Hz. Busca las fronteras, las ordena con un puntaje que combina distancia y tamaño y toma la primera que no esté en la lista de metas descartadas. Si el punto elegido cambió un centímetro o más respecto de la meta anterior, manda una meta nueva a Nav2 sin cancelar la que está en curso.</p>
-      <p>En la versión Foxy de Nav2, cuando llega una meta nueva mientras otra está activa, la anterior se cierra como abortada. Por eso el aborto registra reemplazos y no fallas. La solución es cancelar la meta antes de enviar la siguiente, que es el punto 5 del trabajo futuro.</p>
+      <p>En la versión Foxy de Nav2, cuando llega una meta nueva mientras otra está activa, la anterior se cierra como abortada. Por eso el estado abortado registra tanto los reemplazos como las fallas, y no puede leerse como una falla. La solución es cancelar la meta antes de enviar la siguiente, que es el punto 5 del trabajo futuro.</p>
       <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 4.5.6 con el Algoritmo 4.4, Sección 5.4, Tabla A5.4 y Anexo 5.6 <a class="ref" href="#f1">1</a>.</p>
       <p class="q-ver"><a href="exploracion.html#explore-lite">Cómo decide explore_lite en este robot</a></p>
     </div>
   </details>
 
   <details class="pregunta" id="p-lista-negra" data-respuesta="guia" data-dificultad="tecnica">
-    <summary><span class="q-n" aria-hidden="true">42</span><span class="q-t">¿Qué problema resuelve la lista negra del explorador y qué efecto secundario tuvo?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <summary><span class="q-n" aria-hidden="true">47</span><span class="q-t">¿Qué problema resuelve la lista negra del explorador y qué efecto secundario tuvo?</span><span class="etiqueta intermedio">Técnica</span></summary>
     <div class="q-cuerpo">
       <p>Evita que el robot insista para siempre en fronteras que no puede alcanzar. Un punto entra a la lista si el robot pasa 10 segundos sin progreso hacia él o si Nav2 informa la meta como abortada. Su limitación es que también tacha las metas que el propio explorador reemplaza, porque Nav2 las cierra como abortadas.</p>
       <p>Como la comprobación usa una tolerancia de cinco celdas, tachar un punto también tacha sus alrededores, y el explorador puede descartar la frontera que venía siguiendo. Cuando se queda sin candidatas, vacía la lista y vuelve a intentar. Eso pasó 17 veces en las cinco iteraciones válidas, 11 de ellas en la iteración 1. No impidió terminar la exploración, pero no se cuantificó cuánto alargó el recorrido.</p>
@@ -564,16 +616,16 @@
   </details>
 
   <details class="pregunta" id="p-no-corrigio" data-respuesta="guia" data-dificultad="tecnica">
-    <summary><span class="q-n" aria-hidden="true">43</span><span class="q-t">Si el reemplazo de metas explica casi todos los abortos, ¿por qué no lo corrigió antes de los ensayos?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <summary><span class="q-n" aria-hidden="true">48</span><span class="q-t">Si el reemplazo de metas explica casi todos los abortos, ¿por qué no lo corrigió antes de los ensayos?</span><span class="etiqueta intermedio">Técnica</span></summary>
     <div class="q-cuerpo">
       <p>Según la guía, se detectó después de los ensayos al reconstruir cada meta por su identificador, porque los contadores automáticos de la sesión contaban mensajes de estado y no metas. Corregirlo exige cancelar la meta en curso antes de enviar la siguiente, o conservar el registro de bt_navigator, y evaluar el efecto de la frecuencia del explorador. Es el punto 5 del trabajo futuro.</p>
       <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Limitaciones, registro de navegación e integración entre explorador y Nav2, y Anexo 8.4 <a class="ref" href="#f1">1</a>.</p>
-      <p class="q-ver"><a href="exploracion.html#como-se-separo">Cómo se separaron reemplazos de fallas</a></p>
+      <p class="q-ver"><a href="exploracion.html#como-se-separo">Cómo se asoció cada aborto a un reemplazo</a></p>
     </div>
   </details>
 
   <details class="pregunta" id="p-yamauchi" data-respuesta="guia" data-dificultad="exigente">
-    <summary><span class="q-n" aria-hidden="true">44</span><span class="q-t">¿Qué criterio propone Yamauchi para elegir a qué frontera ir, y en qué se diferencia del criterio de su explorador?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <summary><span class="q-n" aria-hidden="true">49</span><span class="q-t">¿Qué criterio propone Yamauchi para elegir a qué frontera ir, y en qué se diferencia del criterio de su explorador?</span><span class="etiqueta avanzado">Exigente</span></summary>
     <div class="q-cuerpo">
       <p>Yamauchi propone que el robot vaya a la frontera accesible más cercana que todavía no haya visitado. Cuando llega, hace un barrido de 360 grados, actualiza el mapa y vuelve a buscar fronteras. Si no logra avanzar en cierto tiempo, marca esa frontera como inaccesible <a class="ref" href="#f2">2</a>.</p>
       <p>El explorador del proyecto toma la idea general, que son los bordes entre lo conocido y lo desconocido, y una lista de metas descartadas equivalente. Cambia en tres cosas. Elige con un puntaje que combina distancia y tamaño, vuelve a elegir cada 3,3 segundos sin esperar a llegar, y acepta fronteras mucho más pequeñas, porque Yamauchi exige un tamaño parecido al del robot.</p>
@@ -584,7 +636,7 @@
   </details>
 
   <details class="pregunta" id="p-frontera-minima" data-respuesta="pendiente" data-dificultad="exigente">
-    <summary><span class="q-n" aria-hidden="true">45</span><span class="q-t">Configuró un tamaño mínimo de frontera de 5 cm, una sola celda. ¿Qué consecuencia tiene sobre las metas?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <summary><span class="q-n" aria-hidden="true">50</span><span class="q-t">Configuró un tamaño mínimo de frontera de 5 cm, una sola celda. ¿Qué consecuencia tiene sobre las metas?</span><span class="etiqueta avanzado">Exigente</span></summary>
     <div class="q-cuerpo">
       <p>Con celdas de 0,05 m, ese valor admite fronteras de una sola celda. El explorador puede elegir fronteras muy pequeñas, que pueden venir del ruido del láser o de rincones donde el robot no cabe, y eso puede alargar la exploración y llenar la lista de descartes. No se cuantificó. Yamauchi usa un tamaño cercano al del robot justamente para descartar esas regiones <a class="ref" href="#f2">2</a>.</p>
       <p>Una frontera de una sola celda queda con costo infinito en el código, pero puede seguir como candidata si no hay otra seleccionable.</p>
@@ -600,7 +652,7 @@
   <p class="q-intro">Qué se comprobó en Gazebo y qué no se puede comparar. Explicado en <a href="gemelo.html">El gemelo digital</a>.</p>
 
   <details class="pregunta" id="p-oe1" data-respuesta="guia" data-dificultad="tecnica">
-    <summary><span class="q-n" aria-hidden="true">46</span><span class="q-t">¿Con qué criterio da por cumplido el OE1, y qué evidencia tiene de que la simulación y el robot se comportan igual?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <summary><span class="q-n" aria-hidden="true">51</span><span class="q-t">¿Con qué criterio da por cumplido el OE1, y qué evidencia tiene de que la simulación y el robot se comportan igual?</span><span class="etiqueta intermedio">Técnica</span></summary>
     <div class="q-cuerpo">
       <p>El OE1 se cumplió con una verificación de funcionamiento, no con números. En Gazebo se comprobaron cuatro criterios. La cadena de marcos está completa, sin marcos sueltos. El láser y la odometría se publican de forma estable. El robot avanza y gira como dice el modelo diferencial. Y el radio y la separación de las ruedas son iguales a los del prototipo.</p>
       <p>Eso muestra que el gemelo reproduce los marcos, los sensores y los movimientos del prototipo, no que se comporten igual. No se documenta una comparación sobre una misma variable, porque en simulación la pose verdadera de Gazebo no quedó registrada. Registrarla es el punto 9 del trabajo futuro.</p>
@@ -610,7 +662,7 @@
   </details>
 
   <details class="pregunta" id="p-registro-gemelo" data-respuesta="guia" data-dificultad="exigente">
-    <summary><span class="q-n" aria-hidden="true">47</span><span class="q-t">¿Dónde quedó registrado lo que observó, por ejemplo la frecuencia de la odometría y del láser en simulación?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <summary><span class="q-n" aria-hidden="true">52</span><span class="q-t">¿Dónde quedó registrado lo que observó, por ejemplo la frecuencia de la odometría y del láser en simulación?</span><span class="etiqueta avanzado">Exigente</span></summary>
     <div class="q-cuerpo">
       <p>No quedó registrado. La tesis dice que los criterios se confirmaron durante la puesta en marcha del modelo digital, pero no guardé los valores medidos ni la imagen del árbol de marcos de la simulación. Es una debilidad del registro. La corregiría agregando la frecuencia medida de los tópicos del láser y de la odometría, y la imagen del árbol de marcos.</p>
       <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Anexo 2.2 <a class="ref" href="#f1">1</a>.</p>
@@ -619,7 +671,7 @@
   </details>
 
   <details class="pregunta" id="p-339-718" data-respuesta="guia" data-dificultad="tecnica">
-    <summary><span class="q-n" aria-hidden="true">48</span><span class="q-t">¿El 3,39 % de simulación y el 7,18 % del robot miden lo mismo?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <summary><span class="q-n" aria-hidden="true">53</span><span class="q-t">¿El 3,39 % de simulación y el 7,18 % del robot miden lo mismo?</span><span class="etiqueta intermedio">Técnica</span></summary>
     <div class="q-cuerpo">
       <p>No. En la recta de 2 metros, en simulación la distancia sale de la propia odometría, porque la pose verdadera de Gazebo no quedó registrada, y da 3,39 % frente a lo ordenado. En el robot se midió con cinta métrica y da 7,18 %. Una se mide consigo misma y la otra contra una referencia física.</p>
       <p>En el giro, los dos entornos se comparan con 360 grados nominales, 4,74 % en simulación y 3,24 % en el robot, y eso tampoco mide error de odometría. Por eso no se comparan esos números entre entornos.</p>
@@ -630,7 +682,7 @@
   </details>
 
   <details class="pregunta" id="p-para-que-sim" data-respuesta="guia" data-dificultad="general">
-    <summary><span class="q-n" aria-hidden="true">49</span><span class="q-t">Si el mundo simulado no es el recinto real, ¿para qué le sirvió la simulación?</span><span class="etiqueta basico">Para todo público</span></summary>
+    <summary><span class="q-n" aria-hidden="true">54</span><span class="q-t">Si el mundo simulado no es el recinto real, ¿para qué le sirvió la simulación?</span><span class="etiqueta basico">Para todo público</span></summary>
     <div class="q-cuerpo">
       <p>Para detectar errores con menor costo antes de construir. El gemelo verificó la cadena de marcos, la publicación estable del láser y la odometría, el movimiento según el modelo diferencial y las medidas de las ruedas. Permitió corregir errores antes de tocar el hardware.</p>
       <p>No sirve para validar mapas, porque el mundo simulado no es el recinto real, ni para ver el comportamiento real del control. En Gazebo los estados de las ruedas vienen del simulador y no del firmware, y no hay zona muerta del driver, fricción real, ruido del láser ni latencias. Por eso el mapeo, la navegación y la exploración se midieron en el robot real.</p>
@@ -640,7 +692,7 @@
   </details>
 
   <details class="pregunta" id="p-video" data-respuesta="guia" data-dificultad="general">
-    <summary><span class="q-n" aria-hidden="true">50</span><span class="q-t">¿Qué demuestra el video del robot y qué no?</span><span class="etiqueta basico">Para todo público</span></summary>
+    <summary><span class="q-n" aria-hidden="true">55</span><span class="q-t">¿Qué demuestra el video del robot y qué no?</span><span class="etiqueta basico">Para todo público</span></summary>
     <div class="q-cuerpo">
       <p>El video muestra una ejecución de demostración en el robot real. A un lado se ve el robot desde arriba y al otro RViz, con el mapa que crece y, en verde, la ruta planificada hacia la frontera elegida. Las capturas de la Figura 5.5 de la tesis salen de ese registro. Sirve para ver funcionando lo que las cifras describen.</p>
       <p>No compara una misma variable entre simulación y robot, y no reemplaza las mediciones. La evidencia del OE1 son los criterios de la Tabla A2.2, y la de la exploración son las cinco corridas registradas.</p>
@@ -655,7 +707,7 @@
   <p class="q-intro">Lo que salió mal y dónde dejaría de funcionar el robot. Reunido en <a href="resultados.html#limitaciones">Limitaciones declaradas</a>.</p>
 
   <details class="pregunta" id="p-iteracion-2" data-respuesta="guia" data-dificultad="exigente">
-    <summary><span class="q-n" aria-hidden="true">51</span><span class="q-t">En la iteración 2 el robot no se movió, pero la odometría sumó casi cuatro metros. ¿Qué cree que pasó?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <summary><span class="q-n" aria-hidden="true">56</span><span class="q-t">En la iteración 2 el robot no se movió, pero la odometría sumó casi cuatro metros. ¿Qué cree que pasó?</span><span class="etiqueta avanzado">Exigente</span></summary>
     <div class="q-cuerpo">
       <p>La causa no se determinó, y así lo informa la tesis. La corrida duró 5,09 minutos, el explorador envió 14 metas y la odometría sumó 3,851 metros, pero el robot no se movió de su posición inicial. Eso es compatible con ruedas que giran sin avanzar, pero no se comprobó. Los encoders miden el giro de las ruedas y no el avance real, así que por sí solos no distinguen ese caso.</p>
       <p>El láser sí daba una señal, porque si el robot no se mueve el mapa no crece, pero el ensayo no usa esa señal para detenerse. El explorador solo se detiene cuando no quedan fronteras, y si el robot no avanza las fronteras no se agotan. La imagen del mapa tampoco quedó guardada, así que no se pudieron calcular cobertura ni área. Por eso se excluyó la corrida y se informa como falla. En las otras cinco el mapa creció, y eso respalda su movimiento sin depender de los encoders.</p>
@@ -666,7 +718,7 @@
   </details>
 
   <details class="pregunta" id="p-verificador" data-respuesta="guia" data-dificultad="exigente">
-    <summary><span class="q-n" aria-hidden="true">52</span><span class="q-t">Nav2 tiene un verificador de progreso que exige 5 cm cada 6 segundos. ¿Por qué nada en el sistema detectó que el robot estaba detenido?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <summary><span class="q-n" aria-hidden="true">57</span><span class="q-t">Nav2 tiene un verificador de progreso que exige 5 cm cada 6 segundos. ¿Por qué nada en el sistema detectó que el robot estaba detenido?</span><span class="etiqueta avanzado">Exigente</span></summary>
     <div class="q-cuerpo">
       <p>No se puede afirmar, porque no se analizó si el verificador actuó en esa corrida. El verificador compara la posición que Nav2 estima para el robot, que sale de la cadena de marcos. Ahí slam_toolbox publica la corrección del mapa a la odometría y el controlador diferencial publica la odometría de los encoders.</p>
       <p>Las 13 metas abortadas de esa corrida no se clasificaron, así que no se puede saber si alguna terminó por el verificador o por un reemplazo. Se puede revisar en el registro, comparando la pose en el mapa con la odometría y el orden de los estados de cada meta. Cualquier causa propuesta debe presentarse como hipótesis.</p>
@@ -677,7 +729,7 @@
   </details>
 
   <details class="pregunta" id="p-oficina" data-respuesta="guia" data-dificultad="general">
-    <summary><span class="q-n" aria-hidden="true">53</span><span class="q-t">Si llevo su robot a una oficina con sillas, mesas, ventanales y gente caminando, ¿dónde fallaría?</span><span class="etiqueta basico">Para todo público</span></summary>
+    <summary><span class="q-n" aria-hidden="true">58</span><span class="q-t">Si llevo su robot a una oficina con sillas, mesas, ventanales y gente caminando, ¿dónde fallaría?</span><span class="etiqueta basico">Para todo público</span></summary>
     <div class="q-cuerpo">
       <p>El láser mide en un solo plano horizontal, así que no ve lo que queda por encima o por debajo, como la cubierta de una mesa o el asiento de una silla. También se degrada con superficies muy reflectantes, como el vidrio, o muy absorbentes. No está pensado para obstáculos rápidos ni suelos irregulares, y la odometría deriva en recorridos largos porque no hay unidad inercial.</p>
       <p>Y en pasos estrechos la configuración no garantiza espacio para la esquina del robot, porque el radio de inflación es menor que la distancia a esa esquina.</p>
@@ -687,11 +739,512 @@
   </details>
 
   <details class="pregunta" id="p-espacio-mayor" data-respuesta="guia" data-dificultad="general">
-    <summary><span class="q-n" aria-hidden="true">54</span><span class="q-t">Si el espacio fuera treinta veces más grande que su recinto, ¿podría asegurar que lo exploraría completo?</span><span class="etiqueta basico">Para todo público</span></summary>
+    <summary><span class="q-n" aria-hidden="true">59</span><span class="q-t">Si el espacio fuera treinta veces más grande que su recinto, ¿podría asegurar que lo exploraría completo?</span><span class="etiqueta basico">Para todo público</span></summary>
     <div class="q-cuerpo">
       <p>No se puede asegurar. Se probó un único recinto, con un área libre mapeada media de 3,50 m², y cinco corridas válidas de una misma sesión. En un espacio grande la odometría acumula más deriva porque no hay unidad inercial. No se midieron la autonomía de la batería ni el uso de CPU, y la navegación no tiene un indicador medido. Medir en un espacio mayor es el punto 1 del trabajo futuro.</p>
       <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Limitaciones, validez externa, deriva odométrica y espacio reducido, y Anexo 8.3 <a class="ref" href="#f1">1</a>.</p>
       <p class="q-ver"><a href="resultados.html#futuro">Trabajo futuro</a></p>
+    </div>
+  </details>
+</section>
+
+<section class="q-tema" data-tema="estabilidad" data-corto="Estabilidad">
+  <h2 id="estabilidad">Estabilidad del control de velocidad</h2>
+  <p class="q-intro">Qué se verificó con el modelo, qué márgenes quedaron y qué deja fuera un análisis lineal. Con un interactivo en <a href="control.html#estabilidad">¿Es estable el lazo?</a>.</p>
+
+  <details class="pregunta" id="p-estable-como" data-respuesta="guia" data-dificultad="tecnica">
+    <summary><span class="q-n" aria-hidden="true">60</span><span class="q-t">¿Cómo verificó que el lazo de velocidad es estable?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <div class="q-cuerpo">
+      <p>Con un análisis del lazo discreto completo. El modelo de primer orden con retardo de cada rueda se discretizó de forma exacta con el período de 33 ms, incluyendo el retenedor que mantiene el PWM entre ciclos y la medición del firmware, que entrega la velocidad media del ciclo anterior. A eso se sumó la ley del firmware idealizada, sin saturación, banda del error ni truncamientos.</p>
+      <p>El lazo es estable si todas las raíces de su ecuación característica tienen magnitud menor que uno, y con las ganancias definitivas lo son, sin retardo y con un retardo de 0,1 s. Los márgenes de fase van de 53° a 57° sin retardo y de 41° a 44° con 0,1 s, y la sensibilidad máxima, de 1,35 a 1,85, queda dentro del intervalo típico de 1,2 a 2,0.</p>
+      <div class="q-sigue"><p class="q-rot">Si la pregunta sigue</p><p>¿Eso prueba que el firmware es estable? No. Los márgenes describen los modelos lineales con sus parámetros fijados. No son una garantía global para el programa no lineal ni una medición del retardo del robot.</p></div>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 4.4.3, Anexo 4.12 y Tabla A4.5 <a class="ref" href="#f1">1</a> <a class="ref" href="#f7">7</a>.</p>
+      <p class="q-ver"><a href="control.html#estabilidad">¿Es estable el lazo? El análisis del lazo discreto</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-margenes" data-respuesta="guia" data-dificultad="tecnica">
+    <summary><span class="q-n" aria-hidden="true">61</span><span class="q-t">¿Qué indica cada margen y por qué informa también la sensibilidad máxima?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <div class="q-cuerpo">
+      <p>El margen de ganancia dice cuántas veces puede crecer la ganancia del lazo antes de perder la estabilidad. El de fase, cuánto atraso adicional tolera donde la ganancia del lazo vale uno. El de retardo traduce ese atraso a segundos, y el menor, en el modelo sin retardo, es de unos 0,42 s.</p>
+      <p>La sensibilidad máxima resume la robustez en un solo número. Su inverso es la menor distancia entre la curva del lazo y el punto crítico, así que un valor alto significa que el lazo pasa cerca de oscilar. Sus valores típicos están entre 1,2 y 2,0.</p>
+      <div class="q-sigue"><p class="q-rot">Si la pregunta sigue</p><p>Con las ganancias originales del firmware, en el escenario de 0,1 s, la sensibilidad máxima llega a 2,18, fuera de ese intervalo. Es una de las comparaciones que hace el anexo.</p></div>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Anexo 4.12, criterios de estabilidad, y Tabla A4.5 <a class="ref" href="#f1">1</a> <a class="ref" href="#f7">7</a>.</p>
+      <p class="q-ver"><a href="control.html#criterios-estabilidad">Cuatro números para medir el margen</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-retardo-escenario" data-respuesta="guia" data-dificultad="exigente">
+    <summary><span class="q-n" aria-hidden="true">62</span><span class="q-t">Si el retardo identificado es de 0,0001 y 0,0692 s, ¿de dónde sale el escenario de 0,1 s?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <div class="q-cuerpo">
+      <p>Los datos se capturaron cada 0,1 s, y al simular el modelo el retardo se convierte en un número entero de muestras. Cualquier retardo menor que 0,1 s da cero muestras y el mismo costo de ajuste, así que el optimizador puede detenerse en cualquier valor de ese intervalo. Por eso un script entregó 0,0692 s para la derecha y otro 0,0845 s, con la misma ganancia y la misma constante de tiempo.</p>
+      <p>Esos valores son salidas numéricas, no mediciones. El análisis se hizo entonces sin retardo, que es el modelo efectivamente ajustado, y con 0,1 s como escenario de sensibilidad, sin presentarlo como una cota física. Estimar retardos menores exige capturar más rápido, y queda como trabajo futuro.</p>
+      <div class="q-sigue"><p class="q-rot">Si la pregunta sigue</p><p>¿Y si el retardo real fuera mayor? Los datos no lo descartan ni lo confirman. En el escenario de 0,1 s, el margen de retardo, de 0,32 a 0,35 s, indica cuánto más toleraría el modelo.</p></div>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Anexos 4.6, 4.10 y 4.12, y Tabla A4.4 <a class="ref" href="#f1">1</a> <a class="ref" href="#f12">12</a>.</p>
+      <p class="q-ver"><a href="control.html#modelo">Un modelo de cada rueda</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-ki-lineal" data-respuesta="guia" data-dificultad="exigente">
+    <summary><span class="q-n" aria-hidden="true">63</span><span class="q-t">En la rueda izquierda aparece un polo de 0,995. ¿No está peligrosamente cerca de la inestabilidad?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <div class="q-cuerpo">
+      <p>Ese polo aparece en el caso más desfavorable, cuando el término asociado a Ki se trata como si fuera lineal. Sigue dentro del círculo de radio uno, así que el modelo es estable, pero es un modo muy lento. Con 33 ms por ciclo equivale a una constante de tiempo de unos 6,6 s.</p>
+      <p>En la operación normal ese término casi no actúa. El estado integral de la izquierda solo crece con errores de al menos 14 ticks/ciclo, sobre todo al arrancar, y por eso la tesis informa también el caso sin ese término, que corresponde a operar cerca del equilibrio. Aun en el caso desfavorable, los márgenes de fase son de 53,4° sin retardo y 40,7° con 0,1 s, y la sensibilidad máxima no pasa de 1,85.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Anexo 4.12 y Tabla A4.5. Los 6,6 s son un cálculo con el polo de 0,995 y el período de 33 ms <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-ver"><a href="control.html#sim-estabilidad">Polos, curva de Nyquist y márgenes de cada rueda</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-no-lineal" data-respuesta="guia" data-dificultad="exigente">
+    <summary><span class="q-n" aria-hidden="true">64</span><span class="q-t">Su análisis es lineal. ¿Qué parte del firmware deja fuera y cuál podría cambiar la conclusión?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <div class="q-cuerpo">
+      <p>Deja fuera la saturación, la zona muerta del driver y los truncamientos enteros. La saturación no se alcanza fuera de los transitorios: a la velocidad máxima de cada rueda, unos 0,16 m/s, el modelo pide cerca de 180 de los 255 niveles de PWM.</p>
+      <p>Los truncamientos sí dejan una huella medible. Como cada incremento se trunca a un entero, la salida no cambia mientras Kp por el error, más el estado integral, no alcance Ko. Con el estado integral en cero, eso deja sin corregir errores de hasta 3 ticks/ciclo con las ganancias definitivas y de hasta 4 con las del PSO, cerca de 0,01 m/s, y el error estacionario medido cae dentro de esa banda.</p>
+      <div class="q-sigue"><p class="q-rot">Si la pregunta sigue</p><p>A baja velocidad pesa más. En un giro sobre el eje cada rueda va a unos 10 ticks/ciclo, donde esa banda es cerca de un 30 % de la referencia y la zona muerta influye más. El análisis no cubre ese caso.</p></div>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Anexo 4.12, condiciones de operación y efectos no incluidos en el análisis lineal <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-ver"><a href="control.html#no-lineal">Lo que un análisis lineal no ve</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-barrido" data-respuesta="guia" data-dificultad="tecnica">
+    <summary><span class="q-n" aria-hidden="true">65</span><span class="q-t">¿Cuánto podría diferir la rueda real del modelo antes de que el lazo se vuelva inestable?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <div class="q-cuerpo">
+      <p>El script recorre 625 combinaciones de la ganancia de la planta, entre 0,1 y 10 veces la identificada, y de su constante de tiempo, entre 0,05 y 3 s. Sin retardo el lazo es estable en todas. Con 0,1 s solo pierde la estabilidad cuando la ganancia de la planta supera 4,4 veces la identificada, o 2,8 veces en la izquierda si Ki se trata como lineal.</p>
+      <p>Eso describe sensibilidad en esa rejilla de parámetros. No dice cuánto varía de verdad la planta del robot, que no se caracterizó entre puntos de operación.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Anexo 4.12 <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-ver"><a href="control.html#barrido">Hasta dónde puede cambiar la planta</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-otras-velocidades" data-respuesta="guia" data-dificultad="exigente">
+    <summary><span class="q-n" aria-hidden="true">66</span><span class="q-t">Si los márgenes no dependen de la velocidad, ¿el control funciona igual a cualquier velocidad?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <div class="q-cuerpo">
+      <p>No se puede afirmar. Los márgenes no dependen de la velocidad porque el modelo es lineal, pero la planta real puede cambiar entre puntos de operación, y esa variación no se caracterizó. A baja velocidad, además, crecen los efectos que el modelo no tiene, como la banda sin corrección y la zona muerta.</p>
+      <p>Por eso el desempeño se informa solo a 0,13 m/s, el límite lineal del controlador diferencial. Extender la evaluación a otras referencias, en especial a velocidades bajas y cambios de sentido, es el punto 6 del trabajo futuro.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Anexo 4.12, Limitaciones, ley de control, y trabajo futuro <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-ver"><a href="control.html#barrido">Hasta dónde puede cambiar la planta</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-pso-mas-margen" data-respuesta="guia" data-dificultad="exigente">
+    <summary><span class="q-n" aria-hidden="true">67</span><span class="q-t">Si las ganancias del PSO tienen más margen que las definitivas, ¿por qué no se quedó con ellas?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <div class="q-cuerpo">
+      <p>Porque en el robot no siguieron la referencia. La rueda izquierda se estabilizó en 0,12 m/s, con un error cercano a 0,01 m/s, y la derecha se detuvo cerca de 0,11 m/s y recién sostuvo la referencia después de los 6 s. Más margen en el modelo no garantizó un mejor seguimiento en el robot.</p>
+      <p>El modelo, de hecho, sobrestima la rapidez del lazo real. Su rutina predice con las ganancias del PSO una subida de 0,8 y 1,1 s, y con las definitivas, sobreimpulsos de 10 % a 16 % que en el robot no aparecen. Las definitivas tienen menos margen, de 53° a 57° frente a 64° a 71°, pero su sensibilidad máxima sigue dentro del intervalo típico.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 5.2, Figura 5.3 y Anexo 4.12 <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-ver"><a href="control.html#tres-conjuntos">Las ganancias del PSO, las definitivas y las originales</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-originales" data-respuesta="guia" data-dificultad="tecnica">
+    <summary><span class="q-n" aria-hidden="true">68</span><span class="q-t">¿Cómo se comparan sus ganancias con las que traía el firmware original?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <div class="q-cuerpo">
+      <p>El firmware original usaba Kp 20, Kd 12, Ki 0 y Ko 50, enteras y comunes a ambas ruedas. Con el mismo modelo dan márgenes de fase de 49° a 50° sin retardo y de 35° con 0,1 s, y una sensibilidad máxima de hasta 2,18, fuera del intervalo típico. Las definitivas, de 53° a 57° y de 41° a 44°, tienen más margen.</p>
+      <p>Esa comparación es sobre el modelo. Las ganancias originales no se probaron en el robot, así que no se sabe cómo habrían seguido la referencia ni si habrían ahorrado tiempo de ajuste.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Anexos 4.5 y 4.12 <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-ver"><a href="control.html#tres-conjuntos">Las ganancias del PSO, las definitivas y las originales</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-incremental-estable" data-respuesta="guia" data-dificultad="tecnica">
+    <summary><span class="q-n" aria-hidden="true">69</span><span class="q-t">¿Por qué la estabilidad de un PI incremental es la de un PI clásico?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <div class="q-cuerpo">
+      <p>Porque la forma incremental solo cambia qué se calcula en cada ciclo. Calcula el cambio de la orden y lo suma a la anterior, y sin saturación eso equivale a calcular la orden completa del mismo PI. Es el algoritmo de velocidad que describen Åström y Hägglund.</p>
+      <p>En la ley ejecutada, sin el término de Ki, Kd/Ko cumple el papel de la ganancia proporcional y Kp/Ko el del coeficiente integral por muestra, con la referencia solo en el término integral. Con las ganancias definitivas eso da 0,41 y 0,40 PWM por tick/ciclo y tiempos integrales de 42 y 40 ms.</p>
+      <div class="q-sigue"><p class="q-rot">Si la pregunta sigue</p><p>¿Por qué no diseñó en tiempo continuo y lo discretizó? El período de 33 ms por la frecuencia de cruce da cerca de 0,07, dentro del intervalo de 0,05 a 0,14 en que esa aproximación es razonable. Aun así, la verificación se hizo sobre el lazo discreto.</p></div>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 4.4.3 y Anexo 4.12, Ecuación A4.1 <a class="ref" href="#f1">1</a> <a class="ref" href="#f5">5</a> <a class="ref" href="#f7">7</a>.</p>
+      <p class="q-ver"><a href="control.html#hallazgo">Un PID que opera como PI</a></p>
+    </div>
+  </details>
+</section>
+
+<section class="q-tema" data-tema="exactitud" data-corto="Exactitud">
+  <h2 id="exactitud">Exactitud de los mapas</h2>
+  <p class="q-intro">Qué tan cerca quedan los mapas del recinto real y cuánto se puede confiar en esa cifra. Con un interactivo en <a href="mapeo.html#exactitud">El mapa frente al plano medido</a>.</p>
+
+  <details class="pregunta" id="p-plano-como" data-respuesta="guia" data-dificultad="tecnica">
+    <summary><span class="q-n" aria-hidden="true">70</span><span class="q-t">¿Cómo midió la exactitud de los mapas?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <div class="q-cuerpo">
+      <p>Con un plano del recinto con las distancias entre muros medidas con huincha. Cada uno de los cinco mapas válidos se alineó con el plano mediante un giro y un traslado, sin ajustar su escala. Luego se tomó un punto cada 1 cm a lo largo de los muros del plano y se calculó su distancia a la celda ocupada más cercana del mapa, la métrica de exactitud que usan Trejos y otros.</p>
+      <p>Solo cuentan los puntos que el robot pudo observar, los que tienen una celda libre a menos de 10 cm, entre el 92 y el 93 % del total. La distancia media es de 3,4 cm, con 3,17 a 3,72 cm según la corrida, del orden de la celda de 5 cm.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 5.3 y Anexo 8.5 <a class="ref" href="#f1">1</a> <a class="ref" href="#f3">3</a>.</p>
+      <p class="q-ver"><a href="mapeo.html#exactitud">El mapa frente al plano medido</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-repetible-exacto" data-respuesta="guia" data-dificultad="tecnica">
+    <summary><span class="q-n" aria-hidden="true">71</span><span class="q-t">¿Por qué no bastaba con que el área libre fuera casi igual en las cinco corridas?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <div class="q-cuerpo">
+      <p>Porque eso mide repetibilidad, no exactitud. El área libre varió apenas un 0,8 % entre corridas, pero una distorsión que se repitiera en todas las corridas no cambiaría esa cifra. Un reloj que se atrasa siempre cinco minutos es muy repetible y nunca da la hora.</p>
+      <p>Para medir exactitud hace falta una referencia que no salga del propio mapa. Por eso se levantó un plano del recinto y se comparó con cada mapa.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 5.3 y Anexo 8.5 <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-ver"><a href="mapeo.html#exactitud">El mapa frente al plano medido</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-huincha" data-respuesta="guia" data-dificultad="exigente">
+    <summary><span class="q-n" aria-hidden="true">72</span><span class="q-t">¿No es débil usar como referencia un plano medido con huincha?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <div class="q-cuerpo">
+      <p>Es la principal limitación de la comparación, y la tesis la declara. Ni el intervalo entre corridas ni los percentiles incluyen la incertidumbre de la huincha o del alineamiento. Por eso la cifra de 3,4 cm no se presenta como una medida de exactitud global.</p>
+      <p>Lo que aporta es una referencia externa al mapa, que antes no existía, y con ella apareció la diferencia de los pasillos. Medir el recinto con un instrumento de mayor precisión y repetir la comparación es el punto 10 del trabajo futuro.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Anexo 8.5, Limitaciones, exactitud de los mapas, y trabajo futuro <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-ver"><a href="mapeo.html#exactitud">El mapa frente al plano medido</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-12cm" data-respuesta="guia" data-dificultad="exigente">
+    <summary><span class="q-n" aria-hidden="true">73</span><span class="q-t">Los pasillos salen 12 cm más anchos en los mapas. ¿A qué se debe?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <div class="q-cuerpo">
+      <p>No se determinó. El plano registra distancias libres entre muros, así que el espesor de los dos muros largos, menos de 2 cm cada uno, explica a lo sumo 4 cm. El resto puede venir de la medición manual o de una distorsión del mapa en esa dirección, y estos datos no permiten separarlas.</p>
+      <p>Por partes, el primer pasillo sale 4,1 cm más ancho, el segundo 2,4 cm y el tercero 5,2 cm. Los dos primeros quedan dentro de una celda.</p>
+      <div class="q-sigue"><p class="q-rot">Si la pregunta sigue</p><p>¿Un error de escala del mapa? La tesis habla de una posible distorsión en la dirección de los pasillos. En la otra dirección, el alto del recinto sale 1,7 cm más corto, así que no se ve un estiramiento igual en todo el mapa.</p></div>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Anexo 8.5, Tabla A8.3 y Limitaciones <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-ver"><a href="mapeo.html#sim-plano">Once distancias del plano y cinco mapas</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-sin-escala" data-respuesta="guia" data-dificultad="exigente">
+    <summary><span class="q-n" aria-hidden="true">74</span><span class="q-t">¿Por qué alineó los mapas sin ajustar su escala? ¿No mejoraría el resultado?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <div class="q-cuerpo">
+      <p>Ajustar la escala podría reducir las distancias, pero escondería justo uno de los errores que se quieren ver. Si el mapa quedó estirado o encogido, la escala lo corregiría antes de medir. Alineando solo con giro y traslado, un error de escala del mapa queda reflejado en las distancias.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Anexo 8.5 <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-ver"><a href="mapeo.html#exactitud">El mapa frente al plano medido</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-tabiques" data-respuesta="guia" data-dificultad="tecnica">
+    <summary><span class="q-n" aria-hidden="true">75</span><span class="q-t">¿Por qué las mayores diferencias aparecen en los tabiques cortos?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <div class="q-cuerpo">
+      <p>Porque un tabique corto queda representado por pocas celdas ocupadas, así que su posición en el mapa depende de muy pocas mediciones. Las diferencias llegan a −6,1, −7,8 y +9,3 cm, entre una y dos celdas, mientras el alto, los pasillos y los pasos quedan entre −1,7 y +5,2 cm.</p>
+      <p>En el tabique corto unido al muro inferior solo se compara su posición, a 0,61 m del muro derecho en el plano y a 0,70 m en los mapas, porque su largo no se midió.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Anexo 8.5 y Tabla A8.3 <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-ver"><a href="mapeo.html#sim-plano">Once distancias del plano y cinco mapas</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-percentil" data-respuesta="guia" data-dificultad="exigente">
+    <summary><span class="q-n" aria-hidden="true">76</span><span class="q-t">¿Qué diferencia hay entre el percentil 95 de 8,4 cm y el intervalo de 3,1 a 3,7 cm?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <div class="q-cuerpo">
+      <p>Responden preguntas distintas. El percentil 95 describe cómo se reparten las distancias de todos los puntos comparados: solo uno de cada veinte queda a más de 8,4 cm. El intervalo de confianza habla de la distancia media entre corridas, calculada con las cinco medias por mapa.</p>
+      <p>Ninguno de los dos es una cota del error ni incluye la incertidumbre de la huincha o del alineamiento. Y el percentil 95 conjunto no es el promedio de los percentiles de cada mapa, que van de 6,8 a 9,6 cm.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Anexo 8.5 y Tablas A8.2 y A8.4 <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-ver"><a href="mapeo.html#exactitud">El mapa frente al plano medido</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-dos-sentidos" data-respuesta="guia" data-dificultad="exigente">
+    <summary><span class="q-n" aria-hidden="true">77</span><span class="q-t">¿Por qué la distancia del mapa al plano da más que la del plano al mapa?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <div class="q-cuerpo">
+      <p>Porque miden cosas distintas. Del plano al mapa se pregunta si cada muro del plano aparece en el mapa. Del mapa al plano se pregunta si cada celda ocupada corresponde a un muro, y ahí las medias van de 4,09 a 4,94 cm. Una celda ocupada de más, por ejemplo en un muro dibujado con dos celdas de grosor, aumenta la segunda cifra sin cambiar la primera.</p>
+      <p>Ese sentido inverso solo usa las celdas ocupadas dentro de una franja alrededor de los muros de referencia, así que no evalúa la ocupación fuera del recinto. La tesis no descompone más la diferencia entre ambos sentidos.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 5.3, Anexo 8.5 y Tabla A8.2 <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-ver"><a href="mapeo.html#exactitud">El mapa frente al plano medido</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-mas-fino" data-respuesta="guia" data-dificultad="tecnica">
+    <summary><span class="q-n" aria-hidden="true">78</span><span class="q-t">Si cada celda mide 5 cm, ¿cómo puede informar una distancia media de 3,4 cm?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <div class="q-cuerpo">
+      <p>Porque es un promedio de muchas distancias, una por cada centímetro de muro observado. Cada distancia puede ser cero, una fracción de celda o más, y el promedio puede quedar bajo el tamaño de la celda. Por eso se dice que es del orden de la discretización.</p>
+      <p>Lo que no se puede decir es que el error del mapa sea menor que una celda. La resolución no es una cota del error geométrico: el percentil 95 llega a 8,4 cm, y una de las distancias del plano difiere en 9,3 cm.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Anexo 8.5 <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-ver"><a href="mapeo.html#exactitud">El mapa frente al plano medido</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-observados" data-respuesta="guia" data-dificultad="exigente">
+    <summary><span class="q-n" aria-hidden="true">79</span><span class="q-t">¿Por qué dejó fuera los puntos del plano que el robot no observó?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <div class="q-cuerpo">
+      <p>Porque un muro que el láser nunca vio no puede aparecer en el mapa, y medir su distancia mezclaría exactitud con cobertura. El criterio es simple: un punto del plano cuenta si tiene una celda libre del mapa a menos de 10 cm.</p>
+      <p>Lo importante es que se informa cuántos quedan fuera. Cuentan entre el 92 y el 93 % de los puntos, y eso también dice algo útil: el robot llegó a ver casi todos los muros del recinto.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Anexo 8.5 <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-ver"><a href="mapeo.html#exactitud">El mapa frente al plano medido</a></p>
+    </div>
+  </details>
+</section>
+
+<section class="q-tema" data-tema="estadistica" data-corto="Estadística">
+  <h2 id="estadistica">Repeticiones y confianza</h2>
+  <p class="q-intro">Cuánto permiten afirmar cinco o seis repeticiones y cuántas harían falta. Con un interactivo en <a href="resultados.html#confianza">Cuánto dicen cinco repeticiones</a>.</p>
+
+  <details class="pregunta" id="p-cinco-bastan" data-respuesta="guia" data-dificultad="exigente">
+    <summary><span class="q-n" aria-hidden="true">80</span><span class="q-t">¿Cinco repeticiones bastan para sacar conclusiones?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <div class="q-cuerpo">
+      <p>Depende del indicador. Los que tienen poca dispersión quedan bien acotados aun con cinco: el error odométrico entre 3,08 y 4,18 %, el área libre entre 3,46 y 3,53 m² y la distancia al plano entre 3,1 y 3,7 cm. La cobertura libre, de 46,2 a 78,3 %, y la desviación angular, de 1,8 a 21,6°, quedan poco acotadas.</p>
+      <p>En conjunto, la tesis considera muy bajo el número de ensayos. Por eso presenta los resultados como una verificación funcional en el entorno ensayado, no como valores que se puedan generalizar, y propone un mínimo de 6 a 10 repeticiones válidas por ensayo.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 5.6, Anexo 8.6 y Tabla A8.4 <a class="ref" href="#f1">1</a> <a class="ref" href="#f8">8</a>.</p>
+      <p class="q-ver"><a href="resultados.html#confianza">Cuánto dicen cinco repeticiones</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-intervalo-simple" data-respuesta="guia" data-dificultad="general">
+    <summary><span class="q-n" aria-hidden="true">81</span><span class="q-t">¿Qué quiere decir que el error de la odometría esté entre 3,08 y 4,18 %?</span><span class="etiqueta basico">Para todo público</span></summary>
+    <div class="q-cuerpo">
+      <p>Que con cinco pruebas no se conoce el error medio exacto, sino una franja donde es razonable que esté. Se calcula con la media de las pruebas, cuánto varían entre sí y un factor que corrige por tener pocas pruebas. Con más pruebas parecidas, la franja se angosta.</p>
+      <p>El 95 % indica la confianza del método: si el ensayo se repitiera muchas veces, 95 de cada 100 franjas calculadas así contendrían el valor verdadero.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 5.6, Ecuación A8.2 y Tabla A8.4 <a class="ref" href="#f1">1</a> <a class="ref" href="#f8">8</a>.</p>
+      <p class="q-ver"><a href="resultados.html#confianza">Cuánto dicen cinco repeticiones</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-binomial" data-respuesta="guia" data-dificultad="exigente">
+    <summary><span class="q-n" aria-hidden="true">82</span><span class="q-t">Cinco de seis exploraciones salieron bien. ¿Por qué no informa una tasa de éxito de 83 %?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <div class="q-cuerpo">
+      <p>Porque con seis intentos esa cifra es muy incierta. El intervalo exacto de Clopper y Pearson va de 35,9 a 99,6 %, así que con 95 % de confianza solo se puede afirmar que la proporción supera el 35,9 %.</p>
+      <p>La prueba binomial exacta lo deja más claro. Si el sistema funcionara la mitad de las veces, ver cinco éxitos o más en seis ocurriría con probabilidad 7/64, unas 11 veces de cada 100, y eso no permite descartarlo al nivel de 0,05. Con seis intentos solo seis de seis lo descartaría, así que una sola falla basta para perder la significancia.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 5.6 y Anexo 8.6 <a class="ref" href="#f1">1</a> <a class="ref" href="#f8">8</a> <a class="ref" href="#f9">9</a>.</p>
+      <p class="q-ver"><a href="resultados.html#prueba-binomial">Una prueba que lo deja claro</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-cuantas" data-respuesta="guia" data-dificultad="tecnica">
+    <summary><span class="q-n" aria-hidden="true">83</span><span class="q-t">¿Cuántas repeticiones habría necesitado y con qué criterio?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <div class="q-cuerpo">
+      <p>La tesis considera admisible un mínimo de 6 a 10 repeticiones válidas por ensayo, con 10 por condición como objetivo de partida y un total que dependa de la dispersión y de la precisión buscada. Con diez repeticiones y la misma dispersión, los intervalos se angostarían cerca de un 42 %.</p>
+      <p>Metas más exigentes piden más. Reducir a la mitad el intervalo del error odométrico requeriría unas 13 repeticiones, y afirmar una tasa de éxito sobre el 80 % requeriría al menos 17 ejecuciones seguidas sin fallas.</p>
+      <div class="q-sigue"><p class="q-rot">Si la pregunta sigue</p><p>El criterio es coherente con la guía Eurachem, que considera necesarias de 6 a 15 repeticiones para estimar una desviación estándar y señala que a menudo se recomiendan 10, aunque no se refiere a ensayos robóticos.</p></div>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 5.6, Anexo 8.6 y trabajo futuro <a class="ref" href="#f1">1</a> <a class="ref" href="#f10">10</a>.</p>
+      <p class="q-ver"><a href="resultados.html#cuantas-repeticiones">¿Cuántas repeticiones harían falta?</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-clopper" data-respuesta="guia" data-dificultad="exigente">
+    <summary><span class="q-n" aria-hidden="true">84</span><span class="q-t">¿Por qué usó el intervalo de Clopper y Pearson para la proporción?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <div class="q-cuerpo">
+      <p>Porque es exacto. Se calcula con la distribución binomial y no supone una muestra grande, algo importante con solo seis intentos y una proporción cercana a uno, donde una aproximación normal no es confiable. Además, es uno de los intervalos más usados para tasas de éxito en la evaluación de robots.</p>
+      <p>Es un método conservador, que tiende a dar intervalos algo más anchos. Con seis intentos, esa amplitud refleja sobre todo que hay pocos datos.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Anexos 8.3 y 8.6 <a class="ref" href="#f1">1</a> <a class="ref" href="#f9">9</a>.</p>
+      <p class="q-ver"><a href="resultados.html#confianza">Cuánto dicen cinco repeticiones</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-control-una" data-respuesta="guia" data-dificultad="exigente">
+    <summary><span class="q-n" aria-hidden="true">85</span><span class="q-t">En el control hay una sola captura por conjunto de ganancias. ¿Qué confianza tiene en el error de 0,002 m/s?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <div class="q-cuerpo">
+      <p>Ese indicador no tiene intervalo, porque proviene de una sola captura. Es una verificación en un punto de operación, no una estimación con repeticiones. Además, la velocidad se informa en pasos de 0,01 m/s, y el 0,002 es el promedio de muestras que oscilan entre dos pasos.</p>
+      <p>Lo que sí respalda es el contraste entre las dos capturas, hechas con el mismo protocolo. Con las ganancias del PSO quedaba un error cercano a 0,01 m/s en la izquierda, y con las definitivas desaparece dentro de la resolución. Repetir la captura y hacerla en varias referencias es parte del trabajo futuro.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Secciones 5.2 y 5.6 y Tabla 5.3 <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-ver"><a href="control.html#resolucion">Lo que la medición alcanza a ver</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-cobertura-ancha" data-respuesta="guia" data-dificultad="tecnica">
+    <summary><span class="q-n" aria-hidden="true">86</span><span class="q-t">¿Por qué el intervalo de la cobertura es tan ancho y el del área libre tan angosto?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <div class="q-cuerpo">
+      <p>Porque la cobertura depende de cuántas celdas desconocidas quedan dentro de la imagen del mapa, que no está anclada al recinto. Su desviación estándar es de 12,9 puntos y su intervalo va de 46,2 a 78,3 %. El área libre cuenta solo celdas libres, y varió apenas 0,03 m², un coeficiente de variación de 0,8 %.</p>
+      <p>Por eso la evidencia principal de la exploración es el área libre y que las cinco corridas terminaran solas, y la cobertura queda como indicador complementario.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 5.3, Tabla 5.4 y Tabla A8.4 <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-ver"><a href="mapeo.html#cobertura">Mismo espacio, distinto índice</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-15-de-15" data-respuesta="guia" data-dificultad="tecnica">
+    <summary><span class="q-n" aria-hidden="true">87</span><span class="q-t">Si ejecutara el protocolo de metas fijas preparado, ¿qué podría afirmar con sus resultados?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <div class="q-cuerpo">
+      <p>El script define tres metas con cinco repeticiones. Si las 15 salieran bien, el intervalo de Clopper y Pearson permitiría afirmar con 95 % de confianza que la tasa de éxito supera el 78 %. Una sola falla bajaría bastante esa cifra.</p>
+      <p>Pero una tasa no basta. El protocolo debería registrar por cada meta el resultado, el error de posición final respecto de una marca física, el tiempo hasta la meta y la longitud recorrida, como las métricas que usan Ngoc y otros y que describen Francis y otros.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Anexo 8.3 <a class="ref" href="#f1">1</a> <a class="ref" href="#f9">9</a> <a class="ref" href="#f21">21</a> <a class="ref" href="#f22">22</a>.</p>
+      <p class="q-ver"><a href="navegacion.html#evaluacion">Qué se evaluó de la navegación</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-literatura" data-respuesta="guia" data-dificultad="exigente">
+    <summary><span class="q-n" aria-hidden="true">88</span><span class="q-t">¿Cómo se compara su número de ensayos con la literatura?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <div class="q-cuerpo">
+      <p>Por debajo de lo habitual. Liu y otros hacen diez ejecuciones por algoritmo en su ensayo real, y Trejos y otros acompañan su comparación de algoritmos de SLAM con pruebas estadísticas y niveles de confianza.</p>
+      <p>También hay un problema de fondo. Placed y otros señalan que faltan métricas y bancos de prueba estandarizados para comparar sistemas de exploración, así que ni con más repeticiones habría una referencia común contra la cual comparar este robot.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Anexo 8.6 <a class="ref" href="#f1">1</a> <a class="ref" href="#f18">18</a> <a class="ref" href="#f3">3</a> <a class="ref" href="#f19">19</a>.</p>
+      <p class="q-ver"><a href="resultados.html#cuantas-repeticiones">¿Cuántas repeticiones harían falta?</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-angular" data-respuesta="guia" data-dificultad="exigente">
+    <summary><span class="q-n" aria-hidden="true">89</span><span class="q-t">La desviación angular va de 1,8 a 21,6°. ¿Qué se puede concluir del ensayo de giro?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <div class="q-cuerpo">
+      <p>Poco, y la tesis lo dice. El intervalo es muy amplio, la desviación es respecto de 360° nominales y no un error de odometría angular, y el protocolo pidió 0,4 rad/s con un límite de 0,35 rad/s. Con ese límite ideal el robot llegaría a 315°, pero todos los giros lo superaron y la causa no se determinó.</p>
+      <p>Los registros guardan la odometría, y su velocidad angular permitiría revisar la velocidad aplicada sin repetir el ensayo. Lo que resolvería la duda es un giro controlado hasta un ángulo fijo, y lo que reduciría la deriva angular, una unidad inercial. Son los puntos 8 y 2 del trabajo futuro.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 5.1, Tabla 5.2, Anexo 6 y Tabla A8.4 <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-ver"><a href="movimiento.html#giro">El ensayo de giro y lo que enseña su diseño</a></p>
+    </div>
+  </details>
+</section>
+
+<section class="q-tema" data-tema="referencias" data-corto="Referencias">
+  <h2 id="referencias">Las fuentes que cita</h2>
+  <p class="q-intro">Por qué se eligió cada fuente, qué propone y en qué se diferencia este trabajo. La lista completa está en <a href="recursos.html#bibliografia">Recursos</a>.</p>
+
+  <details class="pregunta" id="p-ref-astrom" data-respuesta="guia" data-dificultad="tecnica">
+    <summary><span class="q-n" aria-hidden="true">90</span><span class="q-t">¿Qué toma de Åström y Hägglund y cómo calza su ley con el libro?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <div class="q-cuerpo">
+      <p>Del libro sale la forma incremental del PID, también llamada algoritmo de velocidad, en que cada muestra calcula el cambio de la orden y lo suma a la anterior. La ley del firmware, idealizada y sin el término de Ki, coincide con esa forma, con la integral por diferencias hacia atrás, sin acción derivativa y con ponderación nula de la referencia en la acción proporcional.</p>
+      <p>También salen tres argumentos de la tesis. El PI es el controlador más común y es adecuado para procesos de primer orden. Con ponderación nula, la referencia entra solo en el término integral y se evitan saltos de la orden. Y la forma incremental simplifica la protección contra el windup.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Secciones 3.6 y 4.4.3 y Anexo 4.12, con las secciones 3.4, 3.6, 13.1 y 13.4 del libro <a class="ref" href="#f1">1</a> <a class="ref" href="#f5">5</a>.</p>
+      <p class="q-ver"><a href="control.html#hallazgo">Un PID que opera como PI</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-ref-wittenmark" data-respuesta="guia" data-dificultad="exigente">
+    <summary><span class="q-n" aria-hidden="true">91</span><span class="q-t">¿Para qué cita a Wittenmark, Åström y Årzén?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <div class="q-cuerpo">
+      <p>Para tres criterios del análisis de estabilidad. Los valores típicos de la sensibilidad máxima, entre 1,2 y 2,0. El intervalo de 0,05 a 0,14 para el período multiplicado por la frecuencia de cruce, en el que aproximar un diseño continuo es razonable y que aquí da cerca de 0,07. Y la equivalencia, sin saturación, entre la forma incremental y la absoluta del mismo controlador.</p>
+      <p>Es una guía técnica de la IFAC sobre control por computador, no un estudio de robots. Se usa como fuente de criterios generales, y la verificación se hace igual sobre el lazo discreto de este robot.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 4.4.3 y Anexo 4.12 <a class="ref" href="#f1">1</a> <a class="ref" href="#f7">7</a>.</p>
+      <p class="q-ver"><a href="control.html#criterios-estabilidad">Cuatro números para medir el margen</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-ref-gokce" data-respuesta="guia" data-dificultad="exigente">
+    <summary><span class="q-n" aria-hidden="true">92</span><span class="q-t">Gökçe y otros también usaron PSO para un robot móvil. ¿En qué se diferencia su trabajo?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <div class="q-cuerpo">
+      <p>Ellos usan un costo que combina error estacionario, tiempo de subida y sobreimpulso, basado como aquí en la respuesta al escalón, pero validan en simulación las ganancias que obtienen. En esta tesis las ganancias del PSO se cargaron en el robot, y ahí aparecieron un error estacionario y una detención que el modelo no anticipaba.</p>
+      <p>Por eso aquí el PSO fue una semilla de búsqueda y no el ajuste final, y la tesis explica por qué hubo que ajustar: el modelo, la función objetivo y la implementación del optimizador. Gökçe se cita como antecedente de PSO en robótica móvil, no como fuente de la ecuación implementada.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 3.7.1 y Anexo 4.10 <a class="ref" href="#f1">1</a> <a class="ref" href="#f11">11</a>.</p>
+      <p class="q-ver"><a href="control.html#por-que-ajustar">Tres razones por las que hubo que ajustar</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-ref-trejos-metrica" data-respuesta="guia" data-dificultad="tecnica">
+    <summary><span class="q-n" aria-hidden="true">93</span><span class="q-t">¿Qué tomó de Trejos y otros, si ellos no evaluaron slam_toolbox?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <div class="q-cuerpo">
+      <p>Dos cosas. De su comparación de cinco algoritmos, el dato de que Cartographer tuvo el mayor uso medio de CPU, que aparece en la tabla de alternativas. Y su métrica de exactitud del mapa, la distancia de cada punto del muro de referencia a la celda ocupada más cercana, que es la que se aplicó contra el plano del recinto.</p>
+      <p>Sus resultados no se trasladan a slam_toolbox, y la tesis no los usa así. También se cita su práctica de acompañar las comparaciones con pruebas estadísticas, como contraste con las pocas repeticiones de este trabajo.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Tabla 1.2 y Anexos 8.5 y 8.6 <a class="ref" href="#f1">1</a> <a class="ref" href="#f3">3</a>.</p>
+      <p class="q-ver"><a href="mapeo.html#trejos">Qué comparó Trejos y cómo se conecta</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-ref-vincent" data-respuesta="guia" data-dificultad="exigente">
+    <summary><span class="q-n" aria-hidden="true">94</span><span class="q-t">¿Por qué cita un trabajo sobre políticas de aprendizaje por imitación para evaluar su robot?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <div class="q-cuerpo">
+      <p>No por su método de aprendizaje, sino por su parte estadística. Vincent y otros tratan cómo evaluar con confianza la tasa de éxito de un robot, y la tesis los cita para justificar el intervalo de Clopper y Pearson como uno de los más usados para tasas de éxito en la evaluación de robots.</p>
+      <p>Se usa en dos lugares: para la proporción de exploraciones válidas, de 35,9 a 99,6 %, y para estimar qué permitiría afirmar el protocolo de metas fijas, más de 78 % con 15 éxitos en 15.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 5.6 y Anexos 8.3 y 8.6 <a class="ref" href="#f1">1</a> <a class="ref" href="#f9">9</a>.</p>
+      <p class="q-ver"><a href="resultados.html#confianza">Cuánto dicen cinco repeticiones</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-ref-eurachem" data-respuesta="guia" data-dificultad="exigente">
+    <summary><span class="q-n" aria-hidden="true">95</span><span class="q-t">La guía Eurachem es de química analítica. ¿Por qué la usa para un robot?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <div class="q-cuerpo">
+      <p>Como referencia de criterio, no de método. La guía considera necesarias de 6 a 15 repeticiones para estimar una desviación estándar y señala que a menudo se recomiendan 10. La tesis la usa para mostrar que su mínimo de 6 a 10 repeticiones válidas es coherente con una práctica establecida de validación.</p>
+      <p>La tesis aclara que esa guía no se refiere a ensayos robóticos, y que el total final depende de la dispersión y de la precisión buscada.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 5.6 y Anexo 8.6 <a class="ref" href="#f1">1</a> <a class="ref" href="#f10">10</a>.</p>
+      <p class="q-ver"><a href="resultados.html#cuantas-repeticiones">¿Cuántas repeticiones harían falta?</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-ref-maxim" data-respuesta="guia" data-dificultad="tecnica">
+    <summary><span class="q-n" aria-hidden="true">96</span><span class="q-t">¿Por qué un modelo de primer orden con retardo? ¿Qué aportan Maxim y De Keyser?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <div class="q-cuerpo">
+      <p>Maxim y De Keyser respaldan que esa estructura es una de las reducciones de modelo más habituales antes de sintonizar un controlador, porque describe con pocos parámetros la respuesta al escalón. También explican que el retardo se estima como un número entero de períodos de captura, y eso fija la resolución con que aquí se puede estimar.</p>
+      <p>Con retardo cero, el modelo contiene al de un motor de corriente continua en que se desprecia la inductancia de armadura, así que adoptarlo no impone un retardo. Su valor lo decide la identificación.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 3.5 y Anexo 4.6 <a class="ref" href="#f1">1</a> <a class="ref" href="#f12">12</a> <a class="ref" href="#f20">20</a>.</p>
+      <p class="q-ver"><a href="control.html#modelo">Un modelo de cada rueda</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-ref-pso" data-respuesta="guia" data-dificultad="tecnica">
+    <summary><span class="q-n" aria-hidden="true">97</span><span class="q-t">¿Qué toma de Clerc y Kennedy y de Shi y Eberhart en su PSO?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <div class="q-cuerpo">
+      <p>De Clerc y Kennedy, el factor de constricción de 0,7298, que es el valor de su fórmula cuando los coeficientes cognitivo y social suman 4,1, con 2,05 cada uno. De Shi y Eberhart, la idea de un peso de inercia que baja de forma lineal con las generaciones. Ellos lo reducen desde 1,4 y el script parte de 1.</p>
+      <p>La combinación de ambos mecanismos en una misma ecuación es una variante implementada en el proyecto y no se atribuye a una sola de las fuentes.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 3.7.1 con las Ecuaciones 3.13 y 3.14, Tabla A4.3 y Anexo 4.8 <a class="ref" href="#f1">1</a> <a class="ref" href="#f13">13</a> <a class="ref" href="#f14">14</a>.</p>
+      <p class="q-ver"><a href="control.html#pso">Buscar ganancias con un enjambre</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-ref-uso-pi" data-respuesta="guia" data-dificultad="exigente">
+    <summary><span class="q-n" aria-hidden="true">98</span><span class="q-t">Afirma que el PI incremental es de los controladores más usados en robótica móvil. ¿Con qué respaldo?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <div class="q-cuerpo">
+      <p>Con varias fuentes. Åström y Hägglund indican que el PI es el controlador más común, Raj y Kos que el PID es el algoritmo de control más usado en sistemas robóticos, y Bitriá y Palacín lo muestran en robots móviles. La forma incremental aparece en lazos de velocidad de robots diferenciales de laboratorio, de vehículos autoequilibrados, de andadores con Arduino y de plataformas ROS 2, y Sundström y otros la adoptan en una implementación de referencia del PID.</p>
+      <p>Ese respaldo justifica que la ley sea razonable, no que sea la mejor para este robot. La tesis lo dice: la elección no responde a una comparación de desempeño, que queda como trabajo futuro.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Sección 4.4.3. Las demás fuentes de esta lista están en el tema de control <a class="ref" href="#f1">1</a> <a class="ref" href="#f5">5</a> <a class="ref" href="#f15">15</a> <a class="ref" href="#f16">16</a> <a class="ref" href="#f17">17</a>.</p>
+      <p class="q-ver"><a href="control.html#por-que-se-conservo">¿Por qué no se reescribió?</a></p>
+    </div>
+  </details>
+</section>
+
+<section class="q-tema" data-tema="implementacion" data-corto="Implementación">
+  <h2 id="implementacion">Del documento al código</h2>
+  <p class="q-intro">Cómo se implementó lo que describe la tesis, según lo que documentan sus anexos. Los scripts del proyecto todavía no están publicados, así que las respuestas describen su lógica y no remiten a archivos que se puedan abrir.</p>
+
+  <details class="pregunta" id="p-impl-estabilidad" data-respuesta="guia" data-dificultad="tecnica">
+    <summary><span class="q-n" aria-hidden="true">99</span><span class="q-t">¿Cómo calcula el script de estabilidad los polos y los márgenes?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <div class="q-cuerpo">
+      <p>El script AnalisisEstabilidadPID.py usa solo parámetros publicados en las Tablas 4.1, 4.4 y A4.4. Arma la planta discreta de cada rueda con el modelo identificado, el retenedor del PWM, la medición como velocidad media del ciclo anterior y el retardo del escenario, y la combina con la ley del firmware idealizada. Las raíces de la ecuación característica dan la estabilidad, y los márgenes y la sensibilidad máxima se obtienen recorriendo la respuesta en frecuencia del lazo.</p>
+      <p>El mismo script hace el barrido de 625 combinaciones, la comparación con las ganancias del PSO y con las originales, y los intervalos de confianza de la Tabla A8.4, salvo el de la distancia al plano, que usa los valores por mapa del Anexo 8.5.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Anexos 4.12, 8.6 y 9 <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-ver"><a href="control.html#sim-estabilidad">Polos, curva de Nyquist y márgenes de cada rueda</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-impl-plano" data-respuesta="guia" data-dificultad="tecnica">
+    <summary><span class="q-n" aria-hidden="true">100</span><span class="q-t">¿Cómo compara el script cada mapa con el plano?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <div class="q-cuerpo">
+      <p>El script comparar_mapa_plano.py recupera la clase de cada celda de las imágenes de cobertura, con los umbrales del índice, y esos conteos reproducen la Tabla 5.4 con a lo sumo dos celdas de diferencia. Después alinea el mapa con el plano con un giro y un traslado, toma un punto cada 1 cm en los muros y mide su distancia a la celda ocupada más cercana, solo en los puntos con una celda libre a menos de 10 cm.</p>
+      <p>También calcula el sentido inverso, desde las celdas ocupadas de una franja alrededor de los muros, los percentiles 95 y el intervalo entre corridas. Sus resultados quedaron en un informe que la tesis transcribe en la Tabla A8.2, sin agregar ensayos.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Anexos 8.5 y 9 y Tabla A8.2 <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-ver"><a href="mapeo.html#exactitud">El mapa frente al plano medido</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-impl-metas" data-respuesta="guia" data-dificultad="tecnica">
+    <summary><span class="q-n" aria-hidden="true">101</span><span class="q-t">Si los contadores automáticos fallaban, ¿cómo reconstruyó el resultado de cada meta?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <div class="q-cuerpo">
+      <p>Con el flujo de estados de la acción NavigateToPose, que quedó registrado completo. El script clasificar_metas_exploracion.py agrupa los mensajes por el identificador de 16 bytes de cada meta, conserva su primer estado terminal y deja sin estado terminal a las que no lo tienen.</p>
+      <p>Para asociar un aborto a un reemplazo usa el orden de los mensajes: la meta siguiente tiene que figurar mientras la anterior sigue aceptada o en ejecución. Los tiempos salen del sello de aceptación de cada meta y no de la hora escrita en el registro, que tiene resolución de un segundo y marca la escritura, no la publicación.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Anexo 8.4 y Tabla A7.1 <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-ver"><a href="exploracion.html#como-se-separo">Cómo se asoció cada aborto a un reemplazo</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-impl-kd25" data-respuesta="guia" data-dificultad="exigente">
+    <summary><span class="q-n" aria-hidden="true">102</span><span class="q-t">¿Por qué el PSO informa Kd de 34,69 y 36,70 si el costo nunca evaluó más de 25?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <div class="q-cuerpo">
+      <p>Por cómo está escrito el optimizador. Después de mover las partículas, el núcleo solo aplica una cota inferior. La función de costo recorta una copia de cada posición al intervalo de 0,0001 a 1 y la escala, y para Kd la escala es 25. Al final, el script escala la mejor posición sin recortarla.</p>
+      <p>En la ejecución usada, la componente de Kd terminó en 1,39 y 1,47, así que el costo evaluó Kd = 25 en ambas ruedas y el script informó 34,69 y 36,70. Según la misma rutina, los dos valores producen la misma subida. Reformular el PSO con salida recortada es parte del punto 12 del trabajo futuro.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Anexos 4.8 y 4.10 y Tabla A4.4 <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-ver"><a href="control.html#por-que-ajustar">Tres razones por las que hubo que ajustar</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-impl-captura" data-respuesta="guia" data-dificultad="exigente">
+    <summary><span class="q-n" aria-hidden="true">103</span><span class="q-t">¿Las capturas cada 0,1 s registran siempre una medición nueva?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <div class="q-cuerpo">
+      <p>No está garantizado, y la tesis lo documenta. En la captura en lazo cerrado, la lectura serial corre en un hilo aparte y el bucle copia el último par numérico disponible después de pedirlo, sin comprobar que se haya actualizado en esa iteración. Cada registro es la medición más reciente recibida.</p>
+      <p>En la captura en lazo abierto, la velocidad se calcula dividiendo por el período nominal de 0,1 s y no por el tiempo real entre lecturas. Si la comunicación tarda más, la escala temporal de esa muestra no se corrige. Son particularidades del código ejecutado, conservadas como tales.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Anexos 4.9 y 4.11 <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-ver"><a href="control.html#modelo">Un modelo de cada rueda</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-impl-atomica" data-respuesta="guia" data-dificultad="exigente">
+    <summary><span class="q-n" aria-hidden="true">104</span><span class="q-t">¿Qué es la lectura no atómica de los encoders y por qué no la corrigió?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <div class="q-cuerpo">
+      <p>Los contadores de los encoders son variables de 32 bits que actualizan las interrupciones. La rutina que los lee no deshabilita las interrupciones ni usa una sección atómica, y en el Arduino Nano leer 32 bits no es una operación indivisible. En principio, el conteo podría cambiar mientras se copia.</p>
+      <p>Viene del firmware original y se conservó porque es el firmware ejecutado en los ensayos. Su efecto sobre los resultados no se cuantificó. Pasar a una lectura atómica es parte del punto 6 del trabajo futuro.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Anexos 4.1 y 4.5, y Limitaciones <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-ver"><a href="control.html#enteros">Los decimales que se pierden</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-impl-semilla" data-respuesta="guia" data-dificultad="tecnica">
+    <summary><span class="q-n" aria-hidden="true">105</span><span class="q-t">Si el PSO no fija una semilla, ¿cómo puede otra persona reproducir sus ganancias?</span><span class="etiqueta intermedio">Técnica</span></summary>
+    <div class="q-cuerpo">
+      <p>No puede obtener exactamente las mismas. La clase PSO no fija una semilla, así que al repetir el script los parámetros cambian algo. Lo que se conservó es la salida exacta de la ejecución usada, con el modelo identificado y las ganancias sugeridas, en la Tabla A4.4.</p>
+      <p>Como las ganancias finales se ajustaron en el robot, lo que se reproduce de verdad es el procedimiento y no la cifra del PSO. Fijar la semilla es parte del punto 12 del trabajo futuro.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Anexo 4.10 y Limitaciones <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-ver"><a href="control.html#pso">Buscar ganancias con un enjambre</a></p>
+    </div>
+  </details>
+
+  <details class="pregunta" id="p-impl-planta-pso" data-respuesta="guia" data-dificultad="exigente">
+    <summary><span class="q-n" aria-hidden="true">106</span><span class="q-t">¿La planta con que el PSO evaluó las ganancias es la misma que identificó?</span><span class="etiqueta avanzado">Exigente</span></summary>
+    <div class="q-cuerpo">
+      <p>No del todo. El script de sintonía simula el modelo sin aplicar el retardo, toma la consigna del promedio de la respuesta en lazo abierto desde los 7 s, cuantiza solo la medición que entra al controlador y mantiene sus estados con decimales. Además usa una banda muerta común de 2 ticks/ciclo para ambas ruedas, mientras el firmware final usa 1 en la derecha y 2 en la izquierda.</p>
+      <p>Por eso la simulación conserva la estructura acumulativa de la ley pero no sus tipos de datos ni sus condiciones por rueda. Es una de las razones por las que las ganancias del PSO necesitaron ajuste en el robot.</p>
+      <p class="q-respaldo"><b>Referencia de la guía a la tesis.</b> Anexos 4.7 y 4.10 <a class="ref" href="#f1">1</a>.</p>
+      <p class="q-ver"><a href="control.html#por-que-ajustar">Tres razones por las que hubo que ajustar</a></p>
     </div>
   </details>
 </section>
@@ -723,12 +1276,28 @@
 <section class="fuentes-tema">
   <h2 id="fuentes">Fuentes de esta página</h2>
   <ol class="refs-lista">
-    <li id="f1"><span><span class="tipo-ref">Tesis</span>Valderas Neculqueo, S. (2026). <em>Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial</em>. UTEM. Introducción, Capítulos 1 a 5, Conclusiones con limitaciones y trabajo futuro, y Anexos 1 a 8 y 10.</span></li>
+    <li id="f1"><span><span class="tipo-ref">Tesis</span>Valderas Neculqueo, S. (2026). <em>Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial</em>. UTEM. Versión de octubre de 2026. Introducción, Capítulos 1 a 5, Conclusiones con limitaciones y trabajo futuro, y Anexos 1 a 10.</span></li>
     <li id="f2"><span><span class="tipo-ref">Artículo</span>Yamauchi, B. (1997). A Frontier-Based Approach for Autonomous Exploration. <em>IEEE CIRA</em>. Secciones 2.2, 2.3 y 3. <a href="https://doi.org/10.1109/CIRA.1997.613851">doi.org/10.1109/CIRA.1997.613851</a></span></li>
     <li id="f3"><span><span class="tipo-ref">Artículo</span>Trejos, K., Rincón, L., Bolaños, M., Fallas, J. y Marín, L. (2022). 2D SLAM Algorithms Characterization, Calibration, and Comparison. <em>Sensors, 22</em>(18). <a href="https://doi.org/10.3390/s22186903">doi.org/10.3390/s22186903</a></span></li>
     <li id="f4"><span><span class="tipo-ref">Artículo</span>Macenski, S. y Jambrecic, I. (2021). SLAM Toolbox: SLAM for the dynamic world. <em>Journal of Open Source Software, 6</em>(61). <a href="https://doi.org/10.21105/joss.02783">doi.org/10.21105/joss.02783</a></span></li>
-    <li id="f5"><span><span class="tipo-ref">Libro</span>Åström, K. J. y Hägglund, T. (2009). <em>Control PID avanzado</em>. Pearson. Secciones 3.5 y 13.4.</span></li>
+    <li id="f5"><span><span class="tipo-ref">Libro</span>Åström, K. J. y Hägglund, T. (2009). <em>Control PID avanzado</em>. Pearson. Secciones 3.4 a 3.6, 13.1 y 13.4.</span></li>
     <li id="f6"><span><span class="tipo-ref">Artículo</span>Ran, Y., Xu, X., Tan, Z. y Luo, M. (2025). A Review of 2D Lidar SLAM Research. <em>Remote Sensing, 17</em>(7). <a href="https://doi.org/10.3390/rs17071214">doi.org/10.3390/rs17071214</a></span></li>
+    <li id="f7"><span><span class="tipo-ref">Guía técnica</span>Wittenmark, B., Åström, K. J. y Årzén, K.-E. (2002). <em>Computer Control: An Overview</em>. IFAC Professional Brief. Secciones 5, 6 y 8. <a href="https://www.ifac-control.org/publications/list-of-professional-briefs/pb_wittenmark_etal_final.pdf/view">ifac-control.org</a></span></li>
+    <li id="f8"><span><span class="tipo-ref">Libro</span>Devore, J. L., Berk, K. N. y Carlton, M. A. (2021). <em>Modern Mathematical Statistics with Applications</em> (3.ª ed.). Springer. Sección 8.2 y Capítulo 9. <a href="https://doi.org/10.1007/978-3-030-55156-8">doi.org/10.1007/978-3-030-55156-8</a></span></li>
+    <li id="f9"><span><span class="tipo-ref">Artículo</span>Vincent, J. A., Nishimura, H., Itkina, M., Shah, P., Schwager, M. y Kollar, T. (2024). How Generalizable Is My Behavior Cloning Policy? A Statistical Approach to Trustworthy Performance Evaluation. <em>IEEE Robotics and Automation Letters, 9</em>(10). <a href="https://doi.org/10.1109/LRA.2024.3445635">doi.org/10.1109/LRA.2024.3445635</a></span></li>
+    <li id="f10"><span><span class="tipo-ref">Guía</span>Cantwell, H. (Ed.) (2025). <em>Eurachem Guide: The Fitness for Purpose of Analytical Methods</em> (3.ª ed.). Eurachem. Sección 5.3.2. <a href="https://www.eurachem.org/images/stories/Guides/pdf/MV_guide_3rd_ed_V1_EN.pdf">eurachem.org</a></span></li>
+    <li id="f11"><span><span class="tipo-ref">Artículo</span>Gökçe, B., Koca, Y. B., Aslan, Y. y Gökçe, C. O. (2021). Particle Swarm Optimization-Based Optimal PID Control of an Agricultural Mobile Robot. <em>Comptes rendus de l'Académie bulgare des Sciences, 74</em>(4). <a href="https://doi.org/10.7546/CRABS.2021.04.12">doi.org/10.7546/CRABS.2021.04.12</a></span></li>
+    <li id="f12"><span><span class="tipo-ref">Artículo</span>Maxim, A. y De Keyser, R. (2023). Estimation of First Order Plus Dead Time and Second Order Plus Dead Time models from noisy step response data. <em>Asian Journal of Control, 25</em>(3). <a href="https://doi.org/10.1002/asjc.2999">doi.org/10.1002/asjc.2999</a></span></li>
+    <li id="f13"><span><span class="tipo-ref">Artículo</span>Clerc, M. y Kennedy, J. (2002). The Particle Swarm, Explosion, Stability, and Convergence in a Multidimensional Complex Space. <em>IEEE Transactions on Evolutionary Computation, 6</em>(1). <a href="https://doi.org/10.1109/4235.985692">doi.org/10.1109/4235.985692</a></span></li>
+    <li id="f14"><span><span class="tipo-ref">Artículo</span>Shi, Y. y Eberhart, R. C. (1998). A Modified Particle Swarm Optimizer. <em>IEEE International Conference on Evolutionary Computation</em>. <a href="https://doi.org/10.1109/ICEC.1998.699146">doi.org/10.1109/ICEC.1998.699146</a></span></li>
+    <li id="f15"><span><span class="tipo-ref">Artículo</span>Raj, R. y Kos, A. (2024). Discussion on Different Controllers Used for the Navigation of Mobile Robot. <em>International Journal of Electronics and Telecommunications, 70</em>(1). <a href="https://doi.org/10.24425/ijet.2024.149535">doi.org/10.24425/ijet.2024.149535</a></span></li>
+    <li id="f16"><span><span class="tipo-ref">Artículo</span>Bitriá, R. y Palacín, J. (2022). Optimal PID Control of a Brushed DC Motor with an Embedded Low-Cost Magnetic Quadrature Encoder for Improved Step Overshoot and Undershoot Responses in a Mobile Robot Application. <em>Sensors, 22</em>(20). <a href="https://doi.org/10.3390/s22207817">doi.org/10.3390/s22207817</a></span></li>
+    <li id="f17"><span><span class="tipo-ref">Artículo</span>Sundström, E., Hägglund, T., Bauer, M., Eker, J. y Soltesz, K. (2024). Reference Implementation of the PID Controller. <em>IFAC-PapersOnLine, 58</em>(7). <a href="https://doi.org/10.1016/j.ifacol.2024.08.090">doi.org/10.1016/j.ifacol.2024.08.090</a></span></li>
+    <li id="f18"><span><span class="tipo-ref">Artículo</span>Liu, C. y otros (2025). Enhancing autonomous exploration for robotics via real time map optimization and improved frontier costs. <em>Scientific Reports, 15</em>. <a href="https://doi.org/10.1038/s41598-025-97231-9">doi.org/10.1038/s41598-025-97231-9</a></span></li>
+    <li id="f19"><span><span class="tipo-ref">Artículo</span>Placed, J. A. y otros (2023). A Survey on Active Simultaneous Localization and Mapping: State of the Art and New Frontiers. <em>IEEE Transactions on Robotics, 39</em>(3). <a href="https://doi.org/10.1109/TRO.2023.3248510">doi.org/10.1109/TRO.2023.3248510</a></span></li>
+    <li id="f20"><span><span class="tipo-ref">Libro abierto</span>Iqbal, K. (2023). 1.4: An Electro-Mechanical System Model. En <em>Introduction to Control Systems</em>. Engineering LibreTexts. <a href="https://eng.libretexts.org/Bookshelves/Industrial_and_Systems_Engineering/Introduction_to_Control_Systems_(Iqbal)/01%3A_Mathematical_Models_of_Physical_Systems/1.04%3A_An_Electro-Mechanical_System_Model">eng.libretexts.org</a></span></li>
+    <li id="f21"><span><span class="tipo-ref">Artículo</span>Ngoc, H. T., Vinh, N. N., Nguyen, N. T. y Quach, L.-D. (2023). Efficient Evaluation of SLAM Methods and Integration of Human Detection with YOLO Based on Multiple Optimization in ROS2. <em>International Journal of Advanced Computer Science and Applications, 14</em>(11). <a href="https://doi.org/10.14569/IJACSA.2023.0141130">doi.org/10.14569/IJACSA.2023.0141130</a></span></li>
+    <li id="f22"><span><span class="tipo-ref">Artículo</span>Francis, A. y otros (2025). Principles and Guidelines for Evaluating Social Robot Navigation Algorithms. <em>ACM Transactions on Human-Robot Interaction, 14</em>(2). <a href="https://doi.org/10.1145/3700599">doi.org/10.1145/3700599</a></span></li>
   </ol>
 </section>
 

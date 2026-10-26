@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Control de velocidad de las ruedas · Robot explorador</title>
-<meta name="description" content="PID en tiempo discreto, la ley heredada del firmware que opera como un PI incremental, los truncamientos enteros, el windup y la sintonía con un modelo FOPDT y PSO.">
+<meta name="description" content="PID en tiempo discreto, la ley heredada del firmware que opera como un PI incremental, los truncamientos enteros, el windup, la sintonía con un modelo FOPDT y PSO y el análisis de estabilidad del lazo discreto.">
 <meta name="author" content="Sebastián Valderas Neculqueo">
 <link rel="canonical" href="https://svn11x.github.io/tesis_explain/control.html">
 <meta property="og:type" content="article">
 <meta property="og:locale" content="es_CL">
 <meta property="og:site_name" content="Robot explorador">
 <meta property="og:title" content="Control de velocidad de las ruedas">
-<meta property="og:description" content="PID en tiempo discreto, la ley heredada del firmware que opera como un PI incremental, los truncamientos enteros, el windup y la sintonía con un modelo FOPDT y PSO.">
+<meta property="og:description" content="PID en tiempo discreto, la ley heredada del firmware que opera como un PI incremental, los truncamientos enteros, el windup, la sintonía con un modelo FOPDT y PSO y el análisis de estabilidad del lazo discreto.">
 <meta property="og:url" content="https://svn11x.github.io/tesis_explain/control.html">
 <meta property="og:image" content="https://svn11x.github.io/tesis_explain/img/social.png">
 <meta property="og:image:width" content="1200">
@@ -20,14 +20,17 @@
 <meta name="theme-color" content="#004EAA">
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
 <link rel="stylesheet" href="css/estilo.css">
+<link rel="stylesheet" href="css/evidencia.css">
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <script src="datos/proyecto.js" defer></script>
 <script src="js/comun.js" defer></script>
 <script src="js/vis1.js" defer></script>
 <script src="js/control-modelo.js" defer></script>
+<script src="js/estabilidad-modelo.js" defer></script>
 <script src="js/vis2.js" defer></script>
 <script src="js/vis3.js" defer></script>
 <script src="js/sims.js" defer></script>
+<script src="js/evidencia.js" defer></script>
 <script src="js/sitio.js" defer></script>
 </head>
 <body data-pagina="control">
@@ -58,11 +61,11 @@
 
 <section class="en-breve" aria-labelledby="t-breve">
   <h2 id="t-breve">Un PI que sigue 0,13 m/s</h2>
-  <p>Cada rueda tiene su propio lazo de control en el Arduino. La ley heredada del firmware se llama <span class="term" data-def="Controlador que combina una acción proporcional al error, una integral del error pasado y una derivativa de su tendencia.">PID</span>, pero al leer su código vi que opera como un <span class="term" data-def="Controlador que en cada ciclo calcula cuánto cambiar la salida, en vez de calcularla completa.">PI incremental</span>, sin acción derivativa. Sus ganancias partieron de una búsqueda con enjambre de partículas sobre un modelo de cada rueda y las terminé de ajustar en el robot real. Con ellas, ambas ruedas siguen 0,13 m/s sin sobreimpulso apreciable dentro de lo que la medición alcanza a ver.</p>
+  <p>Cada rueda tiene su propio lazo de control en el Arduino. La ley heredada del firmware se llama <span class="term" data-def="Controlador que combina una acción proporcional al error, una integral del error pasado y una derivativa de su tendencia.">PID</span>, pero al leer su código vi que opera como un <span class="term" data-def="Controlador que en cada ciclo calcula cuánto cambiar la salida, en vez de calcularla completa.">PI incremental</span>, sin acción derivativa. Sus ganancias partieron de una búsqueda con enjambre de partículas sobre un modelo de cada rueda y las terminé de ajustar en el robot real. Con ellas, ambas ruedas siguen 0,13 m/s sin sobreimpulso apreciable dentro de lo que la medición alcanza a ver. Con ese mismo modelo verifiqué que el lazo discreto es estable y calculé cuánto margen le queda, sin olvidar que el análisis es lineal y el firmware no lo es.</p>
   <div class="cifras-mini">
     <div><b>0,002 <small>m/s</small></b><span><span class="term" data-def="Diferencia que queda entre la velocidad pedida y el promedio de la velocidad medida cuando el arranque ya terminó y la respuesta se estabilizó.">error estacionario</span> máximo, en la rueda izquierda</span></div>
     <div><b>0,8 <small>y</small> 1,4 <small>s</small></b><span>tiempo de subida de cada rueda, del 10 al 90 %</span></div>
-    <div><b>50 × 150</b><span>partículas y generaciones del enjambre que buscó las ganancias</span></div>
+    <div><b>53 <small>a</small> 57°</b><span>margen de fase del modelo lineal sin retardo, con las ganancias definitivas</span></div>
     <div><b>33 <small>ms</small></b><span>por ciclo de control · unos 30 cálculos por segundo</span></div>
   </div>
 </section>
@@ -135,7 +138,7 @@
     <p><strong>Memoria aparte:</strong> ITerm[k] = ITerm[k−1] + Ki·e[k], solo si la salida no toca el tope</p>
     <small>e: error en ticks/ciclo; m: ticks contados durante un ciclo; u y Δu: PWM; ITerm: unidades internas del numerador. El firmware además trunca y aplica una banda al error. La fórmula describe el orden de actualización, antes de esos cortes.</small>
   </div>
-  <details class="ficha-concepto"><summary>Ficha del concepto: la ley de control del firmware</summary><dl><dt>Qué es</dt><dd>La regla con que el Arduino calcula, en cada ciclo programado de 33 ms, la orden PWM de cada rueda a partir del error de velocidad en ticks por ciclo.</dd><dt>Para qué sirve</dt><dd>Mantener cada rueda en la velocidad pedida aunque cambien la carga, la batería o el roce.</dd><dt>Cómo funciona</dt><dd>Calcula una corrección con Kp por el error, menos Kd por el cambio de la medición, más la memoria ITerm. La divide por Ko = 50, la suma a la orden anterior y limita el resultado a ±255.</dd><dt>Dónde verlo</dt><dd><a href="#ciclo">Un ciclo del firmware, con sus números</a> y <a href="#papeles">el papel real de cada ganancia</a>.</dd><dt>Ejemplo numérico</dt><dd>A 0,13 m/s la referencia es 40,76 ticks por ciclo y ROS 2 envía 40. Con Ki = 0,075, la memoria de la rueda izquierda solo crece con errores de 14 ticks por ciclo o más.</dd><dt>En este robot</dt><dd>Como la corrección se suma a la orden anterior, Kp actúa como ganancia integral y Kd como ganancia proporcional sobre la medición. La ley opera como un PI incremental, sin acción derivativa efectiva.</dd><dt>Límites</dt><dd>Se evaluó en un solo punto de operación, 0,13 m/s. No se comparó con un PID incremental estándar ni se analizó su estabilidad.</dd></dl></details>
+  <details class="ficha-concepto"><summary>Ficha del concepto: la ley de control del firmware</summary><dl><dt>Qué es</dt><dd>La regla con que el Arduino calcula, en cada ciclo programado de 33 ms, la orden PWM de cada rueda a partir del error de velocidad en ticks por ciclo.</dd><dt>Para qué sirve</dt><dd>Mantener cada rueda en la velocidad pedida aunque cambien la carga, la batería o el roce.</dd><dt>Cómo funciona</dt><dd>Calcula una corrección con Kp por el error, menos Kd por el cambio de la medición, más la memoria ITerm. La divide por Ko = 50, la suma a la orden anterior y limita el resultado a ±255.</dd><dt>Dónde verlo</dt><dd><a href="#ciclo">Un ciclo del firmware, con sus números</a> y <a href="#papeles">el papel real de cada ganancia</a>.</dd><dt>Ejemplo numérico</dt><dd>A 0,13 m/s la referencia es 40,76 ticks por ciclo y ROS 2 envía 40. Con Ki = 0,075, la memoria de la rueda izquierda solo crece con errores de 14 ticks por ciclo o más.</dd><dt>En este robot</dt><dd>Como la corrección se suma a la orden anterior, Kp actúa como ganancia integral y Kd como ganancia proporcional sobre la medición. La ley opera como un PI incremental, sin acción derivativa efectiva.</dd><dt>Límites</dt><dd>Se evaluó en un solo punto de operación, 0,13 m/s. Su estabilidad se verificó sobre un modelo lineal que no incluye la saturación, la zona muerta ni los enteros, como se explica en <a href="#estabilidad">el análisis de estabilidad</a>. No se comparó con un PID incremental estándar.</dd></dl></details>
   <h3 id="en-que-se-fija">La diferencia clave: error, medición y memoria</h3>
   <div class="tabla-env">
     <table class="tabla">
@@ -179,21 +182,21 @@
     <p>El término con e[k] actúa sobre el error de ahora, como una acción proporcional de tamaño Kd/Ko. El término con la suma de errores es una acción integral de tamaño Kp/Ko por ciclo. Los primeros dos términos son constantes del arranque.</p>
   </details>
   <p>Si Ki es cero, la referencia permanece fija y se ignoran los cortes, la ley equivale a un PI incremental: P efectivo = Kd/Ko e I efectivo por ciclo = Kp/Ko, en la escala de ticks/ciclo <a class="ref" href="#f2">2</a>. Con referencia variable, la referencia entra solo en la acción integral. En las ganancias finales Ki no es literalmente cero, pero los enteros anulan su aporte en la derecha para los errores del ensayo y lo restringen en la izquierda. Por eso describo una operación esencialmente PI, no un PID completo.</p>
+  <p>Esa forma tiene nombre en los libros. Es el algoritmo de velocidad de Åström y Hägglund, con la integral aproximada por diferencias hacia atrás, sin acción derivativa y con ponderación nula de la referencia en la acción proporcional, que en el libro se escribe b<sub>sp</sub> = 0 <a class="ref" href="#f2">2</a>. Con las ganancias definitivas, la ganancia proporcional equivalente es de 0,41 PWM por tick/ciclo en la izquierda y 0,40 en la derecha, y el tiempo integral equivalente, el período multiplicado por Kd y dividido por Kp, es de 42 y 40 ms <a class="ref" href="#f1">1</a>. El nombre PID se conserva para la familia de controladores, para el objetivo y para las variables del firmware.</p>
   <h3 id="por-que-se-conservo">¿Por qué no se reescribió?</h3>
-  <p>Tres motivos aparecen en la guía: la compatibilidad con <code>diffdrive_arduino</code>, el tratamiento de los topes y el seguimiento de la referencia en los ensayos. Otros dos criterios técnicos son mantener los ensayos comparables y considerar las pruebas adicionales de una nueva ley. Estos últimos son un análisis de la decisión a partir de la evidencia disponible.</p>
+  <p>La tesis da tres razones para conservar esta ley en vez de reemplazarla por otra formulación del PID o por una ley escrita desde cero <a class="ref" href="#f1">1</a>. Ninguna es una comparación de desempeño, y conviene leer cada una con su límite.</p>
   <div class="tabla-env">
     <table class="tabla">
-      <thead><tr><th>Argumento</th><th>Qué respalda y cuál es su límite</th></tr></thead>
+      <thead><tr><th>Razón</th><th>Qué respalda y cuál es su límite</th></tr></thead>
       <tbody>
-        <tr><th>Interfaz ya integrada</th><td>Conservar comandos y lectura de encoders evitó cambiar la comunicación. El protocolo no obliga a conservar la fórmula de doPID.</td></tr>
-        <tr><th>Protecciones ya presentes</th><td>Se guarda el PWM limitado y se congela ITerm al llegar al tope. Estas protecciones reducen el <span class="term" data-def="Acumulación excesiva del integrador mientras el motor ya llegó a su tope. Al liberar la rueda, esa memoria puede mantener una orden demasiado alta aunque el error ya haya bajado.">windup</span>. También pueden implementarse en un PID tradicional.</td></tr>
-        <tr><th>Respuesta medida en el robot</th><td>Los ajustes finales siguieron 0,13 m/s dentro de la resolución de medida. Eso respalda conservar una solución funcional en ese punto; no demuestra que sea la mejor ley.</td></tr>
-        <tr><th>Continuidad de la evidencia</th><td>Como criterio técnico, mantener la ley permite asociar las capturas y las ganancias a la misma implementación. Reescribirla exige repetir la validación para poder comparar.</td></tr>
-        <tr><th>Trabajo adicional que habría que validar</th><td>Un PID nuevo necesita revisar la escala de ganancias, el período, los estados, los enteros, el filtrado derivativo y la recuperación al saturarse. Es trabajo de diseño y prueba, no una imposibilidad del Arduino.</td></tr>
+        <tr><th>Es un controlador de uso extendido</th><td>El PI es el controlador más común y el PID, el algoritmo de control más usado en robótica, también en robots móviles <a class="ref" href="#f2">2</a> <a class="ref" href="#f13">13</a> <a class="ref" href="#f14">14</a>. La forma incremental se usa en el lazo de velocidad de robots diferenciales de laboratorio, de vehículos autoequilibrados, de andadores robóticos con Arduino y de plataformas ROS 2 que, como esta, envían las consignas por puerto serie <a class="ref" href="#f15">15</a> <a class="ref" href="#f16">16</a> <a class="ref" href="#f17">17</a> <a class="ref" href="#f18">18</a>. También regula el deslizamiento de ruedas en vehículos agrícolas <a class="ref" href="#f19">19</a>. Que sea común no prueba que sea la mejor para este robot.</td></tr>
+        <tr><th>Ya estaba integrada</th><td>Conservarla permitió reutilizar la interfaz <code>diffdrive_arduino</code>, que usa el protocolo serial de este firmware, y concentrar el desarrollo en la navegación y la exploración <a class="ref" href="#f22">22</a>. Mantener un algoritmo por compatibilidad con el equipo existente es una de las razones por las que los fabricantes conservan la forma incremental <a class="ref" href="#f2">2</a>. El protocolo no obliga a conservar la fórmula de doPID, porque la ley vive en un archivo aparte.</td></tr>
+        <tr><th>Simplifica la protección contra el windup</th><td>La forma incremental facilita proteger el integrador cuando el motor llega a su tope y permite hacer la mayoría de los cálculos solo con incrementos. Por eso también se adopta en implementaciones de referencia del PID <a class="ref" href="#f2">2</a> <a class="ref" href="#f20">20</a>. Un PID posicional también puede tener esas protecciones.</td></tr>
       </tbody>
-      <caption>Razones documentadas y criterios técnicos de validación. No hubo una comparación experimental con otro PID ni un estudio de ahorro de tiempo.</caption>
+      <caption>Sección 4.4.3 de la tesis. La elección no responde a una comparación de desempeño con otras leyes, que no formaba parte de los objetivos y queda como trabajo futuro.</caption>
     </table>
   </div>
+  <p>Reescribir la ley tampoco era gratis. Un PID nuevo obliga a revisar la escala de ganancias, el período, los estados, los enteros, el filtrado derivativo y la recuperación al saturarse, y después a repetir la validación para poder comparar. Es trabajo de diseño y prueba, no una imposibilidad del Arduino.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="sim-memoria-windup">Antes de seguir: cómo crece la memoria durante un bloqueo</h3><span class="tipo ilus">Ilustrativo</span><p>Aumenta los ciclos con la rueda trabada. Distingue la orden interna, el PWM que puede recibir el motor y la memoria que se guarda.</p></div>
     <div class="vis" data-vis="acumulador"><p class="vis-fallback">Sin antiwindup, la memoria integral puede crecer más allá del PWM máximo. El firmware guarda la salida limitada y deja de actualizar ITerm en el tope.</p></div>
@@ -203,7 +206,7 @@
     <div class="widget-cab"><h3 id="protocolo-ley">El protocolo justifica los comandos, no la fórmula</h3><span class="tipo datos">Datos de la tesis</span><p>La ley vive en un archivo separado del manejo de comandos, así que se podía reescribir sin tocar la comunicación.</p></div>
     <div class="vis" data-vis="protocolo"><p class="vis-fallback">La interfaz envía referencias con el comando m y pide encoders con el comando e. La ley está en diff_controller.h.</p></div>
   </div>
-  <p>No se cambió esta ley, por lo que todos los resultados pertenecen a ella. El objetivo que pedía implementar un PID se declara cumplido en forma parcial. Una comparación con un PID estándar a varias velocidades sigue siendo trabajo futuro.</p>
+  <p>No se cambió esta ley, por lo que todos los resultados pertenecen a ella. El OE2, que pedía un controlador PID en lazo cerrado sobre las velocidades de las ruedas, se declara cumplido en parte. La estabilidad de la ley se verificó sobre su idealización lineal, pero ese análisis no incluye los efectos no lineales del firmware y el desempeño se midió en un único punto de operación. Compararla con un PID incremental estándar a varias velocidades sigue siendo trabajo futuro.</p>
   <p class="destacado">Una ganancia se interpreta por la ecuación y por la memoria que la rodea.</p>
 </section>
 
@@ -262,13 +265,14 @@
         <tr><th>Constante de tiempo, qué tan rápido</th><td class="n">0,3291 s</td><td class="n">0,3485 s</td></tr>
         <tr><th>Retardo, cuánta demora</th><td class="n">0,0001 s</td><td class="n">0,0692 s</td></tr>
       </tbody>
-      <caption>Tabla A4.4 de la tesis. Los retardos estimados son menores que el período de captura de 0,1 s: esos valores provienen del ajuste del modelo y no de una medición directa con esa precisión temporal.</caption>
+      <caption>Tabla A4.4 de la tesis. Los retardos estimados son menores que el período de captura de 0,1 s, así que se cuantizan a cero muestras: con estos datos, el modelo ajustado equivale a uno de primer orden sin retardo. Son salidas del optimizador, no una medición directa del retardo.</caption>
     </table>
   </div>
   <p>Los tres números se leen sobre la curva. La <strong>ganancia</strong> dice a qué velocidad llega la rueda por cada unidad de PWM, una vez que la respuesta se estabiliza. La <strong>constante de tiempo</strong> es lo que tarda en recorrer el 63 % del camino hacia ese valor. El <strong>retardo</strong> es el tiempo en que todavía no reacciona.</p>
+  <p>¿Por qué conservar un retardo que no se distingue de cero? Porque la estructura FOPDT contiene al modelo de primer orden como caso particular, el de un motor de corriente continua cuando se desprecia la inductancia, y permite estudiar escenarios de retardo en el análisis de estabilidad <a class="ref" href="#f3">3</a> <a class="ref" href="#f23">23</a>. Cualquier retardo menor que 0,1 s da el mismo costo de ajuste, y por eso el optimizador entregó 0,0692 s para la derecha y otro script, 0,0845 s, con la misma ganancia y la misma constante de tiempo <a class="ref" href="#f1">1</a>. Medir retardos menores exige capturar más rápido, y eso queda como trabajo futuro.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="sim-fopdt">Dónde se ve cada número del modelo</h3><span class="tipo inter">Interactivo · modelo de la tesis</span><p>Cambia el escalón de PWM y elige qué rueda anotar. Compara las dos curvas con los mismos ejes.</p></div>
-    <div class="vis" data-vis="fopdt"><p class="vis-fallback">Con 143 PWM, el modelo de la rueda izquierda llega a 0,131 m/s y alcanza el 63 % de ese valor a los 0,33 s. El de la derecha llega a 0,127 m/s y alcanza el 63 % a los 0,42 s, porque además tiene un retardo de 0,07 s.</p></div>
+    <div class="vis" data-vis="fopdt"><p class="vis-fallback">Con 143 PWM, el modelo de la rueda izquierda llega a 0,131 m/s y alcanza el 63 % de ese valor a los 0,33 s. El de la derecha llega a 0,127 m/s y alcanza el 63 % a los 0,42 s, porque su ajuste entregó además un retardo de 0,07 s, menor que la captura de 0,1 s y por eso indistinguible de cero.</p></div>
   </div>
   <figure class="fig">
     <picture><source srcset="img/tesis/pso-lambda.webp" type="image/webp"><img src="img/tesis/pso-lambda.png" width="1600" height="1461" loading="lazy" decoding="async" alt="Cuatro gráficos. A la izquierda, la identificación de cada rueda en lazo abierto: datos reales, datos suavizados y el modelo FOPDT, muy parecidos. A la derecha, una simulación del lazo cerrado con las ganancias finales y con una sintonía Lambda, que oscila mucho más."></picture>
@@ -301,17 +305,25 @@
     <div class="widget-cab"><h3 id="cambios">Del PSO a las ganancias finales</h3><span class="tipo datos">Datos de la tesis</span><p>Cada par muestra los valores anteriores y finales de una rueda. El porcentaje indica el cambio relativo; Ki se expresa como factor de aumento para que se lea mejor.</p></div>
     <div class="vis" data-vis="pso"><p class="vis-fallback">Kp sube entre 28 y 63 %, Kd baja entre 41 y 45 % y Ki sube varios órdenes de magnitud.</p></div>
   </div>
-  <p>Subí Kp para atravesar más rápido la zona muerta, lo que en esta ley acelera el crecimiento de la salida. Eso, sobre una velocidad medida en escalones, volvió excesiva la acción de Kd, que bajé. También subí Ki de la izquierda. En esta implementación su aporte crece sobre todo durante el arranque, cuando el error positivo alcanza al menos 14 ticks/ciclo; no se puede atribuir la corrección estacionaria solo a esa ganancia. El aporte del PSO fue el de una semilla de búsqueda y no el de un ajuste final validado por sí solo <a class="ref" href="#f1">1</a>. Esto muestra el límite de cualquier optimización, que solo es tan buena como el modelo sobre el que busca.</p>
+  <p>Subí Kp para atravesar más rápido la zona muerta, lo que en esta ley acelera el crecimiento de la salida. Eso, sobre una velocidad medida en escalones, volvió excesiva la acción de Kd, que bajé. También subí Ki de la izquierda. En esta implementación su aporte crece sobre todo durante el arranque, cuando el error positivo alcanza al menos 14 ticks/ciclo, así que no se puede atribuir la corrección estacionaria solo a esa ganancia. El aporte del PSO fue el de una semilla de búsqueda y no el de un ajuste final validado por sí solo <a class="ref" href="#f1">1</a>. Esto muestra el límite de cualquier optimización, que solo es tan buena como el modelo sobre el que busca.</p>
+  <h3 id="por-que-ajustar">Tres razones por las que hubo que ajustar</h3>
+  <div class="argumento">
+    <div><span class="a-et">El modelo</span><p>Se identificó con un único escalón de 143 PWM y una estructura lineal que no tiene la zona muerta del driver. Además, la simulación del costo calcula el controlador con decimales, así que no reproduce la banda de insensibilidad de hasta 4 ticks/ciclo que tienen las ganancias sugeridas.</p></div>
+    <div><span class="a-et">La función objetivo</span><p>Evalúa un solo escalón, no penaliza el esfuerzo de control y dejó la componente de Kd pegada a la frontera del espacio de búsqueda.</p></div>
+    <div><span class="a-et">El optimizador</span><p>No recorta su salida final ni fija una semilla. Por eso los Kd informados, 34,69 y 36,70, no son los que evaluó el costo, que los recortó a 25 en ambas ruedas. Según la misma rutina, los dos valores producen la misma subida.</p></div>
+  </div>
+  <p>Aun así el PSO entregó un punto de partida útil. Sus ganancias dan un lazo estable con más margen que las definitivas y que las originales del firmware, son del mismo orden de magnitud que las definitivas y se obtuvieron sobre la estructura de la ley ejecutada, sin traducir ganancias desde una regla analítica, como sí exige la sintonía Lambda <a class="ref" href="#f1">1</a>. Gökçe y otros usaron un costo parecido, basado en la respuesta al escalón, pero validaron sus ganancias solo en simulación <a class="ref" href="#f7">7</a>. Aquí se cargaron en el robot, y eso fue lo que mostró la diferencia.</p>
   <div class="tabla-env">
     <table class="tabla">
       <thead><tr><th>Ganancia</th><th class="n">PSO izquierda</th><th class="n">Final izquierda</th><th class="n">PSO derecha</th><th class="n">Final derecha</th></tr></thead>
       <tbody>
         <tr><th>Kp</th><td class="n">12,48</td><td class="n">16,00</td><td class="n">10,10</td><td class="n">16,42</td></tr>
-        <tr><th>Kd</th><td class="n">34,69</td><td class="n">20,30</td><td class="n">36,70</td><td class="n">20,05</td></tr>
+        <tr><th>Kd informado y cargado</th><td class="n">34,69</td><td class="n">20,30</td><td class="n">36,70</td><td class="n">20,05</td></tr>
+        <tr><th>Kd evaluado por el costo</th><td class="n">25,00</td><td class="n">no aplica</td><td class="n">25,00</td><td class="n">no aplica</td></tr>
         <tr><th>Ki</th><td class="n">0,00001</td><td class="n">0,075</td><td class="n">0,00001</td><td class="n">0,001</td></tr>
         <tr><th>Ko</th><td class="n">50</td><td class="n">50</td><td class="n">50</td><td class="n">50</td></tr>
       </tbody>
-      <caption>Tablas A4.4 y 4.4 de la tesis. Las ganancias están en la escala interna del firmware.</caption>
+      <caption>Tablas A4.4 y 4.4 de la tesis. Las ganancias están en la escala interna del firmware. El script escala la posición final del enjambre sin recortarla, mientras que el costo evalúa una copia recortada a la cota de 25.</caption>
     </table>
   </div>
   <p>El PSO parte de números al azar y la clase usada no fija una <span class="term" data-def="Un número inicial que hace que un generador de números aleatorios produzca siempre la misma secuencia. Fijarlo permite repetir un resultado.">semilla aleatoria</span>, así que al repetir el script se obtienen parámetros algo distintos. Conservé la salida exacta de la ejecución usada <a class="ref" href="#f1">1</a>. En cualquier trabajo con métodos aleatorios conviene fijar la semilla y guardar la salida, para que otra persona pueda llegar al mismo resultado.</p>
@@ -338,13 +350,83 @@
     <div class="widget-cab"><h3 id="ticks">Resolución y velocidad única</h3><span class="tipo inter">Interactivo</span><p>Compara la cantidad de ticks en recta y giro. Después prueba qué información se pierde al registrar dos decimales y cómo se calcula un promedio entre escalones.</p></div>
     <div class="vis" data-vis="resolucion"><p class="vis-fallback">A 0,13 m/s la conversión da 40,76 ticks/ciclo; ROS 2 envía 40 al truncar. En el giro sobre el eje a 0,35 rad/s, la magnitud estimada es 10,32 ticks/ciclo y se envían 10.</p></div>
   </div>
-  <p>Evalué el control en un solo punto de operación, 0,13 m/s. En los giros sobre su eje, la referencia de cada rueda es de unos 10 ticks/ciclo en vez de unos 41 (10 y 40 si el comando m trunca a entero), y ahí las bandas muertas de 1 y 2 pulsos pesan mucho más. Extender la evaluación a otras velocidades y compararla con un PID incremental estándar es parte del trabajo futuro.</p>
+  <p>Evalué el control en un solo punto de operación, 0,13 m/s. En los giros sobre su eje, la referencia de cada rueda es de unos 10 ticks/ciclo en vez de unos 41 (10 y 40 si el comando m trunca a entero), y ahí las bandas muertas de 1 y 2 pulsos pesan mucho más. Extender la evaluación a otras referencias, en especial a velocidades bajas y cambios de sentido, y compararla con un PID incremental estándar con estado integral en punto flotante y lectura atómica de los encoders es parte del trabajo futuro.</p>
   <details class="profundizar">
     <summary>Para el curioso: la comparación con la sintonía Lambda</summary>
     <div>
       <p>Incluí una comparación simulada entre las ganancias finales y una sintonía analítica llamada Lambda, sobre un modelo reidentificado. En esa simulación las ganancias finales muestran sobreimpulsos de 10,7 % a 15,6 %. Esos números vienen de un modelo sin zona muerta, sin bandas muertas asimétricas y sin los tipos enteros del firmware, así que no se comparan con la medición real. Es una comparación ilustrativa, y es la que muestra la figura del modelo más arriba.</p>
     </div>
   </details>
+</section>
+
+<section>
+  <h2 id="estabilidad">¿Es estable el lazo? El análisis del lazo discreto</h2>
+  <p>Que las ruedas sigan 0,13 m/s en una prueba muestra que el control funciona en ese caso. No dice cuánto margen queda si la rueda real responde distinto del modelo o si aparece un retardo. Para responder eso analicé el lazo discreto completo, con la ley del firmware y el modelo identificado de cada rueda, en un script propio que solo usa parámetros publicados en la tesis <a class="ref" href="#f1">1</a>.</p>
+  <p>El punto de partida es simple. Sin saturación, la forma incremental de un PI equivale a su forma absoluta, así que su estabilidad es la de un PI clásico con iguales ganancias <a class="ref" href="#f2">2</a> <a class="ref" href="#f21">21</a>. Un PI es adecuado para procesos que se comportan esencialmente como de primer orden, como el modelo de cada rueda. Y el período de 33 ms multiplicado por la frecuencia de cruce del lazo da cerca de 0,07, dentro del intervalo de 0,05 a 0,14 que se recomienda para aproximar un diseño continuo <a class="ref" href="#f21">21</a>. Aun así, la verificación se hizo sobre el lazo discreto y no sobre esa aproximación.</p>
+  <h3 id="criterios-estabilidad">Cuatro números para medir el margen</h3>
+  <div class="tabla-env">
+    <table class="tabla">
+      <thead><tr><th>Indicador</th><th>Qué pregunta responde</th><th>Cómo se lee</th></tr></thead>
+      <tbody>
+        <tr><th>Polos del lazo cerrado</th><td>¿Una perturbación se apaga o crece?</td><td>El lazo discreto es estable si todas las raíces de su ecuación característica tienen magnitud menor que uno, es decir, si quedan dentro del círculo de radio 1.</td></tr>
+        <tr><th>Margen de ganancia</th><td>¿Cuántas veces podría crecer la ganancia del lazo?</td><td>Se da en decibeles. 20 dB son 10 veces y 40 dB, 100 veces.</td></tr>
+        <tr><th>Margen de fase y de retardo</th><td>¿Cuánto atraso adicional tolera?</td><td>El de fase se mide en grados donde la ganancia del lazo vale uno. El de retardo traduce ese atraso a segundos.</td></tr>
+        <tr><th>Sensibilidad máxima, Ms</th><td>¿Qué tan cerca pasa el lazo del punto crítico?</td><td>Resume la robustez en un número. Sus valores típicos están entre 1,2 y 2,0, y 1 dividido por Ms es la menor distancia de la curva de Nyquist al punto −1.</td></tr>
+      </tbody>
+      <caption>Criterios del Anexo 4.12 de la tesis, con los valores típicos de Wittenmark, Åström y Årzén.</caption>
+    </table>
+  </div>
+  <p>Hay un detalle sobre el retardo que conviene tener claro. Como la captura de 0,1 s no lo resuelve, el análisis se hizo sin retardo, que es el modelo efectivamente ajustado, y en un escenario de sensibilidad con 0,1 s. Ese segundo valor no es una cota medida del retardo físico del robot.</p>
+  <div class="tabla-env">
+    <table class="tabla">
+      <thead><tr><th>Indicador</th><th class="n">Izquierda sin Ki</th><th class="n">Izquierda con Ki lineal</th><th class="n">Derecha</th></tr></thead>
+      <tbody>
+        <tr><th colspan="4">Sin retardo, el modelo efectivamente ajustado</th></tr>
+        <tr><th>Mayor magnitud de los polos</th><td class="n">0,947</td><td class="n">0,995</td><td class="n">0,950</td></tr>
+        <tr><th>Margen de fase</th><td class="n">56,9°</td><td class="n">53,4°</td><td class="n">55,5°</td></tr>
+        <tr><th>Margen de ganancia</th><td class="n">38,9 dB</td><td class="n">38,9 dB</td><td class="n">39,4 dB</td></tr>
+        <tr><th>Margen de retardo</th><td class="n">0,45 s</td><td class="n">0,42 s</td><td class="n">0,44 s</td></tr>
+        <tr><th>Sensibilidad máxima Ms</th><td class="n">1,35</td><td class="n">1,39</td><td class="n">1,38</td></tr>
+        <tr><th colspan="4">Escenario de sensibilidad con 0,1 s de retardo</th></tr>
+        <tr><th>Mayor magnitud de los polos</th><td class="n">0,961</td><td class="n">0,995</td><td class="n">0,964</td></tr>
+        <tr><th>Margen de fase</th><td class="n">44,1°</td><td class="n">40,7°</td><td class="n">42,9°</td></tr>
+        <tr><th>Margen de ganancia</th><td class="n">13,4 dB</td><td class="n">13,1 dB</td><td class="n">13,3 dB</td></tr>
+        <tr><th>Margen de retardo</th><td class="n">0,35 s</td><td class="n">0,32 s</td><td class="n">0,34 s</td></tr>
+        <tr><th>Sensibilidad máxima Ms</th><td class="n">1,78</td><td class="n">1,85</td><td class="n">1,81</td></tr>
+      </tbody>
+      <caption>Tabla A4.5 de la tesis, con las ganancias definitivas. En la izquierda se informa el caso sin el término de Ki, que corresponde a operar cerca del equilibrio, y con ese término tratado como lineal, el caso más desfavorable. En la derecha ese término no tiene efecto, porque su estado integral permanece en cero.</caption>
+    </table>
+  </div>
+  <p>En los tres casos todas las raíces quedan dentro del círculo, con y sin retardo, y la sensibilidad máxima, de 1,35 a 1,85, queda dentro del intervalo típico. El polo de 0,995 que aparece al tratar Ki como lineal es un modo muy lento, con una constante de tiempo de unos 6,6 s a 33 ms por ciclo, pero sigue dentro del círculo.</p>
+  <div class="widget">
+    <div class="widget-cab"><h3 id="sim-estabilidad">Polos, curva de Nyquist y márgenes de cada rueda</h3><span class="tipo inter">Interactivo · modelo de la tesis</span><p>Elige la rueda y el conjunto de ganancias, y mueve el retardo, la ganancia o la constante de tiempo de la planta. Cada número se recalcula con el mismo modelo del anexo y se indica si es una fila de la tesis o un cálculo nuevo.</p></div>
+    <div class="vis" data-vis="estabilidad"><p class="vis-fallback">Con las ganancias definitivas y sin retardo, el polo más lejano del origen tiene magnitud 0,947 en la izquierda y 0,950 en la derecha, dentro del círculo de radio 1. Los márgenes de fase son 56,9° y 55,5°, los de ganancia 38,9 y 39,4 dB y la sensibilidad máxima 1,35 y 1,38. Con 0,1 s de retardo siguen dentro del círculo, con márgenes de fase de 44,1° y 42,9° y sensibilidad máxima de 1,78 y 1,81. En ese escenario, el modelo de la izquierda pierde la estabilidad cuando la ganancia de la planta supera unas 4,7 veces la identificada.</p></div>
+    <details class="guia-vis"><summary>Qué probar en el interactivo</summary><ol><li>Con la rueda izquierda y las definitivas, lleva el retardo de 0 a 0,1 s. Los polos siguen dentro del círculo, pero el margen de fase baja de 56,9° a 44,1° y la curva se acerca al punto −1.</li><li>Marca Ki como lineal. Aparece un polo en 0,995, casi sobre el círculo: es lento, no inestable.</li><li>Con 0,1 s de retardo sube la ganancia de la planta hasta que un polo salga del círculo. En la izquierda ocurre cerca de 4,7 veces la identificada.</li><li>Cambia a las ganancias originales del firmware. Con 0,1 s la sensibilidad máxima llega a 2,18, sobre el intervalo típico.</li></ol><p>Volver al caso de la tesis restablece rueda, ganancias, retardo, ganancia y constante de tiempo. Lo calculado fuera de las filas de la tesis es una exploración del mismo modelo, no un resultado nuevo.</p></details>
+  </div>
+  <h3 id="barrido">Hasta dónde puede cambiar la planta</h3>
+  <p>El script también recorre una rejilla de 625 combinaciones, con la ganancia de la planta entre 0,1 y 10 veces la identificada y su constante de tiempo entre 0,05 y 3 s. Sin retardo el lazo es estable en todas. Con 0,1 s solo pierde la estabilidad cuando la ganancia de la planta supera 4,4 veces la identificada, o 2,8 veces en la izquierda si Ki se trata como lineal <a class="ref" href="#f1">1</a>. Eso describe sensibilidad en esa rejilla. No identifica cuánto varía de verdad la planta del robot.</p>
+  <p>¿Y a otras velocidades? En operación, el controlador diferencial limita la base a 0,13 m/s y 0,35 rad/s, así que cada rueda llega a unos 0,16 m/s, cerca de 51 ticks/ciclo. Según el modelo, eso pide unos 180 de los 255 niveles de PWM en régimen permanente, de modo que la salida no se satura fuera de los transitorios. El escalón del ensayo es además mayor que los cambios de referencia de la navegación normal, en la que DWB limita la aceleración lineal a 0,25 m/s². Como el modelo es lineal, sus márgenes no dependen de la velocidad. Lo que sí podría cambiar entre velocidades es la planta real, y caracterizar eso queda como trabajo futuro.</p>
+  <h3 id="no-lineal">Lo que un análisis lineal no ve</h3>
+  <p>El análisis deja fuera la saturación, la zona muerta del driver y los truncamientos enteros. Uno de esos efectos se puede calcular aparte, y explica algo que se midió.</p>
+  <div class="argumento">
+    <div><span class="a-et">Una banda donde la salida no cambia</span><p>Como cada incremento se trunca a un entero, en régimen la salida no cambia mientras Kp por el error, más el estado integral, no alcance Ko. Con el estado integral en cero, eso deja sin corregir errores de hasta 3 ticks/ciclo con las ganancias definitivas y de hasta 4 con las del PSO, cerca de 0,01 m/s. El error estacionario medido, de 0,002 y 0,000 m/s, cae dentro de esa banda.</p></div>
+    <div><span class="a-et">Si el estado integral está cargado</span><p>El umbral cambia y puede ser asimétrico. Con Kp = 16, error de 3 e integral de 2, el cociente es 50/50 = 1 y la salida sí cambia. Un estado cargado también puede bajar con errores menores que 14 por el truncado de la suma completa.</p></div>
+    <div><span class="a-et">A baja velocidad pesa más</span><p>En un giro sobre el eje a 0,35 rad/s cada rueda opera cerca de 10 ticks/ciclo. Ahí esa banda es cerca de un 30 % de la referencia y la zona muerta del driver influye más. El análisis no cubre ese caso.</p></div>
+  </div>
+  <h3 id="tres-conjuntos">Las ganancias del PSO, las definitivas y las originales</h3>
+  <div class="tabla-env">
+    <table class="tabla">
+      <thead><tr><th>Conjunto de ganancias</th><th class="n">Margen de fase sin retardo</th><th class="n">Margen de fase con 0,1 s</th><th class="n">Sensibilidad máxima</th></tr></thead>
+      <tbody>
+        <tr><th>Sugeridas por el PSO</th><td class="n">64° a 71°</td><td class="n">53° a 62°</td><td class="n">1,15 a 1,52</td></tr>
+        <tr><th>Definitivas, tras el ajuste en el robot</th><td class="n">53° a 57°</td><td class="n">41° a 44°</td><td class="n">1,35 a 1,85</td></tr>
+        <tr><th>Originales del firmware, Kp 20, Kd 12 y Ki 0</th><td class="n">49° a 50°</td><td class="n">35°</td><td class="n">hasta 2,18</td></tr>
+      </tbody>
+      <caption>Anexo 4.12 de la tesis. Los rangos del PSO incluyen el Kd informado y el evaluado por el costo. Con las originales, la sensibilidad máxima queda fuera del intervalo típico de 1,2 a 2,0.</caption>
+    </table>
+  </div>
+  <p>Las ganancias del PSO son las más conservadoras, y aun así en el robot respondieron más lento que las definitivas. La rutina de simulación del script de sintonía, que no aplica el retardo, predice con ellas una subida de 0,8 y 1,1 s. En el robot, la izquierda se detuvo en 0,12 m/s y la derecha recién sostuvo la referencia después de los 6 s. Con las definitivas, la misma rutina predice sobreimpulsos de 10 % a 16 % que en el robot no aparecen. El modelo, por tanto, sobrestima la rapidez del lazo real <a class="ref" href="#f1">1</a>.</p>
+  <p class="destacado">Un margen calculado describe al modelo. Del robot habla la medición.</p>
 </section>
 
 <section>
@@ -367,8 +449,8 @@
 <section class="fuentes-tema">
   <h2 id="fuentes">Fuentes de este tema</h2>
   <ol class="refs-lista">
-    <li id="f1"><span><span class="tipo-ref">Tesis</span>Valderas Neculqueo, S. (2026). <em>Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial</em>. UTEM. Secciones 3.5 a 3.7, 4.4 y 5.2, y Anexos 4.2 a 4.11.</span></li>
-    <li id="f2"><span><span class="tipo-ref">Libro</span>Åström, K. J. y Hägglund, T. (2009). <em>Control PID avanzado</em>. Pearson. Secciones 3.4, 3.5, 13.1 y 13.4.</span></li>
+    <li id="f1"><span><span class="tipo-ref">Tesis</span>Valderas Neculqueo, S. (2026). <em>Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial</em>. UTEM. Secciones 3.5 a 3.7, 4.4 y 5.2, y Anexos 4.2 a 4.12, con el análisis de estabilidad del Anexo 4.12 y la Tabla A4.5.</span></li>
+    <li id="f2"><span><span class="tipo-ref">Libro</span>Åström, K. J. y Hägglund, T. (2009). <em>Control PID avanzado</em>. Pearson. Secciones 3.4 a 3.6, 13.1, 13.3 y 13.4.</span></li>
     <li id="f3"><span><span class="tipo-ref">Artículo</span>Maxim, A. y De Keyser, R. (2023). Estimation of First Order Plus Dead Time and Second Order Plus Dead Time models from noisy step response data. <em>Asian Journal of Control, 25</em>(3). <a href="https://doi.org/10.1002/asjc.2999">doi.org/10.1002/asjc.2999</a></span></li>
     <li id="f4"><span><span class="tipo-ref">Artículo</span>Kennedy, J. y Eberhart, R. (1995). Particle swarm optimization. <em>Proceedings of ICNN'95</em>. <a href="https://doi.org/10.1109/ICNN.1995.488968">doi.org/10.1109/ICNN.1995.488968</a></span></li>
     <li id="f5"><span><span class="tipo-ref">Artículo</span>Clerc, M. y Kennedy, J. (2002). The Particle Swarm, Explosion, Stability, and Convergence in a Multidimensional Complex Space. <em>IEEE Transactions on Evolutionary Computation, 6</em>(1). <a href="https://doi.org/10.1109/4235.985692">doi.org/10.1109/4235.985692</a></span></li>
@@ -379,6 +461,17 @@
     <li id="f10"><span><span class="tipo-ref">Código base</span>ROSArduinoBridge, proyecto base de <em>ros_arduino_bridge</em>. <a href="https://github.com/joshnewans/ros_arduino_bridge/blob/main/ROSArduinoBridge/diff_controller.h">diff_controller.h</a> y <a href="https://github.com/joshnewans/ros_arduino_bridge/blob/main/ROSArduinoBridge/ROSArduinoBridge.ino">ROSArduinoBridge.ino</a>. Documentan la estructura de la memoria, el orden de cálculo, la saturación y el reloj de 30 Hz. Las ganancias finales y las bandas adaptadas se transcriben de la tesis; el firmware adaptado todavía no está publicado, como se indica en <a href="recursos.html#materiales">Recursos</a>.</span></li>
     <li id="f11"><span><span class="tipo-ref">Documentación</span>MathWorks. <em>Anti-Windup Control Using PID Controller Block</em>. <a href="https://www.mathworks.com/help/simulink/slref/anti-windup-control-using-a-pid-controller.html">mathworks.com</a>. Diferencia entre señal calculada y aplicada, integración condicional y realimentación para limitar la memoria.</span></li>
     <li id="f12"><span><span class="tipo-ref">Documentación</span>MathWorks. <em>PID Controller</em>. <a href="https://www.mathworks.com/help/simulink/slref/pidcontroller.html">mathworks.com</a>. Formas continuas y discretas, estado integral y filtro derivativo.</span></li>
+    <li id="f13"><span><span class="tipo-ref">Artículo</span>Raj, R. y Kos, A. (2024). Discussion on Different Controllers Used for the Navigation of Mobile Robot. <em>International Journal of Electronics and Telecommunications, 70</em>(1). <a href="https://doi.org/10.24425/ijet.2024.149535">doi.org/10.24425/ijet.2024.149535</a></span></li>
+    <li id="f14"><span><span class="tipo-ref">Artículo</span>Bitriá, R. y Palacín, J. (2022). Optimal PID Control of a Brushed DC Motor with an Embedded Low-Cost Magnetic Quadrature Encoder for Improved Step Overshoot and Undershoot Responses in a Mobile Robot Application. <em>Sensors, 22</em>(20). <a href="https://doi.org/10.3390/s22207817">doi.org/10.3390/s22207817</a></span></li>
+    <li id="f15"><span><span class="tipo-ref">Artículo</span>Casini, M., Garulli, A., Giannitrapani, A. y Vicino, A. (2010). A Matlab-Based Remote Lab for Multi-Robot Experiments. <em>IFAC Proceedings Volumes, 42</em>(24). <a href="https://doi.org/10.3182/20091021-3-JP-2009.00031">doi.org/10.3182/20091021-3-JP-2009.00031</a></span></li>
+    <li id="f16"><span><span class="tipo-ref">Artículo</span>Ma, Y., Meng, F. y Xiong, S. (2024). Design and Implementation of a Two-Wheeled Self-Balancing Car Using a Fuzzy Kalman Filter. <em>Applied Sciences, 14</em>(12). <a href="https://doi.org/10.3390/app14125296">doi.org/10.3390/app14125296</a></span></li>
+    <li id="f17"><span><span class="tipo-ref">Artículo</span>Mori, Y., Yokoyama, S., Yamashita, T., Kawamura, H. y Mori, M. (2024). Development of Assistance Level Adjustment Function for Variable Load on a Forearm-Supported Robotic Walker. <em>Sensors, 24</em>(19). <a href="https://doi.org/10.3390/s24196456">doi.org/10.3390/s24196456</a></span></li>
+    <li id="f18"><span><span class="tipo-ref">Artículo</span>Wu, M., Wang, H., Wang, W., Miao, S. y Hu, S. (2026). A ROS 2-Based Robotic Platform for Mobile Occupant Sensing and Edge Perception in Buildings. <em>Buildings, 16</em>(17). <a href="https://doi.org/10.3390/buildings16173551">doi.org/10.3390/buildings16173551</a></span></li>
+    <li id="f19"><span><span class="tipo-ref">Artículo</span>Sun, C., Sun, P., Zhou, J. y Mao, J. (2022). Travel Reduction Control of Distributed Drive Electric Agricultural Vehicles Based on Multi-Information Fusion. <em>Agriculture, 12</em>(1). <a href="https://doi.org/10.3390/agriculture12010070">doi.org/10.3390/agriculture12010070</a></span></li>
+    <li id="f20"><span><span class="tipo-ref">Artículo</span>Sundström, E., Hägglund, T., Bauer, M., Eker, J. y Soltesz, K. (2024). Reference Implementation of the PID Controller. <em>IFAC-PapersOnLine, 58</em>(7). <a href="https://doi.org/10.1016/j.ifacol.2024.08.090">doi.org/10.1016/j.ifacol.2024.08.090</a></span></li>
+    <li id="f21"><span><span class="tipo-ref">Guía técnica</span>Wittenmark, B., Åström, K. J. y Årzén, K.-E. (2002). <em>Computer Control: An Overview</em>. IFAC Professional Brief. Secciones 5, 6 y 8. <a href="https://www.ifac-control.org/publications/list-of-professional-briefs/pb_wittenmark_etal_final.pdf/view">ifac-control.org</a></span></li>
+    <li id="f22"><span><span class="tipo-ref">Código base</span>Newans, J. (2022). <em>diffdrive_arduino</em>, interfaz de ros2_control para robots diferenciales con firmware ros_arduino_bridge. <a href="https://github.com/joshnewans/diffdrive_arduino">github.com/joshnewans/diffdrive_arduino</a></span></li>
+    <li id="f23"><span><span class="tipo-ref">Libro abierto</span>Iqbal, K. (2023). 1.4: An Electro-Mechanical System Model. En <em>Introduction to Control Systems</em>. Engineering LibreTexts. <a href="https://eng.libretexts.org/Bookshelves/Industrial_and_Systems_Engineering/Introduction_to_Control_Systems_(Iqbal)/01%3A_Mathematical_Models_of_Physical_Systems/1.04%3A_An_Electro-Mechanical_System_Model">eng.libretexts.org</a></span></li>
   </ol>
 </section>
 

@@ -176,13 +176,13 @@
       keys.forEach(function (k) { totals[k] = sum(k); if (!Number.isSafeInteger(totals[k])) fail('El total de metas excede el rango entero seguro.'); });
       metric('generadas', 'Metas generadas', totals.metas_generadas, 'metas', 'Σmetas_generadas');
       metric('abortadas', 'Abortadas registradas', totals.abortadas, 'metas', 'Σabortadas');
-      metric('reemplazadas', 'Reemplazos documentados', totals.reemplazadas_por_explorador, 'metas', 'Σreemplazadas_por_explorador');
+      metric('reemplazadas', 'Abortos asociados a reemplazos', totals.reemplazadas_por_explorador, 'metas', 'Σreemplazadas_por_explorador');
       metric('sin-clasificar', 'Abortadas sin clasificar', totals.abortadas - totals.reemplazadas_por_explorador, 'metas', 'abortadas − reemplazadas');
       metric('exitosas', 'Completadas registradas', totals.exitosas, 'metas', 'Σexitosas');
       metric('sin-terminal', 'Sin estado terminal', totals.sin_estado_terminal, 'metas', 'Σsin_estado_terminal');
-      bars('Estados de metas documentados', ['Reemplazadas', 'Abortadas sin clasificar', 'Completadas', 'Sin terminal'], [{ nombre: 'Metas', valores: [totals.reemplazadas_por_explorador, totals.abortadas - totals.reemplazadas_por_explorador, totals.exitosas, totals.sin_estado_terminal] }], 'metas');
-      if (totals.reemplazadas_por_explorador) rule('reemplazo-no-fallo', 'Hay abortos explicados por reemplazo', 'reemplazadas_por_explorador > 0', totals.reemplazadas_por_explorador + ' de ' + totals.abortadas + ' abortadas', 'Un reemplazo no demuestra una falla de navegación.', 'Separar evaluación de metas fijas y reemplazos del explorador.', 'Las abortadas restantes no se clasifican automáticamente como fallas.');
-      result.limitaciones.push('No se calcula tasa de éxito de navegación con metas reemplazadas. No se promedian las medianas por corrida ni se reconstruyen tiempos totales sin marcas temporales.');
+      bars('Estados de metas documentados', ['Asociadas a reemplazo', 'Abortadas sin clasificar', 'Completadas', 'Sin terminal'], [{ nombre: 'Metas', valores: [totals.reemplazadas_por_explorador, totals.abortadas - totals.reemplazadas_por_explorador, totals.exitosas, totals.sin_estado_terminal] }], 'metas');
+      if (totals.reemplazadas_por_explorador) rule('reemplazo-no-fallo', 'Hay abortos asociados a reemplazos', 'reemplazadas_por_explorador > 0', totals.reemplazadas_por_explorador + ' de ' + totals.abortadas + ' abortadas', 'Un reemplazo no demuestra una falla de navegación.', 'Separar evaluación de metas fijas y reemplazos del explorador.', 'La asociación es temporal y no descarta fallas concurrentes. Las abortadas restantes no se clasifican automáticamente como fallas.');
+      result.limitaciones.push('No se calcula tasa de éxito de navegación con metas reemplazadas. La columna tiempo_activo_mediano_s conserva su nombre por compatibilidad: en la Tabla A7.1 es la mediana entre la aceptación de una meta y la de la siguiente. No se promedian las medianas por corrida ni se reconstruyen tiempos totales sin marcas temporales.');
     } else if (kind === 'escalon') {
       var expected = { velocidad_estacionaria_desde_7_s: 'm/s', error_estacionario: 'm/s', tiempo_de_subida_10_a_90: 's', sobreimpulso_maximo: '' };
       if (rows.length !== 4) fail('El resumen del escalón necesita los cuatro indicadores documentados.');
@@ -296,20 +296,20 @@
     metric('ejecutadas', 'Llegaron a ejecución', c.ejecutadas, 'metas', 'metas con EXECUTING en algún mensaje');
     metric('completadas', 'Completadas', c.completadas, 'metas', 'estado terminal SUCCEEDED');
     metric('abortadas', 'Abortadas', c.abortadas, 'metas', 'estado terminal ABORTED, sin SUCCEEDED');
-    metric('reemplazadas', 'Abortadas por reemplazo', c.reemplazadas, 'metas', 'abortada activa en un mensaje donde ya figura la meta siguiente');
+    metric('reemplazadas', 'Abortadas asociadas a reemplazo', c.reemplazadas, 'metas', 'abortada activa en un mensaje donde ya figura la meta siguiente');
     metric('sin-clasificar', 'Abortadas sin clasificar', c.sinClasificar, 'metas', 'abortadas − reemplazadas');
     metric('canceladas', 'Canceladas', c.canceladas, 'metas', 'estado terminal CANCELED, sin SUCCEEDED ni ABORTED');
     metric('sin-terminal', 'Sin estado terminal', c.sinTerminal, 'metas', 'sin SUCCEEDED, ABORTED ni CANCELED en el registro');
-    metric('mediana-activo', 'Tiempo activo mediano de las reemplazadas', mediana(tiempos), 's', 'mediana de (aceptación de la siguiente − aceptación propia). No definida sin reemplazos');
-    bars('Estado final de cada meta', ['Completadas', 'Reemplazadas', 'Abortadas sin clasificar', 'Canceladas', 'Sin terminal'], [{ nombre: 'Metas', valores: [c.completadas, c.reemplazadas, c.sinClasificar, c.canceladas, c.sinTerminal] }], 'metas');
+    metric('mediana-activo', 'Mediana entre metas asociadas a reemplazo', mediana(tiempos), 's', 'mediana de (aceptación de la siguiente − aceptación propia). No mide cuándo terminó la anterior. No definida sin reemplazos');
+    bars('Estado final de cada meta', ['Completadas', 'Asociadas a reemplazo', 'Abortadas sin clasificar', 'Canceladas', 'Sin terminal'], [{ nombre: 'Metas', valores: [c.completadas, c.reemplazadas, c.sinClasificar, c.canceladas, c.sinTerminal] }], 'metas');
     result.metas = lista.map(function (g) { return { meta_id: g.id, aceptada_s: g.aceptada, estado_final: g.terminal || 'sin terminal', reemplazada: g.terminal === 'ABORTED' ? g.reemplazada : null }; });
-    if (c.reemplazadas) rule('reemplazo-no-fallo', 'Hay metas abortadas porque llegó la siguiente', 'abortada aún activa cuando ya figura la meta siguiente', c.reemplazadas + ' de ' + c.abortadas + ' abortadas', 'Nav2 informa como abortada la meta que se reemplaza; eso no es una falla de navegación.', 'Para medir éxito, ensayar metas fijas o cancelar la meta en curso antes de enviar otra.', 'No se sabe si las metas reemplazadas habrían llegado a completarse.');
+    if (c.reemplazadas) rule('reemplazo-no-fallo', 'Hay metas abortadas cuando ya había llegado la siguiente', 'abortada aún activa cuando ya figura la meta siguiente', c.reemplazadas + ' de ' + c.abortadas + ' abortadas', 'Es compatible con el reemplazo: Nav2 informa como abortada la meta que se reemplaza. El criterio no determina por sí solo la causa de cada aborto.', 'Para medir éxito, ensayar metas fijas o cancelar la meta en curso antes de enviar otra.', 'No descarta fallas concurrentes ni dice si las metas reemplazadas habrían llegado a completarse.');
     if (c.sinClasificar) rule('aborto-sin-clasificar', 'Hay abortos que este registro no explica', 'abortada sin mensaje que la muestre activa junto a la siguiente', c.sinClasificar + (c.sinClasificar === 1 ? ' meta' : ' metas'), 'No se cuentan como fallas ni como reemplazos.', 'Revisar el registro de bt_navigator o del controlador alrededor de su aceptación.', 'Una meta que ya aparece abortada en el primer mensaje no puede clasificarse.');
     if (c.sinTerminal) rule('sin-terminal', 'El registro termina con metas activas', 'sin estado terminal', c.sinTerminal + (c.sinTerminal === 1 ? ' meta' : ' metas'), 'Su resultado es desconocido, por ejemplo si el registro se cerró durante una cancelación.', 'Cerrar el registro después de que la última meta informe su estado final.', 'No se completan con supuestos.');
     var periodo = options.periodoExplorador;
     if (periodo && tiempos.length) {
       var med = mediana(tiempos);
-      if (Math.abs(med - periodo) <= 0.1 * periodo) rule('periodo-explorador', 'El tiempo activo típico coincide con el período del explorador', '|mediana − período| ≤ 10 % del período', 'mediana ' + med.toFixed(3).replace('.', ',') + ' s y período configurado ' + periodo.toFixed(3).replace('.', ',') + ' s', 'Es compatible con reemplazos periódicos del explorador.', 'Confirmar con el registro del explorador cuándo envía cada meta.', 'La coincidencia no prueba la causa de cada reemplazo.');
+      if (Math.abs(med - periodo) <= 0.1 * periodo) rule('periodo-explorador', 'La mediana entre metas coincide con el período del explorador', '|mediana − período| ≤ 10 % del período', 'mediana ' + med.toFixed(3).replace('.', ',') + ' s y período configurado ' + periodo.toFixed(3).replace('.', ',') + ' s', 'Es compatible con reemplazos periódicos del explorador.', 'Confirmar con el registro del explorador cuándo envía cada meta.', 'La coincidencia no prueba la causa de cada reemplazo.');
     }
     result.limitaciones.push('No se calcula tasa de éxito: las metas reemplazadas y las sin terminal no tienen un resultado propio.');
     result.limitaciones.push('El análisis confía en el orden de los mensajes y en los tiempos de aceptación del archivo. No corrige relojes distintos entre equipos.');

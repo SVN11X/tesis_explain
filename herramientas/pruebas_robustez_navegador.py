@@ -163,8 +163,8 @@ with sync_playwright() as pw:
         check(etiquetas == ['Qué es', 'Para qué sirve', 'Cómo funciona', 'Dónde verlo', 'Ejemplo numérico', 'En este robot', 'Límites'], 'Sin JS: ' + pagina + ' ofrece su ficha del concepto en siete pasos', etiquetas)
     p.goto(BASE + '/recursos.html#estado-academico')
     lista = p.locator('.estado-pendientes li')
-    check(lista.count() >= 4 and p.locator('.estado-pendientes a[href="preguntas.html#p-giro"]').count() == 1, 'Sin JS: pendientes del autor enlazados a su pregunta')
-    check(p.locator('.estado-historial li').count() >= 2 and p.locator('.estado-dl dd').first.inner_text().startswith('Pendiente'), 'Sin JS: historial y versión pendiente visibles')
+    check(lista.count() >= 3 and p.locator('.estado-pendientes a[href="preguntas.html#p-giro"]').count() == 1, 'Sin JS: pendientes del autor enlazados a su pregunta')
+    check(p.locator('.estado-historial li').count() >= 2 and p.locator('.estado-dl dd').first.inner_text().startswith('octubre de 2026'), 'Sin JS: historial y versión del documento visibles')
     ctx.close()
 
     browser.close()
