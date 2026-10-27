@@ -5,8 +5,8 @@
   "version_documento": "octubre de 2026, 152 páginas",
   "fecha_datos": "Exploración y mapeo, 22 de junio de 2026 (Anexo 7). La tesis no fecha los demás ensayos.",
   "revision_datos": null,
-  "ultima_actualizacion_sitio": "2026-10-26",
-  "revision_base": "a5bd06659d190ec6a2fe7d48925e072a5ed07a7f",
+  "ultima_actualizacion_sitio": "2026-10-27",
+  "revision_base": "ae42f525771c23e8581ddda6d968489a9fba44c4",
   "tesis_pdf": null,
   "pendientes": [
     {
@@ -19,7 +19,7 @@
     },
     {
       "texto": "Autorización de publicación de firmware y registros originales",
-      "enlace": "docs/inventario-publicacion.csv"
+      "enlace": "https://github.com/SVN11X/tesis_explain/blob/main/docs/inventario-publicacion.csv"
     }
   ],
   "historial": [
@@ -47,6 +47,16 @@
       "fecha": "2026-10-26",
       "tipo": "plataforma",
       "cambio": "Identidad visual de plano técnico, portada más corta en teléfono, comparador de decisiones en el tema 1, filtro del glosario y secciones de la página en el menú del teléfono. Carga más liviana: fuentes con respaldo ajustado que ya no mueven la página, interactivos que se piden al acercarse, videos diferidos e imágenes WebP sin pérdida. El contenido académico y las tablas experimentales no cambian."
+    },
+    {
+      "fecha": "2026-10-27",
+      "tipo": "contenido",
+      "cambio": "Bibliografía de la tesis explicada: cada una de las 72 referencias se ve como una línea con su autor, su tipo y un resumen, y al abrirla explica de qué trata el documento, para qué lo usa la tesis, en qué sección se cita y dónde lo explica esta guía. Están agrupadas en 11 temas, se pueden filtrar y el buscador lleva a cada una. Los resultados y las tablas experimentales no cambian."
+    },
+    {
+      "fecha": "2026-10-27",
+      "tipo": "plataforma",
+      "cambio": "Fuentes de respaldo propias para Android y para Linux sin Arial, que evitan que la página salte al cargar en esos equipos. Los documentos del repositorio se abren en su vista de GitHub. Pruebas automáticas más robustas."
     }
   ]
 }

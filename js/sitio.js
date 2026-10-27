@@ -854,7 +854,7 @@
     document.querySelectorAll("details").forEach(function (d) {
       d.addEventListener("toggle", function () { if (d.open) window.dispatchEvent(new Event("resize")); });
     });
-    window.addEventListener("beforeprint", function () { document.querySelectorAll("details.detalle, details.ficha-concepto").forEach(function (d) { d.open = true; }); });
+    window.addEventListener("beforeprint", function () { document.querySelectorAll("details.detalle, details.ficha-concepto, details.bib-ref").forEach(function (d) { d.open = true; }); });
   }
 
   /* Resaltar el destino de un enlace interno */
@@ -900,24 +900,51 @@
 
   /* Filtro del glosario en Recursos: escribe un término y quedan solo las definiciones que lo contienen.
      Usa la misma normalización del buscador, sin tildes ni mayúsculas. */
-  function glosario() {
-    var dl = document.querySelector("dl.glosario");
-    if (!dl) return;
-    var items = [].filter.call(dl.children, function (d) { return d.tagName === "DIV"; });
+  /* Filtro de una lista larga. Muestra solo lo que contiene todas las palabras escritas, sin distinguir
+     tildes ni mayúsculas, y anuncia cuántos elementos quedan. */
+  function filtroLista(o) {
     var caja = document.createElement("div");
-    caja.className = "filtro-glosario";
-    caja.innerHTML = '<label for="g-filtro">Filtrar el glosario</label><div class="campo-buscar">' + SVG.lupa + '<input id="g-filtro" type="search" autocomplete="off" spellcheck="false" placeholder="Por ejemplo: odometría, frontera o PID"></div><p class="filtro-estado" role="status" aria-live="polite"></p>';
-    dl.parentNode.insertBefore(caja, dl);
+    caja.className = "filtro-lista";
+    caja.innerHTML = '<label for="' + o.id + '">' + o.etiqueta + '</label><div class="campo-buscar">' + SVG.lupa + '<input id="' + o.id + '" type="search" autocomplete="off" spellcheck="false" placeholder="' + o.ejemplo + '"></div><p class="filtro-estado" role="status" aria-live="polite"></p>';
+    o.antes.parentNode.insertBefore(caja, o.antes);
     var input = caja.querySelector("input"), estado = caja.querySelector(".filtro-estado");
-    var textos = items.map(function (d) { return BUS.norm(d.textContent); });
+    var textos = o.items.map(function (d) { return BUS.norm(d.textContent); });
     input.addEventListener("input", function () {
       var ps = BUS.tokens(input.value), n = 0;
-      items.forEach(function (d, i) {
+      o.items.forEach(function (d, i) {
         var ver = !ps.length || ps.every(function (p) { return textos[i].indexOf(p) >= 0; });
         d.hidden = !ver; if (ver) n++;
       });
-      estado.textContent = !ps.length ? "" : (n ? n + (n === 1 ? " término coincide." : " términos coinciden.") : "Ningún término coincide. Prueba con el buscador del sitio.");
+      if (o.alFiltrar) o.alFiltrar(ps.length > 0);
+      estado.textContent = !ps.length ? "" : (n ? n + " " + (n === 1 ? o.uno : o.varios) : o.ninguno);
     });
+  }
+  function glosario() {
+    var dl = document.querySelector("dl.glosario");
+    if (!dl) return;
+    filtroLista({ antes: dl, id: "g-filtro", etiqueta: "Filtrar el glosario", ejemplo: "Por ejemplo: odometría, frontera o PID",
+      items: [].filter.call(dl.children, function (d) { return d.tagName === "DIV"; }),
+      uno: "término coincide.", varios: "términos coinciden.", ninguno: "Ningún término coincide. Prueba con el buscador del sitio." });
+  }
+  /* Bibliografía de la tesis: el filtro abre los grupos con coincidencias y oculta los demás.
+     Al borrarlo, cada grupo vuelve a quedar abierto o cerrado como estaba. */
+  function bibliografia() {
+    var grupos = [].slice.call(document.querySelectorAll(".bib-grupo"));
+    if (!grupos.length) return;
+    var antes = null;
+    filtroLista({ antes: grupos[0], id: "b-filtro", etiqueta: "Filtrar la bibliografía", ejemplo: "Por ejemplo: Nav2, PSO o estadística",
+      items: [].slice.call(document.querySelectorAll(".bib-grupo ol.bib > li")),
+      uno: "referencia coincide.", varios: "referencias coinciden.", ninguno: "Ninguna referencia coincide. Prueba con el buscador del sitio.",
+      alFiltrar: function (activo) {
+        if (activo && !antes) antes = grupos.map(function (g) { return g.querySelector("details.detalle").open; });
+        if (!antes) return;
+        grupos.forEach(function (g, i) {
+          var d = g.querySelector("details.detalle"), hay = !!g.querySelector("ol.bib > li:not([hidden])");
+          g.hidden = activo && !hay;
+          d.open = activo ? hay : antes[i];
+        });
+        if (!activo) antes = null;
+      } });
   }
 
   /* Estado del PDF de la tesis en Recursos */
@@ -945,7 +972,7 @@
     window.addEventListener("load", una);
   }
   function arrancar() {
-    iniciar([cabecera, pie, capitulo, progreso, arriba, videos, bucles, ampliar, comparadores, citasYTerminos, buscador, glosario, materiales, etapas, plegados]);
+    iniciar([cabecera, pie, capitulo, progreso, arriba, videos, bucles, ampliar, comparadores, citasYTerminos, buscador, glosario, bibliografia, materiales, etapas, plegados]);
     document.documentElement.classList.add("js");
     alListo(function () { iniciar([interactivos, destacarHash, tablasDesplazables]); });
   }

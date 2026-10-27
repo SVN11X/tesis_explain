@@ -9,7 +9,8 @@ Qué indexa:
     listas y el texto alternativo de los interactivos (.vis-fallback).
   * Una entrada por cada h3 con id, con su texto y el de los elementos que le siguen hasta el
     próximo encabezado, para que el resultado lleve directo al bloque.
-  * El resumen de cada tema y cada término del glosario.
+  * El resumen de cada tema, cada término del glosario, cada grupo de la bibliografía y cada una
+    de sus referencias, que lleva directo a ella abierta.
   * En preguntas.html, una entrada por pregunta, con su respuesta, que lleva directo a ella.
     Las secciones de cada tema de preguntas solo indexan su introducción.
 
@@ -60,6 +61,8 @@ def texto_h3(h):
     for sib in base.find_next_siblings():
         if sib.name in ('h2', 'h3') or sib.find(['h2', 'h3']):
             break      # el bloque siguiente tiene su propia entrada
+        if sib.select_one('details.bib-ref'):
+            continue   # cada referencia de la bibliografía tiene su propia entrada
         trozos.append(limpio(sib.get_text(' ')))
     return ' '.join(t for t in trozos if t)
 
@@ -85,6 +88,11 @@ def generar():
                 dt, dd = g.find('dt'), g.find('dd')
                 if dt and dd:
                     ent.append(dict(u=url + '#' + g['id'], t=limpio(dt.get_text(' ')), p='Glosario', x=limpio(dd.get_text(' '))))
+            for d in s.select('details.bib-ref[id]'):
+                # el resumen y el detalle completos, para que la búsqueda lleve a la referencia abierta
+                autor = d.select_one('.bib-autor')
+                if autor:
+                    ent.append(dict(u=url + '#' + d['id'], t=limpio(autor.get_text(' ')), p='Bibliografía', x=limpio(d.get_text(' '))))
         # texto fuera de las secciones con encabezado: portada, presentación del tema y bloques sueltos
         sueltos = []
         hero = s.select_one('header.tema-hero .lead')
@@ -123,8 +131,8 @@ def generar():
                 # cada pregunta ya tiene su propia entrada; aquí basta la introducción del tema
                 intro = sec.select_one('.q-intro')
                 texto = limpio(intro.get_text(' ')) if intro else ''
-            if pid == 'recursos' and hid == 'glosario':
-                # los términos ya tienen su propia entrada; aquí basta la introducción
+            if pid == 'recursos' and hid in ('glosario', 'bibliografia'):
+                # los términos y los grupos de referencias ya tienen su propia entrada; aquí basta la introducción
                 intro = sec.find('p')
                 texto = limpio(intro.get_text(' ')) if intro else ''
             for k, x in enumerate(partes(texto)):

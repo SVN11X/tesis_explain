@@ -2,15 +2,16 @@
 
 Fuentes con respaldo ajustado que no mueven la página, interactivos que se piden al acercarse,
 videos diferidos, portada compacta en teléfono, simulación en azul noche, barrido del LiDAR breve y
-quieto con movimiento reducido, comparador de decisiones del tema 1, filtro del glosario, secciones
-de la página en el menú del teléfono y páginas sin estilos en línea.
+quieto con movimiento reducido, comparador de decisiones del tema 1, filtro del glosario, bibliografía
+filtrable con un resumen y un detalle por referencia, secciones de la página en el menú del teléfono y
+páginas sin estilos en línea.
 Uso: python3 herramientas/pruebas_experiencia_navegador.py [http://localhost:8765]
 """
 from pathlib import Path
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 from functools import partial
 from threading import Thread
-import re, sys, time
+import os, re, sys, time
 from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright
 
@@ -32,6 +33,7 @@ else:
     Thread(target=server.serve_forever, daemon=True).start()
     BASE = 'http://localhost:%d' % server.server_port
 count = 0
+EN_GITHUB = os.environ.get('GITHUB_ACTIONS') == 'true'
 PAGINAS = sorted(p.name for p in ROOT.glob('*.html'))
 MODULOS_VIS = ['vis1.js', 'vis2.js', 'vis3.js', 'sims.js', 'mapeo.js', 'movimiento.js', 'evidencia.js', 'slam-proceso.js']
 MOVIL = {'viewport': {'width': 390, 'height': 844}, 'is_mobile': True, 'has_touch': True, 'device_scale_factor': 2}
@@ -46,8 +48,19 @@ new PerformanceObserver(l => { for (const e of l.getEntries()) if (!e.hadRecentI
 def check(cond, text, detalle=''):
     global count
     count += 1
-    assert cond, text + ('  ' + str(detalle) if detalle != '' else '')
-    print('  ok   ' + text)
+    if not cond:
+        msg = text + ('  ' + str(detalle) if detalle != '' else '')
+        if EN_GITHUB:
+            # anotación visible en el resumen de la ejecución, sin abrir el registro
+            print('::error title=pruebas_experiencia_navegador::' + msg.replace('\n', ' '), flush=True)
+        raise AssertionError(msg)
+    print('  ok   ' + text, flush=True)
+
+
+def omitir(text):
+    print('  --   ' + text, flush=True)
+    if EN_GITHUB:
+        print('::warning title=pruebas_experiencia_navegador::' + text, flush=True)
 
 
 def contexto(nav, **kw):
@@ -87,6 +100,35 @@ def estatico():
     check('robot-lateral-800.webp 800w' in hero.get('srcset', '') and hero.get('sizes'), 'la foto de la portada ofrece una versión de 800 px con sizes')
     deslizar = BeautifulSoup((ROOT / 'control.html').read_text(encoding='utf-8'), 'html.parser').select('.deslizar img')
     check(len(deslizar) == 2 and all(i.get('loading') == 'lazy' for i in deslizar), 'el comparador del PSO carga sus imágenes al acercarse')
+    # bibliografía de la tesis: cada referencia es una línea de resumen que se abre con su detalle
+    rec = BeautifulSoup((ROOT / 'recursos.html').read_text(encoding='utf-8'), 'html.parser')
+    bib = rec.find('h2', id='bibliografia').find_parent('section')
+    grupos = bib.select('.bib-grupo')
+    refs = bib.select('ol.bib > li > details.bib-ref[id^="r-"]')
+    nums = sorted(int(d.select_one('summary .bib-num').get_text().replace('Referencia', '').strip()) for d in refs)
+    check(len(grupos) == 11 and len(refs) == 72 and nums == list(range(1, 73)),
+          'la bibliografía tiene 72 referencias numeradas como en la tesis, en 11 grupos', (len(grupos), len(refs)))
+
+    def resumida(d):
+        s = d.find('summary', recursive=False)
+        res = s and s.select_one('.bib-resumen')
+        return bool(s and s.select_one('.bib-autor') and s.select_one('.tipo-ref') and res
+                    and 10 < len(res.get_text(strip=True)) <= 80 and not s.select_one('.bib-detalle'))
+
+    def detallada(d):
+        det = d.select_one(':scope > .bib-detalle')
+        return bool(det and len(det.select_one('.bib-contenido').get_text(strip=True)) > 60
+                    and len(det.select_one('.bib-uso').get_text(strip=True)) > 40
+                    and 'En la tesis:' in det.select_one('.bib-donde').get_text() and det.select_one('.bib-cita'))
+    check(not [d['id'] for d in refs if not resumida(d)],
+          'cada referencia se resume en una línea con su autor, su tipo y de qué trata', [d['id'] for d in refs if not resumida(d)])
+    check(not [d['id'] for d in refs if not detallada(d)],
+          'al abrirla, cada referencia dice de qué trata, para qué la usa la tesis, dónde aparece y su cita completa',
+          [d['id'] for d in refs if not detallada(d)])
+    check(all(g.find('h3', id=True) and g.select_one('.bib-desc') and g.select_one('details.detalle > summary') for g in grupos),
+          'cada grupo tiene título con ancla, para qué sirve y la lista plegable')
+    textos = ' '.join(d.select_one(c).get_text() for d in refs for c in ('.bib-resumen', '.bib-contenido', '.bib-uso'))
+    check(';' not in textos and not re.search(r'\s[-–—]\s|–|—', textos), 'los resúmenes y las explicaciones no usan punto y coma ni guiones como separadores')
 
 
 def manifiesto(nav):
@@ -136,9 +178,50 @@ def fuentes_y_cls(nav):
             p.wait_for_timeout(600)
             cls = p.evaluate('window.__cls')
             familia = p.evaluate("getComputedStyle(document.querySelector('h1')).fontFamily")
-            check(cls < 0.02, '%s, %s: con las fuentes 1,2 s tarde el CLS es %.4f' % (pag, nombre, cls), cls)
+            usados = p.evaluate("[...document.fonts].filter(f => f.family.includes('Respaldo') && f.status === 'loaded').map(f => f.family)")
+            if not usados:
+                # sin Arial ni equivalentes, Roboto o DejaVu Sans no hay respaldo que medir: el CLS dependería de la fuente
+                # que elija el sistema, no del sitio
+                omitir('%s, %s: el sistema no tiene ninguna fuente de respaldo compatible, se omite el CLS (%.4f)' % (pag, nombre, cls))
+                ctx.close()
+                continue
+            check(cls < 0.02, '%s, %s: con las fuentes 1,2 s tarde el CLS es %.4f (respaldo: %s)' % (pag, nombre, cls, ', '.join(sorted(set(f.strip('"') for f in usados)))), cls)
             check('Respaldo' in familia, '%s, %s: el título tiene una fuente de respaldo con métricas ajustadas' % (pag, nombre), familia)
             ctx.close()
+
+
+def titulos(nav):
+    print('Títulos de los temas con la fuente de respaldo')
+    temas = [p for p in PAGINAS if p != 'index.html']
+    anchos = list(range(320, 481, 8))
+
+    def alturas(bloquear):
+        out, usados = {}, set()
+        for pag in temas:
+            ctx = contexto(nav, viewport={'width': 390, 'height': 844}, is_mobile=True, device_scale_factor=2)
+            if bloquear:
+                ctx.route('**/*.woff2', lambda r: r.abort())
+            p = ctx.new_page()
+            p.goto(BASE + '/' + pag, wait_until='load')
+            p.wait_for_timeout(200)
+            if bloquear:
+                usados |= set(p.evaluate("[...document.fonts].filter(f => f.family.includes('Respaldo Tema') && f.status === 'loaded').map(f => f.family)"))
+            fila = []
+            for w in anchos:
+                p.set_viewport_size({'width': w, 'height': 844})
+                p.wait_for_timeout(20)
+                fila.append(p.evaluate("Math.round(document.querySelector('h1').getBoundingClientRect().height)"))
+            out[pag] = fila
+            ctx.close()
+        return out, usados
+    respaldo, usados = alturas(True)
+    if not usados:
+        omitir('el sistema no tiene ninguna fuente de respaldo compatible para los títulos, se omite la comparación')
+        return
+    web, _ = alturas(False)
+    distintos = ['%s a %d px' % (pag, w) for pag in temas for w, a, b in zip(anchos, respaldo[pag], web[pag]) if a != b]
+    check(not distintos, 'entre 320 y 480 px, el título de cada tema ocupa las mismas líneas con el respaldo (%s) que con Archivo'
+          % ', '.join(sorted(f.strip('"') for f in usados)), distintos[:10])
 
 
 def portada(nav):
@@ -273,6 +356,70 @@ def glosario_y_menu(nav):
     ctx.close()
 
 
+def bibliografia(nav):
+    print('Bibliografía de la tesis')
+    ctx = contexto(nav, **MOVIL)
+    p = ctx.new_page()
+    p.goto(BASE + '/recursos.html#r-hess2016', wait_until='load')
+    p.wait_for_timeout(500)
+    r = p.evaluate("""() => { const d = document.getElementById('r-hess2016'), r = d.getBoundingClientRect();
+      return { ref: d.open, grupo: d.closest('details.detalle').open, arriba: r.top, alto: innerHeight,
+               cab: document.getElementById('cabecera').getBoundingClientRect().bottom,
+               cerrados: [...document.querySelectorAll('.bib-grupo > details.detalle')].filter(d => !d.open).length,
+               otras: [...document.querySelectorAll('details.bib-ref')].filter(d => d.open).length }; }""")
+    check(r['ref'] and r['grupo'] and r['cab'] - 1 <= r['arriba'] < r['alto'] and r['cerrados'] == 10 and r['otras'] == 1,
+          'un enlace a una referencia abre su grupo y su detalle, y la deja bajo la cabecera', r)
+    p.fill('#b-filtro', 'pso')
+    p.wait_for_timeout(100)
+    r = p.evaluate("""() => ({ visibles: [...document.querySelectorAll('ol.bib > li')].filter(li => !li.hidden).map(li => li.firstElementChild.id),
+      grupos: [...document.querySelectorAll('.bib-grupo')].filter(g => !g.hidden).map(g => [g.querySelector('h3').id, g.querySelector('details.detalle').open]),
+      estado: document.querySelector('#b-filtro').closest('.filtro-lista').querySelector('.filtro-estado').textContent })""")
+    check(sorted(r['visibles']) == ['r-clerc2002', 'r-gokce2021', 'r-shi1998'] and r['grupos'] == [['bib-pso', True]] and r['estado'] == '3 referencias coinciden.',
+          'el filtro deja las tres referencias del PSO, abre su grupo, oculta los demás y lo anuncia', r)
+    resumen = p.locator('#r-shi1998 > summary')
+    antes = p.evaluate("document.querySelector('#r-shi1998 .bib-contenido').checkVisibility()")
+    alto_resumen = resumen.evaluate('el => el.getBoundingClientRect().height')
+    resumen.click()
+    p.wait_for_timeout(100)
+    despues = p.evaluate("""() => { const d = document.getElementById('r-shi1998'), c = d.querySelector('.bib-contenido');
+      return { abierto: d.open, visible: c.checkVisibility(), texto: c.textContent }; }""")
+    check(not antes and alto_resumen >= 44 and despues['abierto'] and despues['visible'] and 'peso de inercia' in despues['texto'],
+          'al presionar la línea de resumen se abre el detalle del contenido (resumen de %d px)' % alto_resumen, despues)
+    resumen.focus()
+    p.keyboard.press('Enter')
+    p.wait_for_timeout(100)
+    check(not p.evaluate("document.getElementById('r-shi1998').open"), 'con el teclado, Enter vuelve a cerrar el detalle')
+    p.fill('#b-filtro', 'clopper')
+    p.wait_for_timeout(100)
+    r = p.evaluate("""() => ({ visibles: [...document.querySelectorAll('ol.bib > li')].filter(li => !li.hidden).map(li => li.firstElementChild.id),
+      abiertas: [...document.querySelectorAll('details.bib-ref')].filter(d => d.open).map(d => d.id) })""")
+    check(r['visibles'] == ['r-vincent2024'] and r['abiertas'] == ['r-hess2016'],
+          'el filtro busca también en el detalle de cada referencia sin abrirlo', r)
+    p.fill('#b-filtro', 'xyzw')
+    check('Ninguna referencia' in p.evaluate("document.querySelector('#b-filtro').closest('.filtro-lista').querySelector('.filtro-estado').textContent"),
+          'sin coincidencias sugiere el buscador del sitio')
+    p.fill('#b-filtro', '')
+    p.wait_for_timeout(100)
+    r = p.evaluate("""() => ({ ocultos: document.querySelectorAll('ol.bib > li[hidden], .bib-grupo[hidden]').length,
+      abiertos: [...document.querySelectorAll('.bib-grupo > details.detalle')].filter(d => d.open).map(d => d.closest('.bib-grupo').querySelector('h3').id) })""")
+    check(r['ocultos'] == 0 and r['abiertos'] == ['bib-mapeo'], 'al borrar el filtro todo vuelve y cada grupo queda como estaba', r)
+    p.evaluate("""() => { const d = document.getElementById('r-astrom2009'); d.closest('details.detalle').open = true; d.open = true; }""")
+    p.wait_for_timeout(100)
+    alto = p.locator('#b-filtro').evaluate('el => el.closest(".campo-buscar").getBoundingClientRect().height')
+    ancho = p.evaluate('document.documentElement.scrollWidth - innerWidth')
+    check(alto >= 44 and ancho <= 1, 'teléfono: el filtro mide al menos 44 px y un detalle abierto no desborda la página (%d)' % alto, ancho)
+    ctx.close()
+    ctx = contexto(nav, java_script_enabled=False, **ESCRITORIO)
+    p = ctx.new_page()
+    p.goto(BASE + '/recursos.html#bibliografia')
+    r = p.evaluate("""() => ({ grupos: document.querySelectorAll('.bib-grupo > details.detalle').length,
+      refs: document.querySelectorAll('details.bib-ref > summary').length, filtro: !!document.getElementById('b-filtro'),
+      desc: [...document.querySelectorAll('.bib-desc')].every(d => d.getBoundingClientRect().height > 0) })""")
+    check(r['grupos'] == 11 and r['refs'] == 72 and not r['filtro'] and r['desc'],
+          'sin JavaScript se ven los grupos con su explicación, y grupos y referencias se abren a mano', r)
+    ctx.close()
+
+
 def tema_oscuro(nav):
     print('Tema oscuro e identidad')
     ctx = contexto(nav, color_scheme='dark', **ESCRITORIO)
@@ -290,7 +437,7 @@ def tema_oscuro(nav):
 with sync_playwright() as pw:
     estatico()
     nav = pw.chromium.launch()
-    for prueba in (manifiesto, fuentes_y_cls, portada, decisiones, glosario_y_menu, tema_oscuro):
+    for prueba in (manifiesto, fuentes_y_cls, titulos, portada, decisiones, glosario_y_menu, bibliografia, tema_oscuro):
         prueba(nav)
     nav.close()
 if server:

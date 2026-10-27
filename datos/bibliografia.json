@@ -1,0 +1,1286 @@
+{
+ "nota": "Bibliografía de la tesis, versión de octubre de 2026. La cita copia la de la tesis sin las fechas de consulta. \"autor\" y \"resumen\" forman la línea que se ve sin abrir la referencia. \"contenido\" resume el documento a partir de su texto o de su página oficial y, cuando no se pudo consultar, de lo que dice la tesis. \"uso\" dice para qué lo usa la tesis. \"tesis\" indica dónde la cita el documento: un número es una sección y A, un anexo. \"guia\" indica dónde la cita esta guía.",
+ "grupos": [
+  {
+   "id": "bib-plataformas",
+   "titulo": "Plataformas de software",
+   "descripcion": "Explican qué es ROS 2 y con qué alternativas se comparó al elegirlo, en la Tabla 1.1.",
+   "tema": "problema.html#estado-del-arte",
+   "referencias": [
+    "r-macenski2022",
+    "r-noetic",
+    "r-yarp",
+    "r-orocos",
+    "r-lcm"
+   ]
+  },
+  {
+   "id": "bib-base",
+   "titulo": "Proyectos de los que parte el robot",
+   "descripcion": "Son el código y los diseños abiertos que la tesis adapta: el firmware del Arduino, la interfaz con ros2_control, el paquete del robot y el chasis. Permiten separar lo reutilizado del aporte propio.",
+   "tema": "robot.html#adaptado",
+   "referencias": [
+    "r-newans2023",
+    "r-newans2022a",
+    "r-newans2022b",
+    "r-hbrc",
+    "r-ros2control",
+    "r-amadi2024",
+    "r-marcuslanzoni"
+   ]
+  },
+  {
+   "id": "bib-movimiento",
+   "titulo": "Movimiento, marcos y sensor",
+   "descripcion": "Explican cómo se mueve un robot diferencial, cómo se calcula la odometría, qué convenciones de ejes y de marcos sigue ROS y cómo mide el LiDAR.",
+   "tema": "movimiento.html#traccion",
+   "referencias": [
+    "r-corke2023",
+    "r-ferreira2023",
+    "r-rep103",
+    "r-rep105",
+    "r-slamtec2020"
+   ]
+  },
+  {
+   "id": "bib-control",
+   "titulo": "Control de velocidad de las ruedas",
+   "descripcion": "Dan la teoría del PID y de su forma incremental, el modelo de cada rueda y el análisis de estabilidad, y muestran otros robots que usan la misma ley. Respaldan por qué se conservó el controlador del firmware.",
+   "tema": "control.html#hallazgo",
+   "referencias": [
+    "r-astrom2009",
+    "r-wittenmark2002",
+    "r-maxim2023",
+    "r-iqbal2023",
+    "r-sundstrom2024",
+    "r-raj2024",
+    "r-bitria2022",
+    "r-casini2010",
+    "r-ma2024",
+    "r-mori2024",
+    "r-wu2026",
+    "r-sun2022"
+   ]
+  },
+  {
+   "id": "bib-pso",
+   "titulo": "Sintonía con PSO",
+   "descripcion": "Explican el método de optimización que entregó las ganancias de partida, con un antecedente en robótica y las dos mejoras que usa el script.",
+   "tema": "control.html#pso",
+   "referencias": [
+    "r-gokce2021",
+    "r-clerc2002",
+    "r-shi1998"
+   ]
+  },
+  {
+   "id": "bib-mapeo",
+   "titulo": "Mapeo y localización",
+   "descripcion": "Comparan las alternativas de SLAM 2D, presentan la herramienta elegida, dan la teoría del SLAM y de la localización y aportan la métrica con que se midió la exactitud de los mapas.",
+   "tema": "mapeo.html#slam",
+   "referencias": [
+    "r-ran2025",
+    "r-tourani2022",
+    "r-grisetti2007",
+    "r-kohlbrecher2011",
+    "r-hess2016",
+    "r-macenski2021",
+    "r-ngoc2023",
+    "r-trejos2022",
+    "r-thrun2005"
+   ]
+  },
+  {
+   "id": "bib-navegacion",
+   "titulo": "Navegación",
+   "descripcion": "Explican cómo planifica y sigue rutas Nav2 y qué alternativas existían. Incluyen el código de Nav2 Foxy que muestra por qué una meta reemplazada figura como abortada.",
+   "tema": "navegacion.html#nav2",
+   "referencias": [
+    "r-macenski2023",
+    "r-lavalle2006",
+    "r-karaman2011",
+    "r-nav2docs",
+    "r-nav2foxy",
+    "r-nav2bringup",
+    "r-kato2018",
+    "r-autoware",
+    "r-ompl",
+    "r-sucan2012"
+   ]
+  },
+  {
+   "id": "bib-exploracion",
+   "titulo": "Exploración por fronteras",
+   "descripcion": "Dan el origen del método, una versión reciente, la alternativa de SLAM activo y el explorador que usa el robot.",
+   "tema": "exploracion.html#fronteras",
+   "referencias": [
+    "r-yamauchi1997",
+    "r-liu2025",
+    "r-placed2023",
+    "r-alvarez2021",
+    "r-horner2017"
+   ]
+  },
+  {
+   "id": "bib-simulacion",
+   "titulo": "Simulación y gemelo digital",
+   "descripcion": "Describen el simulador del gemelo digital, su sucesor y los simuladores alternativos que compara la tesis.",
+   "tema": "gemelo.html#gazebo",
+   "referencias": [
+    "r-gazebo-classic",
+    "r-gazebo",
+    "r-gazebo-mig",
+    "r-webots",
+    "r-michel2004",
+    "r-coppelia",
+    "r-rohmer2013",
+    "r-isaac"
+   ]
+  },
+  {
+   "id": "bib-evaluacion",
+   "titulo": "Evaluación y estadística",
+   "descripcion": "Respaldan cómo se calcularon los intervalos de confianza, cuántas repeticiones harían falta y qué métricas usaría un ensayo de navegación. Incluyen el video de la demostración.",
+   "tema": "resultados.html#confianza",
+   "referencias": [
+    "r-devore2021",
+    "r-vincent2024",
+    "r-cantwell2025",
+    "r-francis2025",
+    "r-video"
+   ]
+  },
+  {
+   "id": "bib-costos",
+   "titulo": "Costo del prototipo",
+   "descripcion": "Dan los precios de las plataformas comerciales comparadas y el tipo de cambio con que se pasaron los pesos a dólares.",
+   "tema": "robot.html#costo",
+   "referencias": [
+    "r-tb3burger",
+    "r-tb3waffle",
+    "r-sii2024"
+   ]
+  }
+ ],
+ "referencias": {
+  "r-alvarez2021": {
+   "n": 1,
+   "tipo": "Repositorio de código",
+   "autor": "Alvarez (2021)",
+   "resumen": "explore_lite para ROS 2, el explorador de fronteras que usa el robot.",
+   "cita": "Alvarez, C. (2021). <i>m-explore-ros2: ROS 2 port of m-explore (explore_lite)</i>. <a href=\"https://github.com/robo-friends/m-explore-ros2\">github.com/robo-friends/m-explore-ros2</a>",
+   "contenido": "Repositorio que lleva a ROS 2 los paquetes de m-explore, creados para ROS 1. Incluye explore_lite, que busca las fronteras del mapa y envía al robot hacia ellas, y map_merge, que une los mapas de varios robots. Su página muestra un ejemplo con un TurtleBot3 simulado, Nav2 y SLAM, y permite pausar la exploración o volver al punto de partida al terminar.",
+   "uso": "Es el código de explore_lite que la tesis adapta para el robot. También lo cita como ejemplo de una exploración fácil de integrar con un mapa de ocupación y con Nav2.",
+   "tesis": [
+    "1.4.2",
+    "2.1",
+    "A3.1"
+   ],
+   "guia": [
+    "exploracion.html#explore-lite",
+    "robot.html#adaptado"
+   ]
+  },
+  "r-amadi2024": {
+   "n": 2,
+   "tipo": "Preprint",
+   "autor": "Amadi et al. (2024)",
+   "resumen": "Introducción a ros2_control con un robot diferencial de bajo costo.",
+   "cita": "Amadi, C. A., Mbanisi, K., &amp; Smit, W. J. (2024). <i>An Introduction to the ros2_control framework using a low cost Differential Drive Robot</i> [Preprint]. <a href=\"https://doi.org/10.13140/RG.2.2.15748.54408\">doi.org/10.13140/RG.2.2.15748.54408</a>",
+   "contenido": "Preprint, es decir, un trabajo difundido sin revisión de pares, publicado en ResearchGate. Introduce el marco ros2_control usando como ejemplo un robot diferencial de bajo costo.",
+   "uso": "La tesis lo cita como antecedente del uso de ros2_control en robots diferenciales de bajo costo, como el de este trabajo. Su bibliografía lo identifica como preprint.",
+   "tesis": [
+    "A3.1"
+   ],
+   "guia": [
+    "robot.html#adaptado"
+   ]
+  },
+  "r-astrom2009": {
+   "n": 3,
+   "tipo": "Libro",
+   "autor": "Åström y Hägglund (2006/2009)",
+   "resumen": "Libro de control PID, base teórica del lazo de velocidad.",
+   "cita": "Åström, K. J., &amp; Hägglund, T. (2009). <i>Control PID avanzado</i> (S. Dormido Bencomo y J. L. Guzmán Sánchez, Trad.). Pearson Educación. Publicación original de 2006.",
+   "contenido": "Traducción al español de Advanced PID Control, un libro de referencia sobre el control PID. El capítulo 3 presenta el controlador PID, sus formas y la ponderación de la referencia. El capítulo 13 trata su implementación en un computador: el muestreo, el filtro previo contra el aliasing, que hace que una señal rápida parezca lenta al muestrearla, y la discretización. También presenta los algoritmos incrementales, que calculan el cambio de la señal de control y se usan sobre todo en motores eléctricos, y cómo cambiar de modo sin saltos.",
+   "uso": "Es la base teórica del control. De ahí salen la forma continua del PID, la forma incremental que ejecuta el firmware, la ponderación de la referencia, la protección contra el windup y la idea de que el PI es el controlador más común.",
+   "tesis": [
+    "3.6",
+    "4.4.3",
+    "A4.4",
+    "A4.5",
+    "A4.6",
+    "A4.12"
+   ],
+   "guia": [
+    "control.html#hallazgo",
+    "control.html#tiempo-discreto"
+   ]
+  },
+  "r-autoware": {
+   "n": 4,
+   "tipo": "Documentación",
+   "autor": "Autoware Foundation (2026)",
+   "resumen": "Documentación de Autoware, software abierto de conducción autónoma.",
+   "cita": "Autoware Foundation. (2026). <i>Autoware Documentation</i>. <a href=\"https://docs.autoware.org/main/home/\">docs.autoware.org</a>",
+   "contenido": "Documentación oficial de Autoware, que se presenta como el marco abierto de conducción autónoma líder en el mundo, listo para vehículos comerciales. Cubre todo el proceso de manejo, desde los sensores hasta el control del vehículo, con percepción, localización, planificación y simulación. Se organiza en instalación, tutoriales, diseño de la arquitectura y referencias.",
+   "uso": "La tesis la usa para mostrar que el ámbito de Autoware y sus requisitos de percepción y cómputo son distintos de los de un robot de interiores.",
+   "tesis": [
+    "1.4.1"
+   ],
+   "guia": []
+  },
+  "r-bitria2022": {
+   "n": 5,
+   "tipo": "Artículo",
+   "autor": "Bitriá y Palacín (2022)",
+   "resumen": "PID de un motor DC con encoder magnético de bajo costo en un robot móvil.",
+   "cita": "Bitriá, R., &amp; Palacín, J. (2022). Optimal PID Control of a Brushed DC Motor with an Embedded Low-Cost Magnetic Quadrature Encoder for Improved Step Overshoot and Undershoot Responses in a Mobile Robot Application. <i>Sensors, 22</i>(20), 7817. <a href=\"https://doi.org/10.3390/s22207817\">doi.org/10.3390/s22207817</a>",
+   "contenido": "Artículo que optimiza el control PID de la velocidad de un motor de corriente continua con escobillas que trae un encoder magnético de bajo costo. Muestra con mediciones que ese tipo de encoder produce imprecisiones que las simulaciones no suelen considerar, y propone un ajuste práctico para reducir el sobrepaso ante cambios de velocidad hacia arriba y hacia abajo. El motor mueve un robot omnidireccional de tamaño humano con tres ruedas.",
+   "uso": "Usa un encoder magnético, como el de este robot. La tesis lo cita para mostrar que el PID es común en robots móviles, una de las razones para conservar la ley del firmware.",
+   "tesis": [
+    "4.4.3"
+   ],
+   "guia": [
+    "control.html#hallazgo"
+   ]
+  },
+  "r-cantwell2025": {
+   "n": 6,
+   "tipo": "Guía técnica",
+   "autor": "Cantwell (2025)",
+   "resumen": "Guía Eurachem para validar métodos de medición en laboratorios.",
+   "cita": "Cantwell, H. (Ed.). (2025). <i>Eurachem Guide: The Fitness for Purpose of Analytical Methods. A Laboratory Guide to Method Validation and Related Topics</i> (3.ª ed.). Eurachem. <a href=\"https://www.eurachem.org/images/stories/Guides/pdf/MV_guide_3rd_ed_V1_EN.pdf\">eurachem.org</a>",
+   "contenido": "Tercera edición de la guía Eurachem sobre la validación de métodos analíticos, es decir, cómo comprobar en un laboratorio que un método de medición sirve para su propósito. En el apartado 5.3.2, sobre la desviación estándar en niveles bajos, indica que suelen necesitarse entre 6 y 15 repeticiones para estimarla y que a menudo se recomiendan 10.",
+   "uso": "La tesis la usa para respaldar su criterio de 6 a 10 repeticiones válidas por ensayo, y aclara que la guía no trata de robots.",
+   "tesis": [
+    "5.6",
+    "A8.6"
+   ],
+   "guia": [
+    "resultados.html#confianza"
+   ]
+  },
+  "r-casini2010": {
+   "n": 7,
+   "tipo": "Artículo",
+   "autor": "Casini et al. (2010)",
+   "resumen": "Laboratorio remoto con robots LEGO y un PI incremental en las ruedas.",
+   "cita": "Casini, M., Garulli, A., Giannitrapani, A., &amp; Vicino, A. (2010). A Matlab-Based Remote Lab for Multi-Robot Experiments. <i>IFAC Proceedings Volumes, 42</i>(24), 162-167. <a href=\"https://doi.org/10.3182/20091021-3-JP-2009.00031\">doi.org/10.3182/20091021-3-JP-2009.00031</a>",
+   "contenido": "Artículo que presenta un laboratorio remoto para hacer experimentos con uno o varios robots móviles desde Matlab. Los robots se construyen con LEGO Mindstorms NXT, y cada usuario prueba su algoritmo escribiendo una función de Matlab, sin ocuparse del hardware, mientras observa el experimento y descarga los datos. Para la velocidad de las ruedas, los autores implementan un PI incremental hecho a la medida.",
+   "uso": "Es uno de los ejemplos que da la tesis de que el PI incremental se usa en el lazo de velocidad de robots diferenciales como este.",
+   "tesis": [
+    "4.4.3"
+   ],
+   "guia": [
+    "control.html#hallazgo"
+   ]
+  },
+  "r-clerc2002": {
+   "n": 8,
+   "tipo": "Artículo",
+   "autor": "Clerc y Kennedy (2002)",
+   "resumen": "Análisis del PSO que da origen al factor de constricción.",
+   "cita": "Clerc, M., &amp; Kennedy, J. (2002). The Particle Swarm, Explosion, Stability, and Convergence in a Multidimensional Complex Space. <i>IEEE Transactions on Evolutionary Computation, 6</i>(1), 58-73. <a href=\"https://doi.org/10.1109/4235.985692\">doi.org/10.1109/4235.985692</a>",
+   "contenido": "Artículo que analiza cómo se mueve una partícula del PSO, la optimización por enjambre de partículas, primero en tiempo discreto y luego en tiempo continuo. De ese análisis salen coeficientes de constricción que impiden que las velocidades de las partículas crezcan sin control, sin tener que limitarlas a mano, y que hacen converger al enjambre. Los prueba en funciones de prueba clásicas con 20 partículas.",
+   "uso": "El factor de constricción 0,7298 que usa el script de sintonía sale de su fórmula.",
+   "tesis": [
+    "3.7.1",
+    "A4.8"
+   ],
+   "guia": [
+    "control.html#pso"
+   ]
+  },
+  "r-coppelia": {
+   "n": 9,
+   "tipo": "Documentación",
+   "autor": "Coppelia Robotics (2025)",
+   "resumen": "Historial de versiones de CoppeliaSim, antes llamado V-REP.",
+   "cita": "Coppelia Robotics AG. (2025). <i>CoppeliaSim Version History: Version 4.10.0</i>. <a href=\"https://manual.coppeliarobotics.com/en/versionInfo.htm\">manual.coppeliarobotics.com</a>",
+   "contenido": "Página del manual de CoppeliaSim con el historial de versiones del simulador y de su predecesor, V-REP. La versión más reciente que lista es la 4.10.0, del 14 de mayo de 2025, y cada entrada describe funciones nuevas, cambios y correcciones.",
+   "uso": "La tesis la usa para confirmar que CoppeliaSim, una de las alternativas a Gazebo, sigue disponible y actualizado.",
+   "tesis": [
+    "1.5"
+   ],
+   "guia": []
+  },
+  "r-corke2023": {
+   "n": 10,
+   "tipo": "Libro",
+   "autor": "Corke (2023)",
+   "resumen": "Libro de robótica: vehículos con ruedas, odometría, localización y LiDAR.",
+   "cita": "Corke, P. (2023). <i>Robotics, Vision and Control: Fundamental Algorithms in Python</i> (3.a ed., Vol. 146). Springer. <a href=\"https://doi.org/10.1007/978-3-031-06469-2\">doi.org/10.1007/978-3-031-06469-2</a>",
+   "contenido": "Tercera edición de un libro de robótica, visión y control con ejemplos en Python. El capítulo 4 trata los vehículos móviles, entre ellos el de tracción diferencial, que modela como un monociclo con una sola rueda en el centro. El capítulo 6 trata la localización y el mapeo: la odometría, la localización con mapas, el SLAM, el SLAM con grafos de poses, la localización de Monte Carlo y una aplicación con LiDAR.",
+   "uso": "La tesis lo usa para la cinemática del robot diferencial, los marcos de referencia, el funcionamiento del LiDAR y la razón por la que la odometría acumula error.",
+   "tesis": [
+    "1.1",
+    "3.1",
+    "3.3.1",
+    "3.4"
+   ],
+   "guia": [
+    "movimiento.html#traccion",
+    "mapeo.html#lidar"
+   ]
+  },
+  "r-webots": {
+   "n": 11,
+   "tipo": "Documentación",
+   "autor": "Cyberbotics (2025)",
+   "resumen": "Manual de referencia de Webots R2025a, simulador alternativo a Gazebo.",
+   "cita": "Cyberbotics Ltd. (2025). <i>Webots Reference Manual: Release R2025a</i>. <a href=\"https://cyberbotics.com/doc/reference/index?version=released\">cyberbotics.com</a>",
+   "contenido": "Manual de referencia de Webots en su versión R2025a, de enero de 2025. Webots es un simulador de robots en 3D, abierto y gratuito, que desarrolla Cyberbotics y que se publica con licencia Apache 2 desde 2018. Sus controladores se programan en C, C++, Python, Java, MATLAB o ROS.",
+   "uso": "La tesis lo usa para confirmar que Webots, una de las alternativas a Gazebo, sigue vigente.",
+   "tesis": [
+    "1.5"
+   ],
+   "guia": []
+  },
+  "r-devore2021": {
+   "n": 12,
+   "tipo": "Libro",
+   "autor": "Devore et al. (2021)",
+   "resumen": "Libro de estadística: intervalos de confianza y pruebas de hipótesis.",
+   "cita": "Devore, J. L., Berk, K. N., &amp; Carlton, M. A. (2021). <i>Modern Mathematical Statistics with Applications</i> (3.ª ed.). Springer. <a href=\"https://doi.org/10.1007/978-3-030-55156-8\">doi.org/10.1007/978-3-030-55156-8</a>",
+   "contenido": "Tercera edición de un libro de estadística matemática con aplicaciones. El capítulo 8 trata los intervalos de confianza con una sola muestra, como el de la media con la distribución t de Student, y el capítulo 9, las pruebas de hipótesis con una sola muestra.",
+   "uso": "De ahí salen el intervalo de confianza al 95 % de la media de cada indicador y la prueba binomial exacta. Con ellos la tesis mide cuánto dicen sus pocas repeticiones.",
+   "tesis": [
+    "5.6",
+    "A8.6"
+   ],
+   "guia": [
+    "resultados.html#confianza"
+   ]
+  },
+  "r-ferreira2023": {
+   "n": 13,
+   "tipo": "Artículo",
+   "autor": "Ferreira et al. (2023)",
+   "resumen": "Cinemática y odometría de un robot diferencial, con calibración real.",
+   "cita": "Ferreira, M., Moreira, L., &amp; Lopes, A. (2023). Differential Drive Kinematics and Odometry for a Mobile Robot Using TwinCAT. <i>Electronic Research Archive, 31</i>(4), 1789-1803. <a href=\"https://doi.org/10.3934/era.2023092\">doi.org/10.3934/era.2023092</a>",
+   "contenido": "Artículo que implementa el control de movimiento de un robot diferencial en TwinCAT 3, un entorno de automatización industrial. El robot recibe velocidades desde ROS y devuelve su odometría. Los autores calibran el diámetro de las ruedas y su separación trazando líneas con un lápiz: el error en 1 m recto baja de 1,02 % a 0,02 %, y en los giros, de 0,84 % a 0,03 %.",
+   "uso": "Desarrolla el modelo cinemático del robot diferencial y las ecuaciones de odometría. La tesis lo usa para pasar del giro de cada rueda a la posición del robot.",
+   "tesis": [
+    "1.1",
+    "3.4"
+   ],
+   "guia": [
+    "movimiento.html#odometria"
+   ]
+  },
+  "r-rep103": {
+   "n": 14,
+   "tipo": "Norma ROS",
+   "autor": "Foote y Purvis (2010)",
+   "resumen": "Norma de ROS sobre unidades y orientación de los ejes.",
+   "cita": "Foote, T., &amp; Purvis, M. (2010). <i>REP 103: Standard Units of Measure and Coordinate Conventions</i>. <a href=\"https://www.ros.org/reps/rep-0103.html\">ros.org/reps/rep-0103.html</a>",
+   "contenido": "REP 103, una norma informativa de ROS que fija las unidades y las convenciones de coordenadas. Pide usar el Sistema Internacional, como metros, segundos y radianes, y marcos que cumplan la regla de la mano derecha. En el cuerpo de un robot, el eje x apunta hacia adelante, el y hacia la izquierda y el z hacia arriba.",
+   "uso": "El modelo URDF del robot sigue esta convención de ejes, junto con la REP 105.",
+   "tesis": [
+    "3.1",
+    "4.2.2"
+   ],
+   "guia": [
+    "mapeo.html#marcos",
+    "lecciones.html#unidades"
+   ]
+  },
+  "r-francis2025": {
+   "n": 15,
+   "tipo": "Artículo",
+   "autor": "Francis et al. (2025)",
+   "resumen": "Principios y métricas para evaluar la navegación de robots entre personas.",
+   "cita": "Francis, A., Pérez-D'Arpino, C., Li, C., et al. (2025). Principles and Guidelines for Evaluating Social Robot Navigation Algorithms. <i>ACM Transactions on Human-Robot Interaction, 14</i>(2), 1-65. <a href=\"https://doi.org/10.1145/3700599\">doi.org/10.1145/3700599</a>",
+   "contenido": "Artículo colectivo de investigadores de universidades y empresas que propone criterios comunes para evaluar la navegación de robots en lugares con personas. Define un robot que navega socialmente por principios como la seguridad, la comodidad y que sus movimientos se entiendan, y da pautas sobre métricas, escenarios, bancos de prueba, conjuntos de datos y simuladores.",
+   "uso": "Entre sus métricas están la tasa de éxito, el tiempo hasta la meta y la tasa de éxito ponderada por la longitud del camino. La tesis las sugiere para el ensayo con metas fijas que queda como trabajo futuro.",
+   "tesis": [
+    "A8.3"
+   ],
+   "guia": [
+    "navegacion.html#evaluacion"
+   ]
+  },
+  "r-gokce2021": {
+   "n": 16,
+   "tipo": "Artículo",
+   "autor": "Gökçe et al. (2021)",
+   "resumen": "PSO para sintonizar el PID de un robot agrícola, en simulación.",
+   "cita": "Gökçe, B., Koca, Y. B., Aslan, Y., &amp; Gökçe, C. O. (2021). Particle Swarm Optimization-Based Optimal PID Control of an Agricultural Mobile Robot. <i>Comptes rendus de l'Académie bulgare des Sciences, 74</i>(4), 568-575. <a href=\"https://doi.org/10.7546/CRABS.2021.04.12\">doi.org/10.7546/CRABS.2021.04.12</a>",
+   "contenido": "Artículo que modela un robot agrícola de cuatro ruedas que gira por deslizamiento y sintoniza con PSO las ganancias de los PID de sus velocidades lineal y angular, con 30 partículas y 30 iteraciones. Su función de costo suma el error en régimen permanente, el tiempo de subida y la sobreelongación. Todo se evalúa en una simulación en Python con perturbaciones, sin ensayos en un robot real.",
+   "uso": "La tesis lo cita como antecedente y compara su función de costo con la propia, pero no toma de ahí la ecuación implementada.",
+   "tesis": [
+    "3.7.1",
+    "A4.10"
+   ],
+   "guia": [
+    "control.html#pso"
+   ]
+  },
+  "r-grisetti2007": {
+   "n": 17,
+   "tipo": "Artículo",
+   "autor": "Grisetti et al. (2007)",
+   "resumen": "GMapping: mapas de rejilla con un filtro de partículas.",
+   "cita": "Grisetti, G., Stachniss, C., &amp; Burgard, W. (2007). Improved Techniques for Grid Mapping with Rao-Blackwellized Particle Filters. <i>IEEE Transactions on Robotics, 23</i>(1), 34-46. <a href=\"https://doi.org/10.1109/TRO.2006.889486\">doi.org/10.1109/TRO.2006.889486</a>",
+   "contenido": "Artículo que presenta las técnicas de GMapping. Usa un filtro de partículas en que cada partícula lleva su propio mapa del entorno, y propone dos mejoras: generar las partículas con el último barrido láser además de la odometría, y volver a sortearlas solo cuando hace falta. Lo prueba con robots reales en grandes espacios interiores y exteriores.",
+   "uso": "Es una de las alternativas de SLAM que compara la Tabla 1.2 de la tesis.",
+   "tesis": [
+    "1.3"
+   ],
+   "guia": []
+  },
+  "r-hess2016": {
+   "n": 18,
+   "tipo": "Artículo",
+   "autor": "Hess et al. (2016)",
+   "resumen": "Cartographer: cierre de lazo en tiempo real con LiDAR 2D.",
+   "cita": "Hess, W., Kohler, D., Rapp, H., &amp; Andor, D. (2016). Real-Time Loop Closure in 2D LIDAR SLAM. <i>2016 IEEE International Conference on Robotics and Automation</i>, 1271-1278. <a href=\"https://doi.org/10.1109/ICRA.2016.7487258\">doi.org/10.1109/ICRA.2016.7487258</a>",
+   "contenido": "Artículo de Google que presenta Cartographer. Lo usa en una mochila con LiDAR que dibuja planos de edificios en tiempo real, con 5 cm de resolución, y arma el mapa por submapas. Para cerrar lazos a tiempo, compara cada barrido con los submapas mediante una búsqueda que descarta rápido las coincidencias imposibles.",
+   "uso": "Es otra de las alternativas de SLAM de la Tabla 1.2 de la tesis.",
+   "tesis": [
+    "1.3"
+   ],
+   "guia": []
+  },
+  "r-hbrc": {
+   "n": 19,
+   "tipo": "Repositorio de código",
+   "autor": "Home Brew Robotics Club (s.f.)",
+   "resumen": "ros_arduino_bridge, el firmware original de la base del robot.",
+   "cita": "Home Brew Robotics Club. (s.f.). <i>ros_arduino_bridge: ROS + Arduino = Robot</i>. <a href=\"https://github.com/hbrobotics/ros_arduino_bridge\">github.com/hbrobotics/ros_arduino_bridge</a>",
+   "contenido": "Repositorio para ROS 1 con paquetes de ROS y el firmware ROSArduinoBridge para Arduino. El firmware lee encoders y sensores, mueve los motores con varios controladores, regula la velocidad de cada rueda con un PID y recibe órdenes de una letra por el puerto serie. Su archivo diff_controller.h, tomado del código ArbotiX de Mike Ferguson, usa las mismas ganancias en ambas ruedas: 20, 12, 0 y 50 para Kp, Kd, Ki y Ko.",
+   "uso": "Es el origen de la ley de control que hereda el robot. La tesis lo adapta a partir de la copia de Josh Newans y agrega ganancias distintas para cada rueda y una banda muerta.",
+   "tesis": [
+    "Introducción",
+    "4.4.3",
+    "A3.1",
+    "A4.5"
+   ],
+   "guia": [
+    "robot.html#adaptado"
+   ]
+  },
+  "r-horner2017": {
+   "n": 20,
+   "tipo": "Repositorio de código",
+   "autor": "Hörner (2017)",
+   "resumen": "m-explore para ROS 1, origen de explore_lite.",
+   "cita": "Hörner, J. (2017). <i>m-explore: ROS packages for multi-robot exploration</i>. <a href=\"https://github.com/hrnr/m-explore\">github.com/hrnr/m-explore</a>",
+   "contenido": "Repositorio de paquetes de ROS 1 para la exploración con varios robots. Contiene explore_lite, un explorador de fronteras liviano, y multirobot_map_merge, que une los mapas de varios robots. Se publicó para ROS Kinetic y Lunar, y tiene una rama para Noetic.",
+   "uso": "El robot usa su versión para ROS 2, citada aparte como Alvarez (2021).",
+   "tesis": [
+    "1.4.2",
+    "A3.1"
+   ],
+   "guia": [
+    "exploracion.html#explore-lite"
+   ]
+  },
+  "r-iqbal2023": {
+   "n": 21,
+   "tipo": "Capítulo de libro abierto",
+   "autor": "Iqbal (2023)",
+   "resumen": "Modelo de un motor de corriente continua controlado por armadura.",
+   "cita": "Iqbal, K. (2023, 19 de junio). <i>1.4: An Electro-Mechanical System Model</i> [Sección del libro abierto Introduction to Control Systems, University of Arkansas at Little Rock]. Engineering LibreTexts. <a href=\"https://eng.libretexts.org/Bookshelves/Industrial_and_Systems_Engineering/Introduction_to_Control_Systems_(Iqbal)/01%3A_Mathematical_Models_of_Physical_Systems/1.04%3A_An_Electro-Mechanical_System_Model\">eng.libretexts.org</a>",
+   "contenido": "Sección de un libro abierto de introducción a los sistemas de control, publicado en LibreTexts. Modela un motor de corriente continua controlado por la tensión de armadura: plantea su parte eléctrica y su parte mecánica, obtiene la relación entre la tensión aplicada y la velocidad, y la expresa con las constantes de tiempo del motor.",
+   "uso": "La tesis lo usa para mostrar que, si se desprecia la inductancia, el motor responde como un sistema de primer orden, un caso que contiene el modelo FOPDT de cada rueda.",
+   "tesis": [
+    "A4.6"
+   ],
+   "guia": [
+    "control.html#modelo"
+   ]
+  },
+  "r-karaman2011": {
+   "n": 22,
+   "tipo": "Artículo",
+   "autor": "Karaman y Frazzoli (2011)",
+   "resumen": "Planificación por muestreo que se acerca a la ruta óptima.",
+   "cita": "Karaman, S., &amp; Frazzoli, E. (2011). Sampling-Based Algorithms for Optimal Motion Planning. <i>The International Journal of Robotics Research, 30</i>(7), 846-894. <a href=\"https://doi.org/10.1177/0278364911406761\">doi.org/10.1177/0278364911406761</a>",
+   "contenido": "Artículo que estudia cómo cambia el costo de la ruta que entregan los planificadores por muestreo cuando se toman más muestras. Muestra que métodos muy usados, como PRM y RRT, suelen quedarse en rutas que no son óptimas, y presenta PRM estrella y RRT estrella, que sí se acercan a la óptima con un costo de cálculo parecido.",
+   "uso": "La tesis cita estos métodos, pensados para espacios continuos de muchas dimensiones, y explica por qué en un mapa 2D conviene más la búsqueda sobre una rejilla.",
+   "tesis": [
+    "1.4"
+   ],
+   "guia": []
+  },
+  "r-kato2018": {
+   "n": 23,
+   "tipo": "Artículo",
+   "autor": "Kato et al. (2018)",
+   "resumen": "Autoware on Board: Autoware en computadores embebidos de vehículos.",
+   "cita": "Kato, S., et al. (2018). Autoware on Board: Enabling Autonomous Vehicles with Embedded Systems. <i>2018 ACM/IEEE 9th International Conference on Cyber-Physical Systems</i>, 287-296. <a href=\"https://doi.org/10.1109/ICCPS.2018.00035\">doi.org/10.1109/ICCPS.2018.00035</a>",
+   "contenido": "Artículo que presenta Autoware on Board, una versión de Autoware, el software abierto de conducción autónoma basado en ROS, adaptada a sistemas embebidos como el NVIDIA DRIVE PX2, con procesadores ARM.",
+   "uso": "La tesis lo cita como origen de Autoware, una pila de navegación para vehículos autónomos, un ámbito distinto del de un robot de interiores.",
+   "tesis": [
+    "1.4.1"
+   ],
+   "guia": []
+  },
+  "r-kohlbrecher2011": {
+   "n": 24,
+   "tipo": "Artículo",
+   "autor": "Kohlbrecher et al. (2011)",
+   "resumen": "Hector SLAM: mapas rápidos con LiDAR y sensores inerciales.",
+   "cita": "Kohlbrecher, S., von Stryk, O., Meyer, J., &amp; Klingauf, U. (2011). A Flexible and Scalable SLAM System with Full 3D Motion Estimation. <i>2011 IEEE International Symposium on Safety, Security, and Rescue Robotics</i>, 155-160. <a href=\"https://doi.org/10.1109/SSRR.2011.6106777\">doi.org/10.1109/SSRR.2011.6106777</a>",
+   "contenido": "Artículo que presenta Hector SLAM, pensado para robots de búsqueda y rescate. Construye mapas de ocupación en línea con poco cómputo, ajustando cada barrido del LiDAR al mapa y estimando la orientación en 3D con sensores inerciales. No usa la odometría de las ruedas, y sus autores muestran que en los escenarios probados no necesita cerrar lazos. Se publicó como paquete abierto para ROS.",
+   "uso": "Es otra de las alternativas de SLAM de la Tabla 1.2 de la tesis, que destaca su baja dependencia de la odometría de las ruedas.",
+   "tesis": [
+    "1.3"
+   ],
+   "guia": []
+  },
+  "r-lavalle2006": {
+   "n": 25,
+   "tipo": "Libro",
+   "autor": "LaValle (2006)",
+   "resumen": "Libro de algoritmos de planificación, con Dijkstra y A estrella.",
+   "cita": "LaValle, S. M. (2006). <i>Planning Algorithms</i>. Cambridge University Press. <a href=\"https://doi.org/10.1017/CBO9780511546877\">doi.org/10.1017/CBO9780511546877</a>",
+   "contenido": "Libro sobre algoritmos de planificación de movimiento, disponible también en línea. Su capítulo 2 trata la planificación discreta, y la sección 2.2.2 presenta métodos de búsqueda como Dijkstra y A estrella. Otros capítulos tratan la planificación por muestreo, como RRT.",
+   "uso": "De ahí sale la búsqueda sobre una rejilla con Dijkstra y A estrella, y la forma en que A estrella suma el costo recorrido y una estimación del que falta.",
+   "tesis": [
+    "1.4",
+    "3.10"
+   ],
+   "guia": [
+    "navegacion.html#astar"
+   ]
+  },
+  "r-lcm": {
+   "n": 26,
+   "tipo": "Documentación",
+   "autor": "LCM Project (s.f.)",
+   "resumen": "Documentación de LCM, biblioteca de mensajes con baja latencia.",
+   "cita": "LCM Project. (s.f.). <i>LCM Documentation</i>. <a href=\"https://lcm-proj.github.io/lcm/\">lcm-proj.github.io/lcm</a>",
+   "contenido": "Documentación de LCM, que se define como un conjunto de bibliotecas y herramientas para el paso de mensajes y el empaquetado de datos. Ofrece un lenguaje para definir tipos de mensaje, generación automática de código, publicación y suscripción, y grabación y reproducción de registros, para C, C++, C#, Java, Lua, MATLAB y Python, en Linux, macOS y Windows.",
+   "uso": "Es una de las alternativas a ROS 2 de la Tabla 1.1. La tesis destaca que no incluye percepción, mapeo ni navegación.",
+   "tesis": [
+    "1.2"
+   ],
+   "guia": []
+  },
+  "r-liu2025": {
+   "n": 27,
+   "tipo": "Artículo",
+   "autor": "Liu et al. (2025)",
+   "resumen": "Exploración por fronteras con optimización del mapa en tiempo real.",
+   "cita": "Liu, C., et al. (2025). Enhancing autonomous exploration for robotics via real time map optimization and improved frontier costs. <i>Scientific Reports, 15</i>, 12261. <a href=\"https://doi.org/10.1038/s41598-025-97231-9\">doi.org/10.1038/s41598-025-97231-9</a>",
+   "contenido": "Artículo que mejora la exploración por fronteras. Filtra el mapa en tiempo real para borrar fronteras falsas y elige la siguiente con un costo que combina la longitud del camino, el alcance del sensor y la información que se espera ganar. En simulación lo compara con otros tres métodos, y en un pasillo real en forma de L, con diez ejecuciones por método, informa un tiempo 23,82 % menor y un recorrido 16,13 % más corto.",
+   "uso": "Muestra que la exploración por fronteras sigue vigente, y sus diez ejecuciones por método sirven de referencia para cuántas repeticiones hacen falta.",
+   "tesis": [
+    "3.11",
+    "A8.6"
+   ],
+   "guia": [
+    "exploracion.html#fronteras",
+    "resultados.html#confianza"
+   ]
+  },
+  "r-ma2024": {
+   "n": 28,
+   "tipo": "Artículo",
+   "autor": "Ma et al. (2024)",
+   "resumen": "Auto de dos ruedas autoequilibrado con un filtro de Kalman difuso.",
+   "cita": "Ma, Y., Meng, F., &amp; Xiong, S. (2024). Design and Implementation of a Two-Wheeled Self-Balancing Car Using a Fuzzy Kalman Filter. <i>Applied Sciences, 14</i>(12), 5296. <a href=\"https://doi.org/10.3390/app14125296\">doi.org/10.3390/app14125296</a>",
+   "contenido": "Artículo que mejora el equilibrio de un auto de dos ruedas que se mantiene erguido solo. Estima su inclinación con un filtro de Kalman corregido con lógica difusa y lo compara en el auto real con un filtro complementario y con un filtro de Kalman común. En su sección 2.1, el lazo de velocidad usa un PI incremental, junto con lazos PD para el equilibrio y la dirección.",
+   "uso": "Es otro de los ejemplos que da la tesis de uso del PI incremental en el lazo de velocidad.",
+   "tesis": [
+    "4.4.3"
+   ],
+   "guia": [
+    "control.html#hallazgo"
+   ]
+  },
+  "r-macenski2022": {
+   "n": 29,
+   "tipo": "Artículo",
+   "autor": "Macenski et al. (2022)",
+   "resumen": "Diseño, arquitectura y usos reales de ROS 2.",
+   "cita": "Macenski, S., Foote, T., Gerkey, B., Lalancette, C., &amp; Woodall, W. (2022). Robot Operating System 2: Design, architecture, and uses in the wild. <i>Science Robotics, 7</i>(66), eabm6074. <a href=\"https://doi.org/10.1126/scirobotics.abm6074\">doi.org/10.1126/scirobotics.abm6074</a>",
+   "contenido": "Artículo de los responsables de ROS 2, publicado en Science Robotics. Explica por qué ROS 2 se rediseñó desde cero sobre DDS, un estándar de comunicación usado en sistemas críticos, y describe sus tópicos, servicios y acciones, su seguridad y su calidad de servicio. Lo compara con ROS 1 y con otras plataformas, como YARP, LCM y OROCOS, y cierra con cinco casos reales en tierra, mar, aire y espacio.",
+   "uso": "La tesis lo usa para explicar ROS 2 y justificar su elección: sus nodos y tópicos, y el estándar DDS, que permite repartir el sistema en varios computadores sin un nodo central.",
+   "tesis": [
+    "1.1",
+    "1.2",
+    "2.1",
+    "3.2"
+   ],
+   "guia": [
+    "robot.html#ros2",
+    "problema.html#estado-del-arte"
+   ]
+  },
+  "r-macenski2021": {
+   "n": 30,
+   "tipo": "Artículo",
+   "autor": "Macenski y Jambrecic (2021)",
+   "resumen": "SLAM Toolbox, el SLAM por grafo de poses que usa el robot.",
+   "cita": "Macenski, S., &amp; Jambrecic, I. (2021). SLAM Toolbox: SLAM for the dynamic world. <i>Journal of Open Source Software, 6</i>(61), 2783. <a href=\"https://doi.org/10.21105/joss.02783\">doi.org/10.21105/joss.02783</a>",
+   "contenido": "Artículo que presenta SLAM Toolbox, un paquete abierto de SLAM para ROS basado en Open Karto y elegido como SLAM por defecto de ROS 2. Ofrece mapeo síncrono y asíncrono, un modo de solo localización, mapeo en varias sesiones y herramientas para editar el grafo de poses. Según sus autores, ha mapeado en tiempo real espacios de hasta 24 000 m².",
+   "uso": "Es el SLAM que usa el robot, en modo asíncrono: procesa los barridos sin atrasarse respecto del tiempo real, cierra lazos y guarda los mapas. La tesis también toma de ahí su límite, porque en ese modo puede omitir mediciones si una tarda en procesarse.",
+   "tesis": [
+    "1.3",
+    "2.1",
+    "3.8",
+    "4.5.1"
+   ],
+   "guia": [
+    "mapeo.html#slam",
+    "mapeo.html#por-que-slam-toolbox"
+   ]
+  },
+  "r-macenski2023": {
+   "n": 31,
+   "tipo": "Artículo",
+   "autor": "Macenski et al. (2023)",
+   "resumen": "Panorama de los algoritmos de navegación de ROS 2, por sus mantenedores.",
+   "cita": "Macenski, S., Moore, T., Lu, D. V., Merzlyakov, A., &amp; Ferguson, M. (2023). From the desks of ROS maintainers: A survey of modern &amp; capable mobile robotics algorithms in the robot operating system 2. <i>Robotics and Autonomous Systems, 168</i>, 104493. <a href=\"https://doi.org/10.1016/j.robot.2023.104493\">doi.org/10.1016/j.robot.2023.104493</a>",
+   "contenido": "Revisión escrita por mantenedores de ROS sobre los algoritmos de robótica móvil disponibles en ROS 2. Compara planificadores globales como NavFn, Theta estrella y Smac, controladores como DWB, MPPI y Regulated Pure Pursuit, mapas de costos con capas e inflación, la localización con AMCL y el SLAM con SLAM Toolbox y Cartographer. Para un robot diferencial circular recomienda NavFn con MPPI.",
+   "uso": "La tesis lo usa para comparar planificadores y controladores, para la rejilla de ocupación, para el puntaje del controlador DWB y para la complejidad de Cartographer.",
+   "tesis": [
+    "1.1",
+    "1.3",
+    "1.4",
+    "2.1",
+    "3.10"
+   ],
+   "guia": [
+    "navegacion.html#nav2",
+    "mapeo.html#rejilla"
+   ]
+  },
+  "r-marcuslanzoni": {
+   "n": 32,
+   "tipo": "Modelo 3D",
+   "autor": "marcuslanzoni (2020)",
+   "resumen": "Modelo 3D abierto de una plataforma diferencial, Vacuum Robot.",
+   "cita": "marcuslanzoni. (2020). <i>Vacuum Robot</i> [Modelo 3D]. Thingiverse. <a href=\"https://www.thingiverse.com/thing:4459513\">thingiverse.com/thing:4459513</a>",
+   "contenido": "Diseño publicado en Thingiverse, un sitio de modelos para imprimir en 3D, con el nombre Vacuum Robot. La tesis lo describe como una plataforma diferencial de código abierto.",
+   "uso": "Sirvió de referencia para el chasis y las cubiertas del robot, impresos en 3D con PLA+.",
+   "tesis": [
+    "4.1.1"
+   ],
+   "guia": [
+    "robot.html#piezas",
+    "replicar.html#impresion"
+   ]
+  },
+  "r-maxim2023": {
+   "n": 33,
+   "tipo": "Artículo",
+   "autor": "Maxim y De Keyser (2023)",
+   "resumen": "Estimar un modelo con retardo desde una respuesta al escalón con ruido.",
+   "cita": "Maxim, A., &amp; De Keyser, R. (2023). Estimation of First Order Plus Dead Time and Second Order Plus Dead Time models from noisy step response data. <i>Asian Journal of Control, 25</i>(3), 1791-1804. <a href=\"https://doi.org/10.1002/asjc.2999\">doi.org/10.1002/asjc.2999</a>",
+   "contenido": "Artículo que propone estimar modelos de primer y de segundo orden con retardo a partir de una respuesta al escalón con ruido. En lugar de buscar puntos de la curva, calcula áreas bajo ella, lo que promedia el ruido, y busca el retardo probando múltiplos del período de muestreo. Lo valida en ejemplos numéricos y en dos equipos reales, un proceso de seis estanques y un sistema de masas y resortes.",
+   "uso": "Respalda el modelo de primer orden con retardo de cada rueda y que el retardo solo se pueda estimar en múltiplos del período de captura.",
+   "tesis": [
+    "3.5",
+    "A4.6"
+   ],
+   "guia": [
+    "control.html#modelo"
+   ]
+  },
+  "r-rep105": {
+   "n": 34,
+   "tipo": "Norma ROS",
+   "autor": "Meeussen (2010)",
+   "resumen": "Norma de ROS sobre los marcos map, odom y base_link.",
+   "cita": "Meeussen, W. (2010). <i>REP 105: Coordinate Frames for Mobile Platforms</i>. <a href=\"https://www.ros.org/reps/rep-0105.html\">ros.org/reps/rep-0105.html</a>",
+   "contenido": "REP 105, una norma informativa de ROS que nombra y define los marcos de coordenadas de una base móvil. base_link va fijo al robot. odom es continuo, pero acumula deriva porque sale de la odometría. map no deriva, pero puede saltar cuando la localización corrige la pose del robot.",
+   "uso": "El robot real y su gemelo digital organizan sus marcos según esta norma.",
+   "tesis": [
+    "3.1",
+    "4.2.2"
+   ],
+   "guia": [
+    "mapeo.html#marcos"
+   ]
+  },
+  "r-michel2004": {
+   "n": 35,
+   "tipo": "Artículo",
+   "autor": "Michel (2004)",
+   "resumen": "Presentación original del simulador Webots.",
+   "cita": "Michel, O. (2004). Cyberbotics Ltd. Webots: Professional Mobile Robot Simulation. <i>International Journal of Advanced Robotic Systems, 1</i>(1), 39-42. <a href=\"https://doi.org/10.5772/5618\">doi.org/10.5772/5618</a>",
+   "contenido": "Artículo que presenta Webots, el programa de Cyberbotics para crear, programar y simular robots móviles. Permite armar escenarios con varios robots, definir la forma, la masa y el roce de los objetos, y equipar a los robots con sensores y actuadores. Los programas de control pueden pasarse después a robots reales comerciales.",
+   "uso": "La tesis lo cita como presentación original de Webots, uno de los simuladores alternativos a Gazebo.",
+   "tesis": [
+    "1.5"
+   ],
+   "guia": []
+  },
+  "r-mori2024": {
+   "n": 36,
+   "tipo": "Artículo",
+   "autor": "Mori et al. (2024)",
+   "resumen": "Andador robótico que ajusta su ayuda con un PID incremental.",
+   "cita": "Mori, Y., Yokoyama, S., Yamashita, T., Kawamura, H., &amp; Mori, M. (2024). Development of Assistance Level Adjustment Function for Variable Load on a Forearm-Supported Robotic Walker. <i>Sensors, 24</i>(19), 6456. <a href=\"https://doi.org/10.3390/s24196456\">doi.org/10.3390/s24196456</a>",
+   "contenido": "Artículo sobre un andador robótico con motores sin escobillas que ajusta cuánto ayuda a caminar para mantener la velocidad media de cada usuario, aunque cambie la carga. La asistencia se controla con un PID de tipo muestreado, que en la sección 3.5 se implementa en forma incremental en un Arduino Uno por su menor carga de cálculo. Se probó con pesos y con personas.",
+   "uso": "Es otro de los ejemplos que da la tesis de la forma incremental del PID, en un equipo controlado con Arduino.",
+   "tesis": [
+    "4.4.3"
+   ],
+   "guia": [
+    "control.html#hallazgo"
+   ]
+  },
+  "r-nav2bringup": {
+   "n": 37,
+   "tipo": "Código fuente",
+   "autor": "Nav2 Maintainers (s.f.)",
+   "resumen": "Arranque de Nav2 en Foxy, con SLAM o con AMCL.",
+   "cita": "Nav2 Maintainers. (s.f.). <i>bringup_launch.py</i> [Código fuente de Nav2 para ROS 2 Foxy, rama foxy-devel]. <a href=\"https://github.com/ros-navigation/navigation2/blob/foxy-devel/nav2_bringup/bringup/launch/bringup_launch.py\">github.com/ros-navigation/navigation2</a>",
+   "contenido": "Archivo bringup_launch.py del paquete nav2_bringup, en la rama de Nav2 para ROS 2 Foxy. Arranca la navegación y, según su argumento slam, lanza también SLAM o la localización con AMCL sobre un mapa guardado.",
+   "uso": "Muestra que Nav2 acepta metas mientras SLAM publica el mapa y que puede elegir entre SLAM y AMCL, lo que sostiene el ensayo con metas fijas propuesto.",
+   "tesis": [
+    "A8.3"
+   ],
+   "guia": [
+    "navegacion.html#evaluacion"
+   ]
+  },
+  "r-nav2foxy": {
+   "n": 38,
+   "tipo": "Código fuente",
+   "autor": "Nav2 Maintainers (2021)",
+   "resumen": "Código de Nav2 en Foxy que reemplaza una meta por otra nueva.",
+   "cita": "Nav2 Maintainers. (2021). <i>Código fuente de Nav2 para ROS 2 Foxy, rama foxy-devel</i>. <a href=\"https://github.com/ros-navigation/navigation2/tree/foxy-devel\">github.com/ros-navigation/navigation2</a>",
+   "contenido": "Código fuente de Nav2 en su rama para ROS 2 Foxy. La tesis revisa dos archivos: simple_action_server.hpp, el servidor que recibe las metas, y bt_navigator.cpp, el navegador que ejecuta el árbol de comportamiento. Cuando llega una meta nueva durante otra, el navegador la acepta y el servidor termina la anterior como abortada.",
+   "uso": "Por este comportamiento, el estado abortado registra tanto los reemplazos de meta que hace el explorador como los fallos propios de Nav2.",
+   "tesis": [
+    "5.4",
+    "A8.4"
+   ],
+   "guia": [
+    "exploracion.html#abortadas"
+   ]
+  },
+  "r-nav2docs": {
+   "n": 39,
+   "tipo": "Documentación",
+   "autor": "Nav2 Maintainers (2025)",
+   "resumen": "Documentación oficial de Nav2 y de su configuración.",
+   "cita": "Nav2 Maintainers. (2025). <i>Navigation2 Stack (Nav2) Documentation</i>. <a href=\"https://docs.nav2.org/\">docs.nav2.org</a>",
+   "contenido": "Sitio oficial de documentación de Nav2. Explica su arquitectura, con planificadores, controladores, árboles de comportamiento y mapas de costos, y documenta los parámetros de cada parte. Entre otras, la tesis consulta las páginas de la capa de inflación, cuyo radio por defecto es 0,55 m, del mapa de costos, del planificador NavFn, del controlador DWB y de AMCL.",
+   "uso": "La tesis la usa para describir Nav2 y para configurar sus planificadores, controladores y mapas de costos con inflación.",
+   "tesis": [
+    "1.4.1",
+    "3.10"
+   ],
+   "guia": [
+    "navegacion.html#costos"
+   ]
+  },
+  "r-newans2022a": {
+   "n": 40,
+   "tipo": "Repositorio de código",
+   "autor": "Newans (2022a)",
+   "resumen": "diffdrive_arduino, interfaz de ros2_control para el Arduino.",
+   "cita": "Newans, J. (2022a). <i>diffdrive_arduino: A ros2_control hardware interface for differential drive robots</i>. <a href=\"https://github.com/joshnewans/diffdrive_arduino\">github.com/joshnewans/diffdrive_arduino</a>",
+   "contenido": "Repositorio de Josh Newans con una interfaz de hardware sencilla para controlar un robot diferencial cuyos motores se conectan a un Arduino. Conecta el controlador diferencial de ROS con un Arduino que corre el firmware ros_arduino_bridge.",
+   "uso": "La tesis la adapta como DiffDriveArduino, que dentro de ros2_control envía las velocidades a las ruedas y lee los encoders.",
+   "tesis": [
+    "Introducción",
+    "4.3.3",
+    "4.4.3",
+    "A3.1"
+   ],
+   "guia": [
+    "control.html#hallazgo",
+    "robot.html#adaptado"
+   ]
+  },
+  "r-newans2022b": {
+   "n": 41,
+   "tipo": "Repositorio de código",
+   "autor": "Newans (2022b)",
+   "resumen": "Copia de ros_arduino_bridge usada como base del firmware.",
+   "cita": "Newans, J. (2022b). <i>ros_arduino_bridge: ROS + Arduino = Robot</i>. <a href=\"https://github.com/joshnewans/ros_arduino_bridge\">github.com/joshnewans/ros_arduino_bridge</a>",
+   "contenido": "Bifurcación de ros_arduino_bridge mantenida por Josh Newans, que conserva el firmware y quita los nodos de ROS. El firmware recibe por puerto serie las velocidades pedidas, informa las cuentas de los encoders y mueve dos motores con un driver L298N. Su archivo diff_controller.h es idéntico byte a byte al del repositorio original.",
+   "uso": "Es la base directa del firmware del Arduino adaptado en este trabajo y contiene la ley de control que el robot conserva.",
+   "tesis": [
+    "4.4",
+    "4.4.3",
+    "A3.1",
+    "A4.5"
+   ],
+   "guia": [
+    "control.html#tiempo-discreto"
+   ]
+  },
+  "r-newans2023": {
+   "n": 42,
+   "tipo": "Repositorio de código",
+   "autor": "Newans (2023)",
+   "resumen": "articubot_one, plantilla de paquete para un robot móvil con ROS 2.",
+   "cita": "Newans, J. (2023). <i>articubot_one: ROS 2 mobile robot package</i>. <a href=\"https://github.com/joshnewans/articubot_one\">github.com/joshnewans/articubot_one</a>",
+   "contenido": "Plantilla de paquete de robot de Josh Newans, autor de los tutoriales Articulated Robotics, generada a partir de su proyecto my_bot. Se organiza en carpetas de configuración, descripción del robot, lanzadores y mundos de simulación.",
+   "uso": "Es la base de la descripción del robot, su control, el SLAM, la navegación y la simulación, adaptados con las medidas del prototipo.",
+   "tesis": [
+    "Introducción",
+    "A3.1"
+   ],
+   "guia": [
+    "problema.html#aporte",
+    "replicar.html#repositorios"
+   ]
+  },
+  "r-ngoc2023": {
+   "n": 43,
+   "tipo": "Artículo",
+   "autor": "Ngoc et al. (2023)",
+   "resumen": "Comparación de GMapping, Cartographer y SLAM Toolbox en ROS 2.",
+   "cita": "Ngoc, H. T., Vinh, N. N., Nguyen, N. T., &amp; Quach, L.-D. (2023). Efficient Evaluation of SLAM Methods and Integration of Human Detection with YOLO Based on Multiple Optimization in ROS2. <i>International Journal of Advanced Computer Science &amp; Applications, 14</i>(11), 300-310. <a href=\"https://doi.org/10.14569/IJACSA.2023.0141130\">doi.org/10.14569/IJACSA.2023.0141130</a>",
+   "contenido": "Artículo que compara GMapping, Cartographer y SLAM Toolbox en ROS 2 y Gazebo, con un robot de dos ruedas y un LiDAR 2D de 360 grados. Compara los mapas con el plano real y mide el tiempo y la precisión al llegar a metas con AMCL, y SLAM Toolbox resulta el mejor. También prueba versiones de YOLO para detectar personas.",
+   "uso": "La tesis lo usa para las limitaciones de GMapping y Cartographer, para explicar por qué hace falta SLAM y para las métricas de llegada a una meta.",
+   "tesis": [
+    "1.3",
+    "3.8",
+    "A8.3"
+   ],
+   "guia": [
+    "navegacion.html#evaluacion"
+   ]
+  },
+  "r-isaac": {
+   "n": 44,
+   "tipo": "Sitio del producto",
+   "autor": "NVIDIA (2025)",
+   "resumen": "Isaac Sim, simulador de robots de NVIDIA con gráficos realistas.",
+   "cita": "NVIDIA Corporation. (2025). <i>NVIDIA Isaac Sim</i>. <a href=\"https://developer.nvidia.com/isaac/sim/\">developer.nvidia.com/isaac/sim</a>",
+   "contenido": "Página de NVIDIA Isaac Sim, un marco abierto de simulación de robots construido sobre las bibliotecas de NVIDIA Omniverse. Se usa para probar robots y generar datos sintéticos en entornos virtuales realistas, con física de cuerpos rígidos, vehículos y articulaciones, simulación de sensores y soporte para ROS 2.",
+   "uso": "Es una de las alternativas que la tesis compara con Gazebo, con más fidelidad visual pero mayor exigencia de cómputo.",
+   "tesis": [
+    "1.5"
+   ],
+   "guia": []
+  },
+  "r-ompl": {
+   "n": 45,
+   "tipo": "Documentación",
+   "autor": "Open Motion Planning Library Project (2026)",
+   "resumen": "Sitio de OMPL, biblioteca de planificación de movimiento por muestreo.",
+   "cita": "Open Motion Planning Library Project. (2026). <i>The Open Motion Planning Library</i>. <a href=\"https://ompl.kavrakilab.org/\">ompl.kavrakilab.org</a>",
+   "contenido": "Sitio de la Open Motion Planning Library, que reúne muchos algoritmos de planificación de movimiento por muestreo, como PRM, RRT, EST, SBL y KPIECE. Aclara que no incluye detección de choques ni visualización, que deben venir de otros programas, y menciona su integración con MoveIt y CoppeliaSim.",
+   "uso": "Con ella se podría construir una navegación propia en lugar de usar Nav2, a cambio de más desarrollo.",
+   "tesis": [
+    "1.4.1"
+   ],
+   "guia": []
+  },
+  "r-gazebo": {
+   "n": 46,
+   "tipo": "Sitio del producto",
+   "autor": "Open Robotics (2024)",
+   "resumen": "Sitio del Gazebo actual, sucesor de Gazebo Classic.",
+   "cita": "Open Robotics. (2024). <i>Gazebo Simulator</i>. <a href=\"https://gazebosim.org/\">gazebosim.org</a>",
+   "contenido": "Sitio oficial de Gazebo, que se presenta como «Simulation Driven Robotics», es decir, robótica guiada por simulación. Ofrece herramientas, bibliotecas y servicios en la nube para probar rápido diseños y estrategias de control de robots.",
+   "uso": "La tesis lo cita para distinguir el Gazebo actual, que se distribuye por separado, de Gazebo Classic, que es el que usa el gemelo digital.",
+   "tesis": [
+    "1.5"
+   ],
+   "guia": [
+    "gemelo.html#gazebo"
+   ]
+  },
+  "r-gazebo-mig": {
+   "n": 47,
+   "tipo": "Documentación",
+   "autor": "Open Robotics (2025a)",
+   "resumen": "Guía para pasar de Gazebo Classic al Gazebo actual.",
+   "cita": "Open Robotics. (2025a). <i>Gazebo Classic Migration</i>. <a href=\"https://gazebosim.org/docs/latest/gazebo_classic_migration/\">gazebosim.org</a>",
+   "contenido": "Guía de Open Robotics para migrar proyectos desde Gazebo Classic. Explica que las versiones numeradas, como Gazebo 9 y 11, se llaman Gazebo Classic, y que las nuevas, identificadas por letras y antes llamadas Ignition, se llaman simplemente Gazebo. Cubre la instalación conjunta, los plugins, el formato SDF, los mundos y la integración con ROS 2.",
+   "uso": "La tesis la usa para aclarar que el nombre Gazebo designa hoy a dos programas distintos.",
+   "tesis": [
+    "1.5"
+   ],
+   "guia": [
+    "problema.html#estado-del-arte"
+   ]
+  },
+  "r-noetic": {
+   "n": 48,
+   "tipo": "Anuncio oficial",
+   "autor": "Open Robotics (2025b)",
+   "resumen": "Anuncio del fin de soporte de ROS 1 Noetic.",
+   "cita": "Open Robotics. (2025b). <i>ROS 1 Noetic Ninjemys Goes End-of-Life 2025-05-31</i>. <a href=\"https://www.ros.org/blog/noetic-eol/\">ros.org/blog/noetic-eol</a>",
+   "contenido": "Anuncio oficial del fin de soporte de ROS 1 Noetic Ninjemys, fijado para el 31 de mayo de 2025, el mismo día en que Ubuntu 20.04 dejó de tener soporte estándar. Desde esa fecha ya no se corrigen fallas en sus paquetes, y el anuncio invita a pasar a ROS 2.",
+   "uso": "Con esa fecha, la tesis muestra que ROS 1 y su navegación, move_base, quedaron sin soporte. Aclara que no la usa para elegir, porque ROS 2 Foxy también está fuera de soporte.",
+   "tesis": [
+    "1.2",
+    "1.4.1",
+    "2.1"
+   ],
+   "guia": []
+  },
+  "r-gazebo-classic": {
+   "n": 49,
+   "tipo": "Sitio del producto",
+   "autor": "Open Source Robotics Foundation (2025)",
+   "resumen": "Sitio de Gazebo Classic, el simulador del gemelo digital.",
+   "cita": "Open Source Robotics Foundation. (2025). <i>Gazebo Classic</i>. <a href=\"https://classic.gazebosim.org/\">classic.gazebosim.org</a>",
+   "contenido": "Sitio de Gazebo Classic, que se presenta como simulación de robots fácil. Ofrece varios motores de física, como ODE, Bullet, Simbody y DART, sensores con ruido opcional, plugins propios y simulación en la nube. Advierte que su soporte terminó en enero de 2025 y recomienda pasar al nuevo Gazebo, antes llamado Ignition.",
+   "uso": "Es el simulador del gemelo digital. La tesis lo usa para describir cómo simula robots y sensores y para señalar su fin de soporte.",
+   "tesis": [
+    "1.5",
+    "3.1.2"
+   ],
+   "guia": [
+    "gemelo.html#gazebo"
+   ]
+  },
+  "r-placed2023": {
+   "n": 50,
+   "tipo": "Artículo",
+   "autor": "Placed et al. (2023)",
+   "resumen": "Revisión del SLAM activo y de la exploración autónoma.",
+   "cita": "Placed, J. A., et al. (2023). A Survey on Active Simultaneous Localization and Mapping: State of the Art and New Frontiers. <i>IEEE Transactions on Robotics, 39</i>(3), 1686-1705. <a href=\"https://doi.org/10.1109/TRO.2023.3248510\">doi.org/10.1109/TRO.2023.3248510</a>",
+   "contenido": "Revisión del SLAM activo, en que el robot decide cómo moverse para mapear y localizarse mejor. Lo plantea en tres etapas: identificar destinos posibles, calcular su utilidad y elegir la acción. Señala que las fronteras de Yamauchi son el método más usado y que faltan criterios para detener la exploración, bancos de prueba comunes y métricas más allá del tiempo y la cobertura.",
+   "uso": "Apoya la elección de las fronteras, más simples que los métodos de SLAM activo, y la falta de métricas estándar para comparar exploradores.",
+   "tesis": [
+    "1.4.2",
+    "2.1",
+    "A8.6"
+   ],
+   "guia": [
+    "exploracion.html#fronteras",
+    "problema.html#estado-del-arte"
+   ]
+  },
+  "r-raj2024": {
+   "n": 51,
+   "tipo": "Artículo",
+   "autor": "Raj y Kos (2024)",
+   "resumen": "Revisión de controladores para la navegación de robots móviles.",
+   "cita": "Raj, R., &amp; Kos, A. (2024). Discussion on Different Controllers Used for the Navigation of Mobile Robot. <i>International Journal of Electronics and Telecommunications, 70</i>(1), 229-239. <a href=\"https://doi.org/10.24425/ijet.2024.149535\">doi.org/10.24425/ijet.2024.149535</a>",
+   "contenido": "Revisión de los controladores que usan los robots móviles para navegar: PID, control predictivo basado en modelo, lógica difusa y aprendizaje por refuerzo. Explica el principio de cada uno a partir de libros y artículos, y discute tendencias y desafíos.",
+   "uso": "Respalda que el PID es el algoritmo de control más usado en sistemas robóticos.",
+   "tesis": [
+    "4.4.3"
+   ],
+   "guia": [
+    "control.html#hallazgo"
+   ]
+  },
+  "r-ran2025": {
+   "n": 52,
+   "tipo": "Artículo",
+   "autor": "Ran et al. (2025)",
+   "resumen": "Revisión del SLAM con LiDAR 2D.",
+   "cita": "Ran, Y., Xu, X., Tan, Z., &amp; Luo, M. (2025). A Review of 2D Lidar SLAM Research. <i>Remote Sensing, 17</i>(7), 1214. <a href=\"https://doi.org/10.3390/rs17071214\">doi.org/10.3390/rs17071214</a>",
+   "contenido": "Revisión del SLAM con LiDAR 2D. Explica cómo mide un LiDAR, por triangulación o por tiempo de vuelo, y agrupa los métodos en filtros, ajuste de barridos, optimización de grafos y aprendizaje profundo. Compara métodos en un conjunto de datos común y trata los objetos en movimiento y la fusión con cámaras.",
+   "uso": "Respalda que el LiDAR 2D es la opción más económica y común en interiores, las limitaciones de GMapping y Hector SLAM, y que algunos LiDAR miden por triangulación.",
+   "tesis": [
+    "1.3",
+    "3.3.1"
+   ],
+   "guia": [
+    "problema.html#estado-del-arte",
+    "mundo-real.html#percibir"
+   ]
+  },
+  "r-tb3burger": {
+   "n": 53,
+   "tipo": "Tienda del fabricante",
+   "autor": "ROBOTIS (2026a)",
+   "resumen": "Página de venta del TurtleBot 3 Burger.",
+   "cita": "ROBOTIS. (2026a). <i>TURTLEBOT3 Burger RPi4 4GB</i>. <a href=\"https://en.robotis.com/shop_en/item.php?it_id=901-0118-201\">en.robotis.com</a>",
+   "contenido": "Página de la tienda internacional de ROBOTIS para el TurtleBot 3 Burger con Raspberry Pi 4 de 4 GB, un robot educativo para ROS. Su precio de catálogo es 681,30 USD, sin impuestos de importación ni aranceles. También avisa que desde octubre de 2025 cambió el sensor láser que usa el robot.",
+   "uso": "Es la plataforma comercial más cercana al prototipo en la comparación de costos de la Tabla A1.2.",
+   "tesis": [
+    "A1.2"
+   ],
+   "guia": [
+    "problema.html#comprar-o-construir",
+    "robot.html#costo"
+   ]
+  },
+  "r-tb3waffle": {
+   "n": 54,
+   "tipo": "Tienda del fabricante",
+   "autor": "ROBOTIS (2026b)",
+   "resumen": "Página de venta del TurtleBot 3 Waffle Pi.",
+   "cita": "ROBOTIS. (2026b). <i>TURTLEBOT3 Waffle Pi RPi4 4GB</i>. <a href=\"https://en.robotis.com/shop_en/item.php?it_id=901-0119-202\">en.robotis.com</a>",
+   "contenido": "Página de la tienda internacional de ROBOTIS para el TurtleBot 3 Waffle Pi con Raspberry Pi 4 de 4 GB, que agrega una cámara. Su precio de catálogo es 1 681,40 USD, sin impuestos de importación ni aranceles.",
+   "uso": "Es la segunda plataforma de la comparación de costos de la Tabla A1.2.",
+   "tesis": [
+    "A1.2"
+   ],
+   "guia": [
+    "robot.html#costo"
+   ]
+  },
+  "r-rohmer2013": {
+   "n": 55,
+   "tipo": "Artículo",
+   "autor": "Rohmer et al. (2013)",
+   "resumen": "Presentación original de V-REP, hoy CoppeliaSim.",
+   "cita": "Rohmer, E., Singh, S. P. N., &amp; Freese, M. (2013). V-REP: A Versatile and Scalable Robot Simulation Framework. <i>2013 IEEE/RSJ International Conference on Intelligent Robots and Systems</i>, 1321-1326. <a href=\"https://doi.org/10.1109/IROS.2013.6696520\">doi.org/10.1109/IROS.2013.6696520</a>",
+   "contenido": "Artículo que presenta V-REP, un marco de simulación de robots versátil, escalable y de uso general, que hoy se distribuye como CoppeliaSim. Destaca su portabilidad y flexibilidad, y lista usos como desarrollar algoritmos, verificar sistemas, hacer prototipos, entrenar, controlar hardware y automatizar fábricas.",
+   "uso": "La tesis lo cita como presentación original de CoppeliaSim, una de las alternativas a Gazebo.",
+   "tesis": [
+    "1.5"
+   ],
+   "guia": []
+  },
+  "r-ros2control": {
+   "n": 56,
+   "tipo": "Documentación",
+   "autor": "ros-controls (s.f.)",
+   "resumen": "Documentación de ros2_control para ROS 2 Foxy.",
+   "cita": "ros-controls. (s.f.). <i>ros2_control Documentation, Foxy</i>. <a href=\"https://control.ros.org/foxy/\">control.ros.org/foxy</a>",
+   "contenido": "Documentación de ros2_control para ROS 2 Foxy, un marco para el control de robots en tiempo real que reescribe ros_control de ROS 1 para facilitar la incorporación de hardware nuevo. Explica su arquitectura, los componentes de hardware y los controladores de ros2_controllers, como el controlador diferencial. La página advierte que Foxy ya no tiene soporte oficial.",
+   "uso": "La tesis lo usa para conectar el controlador diferencial con el hardware real o con Gazebo.",
+   "tesis": [
+    "4.3.3"
+   ],
+   "guia": []
+  },
+  "r-sii2024": {
+   "n": 57,
+   "tipo": "Datos oficiales",
+   "autor": "Servicio de Impuestos Internos (2024)",
+   "resumen": "Valores del dólar observado durante 2024.",
+   "cita": "Servicio de Impuestos Internos. (2024). <i>Dólar observado 2024</i>. <a href=\"https://www.sii.cl/valores_y_fechas/dolar/dolar2024.htm\">sii.cl</a>",
+   "contenido": "Página del Servicio de Impuestos Internos de Chile con el dólar observado de 2024, en pesos por dólar. Muestra el valor diario y el promedio de cada mes: 933,81 pesos en octubre, 971,60 en noviembre y 982,30 en diciembre.",
+   "uso": "La tesis convierte los costos a dólares con 963 pesos por dólar, el promedio de octubre a diciembre de 2024, porque el 68 % del gasto ocurrió ese año.",
+   "tesis": [
+    "A1.2"
+   ],
+   "guia": [
+    "robot.html#costo"
+   ]
+  },
+  "r-slamtec2020": {
+   "n": 58,
+   "tipo": "Hoja de datos",
+   "autor": "Shanghai Slamtec (2020)",
+   "resumen": "Hoja de datos del RPLIDAR A1M8, el LiDAR del robot.",
+   "cita": "Shanghai Slamtec Co., Ltd. (2020). <i>RPLIDAR A1 Low Cost 360 Degree Laser Range Scanner: Introduction and Datasheet</i> (rev. 3.0, modelo A1M8). <a href=\"https://wiki.slamtec.com/download/attachments/83066883/LD108_SLAMTEC_rplidar_datasheet_A1M8_v3.0_en.pdf?api=v2&amp;modificationDate=1677786044000&amp;version=1\">wiki.slamtec.com</a>",
+   "contenido": "Hoja de datos del RPLIDAR A1M8, revisión 3.0. El sensor gira 360 grados y mide distancias de 0,15 a 12 m por triangulación láser, con al menos 8000 mediciones por segundo y unas 5,5 vueltas por segundo. Se conecta por puerto serie y funciona en interiores y en exteriores sin sol directo.",
+   "uso": "Respalda las características del LiDAR del robot, como su medición por triangulación y su cobertura de 360 grados.",
+   "tesis": [
+    "3.3.1"
+   ],
+   "guia": [
+    "mapeo.html#lidar"
+   ]
+  },
+  "r-shi1998": {
+   "n": 59,
+   "tipo": "Artículo",
+   "autor": "Shi y Eberhart (1998)",
+   "resumen": "PSO con peso de inercia.",
+   "cita": "Shi, Y., &amp; Eberhart, R. C. (1998). A Modified Particle Swarm Optimizer. <i>1998 IEEE International Conference on Evolutionary Computation Proceedings</i>, 69-73. <a href=\"https://doi.org/10.1109/ICEC.1998.699146\">doi.org/10.1109/ICEC.1998.699146</a>",
+   "contenido": "Artículo que agrega al PSO un peso de inercia, que regula cuánto conserva cada partícula de su velocidad anterior y equilibra la búsqueda amplia con la búsqueda local. En la función de prueba de Schaffer, con 30 ejecuciones por valor, los pesos entre 0,9 y 1,2 fallan menos, y un peso que baja linealmente de 1,4 a 0 da el mejor resultado.",
+   "uso": "El script de sintonía usa un peso de inercia que disminuye linealmente, como propone el artículo, pero parte de 1 en lugar de 1,4.",
+   "tesis": [
+    "3.7.1"
+   ],
+   "guia": [
+    "control.html#pso"
+   ]
+  },
+  "r-sucan2012": {
+   "n": 60,
+   "tipo": "Artículo",
+   "autor": "Şucan et al. (2012)",
+   "resumen": "Artículo que presenta la biblioteca OMPL.",
+   "cita": "Şucan, I. A., Moll, M., &amp; Kavraki, L. E. (2012). The Open Motion Planning Library. <i>IEEE Robotics &amp; Automation Magazine, 19</i>(4), 72-82. <a href=\"https://doi.org/10.1109/MRA.2012.2205651\">doi.org/10.1109/MRA.2012.2205651</a>",
+   "contenido": "Artículo que presenta OMPL, una biblioteca de planificación de movimiento por muestreo con muchos algoritmos actuales. Está diseñada para resolver problemas variados con poca preparación y para agregar algoritmos nuevos con facilidad, e incluye una interfaz gráfica simple, tutoriales, demostraciones y disponibilidad en ROS.",
+   "uso": "La tesis lo cita junto con la documentación de OMPL, como base posible de una navegación propia.",
+   "tesis": [
+    "1.4.1"
+   ],
+   "guia": []
+  },
+  "r-sun2022": {
+   "n": 61,
+   "tipo": "Artículo",
+   "autor": "Sun et al. (2022)",
+   "resumen": "Control del deslizamiento de ruedas en vehículos agrícolas eléctricos.",
+   "cita": "Sun, C., Sun, P., Zhou, J., &amp; Mao, J. (2022). Travel Reduction Control of Distributed Drive Electric Agricultural Vehicles Based on Multi-Information Fusion. <i>Agriculture, 12</i>(1), 70. <a href=\"https://doi.org/10.3390/agriculture12010070\">doi.org/10.3390/agriculture12010070</a>",
+   "contenido": "Artículo sobre un vehículo agrícola eléctrico con un motor en cada rueda. Calcula el deslizamiento de cada rueda combinando varias mediciones y lo mantiene en un valor objetivo con control por modo deslizante y con un PI incremental, para que el vehículo avance en línea recta. En suelo uniforme, el PI incremental lo mantiene con pequeñas fluctuaciones.",
+   "uso": "Es otro de los ejemplos que da la tesis de uso del PI incremental, aquí para regular el deslizamiento de las ruedas.",
+   "tesis": [
+    "4.4.3"
+   ],
+   "guia": [
+    "control.html#hallazgo"
+   ]
+  },
+  "r-sundstrom2024": {
+   "n": 62,
+   "tipo": "Artículo",
+   "autor": "Sundström et al. (2024)",
+   "resumen": "Implementación de referencia del PID en forma incremental.",
+   "cita": "Sundström, E., Hägglund, T., Bauer, M., Eker, J., &amp; Soltesz, K. (2024). Reference Implementation of the PID Controller. <i>IFAC-PapersOnLine, 58</i>(7), 370-375. <a href=\"https://doi.org/10.1016/j.ifacol.2024.08.090\">doi.org/10.1016/j.ifacol.2024.08.090</a>",
+   "contenido": "Artículo de la Universidad de Lund que entrega una implementación de referencia del PID en código, con un repositorio que se mantiene actualizado. Usa la forma incremental porque protege por sí sola contra el windup, es decir, que el término integral siga creciendo cuando la salida ya está al máximo, y porque permite cambiar de modo sin saltos. También discute el filtrado de la medición, la ponderación de la referencia y el entorno de ejecución.",
+   "uso": "Respalda que la forma incremental simplifica la protección contra el windup.",
+   "tesis": [
+    "4.4.3"
+   ],
+   "guia": [
+    "control.html#hallazgo"
+   ]
+  },
+  "r-orocos": {
+   "n": 63,
+   "tipo": "Documentación",
+   "autor": "The Orocos Project (s.f.)",
+   "resumen": "Documentación de Orocos RTT, para control en tiempo real.",
+   "cita": "The Orocos Project. (s.f.). <i>Orocos Project Documentation: Real-Time Toolkit</i>. <a href=\"https://docs.orocos.org/\">docs.orocos.org</a>",
+   "contenido": "Documentación del proyecto Orocos, un conjunto de bibliotecas portables en C++ para el control avanzado de máquinas y robots. Su Real-Time Toolkit es un marco para escribir componentes de tiempo real, y el proyecto incluye también bibliotecas de cinemática y dinámica, de filtros bayesianos y de máquinas de estados.",
+   "uso": "Es una de las alternativas a ROS 2 de la Tabla 1.1. La tesis destaca que no distribuye módulos de mapeo ni de planificación de trayectorias.",
+   "tesis": [
+    "1.2"
+   ],
+   "guia": []
+  },
+  "r-thrun2005": {
+   "n": 64,
+   "tipo": "Libro",
+   "autor": "Thrun et al. (2005)",
+   "resumen": "Libro de robótica probabilística: localización de Monte Carlo y GraphSLAM.",
+   "cita": "Thrun, S., Burgard, W., &amp; Fox, D. (2005). <i>Probabilistic Robotics</i>. MIT Press.",
+   "contenido": "Libro clásico de robótica probabilística. El capítulo 8 trata la localización con rejillas y la de Monte Carlo, que representa las posiciones posibles del robot con muchas partículas. El capítulo 11 presenta GraphSLAM, que arma un grafo con las poses y las mediciones y lo optimiza para obtener el mapa más probable.",
+   "uso": "Es la base del SLAM con grafos y de la localización de Monte Carlo con partículas que usa AMCL.",
+   "tesis": [
+    "3.8",
+    "3.9"
+   ],
+   "guia": [
+    "mapeo.html#slam",
+    "navegacion.html#amcl"
+   ]
+  },
+  "r-tourani2022": {
+   "n": 65,
+   "tipo": "Artículo",
+   "autor": "Tourani et al. (2022)",
+   "resumen": "Revisión del SLAM visual y sus tendencias.",
+   "cita": "Tourani, A., Bavle, H., Sanchez-Lopez, J. L., &amp; Voos, H. (2022). Visual SLAM: What Are the Current Trends and What to Expect? <i>Sensors, 22</i>(23), 9297. <a href=\"https://doi.org/10.3390/s22239297\">doi.org/10.3390/s22239297</a>",
+   "contenido": "Revisión de cincuenta artículos influyentes sobre SLAM visual, que usa cámaras para estimar la pose y reconstruir el mapa. Los clasifica según su novedad, sus objetivos, sus algoritmos y su nivel semántico, y señala tendencias, direcciones futuras y desafíos abiertos.",
+   "uso": "Respalda que las cámaras entregan más información pero exigen más cómputo y dependen de la iluminación, una razón para preferir el LiDAR 2D.",
+   "tesis": [
+    "1.3"
+   ],
+   "guia": [
+    "problema.html#estado-del-arte"
+   ]
+  },
+  "r-trejos2022": {
+   "n": 66,
+   "tipo": "Artículo",
+   "autor": "Trejos et al. (2022)",
+   "resumen": "Caracterización y comparación de cinco SLAM 2D en simulación.",
+   "cita": "Trejos, K., Rincón, L., Bolaños, M., Fallas, J., &amp; Marín, L. (2022). 2D SLAM Algorithms Characterization, Calibration, and Comparison Considering Pose Error, Map Accuracy as Well as CPU and Memory Usage. <i>Sensors, 22</i>(18), 6903. <a href=\"https://doi.org/10.3390/s22186903\">doi.org/10.3390/s22186903</a>",
+   "contenido": "Artículo que propone un método estadístico para caracterizar, calibrar y comparar cinco algoritmos de SLAM 2D, Cartographer, GMapping, Hector, Karto y RTAB-Map, en Gazebo con un TurtleBot3 Burger. Mide el error de pose, la exactitud del mapa como la distancia de los puntos reales al mapa, y el uso de CPU y memoria. RTAB-Map resulta el más exacto, Karto el más equilibrado y Cartographer el de mayor uso de CPU.",
+   "uso": "De ahí salen el mayor uso de CPU de Cartographer y la métrica con que la tesis compara sus mapas con el plano del recinto.",
+   "tesis": [
+    "1.3",
+    "5.3",
+    "A8.5",
+    "A8.6"
+   ],
+   "guia": [
+    "mapeo.html#exactitud",
+    "mapeo.html#por-que-slam-toolbox"
+   ]
+  },
+  "r-video": {
+   "n": 67,
+   "tipo": "Video",
+   "autor": "Valderas Neculqueo (2026)",
+   "resumen": "Video del robot real navegando y explorando.",
+   "cita": "Valderas Neculqueo, S. (2026, 29 de septiembre). <i>Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial</i> [Video]. YouTube. <a href=\"https://www.youtube.com/watch?v=iTTC10eGDmc\">youtube.com/watch?v=iTTC10eGDmc</a>",
+   "contenido": "Video publicado por el autor en YouTube con una ejecución de demostración de la navegación y la exploración del robot real.",
+   "uso": "De él salen las capturas de la Fig. 5.5 de la tesis.",
+   "tesis": [
+    "5.4"
+   ],
+   "guia": [
+    "resultados.html#video"
+   ]
+  },
+  "r-vincent2024": {
+   "n": 68,
+   "tipo": "Artículo",
+   "autor": "Vincent et al. (2024)",
+   "resumen": "Evaluación estadística de robots con pocas pruebas.",
+   "cita": "Vincent, J. A., Nishimura, H., Itkina, M., Shah, P., Schwager, M., &amp; Kollar, T. (2024). How Generalizable Is My Behavior Cloning Policy? A Statistical Approach to Trustworthy Performance Evaluation. <i>IEEE Robotics and Automation Letters, 9</i>(10), 8619-8626. <a href=\"https://doi.org/10.1109/LRA.2024.3445635\">doi.org/10.1109/LRA.2024.3445635</a>",
+   "contenido": "Artículo que propone cotas estadísticas para evaluar políticas de robots aprendidas por imitación con pocas pruebas reales. Entrega una cota inferior del desempeño que se cumple con un nivel de confianza elegido y la valida en simulación y en robots reales. La compara con el intervalo de Clopper y Pearson, uno de los más usados para tasas de éxito, y muestra que su cota es más ajustada con pocas pruebas.",
+   "uso": "La tesis toma de ahí el intervalo de Clopper y Pearson y lo aplica a las 5 de 6 exploraciones válidas.",
+   "tesis": [
+    "5.6",
+    "A8.3",
+    "A8.6"
+   ],
+   "guia": [
+    "resultados.html#confianza"
+   ]
+  },
+  "r-wittenmark2002": {
+   "n": 69,
+   "tipo": "Guía técnica",
+   "autor": "Wittenmark et al. (2002)",
+   "resumen": "Guía de la IFAC sobre control por computador.",
+   "cita": "Wittenmark, B., Åström, K. J., &amp; Årzén, K.-E. (2002). <i>Computer Control: An Overview</i> [IFAC Professional Brief]. International Federation of Automatic Control. <a href=\"https://www.ifac-control.org/publications/list-of-professional-briefs/pb_wittenmark_etal_final.pdf/view\">ifac-control.org</a>",
+   "contenido": "Guía profesional de la IFAC sobre el control por computador. Repasa el muestreo y el aliasing, los modelos discretos, el diseño y sus especificaciones, la aproximación de controladores continuos, el control PID con su forma incremental y el windup, y aspectos prácticos como la elección del período de muestreo y la implementación en tiempo real.",
+   "uso": "Respalda que el período de 33 ms es adecuado para la rapidez del lazo, que el PI incremental equivale al PI clásico y que la sensibilidad máxima típica va de 1,2 a 2,0.",
+   "tesis": [
+    "4.4.3",
+    "A4.12"
+   ],
+   "guia": [
+    "control.html#estabilidad"
+   ]
+  },
+  "r-wu2026": {
+   "n": 70,
+   "tipo": "Artículo",
+   "autor": "Wu et al. (2026)",
+   "resumen": "Robot con ROS 2 que recorre edificios y mide a sus ocupantes.",
+   "cita": "Wu, M., Wang, H., Wang, W., Miao, S., &amp; Hu, S. (2026). A ROS 2-Based Robotic Platform for Mobile Occupant Sensing and Edge Perception in Buildings. <i>Buildings, 16</i>(17), 3551. <a href=\"https://doi.org/10.3390/buildings16173551\">doi.org/10.3390/buildings16173551</a>",
+   "contenido": "Artículo sobre un robot móvil con ROS 2 y una Raspberry Pi 5 que recorre edificios, se acerca a las personas, mide datos de ellas y del ambiente y vuelve a su base de carga. Comprime un detector YOLOv5n para que funcione junto con la navegación y completa las 60 pruebas controladas. Cada rueda tiene un PI incremental a 100 Hz que recibe las consignas desde la Raspberry Pi por puerto serie.",
+   "uso": "La tesis lo cita porque, como este robot, envía las velocidades a su placa de control por puerto serie y usa un PI incremental en cada rueda.",
+   "tesis": [
+    "4.4.3"
+   ],
+   "guia": [
+    "control.html#hallazgo"
+   ]
+  },
+  "r-yamauchi1997": {
+   "n": 71,
+   "tipo": "Artículo",
+   "autor": "Yamauchi (1997)",
+   "resumen": "Origen de la exploración por fronteras.",
+   "cita": "Yamauchi, B. (1997). A Frontier-Based Approach for Autonomous Exploration. <i>Proceedings of the 1997 IEEE International Symposium on Computational Intelligence in Robotics and Automation</i>, 146-151. <a href=\"https://doi.org/10.1109/CIRA.1997.613851\">doi.org/10.1109/CIRA.1997.613851</a>",
+   "contenido": "Artículo que propone la exploración por fronteras. En un mapa de rejilla, una frontera es el borde entre el espacio libre conocido y el que falta explorar, y el robot va a la frontera accesible más cercana hasta que no quedan. Lo probó con un robot Nomad 200 en una oficina y en un laboratorio.",
+   "uso": "Es el método de exploración que usa este robot, mediante explore_lite.",
+   "tesis": [
+    "1.4.2",
+    "3.11"
+   ],
+   "guia": [
+    "exploracion.html#fronteras"
+   ]
+  },
+  "r-yarp": {
+   "n": 72,
+   "tipo": "Documentación",
+   "autor": "YARP Developers (s.f.)",
+   "resumen": "Documentación de YARP, software para conectar módulos de un robot.",
+   "cita": "YARP Developers. (s.f.). <i>YARP: Yet Another Robot Platform</i>. <a href=\"https://www.yarp.it/latest/what_is_yarp.html\">yarp.it</a>",
+   "contenido": "Documentación de YARP, Yet Another Robot Platform, un software intermedio abierto que nace de la experiencia de construir robots humanoides. Comunica programas por puertos, entre pares, y conecta el software con los dispositivos del robot, en C++ y en Windows, Linux y macOS.",
+   "uso": "Es una de las alternativas a ROS 2 de la Tabla 1.1. La tesis destaca que no declara una navegación propia para robots móviles.",
+   "tesis": [
+    "1.2"
+   ],
+   "guia": []
+  }
+ }
+}

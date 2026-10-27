@@ -31,14 +31,33 @@
 /* Respaldo con métricas ajustadas. Mientras llegan las fuentes, el texto usa una fuente del sistema
    escalada para ocupar casi el mismo ancho, así el cambio de fuente no mueve la página.
    size-adjust sale del ancho medio de un texto de la guía medido con fontTools: Archivo frente a Arial Bold,
-   con ancho 84 a 90 % para los títulos de sección y 80 % para el título principal, y Atkinson Hyperlegible
+   con ancho 84 a 90 % para los títulos de sección y 80 % para el título de la portada y el de cada tema, que
+   tienen respaldos distintos porque el de la portada es largo y los de los temas son cortos, y Atkinson Hyperlegible
    frente a Arial. Las alturas copian las de cada fuente divididas por ese factor.
+   Cada familia del sistema tiene su propio respaldo, porque sus anchos difieren: Arial y sus equivalentes de
+   igual ancho (Arimo, Liberation Sans y Helvetica Neue) en Windows, macOS, iOS, ChromeOS y Linux, Roboto en
+   Android y DejaVu Sans en Linux sin las anteriores. Roboto y DejaVu escalan los valores de Arial según la
+   razón entre sus anchos medios. Si una no existe, el navegador pasa a la siguiente de la lista. En Android 12 o
+   posterior Roboto es una fuente variable: si su negrita no tiene nombre propio, se usa la regular con peso 700.
+   Las caras de Roboto para Archivo fijan peso 700 y ancho 100 %. Sin eso, la fuente variable tomaría el peso y
+   el ancho pedidos, hasta 820 y 80 % en los títulos, y no tendría las medidas de la negrita con que se calcularon.
    Los anchos máximos de lectura van en em y no en ch: el cero de Atkinson mide 0,648 em y el de Arial 0,556,
    así que una medida en ch cambiaba de ancho al llegar la fuente y movía el texto. */
-@font-face { font-family: "Archivo Respaldo"; src: local("Arial Bold"), local("Arial-BoldMT"), local("Liberation Sans Bold"), local("LiberationSans-Bold"), local("Helvetica Neue Bold"), local("HelveticaNeue-Bold"), local("Roboto Bold"), local("Roboto-Bold"); font-weight: 500 900; size-adjust: 87.5%; ascent-override: 100.3%; descent-override: 24%; line-gap-override: 0%; }
-@font-face { font-family: "Archivo Respaldo Estrecho"; src: local("Arial Bold"), local("Arial-BoldMT"), local("Liberation Sans Bold"), local("LiberationSans-Bold"), local("Helvetica Neue Bold"), local("HelveticaNeue-Bold"), local("Roboto Bold"), local("Roboto-Bold"); font-weight: 500 900; size-adjust: 84%; ascent-override: 104.5%; descent-override: 25%; line-gap-override: 0%; }
-@font-face { font-family: "Atkinson Respaldo"; src: local("Arial"), local("ArialMT"), local("Liberation Sans"), local("LiberationSans-Regular"), local("Helvetica Neue"), local("HelveticaNeue"), local("Roboto"), local("Roboto-Regular"); font-weight: 400; size-adjust: 98.7%; ascent-override: 96.3%; descent-override: 29.4%; line-gap-override: 0%; }
-@font-face { font-family: "Atkinson Respaldo"; src: local("Arial Bold"), local("Arial-BoldMT"), local("Liberation Sans Bold"), local("LiberationSans-Bold"), local("Helvetica Neue Bold"), local("HelveticaNeue-Bold"), local("Roboto Bold"), local("Roboto-Bold"); font-weight: 700; size-adjust: 99.6%; ascent-override: 95.4%; descent-override: 29.1%; line-gap-override: 0%; }
+@font-face { font-family: "Archivo Respaldo"; src: local("Arial Bold"), local("Arial-BoldMT"), local("Arimo Bold"), local("Arimo-Bold"), local("Liberation Sans Bold"), local("LiberationSans-Bold"), local("Helvetica Neue Bold"), local("HelveticaNeue-Bold"); font-weight: 500 900; size-adjust: 87.5%; ascent-override: 100.3%; descent-override: 24%; line-gap-override: 0%; }
+@font-face { font-family: "Archivo Respaldo Roboto"; src: local("Roboto Bold"), local("Roboto-Bold"), local("Roboto Regular"), local("Roboto-Regular"); font-weight: 700; font-stretch: 100%; size-adjust: 93.4%; ascent-override: 94%; descent-override: 22.5%; line-gap-override: 0%; }
+@font-face { font-family: "Archivo Respaldo DejaVu"; src: local("DejaVu Sans Bold"), local("DejaVuSans-Bold"); font-weight: 500 900; size-adjust: 74.1%; ascent-override: 118.5%; descent-override: 28.3%; line-gap-override: 0%; }
+@font-face { font-family: "Archivo Respaldo Estrecho"; src: local("Arial Bold"), local("Arial-BoldMT"), local("Arimo Bold"), local("Arimo-Bold"), local("Liberation Sans Bold"), local("LiberationSans-Bold"), local("Helvetica Neue Bold"), local("HelveticaNeue-Bold"); font-weight: 500 900; size-adjust: 84%; ascent-override: 104.5%; descent-override: 25%; line-gap-override: 0%; }
+@font-face { font-family: "Archivo Respaldo Estrecho Roboto"; src: local("Roboto Bold"), local("Roboto-Bold"), local("Roboto Regular"), local("Roboto-Regular"); font-weight: 700; font-stretch: 100%; size-adjust: 89.6%; ascent-override: 98%; descent-override: 23.4%; line-gap-override: 0%; }
+@font-face { font-family: "Archivo Respaldo Estrecho DejaVu"; src: local("DejaVu Sans Bold"), local("DejaVuSans-Bold"); font-weight: 500 900; size-adjust: 71.1%; ascent-override: 123.5%; descent-override: 29.5%; line-gap-override: 0%; }
+@font-face { font-family: "Archivo Respaldo Tema"; src: local("Arial Bold"), local("Arial-BoldMT"), local("Arimo Bold"), local("Arimo-Bold"), local("Liberation Sans Bold"), local("LiberationSans-Bold"), local("Helvetica Neue Bold"), local("HelveticaNeue-Bold"); font-weight: 500 900; size-adjust: 85.7%; ascent-override: 102.5%; descent-override: 24.5%; line-gap-override: 0%; }
+@font-face { font-family: "Archivo Respaldo Tema Roboto"; src: local("Roboto Bold"), local("Roboto-Bold"), local("Roboto Regular"), local("Roboto-Regular"); font-weight: 700; font-stretch: 100%; size-adjust: 91.4%; ascent-override: 96.1%; descent-override: 23%; line-gap-override: 0%; }
+@font-face { font-family: "Archivo Respaldo Tema DejaVu"; src: local("DejaVu Sans Bold"), local("DejaVuSans-Bold"); font-weight: 500 900; size-adjust: 72.5%; ascent-override: 121.1%; descent-override: 29%; line-gap-override: 0%; }
+@font-face { font-family: "Atkinson Respaldo"; src: local("Arial"), local("ArialMT"), local("Arimo"), local("Arimo-Regular"), local("Liberation Sans"), local("LiberationSans-Regular"), local("LiberationSans"), local("Helvetica Neue"), local("HelveticaNeue"); font-weight: 400; size-adjust: 98.7%; ascent-override: 96.3%; descent-override: 29.4%; line-gap-override: 0%; }
+@font-face { font-family: "Atkinson Respaldo"; src: local("Arial Bold"), local("Arial-BoldMT"), local("Arimo Bold"), local("Arimo-Bold"), local("Liberation Sans Bold"), local("LiberationSans-Bold"), local("Helvetica Neue Bold"), local("HelveticaNeue-Bold"); font-weight: 700; size-adjust: 99.6%; ascent-override: 95.4%; descent-override: 29.1%; line-gap-override: 0%; }
+@font-face { font-family: "Atkinson Respaldo Roboto"; src: local("Roboto"), local("Roboto Regular"), local("Roboto-Regular"); font-weight: 400; size-adjust: 99.5%; ascent-override: 95.5%; descent-override: 29.1%; line-gap-override: 0%; }
+@font-face { font-family: "Atkinson Respaldo Roboto"; src: local("Roboto Bold"), local("Roboto-Bold"), local("Roboto Regular"), local("Roboto-Regular"); font-weight: 700; size-adjust: 106%; ascent-override: 89.6%; descent-override: 27.4%; line-gap-override: 0%; }
+@font-face { font-family: "Atkinson Respaldo DejaVu"; src: local("DejaVu Sans"), local("DejaVuSans"); font-weight: 400; size-adjust: 87.5%; ascent-override: 108.6%; descent-override: 33.1%; line-gap-override: 0%; }
+@font-face { font-family: "Atkinson Respaldo DejaVu"; src: local("DejaVu Sans Bold"), local("DejaVuSans-Bold"); font-weight: 700; size-adjust: 83.7%; ascent-override: 113.5%; descent-override: 34.6%; line-gap-override: 0%; }
 
 /* 1. Tokens */
 :root {
@@ -85,9 +104,10 @@
   --curva: cubic-bezier(.2, .7, .2, 1);
   /* series de gráficos, paleta validada de referencia */
   --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100;
-  --f-display: "Archivo", "Archivo Respaldo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
-  --f-titular: "Archivo", "Archivo Respaldo Estrecho", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
-  --f-body: "Atkinson Hyperlegible", "Atkinson Respaldo", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-display: "Archivo", "Archivo Respaldo", "Archivo Respaldo Roboto", "Archivo Respaldo DejaVu", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --f-titular: "Archivo", "Archivo Respaldo Estrecho", "Archivo Respaldo Estrecho Roboto", "Archivo Respaldo Estrecho DejaVu", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --f-tema: "Archivo", "Archivo Respaldo Tema", "Archivo Respaldo Tema Roboto", "Archivo Respaldo Tema DejaVu", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "Atkinson Hyperlegible", "Atkinson Respaldo", "Atkinson Respaldo Roboto", "Atkinson Respaldo DejaVu", "Segoe UI", system-ui, -apple-system, sans-serif;
   --f-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   --t-xs: .8rem; --t-sm: .9rem; --t-base: 1.0625rem; --t-md: 1.15rem; --t-lg: 1.4rem; --t-xl: 1.85rem;
   --t-2xl: clamp(2.1rem, 5.2vw, 3.4rem);
@@ -969,15 +989,51 @@ text.lr-on { fill: var(--azul); }
 .refs li:target { border-color: var(--azul); box-shadow: 0 0 0 3px var(--azul-suave); }
 .refs li .tag { font-size: var(--t-xs); color: var(--muted); display: block; margin-top: 4px; }
 .refs li .tag b { color: var(--violeta); font-weight: 700; }
-/* Filtro del glosario */
-.filtro-glosario { display: grid; gap: 6px; max-width: 520px; margin-top: 16px; }
-.filtro-glosario label { font-size: var(--t-sm); font-weight: 700; color: var(--ink-2); }
+/* Bibliografía de la tesis: grupos según para qué se usa cada referencia (generada por herramientas/datos.py).
+   El prefijo .articulo gana a las listas genéricas del artículo sin recurrir a !important. */
+.articulo .bib-mapa { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; max-width: 59.6em; }
+.bib-mapa a { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 4px 6px 4px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink-2); font-size: var(--t-xs); text-decoration: none; transition: border-color var(--dur-1), color var(--dur-1); }
+.bib-mapa a:hover { border-color: var(--azul); color: var(--azul); }
+.bib-n { font-family: var(--f-data); font-size: .72rem; min-width: 24px; height: 24px; padding: 0 6px; display: inline-grid; place-items: center; border-radius: 999px; background: var(--azul-suave); color: var(--azul); }
+.bib-grupo { margin-top: 28px; max-width: 59.6em; }
+.bib-grupo h3 { font-size: var(--t-lg); scroll-margin-top: calc(var(--cab-h) + 16px); }
+.articulo .bib-desc { margin-top: 6px; color: var(--ink-2); }
+.bib-tema { color: var(--muted); }
+.bib-grupo > details { margin-top: 10px; }
+.articulo ol.bib { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 8px; max-width: none; }
+/* Cada referencia es una línea de resumen que, al presionarla, abre su detalle. La sangría del detalle
+   alinea el texto con el del resumen: 14 px de margen, 30 px del número y 12 px de separación. */
+.bib-ref { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); font-size: var(--t-sm); scroll-margin-top: calc(var(--cab-h) + 16px); transition: border-color .3s, box-shadow .3s; }
+.bib-ref:hover, .bib-ref[open] { border-color: var(--line-2); }
+.bib-ref:target, .bib-ref.destacar { border-color: var(--azul); box-shadow: 0 0 0 3px var(--azul-suave); }
+.bib-ref > summary { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: start; gap: 4px 12px; min-height: 44px; padding: 10px 12px 10px 14px; border-radius: 11px; cursor: pointer; list-style: none; }
+.bib-ref > summary::-webkit-details-marker { display: none; }
+.bib-ref > summary::after { content: "+"; font-family: var(--f-data); width: 24px; height: 24px; border-radius: 6px; display: grid; place-items: center; background: var(--azul-suave); color: var(--azul); }
+.bib-ref[open] > summary::after { content: "−"; }
+.bib-ref > summary:focus-visible { outline: 3px solid var(--azul); outline-offset: 2px; }
+.bib-ref > summary:hover .bib-autor { color: var(--azul); }
+.bib-num { font-family: var(--f-data); font-size: var(--t-xs); min-width: 30px; height: 22px; margin-top: 1px; padding: 0 6px; display: inline-grid; place-items: center; border-radius: 6px; background: var(--azul-suave); color: var(--azul); }
+.bib-linea { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; }
+.bib-autor { font-weight: 700; color: var(--ink); transition: color var(--dur-1); }
+ol.bib .tipo-ref { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.bib-resumen { flex-basis: 100%; color: var(--ink-2); }
+.bib-detalle { display: grid; gap: 8px; padding: 2px 14px 14px 56px; }
+.articulo ol.bib p { margin: 0; max-width: none; }
+.articulo ol.bib .bib-contenido, .articulo ol.bib .bib-uso { color: var(--ink); }
+.bib-detalle b { color: var(--azul); }
+.articulo ol.bib .bib-donde, .articulo ol.bib .bib-cita { font-size: var(--t-xs); color: var(--ink-2); }
+.bib-cita a, .bib-donde a { overflow-wrap: anywhere; }
+@media (max-width: 560px) { .bib-detalle { padding-left: 14px; } }
+@media print { .bib-ref > summary::after { display: none; } .bib-ref { break-inside: avoid; } }
+/* Filtros de listas largas: glosario y bibliografía */
+.filtro-lista { display: grid; gap: 6px; max-width: 520px; margin-top: 16px; }
+.filtro-lista label { font-size: var(--t-sm); font-weight: 700; color: var(--ink-2); }
 .campo-buscar { display: flex; align-items: center; gap: 8px; border: 1px solid var(--line-2); border-radius: 10px; background: var(--surface); padding: 0 12px; min-height: 44px; transition: border-color var(--dur-1), box-shadow var(--dur-1); }
 .campo-buscar:focus-within { border-color: var(--azul); box-shadow: 0 0 0 3px color-mix(in srgb, var(--azul) 22%, transparent); }
 .campo-buscar svg { width: 18px; height: 18px; flex: none; fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; }
 .campo-buscar input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ink); font: inherit; font-size: var(--t-sm); padding: 10px 0; outline: none; }
 .filtro-estado { font-size: var(--t-xs); color: var(--muted); min-height: 1.2em; }
-.articulo > section > .filtro-glosario + .glosario { margin-top: 10px; }
+.articulo > section > .filtro-lista + .glosario { margin-top: 10px; }
 .glosario { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 10px; max-width: none !important; margin: 0; }
 .glosario div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; scroll-margin-top: calc(var(--cab-h) + 16px); }
 .glosario div:target { border-color: var(--azul); box-shadow: 0 0 0 3px var(--azul-suave); }
@@ -1077,7 +1133,7 @@ p, li, dd, figcaption { overflow-wrap: break-word; }
 .tema-hero::before { content: ""; position: absolute; inset: 0; z-index: -1; background-image: linear-gradient(var(--trama) 1px, transparent 1px), linear-gradient(90deg, var(--trama) 1px, transparent 1px); background-size: 32px 32px; background-position: center; -webkit-mask-image: radial-gradient(ellipse 55% 85% at 85% 40%, #000 15%, transparent 70%); mask-image: radial-gradient(ellipse 55% 85% at 85% 40%, #000 15%, transparent 70%); pointer-events: none; }
 .tema-hero .wrap { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: clamp(24px, 4vw, 56px); align-items: center; padding-block: clamp(26px, 4.5vw, 56px); }
 .tema-hero-txt { display: grid; gap: 14px; align-content: start; }
-.tema-hero h1 { font-family: var(--f-titular); font-size: clamp(2rem, 4.4vw, 3rem); font-stretch: 80%; font-weight: 820; letter-spacing: -.014em; line-height: 1.04; max-width: 10.42em; }
+.tema-hero h1 { font-family: var(--f-tema); font-size: clamp(2rem, 4.4vw, 3rem); font-stretch: 80%; font-weight: 820; letter-spacing: -.014em; line-height: 1.04; max-width: 10.42em; }
 .tema-hero .lead { font-size: var(--t-md); color: var(--ink-2); max-width: 37.6em; }
 .tema-hero-fig { margin: 0; border-radius: var(--r-xl); overflow: hidden; border: 1px solid var(--line); background: var(--surface-2); box-shadow: var(--sombra-alta); position: relative; }
 .tema-hero-fig img, .tema-hero-fig video { display: block; width: 100%; height: auto; max-height: 420px; object-fit: cover; }
@@ -1204,6 +1260,7 @@ a.ref { font-family: var(--f-data); font-size: .72em; line-height: 1; vertical-a
 a.ref:hover { background: var(--azul); color: var(--sobre-azul); }
 .fuentes-tema { border-top: 2px solid var(--ink); padding-top: 18px; }
 .fuentes-tema h2 { font-size: var(--t-lg) !important; }
+.articulo .fuentes-nota { margin: 4px 0 12px; font-size: var(--t-sm); color: var(--muted); }
 ol.refs-lista { margin: 0 !important; padding-left: 0 !important; list-style: none; counter-reset: ref; display: grid !important; gap: 8px !important; max-width: 59.6em !important; }
 ol.refs-lista > li { counter-increment: ref; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 4px 8px; font-size: var(--t-sm); color: var(--ink-2); padding: 8px 10px; border-radius: 10px; scroll-margin-top: calc(var(--cab-h) + 16px); }
 ol.refs-lista > li::before { content: counter(ref); font-family: var(--f-data); font-size: var(--t-xs); color: var(--azul); background: var(--azul-suave); border-radius: 6px; height: 22px; display: grid; place-items: center; }

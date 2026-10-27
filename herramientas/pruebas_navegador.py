@@ -48,9 +48,12 @@ fallos, total = [], 0
 def ok(cond, nombre, detalle=''):
     global total
     total += 1
-    print(('  ok    ' if cond else '  FALLA ') + nombre + ('' if cond else '  ' + str(detalle)))
+    print(('  ok    ' if cond else '  FALLA ') + nombre + ('' if cond else '  ' + str(detalle)), flush=True)
     if not cond:
         fallos.append(nombre)
+        if os.environ.get('GITHUB_ACTIONS') == 'true':
+            # anotación visible en el resumen de la ejecución, sin abrir el registro
+            print('::error title=pruebas_navegador::' + (nombre + '  ' + str(detalle)).replace('\n', ' '), flush=True)
 
 
 # ── 1. Enlaces internos, anclas y recursos locales, sobre el HTML estático ──
@@ -489,12 +492,14 @@ def probar_encoder(nav):
     sel = montar(p, 'movimiento.html', 'encoder')
     p.evaluate("window.__cuadros(60, 0.5)")
     ok(est()['activo'], 'sin movimiento reducido arranca sola')
+    # el cambio de preferencia llega como un evento: se espera a que la simulación lo atienda, con un margen
+    # amplio para un equipo cargado, en vez de un tiempo fijo de 50 ms
     p.emulate_media(reduced_motion='reduce')
-    p.wait_for_timeout(50)
+    p.wait_for_function("s => !document.querySelector(s).estadoSim().activo", arg=sel, polling=20, timeout=3000)
     a = est()['ang']; p.evaluate("window.__cuadros(60, 1)")
     ok(not est()['activo'] and est()['ang'] == a, 'si el sistema pasa a movimiento reducido, se detiene')
     p.emulate_media(reduced_motion='no-preference')
-    p.wait_for_timeout(50)
+    p.wait_for_function("s => document.querySelector(s).estadoSim().activo", arg=sel, polling=20, timeout=3000)
     ok(est()['activo'], 'si vuelve a permitir movimiento, retoma')
     ctx.close()
 
