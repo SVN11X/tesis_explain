@@ -17,17 +17,18 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#004EAA">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#004EAA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0D131C" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
+<link rel="preload" href="fuentes/archivo-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fuentes/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/estilo.css">
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <script src="datos/proyecto.js" defer></script>
 <script src="js/comun.js" defer></script>
-<script src="js/vis1.js" defer></script>
-<script src="js/vis2.js" defer></script>
-<script src="js/vis3.js" defer></script>
-<script src="js/sims.js" defer></script>
 <script src="js/sitio.js" defer></script>
+<script type="speculationrules">{"prefetch":[{"where":{"selector_matches":"a:not([href^='http'])[href$='.html'], a:not([href^='http'])[href*='.html#']"},"eagerness":"moderate"}]}</script>
 </head>
 <body data-pagina="robot">
 <a class="saltar" href="#contenido">Saltar al contenido</a>
@@ -46,7 +47,7 @@
       <div class="meta-cap"><span data-nivel class="etiqueta">Nivel</span><span class="etiqueta" data-lectura>Lectura</span></div>
     </div>
     <figure class="tema-hero-fig">
-      <picture><source srcset="img/fotos/robot-lateral.webp" type="image/webp"><img src="img/fotos/robot-lateral.jpg" width="1400" height="1108" alt="El robot visto en perspectiva: carcasa negra impresa en 3D con franjas amarillas, el sensor láser RPLidar sobre la cubierta y un visualizador de tensión." fetchpriority="high"></picture>
+      <picture><source srcset="img/fotos/robot-lateral-800.webp 800w, img/fotos/robot-lateral.webp 1400w" sizes="(max-width: 980px) 92vw, 500px" type="image/webp"><img src="img/fotos/robot-lateral.jpg" width="1400" height="1108" alt="El robot visto en perspectiva: carcasa negra impresa en 3D con franjas amarillas, el sensor láser RPLidar sobre la cubierta y un visualizador de tensión." fetchpriority="high"></picture>
       <figcaption>El prototipo construido. Fotografía del autor, Fig. 4.1 de la tesis.</figcaption>
     </figure>
   </div>
@@ -159,9 +160,9 @@
   <h2 id="seguridad">Seguridad: cómo se detiene el robot</h2>
   <p>Un robot que se mueve solo tiene que poder detenerse aunque falle el software que lo guía. Este prototipo tiene tres mecanismos, y cada uno cubre una falla distinta <a class="ref" href="#f1">1</a>.</p>
   <div class="decisiones">
-    <article class="decision"><span class="d-que">Falla humana</span><h4>Botón de hombre muerto</h4><p>La conducción manual con un mando inalámbrico solo envía órdenes mientras se mantiene presionado un botón. Si la persona lo suelta, el robot se detiene.</p></article>
-    <article class="decision"><span class="d-que">Conflicto de órdenes</span><h4>Prioridad de la persona</h4><p>El multiplexor twist_mux elige una sola fuente de órdenes y da prioridad al mando sobre <span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span>. Una persona puede retomar el control en cualquier momento.</p></article>
-    <article class="decision"><span class="d-que">Falla de comunicación</span><h4>Detención automática</h4><p>Si el Arduino pasa 2 segundos sin recibir órdenes de movimiento, detiene los motores. Protege ante una caída de la red o de un nodo.</p></article>
+    <article class="decision"><span class="d-que">Falla humana</span><h3>Botón de hombre muerto</h3><p>La conducción manual con un mando inalámbrico solo envía órdenes mientras se mantiene presionado un botón. Si la persona lo suelta, el robot se detiene.</p></article>
+    <article class="decision"><span class="d-que">Conflicto de órdenes</span><h3>Prioridad de la persona</h3><p>El multiplexor twist_mux elige una sola fuente de órdenes y da prioridad al mando sobre <span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span>. Una persona puede retomar el control en cualquier momento.</p></article>
+    <article class="decision"><span class="d-que">Falla de comunicación</span><h3>Detención automática</h3><p>Si el Arduino pasa 2 segundos sin recibir órdenes de movimiento, detiene los motores. Protege ante una caída de la red o de un nodo.</p></article>
   </div>
   <p>En la industria estas ideas se formalizan en normas de seguridad, como la ISO 3691-4 para vehículos industriales sin conductor. El tema se desarrolla en <a href="lecciones.html#seguridad">Lecciones de ingeniería</a>.</p>
 </section>

@@ -17,21 +17,21 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#004EAA">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#004EAA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0D131C" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
+<link rel="preload" href="fuentes/archivo-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fuentes/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/estilo.css">
 <link rel="stylesheet" href="css/evidencia.css">
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <script src="datos/proyecto.js" defer></script>
 <script src="js/comun.js" defer></script>
-<script src="js/vis1.js" defer></script>
+<script src="js/sitio.js" defer></script>
 <script src="js/control-modelo.js" defer></script>
 <script src="js/estabilidad-modelo.js" defer></script>
-<script src="js/vis2.js" defer></script>
-<script src="js/vis3.js" defer></script>
-<script src="js/sims.js" defer></script>
-<script src="js/evidencia.js" defer></script>
-<script src="js/sitio.js" defer></script>
+<script type="speculationrules">{"prefetch":[{"where":{"selector_matches":"a:not([href^='http'])[href$='.html'], a:not([href^='http'])[href*='.html#']"},"eagerness":"moderate"}]}</script>
 </head>
 <body data-pagina="control">
 <a class="saltar" href="#contenido">Saltar al contenido</a>
@@ -293,8 +293,8 @@
   <p>Cargué en el robot las ganancias sugeridas por el PSO y aparecieron dos comportamientos que el modelo no anticipaba. La rueda izquierda se quedaba un escalón de medición por debajo de la referencia, y la derecha subía por tramos, con una detención cerca de 0,11 m/s. La explicación propuesta es que el modelo de primer orden no incluye la <span class="term" data-def="Un rango de PWM bajo en que el motor no alcanza a vencer el roce y no gira, aunque reciba señal.">zona muerta</span> del driver <a class="ref" href="#f1">1</a>. Desliza el control para comparar ambas respuestas sobre los mismos ejes.</p>
   <figure class="desl-env">
     <div class="deslizar">
-      <img class="c-a" src="img/tesis/escalon-pso.png" width="1281" height="1027" alt="Respuesta con las ganancias del PSO: la rueda izquierda queda bajo la referencia y la derecha sube por tramos con una detención cerca de 0,11 m/s.">
-      <img class="c-b" src="img/tesis/escalon-final.png" width="1281" height="1027" alt="Respuesta con las ganancias finales: ambas ruedas alcanzan 0,13 m/s cerca de un segundo antes y se mantienen.">
+      <picture class="c-a"><source srcset="img/tesis/escalon-pso.webp" type="image/webp"><img src="img/tesis/escalon-pso.png" width="1281" height="1027" loading="lazy" decoding="async" alt="Respuesta con las ganancias del PSO: la rueda izquierda queda bajo la referencia y la derecha sube por tramos con una detención cerca de 0,11 m/s."></picture>
+      <picture class="c-b"><source srcset="img/tesis/escalon-final.webp" type="image/webp"><img src="img/tesis/escalon-final.png" width="1281" height="1027" loading="lazy" decoding="async" alt="Respuesta con las ganancias finales: ambas ruedas alcanzan 0,13 m/s cerca de un segundo antes y se mantienen."></picture>
       <input type="range" min="0" max="100" value="50" aria-label="Deslizar para comparar la respuesta con las ganancias del PSO y con las ganancias finales">
       <span class="c-linea" aria-hidden="true"></span>
       <span class="c-et a">Ganancias del PSO</span><span class="c-et b">Ganancias finales</span>

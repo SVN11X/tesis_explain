@@ -17,20 +17,20 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#004EAA">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#004EAA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0D131C" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
+<link rel="preload" href="fuentes/archivo-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fuentes/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/estilo.css">
 <link rel="stylesheet" href="css/movimiento.css">
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <script src="datos/proyecto.js" defer></script>
 <script src="js/comun.js" defer></script>
-<script src="js/vis1.js" defer></script>
-<script src="js/vis2.js" defer></script>
-<script src="js/vis3.js" defer></script>
-<script src="js/movimiento-modelo.js" defer></script>
-<script src="js/movimiento.js" defer></script>
-<script src="js/sims.js" defer></script>
 <script src="js/sitio.js" defer></script>
+<script src="js/movimiento-modelo.js" defer></script>
+<script type="speculationrules">{"prefetch":[{"where":{"selector_matches":"a:not([href^='http'])[href$='.html'], a:not([href^='http'])[href*='.html#']"},"eagerness":"moderate"}]}</script>
 </head>
 <body data-pagina="movimiento">
 <a class="saltar" href="#contenido">Saltar al contenido</a>
@@ -204,7 +204,7 @@
   </div>
   <!-- PENDIENTE AUTOR: clip de unos 10 segundos de la iteración 2, en que la odometría avanza y el robot no. Guárdalo en MP4 sin audio como img/tesis/falla-sin-avance.mp4, con su portada en JPG como img/tesis/falla-sin-avance-poster.jpg. Ajusta width y height a las del video y quita el atributo hidden de la figura siguiente. -->
   <figure class="bucle-env" hidden>
-    <div class="bucle"><video autoplay muted loop playsinline preload="metadata" data-poster="img/tesis/falla-sin-avance-poster.jpg" width="1280" height="720" aria-label="Clip de la iteración 2: la odometría suma distancia mientras el robot sigue en su posición inicial."><source data-src="img/tesis/falla-sin-avance.mp4" type="video/mp4"></video></div>
+    <div class="bucle"><video muted loop playsinline controls preload="none" data-poster="img/tesis/falla-sin-avance-poster.jpg" width="1280" height="720" aria-label="Clip de la iteración 2: la odometría suma distancia mientras el robot sigue en su posición inicial."><source data-src="img/tesis/falla-sin-avance.mp4" type="video/mp4"></video></div>
     <figcaption>La iteración 2 de la exploración. La odometría sumó 3,851 m, pero el robot no se movió de su posición inicial. <small>Video del autor, en bucle.</small></figcaption>
   </figure>
   <p>El episodio muestra el límite de fondo de los encoders. Miden el giro de las ruedas, no el avance del robot, así que unas ruedas que giran sin avanzar suman distancia igual. El láser sí tenía la señal, porque si el robot no se mueve el mapa no crece. Por la misma razón, en las otras cinco corridas el movimiento queda respaldado por una evidencia independiente de los encoders, que es el crecimiento del mapa. Una cinta métrica tampoco es la verdad absoluta, pero es una referencia externa, y eso es lo que importa para medir un sesgo de unos 7 cm.</p>

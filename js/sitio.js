@@ -198,6 +198,8 @@
     });
     window.addEventListener("resize", function () { if (window.innerWidth > 860) cerrarCajon(); });
     cajon.addEventListener("click", function (e) { if (e.target.closest("[data-cerrar]")) cerrarCajon(); });
+    /* un enlace a una sección de la misma página cierra el menú antes de desplazarse */
+    cajon.addEventListener("click", function (e) { if (e.target.closest(".cajon-secciones a")) cerrarCajon(); });
   }
 
   /* Pie */
@@ -251,15 +253,28 @@
           return '<li><a href="#' + h.id + '" data-id="' + h.id + '">' + esc(t.textContent.trim()) + '</a></li>';
         }).join("") + '</ul></nav></details>' : '');
       if (window.matchMedia("(max-width: 1080px)").matches) { var d = lat.querySelector("details"); if (d) d.open = false; }
+      /* En el teléfono, el menú de la cabecera fija suma las secciones de esta página. Así se salta a
+         cualquiera desde donde se esté leyendo, sin volver al índice del inicio del tema. */
+      var panel = document.querySelector(".cajon-panel"), cab = panel && panel.querySelector(".cajon-cab");
+      if (cab && hs.length) {
+        var sec = document.createElement("nav");
+        sec.className = "cajon-secciones"; sec.setAttribute("aria-label", "Secciones de esta página");
+        sec.innerHTML = '<span class="cajon-titulo">En esta página</span>' + hs.map(function (h) {
+          var t = h.cloneNode(true); var an = t.querySelector(".ancla"); if (an) an.remove();
+          return '<a href="#' + h.id + '" data-id="' + h.id + '"><span class="n" aria-hidden="true">§</span>' + esc(t.textContent.trim()) + '</a>';
+        }).join("");
+        cab.insertAdjacentElement("afterend", sec);
+      }
       if ("IntersectionObserver" in window && hs.length) {
-        var links = {}; lat.querySelectorAll(".en-pagina a").forEach(function (a) { links[a.getAttribute("data-id")] = a; });
+        var links = {};
+        document.querySelectorAll(".en-pagina a, .cajon-secciones a").forEach(function (a) { var k = a.getAttribute("data-id"); (links[k] = links[k] || []).push(a); });
         var visibles = new Map();
         var io = new IntersectionObserver(function (ents) {
           ents.forEach(function (e) { visibles.set(e.target, e.isIntersecting); });
           for (var i = 0; i < hs.length; i++) {
             if (visibles.get(hs[i].parentElement)) {
               var activo = hs[i].id;
-              hs.forEach(function (h) { var l = links[h.id]; if (l) l.classList.toggle("activo", h.id === activo); });
+              hs.forEach(function (h) { (links[h.id] || []).forEach(function (l) { l.classList.toggle("activo", h.id === activo); if (h.id === activo) l.setAttribute("aria-current", "location"); else l.removeAttribute("aria-current"); }); });
               break;
             }
           }
@@ -334,31 +349,47 @@
   function bucles() {
     /* Un bloque preparado lleva data-src y data-poster mientras espera su video. Al quitarle hidden
        se usan como src y poster, y así no se piden archivos que todavía no existen. */
-    document.querySelectorAll(".bucle video[data-poster], .bucle video source[data-src]").forEach(function (v) {
+    document.querySelectorAll(".bucle video source[data-src]").forEach(function (v) {
       if (v.closest("[hidden]")) return;
-      if (v.hasAttribute("data-poster")) v.setAttribute("poster", v.getAttribute("data-poster"));
-      if (v.hasAttribute("data-src")) { v.setAttribute("src", v.getAttribute("data-src")); v.parentElement.load(); }
+      v.setAttribute("src", v.getAttribute("data-src")); v.parentElement.load();
     });
+    /* La portada de un video lejos del inicio también espera: data-poster pasa a poster al acercarse. */
+    function ponerPortada(vid) { if (vid.hasAttribute("data-poster") && !vid.hasAttribute("poster")) vid.setAttribute("poster", vid.getAttribute("data-poster")); }
+    /* El HTML trae portada, controles del navegador y preload="none": sin JavaScript se puede reproducir
+       a mano y nadie descarga un video que no va a ver. Aquí los controles nativos se cambian por un
+       botón propio, el archivo se pide al acercarse a la pantalla y la animación corre solo mientras se ve.
+       La observación parte un momento después del evento load, cuando el navegador está libre, para no
+       competir con la primera pintura: mientras tanto se ve la portada del video. */
+    function trasCarga(fn) {
+      function luego() { setTimeout(function () { if ("requestIdleCallback" in window) requestIdleCallback(fn, { timeout: 1500 }); else fn(); }, 1200); }
+      if (document.readyState === "complete") luego(); else window.addEventListener("load", luego, { once: true });
+    }
     document.querySelectorAll(".bucle video").forEach(function (vid) {
       if (vid.closest("[hidden]")) return;
       var caja = vid.parentElement;
+      vid.removeAttribute("controls");
       var b = document.createElement("button"); b.type = "button"; b.className = "b-ctl";
       function marcar() { var p = vid.paused; b.textContent = p ? "▶ Reproducir" : "❚❚ Pausar"; b.setAttribute("aria-label", p ? "Reproducir animación" : "Pausar animación"); }
-      b.addEventListener("click", function () { if (vid.paused) vid.play(); else vid.pause(); });
+      function reproducir() { var pr = vid.play(); if (pr && pr.catch) pr.catch(function () {}); }
+      b.addEventListener("click", function () { if (vid.paused) reproducir(); else vid.pause(); });
       vid.addEventListener("play", marcar); vid.addEventListener("pause", marcar);
       caja.appendChild(b);
       vid.muted = true; vid.setAttribute("playsinline", ""); vid.loop = true;
+      if (quieto || !("IntersectionObserver" in window)) ponerPortada(vid);
       if (quieto) { vid.removeAttribute("autoplay"); vid.pause(); marcar(); return; }
       if ("IntersectionObserver" in window) {
+        var cerca = new IntersectionObserver(function (ents) {
+          if (ents.some(function (e) { return e.isIntersecting; })) { ponerPortada(vid); vid.preload = "auto"; cerca.disconnect(); }
+        }, { rootMargin: "600px 0px" });
         var io = new IntersectionObserver(function (ents) {
           ents.forEach(function (e) {
-            if (e.isIntersecting) { if (!vid.dataset.pausadoUsuario) { var pr = vid.play(); if (pr && pr.catch) pr.catch(function () {}); } }
+            if (e.isIntersecting) { if (!vid.dataset.pausadoUsuario) reproducir(); }
             else if (!vid.paused) vid.pause();
           });
         }, { threshold: .25 });
-        io.observe(vid);
+        trasCarga(function () { cerca.observe(vid); io.observe(vid); });
         b.addEventListener("click", function () { if (vid.paused) vid.dataset.pausadoUsuario = "1"; else delete vid.dataset.pausadoUsuario; });
-      }
+      } else trasCarga(reproducir);
       marcar();
     });
   }
@@ -671,11 +702,61 @@
         var mqm = window.matchMedia("(prefers-reduced-motion: reduce)"), alReducir = function (e) { if (e.matches) parar(); };
         if (mqm.addEventListener) mqm.addEventListener("change", alReducir); else if (mqm.addListener) mqm.addListener(alReducir);
       }
-      for (var n = 1; n <= btns.length; n++) { var a = new Image(); a.src = "img/fotos/etapa-" + n + "-mapa.jpg"; }
+      /* Precarga de los otros mapas en el formato que el navegador ya eligió para el primero, y solo
+         cuando la secuencia se acerca a la pantalla. Antes se pedían los JPG al cargar la página
+         aunque se mostraran los WebP. */
+      function precargar() {
+        var ext = /\.webp(\?|$)/.test(mapa.currentSrc || "") ? ".webp" : ".jpg";
+        for (var n = 1; n <= btns.length; n++) { var a = new Image(); a.src = "img/fotos/etapa-" + n + "-mapa" + ext; }
+      }
+      if ("IntersectionObserver" in window) {
+        var obs = new IntersectionObserver(function (ents) {
+          if (!ents.some(function (e) { return e.isIntersecting; })) return;
+          obs.disconnect();
+          if (mapa.complete) precargar(); else mapa.addEventListener("load", precargar, { once: true });
+        }, { rootMargin: "400px 0px" });
+        obs.observe(box);
+      }
     });
   }
 
-  /* Interactivos con carga diferida */
+  /* Interactivos con carga diferida.
+     MODULOS dice qué archivo registra cada interactivo en window.VISUALES. Las páginas ya no cargan esos
+     archivos al abrirse: cada uno se pide la primera vez que un interactivo suyo se acerca a la pantalla.
+     La observación empieza con el evento load, con el primer desplazamiento o a los 3 s, lo que ocurra
+     antes, para que los interactivos no compitan con la primera pintura. Los modelos de cálculo
+     (control-modelo.js, movimiento-modelo.js y otros) siguen en el HTML porque estos archivos los leen
+     al cargarse. Para agregar un interactivo, registra su nombre aquí. */
+  var MODULOS = {
+    "js/vis1.js": "astar frontera metas listanegra cobertura alcance",
+    "js/vis2.js": "estacionario tiempo leyes papeles cancelacion ciclo truncamiento acumulador windup zonas pso resolucion lazo-rueda fopdt protocolo camino",
+    "js/vis3.js": "odometria iteracion2 giro arquitectura versiones gemelo costo fallaria vistas esquema",
+    "js/sims.js": "exploracion cinematica encoder pid enjambre inflacion dwb",
+    "js/mapeo.js": "lidar rejilla marcos-mapeo barridos lazo rviz-colores",
+    "js/movimiento.js": "calibracion cuadrado",
+    "js/evidencia.js": "estabilidad plano-mapa repeticiones",
+    "js/slam-proceso.js": "candidatos-slam cola-slam"
+  };
+  var MODULO_DE = {};
+  Object.keys(MODULOS).forEach(function (src) { MODULOS[src].split(" ").forEach(function (n) { MODULO_DE[n] = src; }); });
+  window.SITIO.MODULOS = MODULOS;
+  var cargas = {};
+  function cargarModulo(nombre, listo) {
+    var src = MODULO_DE[nombre];
+    if (!src || (window.VISUALES && window.VISUALES[nombre])) { listo(); return; }
+    var c = cargas[src];
+    if (!c) {
+      c = cargas[src] = { hecho: false, esperan: [] };
+      var s = document.createElement("script");
+      s.src = src;
+      var fin = function () { c.hecho = true; c.esperan.splice(0).forEach(function (f) { f(); }); };
+      s.onload = fin;
+      /* sin red el archivo se vuelve a pedir en el próximo intento */
+      s.onerror = function () { s.remove(); delete cargas[src]; fin(); };
+      document.head.appendChild(s);
+    }
+    if (c.hecho) listo(); else c.esperan.push(listo);
+  }
   function interactivos() {
     var els = document.querySelectorAll("[data-vis]");
     function montar(el) {
@@ -689,19 +770,41 @@
       try { el.setAttribute("data-montado", "1"); f(el); el.removeAttribute("data-error-vis"); }
       catch (e) { fallo(el, "No se pudo cargar este interactivo en tu navegador."); if (window.console) console.error(e); }
     }
+    function pedir(el, despues) {
+      if (el.getAttribute("data-montado")) { if (despues) despues(); return; }
+      cargarModulo(el.getAttribute("data-vis"), function () { montar(el); if (despues) despues(); });
+    }
     function fallo(el, message) {
       el.innerHTML = el.respaldoVis;
       el.removeAttribute("data-montado"); el.setAttribute("data-error-vis", "1");
       var p = document.createElement("p"); p.className = "vis-error"; p.setAttribute("role", "status"); p.textContent = message + " La explicación de respaldo permanece disponible. ";
       var b = document.createElement("button"); b.type = "button"; b.className = "vbtn sec"; b.textContent = "Reintentar";
-      b.addEventListener("click", function () { montar(el); }); p.appendChild(b); el.appendChild(p);
+      b.addEventListener("click", function () {
+        var nombre = el.getAttribute("data-vis"), src = MODULO_DE[nombre];
+        /* si el archivo llegó pero no registró el interactivo, se vuelve a pedir */
+        if (src && cargas[src] && cargas[src].hecho && !(window.VISUALES && window.VISUALES[nombre])) delete cargas[src];
+        pedir(el);
+      });
+      p.appendChild(b); el.appendChild(p);
     }
-    if (!("IntersectionObserver" in window)) { els.forEach(montar); return; }
+    if (!("IntersectionObserver" in window)) { els.forEach(function (el) { pedir(el); }); return; }
     /* Se montan con holgura, antes de que el lector llegue, para que el texto no salte al crecer cada interactivo. */
     var io = new IntersectionObserver(function (ents) {
-      ents.forEach(function (e) { if (e.isIntersecting) { montar(e.target); io.unobserve(e.target); } });
+      ents.forEach(function (e) { if (e.isIntersecting) { io.unobserve(e.target); pedir(e.target); } });
     }, { rootMargin: "1200px 0px" });
-    els.forEach(function (el) { io.observe(el); });
+    var activo = false;
+    function activar() {
+      if (activo) return;
+      activo = true;
+      window.removeEventListener("scroll", activar);
+      els.forEach(function (el) { if (!el.getAttribute("data-montado")) io.observe(el); });
+    }
+    if (document.readyState === "complete") activar();
+    else {
+      window.addEventListener("load", activar, { once: true });
+      window.addEventListener("scroll", activar, { passive: true });
+      setTimeout(activar, 3000);
+    }
     /* En un enlace a una sección, se montan primero los interactivos anteriores y luego se vuelve al destino. */
     function alDestino() {
       if (!location.hash) return;
@@ -710,8 +813,13 @@
       /* los que siguen dentro de un details cerrado se montan al abrirlo, cuando ya tienen ancho */
       var antes = Array.prototype.filter.call(els, function (el) { return !el.getAttribute("data-montado") && (el.compareDocumentPosition(dest) & 4) && !el.closest("details:not([open])"); });
       if (!antes.length) return;
-      antes.forEach(function (el) { montar(el); io.unobserve(el); });
-      requestAnimationFrame(function () { dest.scrollIntoView({ block: "start" }); });
+      var faltan = antes.length;
+      antes.forEach(function (el) {
+        io.unobserve(el);
+        pedir(el, function () {
+          if (--faltan === 0) requestAnimationFrame(function () { dest.scrollIntoView({ block: "start" }); });
+        });
+      });
     }
     alDestino();
     window.addEventListener("hashchange", alDestino);
@@ -790,6 +898,28 @@
     document.querySelectorAll("details").forEach(function (d) { d.addEventListener("toggle", function () { if (d.open) revisar(); }); });
   }
 
+  /* Filtro del glosario en Recursos: escribe un término y quedan solo las definiciones que lo contienen.
+     Usa la misma normalización del buscador, sin tildes ni mayúsculas. */
+  function glosario() {
+    var dl = document.querySelector("dl.glosario");
+    if (!dl) return;
+    var items = [].filter.call(dl.children, function (d) { return d.tagName === "DIV"; });
+    var caja = document.createElement("div");
+    caja.className = "filtro-glosario";
+    caja.innerHTML = '<label for="g-filtro">Filtrar el glosario</label><div class="campo-buscar">' + SVG.lupa + '<input id="g-filtro" type="search" autocomplete="off" spellcheck="false" placeholder="Por ejemplo: odometría, frontera o PID"></div><p class="filtro-estado" role="status" aria-live="polite"></p>';
+    dl.parentNode.insertBefore(caja, dl);
+    var input = caja.querySelector("input"), estado = caja.querySelector(".filtro-estado");
+    var textos = items.map(function (d) { return BUS.norm(d.textContent); });
+    input.addEventListener("input", function () {
+      var ps = BUS.tokens(input.value), n = 0;
+      items.forEach(function (d, i) {
+        var ver = !ps.length || ps.every(function (p) { return textos[i].indexOf(p) >= 0; });
+        d.hidden = !ver; if (ver) n++;
+      });
+      estado.textContent = !ps.length ? "" : (n ? n + (n === 1 ? " término coincide." : " términos coinciden.") : "Ningún término coincide. Prueba con el buscador del sitio.");
+    });
+  }
+
   /* Estado del PDF de la tesis en Recursos */
   function materiales() {
     if (!TESIS_PDF) return;
@@ -798,13 +928,27 @@
     });
   }
 
-  function iniciar() {
-    /* Cada parte arranca aislada: un fallo en una no impide montar las siguientes. */
-    [cabecera, pie, capitulo, progreso, arriba, videos, bucles, ampliar, comparadores, citasYTerminos, buscador, materiales, etapas, plegados, interactivos, destacarHash, tablasDesplazables].forEach(function (f) {
+  /* Cada parte arranca aislada: un fallo en una no impide montar las siguientes. */
+  function iniciar(partes) {
+    partes.forEach(function (f) {
       try { f(); } catch (e) { if (window.console) console.error("No se pudo iniciar " + (f.name || "una parte del sitio"), e); }
     });
-    document.documentElement.classList.add("js");
   }
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", iniciar); else iniciar();
+  /* sitio.js se carga antes que los archivos de interactivos. La cabecera, el pie y las ayudas de lectura
+     se arman en cuanto llega, sin esperar esos archivos. Los interactivos se montan después de
+     DOMContentLoaded, cuando todos los scripts diferidos ya registraron sus funciones. */
+  function alListo(fn) {
+    if (document.readyState === "complete") { fn(); return; }
+    var hecho = false;
+    function una() { if (!hecho) { hecho = true; fn(); } }
+    document.addEventListener("DOMContentLoaded", una);
+    window.addEventListener("load", una);
+  }
+  function arrancar() {
+    iniciar([cabecera, pie, capitulo, progreso, arriba, videos, bucles, ampliar, comparadores, citasYTerminos, buscador, glosario, materiales, etapas, plegados]);
+    document.documentElement.classList.add("js");
+    alListo(function () { iniciar([interactivos, destacarHash, tablasDesplazables]); });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", arrancar); else arrancar();
   window.SITIO.quieto = quieto;
 })();

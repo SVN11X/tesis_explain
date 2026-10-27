@@ -17,13 +17,18 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#004EAA">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#004EAA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0D131C" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
+<link rel="preload" href="fuentes/archivo-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fuentes/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/estilo.css">
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <script src="datos/proyecto.js" defer></script>
 <script src="js/comun.js" defer></script>
 <script src="js/sitio.js" defer></script>
+<script type="speculationrules">{"prefetch":[{"where":{"selector_matches":"a:not([href^='http'])[href$='.html'], a:not([href^='http'])[href*='.html#']"},"eagerness":"moderate"}]}</script>
 </head>
 <body data-pagina="mundo-real">
 <a class="saltar" href="#contenido">Saltar al contenido</a>
@@ -42,7 +47,7 @@
       <div class="meta-cap"><span class="etiqueta" data-lectura>Lectura</span></div>
     </div>
     <div class="tema-hero-fig">
-      <div class="video" data-yt="DTNRc2N1vbg" data-titulo="Perseverance AutoNav Avoids a Boulder" data-sub="Navegación autónoma en Marte, en inglés"><a href="https://www.youtube.com/watch?v=DTNRc2N1vbg" style="color:#fff;display:grid;place-items:center;height:100%">Ver el video en YouTube</a></div>
+      <div class="video" data-yt="DTNRc2N1vbg" data-titulo="Perseverance AutoNav Avoids a Boulder" data-sub="Navegación autónoma en Marte, en inglés"><a href="https://www.youtube.com/watch?v=DTNRc2N1vbg">Ver el video en YouTube</a></div>
     </div>
   </div>
 </header>

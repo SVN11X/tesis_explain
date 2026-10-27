@@ -17,23 +17,21 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#004EAA">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#004EAA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0D131C" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
+<link rel="preload" href="fuentes/archivo-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fuentes/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/estilo.css">
 <link rel="stylesheet" href="css/mapeo.css">
 <link rel="stylesheet" href="css/evidencia.css">
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <script src="datos/proyecto.js" defer></script>
 <script src="js/comun.js" defer></script>
-<script src="js/vis1.js" defer></script>
-<script src="js/vis2.js" defer></script>
-<script src="js/vis3.js" defer></script>
-<script src="js/sims.js" defer></script>
-<script src="js/mapeo.js" defer></script>
-<script src="js/slam-proceso.js" defer></script>
-<script src="js/estadistica-modelo.js" defer></script>
-<script src="js/evidencia.js" defer></script>
 <script src="js/sitio.js" defer></script>
+<script src="js/estadistica-modelo.js" defer></script>
+<script type="speculationrules">{"prefetch":[{"where":{"selector_matches":"a:not([href^='http'])[href$='.html'], a:not([href^='http'])[href*='.html#']"},"eagerness":"moderate"}]}</script>
 </head>
 <body data-pagina="mapeo">
 <a class="saltar" href="#contenido">Saltar al contenido</a>
@@ -280,7 +278,7 @@
   <h2 id="como-crece">Así crece el mapa en el robot real</h2>
   <p>Cuatro momentos de una misma exploración. A la izquierda, la cámara cenital sobre el recinto. A la derecha, RViz, el programa que muestra los datos del robot. La línea verde es la ruta que planifica la navegación hacia la <span class="term" data-t="Frontera" data-def="Borde entre el espacio libre conocido y lo desconocido en un mapa.">frontera</span> elegida, no el camino ya recorrido.</p>
   <figure class="bucle-env">
-    <div class="bucle"><video autoplay muted loop playsinline preload="metadata" poster="img/tesis/exploracion-real-poster.jpg" width="1280" height="686" aria-label="Animación de cuatro capturas de la exploración real: cámara cenital y mapa en RViz que crece desde un pasillo hasta casi todo el recinto."><source src="img/tesis/exploracion-real.mp4" type="video/mp4"></video></div>
+    <div class="bucle"><video muted loop playsinline controls preload="none" data-poster="img/tesis/exploracion-real-poster.webp" width="1280" height="686" aria-label="Animación de cuatro capturas de la exploración real: cámara cenital y mapa en RViz que crece desde un pasillo hasta casi todo el recinto."><source src="img/tesis/exploracion-real.mp4" type="video/mp4"></video></div>
     <figcaption>La exploración en cuatro capturas, en bucle. A la izquierda de cada panel, la cámara cenital, y a la derecha RViz. <small>Fig. A7.1 de la tesis.</small></figcaption>
   </figure>
   <div class="etapas">

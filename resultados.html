@@ -17,20 +17,20 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#004EAA">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#004EAA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0D131C" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
+<link rel="preload" href="fuentes/archivo-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fuentes/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/estilo.css">
 <link rel="stylesheet" href="css/evidencia.css">
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <script src="datos/proyecto.js" defer></script>
 <script src="js/comun.js" defer></script>
-<script src="js/vis1.js" defer></script>
-<script src="js/vis2.js" defer></script>
-<script src="js/vis3.js" defer></script>
-<script src="js/sims.js" defer></script>
-<script src="js/estadistica-modelo.js" defer></script>
-<script src="js/evidencia.js" defer></script>
 <script src="js/sitio.js" defer></script>
+<script src="js/estadistica-modelo.js" defer></script>
+<script type="speculationrules">{"prefetch":[{"where":{"selector_matches":"a:not([href^='http'])[href$='.html'], a:not([href^='http'])[href*='.html#']"},"eagerness":"moderate"}]}</script>
 </head>
 <body data-pagina="resultados">
 <a class="saltar" href="#contenido">Saltar al contenido</a>
@@ -50,7 +50,7 @@
     </div>
     <div class="tema-hero-fig">
       <div class="video" data-yt="iTTC10eGDmc" data-portada="img/fotos/video-portada" data-titulo="El robot explorando por su cuenta" data-sub="Ejecución de demostración sobre hardware real">
-        <a href="https://www.youtube.com/watch?v=iTTC10eGDmc" style="color:#fff;display:grid;place-items:center;height:100%">Ver el video en YouTube</a>
+        <a href="https://www.youtube.com/watch?v=iTTC10eGDmc">Ver el video en YouTube</a>
       </div>
     </div>
   </div>
@@ -75,9 +75,9 @@
   <h2 id="palabras">Validado, evaluado y verificado</h2>
   <p>Uso tres niveles de evidencia, y entenderlos es la mejor forma de leer los resultados. La diferencia de fondo es la que hace el manual de ingeniería de sistemas de la NASA entre verificar, que es comprobar que se cumplen los requisitos especificados, y validar, que es demostrar que el producto cumple su propósito en el entorno real <a class="ref" href="#f2">2</a>.</p>
   <div class="decisiones">
-    <article class="decision"><span class="d-que"><span class="estado val">Validado cuantitativamente</span></span><h4>Medido contra una referencia independiente</h4><p>Con repeticiones y una referencia externa al propio sistema. Ejemplo, la odometría frente a una cinta métrica, cinco veces.</p></article>
-    <article class="decision"><span class="d-que"><span class="estado ok">Evaluado experimentalmente</span></span><h4>Medido en el robot, en condiciones acotadas</h4><p>Con indicadores reales, pero en un caso particular. Ejemplo, el control de velocidad a 0,13 m/s.</p></article>
-    <article class="decision"><span class="d-que"><span class="estado par">Verificado funcionalmente</span></span><h4>Funciona de punta a punta</h4><p>Sin un indicador cuantitativo de desempeño. Ejemplo, la navegación hacia las metas del explorador.</p></article>
+    <article class="decision"><span class="d-que"><span class="estado val">Validado cuantitativamente</span></span><h3>Medido contra una referencia independiente</h3><p>Con repeticiones y una referencia externa al propio sistema. Ejemplo, la odometría frente a una cinta métrica, cinco veces.</p></article>
+    <article class="decision"><span class="d-que"><span class="estado ok">Evaluado experimentalmente</span></span><h3>Medido en el robot, en condiciones acotadas</h3><p>Con indicadores reales, pero en un caso particular. Ejemplo, el control de velocidad a 0,13 m/s.</p></article>
+    <article class="decision"><span class="d-que"><span class="estado par">Verificado funcionalmente</span></span><h3>Funciona de punta a punta</h3><p>Sin un indicador cuantitativo de desempeño. Ejemplo, la navegación hacia las metas del explorador.</p></article>
   </div>
   <p>El control agrega una evidencia de otro tipo, una verificación analítica. La estabilidad y los márgenes se calcularon sobre el modelo identificado de cada rueda. No reemplaza a la medición en el robot, la complementa, y vale solo para el modelo lineal <a class="ref" href="#f1">1</a>.</p>
   <p class="destacado">En este sitio cada resultado dice en cuál de los tres niveles está.</p>
@@ -120,10 +120,10 @@
 <section>
   <h2 id="objetivos">Los cuatro objetivos, uno por uno</h2>
   <ul class="oes">
-    <li class="ok"><b>OE1</b><span><b style="font-family:inherit">Construcción y gemelo digital.</b> Se construyó la plataforma y se verificó su gemelo con el backend de ros2_control en Gazebo Classic, según los cuatro criterios de funcionamiento de la Tabla A2.2. No incluyó una comparación cuantitativa entre simulación y hardware sobre una misma variable, porque la distancia simulada sale de la propia odometría.</span><em>Cumplido</em></li>
-    <li class="par"><b>OE2</b><span><b style="font-family:inherit">Control de bajo nivel.</b> Se implementaron <span class="term" data-t="Encoder" data-def="Sensor que produce dos señales desfasadas al girar un eje, para contar el giro y saber su sentido.">encoders</span>, estados de rueda, control y odometría. La estabilidad de la ley ejecutada, un <span class="term" data-def="Controlador que en cada ciclo calcula cuánto cambiar la salida, en vez de calcularla completa.">PI incremental</span> heredado, se verificó sobre su idealización lineal. Ese análisis no incluye los efectos no lineales del firmware, y el desempeño se midió en un solo punto de operación.</span><em>Parcial</em></li>
-    <li class="par"><b>OE3</b><span><b style="font-family:inherit">Localización, mapeo y navegación.</b> Mapeo y localización verificados en el robot real, con cobertura y área. <span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span> llevó al robot hacia las metas del explorador en las cinco ejecuciones válidas, con 21,9 m de recorrido autónomo. De los 54 abortos, 53 cumplen el criterio temporal de asociación a reemplazos, sin que eso descarte fallas concurrentes. Falta un indicador cuantitativo del desempeño de la navegación.</span><em>Parcial</em></li>
-    <li class="ok"><b>OE4</b><span><b style="font-family:inherit">Exploración autónoma.</b> Generó 60 metas sin intervención y cinco de seis ejecuciones terminaron solas con mapa válido. En la restante el robot no se desplazó y la causa no se determinó. Sus mapas se compararon con un plano medido. Su principal limitación es que tacha metas que él mismo reemplaza.</span><em>Cumplido</em></li>
+    <li class="ok"><b>OE1</b><span><b>Construcción y gemelo digital.</b> Se construyó la plataforma y se verificó su gemelo con el backend de ros2_control en Gazebo Classic, según los cuatro criterios de funcionamiento de la Tabla A2.2. No incluyó una comparación cuantitativa entre simulación y hardware sobre una misma variable, porque la distancia simulada sale de la propia odometría.</span><em>Cumplido</em></li>
+    <li class="par"><b>OE2</b><span><b>Control de bajo nivel.</b> Se implementaron <span class="term" data-t="Encoder" data-def="Sensor que produce dos señales desfasadas al girar un eje, para contar el giro y saber su sentido.">encoders</span>, estados de rueda, control y odometría. La estabilidad de la ley ejecutada, un <span class="term" data-def="Controlador que en cada ciclo calcula cuánto cambiar la salida, en vez de calcularla completa.">PI incremental</span> heredado, se verificó sobre su idealización lineal. Ese análisis no incluye los efectos no lineales del firmware, y el desempeño se midió en un solo punto de operación.</span><em>Parcial</em></li>
+    <li class="par"><b>OE3</b><span><b>Localización, mapeo y navegación.</b> Mapeo y localización verificados en el robot real, con cobertura y área. <span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span> llevó al robot hacia las metas del explorador en las cinco ejecuciones válidas, con 21,9 m de recorrido autónomo. De los 54 abortos, 53 cumplen el criterio temporal de asociación a reemplazos, sin que eso descarte fallas concurrentes. Falta un indicador cuantitativo del desempeño de la navegación.</span><em>Parcial</em></li>
+    <li class="ok"><b>OE4</b><span><b>Exploración autónoma.</b> Generó 60 metas sin intervención y cinco de seis ejecuciones terminaron solas con mapa válido. En la restante el robot no se desplazó y la causa no se determinó. Sus mapas se compararon con un plano medido. Su principal limitación es que tacha metas que él mismo reemplaza.</span><em>Cumplido</em></li>
   </ul>
   <p>Respecto de la pregunta de investigación, la respuesta es afirmativa para mapear y explorar en el entorno ensayado. Con seis ejecuciones, el cinco de seis se considera descriptivo y no se generaliza como tasa de desempeño. La navegación funciona de extremo a extremo, y lo que queda abierto es medirla con un protocolo de metas fijas <a class="ref" href="#f1">1</a>.</p>
 </section>
@@ -182,18 +182,18 @@
   <h2 id="limitaciones">Limitaciones declaradas</h2>
   <p>Estas son las limitaciones que reconoce la tesis <a class="ref" href="#f1">1</a>.</p>
   <div class="decisiones">
-    <article class="decision"><span class="d-que">Percepción y movimiento</span><h4>Deriva odométrica</h4><p>Sin unidad inercial, la odometría acumula error en giros y recorridos largos.</p></article>
-    <article class="decision"><span class="d-que">Ensayos</span><h4>Recinto único y reducido</h4><p>El espacio disponible limita los recorridos largos y condiciona la geometría de los mapas de costos.</p></article>
-    <article class="decision"><span class="d-que">Navegación</span><h4>Sin tasa de éxito</h4><p>Los contadores no identificaban metas únicas y el resultado se reconstruyó después. Sin un protocolo con metas fijas, no hay tasa de éxito ni error de posición final.</p></article>
-    <article class="decision"><span class="d-que">Mapeo</span><h4>Exactitud medida con huincha</h4><p>El plano se midió a mano. El espesor de los muros explica a lo sumo 4 de los 12 cm en que los pasillos salen más anchos, y el resto puede venir de la medición o del mapa.</p></article>
-    <article class="decision"><span class="d-que">Control</span><h4>Métricas que no se mezclan</h4><p>Los indicadores de la Tabla 5.3 vienen de la captura real. Los sobreimpulsos de 10,7 a 15,6 % vienen de una simulación ilustrativa y no son la misma prueba.</p></article>
-    <article class="decision"><span class="d-que">Control</span><h4>Modelo y sintonía</h4><p>La captura de 0,1 s no resuelve el retardo, el único escalón no representa la zona muerta y la simulación del costo del <span class="term" data-def="Optimización por enjambre de partículas, que busca el mejor valor moviendo muchos candidatos que comparten lo que encuentran.">PSO</span> no replica los enteros del firmware.</p></article>
-    <article class="decision"><span class="d-que">Control</span><h4>Ley heredada</h4><p>Kp actúa como ganancia integral, Kd como proporcional sobre la medición y Ki como segunda integración. Su estabilidad se verificó con un análisis lineal, sin compararla con un <span class="term" data-def="Controlador que combina una acción proporcional al error, una integral del error pasado y una derivativa de su tendencia.">PID</span> incremental estándar ni caracterizarla a baja velocidad.</p></article>
-    <article class="decision"><span class="d-que">Simulación</span><h4>Fidelidad limitada</h4><p>Gazebo Classic no reproduce del todo la fricción, la zona muerta del driver, el ruido de los sensores ni las latencias reales.</p></article>
-    <article class="decision"><span class="d-que">Software</span><h4>Versiones en fin de vida</h4><p><span class="term" data-def="Conjunto de bibliotecas y herramientas de código abierto para construir sistemas robóticos modulares y distribuidos.">ROS 2</span> Foxy y <span class="term" data-def="Simulador 3D de robots, aquí en su versión 11, que llegó al fin de soporte en enero de 2025.">Gazebo Classic</span> ya no reciben soporte oficial.</p></article>
-    <article class="decision"><span class="d-que">Validez externa</span><h4>Pocas repeticiones</h4><p>Un único recinto, de 3,50 m² de área libre media, y cinco iteraciones. Los intervalos son amplios en la cobertura, la desviación angular y la proporción de exploraciones válidas.</p></article>
-    <article class="decision"><span class="d-que">Integración</span><h4>Detalles conservados del código</h4><p>Lectura no atómica de encoders, posición global del PSO copiada desde la posición actual y sin semilla fija, y puntaje de fronteras con unidades mezcladas. Se documentan tal como se ejecutan.</p></article>
-    <article class="decision"><span class="d-que">Integración</span><h4>Explorador y Nav2</h4><p>El explorador envía una meta nueva sin cancelar la anterior y Nav2 la informa como abortada. Por eso el resultado de las metas no mide éxito, y la lista negra recibe fronteras que no fallaron.</p></article>
+    <article class="decision"><span class="d-que">Percepción y movimiento</span><h3>Deriva odométrica</h3><p>Sin unidad inercial, la odometría acumula error en giros y recorridos largos.</p></article>
+    <article class="decision"><span class="d-que">Ensayos</span><h3>Recinto único y reducido</h3><p>El espacio disponible limita los recorridos largos y condiciona la geometría de los mapas de costos.</p></article>
+    <article class="decision"><span class="d-que">Navegación</span><h3>Sin tasa de éxito</h3><p>Los contadores no identificaban metas únicas y el resultado se reconstruyó después. Sin un protocolo con metas fijas, no hay tasa de éxito ni error de posición final.</p></article>
+    <article class="decision"><span class="d-que">Mapeo</span><h3>Exactitud medida con huincha</h3><p>El plano se midió a mano. El espesor de los muros explica a lo sumo 4 de los 12 cm en que los pasillos salen más anchos, y el resto puede venir de la medición o del mapa.</p></article>
+    <article class="decision"><span class="d-que">Control</span><h3>Métricas que no se mezclan</h3><p>Los indicadores de la Tabla 5.3 vienen de la captura real. Los sobreimpulsos de 10,7 a 15,6 % vienen de una simulación ilustrativa y no son la misma prueba.</p></article>
+    <article class="decision"><span class="d-que">Control</span><h3>Modelo y sintonía</h3><p>La captura de 0,1 s no resuelve el retardo, el único escalón no representa la zona muerta y la simulación del costo del <span class="term" data-def="Optimización por enjambre de partículas, que busca el mejor valor moviendo muchos candidatos que comparten lo que encuentran.">PSO</span> no replica los enteros del firmware.</p></article>
+    <article class="decision"><span class="d-que">Control</span><h3>Ley heredada</h3><p>Kp actúa como ganancia integral, Kd como proporcional sobre la medición y Ki como segunda integración. Su estabilidad se verificó con un análisis lineal, sin compararla con un <span class="term" data-def="Controlador que combina una acción proporcional al error, una integral del error pasado y una derivativa de su tendencia.">PID</span> incremental estándar ni caracterizarla a baja velocidad.</p></article>
+    <article class="decision"><span class="d-que">Simulación</span><h3>Fidelidad limitada</h3><p>Gazebo Classic no reproduce del todo la fricción, la zona muerta del driver, el ruido de los sensores ni las latencias reales.</p></article>
+    <article class="decision"><span class="d-que">Software</span><h3>Versiones en fin de vida</h3><p><span class="term" data-def="Conjunto de bibliotecas y herramientas de código abierto para construir sistemas robóticos modulares y distribuidos.">ROS 2</span> Foxy y <span class="term" data-def="Simulador 3D de robots, aquí en su versión 11, que llegó al fin de soporte en enero de 2025.">Gazebo Classic</span> ya no reciben soporte oficial.</p></article>
+    <article class="decision"><span class="d-que">Validez externa</span><h3>Pocas repeticiones</h3><p>Un único recinto, de 3,50 m² de área libre media, y cinco iteraciones. Los intervalos son amplios en la cobertura, la desviación angular y la proporción de exploraciones válidas.</p></article>
+    <article class="decision"><span class="d-que">Integración</span><h3>Detalles conservados del código</h3><p>Lectura no atómica de encoders, posición global del PSO copiada desde la posición actual y sin semilla fija, y puntaje de fronteras con unidades mezcladas. Se documentan tal como se ejecutan.</p></article>
+    <article class="decision"><span class="d-que">Integración</span><h3>Explorador y Nav2</h3><p>El explorador envía una meta nueva sin cancelar la anterior y Nav2 la informa como abortada. Por eso el resultado de las metas no mide éxito, y la lista negra recibe fronteras que no fallaron.</p></article>
   </div>
 </section>
 

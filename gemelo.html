@@ -17,17 +17,18 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#004EAA">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#004EAA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0D131C" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
+<link rel="preload" href="fuentes/archivo-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fuentes/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/estilo.css">
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <script src="datos/proyecto.js" defer></script>
 <script src="js/comun.js" defer></script>
-<script src="js/vis1.js" defer></script>
-<script src="js/vis2.js" defer></script>
-<script src="js/vis3.js" defer></script>
-<script src="js/sims.js" defer></script>
 <script src="js/sitio.js" defer></script>
+<script type="speculationrules">{"prefetch":[{"where":{"selector_matches":"a:not([href^='http'])[href$='.html'], a:not([href^='http'])[href*='.html#']"},"eagerness":"moderate"}]}</script>
 </head>
 <body data-pagina="gemelo">
 <a class="saltar" href="#contenido">Saltar al contenido</a>
@@ -75,7 +76,7 @@
       <figcaption>El gemelo en Gazebo Classic: un chasis simple, dos ruedas, una rueda loca y el láser. <small>Fig. 4.2 de la tesis.</small></figcaption>
     </figure>
     <figure class="fig">
-      <picture><source srcset="img/fotos/robot-planta.webp" type="image/webp"><img src="img/fotos/robot-planta.jpg" width="900" height="958" loading="lazy" decoding="async" alt="El robot real visto desde arriba, con su carcasa negra y el láser al centro."></picture>
+      <picture><source srcset="img/fotos/robot-planta.webp" type="image/webp"><img src="img/fotos/robot-planta.jpg" data-grande="img/fotos/robot-planta-grande.jpg" width="900" height="958" loading="lazy" decoding="async" alt="El robot real visto desde arriba, con su carcasa negra y el láser al centro."></picture>
       <figcaption>El robot real, con el mismo radio de rueda, separación y posición del láser. <small>Fig. 4.4 de la tesis.</small></figcaption>
     </figure>
   </div>
@@ -155,7 +156,7 @@
   <div class="widget" hidden>
     <div class="widget-cab"><h3>La simulación y el robot real, lado a lado</h3><span class="tipo ilus">Ilustrativo</span></div>
     <figure class="bucle-env sim-real">
-      <div class="bucle"><video autoplay muted loop playsinline preload="metadata" data-poster="img/tesis/sim-vs-real-poster.jpg" width="1280" height="360" aria-label="La simulación en Gazebo Classic a la izquierda y el robot real a la derecha, con el mismo comportamiento."><source data-src="img/tesis/sim-vs-real.mp4" type="video/mp4"></video><span class="c-et a" aria-hidden="true">Simulación</span><span class="c-et b" aria-hidden="true">Robot real</span></div>
+      <div class="bucle"><video muted loop playsinline controls preload="none" data-poster="img/tesis/sim-vs-real-poster.jpg" width="1280" height="360" aria-label="La simulación en Gazebo Classic a la izquierda y el robot real a la derecha, con el mismo comportamiento."><source data-src="img/tesis/sim-vs-real.mp4" type="video/mp4"></video><span class="c-et a" aria-hidden="true">Simulación</span><span class="c-et b" aria-hidden="true">Robot real</span></div>
       <figcaption>Los dos videos muestran el mismo comportamiento. Sus cifras no se comparan entre sí, por las razones de esta sección.</figcaption>
     </figure>
   </div>

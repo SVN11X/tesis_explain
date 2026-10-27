@@ -35,7 +35,7 @@
 .q-estado-fila { justify-content: space-between; border-top: 1px solid var(--line); padding-top: 10px; }
 .q-conteo { font-size: var(--t-sm); color: var(--ink-2); }
 .q-acciones { display: flex; flex-wrap: wrap; gap: 6px; }
-.q-sin { margin-top: 18px; padding: 16px 18px; border: 1px dashed var(--line-2); border-radius: 12px; color: var(--ink-2); max-width: 70ch; }
+.q-sin { margin-top: 18px; padding: 16px 18px; border: 1px dashed var(--line-2); border-radius: 12px; color: var(--ink-2); max-width: 45.4em; }
 
 /* Temas */
 .articulo > section.q-tema { margin-top: 48px; padding-top: 0; }
@@ -57,9 +57,9 @@ details.pregunta > summary:focus-visible { outline: 3px solid var(--azul); outli
 .q-t { font-family: var(--f-display); font-stretch: 92%; font-weight: 700; font-size: 1.05rem; line-height: 1.35; color: var(--ink); }
 details.pregunta > summary .etiqueta { margin-top: 2px; }
 .q-cuerpo { padding: 0 18px 18px 62px; display: grid; gap: 12px; }
-.articulo .q-cuerpo p { max-width: 70ch; }
+.articulo .q-cuerpo p { max-width: 45.4em; }
 .articulo .q-cuerpo p + p { margin-top: 0; }
-.q-sigue { border-left: 3px solid var(--ambar); background: var(--ambar-suave); border-radius: 0 10px 10px 0; padding: 10px 14px; display: grid; gap: 4px; max-width: 70ch; }
+.q-sigue { border-left: 3px solid var(--ambar); background: var(--ambar-suave); border-radius: 0 10px 10px 0; padding: 10px 14px; display: grid; gap: 4px; max-width: 45.4em; }
 .q-sigue .q-rot { font-size: var(--t-xs); text-transform: uppercase; letter-spacing: .07em; font-family: var(--f-display); font-weight: 700; color: var(--ambar); }
 .q-respaldo { font-size: var(--t-sm); color: var(--ink-2); }
 .q-respaldo b { color: var(--ink); }
@@ -70,7 +70,7 @@ details.pregunta > summary .etiqueta { margin-top: 2px; }
 .q-herramientas .chip.vacio { opacity: .55; }
 
 /* Modo práctica: primero un espacio para responder, después la respuesta */
-.q-velo { border: 1px dashed var(--line-2); border-radius: 12px; padding: 14px; display: grid; gap: 10px; background: var(--bg); max-width: 70ch; }
+.q-velo { border: 1px dashed var(--line-2); border-radius: 12px; padding: 14px; display: grid; gap: 10px; background: var(--bg); max-width: 45.4em; }
 .q-velo p { font-size: var(--t-sm); color: var(--ink-2); }
 .q-velo label { font-size: var(--t-xs); font-weight: 700; color: var(--ink-2); }
 .q-velo textarea { width: 100%; min-height: 88px; resize: vertical; border: 1px solid var(--line-2); border-radius: 10px; background: var(--surface); color: var(--ink); font: inherit; font-size: var(--t-sm); padding: 10px 12px; }
@@ -78,7 +78,7 @@ details.pregunta > summary .etiqueta { margin-top: 2px; }
 .q-velo .btn { justify-self: start; }
 details.pregunta.velada .q-cuerpo > :not(.q-velo) { display: none; }
 details.pregunta:not(.velada) .q-velo { display: none; }
-.q-tu-respuesta { font-size: var(--t-sm); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; background: var(--bg); max-width: 70ch; white-space: pre-wrap; }
+.q-tu-respuesta { font-size: var(--t-sm); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; background: var(--bg); max-width: 45.4em; white-space: pre-wrap; }
 .q-tu-respuesta b { display: block; font-size: var(--t-xs); text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 2px; white-space: normal; }
 
 /* Fórmulas para responder */

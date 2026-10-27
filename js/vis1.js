@@ -2,9 +2,8 @@
 (function () {
   "use strict";
   var V = window.VISUALES, U = window.U;
-  var OK = '<svg class="ico ok" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7.5"/><path d="M4.5 8.3l2.3 2.3 4.7-5"/></svg>';
-  var NO = '<svg class="ico no" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7.5"/><path d="M5.2 5.2l5.6 5.6M10.8 5.2l-5.6 5.6"/></svg>';
-  V.ICO = { OK: OK, NO: NO };
+  /* Iconos compartidos, definidos en js/comun.js */
+  var ICO = V.ICO || (U && U.ICO) || { OK: "", NO: "" }, OK = ICO.OK, NO = ICO.NO;
 
   /* El capítulo 05 implementa esta visualización en js/mapeo.js. */
 

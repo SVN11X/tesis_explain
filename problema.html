@@ -17,13 +17,19 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#004EAA">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#004EAA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0D131C" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
+<link rel="preload" href="fuentes/archivo-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fuentes/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/estilo.css">
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <script src="datos/proyecto.js" defer></script>
 <script src="js/comun.js" defer></script>
 <script src="js/sitio.js" defer></script>
+<script src="js/decisiones.js" defer></script>
+<script type="speculationrules">{"prefetch":[{"where":{"selector_matches":"a:not([href^='http'])[href$='.html'], a:not([href^='http'])[href*='.html#']"},"eagerness":"moderate"}]}</script>
 </head>
 <body data-pagina="problema">
 <a class="saltar" href="#contenido">Saltar al contenido</a>
@@ -42,7 +48,7 @@
       <div class="meta-cap"><span data-nivel class="etiqueta">Nivel</span><span class="etiqueta" data-lectura>Lectura</span></div>
     </div>
     <figure class="tema-hero-fig">
-      <picture><source srcset="img/fotos/recinto-arriba.webp" type="image/webp"><img src="img/fotos/recinto-arriba.jpg" width="1600" height="909" alt="El recinto de pruebas visto desde arriba: piso de alfombra oscura, paredes de paneles rojos, negros y uno amarillo, con tabiques que forman pasillos y rincones." fetchpriority="high"></picture>
+      <picture><source srcset="img/fotos/recinto-arriba-900.webp 900w, img/fotos/recinto-arriba.webp 1600w" sizes="(max-width: 980px) 92vw, 500px" type="image/webp"><img src="img/fotos/recinto-arriba.jpg" width="1600" height="909" alt="El recinto de pruebas visto desde arriba: piso de alfombra oscura, paredes de paneles rojos, negros y uno amarillo, con tabiques que forman pasillos y rincones." fetchpriority="high"></picture>
       <figcaption>El recinto donde se hicieron todas las pruebas con el robot real. Fotografía del autor, Fig. 5.1 de la tesis.</figcaption>
     </figure>
   </div>
@@ -114,39 +120,39 @@
   <div class="decisiones">
     <article class="decision">
       <span class="d-que">Plataforma de software</span>
-      <h4>ROS 2</h4>
-      <div class="d-alt" aria-label="Alternativas"><span>ROS 1</span><span>YARP</span><span>Orocos RTT</span><span>LCM</span></div>
-      <p>Es modular y distribuida, sin un nodo maestro central, y trae un ecosistema completo de mapeo, navegación y exploración <a class="ref" href="#f2">2</a>. YARP, Orocos y LCM resuelven la comunicación o el tiempo real, pero no traen mapeo ni planificación. El fin de soporte de ROS 1 no fue el criterio, porque la versión usada, Foxy, también está fuera de soporte.</p>
+      <h3>ROS 2</h3>
+      <div class="d-alt" aria-label="Alternativas"><span data-alt="ros1">ROS 1</span><span data-alt="yarp">YARP</span><span data-alt="orocos">Orocos RTT</span><span data-alt="lcm">LCM</span></div>
+      <p><span data-razon="elegida ros1">Es modular y distribuida, sin un nodo maestro central, y trae un ecosistema completo de mapeo, navegación y exploración <a class="ref" href="#f2">2</a>.</span> <span data-razon="yarp orocos lcm">YARP, Orocos y LCM resuelven la comunicación o el tiempo real, pero no traen mapeo ni planificación.</span> <span data-razon="ros1">El fin de soporte de ROS 1 no fue el criterio, porque la versión usada, Foxy, también está fuera de soporte.</span></p>
     </article>
     <article class="decision">
       <span class="d-que">Sensor para ver</span>
-      <h4>LiDAR 2D</h4>
-      <div class="d-alt" aria-label="Alternativas"><span>Cámara de profundidad</span><span>Visión estéreo</span><span>LiDAR 3D</span></div>
-      <p>Las cámaras entregan más información, pero cargan más el procesamiento y dependen de la luz <a class="ref" href="#f5">5</a>. El LiDAR 3D ve más que un plano a cambio de muchos más datos. En interiores, el SLAM con LiDAR 2D es más económico y es la alternativa predominante <a class="ref" href="#f4">4</a>.</p>
+      <h3>LiDAR 2D</h3>
+      <div class="d-alt" aria-label="Alternativas"><span data-alt="profundidad">Cámara de profundidad</span><span data-alt="estereo">Visión estéreo</span><span data-alt="lidar3d">LiDAR 3D</span></div>
+      <p><span data-razon="profundidad estereo">Las cámaras entregan más información, pero cargan más el procesamiento y dependen de la luz <a class="ref" href="#f5">5</a>.</span> <span data-razon="lidar3d">El LiDAR 3D ve más que un plano a cambio de muchos más datos.</span> <span data-razon="elegida">En interiores, el SLAM con LiDAR 2D es más económico y es la alternativa predominante <a class="ref" href="#f4">4</a>.</span></p>
     </article>
     <article class="decision">
       <span class="d-que">Mapeo</span>
-      <h4>SLAM Toolbox</h4>
-      <div class="d-alt" aria-label="Alternativas"><span>GMapping</span><span>Hector SLAM</span><span>Cartographer</span></div>
-      <p>Se integra de forma nativa con ROS 2, usa un grafo de poses y puede guardar y cargar mapas. GMapping usa un filtro de partículas y no el mismo esquema de cierre y optimización de un grafo de poses; Hector exige un láser de barrido muy rápido y Cartographer es complejo de ajustar y fue el que más CPU usó en una comparación independiente <a class="ref" href="#f6">6</a>. Detalle en <a href="mapeo.html#por-que-slam-toolbox">Ver y mapear</a>.</p>
+      <h3>SLAM Toolbox</h3>
+      <div class="d-alt" aria-label="Alternativas"><span data-alt="gmapping">GMapping</span><span data-alt="hector">Hector SLAM</span><span data-alt="cartographer">Cartographer</span></div>
+      <p><span data-razon="elegida">Se integra de forma nativa con ROS 2, usa un grafo de poses y puede guardar y cargar mapas.</span> <span data-razon="gmapping">GMapping usa un filtro de partículas y no el mismo esquema de cierre y optimización de un grafo de poses</span>; <span data-razon="hector">Hector exige un láser de barrido muy rápido</span> y <span data-razon="cartographer">Cartographer es complejo de ajustar y fue el que más CPU usó en una comparación independiente <a class="ref" href="#f6">6</a></span>. Detalle en <a href="mapeo.html#por-que-slam-toolbox">Ver y mapear</a>.</p>
     </article>
     <article class="decision">
       <span class="d-que">Navegación</span>
-      <h4>Nav2 con NavFn y DWB</h4>
-      <div class="d-alt" aria-label="Alternativas"><span>move_base</span><span>Autoware</span><span>Arquitectura propia con OMPL</span></div>
-      <p>Nav2 es el marco de navegación de referencia en ROS 2 <a class="ref" href="#f3">3</a>. Su búsqueda sobre rejilla y su control reactivo calzan con un mapa de ocupación 2D y cuestan poco cálculo. move_base quedó atado a ROS 1, Autoware apunta a autos autónomos y una arquitectura propia exige mucho más trabajo de integración.</p>
+      <h3>Nav2 con NavFn y DWB</h3>
+      <div class="d-alt" aria-label="Alternativas"><span data-alt="movebase">move_base</span><span data-alt="autoware">Autoware</span><span data-alt="ompl">Arquitectura propia con OMPL</span></div>
+      <p><span data-razon="elegida">Nav2 es el marco de navegación de referencia en ROS 2 <a class="ref" href="#f3">3</a>.</span> <span data-razon="elegida">Su búsqueda sobre rejilla y su control reactivo calzan con un mapa de ocupación 2D y cuestan poco cálculo.</span> <span data-razon="movebase">move_base quedó atado a ROS 1</span>, <span data-razon="autoware">Autoware apunta a autos autónomos</span> y <span data-razon="ompl">una arquitectura propia exige mucho más trabajo de integración</span>.</p>
     </article>
     <article class="decision">
       <span class="d-que">Exploración</span>
-      <h4>Fronteras</h4>
-      <div class="d-alt" aria-label="Alternativas"><span>Ganancia de información</span><span>Active SLAM</span></div>
-      <p>Ir hacia el borde entre lo conocido y lo desconocido es la idea propuesta por Yamauchi <a class="ref" href="#f7">7</a>. Es simple y se integra directo con el mapa y con Nav2. Los métodos de ganancia de información y el active SLAM deciden con más información, pero exigen modelos y cálculo adicionales <a class="ref" href="#f8">8</a>.</p>
+      <h3>Fronteras</h3>
+      <div class="d-alt" aria-label="Alternativas"><span data-alt="ganancia">Ganancia de información</span><span data-alt="activeslam">Active SLAM</span></div>
+      <p><span data-razon="elegida">Ir hacia el borde entre lo conocido y lo desconocido es la idea propuesta por Yamauchi <a class="ref" href="#f7">7</a>.</span> <span data-razon="elegida">Es simple y se integra directo con el mapa y con Nav2.</span> <span data-razon="ganancia activeslam">Los métodos de ganancia de información y el active SLAM deciden con más información, pero exigen modelos y cálculo adicionales <a class="ref" href="#f8">8</a>.</span></p>
     </article>
     <article class="decision">
       <span class="d-que">Simulación</span>
-      <h4>Gazebo Classic</h4>
-      <div class="d-alt" aria-label="Alternativas"><span>Gazebo actual</span><span>Webots</span><span>CoppeliaSim</span><span>Isaac Sim</span></div>
-      <p>Para verificar cinemática, marcos y comunicación basta un simulador de complejidad moderada. Usé Gazebo Classic porque es el que soportan los complementos del paquete base para ROS 2 Foxy en Ubuntu 20.04. Llegó al fin de soporte en enero de 2025 <a class="ref" href="#f9">9</a>, y eso se declara como limitación.</p>
+      <h3>Gazebo Classic</h3>
+      <div class="d-alt" aria-label="Alternativas"><span data-alt="gzactual">Gazebo actual</span><span data-alt="webots">Webots</span><span data-alt="coppelia">CoppeliaSim</span><span data-alt="isaac">Isaac Sim</span></div>
+      <p><span data-razon="elegida">Para verificar cinemática, marcos y comunicación basta un simulador de complejidad moderada.</span> <span data-razon="elegida gzactual webots coppelia isaac">Usé Gazebo Classic porque es el que soportan los complementos del paquete base para ROS 2 Foxy en Ubuntu 20.04.</span> <span data-razon="elegida">Llegó al fin de soporte en enero de 2025 <a class="ref" href="#f9">9</a>, y eso se declara como limitación.</span></p>
     </article>
   </div>
   <p>Un detalle que confunde a muchos es que el nombre Gazebo designa hoy a dos programas. Gazebo Classic, cuya última versión es la 11, y su sucesor, que se desarrolló como Ignition y hoy se distribuye simplemente como Gazebo <a class="ref" href="#f9">9</a>. Si construyes algo parecido, parte con versiones vigentes, como se sugiere en <a href="replicar.html#versiones">Constrúyelo tú</a>.</p>
@@ -187,7 +193,7 @@
     <li><span class="linea-img"><picture><source srcset="img/fotos/robot-planta.webp" type="image/webp"><img src="img/fotos/robot-planta.jpg" width="900" height="958" loading="lazy" decoding="async" alt="El robot real visto desde arriba, con su carcasa negra y el láser al centro."></picture></span><b>Hardware</b>Chasis impreso, electrónica e integración con ROS 2.<div class="linea-proceso" hidden><!-- PENDIENTE AUTOR: foto del proceso y fecha aproximada de la etapa Hardware. Agrega aquí la imagen con su texto alternativo y la fecha, y quita el atributo hidden. --></div></li>
     <li><span class="linea-img"><picture><source srcset="img/tesis/escalon-final.webp" type="image/webp"><img src="img/tesis/escalon-final.png" width="1281" height="1027" loading="lazy" decoding="async" alt="Gráficos de la velocidad de cada rueda frente a la referencia de 0,13 m/s."></picture></span><b>Control</b>Firmware, odometría y ganancias de cada rueda.<div class="linea-proceso" hidden><!-- PENDIENTE AUTOR: foto del proceso y fecha aproximada de la etapa Control. Agrega aquí la imagen con su texto alternativo y la fecha, y quita el atributo hidden. --></div></li>
     <li><span class="linea-img"><picture><source srcset="img/tesis/costmap-2.webp" type="image/webp"><img src="img/tesis/costmap-2.png" width="953" height="738" loading="lazy" decoding="async" alt="Mapa de costos con una ruta verde planificada hacia una meta."></picture></span><b>SLAM y Nav2</b>Mapeo y navegación sobre el robot.<div class="linea-proceso" hidden><!-- PENDIENTE AUTOR: foto del proceso y fecha aproximada de la etapa SLAM y Nav2. Agrega aquí la imagen con su texto alternativo y la fecha, y quita el atributo hidden. --></div></li>
-    <li><span class="linea-img"><picture><source srcset="img/fotos/etapa-4-mapa.webp" type="image/webp"><img src="img/fotos/etapa-4-mapa.jpg" width="1062" height="769" loading="lazy" decoding="async" alt="Mapa en RViz casi completo del recinto de pruebas."></picture></span><b>Exploración</b>Fronteras y métricas en el robot real.<div class="linea-proceso" hidden><!-- PENDIENTE AUTOR: foto del proceso y fecha aproximada de la etapa Exploración. Agrega aquí la imagen con su texto alternativo y la fecha, y quita el atributo hidden. --></div></li>
+    <li><span class="linea-img"><picture><source srcset="img/fotos/etapa-4-mapa.webp" type="image/webp"><img src="img/fotos/etapa-4-mapa.jpg" width="1042" height="764" loading="lazy" decoding="async" alt="Mapa en RViz casi completo del recinto de pruebas."></picture></span><b>Exploración</b>Fronteras y métricas en el robot real.<div class="linea-proceso" hidden><!-- PENDIENTE AUTOR: foto del proceso y fecha aproximada de la etapa Exploración. Agrega aquí la imagen con su texto alternativo y la fecha, y quita el atributo hidden. --></div></li>
     <li><span class="linea-img sin-img" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 12h7M9 15h7M9 18h5"/></svg></span><b>Documentación</b>La tesis y sus anexos.<div class="linea-proceso" hidden><!-- PENDIENTE AUTOR: foto del proceso y fecha aproximada de la etapa Documentación. Agrega aquí la imagen con su texto alternativo y la fecha, y quita el atributo hidden. --></div></li>
   </ol>
 </section>

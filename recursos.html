@@ -17,13 +17,18 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#004EAA">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#004EAA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0D131C" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
+<link rel="preload" href="fuentes/archivo-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fuentes/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/estilo.css">
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <script src="datos/proyecto.js" defer></script>
 <script src="js/comun.js" defer></script>
 <script src="js/sitio.js" defer></script>
+<script type="speculationrules">{"prefetch":[{"where":{"selector_matches":"a:not([href^='http'])[href$='.html'], a:not([href^='http'])[href*='.html#']"},"eagerness":"moderate"}]}</script>
 </head>
 <body data-pagina="recursos">
 <a class="saltar" href="#contenido">Saltar al contenido</a>
@@ -54,7 +59,7 @@
 <section>
   <h2 id="aprender">Para aprender más</h2>
   <p>Una selección de recursos abiertos o muy accesibles, ordenados de lo más introductorio a lo más profundo.</p>
-  <div class="aprender" style="margin-top:16px">
+  <div class="aprender">
     <a href="https://www.redblobgames.com/pathfinding/a-star/introduction.html"><b>Introducción a A estrella</b><span>La mejor explicación interactiva de búsqueda de rutas, de Dijkstra a A estrella. Pensada para videojuegos, sirve igual para robots.</span><small>Red Blob Games · interactivo · inglés</small></a>
     <a href="https://www.cds.caltech.edu/~murray/amwiki/Second_Edition.html"><b>Feedback Systems</b><span>Libro de control realimentado de Åström y Murray, disponible en línea. Usa el control crucero como ejemplo a lo largo del texto.</span><small>Libro abierto · inglés</small></a>
     <a href="https://www.ipb.uni-bonn.de/online-training-robotics/"><b>Clases de robótica móvil de Cyrill Stachniss</b><span>Cursos grabados de la Universidad de Bonn sobre SLAM, localización y mapeo, de los más usados en el mundo.</span><small>Video · inglés</small></a>
@@ -77,7 +82,7 @@
 
 <section>
   <h2 id="glosario">Glosario</h2>
-  <dl class="glosario" style="margin-top:16px">
+  <dl class="glosario">
     <div id="g-astar"><dt>A estrella</dt><dd>Algoritmo que busca la ruta de menor costo en una rejilla sumando lo recorrido y una estimación de lo que falta. <a href="navegacion.html#astar">Tema 6</a>.</dd></div>
     <div id="g-abortada"><dt>Abortada</dt><dd>Estado final de una meta de navegación que no terminó con éxito. En Nav2 Foxy también lo recibe la meta que es reemplazada por otra. <a href="exploracion.html#abortadas">Tema 7</a>.</dd></div>
     <div id="g-amcl"><dt>AMCL</dt><dd>Localización de Monte Carlo adaptativa. Ubica al robot en un mapa ya guardado con un filtro de partículas.</dd></div>
@@ -138,7 +143,7 @@
   <h2 id="bibliografia">Bibliografía de la tesis</h2>
   <p>Las 72 referencias del trabajo, en su formato original y con enlace cuando existe.</p>
   <details class="detalle"><summary>Ver las 72 referencias</summary>
-  <ol class="refs" style="margin-top:16px">
+  <ol class="refs">
     <li id="r-alvarez2021">Alvarez, C. (2021). <i>m-explore-ros2: ROS 2 port of m-explore (explore_lite)</i>. <a href="https://github.com/robo-friends/m-explore-ros2">github.com/robo-friends/m-explore-ros2</a></li>
     <li id="r-amadi2024">Amadi, C. A., Mbanisi, K., &amp; Smit, W. J. (2024). <i>An Introduction to the ros2_control framework using a low cost Differential Drive Robot</i> [Preprint]. <a href="https://doi.org/10.13140/RG.2.2.15748.54408">doi.org/10.13140/RG.2.2.15748.54408</a></li>
     <li id="r-astrom2009">Åström, K. J., &amp; Hägglund, T. (2009). <i>Control PID avanzado</i> (S. Dormido Bencomo y J. L. Guzmán Sánchez, Trad.). Pearson Educación. Publicación original de 2006.</li>
@@ -219,7 +224,7 @@
   <h2 id="externas">Fuentes agregadas en esta guía</h2>
   <p>No forman parte de la bibliografía de la tesis. Se usan para los ejemplos del mundo real, las lecciones de ingeniería y los recursos de aprendizaje. Cada página de la guía lista además sus propias fuentes al final.</p>
   <details class="detalle"><summary>Ver las fuentes agregadas</summary>
-  <ol class="refs" style="margin-top:16px">
+  <ol class="refs">
     <li id="r-astrom-murray">Åström, K. J., &amp; Murray, R. M. (2021). <i>Feedback Systems: An Introduction for Scientists and Engineers</i> (2.a ed.). Princeton University Press. <a href="https://www.cds.caltech.edu/~murray/amwiki/Second_Edition.html">Versión en línea</a><span class="tag"><b>Agregada.</b> Control crucero como ejemplo de lazo cerrado.</span></li>
     <li id="r-borenstein1996">Borenstein, J., &amp; Feng, L. (1996). Measurement and correction of systematic odometry errors in mobile robots. <i>IEEE Transactions on Robotics and Automation, 12</i>(6), 869-880. <a href="https://doi.org/10.1109/70.544770">doi.org/10.1109/70.544770</a><span class="tag"><b>Agregada.</b> Método UMBmark para calibrar la odometría.</span></li>
     <li id="r-colledanchise2018">Colledanchise, M., &amp; Ögren, P. (2018). <i>Behavior Trees in Robotics and AI: An Introduction</i>. CRC Press. <a href="https://arxiv.org/abs/1709.00084">arxiv.org/abs/1709.00084</a><span class="tag"><b>Agregada.</b> Árboles de comportamiento.</span></li>
@@ -295,7 +300,7 @@
 <h3 id="estado-pendientes">Pendiente de confirmación del autor</h3>
 <ul class="estado-pendientes"><li><a href="preguntas.html#p-giro">Método de medida del ángulo físico del giro</a></li><li><a href="preguntas.html#p-frontera-minima">Motivo del tamaño mínimo de frontera</a></li><li><a href="docs/inventario-publicacion.csv">Autorización de publicación de firmware y registros originales</a></li></ul>
 <h3 id="estado-historial">Historial de cambios del sitio</h3>
-<ol class="estado-historial" reversed><li><time datetime="2026-10-26">26 de octubre de 2026</time> · Contenido académico. Actualización a la versión de octubre de 2026 de la tesis: análisis de estabilidad del lazo de velocidad, comparación de los mapas con el plano medido, alcance estadístico de los ensayos, requisitos del protocolo de metas fijas y criterio temporal de asociación de los abortos a reemplazos. Nuevas tablas de análisis, tres interactivos y 106 preguntas en 15 temas. Las tablas experimentales no cambian.</li><li><time datetime="2026-10-22">22 de octubre de 2026</time> · Contenido académico. Explicaciones de selección y confianza de cierres, procesamiento síncrono/asíncrono, formatos de mapa y sesión, localización y parámetros de Foxy. Nuevos ejemplos sintéticos; precisiones sobre AMCL, GMapping y el marco map. Sin cambios en las tablas experimentales.</li><li><time datetime="2026-10-12">12 de octubre de 2026</time> · Plataforma. Arranque tolerante a fallos, tablas desplazables con teclado, lecturas con regla en el simulador PID, mapa reconstruido en el grafo de poses, análisis local de mapas PGM y de registros de metas. Dos frases corregidas para coincidir con el Anexo 7 de la tesis. Las tablas experimentales no cambian.</li><li><time datetime="2026-10-12">12 de octubre de 2026</time> · Plataforma. Estado académico explícito, análisis local y mejoras de accesibilidad; sin alterar las tablas experimentales.</li></ol>
+<ol class="estado-historial" reversed><li><time datetime="2026-10-26">26 de octubre de 2026</time> · Plataforma. Identidad visual de plano técnico, portada más corta en teléfono, comparador de decisiones en el tema 1, filtro del glosario y secciones de la página en el menú del teléfono. Carga más liviana: fuentes con respaldo ajustado que ya no mueven la página, interactivos que se piden al acercarse, videos diferidos e imágenes WebP sin pérdida. El contenido académico y las tablas experimentales no cambian.</li><li><time datetime="2026-10-26">26 de octubre de 2026</time> · Contenido académico. Actualización a la versión de octubre de 2026 de la tesis: análisis de estabilidad del lazo de velocidad, comparación de los mapas con el plano medido, alcance estadístico de los ensayos, requisitos del protocolo de metas fijas y criterio temporal de asociación de los abortos a reemplazos. Nuevas tablas de análisis, tres interactivos y 106 preguntas en 15 temas. Las tablas experimentales no cambian.</li><li><time datetime="2026-10-22">22 de octubre de 2026</time> · Contenido académico. Explicaciones de selección y confianza de cierres, procesamiento síncrono/asíncrono, formatos de mapa y sesión, localización y parámetros de Foxy. Nuevos ejemplos sintéticos; precisiones sobre AMCL, GMapping y el marco map. Sin cambios en las tablas experimentales.</li><li><time datetime="2026-10-12">12 de octubre de 2026</time> · Plataforma. Arranque tolerante a fallos, tablas desplazables con teclado, lecturas con regla en el simulador PID, mapa reconstruido en el grafo de poses, análisis local de mapas PGM y de registros de metas. Dos frases corregidas para coincidir con el Anexo 7 de la tesis. Las tablas experimentales no cambian.</li><li><time datetime="2026-10-12">12 de octubre de 2026</time> · Plataforma. Estado académico explícito, análisis local y mejoras de accesibilidad; sin alterar las tablas experimentales.</li></ol>
 <!-- FIN ESTADO DETALLE -->
   <p>Se conservan las tablas resumidas de <a href="datos/ensayos/README.md">ensayos</a>. No se han publicado el documento inédito, registros crudos ni firmware adaptado. El <a href="laboratorio.html">Laboratorio de análisis</a> permite revisar cálculos derivados sin enviar archivos.</p>
   <p>Consulta el <a href="docs/informe-academico.md">informe académico</a> y la <a href="docs/trazabilidad.csv">matriz de trazabilidad</a>, que vincula cada tabla y visualización con su fuente en la tesis.</p>
@@ -306,7 +311,7 @@
   <p>Si usas este trabajo, cita la tesis. Si te sirvió la guía, puedes citarla también.</p>
   <h3 id="citar-tesis">La tesis</h3>
   <pre class="cita-bloque">Valderas Neculqueo, S. (2026). Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial [Trabajo de titulación en revisión por comité, versión de octubre de 2026]. Universidad Tecnológica Metropolitana.</pre>
-  <pre class="cita-bloque" style="margin-top:10px">@thesis{valderas2026navegacion,
+  <pre class="cita-bloque">@thesis{valderas2026navegacion,
   author = {Valderas Neculqueo, Sebasti{\'a}n},
   title  = {Navegaci{\'o}n y exploraci{\'o}n aut{\'o}noma de interiores utilizando un robot m{\'o}vil de tracci{\'o}n diferencial},
   school = {Universidad Tecnol{\'o}gica Metropolitana},

@@ -17,17 +17,18 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#004EAA">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#004EAA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0D131C" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
+<link rel="preload" href="fuentes/archivo-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fuentes/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/estilo.css">
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <script src="datos/proyecto.js" defer></script>
 <script src="js/comun.js" defer></script>
-<script src="js/vis1.js" defer></script>
-<script src="js/vis2.js" defer></script>
-<script src="js/vis3.js" defer></script>
-<script src="js/sims.js" defer></script>
 <script src="js/sitio.js" defer></script>
+<script type="speculationrules">{"prefetch":[{"where":{"selector_matches":"a:not([href^='http'])[href$='.html'], a:not([href^='http'])[href*='.html#']"},"eagerness":"moderate"}]}</script>
 </head>
 <body data-pagina="exploracion">
 <a class="saltar" href="#contenido">Saltar al contenido</a>
@@ -46,7 +47,7 @@
       <div class="meta-cap"><span data-nivel class="etiqueta">Nivel</span><span class="etiqueta" data-lectura>Lectura</span></div>
     </div>
     <figure class="tema-hero-fig">
-      <div class="bucle"><video autoplay muted loop playsinline preload="metadata" poster="img/mapa-crece-fija.jpg" width="720" height="404" aria-label="Animación de una corrida real: a la izquierda la cámara cenital, a la derecha el mapa en RViz que crece desde un pasillo hasta cubrir el recinto."><source src="img/mapa-crece.mp4" type="video/mp4"></video></div>
+      <div class="bucle"><video muted loop playsinline controls preload="none" poster="img/mapa-crece-fija.webp" width="720" height="404" aria-label="Animación de una corrida real: a la izquierda la cámara cenital, a la derecha el mapa en RViz que crece desde un pasillo hasta cubrir el recinto."><source src="img/mapa-crece.mp4" type="video/mp4"></video></div>
       <figcaption>Una corrida real de principio a fin, en bucle. El mapa crece hasta que el explorador se queda sin fronteras. Capturas de la Fig. A7.1 de la tesis.</figcaption>
     </figure>
   </div>
@@ -80,7 +81,7 @@
     <div class="widget-cab"><h3 id="sim-exploracion">Exploración por fronteras</h3><span class="tipo inter">Interactivo</span><p>Presiona Explorar. Activa el mapa de costos o el plano real para comparar lo que el robot sabe con lo que hay.</p></div>
     <div class="vis" data-vis="exploracion"><p class="vis-fallback">El simulador repite el ciclo del robot real en un plano de ejemplo. Mide con un láser, marca celdas libres, ocupadas y desconocidas, busca fronteras entre lo libre y lo desconocido, elige la de mejor puntaje entre cercanía y tamaño, planifica con A estrella y avanza. Vuelve a elegir cada 3,3 s, como explore_lite, y cuenta las metas que cambia antes de llegar. Termina cuando no quedan fronteras alcanzables.</p></div>
   </div>
-  <p class="vnota" style="margin-top:8px">Simulación ilustrativa con un plano inventado inspirado en el recinto de pruebas. La regla de puntaje y el período de 3,3 s imitan a explore_lite. La dinámica del robot, el láser y la planificación están simplificados.</p>
+  <p class="vnota separada">Simulación ilustrativa con un plano inventado inspirado en el recinto de pruebas. La regla de puntaje y el período de 3,3 s imitan a explore_lite. La dinámica del robot, el láser y la planificación están simplificados.</p>
 </section>
 
 <section>
@@ -128,7 +129,7 @@
   </div>
   <!-- PENDIENTE AUTOR: clip de unos 10 segundos en que el explorador reemplaza una meta en curso. Guárdalo en MP4 sin audio como img/tesis/meta-reemplazada.mp4, con su portada en JPG como img/tesis/meta-reemplazada-poster.jpg. Ajusta width y height a las del video y quita el atributo hidden de la figura siguiente. -->
   <figure class="bucle-env" hidden>
-    <div class="bucle"><video autoplay muted loop playsinline preload="metadata" data-poster="img/tesis/meta-reemplazada-poster.jpg" width="1280" height="720" aria-label="Clip de una meta reemplazada: el explorador envía un destino nuevo y la ruta cambia antes de llegar al anterior."><source data-src="img/tesis/meta-reemplazada.mp4" type="video/mp4"></video></div>
+    <div class="bucle"><video muted loop playsinline controls preload="none" data-poster="img/tesis/meta-reemplazada-poster.jpg" width="1280" height="720" aria-label="Clip de una meta reemplazada: el explorador envía un destino nuevo y la ruta cambia antes de llegar al anterior."><source data-src="img/tesis/meta-reemplazada.mp4" type="video/mp4"></video></div>
     <figcaption>Una meta reemplazada. El explorador envía un destino nuevo cada 3,3 s y Nav2 cierra la meta anterior como abortada. <small>Video del autor, en bucle.</small></figcaption>
   </figure>
   <h3 id="como-se-separo">Cómo se asoció cada aborto a un reemplazo</h3>

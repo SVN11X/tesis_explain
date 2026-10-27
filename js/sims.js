@@ -18,20 +18,24 @@
   var U = window.U;
 
   /* utilidades de color y lienzo */
-  function css(nombre) { return getComputedStyle(document.documentElement).getPropertyValue(nombre).trim() || "#888"; }
+  function css(nombre, el) { return getComputedStyle(el || document.documentElement).getPropertyValue(nombre).trim() || "#888"; }
   function rgba(hex, a) {
     hex = hex.replace("#", "");
     if (hex.length === 3) hex = hex.split("").map(function (c) { return c + c; }).join("");
     var n = parseInt(hex, 16);
     return "rgba(" + ((n >> 16) & 255) + "," + ((n >> 8) & 255) + "," + (n & 255) + "," + a + ")";
   }
-  function paleta() {
+  /* Los colores salen de las variables CSS del elemento. Un contenedor con data-paleta="oscura"
+     redefine esas variables (la simulación de la portada usa el azul noche del sitio) y se dibuja
+     como en el tema oscuro, sin importar el tema de la página. */
+  function paleta(el) {
+    var c = function (n) { return css(n, el); };
     return {
-      bg: css("--bg"), sup: css("--surface"), sup2: css("--surface-2"), linea: css("--line"), linea2: css("--line-2"),
-      ink: css("--ink"), muted: css("--muted"), azul: css("--azul"), verde: css("--verde-texto"), verdeV: css("--verde"),
-      rojo: css("--rojo"), ambar: css("--ambar"), violeta: css("--violeta"), desc: css("--desc"), obst: css("--obst"),
-      s1: css("--s1"), s2: css("--s2"), s3: css("--s3"), s4: css("--s4"),
-      oscuro: document.documentElement.getAttribute("data-theme") === "dark" ||
+      bg: c("--bg"), sup: c("--surface"), sup2: c("--surface-2"), linea: c("--line"), linea2: c("--line-2"),
+      ink: c("--ink"), muted: c("--muted"), azul: c("--azul"), verde: c("--verde-texto"), verdeV: c("--verde"),
+      rojo: c("--rojo"), ambar: c("--ambar"), violeta: c("--violeta"), desc: c("--desc"), obst: c("--obst"),
+      s1: c("--s1"), s2: c("--s2"), s3: c("--s3"), s4: c("--s4"),
+      oscuro: !!(el && el.closest && el.closest('[data-paleta="oscura"]')) || document.documentElement.getAttribute("data-theme") === "dark" ||
         (document.documentElement.getAttribute("data-theme") !== "light" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches)
     };
   }
@@ -362,8 +366,8 @@
         '<p class="vestado" aria-live="polite" data-o="ev"></p>');
     var cont = el.querySelector(".ex-lienzo");
     var L = lienzo(cont, hero ? 16 / 10.5 : 16 / 10, function () { dibujar(); });
-    var P = paleta();
-    alTema(function () { P = paleta(); dibujar(); });
+    var P = paleta(el);
+    alTema(function () { P = paleta(el); dibujar(); });
 
     function dibujar() {
       if (!conoc) return;

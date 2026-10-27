@@ -46,3 +46,4 @@ jobs:
           python herramientas/pruebas_robustez_navegador.py
           python herramientas/pruebas_evidencia_navegador.py
           python herramientas/pruebas_navegador.py
+          python herramientas/pruebas_experiencia_navegador.py

@@ -17,17 +17,18 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#004EAA">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#004EAA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0D131C" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
+<link rel="preload" href="fuentes/archivo-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fuentes/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/estilo.css">
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <script src="datos/proyecto.js" defer></script>
 <script src="js/comun.js" defer></script>
-<script src="js/vis1.js" defer></script>
-<script src="js/vis2.js" defer></script>
-<script src="js/vis3.js" defer></script>
-<script src="js/sims.js" defer></script>
 <script src="js/sitio.js" defer></script>
+<script type="speculationrules">{"prefetch":[{"where":{"selector_matches":"a:not([href^='http'])[href$='.html'], a:not([href^='http'])[href*='.html#']"},"eagerness":"moderate"}]}</script>
 </head>
 <body data-pagina="navegacion">
 <a class="saltar" href="#contenido">Saltar al contenido</a>
@@ -46,7 +47,7 @@
       <div class="meta-cap"><span data-nivel class="etiqueta">Nivel</span><span class="etiqueta" data-lectura>Lectura</span></div>
     </div>
     <figure class="tema-hero-fig">
-      <div class="bucle"><video autoplay muted loop playsinline preload="metadata" poster="img/tesis/costmap-crece-poster.jpg" width="900" height="694" aria-label="Animación del mapa de costos global en tres momentos: fronteras iniciales, ruta verde hacia una meta y cobertura avanzada del recinto."><source src="img/tesis/costmap-crece.mp4" type="video/mp4"></video></div>
+      <div class="bucle"><video muted loop playsinline controls preload="none" poster="img/tesis/costmap-crece-poster.webp" width="900" height="694" aria-label="Animación del mapa de costos global en tres momentos: fronteras iniciales, ruta verde hacia una meta y cobertura avanzada del recinto."><source src="img/tesis/costmap-crece.mp4" type="video/mp4"></video></div>
       <figcaption>El mapa de costos global durante una exploración real, en bucle. La línea verde es la ruta que planifica Nav2. Fig. 4.7 de la tesis.</figcaption>
     </figure>
   </div>

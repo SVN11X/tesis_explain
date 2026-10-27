@@ -2,7 +2,8 @@
 (function () {
   "use strict";
   var V = window.VISUALES, U = window.U;
-  var OK = V.ICO.OK, NO = V.ICO.NO;
+  /* Iconos compartidos, definidos en js/comun.js */
+  var ICO = V.ICO || (U && U.ICO) || { OK: "", NO: "" }, OK = ICO.OK, NO = ICO.NO;
 
   /* Recta de 2 metros */
   V.odometria = function (el) {

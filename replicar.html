@@ -17,17 +17,18 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#004EAA">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#004EAA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0D131C" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
+<link rel="preload" href="fuentes/archivo-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fuentes/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/estilo.css">
 <script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <script src="datos/proyecto.js" defer></script>
 <script src="js/comun.js" defer></script>
-<script src="js/vis1.js" defer></script>
-<script src="js/vis2.js" defer></script>
-<script src="js/vis3.js" defer></script>
-<script src="js/sims.js" defer></script>
 <script src="js/sitio.js" defer></script>
+<script type="speculationrules">{"prefetch":[{"where":{"selector_matches":"a:not([href^='http'])[href$='.html'], a:not([href^='http'])[href*='.html#']"},"eagerness":"moderate"}]}</script>
 </head>
 <body data-pagina="replicar">
 <a class="saltar" href="#contenido">Saltar al contenido</a>
@@ -46,7 +47,7 @@
       <div class="meta-cap"><span data-nivel class="etiqueta">Nivel</span><span class="etiqueta" data-lectura>Lectura</span></div>
     </div>
     <figure class="tema-hero-fig">
-      <picture><source srcset="img/fotos/robot-derecha.webp" type="image/webp"><img src="img/fotos/robot-derecha.jpg" width="1400" height="1133" alt="El robot visto desde su costado derecho, con la carcasa negra impresa en 3D, franjas amarillas, el láser arriba y los puertos de conexión atrás." fetchpriority="high"></picture>
+      <picture><source srcset="img/fotos/robot-derecha-800.webp 800w, img/fotos/robot-derecha.webp 1400w" sizes="(max-width: 980px) 92vw, 500px" type="image/webp"><img src="img/fotos/robot-derecha.jpg" width="1400" height="1133" alt="El robot visto desde su costado derecho, con la carcasa negra impresa en 3D, franjas amarillas, el láser arriba y los puertos de conexión atrás." fetchpriority="high"></picture>
       <figcaption>El prototipo terminado. Fotografía del autor.</figcaption>
     </figure>
   </div>
@@ -72,7 +73,7 @@
     <table class="tabla">
       <thead><tr><th>Elemento</th><th class="n">Cantidad</th><th class="n">Costo (CLP)</th></tr></thead>
       <tbody>
-        <tr><th colspan="3" style="background:var(--surface-2)">Componentes principales</th></tr>
+        <tr><th colspan="3" class="fila-grupo">Componentes principales</th></tr>
         <tr><td>Raspberry Pi 4 Modelo B de 8 GB, carcasa de aluminio y microSD de 64 GB</td><td class="n">1</td><td class="n">91 759</td></tr>
         <tr><td>RPLidar A1</td><td class="n">1</td><td class="n">83 324</td></tr>
         <tr><td>Arduino Nano V3 y placa base con bornes de tornillo</td><td class="n">1</td><td class="n">8 000</td></tr>
@@ -82,13 +83,13 @@
         <tr><td>Batería de 12 V y 3000 mAh con adaptador de montaje</td><td class="n">1</td><td class="n">25 658</td></tr>
         <tr><td>Rueda loca</td><td class="n">1</td><td class="n">1 893</td></tr>
         <tr class="total"><td>Subtotal componentes principales</td><td></td><td class="n">250 530</td></tr>
-        <tr><th colspan="3" style="background:var(--surface-2)">Energía, montaje y cableado</th></tr>
+        <tr><th colspan="3" class="fila-grupo">Energía, montaje y cableado</th></tr>
         <tr><td>Interruptor, portafusible, conectores XT60 y bloque de distribución</td><td class="n">varios</td><td class="n">9 547</td></tr>
         <tr><td>Filamento PLA+ de 1 kg</td><td class="n">1</td><td class="n">13 353</td></tr>
         <tr><td>Tornillería, separadores y tuercas de inserción térmica</td><td class="n">6 kits</td><td class="n">127 234</td></tr>
         <tr><td>Cables, conectores y terminales</td><td class="n">varios</td><td class="n">43 979</td></tr>
         <tr class="total"><td>Total del robot</td><td></td><td class="n">444 643</td></tr>
-        <tr><th colspan="3" style="background:var(--surface-2)">Operación y desarrollo, fuera del robot</th></tr>
+        <tr><th colspan="3" class="fila-grupo">Operación y desarrollo, fuera del robot</th></tr>
         <tr><td>Router de viaje GL.iNet GL-MT300N-V2</td><td class="n">1</td><td class="n">22 140</td></tr>
         <tr><td>Cables de red RJ45 Cat-6</td><td class="n">3</td><td class="n">8 376</td></tr>
         <tr><td>Cargador de baterías de 12 V</td><td class="n">1</td><td class="n">16 169</td></tr>
@@ -110,7 +111,7 @@
       <p>Los parámetros generales de impresión son los de una impresora doméstica. La tolerancia de ensamblaje importa más que la calidad superficial, porque las piezas se atornillan con tuercas de inserción térmica <a class="ref" href="#f1">1</a>.</p>
     </div>
     <div class="tabla-env">
-      <table class="tabla" style="min-width:0">
+      <table class="tabla compacta">
         <tbody>
           <tr><th>Material</th><td>PLA+</td></tr>
           <tr><th>Altura de capa</th><td>0,2 mm</td></tr>
@@ -133,8 +134,8 @@
     <picture><source srcset="img/tesis/circuito-med.webp" type="image/webp"><img src="img/tesis/circuito-med.png" data-grande="img/tesis/circuito.png" width="1200" height="915" loading="lazy" decoding="async" alt="Esquema de conexiones con la batería, el fusible, el interruptor, los bloques de distribución de 12 V y 5 V, el regulador, el L298N, los dos motores con encoder, el Arduino Nano, la Raspberry Pi y el LiDAR."></picture>
     <figcaption>Esquema completo de energía y datos. <small>Fig. 4.5 de la tesis.</small></figcaption>
   </figure>
-  <div class="tabla-env" style="max-width:640px">
-    <table class="tabla" style="min-width:0">
+  <div class="tabla-env angosta">
+    <table class="tabla compacta">
       <thead><tr><th>Función</th><th>Pin del Arduino</th><th>Destino</th></tr></thead>
       <tbody>
         <tr><td>PWM avance izquierdo</td><td>D6</td><td>IN3 del L298N</td></tr>
@@ -155,8 +156,8 @@
 <section>
   <h2 id="versiones">Versiones de software</h2>
   <p>Estas son las versiones exactas con que obtuve los resultados <a class="ref" href="#f1">1</a>. Sirven para reproducirlos, no como recomendación para un proyecto nuevo.</p>
-  <div class="tabla-env" style="max-width:640px">
-    <table class="tabla" style="min-width:0">
+  <div class="tabla-env angosta">
+    <table class="tabla compacta">
       <tbody>
         <tr><th>Sistema operativo</th><td>Ubuntu 20.04.6 LTS</td></tr>
         <tr><th>ROS 2</th><td>Foxy Fitzroy</td></tr>
