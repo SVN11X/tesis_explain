@@ -1,78 +1,100 @@
-# Informe técnico de la entrega sobre b922205
+# Informe técnico de la entrega sobre a5bd066
 
-Esta entrega pone el sitio al día con la versión de octubre de 2026 de la tesis. Agrega tres temas que el documento desarrolla y el sitio no tenía: la estabilidad del lazo de velocidad, la comparación de los mapas con un plano medido del recinto y el alcance estadístico de los ensayos. Corrige las frases que habían quedado atrás, amplía las preguntas de práctica de 54 a 106 y arregla un error de montaje que dejaba reducidos 14 gráficos en los teléfonos. Las tablas experimentales no cambian. La tesis sigue en revisión por comité.
+Esta entrega mejora cómo se ve, se usa y carga el sitio, sin tocar el contenido académico. Suma una identidad visual propia, una portada más corta en el teléfono, un comparador de decisiones, un filtro del glosario y las secciones de cada página en el menú del teléfono. Corrige el salto de la página al llegar las fuentes, que dejaba el CLS sobre el umbral en las 16 páginas, y reduce lo que se descarga al abrir cada página. Las tablas experimentales no cambian. La tesis sigue en revisión por comité.
 
-Base: `b9222051979bb092dbc16f850ac1e7e4169b212e` de `main`. Rama local: `actualiza/tesis-20261023`. La entrega no modifica el remoto ni publica cambios en `main`. La auditoría de partida está en `auditoria-b922205.md` y el informe de la entrega anterior en `historial/informe-tecnico-e876140.md`.
+Base: `a5bd06659d190ec6a2fe7d48925e072a5ed07a7f` de `main`. Rama local: `mejora/experiencia-premium`. La entrega no modifica el remoto ni publica cambios en `main`. La auditoría de partida está en `auditoria-a5bd066.md` y el informe de la entrega anterior en `historial/informe-tecnico-b922205.md`.
 
 ## Errores corregidos
 
-1. **Gráficos reducidos en teléfono.** `js/sitio.js` marcaba un interactivo como montado después de dibujarlo. Mientras faltaba esa marca, el CSS centraba el contenido, y los gráficos que miden su contenedor al dibujarse leían un ancho de cero y usaban 600 px. En un teléfono de 390 px quedaban 14 gráficos de 12 interactivos de Control, Movimiento y Exploración a 332 px, con el texto a un 55 % de su tamaño. Ahora la marca se pone antes de dibujar y se quita si el montaje falla. Ningún gráfico queda reducido.
-2. **Textos atrasados frente a la versión de octubre.** Son los nueve hallazgos de información académica de `auditoria-b922205.md`. Los principales: los 53 abortos se presentaban como reemplazos y no como una asociación temporal, se decía que no hubo plano del recinto ni análisis de estabilidad, y el protocolo de metas fijas aparecía atado a AMCL.
+1. **La página saltaba al llegar las fuentes.** El aviso académico pasaba de tres a dos líneas y el título de la portada de cinco a cuatro. Las fuentes de respaldo ahora tienen el ancho y la altura de Archivo y Atkinson, y los anchos de lectura van en `em`, porque en `ch` cambiaban con la fuente. Con las fuentes 1,2 s tarde, el CLS medido es menor que 0,001 en la portada, en `control.html` y en `preguntas.html`.
+2. **Orden de títulos.** Las tarjetas de decisión de `problema.html`, `robot.html` y `resultados.html` saltaban de `h2` a `h4`. Ahora usan `h3`.
+3. **Tamaño de un control táctil.** En el esquema de conexiones de `robot.html`, en un teléfono, el botón Ampliar tapaba en parte el punto del LiDAR. Ahora va bajo la figura.
+4. **Imágenes más pesadas que su respaldo.** Cuatro gráficos en WebP con pérdida pesaban más que su PNG. Pasaron a WebP sin pérdida: `odom-real.webp` bajó de 109 a 68 KB y `escalon-final.webp` de 42 a 21 KB, con líneas y textos nítidos.
+5. **Dependencia oculta entre archivos.** `js/vis3.js` leía iconos que definía `js/vis1.js` y fallaba si una página cargaba solo el primero. Los iconos viven ahora en `js/comun.js`.
 
 ## Mejoras y funcionalidades nuevas
 
 | Área | Archivos | Resultado |
 |---|---|---|
-| Estabilidad del lazo | `control.html#estabilidad`, `js/estabilidad-modelo.js`, `js/evidencia.js`, `css/evidencia.css` | Port propio del análisis lineal del Anexo 4.12: la ley escrita como PI en forma de velocidad, el modelo de cada rueda discretizado a 33 ms con retenedor de orden cero y medición promediada, polos, márgenes de ganancia, fase y retardo, y sensibilidad máxima. Reproduce cada fila de la Tabla A4.5 y el barrido de 625 combinaciones. |
-| Interactivo de estabilidad | `js/evidencia.js` | Rueda, cuatro conjuntos de ganancias (definitivas, PSO con el Kd evaluado, PSO con el Kd informado y firmware original), retardo, ganancia y constante de tiempo de la planta, Ki tratado como lineal y acercamiento a z = 1. Dibuja los polos y la curva de Nyquist con el círculo de distancia 1/Ms, y una nota dice si las cifras son de la tesis o un cálculo con el mismo modelo. |
-| Mapa frente al plano | `mapeo.html#exactitud`, `datos/parametros.json`, `herramientas/diagramas_plano.js`, `img/diagramas/plano-recinto.svg` | Plano del recinto de la Fig. A8.1 con sus once cotas, la diferencia media de cada distancia y la distancia de cada mapa en ambos sentidos. El esquema estático se genera con la misma geometría que el interactivo. |
-| Repeticiones y confianza | `resultados.html#confianza`, `js/estadistica-modelo.js` | Media e intervalo t de Student de seis indicadores, intervalo proyectado al cambiar el número de repeticiones y el intervalo de Clopper y Pearson para una proporción, con los casos 5 de 6, 15 de 15 y 17 de 17. |
-| Tablas del análisis | `datos/analisis/`, `herramientas/datos.py` | Cuatro CSV transcritos de las Tablas A4.5, A8.2, A8.3 y A8.4, publicados como `PROYECTO.analisis`, con su README. |
-| Textos | 13 páginas | Asociación temporal de los abortos, mediana entre aceptaciones, requisitos del protocolo de metas fijas y estado de su script, intervalos junto a cada media, Kd evaluado por el costo, tres razones de la tesis para conservar la ley, versión del documento, resumen y 72 referencias. |
-| Preguntas | `preguntas.html` | 52 preguntas nuevas, 106 en total, y cinco temas nuevos: estabilidad, exactitud de los mapas, repeticiones y confianza, las fuentes que cita y del documento al código. Cuatro respuestas pendientes quedaron respaldadas por la versión de octubre. |
-| Estado académico | `datos/academico.json`, `recursos.html` | Versión y fecha de los datos, tres pendientes en lugar de cinco e historial de esta actualización. |
-| Calidad | `herramientas/pruebas_estabilidad.js`, `herramientas/pruebas_estadistica.js`, `herramientas/pruebas_evidencia_navegador.py`, pruebas existentes, `.github/workflows/verificar.yml` | Cifras de las Tablas A4.5 y A8.4 recalculadas en Node, interactivos nuevos en escritorio, teléfono, tema oscuro y sin JavaScript, ancho real de los gráficos al montarse y esquema del plano al día. |
-| Documentación | `README.md`, `datos/`, `docs/` | Auditoría de esta revisión, decisiones, informe académico, trazabilidad y datos. |
+| Identidad visual | `css/estilo.css` | Plano técnico: rejilla de ocupación detrás de los títulos, anillos y un barrido del LiDAR alrededor del prototipo, paneles azul noche en la banda del video, el laboratorio y el pie, y la franja azul y verde en rótulos, cifras y fichas. Botones, tarjetas y avisos con estados y sombras coherentes, en tema claro y oscuro. |
+| Portada | `index.html`, `css/estilo.css`, `js/sims.js` | Título más grande, simulación del ciclo como consola azul noche, imágenes de los temas en un mismo tono que recuperan su color al apuntarlas, temas en filas compactas en el teléfono y un cierre en dos columnas con el laboratorio. En un teléfono la sección de temas mide 1 914 px, antes unos 4 200. |
+| Movimiento | `css/estilo.css` | Transición entre páginas con la cabecera fija, aparición de tarjetas y figuras al desplazarse y microinteracciones en botones, menús y diálogos. Todo es una mejora progresiva y se anula con movimiento reducido. |
+| Navegación | 16 páginas, `js/sitio.js` | Precarga de la página siguiente al apuntar un enlace, en Chrome y Edge. En el teléfono, el menú de la cabecera lista las secciones de la página y marca la actual. |
+| Comparador de decisiones | `problema.html`, `js/decisiones.js` | Cada pieza y cada alternativa es un botón que resalta la frase con que la tesis la elige o la descarta. No agrega argumentos nuevos y sin JavaScript se lee el párrafo completo. |
+| Glosario | `recursos.html`, `js/sitio.js` | Filtro sin tildes ni mayúsculas, con el número de coincidencias anunciado. |
+| Carga de interactivos | `js/sitio.js`, 10 páginas | `MODULOS` dice qué archivo registra cada interactivo. Las páginas ya no los cargan al abrirse: se piden al acercarse. El JavaScript inicial comprimido bajó, por ejemplo, de 124 a 27 KB en `mapeo.html`, de 105 a 34 KB en `control.html` y de 84 a 25 KB en la portada. |
+| Videos | 6 páginas, `js/sitio.js` | Sin descarga automática. Sin JavaScript muestran su portada y los controles del navegador. Con JavaScript, el archivo se pide cuando el navegador queda libre y el video se acerca. Portadas en WebP. |
+| Imágenes | `img/` | WebP sin pérdida para los gráficos, nuevos WebP para el comparador del PSO y la figura de truncamiento, variantes de 800 y 900 px para las fotos de cabecera y la foto grande del robot visto desde arriba para ampliar en `gemelo.html`. Se quitaron tres portadas JPG que ya no se usaban. |
+| Código | 6 páginas, `css/estilo.css` | Sin estilos en línea, sin `!important` en el panel de Temas y con las reglas de la portada en un solo bloque. |
+| Estado académico | `datos/academico.json`, `recursos.html` | Historial con esta actualización de plataforma y revisión base. |
+| Calidad | `herramientas/pruebas_experiencia_navegador.py`, `.github/workflows/verificar.yml` | 58 comprobaciones nuevas de lo anterior, incluidas en el flujo de verificación. |
+| Documentación | `README.md`, `docs/` | Auditoría de esta revisión, decisiones e instrucciones para registrar interactivos y ajustar fuentes. |
 
 ## Decisiones técnicas
 
-No se agregaron frameworks, compiladores ni dependencias para visitantes. El análisis de estabilidad se reimplementó en JavaScript para que la página calcule lo que muestra y para probarlo en Node contra la Tabla A4.5, sin publicar el script del autor. Los temas nuevos son secciones dentro de los capítulos que ya los trataban, no páginas aparte. Los encabezados de `metas.csv` se conservan aunque la tesis renombró esas columnas. Las razones completas están en `decisiones.md`.
+Se evaluaron Astro, React, TypeScript, GSAP, Motion, Three.js, React Three Fiber, Rive, WebAssembly y WebGPU. No se usó ninguno: el sitio ya era estático y estaba probado, sus interactivos son 2D y sus cálculos pequeños, y lo que se buscaba se logró con CSS y funciones nativas del navegador. No se agregaron dependencias para los visitantes ni un paso de compilación. Las razones completas están en `decisiones.md`.
 
 ## Pruebas ejecutadas
 
-Entorno: Node 22.22.0, Python 3.13.17, Playwright 1.63.0 y Chromium 153.0.8010.12. axe-core 4.10.2 se instaló fuera del repositorio solo para la auditoría.
+Entorno: Node 22.23.4, Python 3.13.17, Playwright 1.63.0 y Chromium 1243. Lighthouse 12.8.2, axe-core 4.10.2 y css-tree 2.3.1 se instalaron fuera del repositorio solo para medir.
 
 | Verificación | Base | Entrega |
 |---|---:|---:|
-| `node herramientas/pruebas_unitarias.js` | 40 | 40 |
-| `node herramientas/pruebas_control.js` | 21 | 21 |
-| `node herramientas/pruebas_mapeo.js` | 28 | 28 |
-| `node herramientas/pruebas_slam_proceso.js` | 10 | 10 |
-| `node herramientas/pruebas_movimiento.js` | 23 | 23 |
-| `node herramientas/pruebas_analisis.js` | 57 | 57 |
-| `node herramientas/pruebas_estabilidad.js` | No existía | 13 |
-| `node herramientas/pruebas_estadistica.js` | No existía | 11 |
-| `python3 herramientas/verificar_sitio.py` | 1 489 | 1 910 |
+| Pruebas numéricas en Node, ocho archivos | 203 | 203 |
+| `python3 herramientas/verificar_sitio.py` | 1 910 | 1 904 |
 | `node herramientas/ejemplos_laboratorio.js --comprobar` | correcta | correcta |
-| `node herramientas/diagramas_plano.js --comprobar` | No existía | correcta |
-| `python3 herramientas/pruebas_control_navegador.py` | 320 | 325 |
-| `python3 herramientas/pruebas_mapeo_navegador.py` | 256 | 261 |
+| `node herramientas/diagramas_plano.js --comprobar` | correcta | correcta |
+| `python3 herramientas/pruebas_control_navegador.py` | 325 | 325 |
+| `python3 herramientas/pruebas_mapeo_navegador.py` | 261 | 261 |
 | `python3 herramientas/pruebas_movimiento_navegador.py` | 214 | 214 |
 | `python3 herramientas/pruebas_laboratorio_navegador.py` | 195 | 195 |
 | `python3 herramientas/pruebas_robustez_navegador.py` | 71 | 71 |
-| `python3 herramientas/pruebas_evidencia_navegador.py` | No existía | 131 |
+| `python3 herramientas/pruebas_evidencia_navegador.py` | 131 | 131 |
 | `python3 herramientas/pruebas_navegador.py` | 479 | 479 |
+| `python3 herramientas/pruebas_experiencia_navegador.py` | No existía | 58 |
 
-Totales de la entrega: **203 pruebas numéricas, 1 676 comprobaciones de navegador y 1 910 verificaciones estáticas, todas correctas**. Todos los JavaScript pasan `node --check` y todos los scripts de Python compilan.
+Totales de la entrega: **203 pruebas numéricas, 1 734 comprobaciones de navegador y 1 904 verificaciones estáticas, todas correctas**. Las verificaciones estáticas bajan porque las páginas ya no enlazan los archivos de interactivos. Todos los JavaScript pasan `node --check`, los scripts de Python compilan y las seis hojas de estilo se analizan sin errores con css-tree.
 
-axe-core revisó las 16 páginas en escritorio claro, escritorio oscuro y teléfono de 390 px, con todos los bloques plegables abiertos y todos los interactivos montados. No encontró infracciones de reglas WCAG A ni AA, ni en la base ni en la entrega. Informa además cuatro recomendaciones de buenas prácticas, `region`, `heading-order`, `landmark-unique` y `landmark-complementary-is-top-level`, que son las mismas en ambas. Esto no es una certificación completa de WCAG 2.2 AA ni reemplaza pruebas con lectores de pantalla.
+Lighthouse en teléfono, con el servidor local que comprime como GitHub Pages:
 
-El error de montaje se reprodujo en la base y se comprobó corregido en la rama, midiendo en un teléfono de 390 px el ancho de cada gráfico frente al de su contenedor en las 16 páginas. Se inspeccionaron capturas de escritorio, teléfono y tema oscuro de los tres interactivos nuevos.
+| Página | Rendimiento | LCP | CLS | Peso al abrir | Accesibilidad |
+|---|---:|---:|---:|---:|---:|
+| `index.html` | 78 → 95 | 2,7 → 2,8 s | 0,329 → 0,001 | 629 → 434 KB | 100 → 100 |
+| `problema.html` | 89 → 97 | 2,6 → 2,4 s | 0,143 → 0,001 | 309 → 278 KB | 98 → 100 |
+| `robot.html` | 88 → 98 | 2,7 → 2,3 s | 0,143 → 0,001 | 609 → 582 KB | 99 → 100 |
+| `movimiento.html` | 85 → 97 | 3,3 → 2,6 s | 0,143 → 0,001 | 376 → 273 KB | 100 → 100 |
+| `control.html` | 81 → 96 | 3,7 → 2,6 s | 0,143 → 0,001 | 408 → 244 KB | 100 → 100 |
+| `mapeo.html` | 80 → 98 | 3,7 → 2,3 s | 0,143 → 0,001 | 1 163 → 292 KB | 100 → 100 |
+| `navegacion.html` | 91 → 96 | 2,4 → 2,6 s | 0,144 → 0,001 | 625 → 554 KB | 100 → 100 |
+| `exploracion.html` | 94 → 98 | 1,8 → 2,3 s | 0,144 → 0,001 | 504 → 429 KB | 100 → 100 |
+| `gemelo.html` | 90 → 99 | 2,6 → 2,0 s | 0,143 → 0,001 | 436 → 378 KB | 100 → 100 |
+| `resultados.html` | 88 → 97 | 2,9 → 2,4 s | 0,143 → 0,001 | 312 → 245 KB | 99 → 100 |
+| `replicar.html` | 87 → 97 | 2,8 → 2,4 s | 0,143 → 0,001 | 327 → 230 KB | 100 → 100 |
+| `mundo-real.html` | 94 → 99 | 1,8 → 2,0 s | 0,143 → 0,000 | 173 → 182 KB | 100 → 100 |
+| `lecciones.html` | 94 → 99 | 1,8 → 2,1 s | 0,143 → 0,000 | 220 → 195 KB | 100 → 100 |
+| `preguntas.html` | 90 → 98 | 2,4 → 2,0 s | 0,143 → 0,001 | 227 → 236 KB | 100 → 100 |
+| `laboratorio.html` | 93 → 99 | 2,0 → 2,1 s | 0,143 → 0,018 | 197 → 206 KB | 100 → 100 |
+| `recursos.html` | 82 → 98 | 2,4 → 2,4 s | 0,280 → 0,000 | 297 → 305 KB | 100 → 100 |
 
-## Uso y despliegue
+En escritorio el rendimiento quedó en 100 en las 16 páginas, antes entre 98 y 100, y el CLS máximo bajó de 0,096 a 0,002. SEO da 100 antes y después. Buenas prácticas da 100, salvo 96 en las cuatro páginas con miniaturas de YouTube, porque el entorno de prueba no tiene salida a internet. Lighthouse varía entre corridas en uno o dos puntos. En algunas páginas el LCP simulado sube unas décimas porque las dos fuentes precargadas compiten con la primera pintura. Se probó quitarlas: la portada mejora, pero `control.html` y `exploracion.html` empeoran y el promedio baja, así que se conservaron.
 
-Para aplicar la entrega en una copia limpia:
+axe-core revisó las 16 páginas en escritorio claro, escritorio oscuro y teléfono de 390 px, con las reglas de WCAG 2.0, 2.1 y 2.2 en sus niveles A y AA, los plegables abiertos, los interactivos montados y el comparador activo. No encontró infracciones. En la base encontraba la del esquema de conexiones, que se corrigió. Esto no es una certificación completa de WCAG 2.2 AA ni reemplaza pruebas con lectores de pantalla.
+
+Se revisaron capturas de las páginas en escritorio de 1440 px y en un teléfono de 390 px, en tema claro y oscuro y con movimiento reducido.
+
+## Pendientes y riesgos
+
+- La transición entre páginas y la aparición al desplazarse funcionan en Chrome y Edge, y la transición también en Safari 18.2 o posterior. En los demás navegadores el sitio se ve completo y sin movimiento.
+- Un interactivo nuevo debe registrarse en `MODULOS` de `js/sitio.js`. `pruebas_experiencia_navegador.py` falla si falta alguno.
+- Las cifras de rendimiento son de laboratorio. Los datos de visitantes reales de Core Web Vitals solo existirán con tráfico suficiente en el sitio publicado.
+
+## Cómo aplicar el parche
 
 ```bash
-git switch -c actualiza/tesis-20261023 b9222051979bb092dbc16f850ac1e7e4169b212e
-git am /ruta/tesis_explain-actualiza-tesis-20261023.patch
+git checkout -b mejora/experiencia-premium a5bd06659d190ec6a2fe7d48925e072a5ed07a7f
+git am --keep-cr mejora-experiencia-premium.patch
+python3 herramientas/verificar_sitio.py
+python3 herramientas/pruebas_experiencia_navegador.py
 ```
 
-Para revisar el sitio localmente, desde la raíz: `python3 -m http.server 8000` y abrir `http://localhost:8000`. Después de editar texto o datos: `python3 herramientas/datos.py`, `python3 herramientas/indice.py` y las pruebas del README. GitHub Pages sigue publicando desde `main` y la raíz. Corresponde al propietario revisar la rama o el PR y decidir si la incorpora. No se comprobó una ejecución hospedada de Actions.
-
-## Lo pendiente
-
-1. El método de medida del giro físico y el motivo del tamaño mínimo de frontera siguen pendientes del autor. La versión de octubre no describe el método ni el motivo.
-2. No hay mapas, registros de estados ni series de control originales publicados. Las tablas de `datos/analisis/` son transcripciones y los programas que las calculan siguen sin publicar. La geometría del recinto de ensayo se publica transcrita de la Fig. A8.1, y el autor debe confirmar que puede quedar pública.
-3. No se probaron Safari ni Firefox reales, ni lectores de pantalla.
-4. Las cuatro recomendaciones de buenas prácticas de axe vienen de revisiones anteriores y pueden atenderse en una entrega de plataforma.
+Revisa el resultado en `python3 -m http.server 8000` antes de incorporarlo a `main`. GitHub Pages publica la rama `main` sin compilación, como antes.

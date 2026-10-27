@@ -16,8 +16,8 @@ Un robot de bajo costo, con ROS 2, que entra a un recinto que no conoce, lo reco
 
 | Página | Tema |
 |---|---|
-| `index.html` | Portada, video, el ciclo en cuatro pasos, temas, cifras, casos reales, una muestra de preguntas y rutas de lectura |
-| `problema.html` | Autonomía en interiores, estado del arte y cada decisión frente a sus alternativas |
+| `index.html` | Portada, video, el ciclo en cuatro pasos con su simulación, temas, cifras, casos reales, una muestra de preguntas, rutas de lectura y el laboratorio |
+| `problema.html` | Autonomía en interiores, estado del arte y un comparador que resalta por qué se descartó cada alternativa |
 | `robot.html` | Piezas, energía, red, reparto entre Arduino, Raspberry Pi y computador, ROS 2 y costo |
 | `movimiento.html` | Tracción diferencial y centro de giro, encoders, odometría, ensayos de recta y giro, qué corrige una calibración y el cuadrado en dos sentidos |
 | `control.html` | El lazo de una rueda con sus unidades, PID en tiempo discreto, la ley heredada que opera como PI, windup, el modelo FOPDT, PSO y la estabilidad del lazo discreto con sus márgenes |
@@ -31,7 +31,7 @@ Un robot de bajo costo, con ROS 2, que entra a un recinto que no conoce, lo reco
 | `lecciones.html` | Lecciones de ingeniería que la tesis deja implícitas |
 | `preguntas.html` | 106 preguntas difíciles en 15 temas y 3 niveles, con respuesta, repregunta probable, respaldo en la tesis y enlace al tema |
 | `laboratorio.html` | Análisis local de CSV, de mapas de ocupación PGM y de registros de estados de metas, con métricas con fórmula, reglas transparentes, validación, procedencia y exportación JSON sin LLM |
-| `recursos.html` | Glosario, bibliografía, fuentes externas, materiales, cómo citar y créditos |
+| `recursos.html` | Glosario con filtro, bibliografía, fuentes externas, materiales, cómo citar y créditos |
 
 ## Criterios del contenido
 
@@ -41,8 +41,10 @@ Las cifras y figuras del robot salen de la tesis y se citan con su sección, tab
 
 ```
 ├── *.html               páginas del sitio
-├── css/estilo.css       diseño, tema claro y oscuro, impresión
-├── js/sitio.js          cabecera fija, menú, pie, índice lateral, buscador, citas, glosario, imágenes y videos
+├── css/estilo.css       diseño, tema claro y oscuro, movimiento, impresión
+├── js/sitio.js          cabecera fija, menú, pie, índice lateral, buscador, citas, glosario, imágenes, videos
+│                        y carga bajo demanda de los interactivos
+├── js/decisiones.js     comparador de decisiones del tema 1
 ├── js/sims.js           simulaciones en canvas
 ├── js/vis1.js … vis3.js interactivos de cada tema
 ├── js/comun.js          utilidades compartidas
@@ -138,14 +140,15 @@ El panel de Temas cuelga de la cabecera completa y se centra en ella, con un anc
 2. **Texto.** Cada página es HTML estático. Después de cambiar texto, regenera el buscador con `python3 herramientas/indice.py` (requiere `beautifulsoup4`) y sube `datos/indice.js` junto con las páginas.
 3. **Citas.** `<a class="ref" href="#f3">3</a>` apunta a `<li id="f3">` en la lista de fuentes de la misma página.
 4. **Glosario.** `<span class="term" data-def="Definición corta.">término</span>` muestra la definición al pasar el cursor, al enfocarlo o al tocarlo.
-5. **Imágenes.** En `.webp` con respaldo `.jpg` o `.png`. La versión grande va en `data-grande` y se abre con el botón Ampliar.
-6. **Interactivos.** Un elemento con `data-vis="nombre"` se monta al entrar en pantalla con la función `window.VISUALES.nombre`.
+5. **Imágenes.** En `.webp` con respaldo `.jpg` o `.png`. Los gráficos van en WebP sin pérdida, que pesa menos que el PNG y conserva las líneas nítidas. Las fotos de cabecera tienen además una versión de 800 o 900 px en `srcset`. La versión grande va en `data-grande` y se abre con el botón Ampliar.
+6. **Interactivos.** Un elemento con `data-vis="nombre"` se monta al acercarse a la pantalla con la función `window.VISUALES.nombre`. El archivo que la define se pide en ese momento: registra el nombre en `MODULOS`, al comienzo de los interactivos en `js/sitio.js`. Los modelos de cálculo, como `control-modelo.js` o `movimiento-modelo.js`, siguen en el HTML de su página porque esos archivos los leen al cargarse.
 7. **Contenido pendiente.** Los bloques ocultos con `hidden` llevan un comentario `PENDIENTE AUTOR` que dice qué falta.
    Los videos preparados usan `data-src` y `data-poster`. Basta con agregar los archivos y quitar `hidden`.
 8. **PDF de la tesis.** Solo cuando esté autorizado y disponible, registra una URL verificada en `tesis_pdf` de `datos/academico.json`.
 9. **Estado y parámetros.** Edita `datos/academico.json`, `datos/parametros.json` y los CSV autorizados. Ejecuta `python3 herramientas/datos.py` y después `python3 herramientas/indice.py`. Actualiza el HTML relacionado; los respaldos estáticos no se sustituyen por datos dinámicos. Consulta `datos/README.md` y `docs/trazabilidad.csv`.
 10. **Pendientes e historial.** Los pendientes del autor y el historial de cambios viven en `datos/academico.json`. `herramientas/datos.py` los escribe como HTML estático en `recursos.html#estado-academico`, entre los comentarios `ESTADO DETALLE`. Cada pendiente puede llevar un enlace a la pregunta o sección donde se nota.
-11. **Figuras y ejemplos generados.** `node herramientas/diagramas_control.js` regenera la figura de respaldo del PID, `node herramientas/diagramas_plano.js` el esquema del plano del recinto y `node herramientas/ejemplos_laboratorio.js` los archivos sintéticos del laboratorio. Con `--comprobar`, los dos últimos solo verifican que estén al día.
+11. **Tipografía.** Los anchos de lectura van en `em` y no en `ch`, porque el cero de Atkinson Hyperlegible es mucho más ancho que el de las fuentes del sistema. Las familias `Archivo Respaldo` y `Atkinson Respaldo` de `css/estilo.css` usan una fuente del sistema escalada para ocupar el mismo ancho mientras llegan las fuentes. Si cambias una fuente, recalcula su `size-adjust`.
+12. **Figuras y ejemplos generados.** `node herramientas/diagramas_control.js` regenera la figura de respaldo del PID, `node herramientas/diagramas_plano.js` el esquema del plano del recinto y `node herramientas/ejemplos_laboratorio.js` los archivos sintéticos del laboratorio. Con `--comprobar`, los dos últimos solo verifican que estén al día.
 
 ## Ver el sitio en tu computador
 
@@ -174,9 +177,12 @@ python3 herramientas/pruebas_laboratorio_navegador.py
 python3 herramientas/pruebas_robustez_navegador.py
 python3 herramientas/pruebas_evidencia_navegador.py
 python3 herramientas/pruebas_navegador.py
+python3 herramientas/pruebas_experiencia_navegador.py
 node herramientas/ejemplos_laboratorio.js --comprobar
 node herramientas/diagramas_plano.js --comprobar
 ```
+
+`pruebas_experiencia_navegador.py` comprueba lo agregado en la revisión de experiencia: con las fuentes 1,2 s tarde el CLS queda bajo 0,02, ninguna página carga los archivos de interactivos al abrirse, el video de la portada no se descarga junto con la página, los temas son filas compactas en un teléfono, el comparador de decisiones, el filtro del glosario, las secciones en el menú del teléfono, el movimiento reducido y el tema oscuro.
 
 `pruebas_robustez_navegador.py` bloquea `datos/proyecto.js` y quita `MediaQueryList.addEventListener` para comprobar que la cabecera, el pie y los interactivos sigan funcionando. También recorre con teclado las tablas anchas en un teléfono, mide la altura del aviso académico en móvil, revisa las lecturas por regla del PID, el mapa armado del grafo de poses, las fichas del concepto y el estado académico sin JavaScript.
 
@@ -211,6 +217,18 @@ git commit -m "Describe el cambio"
 git push origin main
 ```
 
+## Experiencia y rendimiento
+
+La revisión del 26 de octubre de 2026 conserva el HTML, CSS y JavaScript sin compilación y suma una identidad de plano técnico: la rejilla de ocupación detrás de los títulos, los anillos del LiDAR alrededor del prototipo, paneles azul noche y la franja azul y verde de la UTEM. La simulación del ciclo en la portada se dibuja como una consola azul noche, las imágenes de los temas comparten un tono azul que recupera su color al apuntarlas y en un teléfono cada tema es una fila compacta.
+
+- **Sin saltos al cargar.** Las fuentes críticas se precargan y las de respaldo tienen métricas ajustadas, así el texto no se mueve cuando llegan. El CLS en teléfono, que iba de 0,14 a 0,33 según la página, quedó cerca de 0.
+- **Menos peso al abrir.** Los archivos de interactivos se piden al acercarse a la pantalla, los videos en bucle y la portada de un video lejano esperan a que el navegador quede libre y los gráficos pasaron a WebP sin pérdida.
+- **Navegación.** Transición suave entre páginas con la cabecera fija, en navegadores que la soportan, y precarga de la página siguiente al apuntar un enlace. En un teléfono, el menú suma las secciones de la página que se lee.
+- **Interactivos nuevos.** Comparador de decisiones en `problema.html#estado-del-arte` y filtro del glosario en `recursos.html#glosario`.
+- **Movimiento con propósito.** Las tarjetas aparecen con un leve ascenso al desplazarse y el barrido del LiDAR de la portada dura menos de 5 s. Con movimiento reducido no hay animaciones.
+
+Lighthouse local, con compresión gzip como GitHub Pages: rendimiento de 78 a 94 antes y de 95 a 99 después en teléfono, 100 en escritorio, accesibilidad 100 y SEO 100 en las 16 páginas. El detalle está en `docs/informe-tecnico.md`.
+
 ## Accesibilidad
 
 Se comprueban tema oscuro, movimiento reducido, navegación por teclado y respaldos. El menú móvil limita el foco y aísla el fondo; el aviso académico y la navegación esencial funcionan sin JavaScript. Una tabla que no cabe en la pantalla se vuelve una región enfocable con nombre, para recorrerla con las flechas, y deja de serlo cuando vuelve a caber. Cada parte del arranque se inicia aislada: si una falla, las demás siguen. Las verificaciones automáticas y la revisión visual no son una certificación completa de WCAG 2.2 AA ni sustituyen pruebas con lectores de pantalla.
@@ -239,7 +257,7 @@ También lee mapas de ocupación PGM, con su YAML si existe. Cuenta celdas libre
 
 ## Documentación y revisión
 
-- `docs/auditoria-inicial.md`, `docs/auditoria-e876140.md` y `docs/auditoria-b922205.md`: hallazgos y funcionalidades conservadas en cada revisión. La última contrasta el sitio con la versión de octubre de 2026 de la tesis.
+- `docs/auditoria-inicial.md`, `docs/auditoria-e876140.md`, `docs/auditoria-b922205.md` y `docs/auditoria-a5bd066.md`: hallazgos y funcionalidades conservadas en cada revisión. La de b922205 contrasta el sitio con la versión de octubre de 2026 de la tesis y la de a5bd066 mide la experiencia y el rendimiento.
 - `docs/informe-tecnico.md`: cambios, pruebas, uso y entrega de la revisión más reciente. Los informes anteriores están en `docs/historial/`.
 - `docs/informe-academico.md`: integridad del contenido y asuntos que requieren confirmación.
 - `docs/decisiones.md`: razones de arquitectura y límites de la evolución.
