@@ -31,7 +31,7 @@ Un robot de bajo costo, con ROS 2, que entra a un recinto que no conoce, lo reco
 | `lecciones.html` | Lecciones de ingeniería que la tesis deja implícitas |
 | `preguntas.html` | 106 preguntas difíciles en 15 temas y 3 niveles, con respuesta, repregunta probable, respaldo en la tesis y enlace al tema |
 | `laboratorio.html` | Análisis local de CSV, de mapas de ocupación PGM y de registros de estados de metas, con métricas con fórmula, reglas transparentes, validación, procedencia y exportación JSON sin LLM |
-| `recursos.html` | Glosario con filtro, bibliografía, fuentes externas, materiales, cómo citar y créditos |
+| `recursos.html` | Glosario con filtro, bibliografía de la tesis con un resumen y un detalle por referencia y filtro, fuentes externas, materiales, cómo citar y créditos |
 
 ## Criterios del contenido
 
@@ -67,6 +67,7 @@ Las cifras y figuras del robot salen de la tesis y se citan con su sección, tab
 ├── css/preguntas.css    estilos exclusivos de Preguntas difíciles
 ├── datos/indice.js      índice del buscador, generado
 ├── datos/academico.json estado académico, pendientes del autor e historial de cambios del sitio
+├── datos/bibliografia.json referencias de la tesis: resumen, contenido, uso y dónde se citan
 ├── datos/parametros.json parámetros ya publicados en la guía, con su fuente
 ├── datos/proyecto.js    módulo generado desde los JSON y los CSV
 ├── datos/ensayos/       tablas de los ensayos en CSV, con su origen en la tesis
@@ -146,9 +147,10 @@ El panel de Temas cuelga de la cabecera completa y se centra en ella, con un anc
    Los videos preparados usan `data-src` y `data-poster`. Basta con agregar los archivos y quitar `hidden`.
 8. **PDF de la tesis.** Solo cuando esté autorizado y disponible, registra una URL verificada en `tesis_pdf` de `datos/academico.json`.
 9. **Estado y parámetros.** Edita `datos/academico.json`, `datos/parametros.json` y los CSV autorizados. Ejecuta `python3 herramientas/datos.py` y después `python3 herramientas/indice.py`. Actualiza el HTML relacionado; los respaldos estáticos no se sustituyen por datos dinámicos. Consulta `datos/README.md` y `docs/trazabilidad.csv`.
-10. **Pendientes e historial.** Los pendientes del autor y el historial de cambios viven en `datos/academico.json`. `herramientas/datos.py` los escribe como HTML estático en `recursos.html#estado-academico`, entre los comentarios `ESTADO DETALLE`. Cada pendiente puede llevar un enlace a la pregunta o sección donde se nota.
-11. **Tipografía.** Los anchos de lectura van en `em` y no en `ch`, porque el cero de Atkinson Hyperlegible es mucho más ancho que el de las fuentes del sistema. Las familias `Archivo Respaldo` y `Atkinson Respaldo` de `css/estilo.css` usan una fuente del sistema escalada para ocupar el mismo ancho mientras llegan las fuentes. Si cambias una fuente, recalcula su `size-adjust`.
-12. **Figuras y ejemplos generados.** `node herramientas/diagramas_control.js` regenera la figura de respaldo del PID, `node herramientas/diagramas_plano.js` el esquema del plano del recinto y `node herramientas/ejemplos_laboratorio.js` los archivos sintéticos del laboratorio. Con `--comprobar`, los dos últimos solo verifican que estén al día.
+10. **Bibliografía.** Cada referencia de la tesis vive en `datos/bibliografia.json` con su número en la tesis, su tipo, su autor y su línea de resumen, que se ven sin abrirla, su cita, de qué trata el documento (`contenido`), para qué lo usa el trabajo (`uso`), dónde lo cita el documento (un número es una sección y `A`, un anexo) y dónde lo explica la guía. El contenido sale del propio documento o de su página oficial. Los grupos siguen los temas. Después de editarla, ejecuta `python3 herramientas/datos.py` y luego `python3 herramientas/indice.py`. `datos.py` escribe la sección entre los comentarios `BIBLIOGRAFIA` de `recursos.html` y se detiene si una referencia queda en dos grupos o en ninguno, si los números no van de 1 al total, si una sección de la guía no existe, si un resumen pasa de 80 caracteres o si un texto usa punto y coma o guiones como separadores.
+11. **Pendientes e historial.** Los pendientes del autor y el historial de cambios viven en `datos/academico.json`. `herramientas/datos.py` los escribe como HTML estático en `recursos.html#estado-academico`, entre los comentarios `ESTADO DETALLE`. Cada pendiente puede llevar un enlace a la pregunta o sección donde se nota.
+12. **Tipografía.** Los anchos de lectura van en `em` y no en `ch`, porque el cero de Atkinson Hyperlegible es mucho más ancho que el de las fuentes del sistema. Las familias `Archivo Respaldo` y `Atkinson Respaldo` de `css/estilo.css` usan una fuente del sistema escalada para ocupar el mismo ancho mientras llegan las fuentes: Arial o sus equivalentes de igual ancho en Windows, macOS, iOS, ChromeOS y Linux, y las variantes `Roboto` y `DejaVu` en Android y en Linux sin Arial. Los títulos de los temas usan su propio respaldo, `--f-tema`, porque son cortos y el de la portada es largo. Si cambias una fuente, recalcula su `size-adjust`.
+13. **Figuras y ejemplos generados.** `node herramientas/diagramas_control.js` regenera la figura de respaldo del PID, `node herramientas/diagramas_plano.js` el esquema del plano del recinto y `node herramientas/ejemplos_laboratorio.js` los archivos sintéticos del laboratorio. Con `--comprobar`, los dos últimos solo verifican que estén al día.
 
 ## Ver el sitio en tu computador
 
@@ -182,7 +184,7 @@ node herramientas/ejemplos_laboratorio.js --comprobar
 node herramientas/diagramas_plano.js --comprobar
 ```
 
-`pruebas_experiencia_navegador.py` comprueba lo agregado en la revisión de experiencia: con las fuentes 1,2 s tarde el CLS queda bajo 0,02, ninguna página carga los archivos de interactivos al abrirse, el video de la portada no se descarga junto con la página, los temas son filas compactas en un teléfono, el comparador de decisiones, el filtro del glosario, las secciones en el menú del teléfono, el movimiento reducido y el tema oscuro.
+`pruebas_experiencia_navegador.py` comprueba lo agregado en la revisión de experiencia: con las fuentes 1,2 s tarde el CLS queda bajo 0,02, ninguna página carga los archivos de interactivos al abrirse, el video de la portada no se descarga junto con la página, los temas son filas compactas en un teléfono, el comparador de decisiones, el filtro del glosario, la bibliografía con su resumen y su detalle por referencia, su filtro y el teclado, las secciones en el menú del teléfono, el movimiento reducido y el tema oscuro. También compara, entre 320 y 480 px, las líneas del título de cada tema con el respaldo y con Archivo. Si el sistema no tiene ninguna fuente de respaldo compatible, omite esas mediciones y lo avisa.
 
 `pruebas_robustez_navegador.py` bloquea `datos/proyecto.js` y quita `MediaQueryList.addEventListener` para comprobar que la cabecera, el pie y los interactivos sigan funcionando. También recorre con teclado las tablas anchas en un teléfono, mide la altura del aviso académico en móvil, revisa las lecturas por regla del PID, el mapa armado del grafo de poses, las fichas del concepto y el estado académico sin JavaScript.
 
@@ -221,10 +223,10 @@ git push origin main
 
 La revisión del 26 de octubre de 2026 conserva el HTML, CSS y JavaScript sin compilación y suma una identidad de plano técnico: la rejilla de ocupación detrás de los títulos, los anillos del LiDAR alrededor del prototipo, paneles azul noche y la franja azul y verde de la UTEM. La simulación del ciclo en la portada se dibuja como una consola azul noche, las imágenes de los temas comparten un tono azul que recupera su color al apuntarlas y en un teléfono cada tema es una fila compacta.
 
-- **Sin saltos al cargar.** Las fuentes críticas se precargan y las de respaldo tienen métricas ajustadas, así el texto no se mueve cuando llegan. El CLS en teléfono, que iba de 0,14 a 0,33 según la página, quedó cerca de 0.
+- **Sin saltos al cargar.** Las fuentes críticas se precargan y las de respaldo tienen métricas ajustadas, así el texto no se mueve cuando llegan. El CLS en teléfono, que iba de 0,14 a 0,33 según la página, quedó cerca de 0. Desde el 27 de octubre el respaldo también se ajusta a Roboto, de Android, y a DejaVu Sans, de Linux. Con solo Roboto instalada, el CLS en teléfono bajó de 0,145 a 0,0001.
 - **Menos peso al abrir.** Los archivos de interactivos se piden al acercarse a la pantalla, los videos en bucle y la portada de un video lejano esperan a que el navegador quede libre y los gráficos pasaron a WebP sin pérdida.
 - **Navegación.** Transición suave entre páginas con la cabecera fija, en navegadores que la soportan, y precarga de la página siguiente al apuntar un enlace. En un teléfono, el menú suma las secciones de la página que se lee.
-- **Interactivos nuevos.** Comparador de decisiones en `problema.html#estado-del-arte` y filtro del glosario en `recursos.html#glosario`.
+- **Interactivos nuevos.** Comparador de decisiones en `problema.html#estado-del-arte`, filtro del glosario en `recursos.html#glosario` y bibliografía de la tesis en `recursos.html#bibliografia`, en grupos y con filtro, donde cada referencia es una línea de resumen que se abre con el detalle de su contenido. El buscador del sitio lleva directo a cada referencia abierta.
 - **Movimiento con propósito.** Las tarjetas aparecen con un leve ascenso al desplazarse y el barrido del LiDAR de la portada dura menos de 5 s. Con movimiento reducido no hay animaciones.
 
 Lighthouse local, con compresión gzip como GitHub Pages: rendimiento de 78 a 94 antes y de 95 a 99 después en teléfono, 100 en escritorio, accesibilidad 100 y SEO 100 en las 16 páginas. El detalle está en `docs/informe-tecnico.md`.
@@ -257,13 +259,13 @@ También lee mapas de ocupación PGM, con su YAML si existe. Cuenta celdas libre
 
 ## Documentación y revisión
 
-- `docs/auditoria-inicial.md`, `docs/auditoria-e876140.md`, `docs/auditoria-b922205.md` y `docs/auditoria-a5bd066.md`: hallazgos y funcionalidades conservadas en cada revisión. La de b922205 contrasta el sitio con la versión de octubre de 2026 de la tesis y la de a5bd066 mide la experiencia y el rendimiento.
+- `docs/auditoria-inicial.md`, `docs/auditoria-e876140.md`, `docs/auditoria-b922205.md`, `docs/auditoria-a5bd066.md` y `docs/auditoria-ae42f52.md`: hallazgos y funcionalidades conservadas en cada revisión. La de b922205 contrasta el sitio con la versión de octubre de 2026 de la tesis, la de a5bd066 mide la experiencia y el rendimiento y la de ae42f52 revisa fallas y la bibliografía.
 - `docs/informe-tecnico.md`: cambios, pruebas, uso y entrega de la revisión más reciente. Los informes anteriores están en `docs/historial/`.
 - `docs/informe-academico.md`: integridad del contenido y asuntos que requieren confirmación.
 - `docs/decisiones.md`: razones de arquitectura y límites de la evolución.
 - `docs/mejoras-slam-20261022.md`: explicaciones de SLAM agregadas el 22 de octubre de 2026.
 - `docs/trazabilidad.csv`, `docs/observaciones-comite.csv`, `docs/inventario-publicacion.csv`: fuentes, plantilla de observaciones reales y autorización de material.
 
-`.github/workflows/verificar.yml` comprueba modelos, datos generados, enlaces y navegador al abrir un PR o actualizar main. Su ejecución hospedada depende de habilitar Actions; no se ejecutó en GitHub durante esta entrega. Las dependencias de pruebas solo son para desarrollo. No se agregaron dependencias al sitio ni se publicó automáticamente la rama de trabajo.
+`.github/workflows/verificar.yml` comprueba modelos, datos generados, enlaces y navegador en GitHub Actions al abrir un PR o actualizar main. Si una comprobación falla, su nombre aparece como anotación en el resumen de la ejecución, sin abrir el registro. Las dependencias de pruebas solo son para desarrollo. No se agregaron dependencias al sitio ni se publicó automáticamente la rama de trabajo.
 
 Para aplicar un parche, parte de la revisión base indicada en el informe técnico, crea una rama independiente y ejecuta `git am` con el archivo del parche. Revisa el resultado antes de incorporar los cambios a main.

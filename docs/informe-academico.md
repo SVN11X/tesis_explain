@@ -1,6 +1,6 @@
 # Informe académico y pendientes
 
-La tesis está **en revisión por comité**, según la instrucción del autor para esta entrega. No se presenta como aprobada ni se publica el documento inédito. Base del sitio: `166d70e3f4d2b8e61daea9b1999fad859c28169b`. Esta auditoría se basa en la guía y sus tablas públicas; no se dispuso de la versión completa de la tesis para contrastar sus citas.
+La tesis está **en revisión por comité**. No se presenta como aprobada ni se publica el documento inédito. Base del sitio: `166d70e3f4d2b8e61daea9b1999fad859c28169b`. Esta auditoría se basa en la guía y sus tablas públicas. No se dispuso de la versión completa de la tesis para contrastar sus citas.
 
 ## Material conservado
 

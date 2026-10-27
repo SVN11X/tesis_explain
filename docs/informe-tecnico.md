@@ -1,47 +1,40 @@
-# Informe técnico de la entrega sobre a5bd066
+# Informe técnico de la revisión sobre ae42f52
 
-Esta entrega mejora cómo se ve, se usa y carga el sitio, sin tocar el contenido académico. Suma una identidad visual propia, una portada más corta en el teléfono, un comparador de decisiones, un filtro del glosario y las secciones de cada página en el menú del teléfono. Corrige el salto de la página al llegar las fuentes, que dejaba el CLS sobre el umbral en las 16 páginas, y reduce lo que se descarga al abrir cada página. Las tablas experimentales no cambian. La tesis sigue en revisión por comité.
+Esta revisión explica la bibliografía de la tesis y corrige fallas encontradas en el sitio publicado y en su verificación automática. Cada una de las 72 referencias se ve como una línea con su número, su autor, su tipo y un resumen, y al presionarla se abre el detalle: de qué trata el documento, para qué lo usa la tesis, dónde aparece y la cita completa. Además, la página ya no salta al cargar en Android ni en Linux sin Arial, el flujo de GitHub Actions identifica la comprobación que falla y los documentos del repositorio se abren con formato. Las tablas experimentales no cambian. La tesis sigue en revisión por comité.
 
-Base: `a5bd06659d190ec6a2fe7d48925e072a5ed07a7f` de `main`. Rama local: `mejora/experiencia-premium`. La entrega no modifica el remoto ni publica cambios en `main`. La auditoría de partida está en `auditoria-a5bd066.md` y el informe de la entrega anterior en `historial/informe-tecnico-b922205.md`.
+Base: `ae42f525771c23e8581ddda6d968489a9fba44c4` de `main`. Rama local: `revision/fallas-referencias`. La auditoría de partida está en `auditoria-ae42f52.md` y el informe anterior en `historial/informe-tecnico-a5bd066.md`.
 
-## Errores corregidos
+## Fallas corregidas
 
-1. **La página saltaba al llegar las fuentes.** El aviso académico pasaba de tres a dos líneas y el título de la portada de cinco a cuatro. Las fuentes de respaldo ahora tienen el ancho y la altura de Archivo y Atkinson, y los anchos de lectura van en `em`, porque en `ch` cambiaban con la fuente. Con las fuentes 1,2 s tarde, el CLS medido es menor que 0,001 en la portada, en `control.html` y en `preguntas.html`.
-2. **Orden de títulos.** Las tarjetas de decisión de `problema.html`, `robot.html` y `resultados.html` saltaban de `h2` a `h4`. Ahora usan `h3`.
-3. **Tamaño de un control táctil.** En el esquema de conexiones de `robot.html`, en un teléfono, el botón Ampliar tapaba en parte el punto del LiDAR. Ahora va bajo la figura.
-4. **Imágenes más pesadas que su respaldo.** Cuatro gráficos en WebP con pérdida pesaban más que su PNG. Pasaron a WebP sin pérdida: `odom-real.webp` bajó de 109 a 68 KB y `escalon-final.webp` de 42 a 21 KB, con líneas y textos nítidos.
-5. **Dependencia oculta entre archivos.** `js/vis3.js` leía iconos que definía `js/vis1.js` y fallaba si una página cargaba solo el primero. Los iconos viven ahora en `js/comun.js`.
+1. **Bibliografía sin explicación.** La lista de 72 referencias no decía qué es cada documento ni para qué se usa, y había perdido las notas que la tesis pone a varias. Ahora se genera desde `datos/bibliografia.json`, agrupada en 11 temas plegables. Cada referencia es una línea de resumen que se abre con de qué trata el documento, para qué lo usa la tesis, las secciones donde se cita, los enlaces a la guía y la cita completa. El contenido de las 37 referencias de las que había copia se tomó del propio documento, y el de las otras 35, de su página oficial o de su resumen publicado. Un filtro busca en todo el texto de cada referencia, el enlace `recursos.html#r-…` abre su grupo y su detalle, y el buscador del sitio tiene una entrada por referencia. El orden de las referencias 29 a 31 sigue el de la tesis.
+2. **Salto al cargar en Android.** Con las fuentes 1,2 s tarde y solo Roboto instalada, 18 de las 32 mediciones de las 16 páginas, en teléfono y escritorio, superaban el CLS de 0,02, con un máximo de 0,186. Roboto tiene ahora su propio respaldo y el máximo queda en 0,0010. En Android 12 o posterior Roboto es variable: si su negrita no tiene nombre propio, se usa la regular con peso 700 y ancho normal, comprobado con la fuente variable.
+3. **Salto al cargar en Linux sin Arial.** Con solo DejaVu Sans, 20 de las 32 mediciones superaban 0,02, con un máximo de 0,260 en `lecciones.html` en escritorio. DejaVu Sans tiene su propio respaldo, ajustado en las 16 páginas, y el máximo queda en 0,0012.
+4. **Títulos de los temas que cambiaban de línea.** El respaldo de los títulos estaba ajustado al de la portada. El de `movimiento.html` ocupaba una línea con el respaldo y dos con Archivo entre 364 y 480 px de ancho, y la página bajaba al llegar la fuente, con un CLS de 0,026 en teléfono aun con Arial. Los títulos de los temas tienen ahora su propio respaldo. Entre 320 y 480 px, las combinaciones de página y ancho en que el título cambia de número de líneas bajan de 36 a 1 con Arial, de 80 a 1 con Roboto y de 208 a 1 con DejaVu Sans.
+5. **Flujo de GitHub Actions en rojo.** La ejecución de `ae42f52` falló, con alta probabilidad en la primera medición de CLS, como se describe en la auditoría. La prueba ahora reporta qué respaldo usó, omite la medición con un aviso si el sistema no tiene ninguna fuente compatible y, si algo falla, deja el nombre de la comprobación como anotación en el resumen de la ejecución. El flujo escribe la salida sin búfer y usa las versiones de las acciones que corren en Node 24.
+6. **Comprobación inestable.** «si el sistema pasa a movimiento reducido, se detiene» esperaba 50 ms fijos. Ahora espera a que la simulación cambie de estado, con hasta 3 s de margen.
+7. **Documentos sin formato.** Los enlaces a Markdown y CSV del repositorio desde Recursos y el Laboratorio abrían texto plano o descargaban el archivo. Ahora abren la vista de GitHub.
+8. **Redacción.** Dos frases de `docs/informe-academico.md` y del README hablaban de una «entrega». Se corrigieron.
 
-## Mejoras y funcionalidades nuevas
+## Archivos
 
-| Área | Archivos | Resultado |
-|---|---|---|
-| Identidad visual | `css/estilo.css` | Plano técnico: rejilla de ocupación detrás de los títulos, anillos y un barrido del LiDAR alrededor del prototipo, paneles azul noche en la banda del video, el laboratorio y el pie, y la franja azul y verde en rótulos, cifras y fichas. Botones, tarjetas y avisos con estados y sombras coherentes, en tema claro y oscuro. |
-| Portada | `index.html`, `css/estilo.css`, `js/sims.js` | Título más grande, simulación del ciclo como consola azul noche, imágenes de los temas en un mismo tono que recuperan su color al apuntarlas, temas en filas compactas en el teléfono y un cierre en dos columnas con el laboratorio. En un teléfono la sección de temas mide 1 914 px, antes unos 4 200. |
-| Movimiento | `css/estilo.css` | Transición entre páginas con la cabecera fija, aparición de tarjetas y figuras al desplazarse y microinteracciones en botones, menús y diálogos. Todo es una mejora progresiva y se anula con movimiento reducido. |
-| Navegación | 16 páginas, `js/sitio.js` | Precarga de la página siguiente al apuntar un enlace, en Chrome y Edge. En el teléfono, el menú de la cabecera lista las secciones de la página y marca la actual. |
-| Comparador de decisiones | `problema.html`, `js/decisiones.js` | Cada pieza y cada alternativa es un botón que resalta la frase con que la tesis la elige o la descarta. No agrega argumentos nuevos y sin JavaScript se lee el párrafo completo. |
-| Glosario | `recursos.html`, `js/sitio.js` | Filtro sin tildes ni mayúsculas, con el número de coincidencias anunciado. |
-| Carga de interactivos | `js/sitio.js`, 10 páginas | `MODULOS` dice qué archivo registra cada interactivo. Las páginas ya no los cargan al abrirse: se piden al acercarse. El JavaScript inicial comprimido bajó, por ejemplo, de 124 a 27 KB en `mapeo.html`, de 105 a 34 KB en `control.html` y de 84 a 25 KB en la portada. |
-| Videos | 6 páginas, `js/sitio.js` | Sin descarga automática. Sin JavaScript muestran su portada y los controles del navegador. Con JavaScript, el archivo se pide cuando el navegador queda libre y el video se acerca. Portadas en WebP. |
-| Imágenes | `img/` | WebP sin pérdida para los gráficos, nuevos WebP para el comparador del PSO y la figura de truncamiento, variantes de 800 y 900 px para las fotos de cabecera y la foto grande del robot visto desde arriba para ampliar en `gemelo.html`. Se quitaron tres portadas JPG que ya no se usaban. |
-| Código | 6 páginas, `css/estilo.css` | Sin estilos en línea, sin `!important` en el panel de Temas y con las reglas de la portada en un solo bloque. |
-| Estado académico | `datos/academico.json`, `recursos.html` | Historial con esta actualización de plataforma y revisión base. |
-| Calidad | `herramientas/pruebas_experiencia_navegador.py`, `.github/workflows/verificar.yml` | 58 comprobaciones nuevas de lo anterior, incluidas en el flujo de verificación. |
-| Documentación | `README.md`, `docs/` | Auditoría de esta revisión, decisiones e instrucciones para registrar interactivos y ajustar fuentes. |
-
-## Decisiones técnicas
-
-Se evaluaron Astro, React, TypeScript, GSAP, Motion, Three.js, React Three Fiber, Rive, WebAssembly y WebGPU. No se usó ninguno: el sitio ya era estático y estaba probado, sus interactivos son 2D y sus cálculos pequeños, y lo que se buscaba se logró con CSS y funciones nativas del navegador. No se agregaron dependencias para los visitantes ni un paso de compilación. Las razones completas están en `decisiones.md`.
+| Área | Archivos |
+|---|---|
+| Bibliografía | `datos/bibliografia.json`, `herramientas/datos.py`, `recursos.html`, `css/estilo.css`, `js/sitio.js`, `herramientas/indice.py`, `datos/indice.js` |
+| Aviso en cada tema | 13 páginas con lista de fuentes, que enlazan la bibliografía explicada |
+| Fuentes de respaldo | `css/estilo.css` |
+| Enlaces a documentos | `recursos.html`, `laboratorio.html`, `datos/academico.json` |
+| Estado académico | `datos/academico.json`, `datos/proyecto.js`, `recursos.html` |
+| Verificación | `.github/workflows/verificar.yml`, `herramientas/pruebas_experiencia_navegador.py`, `herramientas/pruebas_navegador.py` |
+| Documentación | `README.md`, `docs/decisiones.md`, `docs/informe-academico.md`, `docs/auditoria-ae42f52.md` |
 
 ## Pruebas ejecutadas
 
-Entorno: Node 22.23.4, Python 3.13.17, Playwright 1.63.0 y Chromium 1243. Lighthouse 12.8.2, axe-core 4.10.2 y css-tree 2.3.1 se instalaron fuera del repositorio solo para medir.
+Entorno: Node 22.23.4, Python 3.13.17, Playwright 1.63.0 y Chrome for Testing 153. El paso de navegador también se corrió con Python 3.12, como en GitHub Actions.
 
-| Verificación | Base | Entrega |
+| Verificación | Base | Revisión |
 |---|---:|---:|
 | Pruebas numéricas en Node, ocho archivos | 203 | 203 |
-| `python3 herramientas/verificar_sitio.py` | 1 910 | 1 904 |
+| `python3 herramientas/verificar_sitio.py` | 1 904 | 2 107 |
 | `node herramientas/ejemplos_laboratorio.js --comprobar` | correcta | correcta |
 | `node herramientas/diagramas_plano.js --comprobar` | correcta | correcta |
 | `python3 herramientas/pruebas_control_navegador.py` | 325 | 325 |
@@ -51,50 +44,38 @@ Entorno: Node 22.23.4, Python 3.13.17, Playwright 1.63.0 y Chromium 1243. Lighth
 | `python3 herramientas/pruebas_robustez_navegador.py` | 71 | 71 |
 | `python3 herramientas/pruebas_evidencia_navegador.py` | 131 | 131 |
 | `python3 herramientas/pruebas_navegador.py` | 479 | 479 |
-| `python3 herramientas/pruebas_experiencia_navegador.py` | No existía | 58 |
+| `python3 herramientas/pruebas_experiencia_navegador.py` | 58 | 73 |
 
-Totales de la entrega: **203 pruebas numéricas, 1 734 comprobaciones de navegador y 1 904 verificaciones estáticas, todas correctas**. Las verificaciones estáticas bajan porque las páginas ya no enlazan los archivos de interactivos. Todos los JavaScript pasan `node --check`, los scripts de Python compilan y las seis hojas de estilo se analizan sin errores con css-tree.
+Las verificaciones estáticas suben porque la bibliografía y el aviso al pie de cada tema agregan enlaces internos, y se comprueba cada enlace y su ancla. Las 15 comprobaciones nuevas de navegador cubren la bibliografía, con el resumen y el detalle de cada referencia, su filtro, el teclado, los enlaces a una referencia y la lectura sin JavaScript, y los títulos de los temas antes y después de llegar la fuente web.
 
-Lighthouse en teléfono, con el servidor local que comprime como GitHub Pages:
+`pruebas_experiencia_navegador.py` pasa también con tres conjuntos de fuentes del sistema, montados con fontconfig: solo DejaVu Sans, Roboto estática con DejaVu Sans y Roboto variable con DejaVu Sans.
 
-| Página | Rendimiento | LCP | CLS | Peso al abrir | Accesibilidad |
-|---|---:|---:|---:|---:|---:|
-| `index.html` | 78 → 95 | 2,7 → 2,8 s | 0,329 → 0,001 | 629 → 434 KB | 100 → 100 |
-| `problema.html` | 89 → 97 | 2,6 → 2,4 s | 0,143 → 0,001 | 309 → 278 KB | 98 → 100 |
-| `robot.html` | 88 → 98 | 2,7 → 2,3 s | 0,143 → 0,001 | 609 → 582 KB | 99 → 100 |
-| `movimiento.html` | 85 → 97 | 3,3 → 2,6 s | 0,143 → 0,001 | 376 → 273 KB | 100 → 100 |
-| `control.html` | 81 → 96 | 3,7 → 2,6 s | 0,143 → 0,001 | 408 → 244 KB | 100 → 100 |
-| `mapeo.html` | 80 → 98 | 3,7 → 2,3 s | 0,143 → 0,001 | 1 163 → 292 KB | 100 → 100 |
-| `navegacion.html` | 91 → 96 | 2,4 → 2,6 s | 0,144 → 0,001 | 625 → 554 KB | 100 → 100 |
-| `exploracion.html` | 94 → 98 | 1,8 → 2,3 s | 0,144 → 0,001 | 504 → 429 KB | 100 → 100 |
-| `gemelo.html` | 90 → 99 | 2,6 → 2,0 s | 0,143 → 0,001 | 436 → 378 KB | 100 → 100 |
-| `resultados.html` | 88 → 97 | 2,9 → 2,4 s | 0,143 → 0,001 | 312 → 245 KB | 99 → 100 |
-| `replicar.html` | 87 → 97 | 2,8 → 2,4 s | 0,143 → 0,001 | 327 → 230 KB | 100 → 100 |
-| `mundo-real.html` | 94 → 99 | 1,8 → 2,0 s | 0,143 → 0,000 | 173 → 182 KB | 100 → 100 |
-| `lecciones.html` | 94 → 99 | 1,8 → 2,1 s | 0,143 → 0,000 | 220 → 195 KB | 100 → 100 |
-| `preguntas.html` | 90 → 98 | 2,4 → 2,0 s | 0,143 → 0,001 | 227 → 236 KB | 100 → 100 |
-| `laboratorio.html` | 93 → 99 | 2,0 → 2,1 s | 0,143 → 0,018 | 197 → 206 KB | 100 → 100 |
-| `recursos.html` | 82 → 98 | 2,4 → 2,4 s | 0,280 → 0,000 | 297 → 305 KB | 100 → 100 |
+CLS con las fuentes 1,2 s tarde en las 16 páginas, en teléfono y en escritorio, 32 mediciones por fila:
 
-En escritorio el rendimiento quedó en 100 en las 16 páginas, antes entre 98 y 100, y el CLS máximo bajó de 0,096 a 0,002. SEO da 100 antes y después. Buenas prácticas da 100, salvo 96 en las cuatro páginas con miniaturas de YouTube, porque el entorno de prueba no tiene salida a internet. Lighthouse varía entre corridas en uno o dos puntos. En algunas páginas el LCP simulado sube unas décimas porque las dos fuentes precargadas compiten con la primera pintura. Se probó quitarlas: la portada mejora, pero `control.html` y `exploracion.html` empeoran y el promedio baja, así que se conservaron.
+| Fuentes del sistema | Base, máximo | Base, sobre 0,02 | Revisión, máximo | Revisión, sobre 0,02 |
+|---|---:|---:|---:|---:|
+| Arial o equivalente | 0,0256 | 1 | 0,0011 | 0 |
+| Solo Roboto | 0,1858 | 18 | 0,0010 | 0 |
+| Roboto variable | 0,1858 | 19 | 0,0010 | 0 |
+| Solo DejaVu Sans | 0,2602 | 20 | 0,0012 | 0 |
 
-axe-core revisó las 16 páginas en escritorio claro, escritorio oscuro y teléfono de 390 px, con las reglas de WCAG 2.0, 2.1 y 2.2 en sus niveles A y AA, los plegables abiertos, los interactivos montados y el comparador activo. No encontró infracciones. En la base encontraba la del esquema de conexiones, que se corrigió. Esto no es una certificación completa de WCAG 2.2 AA ni reemplaza pruebas con lectores de pantalla.
+Lighthouse en teléfono, con el servidor local que comprime como GitHub Pages y dos corridas por página, da lo mismo que la base dentro de la variación entre corridas: la portada marca 94 a 96 en la base y 96 en la revisión, y `recursos.html`, 89 a 97 en la base y 97 a 98 en la revisión. Buenas prácticas queda en 96 en `recursos.html` en ambas, porque el entorno de prueba no puede descargar las miniaturas de YouTube. La bibliografía con el detalle de cada referencia suma 17 KB comprimidos a `recursos.html`. El índice del buscador, que se descarga al abrir la búsqueda, pasa de 472 a 551 entradas y de 454 a 516 KB sin comprimir, 141 KB comprimido.
 
-Se revisaron capturas de las páginas en escritorio de 1440 px y en un teléfono de 390 px, en tema claro y oscuro y con movimiento reducido.
+axe-core revisó las 16 páginas en escritorio claro, escritorio oscuro y teléfono, con las reglas de WCAG 2.0, 2.1 y 2.2 en sus niveles A y AA y todos los plegables abiertos, incluidas las 72 referencias. No encontró infracciones. Esto no reemplaza pruebas con lectores de pantalla.
 
-## Pendientes y riesgos
+## Pendientes
 
-- La transición entre páginas y la aparición al desplazarse funcionan en Chrome y Edge, y la transición también en Safari 18.2 o posterior. En los demás navegadores el sitio se ve completo y sin movimiento.
-- Un interactivo nuevo debe registrarse en `MODULOS` de `js/sitio.js`. `pruebas_experiencia_navegador.py` falla si falta alguno.
-- Las cifras de rendimiento son de laboratorio. Los datos de visitantes reales de Core Web Vitals solo existirán con tráfico suficiente en el sitio publicado.
+- El registro completo de la ejecución fallida de GitHub Actions pide iniciar sesión, así que la causa se dedujo de la línea en que terminó y se reprodujo en local. La próxima ejecución mostrará, si algo falla, el nombre de la comprobación en el resumen.
+- El comportamiento de las fuentes en Android se reprodujo con Roboto en Chromium para Linux. Falta medirlo en un teléfono real.
+- Tres fuentes no se pudieron abrir durante la revisión: el modelo en Thingiverse, el preprint en ResearchGate y el video en YouTube. Su detalle describe lo que dice de ellas la tesis.
 
 ## Cómo aplicar el parche
 
 ```bash
-git checkout -b mejora/experiencia-premium a5bd06659d190ec6a2fe7d48925e072a5ed07a7f
-git am --keep-cr mejora-experiencia-premium.patch
+git checkout -b revision/fallas-referencias ae42f525771c23e8581ddda6d968489a9fba44c4
+git am revision-fallas-referencias.patch
 python3 herramientas/verificar_sitio.py
 python3 herramientas/pruebas_experiencia_navegador.py
 ```
 
-Revisa el resultado en `python3 -m http.server 8000` antes de incorporarlo a `main`. GitHub Pages publica la rama `main` sin compilación, como antes.
+Revisa el resultado con `python3 -m http.server 8000` antes de incorporarlo a `main`. GitHub Pages publica la rama `main` sin compilación, como antes.
