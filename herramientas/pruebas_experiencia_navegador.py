@@ -3,8 +3,9 @@
 Fuentes con respaldo ajustado que no mueven la página, interactivos que se piden al acercarse,
 videos diferidos, portada compacta en teléfono, simulación en azul noche, barrido del LiDAR breve y
 quieto con movimiento reducido, comparador de decisiones del tema 1, filtro del glosario, bibliografía
-filtrable con un resumen y un detalle por referencia, secciones de la página en el menú del teléfono y
-páginas sin estilos en línea.
+filtrable en su propia página, con un resumen y un detalle en cinco bloques por referencia, botones para
+copiar la cita y su BibTeX y traslado de las anclas antiguas de Recursos, secciones de la página en el menú
+del teléfono y páginas sin estilos en línea.
 Uso: python3 herramientas/pruebas_experiencia_navegador.py [http://localhost:8765]
 """
 from pathlib import Path
@@ -100,14 +101,14 @@ def estatico():
     check('robot-lateral-800.webp 800w' in hero.get('srcset', '') and hero.get('sizes'), 'la foto de la portada ofrece una versión de 800 px con sizes')
     deslizar = BeautifulSoup((ROOT / 'control.html').read_text(encoding='utf-8'), 'html.parser').select('.deslizar img')
     check(len(deslizar) == 2 and all(i.get('loading') == 'lazy' for i in deslizar), 'el comparador del PSO carga sus imágenes al acercarse')
-    # bibliografía de la tesis: cada referencia es una línea de resumen que se abre con su detalle
-    rec = BeautifulSoup((ROOT / 'recursos.html').read_text(encoding='utf-8'), 'html.parser')
-    bib = rec.find('h2', id='bibliografia').find_parent('section')
-    grupos = bib.select('.bib-grupo')
-    refs = bib.select('ol.bib > li > details.bib-ref[id^="r-"]')
+    # bibliografía de la tesis: página propia, con cada referencia en una línea de resumen que se abre con su detalle
+    bp = BeautifulSoup((ROOT / 'bibliografia.html').read_text(encoding='utf-8'), 'html.parser')
+    grupos = bp.select('section.bib-grupo')
+    refs = bp.select('.bib-grupo ol.bib > li > details.bib-ref[id^="r-"]')
     nums = sorted(int(d.select_one('summary .bib-num').get_text().replace('Referencia', '').strip()) for d in refs)
     check(len(grupos) == 11 and len(refs) == 72 and nums == list(range(1, 73)),
           'la bibliografía tiene 72 referencias numeradas como en la tesis, en 11 grupos', (len(grupos), len(refs)))
+    ids = {t['id'] for t in bp.select('[id]')}
 
     def resumida(d):
         s = d.find('summary', recursive=False)
@@ -115,20 +116,50 @@ def estatico():
         return bool(s and s.select_one('.bib-autor') and s.select_one('.tipo-ref') and res
                     and 10 < len(res.get_text(strip=True)) <= 80 and not s.select_one('.bib-detalle'))
 
+    bloques = ['Ficha', 'De qué trata', 'Relación con la tesis', 'Referencias relacionadas', 'Cita']
+    filas_fijas = ('Fecha', 'Idioma', 'Acceso', 'Revisión de pares', 'Partes que usa la tesis', 'De dónde sale este detalle')
+
+    def palabras(el):
+        return len(el.get_text(' ', strip=True).split()) if el else 0
+
     def detallada(d):
         det = d.select_one(':scope > .bib-detalle')
-        return bool(det and len(det.select_one('.bib-contenido').get_text(strip=True)) > 60
-                    and len(det.select_one('.bib-uso').get_text(strip=True)) > 40
-                    and 'En la tesis:' in det.select_one('.bib-donde').get_text() and det.select_one('.bib-cita'))
+        if not det:
+            return False
+        titulos = [h.get_text(strip=True) for h in det.select(':scope > .bib-bloque > h3')]
+        filas = [dt.get_text(strip=True) for dt in det.select('.bib-ficha dl.bib-dl > div > dt')]
+        rel = det.select('.bib-relacionadas li a[href^="#r-"]')
+        n = sum(palabras(det.select_one(c)) for c in ('.bib-trata', '.bib-relacion', '.bib-relacionadas'))
+        return bool(titulos == bloques and all(f in filas for f in filas_fijas)
+                    and ('Título original' in filas or 'Título' in filas) and ('Autoría' in filas or 'Edición a cargo de' in filas)
+                    and len(det.select('.bib-trata p')) >= 2 and len(det.select('.bib-trata > p')) <= 2
+                    and 'En la tesis:' in det.select_one('.bib-donde').get_text() and det.select_one('.bib-diferencia')
+                    and rel and all(a['href'][1:] in ids for a in rel)
+                    and det.select_one('.bib-cita-tesis[data-clave] .bib-cita-texto') and 300 <= n <= 700)
     check(not [d['id'] for d in refs if not resumida(d)],
           'cada referencia se resume en una línea con su autor, su tipo y de qué trata', [d['id'] for d in refs if not resumida(d)])
     check(not [d['id'] for d in refs if not detallada(d)],
-          'al abrirla, cada referencia dice de qué trata, para qué la usa la tesis, dónde aparece y su cita completa',
+          'al abrirla, cada referencia muestra los cinco bloques: ficha completa, de qué trata en varios párrafos, relación '
+          'con la tesis con dónde aparece y en qué se diferencia, referencias relacionadas y cita, con 300 a 700 palabras',
           [d['id'] for d in refs if not detallada(d)])
-    check(all(g.find('h3', id=True) and g.select_one('.bib-desc') and g.select_one('details.detalle > summary') for g in grupos),
-          'cada grupo tiene título con ancla, para qué sirve y la lista plegable')
-    textos = ' '.join(d.select_one(c).get_text() for d in refs for c in ('.bib-resumen', '.bib-contenido', '.bib-uso'))
-    check(';' not in textos and not re.search(r'\s[-–—]\s|–|—', textos), 'los resúmenes y las explicaciones no usan punto y coma ni guiones como separadores')
+    check(all(g.find('h2', id=True) and len(g.select('.bib-desc > p:not(.bib-tema)')) >= 2 and g.select_one('details.detalle > summary')
+              for g in grupos),
+          'cada grupo tiene título con ancla, una explicación de al menos dos párrafos y la lista plegable')
+    textos = ' '.join(x.get_text(' ') for x in bp.select('.bib-desc, details.bib-ref'))
+    check(';' not in textos and not re.search(r'\s[-–—]\s|–|—', textos),
+          'las explicaciones, las fichas y las citas no usan punto y coma ni guiones como separadores')
+    bibtex = (ROOT / 'datos' / 'bibliografia.bib').read_text(encoding='utf-8')
+    claves = re.findall(r'^@[a-z]+\{([a-z0-9]+),', bibtex, re.M)
+    check(len(claves) == 72 and len(set(claves)) == 72
+          and all(d.select_one('.bib-cita-tesis')['data-clave'] in claves for d in refs)
+          and bp.select_one('a[href="datos/bibliografia.bib"][download]'),
+          'el archivo BibTeX tiene una entrada por referencia, con la clave que usa la página, y se descarga desde ella', len(claves))
+    rec_html = (ROOT / 'recursos.html').read_text(encoding='utf-8')
+    sec = BeautifulSoup(rec_html, 'html.parser').find('h2', id='bibliografia').find_parent('section')
+    mapa = [a['href'] for a in sec.select('a[href^="bibliografia.html#bib-"]')]
+    check(sec.select_one('a[href="bibliografia.html"]') and len(mapa) == 11 and all(h.split('#')[1] in ids for h in mapa)
+          and not sec.select('details.bib-ref') and 'TRASLADO BIBLIOGRAFIA' in rec_html,
+          'Recursos presenta la bibliografía con un enlace, el mapa de sus 11 grupos y el traslado de las anclas antiguas', mapa)
 
 
 def manifiesto(nav):
@@ -360,7 +391,9 @@ def bibliografia(nav):
     print('Bibliografía de la tesis')
     ctx = contexto(nav, **MOVIL)
     p = ctx.new_page()
+    # un enlace antiguo a Recursos llega a la referencia en la página nueva
     p.goto(BASE + '/recursos.html#r-hess2016', wait_until='load')
+    p.wait_for_url('**/bibliografia.html#r-hess2016', timeout=5000)
     p.wait_for_timeout(500)
     r = p.evaluate("""() => { const d = document.getElementById('r-hess2016'), r = d.getBoundingClientRect();
       return { ref: d.open, grupo: d.closest('details.detalle').open, arriba: r.top, alto: innerHeight,
@@ -368,23 +401,34 @@ def bibliografia(nav):
                cerrados: [...document.querySelectorAll('.bib-grupo > details.detalle')].filter(d => !d.open).length,
                otras: [...document.querySelectorAll('details.bib-ref')].filter(d => d.open).length }; }""")
     check(r['ref'] and r['grupo'] and r['cab'] - 1 <= r['arriba'] < r['alto'] and r['cerrados'] == 10 and r['otras'] == 1,
-          'un enlace a una referencia abre su grupo y su detalle, y la deja bajo la cabecera', r)
-    p.fill('#b-filtro', 'pso')
+          'un enlace antiguo a una referencia lleva a la página de la bibliografía, abre su grupo y su detalle, y la deja bajo la cabecera', r)
+    p.fill('#b-filtro', 'factor de constricción')
     p.wait_for_timeout(100)
     r = p.evaluate("""() => ({ visibles: [...document.querySelectorAll('ol.bib > li')].filter(li => !li.hidden).map(li => li.firstElementChild.id),
-      grupos: [...document.querySelectorAll('.bib-grupo')].filter(g => !g.hidden).map(g => [g.querySelector('h3').id, g.querySelector('details.detalle').open]),
+      grupos: [...document.querySelectorAll('.bib-grupo')].filter(g => !g.hidden).map(g => [g.querySelector('h2').id, g.querySelector('details.detalle').open]),
       estado: document.querySelector('#b-filtro').closest('.filtro-lista').querySelector('.filtro-estado').textContent })""")
     check(sorted(r['visibles']) == ['r-clerc2002', 'r-gokce2021', 'r-shi1998'] and r['grupos'] == [['bib-pso', True]] and r['estado'] == '3 referencias coinciden.',
           'el filtro deja las tres referencias del PSO, abre su grupo, oculta los demás y lo anuncia', r)
     resumen = p.locator('#r-shi1998 > summary')
-    antes = p.evaluate("document.querySelector('#r-shi1998 .bib-contenido').checkVisibility()")
+    antes = p.evaluate("document.querySelector('#r-shi1998 .bib-trata').checkVisibility()")
     alto_resumen = resumen.evaluate('el => el.getBoundingClientRect().height')
     resumen.click()
     p.wait_for_timeout(100)
-    despues = p.evaluate("""() => { const d = document.getElementById('r-shi1998'), c = d.querySelector('.bib-contenido');
-      return { abierto: d.open, visible: c.checkVisibility(), texto: c.textContent }; }""")
-    check(not antes and alto_resumen >= 44 and despues['abierto'] and despues['visible'] and 'peso de inercia' in despues['texto'],
-          'al presionar la línea de resumen se abre el detalle del contenido (resumen de %d px)' % alto_resumen, despues)
+    despues = p.evaluate("""() => { const d = document.getElementById('r-shi1998'), c = d.querySelector('.bib-trata'), m = c.querySelector('details.bib-mas');
+      return { abierto: d.open, visible: c.checkVisibility(), texto: c.textContent, mas: !!m && !m.open,
+               ficha: d.querySelector('.bib-ficha').checkVisibility(), bloques: [...d.querySelectorAll('.bib-bloque > h3')].map(h => h.textContent) }; }""")
+    check(not antes and alto_resumen >= 44 and despues['abierto'] and despues['visible'] and despues['ficha'] and 'peso de inercia' in despues['texto']
+          and despues['bloques'] == ['Ficha', 'De qué trata', 'Relación con la tesis', 'Referencias relacionadas', 'Cita'],
+          'al presionar la línea de resumen se abre el detalle con sus cinco bloques (resumen de %d px)' % alto_resumen, despues)
+    # el resto de un bloque largo queda plegado dentro del detalle y se abre con su propio control
+    mas = p.locator('#r-shi1998 .bib-trata details.bib-mas > summary')
+    alto_mas = mas.evaluate('el => el.getBoundingClientRect().height')
+    mas.click()
+    p.wait_for_timeout(100)
+    r = p.evaluate("""() => { const m = document.querySelector('#r-shi1998 .bib-trata details.bib-mas'), ver = m.querySelector('.bib-mas-ver'), plegar = m.querySelector('.bib-mas-plegar');
+      return { abierto: m.open, parrafo: m.querySelector('p').checkVisibility(), ver: ver.checkVisibility(), plegar: plegar.checkVisibility() }; }""")
+    check(despues['mas'] and alto_mas >= 44 and r['abierto'] and r['parrafo'] and not r['ver'] and r['plegar'],
+          'un bloque largo se pliega dentro del detalle, su control mide al menos 44 px y al abrirlo ofrece plegarlo', (alto_mas, r))
     resumen.focus()
     p.keyboard.press('Enter')
     p.wait_for_timeout(100)
@@ -393,7 +437,7 @@ def bibliografia(nav):
     p.wait_for_timeout(100)
     r = p.evaluate("""() => ({ visibles: [...document.querySelectorAll('ol.bib > li')].filter(li => !li.hidden).map(li => li.firstElementChild.id),
       abiertas: [...document.querySelectorAll('details.bib-ref')].filter(d => d.open).map(d => d.id) })""")
-    check(r['visibles'] == ['r-vincent2024'] and r['abiertas'] == ['r-hess2016'],
+    check(r['visibles'] == ['r-devore2021', 'r-vincent2024'] and r['abiertas'] == ['r-hess2016'],
           'el filtro busca también en el detalle de cada referencia sin abrirlo', r)
     p.fill('#b-filtro', 'xyzw')
     check('Ninguna referencia' in p.evaluate("document.querySelector('#b-filtro').closest('.filtro-lista').querySelector('.filtro-estado').textContent"),
@@ -401,22 +445,63 @@ def bibliografia(nav):
     p.fill('#b-filtro', '')
     p.wait_for_timeout(100)
     r = p.evaluate("""() => ({ ocultos: document.querySelectorAll('ol.bib > li[hidden], .bib-grupo[hidden]').length,
-      abiertos: [...document.querySelectorAll('.bib-grupo > details.detalle')].filter(d => d.open).map(d => d.closest('.bib-grupo').querySelector('h3').id) })""")
+      abiertos: [...document.querySelectorAll('.bib-grupo > details.detalle')].filter(d => d.open).map(d => d.closest('.bib-grupo').querySelector('h2').id) })""")
     check(r['ocultos'] == 0 and r['abiertos'] == ['bib-mapeo'], 'al borrar el filtro todo vuelve y cada grupo queda como estaba', r)
-    p.evaluate("""() => { const d = document.getElementById('r-astrom2009'); d.closest('details.detalle').open = true; d.open = true; }""")
+    p.evaluate("""() => { const d = document.getElementById('r-astrom2009'); d.closest('details.detalle').open = true; d.open = true;
+      d.querySelectorAll('details.bib-mas').forEach(m => { m.open = true; }); }""")
     p.wait_for_timeout(100)
     alto = p.locator('#b-filtro').evaluate('el => el.closest(".campo-buscar").getBoundingClientRect().height')
-    ancho = p.evaluate('document.documentElement.scrollWidth - innerWidth')
-    check(alto >= 44 and ancho <= 1, 'teléfono: el filtro mide al menos 44 px y un detalle abierto no desborda la página (%d)' % alto, ancho)
+    r = p.evaluate("""() => { const d = document.getElementById('r-astrom2009'), f = d.querySelector('.bib-dl > div'), dt = f.querySelector('dt').getBoundingClientRect(),
+      dd = f.querySelector('dd').getBoundingClientRect();
+      return { ancho: document.documentElement.scrollWidth - innerWidth, apilada: dd.top >= dt.bottom - 1 && Math.abs(dd.left - dt.left) < 2,
+               botones: [...d.querySelectorAll('.bib-copiar button')].map(b => Math.round(b.getBoundingClientRect().height)) }; }""")
+    check(alto >= 44 and r['ancho'] <= 1 and r['apilada'] and len(r['botones']) == 2 and min(r['botones']) >= 44,
+          'teléfono: el filtro y los botones para copiar miden al menos 44 px, la ficha va en una columna y un detalle abierto no desborda (%d)' % alto, r)
+    ctx.close()
+    # escritorio: la ficha en dos columnas y los botones para copiar
+    ctx = contexto(nav, **ESCRITORIO)
+    ctx.grant_permissions(['clipboard-read', 'clipboard-write'], origin=BASE)
+    p = ctx.new_page()
+    p.goto(BASE + '/bibliografia.html#r-shi1998', wait_until='load')
+    p.wait_for_timeout(400)
+    r = p.evaluate("""() => { const f = document.querySelector('#r-shi1998 .bib-dl > div'), dt = f.querySelector('dt').getBoundingClientRect(),
+      dd = f.querySelector('dd').getBoundingClientRect(); return { columnas: dd.left > dt.right - 1 && Math.abs(dd.top - dt.top) < 4 }; }""")
+    check(r['columnas'], 'escritorio: la ficha va en dos columnas, dato y valor en la misma fila', r)
+    p.click('#r-shi1998 .bib-copiar [data-copiar="cita"]')
+    p.wait_for_timeout(200)
+    cita = p.evaluate("navigator.clipboard.readText()")
+    estado = p.text_content('#r-shi1998 .bib-copia-estado')
+    check(cita.startswith('Shi, Y.') and 'https://doi.org/' in cita and estado == 'Cita copiada.',
+          'Copiar la cita deja en el portapapeles la cita de la tesis con su enlace completo y lo anuncia', (cita[:90], estado))
+    p.click('#r-shi1998 .bib-copiar [data-copiar="bibtex"]')
+    p.wait_for_function("document.querySelector('#r-shi1998 .bib-copia-estado').textContent.length > 0", timeout=5000)
+    bib = p.evaluate("navigator.clipboard.readText()")
+    check(bib.startswith('@inproceedings{shi1998,') and bib.rstrip().endswith('}') and bib.count('@') == 1,
+          'Copiar en BibTeX deja en el portapapeles solo la entrada de esa referencia', bib[:80])
     ctx.close()
     ctx = contexto(nav, java_script_enabled=False, **ESCRITORIO)
     p = ctx.new_page()
-    p.goto(BASE + '/recursos.html#bibliografia')
+    p.goto(BASE + '/bibliografia.html#bib-mapeo')
     r = p.evaluate("""() => ({ grupos: document.querySelectorAll('.bib-grupo > details.detalle').length,
       refs: document.querySelectorAll('details.bib-ref > summary').length, filtro: !!document.getElementById('b-filtro'),
-      desc: [...document.querySelectorAll('.bib-desc')].every(d => d.getBoundingClientRect().height > 0) })""")
-    check(r['grupos'] == 11 and r['refs'] == 72 and not r['filtro'] and r['desc'],
-          'sin JavaScript se ven los grupos con su explicación, y grupos y referencias se abren a mano', r)
+      desc: [...document.querySelectorAll('.bib-desc')].every(d => d.getBoundingClientRect().height > 0),
+      descarga: !!document.querySelector('a[href="datos/bibliografia.bib"][download]') })""")
+    check(r['grupos'] == 11 and r['refs'] == 72 and not r['filtro'] and r['desc'] and r['descarga'],
+          'sin JavaScript se ven los grupos con su explicación, grupos y referencias se abren a mano y el BibTeX se descarga', r)
+    p.goto(BASE + '/recursos.html#bibliografia')
+    r = p.evaluate("""() => { const sec = document.getElementById('bibliografia').closest('section');
+      return { pagina: location.pathname.endsWith('/recursos.html'), enlace: !!sec.querySelector('a[href="bibliografia.html"]') }; }""")
+    check(r['pagina'] and r['enlace'], 'sin JavaScript, Recursos conserva su sección de bibliografía con el enlace a la página nueva', r)
+    ctx.close()
+    # al imprimir, todo queda abierto
+    ctx = contexto(nav, **ESCRITORIO)
+    p = ctx.new_page()
+    p.goto(BASE + '/bibliografia.html', wait_until='load')
+    p.wait_for_timeout(200)
+    p.evaluate("window.dispatchEvent(new Event('beforeprint'))")
+    r = p.evaluate("""() => ({ cerrados: [...document.querySelectorAll('details.detalle, details.bib-ref, details.bib-mas')].filter(d => !d.open).length,
+      total: document.querySelectorAll('details.bib-ref').length })""")
+    check(r['cerrados'] == 0 and r['total'] == 72, 'al imprimir se abren todos los grupos, las referencias y sus bloques plegados', r)
     ctx.close()
 
 

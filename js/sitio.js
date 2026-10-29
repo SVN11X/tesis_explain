@@ -45,10 +45,11 @@
     { id: "lecciones", t: "Lecciones de ingeniería", d: "Temas que la tesis deja implícitos: unidades, seguridad, privacidad, reproducibilidad." },
     { id: "preguntas", t: "Preguntas difíciles", d: "Las preguntas de quien leyó la tesis con lupa, con su respuesta y su respaldo." },
     { id: "laboratorio", t: "Laboratorio de análisis", d: "Calcula métricas de tablas CSV localmente y consulta las reglas que las interpretan." },
-    { id: "recursos", t: "Recursos", d: "Glosario, bibliografía, material para aprender y cómo citar." }
+    { id: "recursos", t: "Recursos", d: "Glosario, fuentes agregadas, material para aprender y cómo citar." },
+    { id: "bibliografia", t: "Bibliografía de la tesis", d: "Las 72 referencias, cada una con su ficha, de qué trata y qué toma la tesis de ella." }
   ];
   /* Secuencia de lectura: los diez temas numerados y, después, los complementos sin número.
-     Recursos va al final, con su índice lateral y su navegación, sin alterar la numeración de los temas. */
+     Recursos y la bibliografía van al final, con su índice lateral y su navegación, sin alterar la numeración de los temas. */
   var SECUENCIA = CAPS.concat(EXTRAS);
   window.SITIO = { CAPS: CAPS, EXTRAS: EXTRAS, REPO: REPO, VIDEO_ID: VIDEO_ID, TESIS_PDF: TESIS_PDF };
 
@@ -287,7 +288,7 @@
       var ant = SECUENCIA[idxSec - 1], sig = SECUENCIA[idxSec + 1];
       nc.className = "nav-cap";
       nc.innerHTML = (ant ? '<a class="ant" href="' + ant.id + '.html"><span>← Anterior</span><b>' + esc(ant.t) + '</b></a>' : '<a class="ant" href="index.html"><span>← Volver</span><b>Inicio</b></a>') +
-        (sig ? '<a class="sig" href="' + sig.id + '.html"><span>Siguiente →</span><b>' + esc(sig.t) + '</b></a>' : (pagina === "recursos" ? '<a class="sig" href="index.html"><span>Para terminar →</span><b>Volver al inicio</b></a>' : '<a class="sig" href="recursos.html"><span>Para seguir →</span><b>Recursos y glosario</b></a>'));
+        (sig ? '<a class="sig" href="' + sig.id + '.html"><span>Siguiente →</span><b>' + esc(sig.t) + '</b></a>' : '<a class="sig" href="index.html"><span>Para terminar →</span><b>Volver al inicio</b></a>');
     }
     var ay = document.getElementById("ayuda-pie");
     if (ay) ay.innerHTML = '¿Encontraste un error o algo no se entiende? <a href="' + REPO + '/issues/new?title=' + encodeURIComponent(c.t) + '">Escríbelo en GitHub</a>. Toda contribución mejora la guía para quien venga después.';
@@ -854,7 +855,7 @@
     document.querySelectorAll("details").forEach(function (d) {
       d.addEventListener("toggle", function () { if (d.open) window.dispatchEvent(new Event("resize")); });
     });
-    window.addEventListener("beforeprint", function () { document.querySelectorAll("details.detalle, details.ficha-concepto, details.bib-ref").forEach(function (d) { d.open = true; }); });
+    window.addEventListener("beforeprint", function () { document.querySelectorAll("details.detalle, details.ficha-concepto, details.bib-ref, details.bib-mas").forEach(function (d) { d.open = true; }); });
   }
 
   /* Resaltar el destino de un enlace interno */
@@ -908,8 +909,13 @@
     caja.innerHTML = '<label for="' + o.id + '">' + o.etiqueta + '</label><div class="campo-buscar">' + SVG.lupa + '<input id="' + o.id + '" type="search" autocomplete="off" spellcheck="false" placeholder="' + o.ejemplo + '"></div><p class="filtro-estado" role="status" aria-live="polite"></p>';
     o.antes.parentNode.insertBefore(caja, o.antes);
     var input = caja.querySelector("input"), estado = caja.querySelector(".filtro-estado");
-    var textos = o.items.map(function (d) { return BUS.norm(d.textContent); });
+    /* el texto de cada elemento se normaliza al primer uso, no al cargar: en la bibliografía son unas
+       30 000 palabras y hacerlo de entrada bloquearía la página */
+    var textos = null;
+    function preparar() { if (!textos) textos = o.items.map(function (d) { return BUS.norm(d.textContent); }); }
+    input.addEventListener("focus", preparar);
     input.addEventListener("input", function () {
+      preparar();
       var ps = BUS.tokens(input.value), n = 0;
       o.items.forEach(function (d, i) {
         var ver = !ps.length || ps.every(function (p) { return textos[i].indexOf(p) >= 0; });
@@ -947,6 +953,80 @@
       } });
   }
 
+  /* Copiar la cita de una referencia tal como la escribe la tesis, o su entrada BibTeX. El archivo .bib se pide
+     una sola vez, al presionar el primer botón, y de él se toma solo la entrada de esa referencia. Sin
+     JavaScript la cita se puede seleccionar a mano y el archivo se descarga desde «Descargar y citar». */
+  function copiarCitas() {
+    var citas = [].slice.call(document.querySelectorAll(".bib-cita-tesis[data-clave]"));
+    if (!citas.length) return;
+    var bib = null, pedido = null;
+    function pedirBib() {
+      if (bib) return Promise.resolve(bib);
+      if (!pedido) pedido = fetch("datos/bibliografia.bib").then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.text(); })
+        .then(function (t) { bib = t; return t; }, function (e) { pedido = null; throw e; });
+      return pedido;
+    }
+    function entrada(t, clave) {
+      var m = new RegExp("^@[a-z]+\\{" + clave.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ",[\\s\\S]*?^\\}", "m").exec(t);
+      return m ? m[0] : null;
+    }
+    function textoCita(span) {
+      /* los enlaces de la cita muestran la dirección acortada; al copiar va completa */
+      var c = span.cloneNode(true);
+      c.querySelectorAll("a[href]").forEach(function (a) { if (!/^https?:/.test(a.textContent)) a.textContent = a.href; });
+      return c.textContent.replace(/\s+/g, " ").trim();
+    }
+    function copiar(texto) {
+      if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(texto);
+      return new Promise(function (ok, mal) {
+        var ta = document.createElement("textarea");
+        ta.value = texto; ta.setAttribute("readonly", ""); ta.className = "sr";
+        document.body.appendChild(ta); ta.select();
+        var hecho = false;
+        try { hecho = document.execCommand("copy"); } catch (e) {}
+        ta.remove();
+        if (hecho) ok(); else mal(new Error("sin portapapeles"));
+      });
+    }
+    citas.forEach(function (p) {
+      var clave = p.getAttribute("data-clave"), span = p.querySelector(".bib-cita-texto");
+      var ref = p.closest(".bib-ref"), autor = ref && ref.querySelector(".bib-autor") ? ref.querySelector(".bib-autor").textContent : "";
+      var caja = document.createElement("div");
+      caja.className = "bib-copiar";
+      caja.innerHTML = '<button type="button" class="btn chico" data-copiar="cita" aria-label="Copiar la cita de ' + esc(autor) + '">Copiar la cita</button>' +
+        '<button type="button" class="btn chico" data-copiar="bibtex" aria-label="Copiar en BibTeX la entrada de ' + esc(autor) + '">Copiar en BibTeX</button>' +
+        '<span class="bib-copia-estado" role="status" aria-live="polite"></span>';
+      p.insertAdjacentElement("afterend", caja);
+      var estado = caja.querySelector(".bib-copia-estado");
+      caja.addEventListener("click", function (e) {
+        var b = e.target.closest("button[data-copiar]");
+        if (!b) return;
+        var que = b.getAttribute("data-copiar");
+        estado.textContent = "";
+        var listo = que === "cita" ? Promise.resolve(textoCita(span)) : pedirBib().then(function (t) {
+          var x = entrada(t, clave); if (!x) throw new Error("sin entrada"); return x;
+        });
+        listo.then(function (texto) { return copiar(texto).then(function () { estado.textContent = que === "cita" ? "Cita copiada." : "Entrada BibTeX copiada."; }); })
+          .catch(function () {
+            estado.textContent = que === "cita" ? "No se pudo copiar. Selecciona la cita y cópiala a mano."
+              : "No se pudo copiar la entrada. Descarga el archivo en Descargar y citar, al final de la página.";
+          });
+      });
+    });
+  }
+
+  /* La bibliografía de la tesis pasó de recursos.html a bibliografia.html. Un script en la cabecera de
+     recursos.html lleva los enlaces antiguos a la nueva página al cargar. Aquí se cubre el cambio de ancla
+     dentro de Recursos: un grupo (#bib-…) o una referencia (#r-…) que ya no está en esta página. */
+  function bibliografiaTrasladada() {
+    if (pagina !== "recursos") return;
+    window.addEventListener("hashchange", function () {
+      var h = location.hash.slice(1);
+      try { h = decodeURIComponent(h); } catch (e) {}
+      if (/^(r|bib)-[a-z0-9-]+$/.test(h) && !document.getElementById(h)) location.replace("bibliografia.html#" + h);
+    });
+  }
+
   /* Estado del PDF de la tesis en Recursos */
   function materiales() {
     if (!TESIS_PDF) return;
@@ -972,7 +1052,7 @@
     window.addEventListener("load", una);
   }
   function arrancar() {
-    iniciar([cabecera, pie, capitulo, progreso, arriba, videos, bucles, ampliar, comparadores, citasYTerminos, buscador, glosario, bibliografia, materiales, etapas, plegados]);
+    iniciar([bibliografiaTrasladada, cabecera, pie, capitulo, progreso, arriba, videos, bucles, ampliar, comparadores, citasYTerminos, buscador, glosario, bibliografia, copiarCitas, materiales, etapas, plegados]);
     document.documentElement.classList.add("js");
     alListo(function () { iniciar([interactivos, destacarHash, tablasDesplazables]); });
   }

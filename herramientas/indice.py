@@ -9,8 +9,10 @@ Qué indexa:
     listas y el texto alternativo de los interactivos (.vis-fallback).
   * Una entrada por cada h3 con id, con su texto y el de los elementos que le siguen hasta el
     próximo encabezado, para que el resultado lleve directo al bloque.
-  * El resumen de cada tema, cada término del glosario, cada grupo de la bibliografía y cada una
-    de sus referencias, que lleva directo a ella abierta.
+  * El resumen de cada tema y cada término del glosario.
+  * En bibliografia.html, cada grupo con su explicación y cada referencia, que lleva directo a ella
+    abierta. De la ficha de una referencia se indexan solo los datos clave: título, traducción,
+    autoría, fecha, medio, identificadores y palabras clave. El resto del detalle va completo.
   * En preguntas.html, una entrada por pregunta, con su respuesta, que lleva directo a ella.
     Las secciones de cada tema de preguntas solo indexan su introducción.
 
@@ -24,7 +26,13 @@ from bs4 import BeautifulSoup
 
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..') + os.sep
 ORDEN = ['index', 'problema', 'robot', 'movimiento', 'control', 'mapeo', 'navegacion', 'exploracion',
-         'gemelo', 'resultados', 'replicar', 'mundo-real', 'lecciones', 'preguntas', 'laboratorio', 'recursos']
+         'gemelo', 'resultados', 'replicar', 'mundo-real', 'lecciones', 'preguntas', 'laboratorio', 'recursos',
+         'bibliografia']
+# Filas de la ficha de una referencia que el buscador indexa. Las demás, como el acceso o la procedencia,
+# se leen al abrir la referencia y no se buscan.
+FICHA_CLAVE = ('Título', 'Título original', 'En español', 'Autoría', 'Traducción', 'Fecha', 'Revista', 'Congreso', 'Libro', 'Editorial',
+               'Sitio', 'Documentación', 'Repositorio', 'Publicado en', 'Plataforma', 'Tienda', 'Serie',
+               'Identificador', 'Identificadores', 'Palabras clave', 'Temas, según esta guía')
 LARGO_PARTE = 2400      # caracteres por parte en secciones largas
 SOLAPE = 300            # caracteres compartidos entre partes consecutivas
 RUIDO = re.compile(r'\s*Necesita JavaScript\.?', re.I)
@@ -51,6 +59,25 @@ def partes(texto):
         nuevo = texto.rfind(' ', ini, fin - SOLAPE)
         ini = nuevo + 1 if nuevo > ini else fin - SOLAPE
     return out
+
+
+def texto_referencia(d):
+    """Texto de una referencia de la bibliografía: su línea de resumen, los datos clave de la ficha y
+    el resto del detalle, sin los botones para copiar, los subtítulos de los bloques ni las etiquetas
+    de los plegables «Seguir leyendo», que ensuciarían el extracto del resultado."""
+    trozos = [limpio(d.find('summary').get_text(' '))]
+    for x in d.select('.bib-bloque > h3, details.bib-mas > summary'):
+        x.decompose()
+    ficha = d.select_one('.bib-ficha')
+    if ficha:
+        for fila in ficha.select('.bib-dl > div'):
+            dt, dd = fila.find('dt'), fila.find('dd')
+            if dt and dd and limpio(dt.get_text(' ')) in FICHA_CLAVE:
+                trozos.append(limpio(dd.get_text(' ')))
+    for bloque in d.select('.bib-bloque'):
+        if 'bib-ficha' not in bloque.get('class', []):
+            trozos.append(limpio(bloque.get_text(' ')))
+    return ' '.join(t for t in trozos if t)
 
 
 def texto_h3(h):
@@ -88,11 +115,13 @@ def generar():
                 dt, dd = g.find('dt'), g.find('dd')
                 if dt and dd:
                     ent.append(dict(u=url + '#' + g['id'], t=limpio(dt.get_text(' ')), p='Glosario', x=limpio(dd.get_text(' '))))
+        if pid == 'bibliografia':
             for d in s.select('details.bib-ref[id]'):
-                # el resumen y el detalle completos, para que la búsqueda lleve a la referencia abierta
+                # una entrada por referencia, para que la búsqueda lleve a ella abierta
                 autor = d.select_one('.bib-autor')
                 if autor:
-                    ent.append(dict(u=url + '#' + d['id'], t=limpio(autor.get_text(' ')), p='Bibliografía', x=limpio(d.get_text(' '))))
+                    for k, x in enumerate(partes(texto_referencia(d))):
+                        ent.append(dict(u=url + '#' + d['id'], t=limpio(autor.get_text(' ')), p='Bibliografía', x=x, k=k))
         # texto fuera de las secciones con encabezado: portada, presentación del tema y bloques sueltos
         sueltos = []
         hero = s.select_one('header.tema-hero .lead')
@@ -131,10 +160,15 @@ def generar():
                 # cada pregunta ya tiene su propia entrada; aquí basta la introducción del tema
                 intro = sec.select_one('.q-intro')
                 texto = limpio(intro.get_text(' ')) if intro else ''
-            if pid == 'recursos' and hid in ('glosario', 'bibliografia'):
-                # los términos y los grupos de referencias ya tienen su propia entrada; aquí basta la introducción
+            if pid == 'recursos' and hid == 'glosario':
+                # cada término ya tiene su propia entrada; aquí basta la introducción
                 intro = sec.find('p')
                 texto = limpio(intro.get_text(' ')) if intro else ''
+            # la sección de bibliografía de Recursos solo presenta la página nueva y sus grupos: va completa
+            if pid == 'bibliografia' and 'bib-grupo' in sec.get('class', []):
+                # cada referencia del grupo tiene su propia entrada; aquí basta la explicación del grupo
+                desc = sec.select_one('.bib-desc')
+                texto = limpio(desc.get_text(' ')) if desc else ''
             for k, x in enumerate(partes(texto)):
                 ent.append(dict(u=url + '#' + ancla, t=t, p=titulo, x=x, k=k))
     vis, out = set(), []

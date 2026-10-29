@@ -6,11 +6,11 @@ Uso, desde la raíz del repositorio:
 
 Sin argumento inicia un servidor local temporal.
 
-Comprueba: errores de consola y de carga en las 15 páginas, en escritorio y en móvil; que
+Comprueba: errores de consola y de carga en todas las páginas, en escritorio y en móvil; que
 todos los interactivos se monten; desborde horizontal en móvil; enlaces internos, anclas y
 recursos locales; el buscador; las definiciones con ratón, toque y teclado; los simuladores
-de inflación, DWB, exploración y encoder; la página de Recursos; el contenido plegado y sus
-anclas; el botón Ampliar; el alto mínimo de los controles en un teléfono; el visor de fotos,
+de inflación, DWB, exploración y encoder; las páginas de Recursos y de Bibliografía, con el
+traslado de las anclas antiguas; el contenido plegado y sus anclas; el botón Ampliar; el alto mínimo de los controles en un teléfono; el visor de fotos,
 el esquema con puntos, la línea de tiempo y los bloques de video preparados; la cabecera fija
 y el panel de Temas dentro de la pantalla en varios anchos; y las herramientas de Preguntas
 difíciles: búsqueda, filtros, modo práctica, pregunta al azar y lectura sin JavaScript.
@@ -233,6 +233,8 @@ def probar_buscador(nav):
         const html = await (await fetch(pg)).text();
         const d = new DOMParser().parseFromString(html, 'text/html');
         d.querySelectorAll('script, style, .fuentes-tema, nav, .lateral, #cabecera, #pie, [hidden]').forEach(x => x.remove());
+        // de la ficha de una referencia el índice solo lleva los datos clave, que se comprueban aparte
+        d.querySelectorAll('.bib-ficha').forEach(x => x.remove());
         d.querySelectorAll('main p, main li, main td, main th, main figcaption, main dd').forEach(x => {
           const t = B.norm(x.textContent).replace(/necesita javascript\\.?/g, '').replace(/\\s+/g, '');
           if (t.length < 20) return;
@@ -519,9 +521,9 @@ def probar_recursos(nav):
                    numeros: [...l.querySelectorAll('.guia-lista .n')].map(x => x.textContent) };
         }""")
         ok(r['lat'] > 10 and r['enPagina'] >= 6 and r['alto'] > 40, '%s: el lateral de Recursos tiene índice útil' % nombre, r)
-        ok(r['nav'] == ['laboratorio.html', 'index.html'], '%s: navegación anterior y siguiente de Recursos' % nombre, r['nav'])
+        ok(r['nav'] == ['laboratorio.html', 'bibliografia.html'], '%s: navegación anterior y siguiente de Recursos' % nombre, r['nav'])
         ok(r['actual'], '%s: Recursos aparece como página actual' % nombre)
-        ok(r['numeros'][:10] == ['%02d' % i for i in range(1, 11)] and r['numeros'][10:] == ['+'] * 5, '%s: la numeración de los diez temas se conserva y hay cinco complementos' % nombre, r['numeros'])
+        ok(r['numeros'][:10] == ['%02d' % i for i in range(1, 11)] and r['numeros'][10:] == ['+'] * 6, '%s: la numeración de los diez temas se conserva y hay seis complementos' % nombre, r['numeros'])
         if nombre == 'escritorio':
             e = p.evaluate("""() => { const pie = document.querySelector('.pie'), ab = document.getElementById('abstract').closest('section');
               return { mit: !!pie.querySelector('a[href$="/LICENSE"]'), cc: !!pie.querySelector('a[href*="licenses/by/4.0"]'), rev: (pie.querySelector('time') || {}).textContent || '',
@@ -529,6 +531,14 @@ def probar_recursos(nav):
                        lang: ab.getAttribute('lang'), abstract: ab.textContent.includes('Keywords'), ocultos: document.querySelectorAll('#autor ~ * [hidden], #autor ~ [hidden]').length }; }""")
             ok(e['mit'] and e['cc'] and e['rev'] and e['autor'] and e['version'], 'el pie muestra la licencia, la fecha de revisión, el enlace al autor y la versión de la tesis de referencia', e)
             ok(e['lang'] == 'en' and e['abstract'] and e['ocultos'] >= 3, 'el abstract va en inglés y los datos pendientes del autor quedan ocultos', e)
+        p.goto(BASE + '/bibliografia.html')
+        p.wait_for_timeout(200)
+        r = p.evaluate("""() => { const l = document.getElementById('lateral'), n = document.getElementById('nav-cap');
+          return { enPagina: [...l.querySelectorAll('.en-pagina a')].map(a => a.getAttribute('href')), nav: [...n.querySelectorAll('a')].map(a => a.getAttribute('href')),
+                   actual: !!l.querySelector('a[aria-current=page][href="bibliografia.html"]') }; }""")
+        ok(r['nav'] == ['recursos.html', 'index.html'], '%s: navegación anterior y siguiente de Bibliografía' % nombre, r['nav'])
+        grupos = [h for h in r['enPagina'] if h.startswith('#bib-')]
+        ok(r['actual'] and len(grupos) == 11, '%s: Bibliografía aparece como página actual y su índice lateral lleva los 11 grupos' % nombre, r)
         ctx.close()
 
 
@@ -564,13 +574,22 @@ def probar_plegados(nav):
     p.wait_for_timeout(400)
     ok(p.evaluate("location.hash === '#ciclo' && document.getElementById('ciclo').closest('details').open"), 'un resultado del buscador abre el bloque plegado de destino')
     # enlace interno, como el índice lateral o una cita, hacia algo plegado
-    p.goto(BASE + '/recursos.html')
+    p.goto(BASE + '/bibliografia.html')
     p.wait_for_timeout(200)
     p.evaluate("""() => { const a = document.createElement('a'); a.href = '#r-yamauchi1997'; a.id = 'prueba-enlace'; a.textContent = 'x'; document.querySelector('main').prepend(a); }""")
     p.click('#prueba-enlace')
     p.wait_for_timeout(300)
-    r = p.evaluate("""() => { const li = document.getElementById('r-yamauchi1997'), rc = li.getBoundingClientRect(); return { abierto: li.closest('details').open, arriba: rc.top, alto: innerHeight }; }""")
-    ok(r['abierto'] and 0 <= r['arriba'] < r['alto'], 'un clic en un enlace interno abre la bibliografía plegada y muestra la referencia', r)
+    r = p.evaluate("""() => { const d = document.getElementById('r-yamauchi1997'), rc = d.getBoundingClientRect();
+      return { ref: d.open, grupo: d.closest('details.detalle').open, arriba: rc.top, alto: innerHeight }; }""")
+    ok(r['ref'] and r['grupo'] and 0 <= r['arriba'] < r['alto'], 'un clic en un enlace interno abre el grupo plegado y la referencia, y la muestra', r)
+    # en Recursos, un cambio de ancla hacia una referencia trasladada lleva a la página de la bibliografía
+    p.goto(BASE + '/recursos.html')
+    p.wait_for_timeout(200)
+    p.evaluate("location.hash = 'r-yamauchi1997'")
+    p.wait_for_url('**/bibliografia.html#r-yamauchi1997', timeout=5000)
+    p.wait_for_timeout(300)
+    r = p.evaluate("""() => { const d = document.getElementById('r-yamauchi1997'); return { ref: d.open, grupo: d.closest('details.detalle').open }; }""")
+    ok(r['ref'] and r['grupo'], 'en Recursos, un cambio de ancla a una referencia trasladada la abre en la página de la bibliografía', r)
     s = p.locator('details.detalle > summary').first
     s.focus()
     ok(p.evaluate("document.activeElement.tagName === 'SUMMARY'"), 'el control para desplegar se alcanza con teclado')
@@ -761,7 +780,7 @@ def probar_cabecera(nav):
                    enlaces: m.querySelectorAll('a').length }; }""")
         ok(r['visible'] and r['izq'] >= 0 and r['der'] <= r['ancho'] and r['abajo'] <= r['alto'], '%d px: el panel de Temas cabe completo en la pantalla' % ancho, r)
         ok(r['desborde'] <= 0 and r['pagina'] <= 1, '%d px: la barra de navegación no se desborda' % ancho, r)
-        ok(r['enlaces'] == 15, '%d px: el panel lleva los diez temas y los cinco complementos' % ancho, r['enlaces'])
+        ok(r['enlaces'] == 16, '%d px: el panel lleva los diez temas y los seis complementos' % ancho, r['enlaces'])
         if ancho == 1280:
             p.keyboard.press('Escape')
             ok(p.evaluate("document.getElementById('menu-guia').hidden && document.querySelector('.nav-btn').getAttribute('aria-expanded') === 'false'"), 'Escape cierra el panel de Temas')
