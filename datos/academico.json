@@ -5,8 +5,8 @@
   "version_documento": "octubre de 2026, 152 páginas",
   "fecha_datos": "Exploración y mapeo, 22 de junio de 2026 (Anexo 7). La tesis no fecha los demás ensayos.",
   "revision_datos": null,
-  "ultima_actualizacion_sitio": "2026-10-29",
-  "revision_base": "9407bbbb35f104d81eb28d97be6cdc4463d7226d",
+  "ultima_actualizacion_sitio": "2026-10-31",
+  "revision_base": "3bae57b72f8bd1c7b85a2f48e26038b6993cf7ac",
   "tesis_pdf": null,
   "pendientes": [
     {
@@ -62,6 +62,11 @@
       "fecha": "2026-10-29",
       "tipo": "contenido",
       "cambio": "Bibliografía extendida en su propia página. Cada una de las 72 referencias tiene una ficha con sus datos de publicación, explica en varios párrafos de qué trata el documento, qué toma la tesis de él y dónde, en qué se diferencia este trabajo y con qué otras referencias se relaciona, y trae su cita lista para copiar, también en BibTeX. Los enlaces antiguos de Recursos llevan a la nueva página. Los resultados y las tablas experimentales no cambian."
+    },
+    {
+      "fecha": "2026-10-31",
+      "tipo": "plataforma",
+      "cambio": "La cabecera ya no se sale de la pantalla en teléfonos angostos, como los de 320 y 375 px, y las pruebas detectan ese desborde. El simulador de la ventana dinámica muestra las trayectorias candidatas, que la huella del robot tapaba, y agrega una vista ampliada. El buscador avisa mientras carga y marca solo el resultado enfocado. El índice «En esta página» se abre tocando toda su caja y los textos ya no usan punto y coma. El contenido académico y las tablas experimentales no cambian."
     }
   ]
 }

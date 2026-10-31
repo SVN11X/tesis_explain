@@ -23,7 +23,7 @@
   };
   S.candidatosSVG = function (id, estatico) {
     var c = S.evaluarCandidato(id).candidato, X = function (x) { return 45 + x * 220; }, Y = function (y) { return 195 - y * 170; };
-    var b = '<svg xmlns="http://www.w3.org/2000/svg" class="mp-svg" viewBox="0 0 340 240" role="img" aria-label="Comparación de cinco pares de puntos en el mismo marco; círculos de la observación actual y cuadrados de la pose ' + id + '">';
+    var b = '<svg xmlns="http://www.w3.org/2000/svg" class="mp-svg" viewBox="0 0 340 240" role="img" aria-label="Comparación de cinco pares de puntos en el mismo marco, con círculos de la observación actual y cuadrados de la pose ' + id + '">';
     if (estatico) b += '<style>text{font-family:Arial,sans-serif;fill:#1e2632}.mp-bg{fill:white}.mp-border{stroke:#8794a8}.mp-a-f{fill:#004eaa}.mp-b-f{fill:#9a4505}.mp-orange{stroke:#9a4505}</style>';
     b += '<rect class="mp-bg" width="340" height="240"/><path d="M35 20V195H315" class="mp-border" fill="none"/>';
     [0, .5, 1].forEach(function (v) { b += '<text x="' + X(v) + '" y="217" font-size="15" text-anchor="middle">' + fmt(v, 1) + '</text>'; });
@@ -42,7 +42,7 @@
       '<div class="mp-steps" role="group" aria-label="Etapas de selección de cierre">' + labels.map(function (s, i) { return '<button type="button" class="mp-step" data-etapa="' + i + '" aria-pressed="' + (i === 0) + '">' + s + '</button>'; }).join('') + '</div>' +
       '<p class="mp-status" data-filtro></p><div data-geometria><div class="mp-chart"></div><p class="vnota">Círculos: observación actual. Cuadrados: observación anterior. Segmentos: desajuste entre pares ya alineados, en el mismo marco.</p></div>' +
       '<p class="mp-status" data-resultado aria-live="polite"></p><button type="button" class="vbtn sec" data-reset-candidatos>Restablecer ejemplo</button>' +
-      '<p class="vnota">Modelo sintético: pose actual 12, radio de 1 m y umbral de 6 cm. El RMS es la raíz del promedio de distancias al cuadrado de cinco pares conocidos; no es una probabilidad. SLAM Toolbox busca el ajuste y aplica sus propios criterios de respuesta y covarianza. Aquí no se ejecuta su detector ni se identifica un cierre del robot.</p></div>';
+      '<p class="vnota">Modelo sintético: pose actual 12, radio de 1 m y umbral de 6 cm. El RMS es la raíz del promedio de distancias al cuadrado de cinco pares conocidos. No es una probabilidad. SLAM Toolbox busca el ajuste y aplica sus propios criterios de respuesta y covarianza. Aquí no se ejecuta su detector ni se identifica un cierre del robot.</p></div>';
     function draw() {
       var e = S.evaluarCandidato(id), c = e.candidato;
       el.querySelectorAll('[data-candidato]').forEach(function (b) { b.setAttribute('aria-pressed', String(+b.getAttribute('data-candidato') === id)); });
@@ -50,8 +50,8 @@
       el.querySelector('[data-filtro]').textContent = 'Pose ' + id + ': distancia estimada de ' + fmt(c.distancia) + ' m. ' + (e.espacial ? 'Pasa el filtro espacial.' + (fase === 0 ? ' Falta comprobar su geometría.' : '') : e.motivo + '; se excluye como candidato de cierre.');
       el.querySelector('[data-geometria]').hidden = fase === 0 || !e.espacial;
       el.querySelector('.mp-chart').innerHTML = S.candidatosSVG(id, false);
-      var text = fase === 0 ? 'Ser candidato todavía no añade una restricción al grafo.' : !e.espacial ? 'No se intenta el ajuste de cierre: ' + e.motivo.toLowerCase() + '.' : 'Desajuste RMS: ' + fmt(e.rms * 100, 1) + ' cm; umbral ilustrativo: 6 cm.';
-      if (fase === 2 && e.espacial) text += e.aceptado ? ' Se acepta el cierre y se puede añadir su restricción al grafo. Optimizar es el paso posterior.' : ' Se rechaza el cierre. El parecido del pasillo y su cercanía no bastan; no se añade una restricción.';
+      var text = fase === 0 ? 'Ser candidato todavía no añade una restricción al grafo.' : !e.espacial ? 'No se intenta el ajuste de cierre: ' + e.motivo.toLowerCase() + '.' : 'Desajuste RMS: ' + fmt(e.rms * 100, 1) + ' cm, con un umbral ilustrativo de 6 cm.';
+      if (fase === 2 && e.espacial) text += e.aceptado ? ' Se acepta el cierre y se puede añadir su restricción al grafo. Optimizar es el paso posterior.' : ' Se rechaza el cierre. El parecido del pasillo y su cercanía no bastan, así que no se añade una restricción.';
       el.querySelector('[data-resultado]').textContent = text;
     }
     el.addEventListener('click', function (event) {
@@ -108,7 +108,7 @@
       el.querySelector('#sp-tiempo').value = ahora; el.querySelector('#sp-calculo').value = duracion;
       el.querySelector('[data-tiempo]').textContent = ahora + ' ms'; el.querySelector('[data-duracion]').textContent = duracion + ' ms';
       el.querySelector('[data-avanzar-cola]').disabled = ahora >= 1200;
-      el.querySelector('[data-lectura-cola]').textContent = 'A los ' + ahora + ' ms: el caso síncrono conserva ' + a.esperando.length + ' barridos esperando y el asíncrono ha omitido ' + b.omitidos.length + '. ' + (duracion <= 100 ? 'En este modelo el cálculo alcanza a terminar antes de la siguiente llegada; no hacen falta omisiones ni cola.' : 'Si el cálculo tarda más que las llegadas, conservar todo acumula espera y omitir pierde observaciones.');
+      el.querySelector('[data-lectura-cola]').textContent = 'A los ' + ahora + ' ms: el caso síncrono conserva ' + a.esperando.length + ' barridos esperando y el asíncrono ha omitido ' + b.omitidos.length + '. ' + (duracion <= 100 ? 'En este modelo el cálculo alcanza a terminar antes de la siguiente llegada, así que no hacen falta omisiones ni cola.' : 'Si el cálculo tarda más que las llegadas, conservar todo acumula espera y omitir pierde observaciones.');
     }
     el.addEventListener('input', function (event) { if (event.target.id === 'sp-tiempo') ahora = +event.target.value; else if (event.target.id === 'sp-calculo') duracion = +event.target.value; else return; draw(); });
     el.addEventListener('click', function (event) { if (event.target.closest('[data-avanzar-cola]')) ahora = Math.min(1200, ahora + 100); else if (event.target.closest('[data-reset-cola]')) { ahora = 0; duracion = 150; } else return; draw(); });

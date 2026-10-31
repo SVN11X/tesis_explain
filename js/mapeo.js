@@ -123,8 +123,8 @@
     var notas = {
       ideal: "Cada rayo devuelve el primer impacto válido. Detrás de un obstáculo queda una sombra que este barrido no observa.",
       altura: "A esta altura se detectan las patas, pero no la cubierta ni la caja baja. No aparecer en el barrido no significa que el robot pueda pasar.",
-      vidrio: "Ejemplos posibles: retorno en el vidrio, retorno detrás de él o lectura ausente. Se alternan para enseñar el problema; no representan tasas medidas.",
-      oscuro: "Se ilustran retornos débiles o ausentes en una superficie oscura. El comportamiento real depende del material, la distancia y el ángulo; no hay una probabilidad calibrada."
+      vidrio: "Ejemplos posibles: retorno en el vidrio, retorno detrás de él o lectura ausente. Se alternan para enseñar el problema y no representan tasas medidas.",
+      oscuro: "Se ilustran retornos débiles o ausentes en una superficie oscura. El comportamiento real depende del material, la distancia y el ángulo. No hay una probabilidad calibrada."
     };
     el.innerHTML = '<div class="mp-panel"><div class="mp-cases" role="group" aria-label="Casos del LiDAR">' + Object.keys(casos).map(function (k) { return '<button class="vbtn sec" type="button" data-caso="' + k + '" aria-pressed="' + (k === caso) + '">' + casos[k] + '</button>'; }).join("") + '</div>' +
       '<div class="mp-controls" role="group" aria-label="Vista del barrido"><button class="vbtn sec" type="button" data-vista="sala" aria-pressed="true">Sala y láser</button><button class="vbtn sec" type="button" data-vista="puntos" aria-pressed="false">Solo puntos</button><button class="vbtn sec" type="button" data-reset>Restablecer posición</button></div>' +
@@ -132,8 +132,8 @@
       '<div class="mp-legend"><span><i class="mp-dot mp-dot-rojo" aria-hidden="true"></i>punto medido: donde volvió el láser</span><span><i class="mp-raya" aria-hidden="true"></i>rayo que llegó a un obstáculo</span><span><i class="mp-dot mp-dot-azul" aria-hidden="true"></i>robot con el LiDAR al centro</span><span><i class="mp-contorno" aria-hidden="true"></i>objeto fuera de la altura del láser</span><span><i class="mp-raya mp-raya-vidrio" aria-hidden="true"></i>vidrio</span></div>' +
       '<div class="mp-ranges">' + range("mp-lidar-x", "Posición horizontal", .15, 3.85, .01, rob.x) + range("mp-lidar-y", "Posición vertical en el dibujo", .15, 2.45, .01, rob.y) + '</div>' +
       readings(["Sectores con retorno", "Sectores sin retorno"]) +
-      '<p class="mp-status" aria-live="polite"></p><figure class="mp-fig mp-lateral">' + M.lidarLateralSVG() + '<figcaption>Vista lateral de ejemplo. El plano cruza las patas; no cruza la cubierta ni la caja. No representa las cotas del prototipo.</figcaption></figure>' +
-      '<p class="vnota">230 sectores por vuelta, rango 0,15–12 m, según el nodo descrito en la tesis. La escena es un modelo idealizado, sin ruido ni movimiento durante el barrido. La posición del robot se conoce en esta ilustración; el LiDAR solo no resuelve su localización. Los dos dibujos usan la misma referencia para comparar.</p></div>';
+      '<p class="mp-status" aria-live="polite"></p><figure class="mp-fig mp-lateral">' + M.lidarLateralSVG() + '<figcaption>Vista lateral de ejemplo. El plano cruza las patas, pero no la cubierta ni la caja. No representa las cotas del prototipo.</figcaption></figure>' +
+      '<p class="vnota">230 sectores por vuelta, rango 0,15–12 m, según el nodo descrito en la tesis. La escena es un modelo idealizado, sin ruido ni movimiento durante el barrido. La posición del robot se conoce en esta ilustración. El LiDAR solo no resuelve su localización. Los dos dibujos usan la misma referencia para comparar.</p></div>';
     var chart = el.querySelector(".mp-lidar-scene");
     function draw() {
       var rays = M.barridoLidar(rob, caso), n = rays.filter(function (r) { return r.d !== null; }).length;
@@ -225,11 +225,11 @@
       '</div><div class="mp-chart"></div><div class="mp-legend"><span><i class="mp-swatch" style="background:#fff"></i>0 · libre</span><span><i class="mp-swatch" style="background:#222831"></i>100 · ocupado</span><span><i class="mp-swatch" style="background:#aeb6c2"></i>−1 · desconocido</span></div>' +
       '<p class="mp-status" aria-live="polite"></p><p class="mp-status" data-cell-info aria-live="polite"></p>' + readings(["Celdas libres", "Celdas ocupadas", "Celdas desconocidas", "Área libre del ejemplo", "Índice de cobertura libre"]) +
       '<p class="mp-status" data-indice></p>' +
-      '<p class="vnota">Toca una celda o recorre la rejilla con las flechas. La celda seleccionada tiene un borde azul. El punto azul indica dónde se toma el barrido. Se usa una clasificación ideal para enseñar el proceso; el mapa real fusiona observaciones con incertidumbre.</p></div>';
+      '<p class="vnota">Toca una celda o recorre la rejilla con las flechas. La celda seleccionada tiene un borde azul. El punto azul indica dónde se toma el barrido. Se usa una clasificación ideal para enseñar el proceso. El mapa real fusiona observaciones con incertidumbre.</p></div>';
     var chart = el.querySelector(".mp-chart");
     function info() {
       var v = g.data[selected];
-      el.querySelector("[data-cell-info]").textContent = "Columna " + (selected % 16) + ", fila " + Math.floor(selected / 16) + ": " + (v === -1 ? "desconocida; no equivale a libre" : v === 0 ? "libre según lo observado" : "ocupada según el impacto") + ". Valor " + v + ". Área de una celda: 0,0025 m².";
+      el.querySelector("[data-cell-info]").textContent = "Columna " + (selected % 16) + ", fila " + Math.floor(selected / 16) + ": " + (v === -1 ? "desconocida, que no equivale a libre" : v === 0 ? "libre según lo observado" : "ocupada según el impacto") + ". Valor " + v + ". Área de una celda: 0,0025 m².";
     }
     function draw() {
       g = M.rejilla(fase); chart.innerHTML = M.rejillaSVG(g, selected, true);
@@ -397,7 +397,7 @@
       el.querySelector('[data-read="3"]').textContent = fmt(costo, 0) + " cm²";
       el.querySelector('[data-out="mp-barrido-dx"]').textContent = fmt(dx * 100, 0) + " cm";
       el.querySelector("#mp-barrido-dx").value = dx;
-      el.querySelector(".mp-status").textContent = data.error < 1e-8 ? "Los puntos comunes coinciden: el desacuerdo total es cero y el avance estimado es 30 cm, no los 40 cm de las ruedas. El robot se movió; la esquina permaneció fija." : "Con " + fmt(dx * 100, 0) + " cm, cada punto de B queda a " + fmt(data.error * 100, 0) + " cm del mismo punto de A. Siete puntos × (" + fmt(data.error * 100, 0) + " cm)² = " + fmt(costo, 0) + " cm². El ajuste busca la traslación donde la curva de abajo llega a su mínimo.";
+      el.querySelector(".mp-status").textContent = data.error < 1e-8 ? "Los puntos comunes coinciden: el desacuerdo total es cero y el avance estimado es 30 cm, no los 40 cm de las ruedas. El robot se movió y la esquina permaneció fija." : "Con " + fmt(dx * 100, 0) + " cm, cada punto de B queda a " + fmt(data.error * 100, 0) + " cm del mismo punto de A. Siete puntos × (" + fmt(data.error * 100, 0) + " cm)² = " + fmt(costo, 0) + " cm². El ajuste busca la traslación donde la curva de abajo llega a su mínimo.";
     }
     el.addEventListener("input", function (e) { if (e.target.id === "mp-barrido-dx") { dx = +e.target.value; draw(); } });
     el.addEventListener("click", function (e) { if (e.target.closest("[data-fit]")) { dx = .3; draw(); } if (e.target.closest("[data-guess]")) { dx = M.ODOM_BARRIDOS; draw(); } });
@@ -581,7 +581,7 @@
     b += txt(X(poses[12][0]) + 8, Y(poses[12][1]) + 25, "12", 15);
     b += txt(290, 336, "12 · regreso", 15);
     if (phase === 3) b += line(X(graph.odom[12][0]), Y(graph.odom[12][1]), X(poses[12][0]), Y(poses[12][1]), "mp-green");
-    return svg(460, 346, "Grafo de trece poses. Línea naranja: odometría original. Azul: poses estimadas. Verde: cierre de lazo" + (mapa ? ". Puntos: paredes observadas colocadas según cada pose; círculos verdes desde la pose 0 y cuadrados violeta desde la 12" : ""), b);
+    return svg(460, 346, "Grafo de trece poses. Línea naranja: odometría original. Azul: poses estimadas. Verde: cierre de lazo" + (mapa ? ". Puntos: paredes observadas colocadas según cada pose, con círculos verdes desde la pose 0 y cuadrados violeta desde la 12" : ""), b);
   };
   /* Desacuerdo total en cada paso: sin cierre nada se contradice; el cierre lo hace subir; optimizar lo baja. */
   M.desacuerdoPorPaso = function (graph, opt) {
@@ -596,8 +596,8 @@
     var steps = ["1 · Acumular deriva", "2 · Reconocer el inicio", "3 · Optimizar las poses", "4 · Publicar map → odom"];
     var notes = [
       "Los nodos guardan x, y y θ. Los errores pequeños de movimiento se acumulan y el regreso estimado no coincide con el inicio.",
-      "Se supone que el selector y el ajuste han aceptado una coincidencia con el inicio. La línea verde añade una restricción entre las poses 0 y 12; las poses todavía no se han corregido. Este ejemplo no ejecuta un detector de cierres.",
-      "El optimizador reajusta posiciones y orientaciones para reducir el desacuerdo entre las restricciones. La trayectoria naranja de odometría conserva su deriva; se actualizan los nodos del grafo.",
+      "Se supone que el selector y el ajuste han aceptado una coincidencia con el inicio. La línea verde añade una restricción entre las poses 0 y 12. Las poses todavía no se han corregido. Este ejemplo no ejecuta un detector de cierres.",
+      "El optimizador reajusta posiciones y orientaciones para reducir el desacuerdo entre las restricciones. La trayectoria naranja de odometría conserva su deriva, y se actualizan los nodos del grafo.",
       "SLAM usa la pose actual optimizada y la pose odométrica actual para calcular map → odom. Esta transformación lleva la estimación de odom a la de map sin recalibrar los encoders ni reescribir odom."
     ];
     el.innerHTML = '<div class="mp-panel"><div class="mp-steps" role="group" aria-label="Pasos del cierre de lazo">' + steps.map(function (s, i) { return '<button class="mp-step" type="button" data-paso="' + i + '" aria-pressed="' + (i === 0) + '">' + s + '</button>'; }).join("") + '</div>' +
@@ -611,7 +611,7 @@
       '<p class="mp-status" data-mapa-info aria-live="polite"></p><p class="vnota">Cada pose guarda lo que midió el láser en su propio marco, aquí sin error y con 1 m de alcance. El mapa se arma poniendo esas medidas donde dice la pose estimada. Ancho real del recinto del ejemplo: ' + fmt(M.recintoGrafo.exterior[2] - M.recintoGrafo.exterior[0], 2) + ' m. En SLAM Toolbox las aristas entre poses vecinas también vienen del ajuste de barridos, que corrige parte de la escala. Aquí solo hay odometría y un cierre, para aislar ese efecto.</p></div>' +
       '<div class="mp-ranges">' + range("mp-pose", "Inspeccionar pose", 0, 12, 1, selected) + '</div><p class="mp-status" data-pose-info></p>' +
       '<details class="guia-vis"><summary>Experimentar con la deriva del ejemplo</summary><p>Conserva el recorrido de referencia y cambia un error a la vez. Con giro de 0° y solo error de escala, el rectángulo puede cerrar y conservar longitudes incorrectas: cerrar no garantiza un mapa exacto.</p><div class="mp-ranges">' + range('mp-grafo-escala', 'Error de escala ilustrativo · %', -10, 10, 1, escalaPct) + range('mp-grafo-giro', 'Error angular por tramo · °', -3, 3, 0.25, giroDeg) + '</div><button type="button" class="vbtn sec" data-restablecer-grafo>Restablecer ejemplo</button></details>' +
-      '<details class="guia-vis"><summary>Cambiar el peso de la restricción de cierre</summary><p>Conserva la misma trayectoria y las mismas mediciones. El factor multiplica los pesos del cierre; los de las demás aristas permanecen fijos. Es un supuesto didáctico, no una confianza medida ni una probabilidad.</p><div class="mp-ranges">' + range('mp-grafo-peso', 'Factor de peso del cierre · ×', .2, 5, .2, pesoCierre) + '</div><p class="mp-status" data-peso-info></p></details>' +
+      '<details class="guia-vis"><summary>Cambiar el peso de la restricción de cierre</summary><p>Conserva la misma trayectoria y las mismas mediciones. El factor multiplica los pesos del cierre y los de las demás aristas permanecen fijos. Es un supuesto didáctico, no una confianza medida ni una probabilidad.</p><div class="mp-ranges">' + range('mp-grafo-peso', 'Factor de peso del cierre · ×', .2, 5, .2, pesoCierre) + '</div><p class="mp-status" data-peso-info></p></details>' +
       '<p class="vnota" data-grafo-nota></p></div>';
     function lecturaMapa(poses) { return M.metricasMapa(M.mapaDesdePoses(poses, obs), paredes, 12); }
     function draw() {
@@ -625,7 +625,7 @@
       el.querySelector('[data-mapa-read="2"]').textContent = fmt(mm.ancho, 2) + " m";
       /* Interpretación por reglas: umbral de 1 cm, la décima parte de la separación entre puntos de pared. */
       var errAncho = mm.ancho - mm.anchoReal, txtMapa;
-      if (mm.inicioRegreso > .02) txtMapa = "Paredes dobladas: la pared vista al inicio y la misma pared vista al regreso quedan a " + fmt(mm.inicioRegreso * 100, 1) + " cm, porque la pose 12 está mal estimada. El láser midió bien; lo que falla es dónde se colocaron sus medidas.";
+      if (mm.inicioRegreso > .02) txtMapa = "Paredes dobladas: la pared vista al inicio y la misma pared vista al regreso quedan a " + fmt(mm.inicioRegreso * 100, 1) + " cm, porque la pose 12 está mal estimada. El láser midió bien. Lo que falla es dónde se colocaron sus medidas.";
       else if (Math.abs(errAncho) > .01) txtMapa = "El mapa parece cerrado: inicio y regreso coinciden. Aun así mide " + fmt(mm.ancho, 2) + " m de ancho frente a " + fmt(mm.anchoReal, 2) + " m del recinto, " + fmt(Math.abs(errAncho) * 100, 1) + " cm " + (errAncho > 0 ? "de más" : "de menos") + ". Un mapa coherente puede tener error de escala, y solo una medida externa lo detecta.";
       else txtMapa = "Las observaciones coinciden y el ancho del mapa difiere en menos de 1 cm del recinto del ejemplo.";
       el.querySelector("[data-mapa-info]").textContent = txtMapa;
@@ -635,7 +635,7 @@
       el.querySelector('#mp-grafo-peso').value = pesoCierre;
       el.querySelector('[data-out="mp-grafo-peso"]').textContent = fmt(pesoCierre, 1) + ' ×';
       var w = graph.cierre.w;
-      el.querySelector('[data-peso-info]').textContent = 'Pesos del cierre (x, y, θ): ' + w.map(function (v) { return fmt(v, 0); }).join(', ') + '. Las aristas de movimiento conservan 100, 100 y 50. Tras optimizar, el regreso queda a ' + fmt(Math.hypot(opt.poses[12][0], opt.poses[12][1]) * 100, 3) + ' cm del inicio. Compara esa separación al variar el factor; el costo cambia de escala con los pesos y no se mide en centímetros. Los pesos incluyen la escala elegida para metros y radianes, sin una covarianza experimental estimada.';
+      el.querySelector('[data-peso-info]').textContent = 'Pesos del cierre (x, y, θ): ' + w.map(function (v) { return fmt(v, 0); }).join(', ') + '. Las aristas de movimiento conservan 100, 100 y 50. Tras optimizar, el regreso queda a ' + fmt(Math.hypot(opt.poses[12][0], opt.poses[12][1]) * 100, 3) + ' cm del inicio. Compara esa separación al variar el factor. El costo cambia de escala con los pesos y no se mide en centímetros. Los pesos incluyen la escala elegida para metros y radianes, sin una covarianza experimental estimada.';
       el.querySelector('[data-grafo-nota]').textContent = 'Grafo sintético: escala odométrica ' + fmt(escalaPct, 0) + ' % y error angular ' + fmt(giroDeg, 2) + '° por tramo. El optimizador de mínimos cuadrados JavaScript no ejecuta Ceres ni reproduce los ensayos de la tesis. La referencia solo es conocida en este ejemplo. Una restricción de regreso no garantiza todas las longitudes exactas.';
       el.querySelector('[data-out="mp-pose"]').textContent = selected + " de 12";
       el.querySelector("[data-pose-info]").textContent = "Pose " + selected + ": x = " + fmt(p[0], 2) + " m, y = " + fmt(p[1], 2) + " m, θ = " + fmt(p[2] * 180 / Math.PI, 1) + "°. La flecha de cada nodo representa su orientación.";
@@ -655,7 +655,7 @@
       if (phase === 3) {
         var tf = M.correccionTF(end, raw), mapped = M.componer(tf, raw);
         tfText = "map → odom: x = " + fmt(tf[0], 3) + " m, y = " + fmt(tf[1], 3) + " m, giro = " + fmt(tf[2] * 180 / Math.PI, 1) + "°. Al componerla con odom → base_link, la pose actual en map resulta (" + fmt(mapped[0], 3) + ", " + fmt(mapped[1], 3) + " m; " + fmt(mapped[2] * 180 / Math.PI, 1) + "°).";
-      } else tfText = "La actualización de map → odom se muestra en el paso 4. El grafo reajusta cada pose histórica; TF publica una transformación rígida para relacionar las referencias actuales.";
+      } else tfText = "La actualización de map → odom se muestra en el paso 4. El grafo reajusta cada pose histórica y TF publica una transformación rígida para relacionar las referencias actuales.";
       el.querySelector("[data-tf-info]").textContent = tfText;
     }
     el.addEventListener("click", function (e) {
@@ -694,10 +694,10 @@
 
   /* Paleta de la captura, con capas que se pueden inspeccionar por separado. */
   M.capasRviz = [
-    { id: "obstaculo", color: "#ff00ff", label: "Magenta · obstáculo", text: "Celdas de obstáculo con costo letal. En esta escena representan una pared; no un tipo de material.", nav: false },
+    { id: "obstaculo", color: "#ff00ff", label: "Magenta · obstáculo", text: "Celdas de obstáculo con costo letal. En esta escena representan una pared, no un tipo de material.", nav: false },
     { id: "inscrito", color: "#00ffff", label: "Celeste · costo inscrito", text: "Franja de costo inscrito: el centro del robot demasiado cerca de un obstáculo puede implicar colisión por el tamaño de su huella. No es una pared adicional.", nav: true },
-    { id: "inflacion", color: "#6f087f", label: "Rojo/violeta · inflación", text: "Costos que disminuyen al alejarse del obstáculo. Invitan al planificador a dejar separación; no representan nuevos objetos ni distancias medidas por el láser.", nav: true },
-    { id: "libre", color: "#30312e", label: "Oscuro · libre", text: "Dentro de la rejilla: espacio libre sin costo añadido. El fondo de RViz fuera de la rejilla también puede ser oscuro; allí el color no describe ocupación.", nav: false },
+    { id: "inflacion", color: "#6f087f", label: "Rojo/violeta · inflación", text: "Costos que disminuyen al alejarse del obstáculo. Invitan al planificador a dejar separación y no representan nuevos objetos ni distancias medidas por el láser.", nav: true },
+    { id: "libre", color: "#30312e", label: "Oscuro · libre", text: "Dentro de la rejilla: espacio libre sin costo añadido. El fondo de RViz fuera de la rejilla también puede ser oscuro, y allí el color no describe ocupación.", nav: false },
     { id: "desconocido", color: "#657a77", label: "Gris · desconocido", text: "Celdas para las que todavía no hay suficiente información. No son espacio libre confirmado.", nav: false },
     { id: "ruta", color: "#6bff00", label: "Verde · ruta", text: "Ruta planificada hacia el objetivo actual. Es una propuesta para avanzar, no un registro del camino recorrido.", nav: true },
     { id: "robot", color: "#ff6400", label: "Naranja · robot", text: "Modelo o huella del robot superpuesto en su pose estimada. No es una celda ocupada del mapa.", nav: true }
@@ -724,11 +724,11 @@
     var nav = true, selected = null;
     el.innerHTML = '<div class="mp-panel"><div class="mp-controls"><label><input id="mp-rviz-nav" type="checkbox" checked>Mostrar capas de navegación y robot</label><button class="vbtn sec" type="button" data-todas>Ver todos los colores</button></div>' +
       '<div class="mp-chart"></div><div class="mp-layer-controls" role="group" aria-label="Leyenda de RViz">' + M.capasRviz.map(function (c) { return '<button class="mp-layer" type="button" data-color="' + c.id + '" aria-pressed="false"><i class="mp-swatch" style="background:' + c.color + '" aria-hidden="true"></i>' + c.label + '</button>'; }).join("") +
-      '</div><p class="mp-status" aria-live="polite"></p><p class="vnota">Los colores se tomaron de las capturas del proyecto. El dibujo resume su significado; no es un mapa medido ni aplica necesariamente a otras configuraciones de RViz.</p></div>';
+      '</div><p class="mp-status" aria-live="polite"></p><p class="vnota">Los colores se tomaron de las capturas del proyecto. El dibujo resume su significado. No es un mapa medido ni aplica necesariamente a otras configuraciones de RViz.</p></div>';
     function draw() {
       el.querySelector(".mp-chart").innerHTML = M.rvizSVG(nav, selected);
       var item = M.capasRviz.filter(function (c) { return c.id === selected; })[0];
-      el.querySelector(".mp-status").textContent = item ? item.text + (!nav && item.nav ? " Esta capa está oculta: activa las capas de navegación para verla." : "") : nav ? "Elige un color para resaltarlo. Magenta y gris describen ocupación; los márgenes de colores, la ruta verde y el modelo naranja son capas añadidas para navegar." : "Se ocultaron las capas añadidas. Quedan los obstáculos, lo libre y lo desconocido; una rejilla de ocupación se guarda normalmente en escala de grises.";
+      el.querySelector(".mp-status").textContent = item ? item.text + (!nav && item.nav ? " Esta capa está oculta: activa las capas de navegación para verla." : "") : nav ? "Elige un color para resaltarlo. Magenta y gris describen ocupación. Los márgenes de colores, la ruta verde y el modelo naranja son capas añadidas para navegar." : "Se ocultaron las capas añadidas. Quedan los obstáculos, lo libre y lo desconocido. Una rejilla de ocupación se guarda normalmente en escala de grises.";
       pressed(el, "data-color", selected || "");
     }
     el.querySelector("#mp-rviz-nav").addEventListener("change", function (e) { nav = e.target.checked; draw(); });

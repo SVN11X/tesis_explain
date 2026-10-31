@@ -127,7 +127,7 @@
       var x = function (i) { return left + (i + .5) / g.etiquetas.length * (W - left - right); };
       var y = function (v) { return top + (max - v) / (max - min) * (H - top - bottom); };
       var colors = ['var(--azul)', 'var(--verde-texto)'];
-      var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-labelledby="lab-svg-title lab-svg-desc"><title id="lab-svg-title">' + U.esc(g.titulo) + '</title><desc id="lab-svg-desc">Valores completos en la tabla de respaldo. Unidad: ' + U.esc(g.unidad) + '. La escala incluye cero; series identificadas por color y trazo.</desc>';
+      var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-labelledby="lab-svg-title lab-svg-desc"><title id="lab-svg-title">' + U.esc(g.titulo) + '</title><desc id="lab-svg-desc">Valores completos en la tabla de respaldo. Unidad: ' + U.esc(g.unidad) + '. La escala incluye cero y las series se identifican por color y trazo.</desc>';
       for (var k = 0; k <= 4; k++) {
         var v = min + (max - min) * k / 4;
         svg += '<line x1="' + left + '" x2="' + (W - right) + '" y1="' + y(v) + '" y2="' + y(v) + '" stroke="var(--line)"/><text x="' + (left - 8) + '" y="' + (y(v) + 4) + '" text-anchor="end" font-size="13">' + fmt(v) + '</text>';
@@ -154,7 +154,7 @@
       }
       svg += '<text x="' + left + '" y="15" font-size="12">' + U.esc(g.unidad) + '</text></svg>';
       $('grafica').innerHTML = svg;
-      $('leyenda').textContent = g.titulo + '. ' + g.series.map(function (s, i) { return s.nombre + (i ? ': verde, trazo discontinuo.' : ': azul, trazo continuo.'); }).join(' ') + (!g.temporal && g.etiquetas.some(function (s) { return s.length > 8; }) ? ' Categorías: ' + g.etiquetas.map(function (s, i) { return (i + 1) + ' = ' + s; }).join('; ') + '.' : '') + (g.temporal && g.etiquetas.length > 1500 ? ' El dibujo reduce puntos para lectura; las métricas usan todas las muestras.' : '');
+      $('leyenda').textContent = g.titulo + '. ' + g.series.map(function (s, i) { return s.nombre + (i ? ': verde, trazo discontinuo.' : ': azul, trazo continuo.'); }).join(' ') + (!g.temporal && g.etiquetas.some(function (s) { return s.length > 8; }) ? ' Categorías: ' + g.etiquetas.map(function (s, i) { return (i + 1) + ' = ' + s; }).join('; ') + '.' : '') + (g.temporal && g.etiquetas.length > 1500 ? ' El dibujo reduce puntos para lectura, pero las métricas usan todas las muestras.' : '');
     }
     function render() {
       $('resultados').hidden = false;

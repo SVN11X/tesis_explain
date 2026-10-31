@@ -87,7 +87,7 @@
     var parsed = A.csv(input), kind = Object.keys(schemas).find(function (id) {
       return schemas[id].length === parsed.headers.length && schemas[id].every(function (k) { return parsed.headers.indexOf(k) >= 0; });
     });
-    if (!kind) fail('Encabezados no compatibles. Consulta los formatos admitidos; no se adivinan unidades ni columnas.');
+    if (!kind) fail('Encabezados no compatibles. Consulta los formatos admitidos. No se adivinan unidades ni columnas.');
     if (options.tipo && options.tipo !== kind) fail('El formato seleccionado no coincide con los encabezados.');
     var rows = parsed.rows, ids = new Set();
     rows.forEach(function (r, index) {
@@ -132,7 +132,7 @@
     function stats(key, name, values, unit) {
       var s = A.estadistica(values);
       metric(key + '-media', name + ' · promedio', s.media, unit, 'Σx / n');
-      metric(key + '-sd', name + ' · desviación muestral', s.desviacion, unit, '√(Σ(x − promedio)² / (n − 1)); no definida si n < 2');
+      metric(key + '-sd', name + ' · desviación muestral', s.desviacion, unit, '√(Σ(x − promedio)² / (n − 1)), no definida si n < 2');
       return s;
     }
     function bars(title, labels, series, unit) { result.grafica = { titulo: title, etiquetas: labels, series: series, unidad: unit }; }
@@ -155,7 +155,7 @@
         result.limitaciones.push('El porcentaje de la tabla usa valores previos al redondeo. El recálculo desde distancias redondeadas se informa por separado.');
       }
       if (signed.media !== 0) rule('diferencia-con-signo', 'La diferencia media tiene signo ' + (signed.media > 0 ? 'positivo' : 'negativo'), 'promedio(valor − referencia) ≠ 0', signed.media + ' ' + unit,
-        'Describe la dirección media de la diferencia en estas repeticiones; no identifica su causa.', 'Comprobar unidades y referencia; valorar nuevas repeticiones y una calibración independiente.', 'No es una prueba de significancia ni una calibración aplicada al robot.');
+        'Describe la dirección media de la diferencia en estas repeticiones, pero no identifica su causa.', 'Comprobar unidades y referencia, y valorar nuevas repeticiones y una calibración independiente.', 'No es una prueba de significancia ni una calibración aplicada al robot.');
       if (!isRect || !measured) result.limitaciones.push(isRect ? 'La referencia es la distancia ordenada, no la pose verdadera de Gazebo. No estima el error odométrico real ni valida una trayectoria.' : 'La comparación es con 360° nominales en el protocolo, no entre una trayectoria odométrica y una referencia física sincronizada.');
       result.limitaciones.push('Son repeticiones resumidas: no se puede reconstruir ni comparar trayectorias temporales.');
     } else if (kind === 'mapeo') {
@@ -168,7 +168,7 @@
       stats('duracion', 'Duración', valid.map(function (r) { return r.duracion_min; }), 'min');
       bars('Área libre de corridas válidas', valid.map(function (r) { return String(r.iteracion); }), [{ nombre: 'Área libre', valores: valid.map(function (r) { return r.area_libre_m2; }) }], 'm²');
       if (rows.length !== valid.length) rule('corridas-excluidas', 'Se excluyeron corridas sin mapa', 'valida = no', rows.length - valid.length + ' corridas', 'No se convierten las celdas vacías en ceros.', 'Revisar el motivo de exclusión en el registro autorizado.', 'El CSV no permite reconstruir la corrida excluida.');
-      rule('cobertura-denominador', 'La cobertura declarada no es superficie del recinto', 'CSV incluye cobertura_libre_pct sin conteos de celdas', 'Índice: 100 · libres / (libres + desconocidas), según Ec. 5.4 de la guía', 'Se resume el porcentaje declarado; no se recalcula desde una imagen.', 'Comparar mapas con igual resolución, marco y región de interés si se dispone de archivos autorizados.', 'No hay áreas ocupada/desconocida, dimensiones, geometría ni resolución verificable dentro de este CSV.');
+      rule('cobertura-denominador', 'La cobertura declarada no es superficie del recinto', 'CSV incluye cobertura_libre_pct sin conteos de celdas', 'Índice: 100 · libres / (libres + desconocidas), según Ec. 5.4 de la guía', 'Se resume el porcentaje declarado, sin recalcularlo desde una imagen.', 'Comparar mapas con igual resolución, marco y región de interés si se dispone de archivos autorizados.', 'No hay áreas ocupada/desconocida, dimensiones, geometría ni resolución verificable dentro de este CSV.');
       result.limitaciones.push('No se infieren áreas desconocidas ni ocupadas a partir de porcentajes redondeados. No se valida la geometría ni la exactitud del mapa.');
     } else if (kind === 'metas') {
       function sum(key) { return rows.reduce(function (n, r) { return n + r[key]; }, 0); }
@@ -218,7 +218,7 @@
       if (rows.length < 5) fail('Se necesitan al menos cinco muestras temporales.');
       rows.forEach(function (r, i) {
         if (i && r.tiempo_s <= rows[i - 1].tiempo_s) fail('Los tiempos deben ser estrictamente crecientes.');
-        if (Math.abs(r.referencia_m_s - rows[0].referencia_m_s) > 1e-12) fail('Esta versión necesita una referencia constante; separa los escalones.');
+        if (Math.abs(r.referencia_m_s - rows[0].referencia_m_s) > 1e-12) fail('Esta versión necesita una referencia constante. Separa los escalones.');
       });
       var r0 = rows[0].referencia_m_s, amplitude = r0 - rows[0].velocidad_m_s;
       if (Math.abs(amplitude) < 1e-12) fail('La señal debe empezar en el inicio del escalón con una amplitud distinta de cero.');
@@ -232,21 +232,21 @@
       errors.forEach(function (e, i) { if (Math.abs(e) > band + 1e-12) lastOutside = i; });
       var first = lastOutside + 1;
       var settled = first < rows.length - 1 ? rows[first].tiempo_s - rows[0].tiempo_s : null;
-      metric('establecimiento', 'Establecimiento observado en la ventana', settled, 's', 'primera muestra después de la última fuera de ±' + bandPct + '% de amplitud; requiere al menos dos muestras restantes');
+      metric('establecimiento', 'Establecimiento observado en la ventana', settled, 's', 'primera muestra después de la última fuera de ±' + bandPct + '% de amplitud, con al menos dos muestras restantes');
       var saturated = rows.filter(function (r) { return Math.abs(r.pwm) === 255; }).length;
-      metric('saturacion', 'Muestras en el tope PWM', saturated / rows.length * 100, '% de muestras', '100 · conteo(|PWM| = 255) / n; no es porcentaje de tiempo');
+      metric('saturacion', 'Muestras en el tope PWM', saturated / rows.length * 100, '% de muestras', '100 · conteo(|PWM| = 255) / n, que no es porcentaje de tiempo');
       // Una ventana numérica estable no basta para certificar el error estacionario físico.
       var tailStart = rows[0].tiempo_s + 0.8 * (rows[rows.length - 1].tiempo_s - rows[0].tiempo_s);
       var tail = rows.filter(function (r) { return r.tiempo_s >= tailStart; });
       if (tail.length >= 3) stats('error-final', 'Error en el 20 % final de tiempo (no certificado estacionario)', tail.map(function (r) { return r.referencia_m_s - r.velocidad_m_s; }), 'm/s');
       bars('Respuesta temporal del archivo', rows.map(function (r) { return String(r.tiempo_s); }), [{ nombre: 'Velocidad', valores: rows.map(function (r) { return r.velocidad_m_s; }) }, { nombre: 'Referencia', valores: rows.map(function (r) { return r.referencia_m_s; }) }], 'm/s');
       result.grafica.temporal = true;
-      if (saturated) rule('tope-observado', 'Hay muestras en el límite de PWM', '|PWM| = 255', saturated + ' / ' + rows.length + ' muestras', 'Se observa saturación de la orden aplicada; no demuestra windup.', 'Comparar referencia, orden solicitada y memoria del integrador si existen registros autorizados.', 'La orden solicitada y la memoria interna no están en este CSV.');
+      if (saturated) rule('tope-observado', 'Hay muestras en el límite de PWM', '|PWM| = 255', saturated + ' / ' + rows.length + ' muestras', 'Se observa saturación de la orden aplicada, lo que no demuestra windup.', 'Comparar referencia, orden solicitada y memoria del integrador si existen registros autorizados.', 'La orden solicitada y la memoria interna no están en este CSV.');
       result.limitaciones.push('El usuario debe confirmar que el archivo empieza al aplicar un único escalón y documentar origen, resolución y sensor. Los promedios son entre muestras, sin ponderar por tiempo.');
-      result.limitaciones.push('El establecimiento solo describe el intervalo observado y depende del muestreo y la banda. No certifica estabilidad futura ni error estacionario; no interpola entre muestras.');
+      result.limitaciones.push('El establecimiento solo describe el intervalo observado y depende del muestreo y la banda. No certifica estabilidad futura ni error estacionario, y no interpola entre muestras.');
     }
     else if (kind === 'estados-metas') A.clasificarMetas(rows, options, result, metric, rule, bars);
-    result.limitaciones.push('Las reglas son comprobables y limitadas; no identifican causas, no reemplazan al comité ni validan la tesis.');
+    result.limitaciones.push('Las reglas son comprobables y limitadas. No identifican causas, no reemplazan al comité ni validan la tesis.');
     return result;
   };
   /* Registro de estados de la acción de navegación: una fila por meta presente en cada mensaje

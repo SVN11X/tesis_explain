@@ -1,109 +1,80 @@
-# Informe técnico de la revisión sobre 9407bbb
+# Informe técnico de la revisión sobre 3bae57b
 
-Esta revisión amplía la bibliografía de la tesis. Cada una de las 72 referencias conserva su línea de resumen y, al abrirla, se lee en cinco bloques: una ficha con los datos de publicación, de qué trata el documento en varios párrafos, qué toma la tesis de él y dónde, sus referencias relacionadas y su cita, con botones para copiarla o copiar su entrada BibTeX. Con ese texto la bibliografía pasó a su propia página, `bibliografia.html`, y los enlaces antiguos de Recursos llevan a ella. Las tablas experimentales no cambian. La tesis sigue en revisión por comité.
+Esta revisión audita el estado completo del sitio, no solo el último cambio, y corrige lo que encontró en teléfonos, accesibilidad, interactivos, redacción y verificación automática. El detalle de cada hallazgo, con su evidencia, está en `auditoria-3bae57b.md`. Las cifras, fórmulas, citas, tablas experimentales, el estado académico y los pendientes del autor no cambian. La tesis sigue en revisión por comité.
 
-Base: `9407bbbb35f104d81eb28d97be6cdc4463d7226d` de `main`, con el árbol `933009a7ded185a3e1f24ad9785832790d165ada`, el mismo que dejan `5b93b7c` y `b89a38d`, así que no hizo falta aplicar el parche de la revisión anterior. Los commits están en `main` local, sobre esa base. El informe anterior está en `historial/informe-tecnico-ae42f52.md`.
+Base: `3bae57b72f8bd1c7b85a2f48e26038b6993cf7ac` de `main`. Los commits están en la rama local `revision/auditoria-3bae57b`, sobre esa base. El informe anterior está en `historial/informe-tecnico-9407bbb.md`.
 
 ## Qué cambió
 
-1. **Página propia.** Con la ficha y la explicación extendida, `recursos.html` habría superado los 100 KB comprimidos. La bibliografía está ahora en `bibliografia.html`, con los mismos grupos plegables, la línea de resumen de cada referencia, el filtro y las anclas `#r-…`. `recursos.html#bibliografia` presenta la página, el mapa de sus 11 grupos y la descarga en BibTeX. Un script en la cabecera de `recursos.html` lleva `#bibliografia`, `#bib-…` y `#r-…` a la página nueva antes de dibujarse, y `js/sitio.js` hace lo mismo si el ancla cambia dentro de Recursos. La página figura en el menú, el índice lateral, el pie, el buscador y las listas de páginas de las pruebas, entre Recursos y la portada.
-2. **Detalle de cada referencia.** La ficha reúne el título original y su traducción, la autoría completa, la fecha, el medio, volumen, número y páginas, la edición, los identificadores, los enlaces al documento y a su versión abierta, el idioma, el acceso, la revisión de pares, la versión consultada, las palabras clave, las partes que usa la tesis y de dónde sale el detalle. Va en dos columnas y bajo 560 px en una. De qué trata explica el problema, el método, la evaluación, los resultados y los límites que reconocen los autores. Relación con la tesis dice qué toma el trabajo y para qué, las secciones, anexos, tablas y figuras donde aparece, en qué se diferencia y, en 37 referencias, dónde se aplica en el código del proyecto. 43 referencias traen una cita textual breve con su página y su traducción. La explicación suma 31 744 palabras, entre 301 y 598 por referencia, y cada grupo explica en dos párrafos qué decisión respalda y cómo se relacionan sus referencias. Los bloques largos muestran sus primeros párrafos y pliegan el resto con «Seguir leyendo», que también se abre al imprimir.
-3. **Datos y validación.** El esquema de `datos/bibliografia.json` suma la ficha, las partes, la relación en párrafos, la diferencia, el código, los elementos, las referencias relacionadas y la cita textual, y su campo `nota` lo describe. `herramientas/bibliografia.py`, que llama `datos.py`, valida el archivo y escribe la página, la presentación de Recursos y `datos/bibliografia.bib`. Se detiene si falta un dato obligatorio de la ficha, si un autor no se escribe «Apellido, Nombre» o «=Institución», si un enlace interno no existe, si una cita textual pasa de 30 palabras, si la explicación de una referencia no tiene entre 300 y 600 palabras o si un texto usa punto y coma o guiones como separadores. La ficha admite editores para las obras que solo los declaran, como la guía Eurachem.
-4. **BibTeX.** `datos/bibliografia.bib` tiene las 72 entradas, para biblatex con biber, con la clave del identificador sin `r-`. El botón Copiar en BibTeX pide el archivo una sola vez y copia solo la entrada de esa referencia. Sin JavaScript, el archivo se descarga desde «Descargar y citar».
-5. **Citas completas.** Cuatro citas abreviaban la autoría con «et al.» aunque la tesis la escribe completa: Kato et al. (2018), Liu et al. (2025), Placed et al. (2023) y Francis et al. (2025). Ahora siguen la bibliografía de la tesis.
-6. **Buscador.** El índice tiene una entrada por referencia con su resumen, los datos clave de la ficha y la explicación. Deja fuera las filas de acceso, revisión y procedencia, y los subtítulos de bloque y las etiquetas de los plegables, que ensuciaban el extracto. La sección de bibliografía de Recursos se indexa completa.
-7. **Filtro más liviano.** El filtro normalizaba al cargar el texto de cada elemento, unas 30 000 palabras en la bibliografía. Ahora lo hace al enfocar el campo o al escribir. En Lighthouse, el bloqueo del hilo principal en `bibliografia.html` bajó de 190 a 40 ms. El filtro del glosario usa la misma función.
-8. **Redacción de la documentación.** `README.md` y `docs/decisiones.md` explican la página nueva y ya no usan punto y coma.
+1. **Cabecera en teléfonos.** Con pantalla táctil cada botón de la cabecera mide 44 px. A anchos de 320 a 330 px y de 361 a 382 px, que incluyen los 375 px del iPhone SE y de los mini, el botón del menú quedaba fuera de la pantalla en las 17 páginas, que se desplazaban de lado. Bajo 861 px el contenedor de la navegación se oculta completo, bajo 421 px el enlace al repositorio queda en el menú y en el pie, y la marca puede pasar a dos líneas antes de empujar los botones. Los botones con texto largo, como «Ver las 106 preguntas, con modo práctica», parten su texto bajo 481 px.
+2. **Pruebas de desborde.** En modo teléfono `innerWidth` crece con lo que desborda, así que las 24 comprobaciones `scrollWidth <= innerWidth` no podían fallar. Ahora comparan con `document.documentElement.clientWidth`, y `pruebas_navegador.py` recorre las 17 páginas a 320 y 375 px con pantalla táctil. Con el CSS de la base, la prueba corregida del capítulo 4 falla, como debe.
+3. **Ventana dinámica.** La huella del robot se dibujaba opaca y del mismo azul encima de las 105 trayectorias candidatas, que avanzan a lo más 26 cm desde el centro de giro, y las tapaba junto con la elegida. Ahora va translúcida debajo, la trayectoria elegida lleva contorno, el centro de giro queda marcado y una segunda vista muestra 50 cm alrededor del robot con una escala de 10 cm. La palabra «obstáculo» va bajo el círculo cuando no cabe en él. El dibujo se hace con una sola función para ambas vistas. Los puntajes, los escenarios y la proyección de 1,7 s no cambian.
+4. **Buscador.** Avisa mientras llega el índice, el campo muestra el foco y, al bajar con las flechas, solo el resultado enfocado queda marcado, con un borde de 3 px.
+5. **Anclas de los subtítulos.** Los h3 del artículo tienen posición relativa. Antes su `#` aparecía fuera de la pantalla, también al recibir el foco con el teclado.
+6. **Objetivos táctiles.** El índice «En esta página» se abre tocando toda su caja, de 44 px, y su flecha gira al abrirlo. Con pantalla táctil también miden 44 px la marca, los enlaces de las cifras de la portada y las etiquetas que llevan a secciones de Recursos y Bibliografía.
+7. **Encoder.** El deslizador dice «Velocidad de giro del disco» y su valor lleva la unidad, rad/s. La nota del dibujo baja al borde izquierdo en un teléfono y se abrevia si aún no cabe.
+8. **Redacción.** 67 punto y coma del texto visible de 7 páginas y 44 de los mensajes de 5 archivos de interactivos pasaron a puntos, comas o conjunciones. Se conservan las dos entradas antiguas del historial, los mensajes de error para desarrolladores y el atributo `allow` del video.
+9. **Figuras generadas.** `diagramas_mapeo.js` y `diagramas_control.js` aceptan `--comprobar` y el flujo de verificación los ejecuta. `img/diagramas/candidatos-cierre.svg` se regeneró porque lleva la etiqueta de un interactivo que cambió.
+10. **Código.** Se retiraron siete utilidades sin uso de `js/comun.js` y se corrigieron comentarios duplicados, desubicados o que ya no correspondían en `js/sitio.js` y `js/sims.js`. El pie ya no inserta un párrafo oculto con un «PENDIENTE AUTOR» resuelto.
+11. **Documentación.** Esta auditoría, este informe, decisiones nuevas en `decisiones.md`, el README y una entrada de plataforma en el historial del estado académico, con la fecha de actualización del sitio.
 
 ## Archivos
 
 | Área | Archivos |
 |---|---|
-| Bibliografía | `bibliografia.html`, `datos/bibliografia.json`, `datos/bibliografia.bib`, `herramientas/bibliografia.py`, `herramientas/datos.py`, `recursos.html`, `css/estilo.css`, `js/sitio.js` |
-| Buscador | `herramientas/indice.py`, `datos/indice.js` |
-| Enlaces desde los temas | 13 páginas con lista de fuentes, que ahora enlazan `bibliografia.html` |
-| Estado académico | `datos/academico.json`, `datos/proyecto.js`, `recursos.html` |
-| Verificación | `herramientas/pruebas_navegador.py`, `herramientas/pruebas_experiencia_navegador.py` |
-| Documentación | `README.md`, `docs/decisiones.md`, este informe |
-
-## Procedencia y comprobación del contenido
-
-Para las 39 referencias con copia en el proyecto se usó ese archivo. Para las demás, su página oficial, su resumen publicado o el registro de su DOI, revisados el 28 y 29 de octubre de 2026. La ficha dice en cada caso de dónde sale el detalle. Cuando la copia del proyecto es una versión previa, como las de arXiv de Francis et al. (2025) y Vincent et al. (2024), la ficha lo indica y toma los datos de la revista del registro del DOI.
-
-No se pudieron leer en esta revisión, y su ficha lo declara: el modelo en Thingiverse, el preprint en ResearchGate, el video en YouTube, el anuncio del fin de Noetic en ros.org (se usó el mismo anuncio en discourse.openrobotics.org), el sitio de YARP (se usó icub.iit.it), el manual de Webots, que solo entregó menús (se usaron Wikipedia y el artículo de Michel), la guía de explore_lite en wiki.ros.org (se usaron el README y el código del port), el texto de Kato et al. (2018) en IEEE Xplore, ACM y Semantic Scholar (se usaron su resumen y los títulos de sus figuras) y la página del libro de Devore et al. en Springer (se usaron los metadatos del DOI).
-
-Comprobaciones:
-
-- Todas las cifras de los párrafos de relación con la tesis, diferencia y código se buscaron en el texto de la tesis y en `4_codigo.txt`. Coinciden todas salvo tres que no vienen de la tesis: dos resultados del artículo de Liu et al. (12,99 % y 19,69 %), comprobados en el artículo, y el 97,5 % de la diferencia de Vincent et al., que se deduce del intervalo de dos lados que usa el código.
-- Las cifras estadísticas que la tesis cita se recalcularon con SciPy: el intervalo de 35,9 a 99,6 % para cinco exploraciones válidas en seis, el 78,2 % para 15 éxitos en 15, las 17 ejecuciones sin fallas para superar el 80 %, el valor p de 0,109375 y el factor t dividido por la raíz de n, de 1,24 con cinco repeticiones y 0,72 con diez.
-- Diez referencias elegidas al azar se compararon de nuevo con su fuente: Wittenmark et al. (2002), Slamtec (2020), Sun et al. (2022), Mori et al. (2024), Shi y Eberhart (1998), Yamauchi (1997), Liu et al. (2025), el anuncio del fin de Noetic, Karaman y Frazzoli (2011) y Webots. Sus cifras coinciden. En Liu et al. se precisó que la mejora de 10 a 30 % que declara el resumen abarca las pruebas en simulación y en el mundo real.
-- Los precios de los TurtleBot 3 y los promedios del dólar observado de 2024 se revisaron el 29 de octubre de 2026 y coinciden con la tesis.
-
-La página explica, sin cambiar la tesis, varias diferencias entre ella y sus fuentes. Por ejemplo, Yamauchi (1997) define la celda de frontera como una celda libre vecina de una desconocida, mientras que la Sec. 3.11 usa la definición de explore_lite, una celda desconocida vecina de una libre. Ngoc et al. (2023) no tratan la deriva de la odometría por la que los cita la Sec. 3.8. La versión de CoppeliaSim que cita la tesis, 4.10.0, no aparece todavía en la página de versiones del manual, que llega a la 4.9.0.
+| Teléfonos, foco y objetivos táctiles | `css/estilo.css` |
+| Interactivos | `js/sims.js`, `js/mapeo.js`, `js/slam-proceso.js`, `js/vis2.js`, `js/analisis-modelo.js`, `js/laboratorio.js` |
+| Buscador y código común | `js/sitio.js`, `js/comun.js` |
+| Redacción | `control.html`, `mapeo.html`, `laboratorio.html`, `movimiento.html`, `navegacion.html`, `problema.html`, `recursos.html` |
+| Generados | `datos/indice.js`, `datos/proyecto.js`, `datos/bibliografia.bib`, `recursos.html`, `img/diagramas/candidatos-cierre.svg` |
+| Verificación | las ocho suites de navegador, `diagramas_mapeo.js`, `diagramas_control.js`, `.github/workflows/verificar.yml` |
+| Documentación | `README.md`, `docs/decisiones.md`, `docs/auditoria-3bae57b.md`, este informe, `datos/academico.json` |
 
 ## Pruebas ejecutadas
 
-Entorno: Node 22.23.4, Python 3.13.18, Playwright 1.63.0 y Chrome for Testing 153.
+Entorno: Node 22.23.4, Python 3.13.18, Playwright 1.63.0 y Chromium. Se ejecutaron los pasos de `verificar.yml` en el orden del flujo.
 
 | Verificación | Base | Revisión |
 |---|---:|---:|
 | Pruebas numéricas en Node, ocho archivos | 203 | 203 |
-| `python3 herramientas/verificar_sitio.py` | 2 107 | 2 841 |
-| `node herramientas/ejemplos_laboratorio.js --comprobar` | correcta | correcta |
-| `node herramientas/diagramas_plano.js --comprobar` | correcta | correcta |
+| `python3 herramientas/verificar_sitio.py` | 2 841 | 2 841 |
+| Ejemplos sintéticos y figuras generadas al día | 2 de 2 | 4 de 4 |
 | `python3 herramientas/pruebas_control_navegador.py` | 325 | 325 |
 | `python3 herramientas/pruebas_mapeo_navegador.py` | 261 | 261 |
 | `python3 herramientas/pruebas_movimiento_navegador.py` | 214 | 214 |
 | `python3 herramientas/pruebas_laboratorio_navegador.py` | 195 | 195 |
 | `python3 herramientas/pruebas_robustez_navegador.py` | 71 | 71 |
 | `python3 herramientas/pruebas_evidencia_navegador.py` | 131 | 131 |
-| `python3 herramientas/pruebas_navegador.py` | 479 | 499 |
-| `python3 herramientas/pruebas_experiencia_navegador.py` | 73 | 81 |
+| `python3 herramientas/pruebas_navegador.py` | 499 | 538 |
+| `python3 herramientas/pruebas_experiencia_navegador.py` | 81 | 81 |
 
-Las verificaciones estáticas suben porque la página nueva y las fichas agregan enlaces internos, y se comprueba cada enlace y su ancla. `pruebas_navegador.py` recorre ahora 17 páginas, comprueba la navegación de Recursos y de Bibliografía y el panel con seis complementos, y el plegado de una referencia desde un enlace interno y desde un cambio de ancla en Recursos. Su prueba de cobertura del índice excluye la ficha, como estaba previsto. `pruebas_experiencia_navegador.py` comprueba los cinco bloques y la extensión de cada referencia, los dos párrafos de cada grupo, la ausencia de separadores, el BibTeX con una entrada por referencia y la misma clave, la presentación en Recursos, el traslado de un enlace antiguo, el filtro, el plegado de un bloque largo, la ficha en una y en dos columnas, los botones para copiar la cita y su BibTeX, la lectura sin JavaScript y la impresión. Las ocho suites de navegador tardan unos seis minutos en este equipo.
+Las suites del capítulo 4, el capítulo 05, el capítulo 3, el laboratorio, la robustez y la evidencia conservan su número de comprobaciones, pero sus comprobaciones de desborde ahora pueden fallar. `pruebas_navegador.py` suma 34 páginas a 320 y 375 px, el estado de carga y el foco del buscador, la visibilidad de las candidatas en la ventana dinámica y el alto táctil del índice, la marca y los enlaces de las cifras y de las etiquetas, también en `bibliografia.html`.
 
-Lighthouse en teléfono, con un servidor local que comprime con gzip como GitHub Pages:
+Además, fuera del flujo:
 
-| Página | Rendimiento | Accesibilidad | Buenas prácticas | SEO |
-|---|---:|---:|---:|---:|
-| `bibliografia.html` | 97 | 100 | 100 | 100 |
-| `recursos.html` | 95 a 97 | 100 | 96 | 100 |
-| `index.html` | 99 | 100 | 100 | 100 |
-| `resultados.html` | 97 | 100 | 100 | 100 |
+- axe-core 4.10 en las 17 páginas, a 390 px en tema oscuro y a 1366 px en tema oscuro, con los plegables abiertos y las reglas de WCAG 2.0, 2.1 y 2.2 en sus niveles A y AA: sin infracciones, igual que en la base.
+- Desborde horizontal medido con `clientWidth` en las 17 páginas a 320, 360, 390, 768, 1024 y 1366 px, con pantalla táctil bajo 500 px: ninguno. En la base, las 17 páginas desbordaban 11 px a 320 px, 22 px a 361 px y 8 px a 375 px. La cabecera también cabe a 862, 900, 980, 1041, 1100, 1180, 1181 y 1250 px con ratón y en tabletas táctiles de 600 a 1180 px.
+- Una prueba que acciona cada botón, deslizador, casilla y selector de los 53 interactivos a 390 px, con movimiento reducido: sin errores de JavaScript.
+- Capturas en escritorio y en teléfono, en tema claro y oscuro, de la cabecera a 320 y 375 px, del buscador al bajar con las flechas, de la ventana dinámica con su vista ampliada, del encoder, del índice «En esta página» y de las etiquetas de Recursos.
 
-Buenas prácticas queda en 96 en `recursos.html` porque el entorno de prueba no puede descargar las miniaturas de YouTube, como en la revisión anterior. Antes de preparar el filtro al primer uso, `bibliografia.html` marcaba 94 en rendimiento. Servida sin compresión marca 65, porque el HTML pesa 490 KB, así que el resultado publicado depende de la compresión de GitHub Pages.
-
-axe-core 4.10 revisó las 17 páginas en escritorio y teléfono, en tema claro y oscuro, con las reglas de WCAG 2.0, 2.1 y 2.2 en sus niveles A y AA y todos los plegables abiertos, incluidas las 72 referencias con sus bloques plegados. No encontró infracciones en las 68 revisiones. Esto no reemplaza pruebas con lectores de pantalla.
-
-Capturas de escritorio y de teléfono, en tema claro y oscuro, del comienzo de la página, de la presentación en Recursos y de las referencias de Macenski et al. (2022), Home Brew Robotics Club, Shanghai Slamtec (2020), Trejos et al. (2022), Nav2 Maintainers (2021), Coppelia Robotics (2025), Cantwell (2025) y Francis et al. (2025): sin errores de consola ni desborde horizontal entre 360 y 1366 px.
-
-## Peso
-
-| Archivo | Base | Revisión |
-|---|---:|---:|
-| `recursos.html` | 155 KB, 40 KB comprimido | 51 KB, 18 KB comprimido |
-| `bibliografia.html` | no existía | 490 KB, 111 KB comprimido |
-| `datos/indice.js` | 516 KB, 141 KB comprimido, 551 entradas | 757 KB, 209 KB comprimido, 636 entradas |
-| `datos/bibliografia.json` | 75 KB | 374 KB |
-
-El índice del buscador se descarga solo al abrir la búsqueda, así que no cambia la carga de las páginas. `datos/bibliografia.bib` pesa 29 KB y se descarga solo al pedirlo.
+Lighthouse no se midió en esta revisión. Los cambios no agregan archivos, fuentes ni imágenes a la carga de las páginas.
 
 ## Pendientes
 
-- La sesión no tuvo permiso de escritura en el repositorio remoto. Los cambios se entregan como parche para `git am` y como ZIP del repositorio.
-- Las fuentes que no se pudieron leer quedan declaradas en su ficha. Si vuelven a estar disponibles, conviene revisar en especial el video de YouTube, cuya duración y descripción no se comprobaron, y el texto completo de Kato et al. (2018).
-- Las páginas de producto, de documentación y de datos pueden cambiar. Su ficha dice la fecha en que se revisaron.
-- La tesis está en revisión por comité. Si cambia su bibliografía, basta editar `datos/bibliografia.json` y volver a generar con `herramientas/datos.py` y `herramientas/indice.py`.
+- La sesión no tuvo acceso a la API de GitHub, así que no se pudo revisar la última ejecución de Actions ni el estado de Pages. Los cambios se entregan como parche para `git am` y como ZIP del repositorio.
+- Conviene probar la cabecera en un teléfono real de 320 o 375 px, y el sitio con un lector de pantalla.
+- `js/sims.js` tiene 1 152 líneas y `js/sitio.js` 1 056. Separar las simulaciones del capítulo 6 en su propio módulo, con las utilidades de lienzo compartidas, y reunir el servidor y las comprobaciones comunes de las ocho suites de navegador en un módulo propio reduciría ambos archivos. Requiere cambiar el manifiesto de interactivos y el arnés de pruebas, por eso quedó para una revisión aparte.
+- Siguen pendientes del autor el método de medida del giro físico, el motivo del tamaño mínimo de frontera, la autorización para publicar firmware y registros, los tres videos preparados y las notas en primera persona.
 
 ## Cómo aplicar el parche
 
-Con `main` en `9407bbb`:
+Con `main` en `3bae57b`:
 
 ```bash
 git checkout main
-git am bibliografia-extendida.patch
+git am /ruta/tesis_explain-auditoria-3bae57b_cambios_git_am.patch
 python3 herramientas/verificar_sitio.py
-python3 herramientas/pruebas_experiencia_navegador.py
+python3 herramientas/pruebas_navegador.py
 git push origin main
 ```
 
