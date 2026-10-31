@@ -705,6 +705,24 @@ def probar_tactil(nav):
     ctx.close()
 
 
+def probar_cursor(nav):
+    print('Cursor y controles deshabilitados')
+    ctx = contexto(nav, viewport={'width': 1280, 'height': 900})
+    p = ctx.new_page()
+    p.goto(BASE + '/laboratorio.html')
+    p.wait_for_timeout(200)
+    r = p.evaluate("""() => { const c = s => [...document.querySelectorAll(s)].map(e => getComputedStyle(e).cursor);
+      const b = document.getElementById('lab-exportar'); b.scrollIntoView({ block: 'center' }); const s = getComputedStyle(b);
+      return { mano: c('main summary').concat(c('main select')), boton: [b.disabled, s.cursor, s.opacity], fondo: s.backgroundColor }; }""")
+    ok(len(r['mano']) >= 4 and set(r['mano']) == {'pointer'}, 'laboratorio.html: los plegables y los selectores muestran la mano (%d)' % len(r['mano']), r['mano'])
+    ok(r['boton'] == [True, 'not-allowed', '0.5'], 'un botón deshabilitado se ve apagado y no ofrece la mano', r['boton'])
+    caja = p.locator('#lab-exportar').bounding_box()
+    p.mouse.move(caja['x'] + caja['width'] / 2, caja['y'] + caja['height'] / 2)
+    p.wait_for_timeout(150)
+    ok(p.evaluate("getComputedStyle(document.getElementById('lab-exportar')).backgroundColor") == r['fondo'], 'pasar el ratón sobre un botón deshabilitado no lo resalta')
+    ctx.close()
+
+
 def probar_vistas(nav):
     print('Visor de fotos del prototipo')
     for nombre, kw in [('escritorio', {'viewport': {'width': 1280, 'height': 900}}), ('teléfono', {'viewport': {'width': 390, 'height': 844}, 'has_touch': True, 'is_mobile': True})]:
@@ -984,6 +1002,7 @@ with sync_playwright() as pw:
     probar_plegados(nav)
     probar_ampliar(nav)
     probar_tactil(nav)
+    probar_cursor(nav)
     probar_vistas(nav)
     probar_esquema(nav)
     probar_preparados(nav)

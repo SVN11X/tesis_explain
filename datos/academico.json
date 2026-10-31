@@ -66,7 +66,7 @@
     {
       "fecha": "2026-10-31",
       "tipo": "plataforma",
-      "cambio": "La cabecera ya no se sale de la pantalla en teléfonos angostos, como los de 320 y 375 px, y las pruebas detectan ese desborde. El simulador de la ventana dinámica muestra las trayectorias candidatas, que la huella del robot tapaba, y agrega una vista ampliada. El buscador avisa mientras carga y marca solo el resultado enfocado. El índice «En esta página» se abre tocando toda su caja y los textos ya no usan punto y coma. El contenido académico y las tablas experimentales no cambian."
+      "cambio": "La cabecera ya no se sale de la pantalla en teléfonos angostos, como los de 320 y 375 px, y las pruebas detectan ese desborde. El simulador de la ventana dinámica muestra las trayectorias candidatas, que la huella del robot tapaba, y agrega una vista ampliada. El buscador avisa mientras carga y marca solo el resultado enfocado. El índice «En esta página» se abre tocando toda su caja, los botones que no se pueden usar se ven apagados y los textos ya no usan punto y coma. El contenido académico y las tablas experimentales no cambian."
     }
   ]
 }

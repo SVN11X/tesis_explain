@@ -168,6 +168,10 @@ p { margin: 0; }
 .saltar:focus { top: 10px; color: var(--sobre-azul); }
 kbd, code { font-family: var(--f-data); font-size: .88em; background: var(--surface-2); border: 1px solid var(--line); border-radius: 5px; padding: .05em .35em; }
 abbr[title] { text-decoration: underline dotted; cursor: help; }
+/* Todo control habilitado muestra la mano. El comparador y los dibujos que se arrastran declaran su propio cursor. */
+summary, select, input[type="checkbox"], input[type="radio"], input[type="range"], input[type="file"], label:has(input[type="checkbox"], input[type="radio"]) { cursor: pointer; }
+/* Un control deshabilitado se ve apagado y sin la mano, para que no parezca que falló. */
+:is(button, select, textarea, input:not([type="checkbox"], [type="radio"])):disabled, label:has(input[type="checkbox"]:disabled, input[type="radio"]:disabled) { cursor: not-allowed; opacity: .5; }
 
 .aviso-academico { background: var(--surface-2); border-bottom: 1px solid var(--line); font-size: .87rem; }
 .aviso-academico .wrap { display: flex; align-items: baseline; gap: .6rem 1rem; flex-wrap: wrap; padding-top: .6rem; padding-bottom: .6rem; }
@@ -527,12 +531,12 @@ details.profundizar > div { padding: 0 16px 16px; display: grid; gap: 12px; }
 
 /* 6. Componentes compartidos */
 .btn { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); border-radius: 11px; padding: 10px 18px; font-size: var(--t-sm); font-weight: 700; cursor: pointer; text-decoration: none; white-space: nowrap; min-height: 44px; transition: background-color var(--dur-1), border-color var(--dur-1), color var(--dur-1), box-shadow var(--dur-2), transform var(--dur-1); }
-.btn:hover { border-color: var(--azul); color: var(--azul); text-decoration: none; background: color-mix(in srgb, var(--azul) 5%, var(--surface)); }
-.btn:active { transform: translateY(1px); }
+.btn:hover:where(:not(:disabled)) { border-color: var(--azul); color: var(--azul); text-decoration: none; background: color-mix(in srgb, var(--azul) 5%, var(--surface)); }
+.btn:active:where(:not(:disabled)) { transform: translateY(1px); }
 .btn.prim { background: linear-gradient(180deg, color-mix(in srgb, var(--azul) 86%, #fff), var(--azul)); border-color: var(--azul); color: var(--sobre-azul); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .16), 0 8px 18px -10px color-mix(in srgb, var(--azul) 80%, transparent); }
-.btn.prim:hover { background: var(--azul-hover); border-color: var(--azul-hover); color: var(--sobre-azul); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .16), 0 12px 24px -10px color-mix(in srgb, var(--azul) 85%, transparent); }
+.btn.prim:hover:where(:not(:disabled)) { background: var(--azul-hover); border-color: var(--azul-hover); color: var(--sobre-azul); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .16), 0 12px 24px -10px color-mix(in srgb, var(--azul) 85%, transparent); }
 .btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform var(--dur-2) var(--curva); }
-.btn:hover svg { transform: translateX(3px); }
+.btn:hover:where(:not(:disabled)) svg { transform: translateX(3px); }
 .btn.chico { min-height: 36px; padding: 6px 12px; font-size: var(--t-xs); }
 figure.foto { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; max-width: 900px; }
 figure.foto img { display: block; width: 100%; height: auto; cursor: zoom-in; background: var(--surface-2); }
@@ -617,9 +621,9 @@ table.tabla.compacta { min-width: 0; }
 .vsvg.acotado { max-width: 500px; margin-inline: auto; }
 .vctl { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .vbtn { border: 1px solid var(--azul); background: var(--surface); color: var(--azul); border-radius: 8px; padding: 7px 12px; font-size: var(--t-sm); cursor: pointer; font-weight: 700; min-height: 38px; }
-.vbtn:hover, .vbtn[aria-pressed="true"] { background: var(--azul); color: var(--sobre-azul); }
+.vbtn:hover:where(:not(:disabled)), .vbtn[aria-pressed="true"] { background: var(--azul); color: var(--sobre-azul); }
 .vbtn.sec { border-color: var(--line-2); color: var(--ink); font-weight: 400; }
-.vbtn.sec:hover { background: var(--surface-2); color: var(--ink); }
+.vbtn.sec:hover:where(:not(:disabled)) { background: var(--surface-2); color: var(--ink); }
 .vbtn.sec[aria-pressed="true"] { background: var(--azul-suave); color: var(--azul); border-color: var(--azul); font-weight: 700; }
 .vestado { font-size: var(--t-sm); color: var(--muted); }
 .vnota { font-size: var(--t-xs); color: var(--muted); }

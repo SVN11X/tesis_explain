@@ -12,18 +12,19 @@ Base: `3bae57b72f8bd1c7b85a2f48e26038b6993cf7ac` de `main`. Los commits están e
 4. **Buscador.** Avisa mientras llega el índice, el campo muestra el foco y, al bajar con las flechas, solo el resultado enfocado queda marcado, con un borde de 3 px.
 5. **Anclas de los subtítulos.** Los h3 del artículo tienen posición relativa. Antes su `#` aparecía fuera de la pantalla, también al recibir el foco con el teclado.
 6. **Objetivos táctiles.** El índice «En esta página» se abre tocando toda su caja, de 44 px, y su flecha gira al abrirlo. Con pantalla táctil también miden 44 px la marca, los enlaces de las cifras de la portada y las etiquetas que llevan a secciones de Recursos y Bibliografía.
-7. **Encoder.** El deslizador dice «Velocidad de giro del disco» y su valor lleva la unidad, rad/s. La nota del dibujo baja al borde izquierdo en un teléfono y se abrevia si aún no cabe.
-8. **Redacción.** 67 punto y coma del texto visible de 7 páginas y 44 de los mensajes de 5 archivos de interactivos pasaron a puntos, comas o conjunciones. Se conservan las dos entradas antiguas del historial, los mensajes de error para desarrolladores y el atributo `allow` del video.
-9. **Figuras generadas.** `diagramas_mapeo.js` y `diagramas_control.js` aceptan `--comprobar` y el flujo de verificación los ejecuta. `img/diagramas/candidatos-cierre.svg` se regeneró porque lleva la etiqueta de un interactivo que cambió.
-10. **Código.** Se retiraron siete utilidades sin uso de `js/comun.js` y se corrigieron comentarios duplicados, desubicados o que ya no correspondían en `js/sitio.js` y `js/sims.js`. El pie ya no inserta un párrafo oculto con un «PENDIENTE AUTOR» resuelto.
-11. **Documentación.** Esta auditoría, este informe, decisiones nuevas en `decisiones.md`, el README y una entrada de plataforma en el historial del estado académico, con la fecha de actualización del sitio.
+7. **Cursor y botones deshabilitados.** «Quitar la curva anterior», «Recalcular archivo actual» y «Exportar resultado JSON» se veían activos cuando no se podían usar, mostraban la mano y se resaltaban al pasar el ratón. Ahora un control deshabilitado se ve apagado, con el cursor de prohibido, y los 70 controles habilitados que mostraban la flecha o el cursor de texto, entre ellos 45 deslizadores, muestran la mano. Los botones habilitados se ven igual que antes.
+8. **Encoder.** El deslizador dice «Velocidad de giro del disco» y su valor lleva la unidad, rad/s. La nota del dibujo baja al borde izquierdo en un teléfono y se abrevia si aún no cabe.
+9. **Redacción.** 67 punto y coma del texto visible de 7 páginas y 44 de los mensajes de 5 archivos de interactivos pasaron a puntos, comas o conjunciones. Un mensaje del análisis de estabilidad ya no tiene una raya de respaldo. Se conservan las dos entradas antiguas del historial, los mensajes de error para desarrolladores y el atributo `allow` del video.
+10. **Figuras generadas.** `diagramas_mapeo.js` y `diagramas_control.js` aceptan `--comprobar` y el flujo de verificación los ejecuta. `img/diagramas/candidatos-cierre.svg` se regeneró porque lleva la etiqueta de un interactivo que cambió.
+11. **Código.** Se retiraron siete utilidades sin uso de `js/comun.js` y se corrigieron comentarios duplicados, desubicados o que ya no correspondían en `js/sitio.js` y `js/sims.js`. El pie ya no inserta un párrafo oculto con un «PENDIENTE AUTOR» resuelto.
+12. **Documentación.** Esta auditoría, este informe, decisiones nuevas en `decisiones.md`, el README y una entrada de plataforma en el historial del estado académico, con la fecha de actualización del sitio.
 
 ## Archivos
 
 | Área | Archivos |
 |---|---|
-| Teléfonos, foco y objetivos táctiles | `css/estilo.css` |
-| Interactivos | `js/sims.js`, `js/mapeo.js`, `js/slam-proceso.js`, `js/vis2.js`, `js/analisis-modelo.js`, `js/laboratorio.js` |
+| Teléfonos, foco, cursor y objetivos táctiles | `css/estilo.css` |
+| Interactivos | `js/sims.js`, `js/mapeo.js`, `js/slam-proceso.js`, `js/vis2.js`, `js/analisis-modelo.js`, `js/laboratorio.js`, `js/evidencia.js` |
 | Buscador y código común | `js/sitio.js`, `js/comun.js` |
 | Redacción | `control.html`, `mapeo.html`, `laboratorio.html`, `movimiento.html`, `navegacion.html`, `problema.html`, `recursos.html` |
 | Generados | `datos/indice.js`, `datos/proyecto.js`, `datos/bibliografia.bib`, `recursos.html`, `img/diagramas/candidatos-cierre.svg` |
@@ -45,15 +46,17 @@ Entorno: Node 22.23.4, Python 3.13.18, Playwright 1.63.0 y Chromium. Se ejecutar
 | `python3 herramientas/pruebas_laboratorio_navegador.py` | 195 | 195 |
 | `python3 herramientas/pruebas_robustez_navegador.py` | 71 | 71 |
 | `python3 herramientas/pruebas_evidencia_navegador.py` | 131 | 131 |
-| `python3 herramientas/pruebas_navegador.py` | 499 | 538 |
+| `python3 herramientas/pruebas_navegador.py` | 499 | 541 |
 | `python3 herramientas/pruebas_experiencia_navegador.py` | 81 | 81 |
 
-Las suites del capítulo 4, el capítulo 05, el capítulo 3, el laboratorio, la robustez y la evidencia conservan su número de comprobaciones, pero sus comprobaciones de desborde ahora pueden fallar. `pruebas_navegador.py` suma 34 páginas a 320 y 375 px, el estado de carga y el foco del buscador, la visibilidad de las candidatas en la ventana dinámica y el alto táctil del índice, la marca y los enlaces de las cifras y de las etiquetas, también en `bibliografia.html`.
+Las suites del capítulo 4, el capítulo 05, el capítulo 3, el laboratorio, la robustez y la evidencia conservan su número de comprobaciones, pero sus comprobaciones de desborde ahora pueden fallar. `pruebas_navegador.py` suma 34 páginas a 320 y 375 px, el estado de carga y el foco del buscador, la visibilidad de las candidatas en la ventana dinámica, el alto táctil del índice, la marca y los enlaces de las cifras y de las etiquetas, también en `bibliografia.html`, y el cursor de los controles y el aspecto de un botón deshabilitado.
 
 Además, fuera del flujo:
 
 - axe-core 4.10 en las 17 páginas, a 390 px en tema oscuro y a 1366 px en tema oscuro, con los plegables abiertos y las reglas de WCAG 2.0, 2.1 y 2.2 en sus niveles A y AA: sin infracciones, igual que en la base.
 - Desborde horizontal medido con `clientWidth` en las 17 páginas a 320, 360, 390, 768, 1024 y 1366 px, con pantalla táctil bajo 500 px: ninguno. En la base, las 17 páginas desbordaban 11 px a 320 px, 22 px a 361 px y 8 px a 375 px. La cabecera también cabe a 862, 900, 980, 1041, 1100, 1180, 1181 y 1250 px con ratón y en tabletas táctiles de 600 a 1180 px.
+- El cursor de los 4 220 controles visibles de las 17 páginas a 1366 px, con los interactivos montados: todos muestran la mano, o el cursor de prohibido si están deshabilitados, salvo los 119 términos del glosario, con el de ayuda, y el comparador de Control, con el de arrastre lateral. En la base no lo hacían 73.
+- Un recorrido de lo que cambió: a 320 y 375 px el menú se abre al tocarlo y Escape lo cierra y devuelve el foco, el índice «En esta página» se abre tocando el borde de su caja, el buscador llega a un resultado con las flechas y Enter, las dos vistas de la ventana dinámica responden al deslizador del obstáculo y a las flechas del teclado, el encoder muestra su valor en rad/s y las 30 anclas de Control quedan dentro de la pantalla al recibir el foco.
 - Una prueba que acciona cada botón, deslizador, casilla y selector de los 53 interactivos a 390 px, con movimiento reducido: sin errores de JavaScript.
 - Capturas en escritorio y en teléfono, en tema claro y oscuro, de la cabecera a 320 y 375 px, del buscador al bajar con las flechas, de la ventana dinámica con su vista ampliada, del encoder, del índice «En esta página» y de las etiquetas de Recursos.
 

@@ -165,7 +165,7 @@
         if (r.poloMayor > 0.99) t += " Un polo tan cerca de 1 es un modo muy lento: con 33 ms, unos " + f(-E.T / Math.log(r.poloMayor), 1) + " s de constante de tiempo.";
         if (r.Ms > 2) t += " La sensibilidad máxima, " + f(r.Ms, 2) + ", queda sobre el intervalo típico de 1,2 a 2,0.";
       } else {
-        t = "Inestable. Un polo queda fuera del círculo unitario, con magnitud " + f(r.poloMayor, 4) + ". Con este retardo y esta constante de tiempo, el modelo pierde la estabilidad desde " + (isFinite(crit) ? f(crit, 2) : "—") + " veces la ganancia identificada.";
+        t = "Inestable. Un polo queda fuera del círculo unitario, con magnitud " + f(r.poloMayor, 4) + "." + (isFinite(crit) ? " Con este retardo y esta constante de tiempo, el modelo pierde la estabilidad desde " + f(crit, 2) + " veces la ganancia identificada." : "");
       }
       out("lectura").textContent = t;
       out("procedencia").innerHTML = procedencia();
