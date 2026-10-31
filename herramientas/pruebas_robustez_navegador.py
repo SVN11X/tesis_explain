@@ -145,7 +145,7 @@ with sync_playwright() as pw:
         check(box.locator('.mp-obs').count() == 0 and box.locator('[data-bloque-mapa]').is_hidden() and box.locator('[data-ley-mapa]').first.is_hidden(), nombre + ': ocultar el mapa quita puntos, lecturas y leyenda')
         box.get_by_text('Experimentar con la deriva del ejemplo', exact=True).click(); box.locator('[data-restablecer-grafo]').click()
         check(box.locator('#mp-grafo-mapa').is_checked() and box.evaluate('el => el.estadoSim().verMapa'), nombre + ': restablecer vuelve a mostrar el mapa')
-        check(p.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), nombre + ': sin desborde horizontal')
+        check(p.evaluate('document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1'), nombre + ': sin desborde horizontal')
         check(not errores, nombre + ': grafo sin errores JavaScript', errores)
         ctx.close()
 

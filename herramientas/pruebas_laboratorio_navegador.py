@@ -50,7 +50,7 @@ with sync_playwright() as pw:
         p.goto(BASE + '/laboratorio.html')
         check(p.locator('.aviso-academico').is_visible(), name + ': aviso académico visible')
         check(p.locator('#lab-controles').is_visible(), name + ': controles locales visibles')
-        check(p.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), name + ': sin desborde horizontal')
+        check(p.evaluate('document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1'), name + ': sin desborde horizontal')
         for file in ['recta-2m-real.csv', 'recta-2m-simulacion.csv', 'giro-real.csv', 'giro-simulacion.csv', 'escalon.csv', 'mapeo.csv', 'metas.csv']:
             p.select_option('#lab-ejemplo', file)
             p.click('#lab-cargar')
@@ -98,7 +98,7 @@ with sync_playwright() as pw:
         expect(p.locator('#lab-estado')).to_contain_text('formato mapa-pgm-comparacion')
         check(p.locator('#lab-mapa canvas[role=img][aria-label]').count() == 1, name + ': la comparación se dibuja con alternativa textual')
         check('Acuerdo entre celdas observadas' in p.locator('#lab-metricas').inner_text(), name + ': informa acuerdo celda a celda')
-        check(p.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), name + ': el mapa no desborda la página')
+        check(p.evaluate('document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1'), name + ': el mapa no desborda la página')
         with p.expect_download() as info:
             p.click('#lab-exportar')
         data = json.loads(Path(info.value.path()).read_text())

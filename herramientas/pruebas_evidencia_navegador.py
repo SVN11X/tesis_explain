@@ -101,7 +101,7 @@ with sync_playwright() as pw:
         check(caja.locator('label[for="ev-ld"]').count() == 1 and caja.locator('label[for="ev-km"]').count() == 1 and caja.locator('label[for="ev-tau"]').count() == 1, nombre + ': cada deslizador tiene su etiqueta')
         dims = caja.locator('svg').evaluate_all('els => els.map(el => el.getBoundingClientRect().width <= el.closest(".vis").getBoundingClientRect().width + 1)')
         check(all(dims) and len(dims) == 2, nombre + ': los dos gráficos caben en el interactivo')
-        check(p.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), nombre + ': control.html sin desborde horizontal')
+        check(p.evaluate('document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1'), nombre + ': control.html sin desborde horizontal')
         # el gráfico FOPDT mide el ancho real al montarse, también en un teléfono
         fo = montar(p, 'fopdt')
         w = fo.locator('svg').first.evaluate('el => [+el.getAttribute("viewBox").split(" ")[2], el.closest(".control-graf").clientWidth]')
@@ -120,7 +120,7 @@ with sync_playwright() as pw:
         check(caja.locator('[data-o="plano"]').is_hidden() and dato(caja, 'Media de los cinco mapas') == '3,43 cm' and dato(caja, 'Intervalo al 95 %') == '3,1 a 3,7 cm', nombre + ': por mapa, la media es 3,43 cm con el intervalo de la Tabla A8.4')
         caja.locator('[data-sentido="mapa"]').click()
         check(dato(caja, 'Media de los cinco mapas') == '4,37 cm' and dato(caja, 'Percentil 95') == '9,7 a 12,2 cm', nombre + ': del mapa al plano las medias son mayores, Tabla A8.2')
-        check(p.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), nombre + ': mapeo.html sin desborde horizontal')
+        check(p.evaluate('document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1'), nombre + ': mapeo.html sin desborde horizontal')
         w = caja.locator('[data-o="graf"] svg').evaluate('el => [+el.getAttribute("viewBox").split(" ")[2], el.parentElement.clientWidth]')
         check(abs(w[0] - max(300, w[1])) <= 1, nombre + ': el gráfico del plano usa el ancho real de su contenedor', w)
 
@@ -140,7 +140,7 @@ with sync_playwright() as pw:
         caja.locator('#ev-t').fill('4'); caja.locator('#ev-k').fill('9'); caja.locator('#ev-k').dispatch_event('change')
         e = rep()
         check(e['total'] == 4 and e['k'] == 4, nombre + ': los éxitos no pueden superar los intentos', e)
-        check(p.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), nombre + ': resultados.html sin desborde horizontal')
+        check(p.evaluate('document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1'), nombre + ': resultados.html sin desborde horizontal')
         check(not errores, nombre + ': sin errores de consola', errores[:3])
         ctx.close()
 

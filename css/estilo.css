@@ -471,7 +471,7 @@ abbr[title] { text-decoration: underline dotted; cursor: help; }
 .articulo > section { scroll-margin-top: calc(var(--cab-h) + 16px); }
 .articulo > section + section { margin-top: 56px; padding-top: 8px; }
 .articulo h2 { font-size: clamp(1.5rem, 2.6vw, 1.95rem); font-stretch: 84%; font-weight: 800; letter-spacing: -.01em; margin-bottom: 16px; max-width: 16.3em; position: relative; }
-.articulo h3 { font-size: var(--t-lg); font-stretch: 86%; font-weight: 760; margin: 32px 0 10px; max-width: 19.5em; }
+.articulo h3 { font-size: var(--t-lg); font-stretch: 86%; font-weight: 760; margin: 32px 0 10px; max-width: 19.5em; position: relative; }
 .articulo h4 { font-size: var(--t-md); font-stretch: 90%; font-weight: 720; margin: 22px 0 8px; }
 .articulo p, .articulo ul, .articulo ol, .articulo dl { max-width: var(--lectura); }
 .articulo p + p, .articulo p + ul, .articulo ul + p, .articulo p + ol, .articulo ol + p { margin-top: 14px; }
@@ -706,6 +706,7 @@ table.tabla.compacta { min-width: 0; }
 .lienzo.arrastrable { touch-action: none; cursor: grab; }
 .lienzo.arrastrable:active { cursor: grabbing; }
 .lienzo:focus-visible { outline: 3px solid var(--azul); outline-offset: 3px; }
+.dw-z { max-width: 480px; margin-top: 10px; }
 table.tabla.dw-tabla { font-size: var(--t-xs); min-width: 0; }
 .dw-tabla th, .dw-tabla td { padding: 7px 8px; }
 .dw-tabla td.n, .dw-tabla th { white-space: normal; }
@@ -737,6 +738,7 @@ table.tabla.dw-tabla { font-size: var(--t-xs); min-width: 0; }
 .as-act { fill: var(--azul); }
 .vley i.cu.as-rev { background: var(--azul-suave); background: color-mix(in srgb, var(--azul-medio) 42%, var(--surface)); }
 .vley i.cu.as-pend { background: var(--ambar-suave); border-color: var(--ambar); }
+.vley i.cu.huella { background: color-mix(in srgb, var(--azul) 12%, var(--surface)); border: 1.5px solid var(--azul); }
 /* trejos */
 .tj { display: grid; gap: 8px; }
 .algos { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
@@ -1094,7 +1096,12 @@ ol.bib .tipo-ref { font-size: .7rem; font-weight: 700; text-transform: uppercase
   .cap-layout { grid-template-columns: minmax(0, 1fr); }
   .lateral { position: static; max-height: none; overflow: visible; }
   .lateral .guia-lista { display: none; }
-  .lateral details.en-pagina-cont { border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); padding: 10px 12px; }
+  /* El relleno va en el summary y no en el details: así toda la caja abre el índice y mide 44 px de alto. */
+  .lateral details.en-pagina-cont { border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+  .lateral details.en-pagina-cont > summary { display: flex; align-items: center; min-height: 44px; padding: 0 12px; }
+  .lateral details.en-pagina-cont > summary h2 { margin: 0; }
+  .lateral details.en-pagina-cont .en-pagina { padding: 0 12px 10px; }
+  .lateral details.en-pagina-cont[open] .flecha { display: inline-block; transform: rotate(180deg); }
   .ancla { display: none; }
 }
 @media (min-width: 1081px) {
@@ -1107,7 +1114,9 @@ ol.bib .tipo-ref { font-size: .7rem; font-weight: 700; text-transform: uppercase
   .pie .wrap { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 860px) {
-  .nav-principal .nav-texto { display: none; }
+  /* Sus enlaces pasan al menú. Vacío, el contenedor sumaba un hueco que a 320 y 375 px sacaba de la pantalla el botón del menú. */
+  .nav-principal { display: none; }
+  .btn-buscar { margin-left: auto; }
   .btn-menu { display: inline-grid; }
   .grid-2 { grid-template-columns: minmax(0, 1fr); }
   .etapas-vista { grid-template-columns: minmax(0, .5fr) minmax(0, 1fr); }
@@ -1143,15 +1152,16 @@ ol.bib .tipo-ref { font-size: .7rem; font-weight: 700; text-transform: uppercase
 }
 p, li, dd, figcaption { overflow-wrap: break-word; }
 @media (max-width: 480px) {
-  .cita, .etiqueta { white-space: normal; }
+  .cita, .etiqueta, .btn { white-space: normal; }
   .refs li a { overflow-wrap: anywhere; }
-}
-@media (max-width: 360px) {
-  .cab .btn-icono.nav-texto { display: none; }
 }
 @media (max-width: 420px) {
   .cab .wrap { gap: 8px; }
-  .marca { font-size: 1rem; gap: 8px; }
+  /* El repositorio sigue en el menú y en el pie. Con su icono, buscar, tema y menú no caben junto a
+     la marca a 375 px cuando cada botón mide 44 px. */
+  .cab .btn-icono.nav-texto { display: none; }
+  /* último recurso a 320 px o con zoom: la marca pasa a dos líneas antes de empujar los botones */
+  .marca { font-size: 1rem; gap: 8px; min-width: 0; white-space: normal; }
   .marca svg { width: 26px; height: 26px; }
   .btn-icono { width: 38px; height: 38px; }
 }
@@ -1327,17 +1337,22 @@ ol.refs-lista a { overflow-wrap: anywhere; }
 .buscador::backdrop { background: rgba(8, 14, 24, .55); }
 .buscador .bus-cab { display: flex; gap: 8px; align-items: center; padding: 12px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--surface); }
 .buscador .bus-cab svg { width: 20px; height: 20px; stroke: var(--muted); fill: none; stroke-width: 2; flex: none; margin-left: 6px; }
-.buscador input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ink); font: inherit; font-size: var(--t-md); padding: 8px 4px; outline: none; }
+.buscador input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ink); font: inherit; font-size: var(--t-md); padding: 8px 4px; outline: none; border-radius: 0; }
+.buscador input:focus-visible { box-shadow: inset 0 -2px 0 var(--azul); }
 .buscador .bus-res { list-style: none; margin: 0; padding: 8px; display: grid; gap: 2px; overflow-y: auto; max-height: calc(min(80vh, 720px) - 120px); }
 .buscador .bus-res a { display: grid; gap: 2px; padding: 10px 12px; border-radius: 10px; text-decoration: none; color: var(--ink); }
-.buscador .bus-res a:hover, .buscador .bus-res a:focus-visible, .buscador .bus-res a.sel { background: var(--azul-suave); outline: none; }
+/* .sel marca el resultado que abre Enter mientras se escribe. Cuando el foco baja a la lista, solo el
+   resultado enfocado queda marcado, con un borde además del fondo. */
+.buscador .bus-res a:hover, .buscador .bus-res a.sel { background: var(--azul-suave); }
+.buscador .bus-res a:focus-visible { background: var(--azul-suave); outline: 3px solid var(--azul); outline-offset: -3px; }
+.buscador .bus-res:focus-within a.sel:not(:focus):not(:hover) { background: transparent; }
 .buscador .bus-res b { font-family: var(--f-display); font-stretch: 90%; font-size: var(--t-base); }
 .buscador .bus-res small { color: var(--muted); font-size: var(--t-xs); }
 .buscador .bus-res span { color: var(--ink-2); font-size: var(--t-sm); }
 .buscador mark { background: color-mix(in srgb, var(--verde) 35%, transparent); color: inherit; border-radius: 3px; padding: 0 1px; }
 .buscador .bus-pie { padding: 8px 14px 12px; font-size: var(--t-xs); color: var(--muted); border-top: 1px solid var(--line); display: flex; gap: 14px; flex-wrap: wrap; }
 .buscador .bus-vacio { padding: 18px 14px; color: var(--muted); font-size: var(--t-sm); }
-.btn-buscar { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); color: var(--muted); cursor: pointer; font-size: var(--t-sm); }
+.btn-buscar { flex: none; display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); color: var(--muted); cursor: pointer; font-size: var(--t-sm); }
 .btn-buscar:hover { border-color: var(--azul); color: var(--azul); }
 .btn-buscar svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
 .btn-buscar kbd { font-size: .72rem; padding: 0 5px; }
@@ -1437,6 +1452,8 @@ figure.ampliable { position: relative; }
   .btn-icono, .btn-buscar, .nav-principal a, .nav-principal button.nav-btn { min-height: 44px; min-width: 44px; }
   .cajon-panel a { min-height: 44px; }
   .vbtn, .chip, .segmento button, .btn.chico, .etapas-ctl button, .d-botones .d-op { min-height: 44px !important; }
+  .marca, a.etiqueta, .cifra a.fuente { min-height: 44px; }
+  .cifra a.fuente { display: flex; align-items: center; }
 }
 @media (pointer: coarse) and (max-width: 420px) {
   .btn-icono { width: 44px; height: 44px; }

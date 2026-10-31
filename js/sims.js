@@ -1,5 +1,5 @@
 /*
-  Simulaciones interactivas nuevas del sitio, dibujadas en canvas.
+  Simulaciones interactivas del sitio, dibujadas en canvas.
   Todas son ilustrativas: explican una idea con un modelo simple y no reemplazan
   las mediciones del robot real, que se citan desde la tesis en cada capítulo.
 
@@ -621,7 +621,7 @@
   V.encoder = function (el) {
     var P = paleta(), ang = 0, sentido = 1, VEL0 = 0.6, vel = VEL0, cuenta = 0, cuenta1 = 0, hist = [], prevA = null, prevB = null, polos = 6;
     el.innerHTML = '<div class="vctl"><button type="button" class="vbtn" data-a="anim" aria-pressed="false">Reproducir</button><div class="segmento" role="group" aria-label="Sentido de giro"><button type="button" data-s="1" aria-pressed="true">Adelante</button><button type="button" data-s="-1" aria-pressed="false">Atrás</button></div>' +
-      '<label class="desl-linea" for="en-v">Velocidad<b class="num" data-o="vel"></b><input id="en-v" type="range" min="0" max="1.5" step="0.05" value="' + VEL0 + '"></label><button type="button" class="vbtn sec" data-a="paso">Avanzar un paso</button><button type="button" class="vbtn sec" data-a="cero">Contador a cero</button></div>' +
+      '<label class="desl-linea" for="en-v">Velocidad de giro del disco<b class="num"><span data-o="vel"></span> rad/s</b><input id="en-v" type="range" min="0" max="1.5" step="0.05" value="' + VEL0 + '"></label><button type="button" class="vbtn sec" data-a="paso">Avanzar un paso</button><button type="button" class="vbtn sec" data-a="cero">Contador a cero</button></div>' +
       '<div class="en-l"></div>' +
       '<div class="lecturas"><div><span>Cuenta con los cuatro flancos de A y B</span><b data-o="c">0</b></div><div><span>Cuenta solo con las subidas de A</span><b data-o="c1">0</b></div><div><span>Orden de los flancos</span><b data-o="ord">A antes que B</b></div><div><span>Sentido detectado</span><b data-o="sen">adelante</b></div></div>' +
       '<p class="vestado" aria-live="polite" data-o="estado"></p>' +
@@ -672,7 +672,11 @@
       /* marca de flancos */
       ctx.fillStyle = rgba(P.verde, .9);
       hist.forEach(function (hv, i) { if (i && (hv[0] !== hist[i - 1][0] || hv[1] !== hist[i - 1][1])) { var x = x0 + i / 359 * w; ctx.fillRect(x - 1, H * .45, 2, H * .08); } });
-      ctx.fillStyle = P.muted; ctx.fillText("cada marca verde es un flanco contado", x0, H * .95);
+      /* en un teléfono la nota no cabe junto al disco: baja al borde izquierdo y, si aún no cabe, se abrevia */
+      var nota = "cada marca verde es un flanco contado", xn = x0;
+      if (xn + ctx.measureText(nota).width > W - 8) xn = 14;
+      if (xn + ctx.measureText(nota).width > W - 8) nota = "marca verde: flanco contado";
+      ctx.fillStyle = P.muted; ctx.fillText(nota, xn, H * .95);
     }
     /* llena el historial para que las señales se vean completas desde el inicio */
     (function () { for (var k = 0; k < 360; k++) { ang += VEL0 / 60; hist.push([canal(ang, 0), canal(ang, -Math.PI / 2)]); } prevA = hist[359][0]; prevB = hist[359][1]; dibujar(); })();
@@ -1008,13 +1012,17 @@
       '<label for="' + uid + '-o">Peso de alejarse de obstáculos<b class="num" data-v="obst"></b><input id="' + uid + '-o" type="range" min="0" max="64" step="1" data-k="obst"></label>' +
       '<label for="' + uid + '-ox">Obstáculo, posición x<b class="num" data-v="ox"></b><input id="' + uid + '-ox" type="range" min="0.1" max="' + (Wm - 0.1) + '" step="0.01" data-o-k="x"></label>' +
       '<label for="' + uid + '-oy">Obstáculo, posición y<b class="num" data-v="oy"></b><input id="' + uid + '-oy" type="range" min="0.1" max="' + (Hm - 0.1) + '" step="0.01" data-o-k="y"></label></div>' +
-      '<div class="dw-l"></div>' +
-      '<div class="vley"><span><i class="lin" style="background:#13A538"></i>ruta global</span><span><i class="lin azul"></i>trayectoria elegida</span><span><i class="lin" style="background:var(--line-2)"></i>candidatas, más oscuras si tienen mejor puntaje</span><span><i class="lin rojo"></i>descartadas por chocar</span><span><i class="cu" style="background:none;border:1px dashed var(--muted);border-radius:50%"></i>zona donde el obstáculo penaliza</span></div>' +
+      '<div class="dw-l"></div><div class="dw-z"></div>' +
+      '<div class="vley"><span><i class="lin" style="background:#13A538"></i>ruta global</span><span><i class="cu huella"></i>huella del robot configurada en Nav2, con su centro de giro</span><span><i class="lin azul"></i>trayectoria elegida</span><span><i class="lin" style="background:var(--line-2)"></i>candidatas, más marcadas cuanto mejor es su puntaje</span><span><i class="lin rojo"></i>descartadas por chocar</span><span><i class="cu" style="background:none;border:1px dashed var(--muted);border-radius:50%"></i>zona donde el obstáculo penaliza</span></div>' +
       '<div class="tabla-env"><table class="tabla dw-tabla"><caption>Puntaje de la trayectoria elegida, menor es mejor. Cada término es peso por medida.</caption><thead><tr><th>Criterio</th><th class="n">Medida</th><th class="n">Peso</th><th class="n">Aporte</th></tr></thead><tbody data-o="tabla"></tbody></table></div>' +
       '<p class="vestado" aria-live="polite" data-o="msg"></p>' +
       '<p class="vnota" id="' + uid + '-ayuda">Ilustrativo. Se prueban 7 velocidades lineales entre 0 y 0,15 m/s y 15 de giro entre ±0,35 rad/s, los límites que DWB tiene configurados en el robot real. Aquí cada candidata se proyecta 1,7 s hacia adelante para que el dibujo se lea, la configuración del robot real usa 3,5 s. Los pesos, la zona de 0,35 m donde el obstáculo penaliza y el margen de choque de 0,12 m son propios de esta demostración y no equivalen a las escalas de los críticos del robot real. El obstáculo aparece después de planificar la ruta global, por eso la ruta lo atraviesa. Muévelo con los deslizadores, arrastrándolo o con las flechas del teclado cuando el dibujo tiene el foco.</p>';
     var cont = el.querySelector(".dw-l"), L = lienzo(cont, Wm / Hm, function () { dibujar(); });
     L.cv.classList.add("arrastrable"); L.cv.tabIndex = 0; L.cv.setAttribute("role", "img"); L.cv.setAttribute("aria-describedby", uid + "-ayuda");
+    /* Las candidatas ocupan unos 26 cm y en la escena completa se ven diminutas en un teléfono: una segunda vista
+       muestra 50 cm de ancho alrededor del robot. */
+    var ANCHO_ZOOM = 0.5, LZ = lienzo(el.querySelector(".dw-z"), 1.8, function () { dibujar(); });
+    LZ.cv.setAttribute("role", "img"); LZ.cv.setAttribute("aria-label", "Vista ampliada alrededor del robot: las trayectorias candidatas, las descartadas y la elegida");
     alTema(function () { P = paleta(); dibujar(); });
     function evaluarCandidatas() {
       var out = [];
@@ -1032,29 +1040,61 @@
       }
       return out;
     }
-    function dibujar() {
-      var ctx = L.ctx, W = L.w, H = L.h, esc = Math.min(W / Wm, H / Hm);
-      function X(x) { return x * esc; } function Y(y) { return y * esc; }
+    /* Dibuja en el lienzo Lz con k píxeles por metro y el punto (x0, y0) del mundo en la esquina superior izquierda.
+       e trae las candidatas ya evaluadas. Con rótulo es la vista ampliada, que además lleva su escala. */
+    function escena(Lz, k, x0, y0, e, rotulo) {
+      var ctx = Lz.ctx, W = Lz.w, H = Lz.h, ampliada = !!rotulo, paso = ampliada ? .05 : .1;
+      function X(x) { return (x - x0) * k; } function Y(y) { return (y - y0) * k; }
+      function trazo(pts) { ctx.beginPath(); pts.forEach(function (p, i) { if (i) ctx.lineTo(X(p[0]), Y(p[1])); else ctx.moveTo(X(p[0]), Y(p[1])); }); ctx.stroke(); }
       ctx.clearRect(0, 0, W, H); ctx.fillStyle = P.sup; ctx.fillRect(0, 0, W, H);
-      ctx.strokeStyle = P.linea; ctx.lineWidth = 1; for (var g = 0; g <= 20; g++) { ctx.beginPath(); ctx.moveTo(X(g * .1), 0); ctx.lineTo(X(g * .1), H); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, Y(g * .1)); ctx.lineTo(W, Y(g * .1)); ctx.stroke(); }
-      ctx.strokeStyle = P.oscuro ? "#5BE07A" : "#13A538"; ctx.lineWidth = 3; ctx.beginPath(); ruta.forEach(function (p, i) { if (i) ctx.lineTo(X(p[0]), Y(p[1])); else ctx.moveTo(X(p[0]), Y(p[1])); }); ctx.stroke();
+      ctx.strokeStyle = P.linea; ctx.lineWidth = 1;
+      for (var gx = Math.ceil(x0 / paso - 1e-9) * paso; X(gx) <= W + .5; gx += paso) { ctx.beginPath(); ctx.moveTo(X(gx), 0); ctx.lineTo(X(gx), H); ctx.stroke(); }
+      for (var gy = Math.ceil(y0 / paso - 1e-9) * paso; Y(gy) <= H + .5; gy += paso) { ctx.beginPath(); ctx.moveTo(0, Y(gy)); ctx.lineTo(W, Y(gy)); ctx.stroke(); }
+      ctx.strokeStyle = P.oscuro ? "#5BE07A" : "#13A538"; ctx.lineWidth = 3; trazo(ruta);
+      /* zona de influencia del obstáculo en esta demostración */
+      ctx.setLineDash([4, 4]); ctx.strokeStyle = P.muted; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(X(obs.x), Y(obs.y), (obs.r + D_INFL) * k, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+      var rObs = obs.r * k;
+      ctx.fillStyle = P.obst; ctx.beginPath(); ctx.arc(X(obs.x), Y(obs.y), rObs, 0, Math.PI * 2); ctx.fill();
+      ctx.font = "700 11px Atkinson Hyperlegible, sans-serif"; ctx.textAlign = "center";
+      /* en un teléfono el círculo es más angosto que la palabra: entonces va debajo, en el color del texto */
+      if (ctx.measureText("obstáculo").width <= 2 * rObs - 6) { ctx.fillStyle = P.sup; ctx.fillText("obstáculo", X(obs.x), Y(obs.y) + 4); }
+      else { ctx.fillStyle = P.ink; ctx.fillText("obstáculo", X(obs.x), Y(obs.y) + rObs + 13); }
+      ctx.textAlign = "start";
+      /* La huella y el rumbo van debajo de las trayectorias: la huella mide 0,28 m y las candidatas avanzan a lo
+         más 0,26 m desde el centro de giro, así que dibujadas encima las tapaban casi enteras. */
+      var ala = ampliada ? 0.02 * k : 6;
+      ctx.save(); ctx.translate(X(rob.x), Y(rob.y)); ctx.rotate(rob.th);
+      ctx.fillStyle = rgba(P.azul, .12); ctx.strokeStyle = rgba(P.azul, .7); ctx.lineWidth = 1.5;
+      ctx.fillRect(-0.08 * k, -0.13 * k, 0.28 * k, 0.26 * k); ctx.strokeRect(-0.08 * k, -0.13 * k, 0.28 * k, 0.26 * k);
+      ctx.fillStyle = ampliada ? rgba(P.verdeV, .45) : P.verdeV; ctx.beginPath(); ctx.moveTo(0.24 * k, 0); ctx.lineTo(0.16 * k, -ala); ctx.lineTo(0.16 * k, ala); ctx.fill();
+      ctx.restore();
+      e.cs.forEach(function (c) {
+        if (c === e.mejor) return;
+        if (c.choca) { ctx.strokeStyle = rgba(P.rojo, .45); ctx.lineWidth = 1; ctx.setLineDash([3, 3]); }
+        else { var q = 1 - (c.s - e.mn) / Math.max(1e-9, e.mx - e.mn); ctx.strokeStyle = rgba(P.ink, 0.08 + 0.45 * q * q); ctx.lineWidth = ampliada ? 1.6 : 1.2; ctx.setLineDash([]); }
+        trazo(c.pts);
+      });
+      ctx.setLineDash([]);
+      if (e.mejor) { ctx.lineCap = "round"; ctx.strokeStyle = P.sup; ctx.lineWidth = 7; trazo(e.mejor.pts); ctx.strokeStyle = P.azul; ctx.lineWidth = 4; trazo(e.mejor.pts); ctx.lineCap = "butt"; }
+      ctx.fillStyle = P.sup; ctx.strokeStyle = P.ink; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(X(rob.x), Y(rob.y), 3.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      var meta = ruta[ruta.length - 1]; ctx.fillStyle = P.rojo; ctx.beginPath(); ctx.arc(X(meta[0]), Y(meta[1]), 6, 0, Math.PI * 2); ctx.fill();
+      if (ampliada) {
+        var e10 = 0.1 * k;
+        ctx.fillStyle = rgba(P.sup, .85); ctx.fillRect(6, 6, ctx.measureText(rotulo).width + 12, 20); ctx.fillRect(6, H - 30, e10 + 12, 24);
+        ctx.fillStyle = P.ink; ctx.fillText(rotulo, 12, 20);
+        ctx.strokeStyle = P.ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(12, H - 12); ctx.lineTo(12 + e10, H - 12); ctx.stroke();
+        ctx.font = "11px IBM Plex Mono, monospace"; ctx.fillText("10 cm", 12, H - 17);
+      }
+    }
+    function dibujar() {
       var cs = evaluarCandidatas(), val = cs.filter(function (c) { return !c.choca; }), mn = Infinity, mx = -Infinity;
       val.forEach(function (c) { mn = Math.min(mn, c.s); mx = Math.max(mx, c.s); });
       var mejor = null; val.forEach(function (c) { if (!mejor || c.s < mejor.s) mejor = c; });
-      cs.forEach(function (c) {
-        if (c === mejor) return;
-        if (c.choca) { ctx.strokeStyle = rgba(P.rojo, .45); ctx.lineWidth = 1; ctx.setLineDash([3, 3]); }
-        else { var k = 1 - (c.s - mn) / Math.max(1e-9, mx - mn); ctx.strokeStyle = rgba(P.ink, 0.08 + 0.45 * k * k); ctx.lineWidth = 1.2; ctx.setLineDash([]); }
-        ctx.beginPath(); c.pts.forEach(function (p, i) { if (i) ctx.lineTo(X(p[0]), Y(p[1])); else ctx.moveTo(X(p[0]), Y(p[1])); }); ctx.stroke();
-      });
-      ctx.setLineDash([]);
-      if (mejor) { ctx.strokeStyle = P.azul; ctx.lineWidth = 4; ctx.beginPath(); mejor.pts.forEach(function (p, i) { if (i) ctx.lineTo(X(p[0]), Y(p[1])); else ctx.moveTo(X(p[0]), Y(p[1])); }); ctx.stroke(); }
-      /* zona de influencia del obstáculo en esta demostración */
-      ctx.setLineDash([4, 4]); ctx.strokeStyle = P.muted; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(X(obs.x), Y(obs.y), (obs.r + D_INFL) * esc, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle = P.obst; ctx.beginPath(); ctx.arc(X(obs.x), Y(obs.y), obs.r * esc, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = P.sup; ctx.font = "700 11px Atkinson Hyperlegible, sans-serif"; ctx.textAlign = "center"; ctx.fillText("obstáculo", X(obs.x), Y(obs.y) + 4); ctx.textAlign = "start";
-      ctx.save(); ctx.translate(X(rob.x), Y(rob.y)); ctx.rotate(rob.th); ctx.fillStyle = P.azul; ctx.fillRect(-0.08 * esc, -0.13 * esc, 0.28 * esc, 0.26 * esc); ctx.fillStyle = P.verdeV; ctx.beginPath(); ctx.moveTo(0.24 * esc, 0); ctx.lineTo(0.16 * esc, -6); ctx.lineTo(0.16 * esc, 6); ctx.fill(); ctx.restore();
-      var meta = ruta[ruta.length - 1]; ctx.fillStyle = P.rojo; ctx.beginPath(); ctx.arc(X(meta[0]), Y(meta[1]), 6, 0, Math.PI * 2); ctx.fill();
+      var e = { cs: cs, mejor: mejor, mn: mn, mx: mx }, esc = Math.min(L.w / Wm, L.h / Hm), kz = LZ.w / ANCHO_ZOOM;
+      escena(L, esc, 0, 0, e, "");
+      /* la vista ampliada se centra 10 cm por delante del centro de giro, donde están las candidatas */
+      var zx = rob.x + 0.1 * Math.cos(rob.th), zy = rob.y + 0.1 * Math.sin(rob.th), veces = kz / esc;
+      escena(LZ, kz, zx - LZ.w / 2 / kz, zy - LZ.h / 2 / kz, e, "Vista ampliada " + (Math.abs(veces - Math.round(veces)) < .05 ? Math.round(veces) : fmt(veces, 1)) + " veces");
       /* lecturas */
       var dminTodas = Math.min.apply(null, cs.map(function (c) { return c.dmin; }));
       var influyen = cs.filter(function (c) { return !c.choca && c.cObs > 0; }).length;

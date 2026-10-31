@@ -7,21 +7,12 @@
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
     });
   };
-  /* marca los datos que solo el estudiante puede completar, escritos entre corchetes */
-  U.txt = function (s) {
-    return U.esc(s).replace(/\[([^\]]+)\]/g, '<mark class="completar" title="Dato que solo tú puedes completar">[$1]</mark>');
-  };
-  U.r1 = function (v) { return Math.round(v * 10 + 1e-9) / 10; };
   U.fmt = function (v, dec) {
     if (dec == null) dec = 1;
     var f = Math.pow(10, dec);
     return (Math.round(v * f + 1e-9) / f).toFixed(dec).replace(".", ",");
   };
-  U.nivel = function (v, om) { return om ? "omit" : (v < 4 ? "baja" : (v < 5.5 ? "media" : "alta")); };
-  U.prom = function (a) { if (!a.length) return null; var s = 0; a.forEach(function (x) { s += x; }); return s / a.length; };
   U.quieto = function () { return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches; };
-  U.guardar = function (k, v) { try { localStorage.setItem("sitio." + k, JSON.stringify(v)); } catch (e) {} };
-  U.leer = function (k, d) { try { var v = localStorage.getItem("sitio." + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } };
   /* redibujo al cambiar el ancho */
   var alAncho = [];
   U.alCambiarAncho = function (el, fn) {
@@ -52,7 +43,6 @@
     requestAnimationFrame(paso);
     return function () { vivo = false; };
   };
-  U.suave = function (k) { return k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2; };
   /* Iconos de cumple y no cumple. Viven aquí porque los usan interactivos de archivos distintos,
      y cada página carga solo los archivos de los interactivos que contiene. */
   U.ICO = {

@@ -268,7 +268,7 @@ def portada(nav):
       const s = document.getElementById('temas').getBoundingClientRect();
       const v = document.querySelector('.portada-media video');
       return { alto: Math.max(...t.map(x => x.height)), filas: t.every(x => x.width > 300), temas: s.height,
-               poster: v.getAttribute('poster'), controles: v.hasAttribute('controls'), ancho: document.documentElement.scrollWidth - innerWidth }; }""")
+               poster: v.getAttribute('poster'), controles: v.hasAttribute('controls'), ancho: document.documentElement.scrollWidth - document.documentElement.clientWidth }; }""")
     check(r['alto'] < 190 and r['filas'], 'teléfono: cada tema es una fila compacta de menos de 190 px (%d)' % r['alto'], r)
     check(r['temas'] < 2300, 'teléfono: la sección de temas mide %d px, antes unos 4 200' % r['temas'], r)
     check(r['poster'].endswith('.webp') and not r['controles'], 'el video de la portada muestra su portada WebP y usa el botón propio', r)
@@ -338,7 +338,7 @@ def decisiones(nav):
         ros.locator('button[data-alt="elegida"]').click()
         e = ros.evaluate('a => a.estadoDecision()')
         check(e['viendo'] == 'elegida' and any('nodo maestro' in t for t in e['activas']), '%s: Por qué ROS 2 resalta las razones de la elección' % nombre, e)
-        ancho = p.evaluate('document.documentElement.scrollWidth - innerWidth')
+        ancho = p.evaluate('document.documentElement.scrollWidth - document.documentElement.clientWidth')
         check(ancho <= 1, '%s: el comparador no desborda' % nombre, ancho)
         ctx.close()
     ctx = contexto(nav, java_script_enabled=False, **ESCRITORIO)
@@ -453,7 +453,7 @@ def bibliografia(nav):
     alto = p.locator('#b-filtro').evaluate('el => el.closest(".campo-buscar").getBoundingClientRect().height')
     r = p.evaluate("""() => { const d = document.getElementById('r-astrom2009'), f = d.querySelector('.bib-dl > div'), dt = f.querySelector('dt').getBoundingClientRect(),
       dd = f.querySelector('dd').getBoundingClientRect();
-      return { ancho: document.documentElement.scrollWidth - innerWidth, apilada: dd.top >= dt.bottom - 1 && Math.abs(dd.left - dt.left) < 2,
+      return { ancho: document.documentElement.scrollWidth - document.documentElement.clientWidth, apilada: dd.top >= dt.bottom - 1 && Math.abs(dd.left - dt.left) < 2,
                botones: [...d.querySelectorAll('.bib-copiar button')].map(b => Math.round(b.getBoundingClientRect().height)) }; }""")
     check(alto >= 44 and r['ancho'] <= 1 and r['apilada'] and len(r['botones']) == 2 and min(r['botones']) >= 44,
           'teléfono: el filtro y los botones para copiar miden al menos 44 px, la ficha va en una columna y un detalle abierto no desborda (%d)' % alto, r)
@@ -512,7 +512,7 @@ def tema_oscuro(nav):
     p.goto(BASE + '/index.html', wait_until='load')
     r = p.evaluate("""() => { const c = s => getComputedStyle(document.querySelector(s));
       return { banda: c('.banda').backgroundColor, pie: c('.pie').backgroundColor, lab: c('.cierre-lab').backgroundColor,
-               vt: c('#cabecera').viewTransitionName, ancho: document.documentElement.scrollWidth - innerWidth }; }""")
+               vt: c('#cabecera').viewTransitionName, ancho: document.documentElement.scrollWidth - document.documentElement.clientWidth }; }""")
     check(r['banda'] == r['lab'] == r['pie'] and r['banda'] != 'rgba(0, 0, 0, 0)', 'la banda, el laboratorio y el pie comparten el azul noche', r)
     check(r['vt'] == 'cabecera', 'la cabecera queda fija durante la transición entre páginas', r)
     check(r['ancho'] <= 1, 'tema oscuro: sin desborde horizontal', r)

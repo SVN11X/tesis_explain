@@ -10,19 +10,15 @@
 (function () {
   "use strict";
 
-  /* Enlace público a la tesis en PDF. Mientras esté vacío, el pie no muestra enlace y Recursos
-     dice que la tesis no está publicada. Pon aquí solo una dirección verificada, por ejemplo la
-     del repositorio institucional de la UTEM, nunca una copia sin procedencia. */
   /* Si datos/proyecto.js no llega (bloqueado, caché corrupta o archivo ausente), la cabecera,
      el pie y los respaldos deben seguir funcionando. El aviso estático del HTML conserva el estado. */
   var ACADEMICO = (window.PROYECTO && window.PROYECTO.academico) || {
     estado_texto: "En revisión por comité", tesis_pdf: null, version_documento: null, ultima_actualizacion_sitio: null, sinDatos: true
   };
+  /* Sin un enlace verificado en tesis_pdf, el pie no ofrece el PDF y Recursos dice que la tesis no está publicada. */
   var TESIS_PDF = ACADEMICO.tesis_pdf || "";
   /* Fecha de esta actualización de plataforma, independiente del documento y de los ensayos. */
   var REVISION = /^\d{4}-\d{2}-\d{2}$/.test(ACADEMICO.ultima_actualizacion_sitio || "") ? { iso: ACADEMICO.ultima_actualizacion_sitio, texto: new Date(ACADEMICO.ultima_actualizacion_sitio + "T12:00:00Z").toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }) } : null;
-  /* PENDIENTE AUTOR: identificador o fecha de la versión del documento de referencia.
-     Mientras esté vacía, la línea del pie queda oculta. */
   var VERSION_TESIS = ACADEMICO.version_documento || "";
   var REPO = "https://github.com/SVN11X/tesis_explain";
   var VIDEO_ID = "iTTC10eGDmc";
@@ -214,7 +210,7 @@
       '<p>Código bajo licencia <a href="' + REPO + '/blob/main/LICENSE">MIT</a> y contenido bajo <a href="https://creativecommons.org/licenses/by/4.0/deed.es">CC BY 4.0</a>, salvo las excepciones indicadas en <a href="recursos.html#creditos">Créditos</a>.</p>' +
       '<p><b>' + esc(ACADEMICO.estado_texto) + '.</b> El estado académico es distinto de la verificación de funcionamiento de un subsistema.</p>' +
       (REVISION ? '<p>Última actualización de la plataforma: <time datetime="' + REVISION.iso + '">' + REVISION.texto + '</time>.</p>' : '') +
-      (VERSION_TESIS ? '<p>Versión del documento de referencia: ' + esc(VERSION_TESIS) + '.</p>' : '<p hidden>Basado en la versión de la tesis del <!-- PENDIENTE AUTOR: versión del documento en datos/academico.json --></p>') + '</div>' +
+      (VERSION_TESIS ? '<p>Versión del documento de referencia: ' + esc(VERSION_TESIS) + '.</p>' : '') + '</div>' +
       '<div><h2>Temas</h2><ul>' + CAPS.map(function (c, i) { return '<li><a href="' + c.id + '.html">' + n2(i) + ' · ' + esc(c.t) + '</a></li>'; }).join("") + '</ul></div>' +
       '<div><h2>Más</h2><ul>' + EXTRAS.map(function (e) { return '<li><a href="' + e.id + '.html">' + esc(e.t) + '</a></li>'; }).join("") + '<li><a href="recursos.html#glosario">Glosario</a></li><li><a href="recursos.html#citar">Cómo citar</a></li><li><a href="recursos.html#autor">Sobre el autor</a></li><li><a href="recursos.html#abstract" hreflang="en">Abstract in English</a></li><li><a href="https://www.youtube.com/watch?v=' + VIDEO_ID + '">Video del robot en YouTube</a></li><li><a href="' + REPO + '">Código de este sitio</a></li><li><a href="' + REPO + '/issues">Reportar un error o sugerir una mejora</a></li></ul></div>' +
       '</div></footer>';
@@ -634,6 +630,7 @@
       if (indice) { cb(); return; }
       if (window.INDICE) { indice = window.INDICE; cb(); return; }
       if (cargando) return; cargando = true;
+      lista.innerHTML = '<li class="bus-vacio">Cargando el índice de búsqueda…</li>'; estado.textContent = "Cargando la búsqueda.";
       var s = document.createElement("script"); s.src = "datos/indice.js";
       s.onload = function () { cargando = false; indice = window.INDICE || []; cb(); };
       s.onerror = function () { cargando = false; s.remove(); lista.innerHTML = '<li class="bus-vacio">No se pudo cargar el índice. <button type="button" class="btn chico" data-reintentar>Reintentar</button> o consulta el <a href="index.html#temas">índice de temas</a>.</li>'; estado.textContent = "Error al cargar la búsqueda."; };
@@ -899,8 +896,6 @@
     document.querySelectorAll("details").forEach(function (d) { d.addEventListener("toggle", function () { if (d.open) revisar(); }); });
   }
 
-  /* Filtro del glosario en Recursos: escribe un término y quedan solo las definiciones que lo contienen.
-     Usa la misma normalización del buscador, sin tildes ni mayúsculas. */
   /* Filtro de una lista larga. Muestra solo lo que contiene todas las palabras escritas, sin distinguir
      tildes ni mayúsculas, y anuncia cuántos elementos quedan. */
   function filtroLista(o) {

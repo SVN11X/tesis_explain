@@ -2,6 +2,7 @@
   Regenera la figura estática que respalda «Ajusta un PID» cuando el interactivo no se monta.
   Usa el mismo modelo ilustrativo de js/control-modelo.js, así la figura no puede contradecir
   las lecturas del simulador. Desde la raíz: node herramientas/diagramas_control.js
+  Con --comprobar no escribe nada: falla si la figura guardada no coincide con el modelo.
   Solo utiliza módulos de Node, sin dependencias.
 */
 "use strict";
@@ -47,9 +48,15 @@ function cifras() {
 }
 
 if (require.main === module) {
-  fs.mkdirSync(destino, { recursive: true });
-  fs.writeFileSync(path.join(destino, "pid-respaldo.svg"), pidRespaldo() + "\n");
-  console.log("Generada pid-respaldo.svg");
-  cifras().forEach(function (c) { console.log("  " + c.nombre + ": final " + f(c.fin, 3) + " m/s, error " + f(c.err, 3) + ", sobreimpulso " + f(c.os, 1) + " %, subida " + (c.tr == null ? "no llega" : f(c.tr, 2) + " s")); });
+  var ruta = path.join(destino, "pid-respaldo.svg"), svg = pidRespaldo() + "\n";
+  if (process.argv.indexOf("--comprobar") >= 0) {
+    if (!fs.existsSync(ruta) || fs.readFileSync(ruta, "utf8") !== svg) { console.error("img/diagramas/pid-respaldo.svg no coincide con el modelo. Ejecuta node herramientas/diagramas_control.js"); process.exit(1); }
+    console.log("Figura del PID al día");
+  } else {
+    fs.mkdirSync(destino, { recursive: true });
+    fs.writeFileSync(ruta, svg);
+    console.log("Generada pid-respaldo.svg");
+    cifras().forEach(function (c) { console.log("  " + c.nombre + ": final " + f(c.fin, 3) + " m/s, error " + f(c.err, 3) + ", sobreimpulso " + f(c.os, 1) + " %, subida " + (c.tr == null ? "no llega" : f(c.tr, 2) + " s")); });
+  }
 }
 module.exports = { pidRespaldo: pidRespaldo, cifras: cifras };

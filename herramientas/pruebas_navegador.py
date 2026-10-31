@@ -173,7 +173,7 @@ def recorrer_paginas(nav, nombre, vista, extra):
               vis: [...document.querySelectorAll('[data-vis]')].filter(e => !e.closest('details:not([open])')).length,
               montados: [...document.querySelectorAll('[data-vis][data-montado]')].filter(e => !e.closest('details:not([open])')).length,
               rotos: [...document.querySelectorAll('[data-vis] .vis-fallback')].filter(e => !e.closest('details:not([open])')).length,
-              ancho: document.documentElement.scrollWidth - window.innerWidth,
+              ancho: document.documentElement.scrollWidth - document.documentElement.clientWidth,
               lateral: (() => { const l = document.getElementById('lateral'); return l ? l.children.length : -1; })(),
               navcap: (() => { const n = document.getElementById('nav-cap'); return n ? n.querySelectorAll('a').length : -1; })()
             })""")
@@ -187,6 +187,24 @@ def recorrer_paginas(nav, nombre, vista, extra):
         p.close()
     ctx.close()
     return
+
+
+def probar_anchos_moviles(nav):
+    """En un teléfono innerWidth crece con lo que desborda, así que se compara con el ancho del documento.
+    A 320 y 375 px con pantalla táctil cada botón de la cabecera mide 44 px."""
+    print('Teléfonos angostos')
+    for ancho in (320, 375):
+        ctx = contexto(nav, viewport={'width': ancho, 'height': 740}, is_mobile=True, has_touch=True)
+        for pag in PAGINAS:
+            p = ctx.new_page()
+            p.goto(BASE + '/' + pag, wait_until='load')
+            p.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+            p.wait_for_timeout(150)
+            r = p.evaluate("""() => ({ sobra: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+                                       menu: Math.round(document.getElementById('btn-menu').getBoundingClientRect().right) })""")
+            ok(r['sobra'] <= 1 and r['menu'] <= ancho, '%s a %d px: sin desplazamiento lateral y con el botón del menú en pantalla' % (pag, ancho), r)
+            p.close()
+        ctx.close()
 
 
 def probar_buscador(nav):
@@ -264,6 +282,25 @@ def probar_buscador(nav):
     ok('resultado' in estado, 'el número de resultados se anuncia a lectores de pantalla', estado)
     p.keyboard.press('Escape')
     ok(p.evaluate("!document.querySelector('dialog.buscador').open"), 'Escape cierra el buscador')
+    p.close()
+    # el índice queda retenido para ver el estado de carga, y después se suelta
+    retenidas = []
+    p = ctx0.new_page()
+    p.route('**/datos/indice.js', lambda r: retenidas.append(r))
+    p.goto(BASE + '/index.html')
+    p.click('#btn-buscar')
+    p.wait_for_selector('dialog.buscador[open]')
+    carga = p.text_content('dialog.buscador .bus-res')
+    ok('Cargando' in carga, 'mientras llega el índice, el buscador avisa que está cargando', carga)
+    for r in retenidas:
+        r.continue_()
+    p.fill('dialog.buscador input', 'odometria')
+    p.wait_for_selector('dialog.buscador .bus-res a')
+    p.keyboard.press('ArrowDown')
+    p.keyboard.press('ArrowDown')
+    m = p.evaluate("""() => [...document.querySelectorAll('dialog.buscador .bus-res a')].slice(0, 2).map(a => {
+      const s = getComputedStyle(a); return { foco: a === document.activeElement, fondo: s.backgroundColor, borde: s.outlineStyle }; })""")
+    ok(m[1]['foco'] and m[1]['borde'] != 'none' and m[0]['fondo'] == 'rgba(0, 0, 0, 0)', 'al bajar con las flechas solo el resultado enfocado queda marcado, con un borde', m)
     p.close()
 
 
@@ -396,11 +433,22 @@ def probar_dwb(nav):
     ok('no aporta nada' in msg, 'el texto explica por qué el aporte es cero', msg)
     filas = p.locator(sel + ' [data-o="tabla"] tr').count()
     ok(filas == 4, 'la tabla muestra los tres términos y el total')
+    # Antes la huella se pintaba opaca y del mismo azul sobre las candidatas: unos 12 000 píxeles azules
+    # en el dibujo principal. Ahora solo la trayectoria elegida es azul pleno, en ambas vistas.
+    px = p.evaluate("""s => {
+      const el = document.querySelector(s), n = parseInt(getComputedStyle(el).getPropertyValue('--azul').trim().slice(1), 16);
+      const c = [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+      const azules = cv => { const d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data; let k = 0;
+        for (let i = 0; i < d.length; i += 4) if (Math.abs(d[i] - c[0]) < 12 && Math.abs(d[i + 1] - c[1]) < 12 && Math.abs(d[i + 2] - c[2]) < 12 && d[i + 3] > 240) k++;
+        return k; };
+      return { principal: azules(el.querySelector('.dw-l canvas')), ampliada: azules(el.querySelector('.dw-z canvas')) };
+    }""", sel)
+    ok(px['principal'] < 2000 and px['ampliada'] > 150, 'la huella no tapa las candidatas y la vista ampliada muestra la trayectoria elegida', px)
     p.click(sel + ' [data-e="cerca"]')
     ok(p.get_attribute(sel + ' [data-e="cerca"]', 'aria-pressed') == 'true', 'los escenarios predefinidos se marcan como activos')
     p.fill(sel + ' input[data-o-k="x"]', '1.5')
     ok(con({})['obs']['x'] == 1.5, 'el deslizador mueve el obstáculo sin arrastrar')
-    p.locator(sel + ' canvas').focus()
+    p.locator(sel + ' .dw-l canvas').focus()
     p.keyboard.press('ArrowUp')
     ok(abs(con({})['obs']['y'] - 0.71) < 1e-9, 'las flechas mueven el obstáculo')
     ok(p.get_attribute(sel + ' [data-e="cerca"]', 'aria-pressed') == 'false', 'al mover el obstáculo el escenario deja de marcarse')
@@ -559,7 +607,7 @@ def probar_plegados(nav):
     p.wait_for_timeout(400)
     r = p.evaluate("""() => { const el = document.querySelector('[data-vis=windup]'), svg = el.querySelector('svg');
       return { abierto: document.getElementById('windup-tecnico').closest('details').open, svg: svg ? svg.getBoundingClientRect().width : 0, caja: el.getBoundingClientRect().width,
-               ancho: document.documentElement.scrollWidth - innerWidth }; }""")
+               ancho: document.documentElement.scrollWidth - document.documentElement.clientWidth }; }""")
     ok(r['abierto'], 'al cambiar el ancla a un bloque plegado, el details se abre')
     ok(0 < r['svg'] <= r['caja'] + 1 and r['ancho'] <= 1, 'el interactivo de windup toma el ancho de su contenedor al llegar al detalle', r)
     # resultado del buscador hacia un bloque plegado de la misma página
@@ -628,8 +676,9 @@ def probar_ampliar(nav):
 def probar_tactil(nav):
     print('Controles en un teléfono de 390 por 844')
     ctx = contexto(nav, viewport={'width': 390, 'height': 844}, has_touch=True, is_mobile=True, device_scale_factor=2)
-    sel = '.lateral a, .miga a, .b-ctl, .cab button, .cab a.btn-icono, .b-ampliar, .vbtn, .chip, .segmento button, details.detalle > summary, details.pregunta > summary, .q-herramientas .btn, .q-interruptor'
-    for pag in ['index.html', 'robot.html', 'movimiento.html', 'control.html', 'navegacion.html', 'exploracion.html', 'resultados.html', 'preguntas.html', 'recursos.html']:
+    sel = ('.lateral a, .lateral details > summary, .miga a, .b-ctl, .cab button, .cab a.btn-icono, .marca, .b-ampliar, .vbtn, .chip, .segmento button, '
+           'details.detalle > summary, details.pregunta > summary, .q-herramientas .btn, .q-interruptor, a.etiqueta, .cifra a.fuente')
+    for pag in ['index.html', 'robot.html', 'movimiento.html', 'control.html', 'navegacion.html', 'exploracion.html', 'resultados.html', 'preguntas.html', 'recursos.html', 'bibliografia.html']:
         p = ctx.new_page()
         p.goto(BASE + '/' + pag)
         p.wait_for_timeout(250)
@@ -642,7 +691,7 @@ def probar_tactil(nav):
         r = p.evaluate("""(sel) => { const out = [], n = { total: 0 };
           document.querySelectorAll(sel).forEach(el => { const rc = el.getBoundingClientRect(); if (!rc.width || !rc.height || el.closest('[hidden]')) return;
             n.total++; if (rc.height < 43.5) out.push((el.className || el.tagName) + ' ' + (el.textContent || '').trim().slice(0, 20) + ' ' + rc.height.toFixed(1)); });
-          return { total: n.total, chicos: out, ancho: document.documentElement.scrollWidth - innerWidth }; }""", sel)
+          return { total: n.total, chicos: out, ancho: document.documentElement.scrollWidth - document.documentElement.clientWidth }; }""", sel)
         ok(r['total'] > 3 and not r['chicos'], '%s: %d controles miden al menos 44 px de alto' % (pag, r['total']), r['chicos'][:6])
         ok(r['ancho'] <= 1, '%s: sin desborde horizontal en el teléfono' % pag, r['ancho'])
         p.close()
@@ -694,7 +743,7 @@ def probar_vistas(nav):
         ok(est()['id'] == 'planta', '%s: arrastrar hacia la derecha con el ratón vuelve a la anterior' % nombre, est())
         alts = p.evaluate("""s => { const el = document.querySelector(s), out = []; for (let k = 0; k < 4; k++) { el.querySelectorAll('.visor-ctl button')[k].click(); out.push(el.estadoVista().alt); } return out; }""", sel)
         ok(len(set(alts)) == 4 and all('negra' in a and ('LiDAR' in a) for a in alts), '%s: cada vista tiene su propio texto alternativo' % nombre, alts)
-        ancho = p.evaluate('document.documentElement.scrollWidth - innerWidth')
+        ancho = p.evaluate('document.documentElement.scrollWidth - document.documentElement.clientWidth')
         ok(ancho <= 1, '%s: el visor no desborda la página' % nombre, ancho)
         ctx.close()
 
@@ -776,7 +825,7 @@ def probar_cabecera(nav):
         p.click('.nav-btn')
         r = p.evaluate("""() => { const m = document.getElementById('menu-guia'), rm = m.getBoundingClientRect(), w = document.querySelector('.cab .wrap');
           return { izq: rm.left, der: rm.right, abajo: rm.bottom, ancho: document.documentElement.clientWidth, alto: innerHeight, visible: !m.hidden,
-                   desborde: w.scrollWidth - w.clientWidth, pagina: document.documentElement.scrollWidth - innerWidth,
+                   desborde: w.scrollWidth - w.clientWidth, pagina: document.documentElement.scrollWidth - document.documentElement.clientWidth,
                    enlaces: m.querySelectorAll('a').length }; }""")
         ok(r['visible'] and r['izq'] >= 0 and r['der'] <= r['ancho'] and r['abajo'] <= r['alto'], '%d px: el panel de Temas cabe completo en la pantalla' % ancho, r)
         ok(r['desborde'] <= 0 and r['pagina'] <= 1, '%d px: la barra de navegación no se desborda' % ancho, r)
@@ -904,7 +953,7 @@ def probar_preguntas(nav):
     p = ctx.new_page()
     p.goto(BASE + '/preguntas.html#p-inflacion')
     p.wait_for_timeout(500)
-    r = p.evaluate("(() => { const d = document.getElementById('p-inflacion'), rc = d.getBoundingClientRect(), cab = document.querySelector('.cab').getBoundingClientRect(); return { abierta: d.open, top: rc.top, cab: cab.bottom, alto: innerHeight, ancho: document.documentElement.scrollWidth - innerWidth }; })()")
+    r = p.evaluate("(() => { const d = document.getElementById('p-inflacion'), rc = d.getBoundingClientRect(), cab = document.querySelector('.cab').getBoundingClientRect(); return { abierta: d.open, top: rc.top, cab: cab.bottom, alto: innerHeight, ancho: document.documentElement.scrollWidth - document.documentElement.clientWidth }; })()")
     ok(r['abierta'] and r['cab'] - 1 <= r['top'] < r['alto'] and r['ancho'] <= 1, 'teléfono: un enlace directo abre la pregunta y la deja bajo la cabecera fija', r)
     ctx.close()
     # sin JavaScript todo se puede leer
@@ -924,6 +973,7 @@ with sync_playwright() as pw:
     recorrer_paginas(nav, 'escritorio', {'width': 1366, 'height': 900}, {})
     recorrer_paginas(nav, 'móvil', {'width': 390, 'height': 844}, {'has_touch': True, 'is_mobile': True, 'device_scale_factor': 2})
     recorrer_paginas(nav, 'movimiento reducido', {'width': 1280, 'height': 900}, {'reduced_motion': 'reduce'})
+    probar_anchos_moviles(nav)
     probar_buscador(nav)
     probar_terminos(nav)
     probar_inflacion(nav)

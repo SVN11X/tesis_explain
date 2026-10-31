@@ -62,7 +62,7 @@ with sync_playwright() as pw:
             p.locator('[data-vis="%s"]' % v).scroll_into_view_if_needed()
             p.wait_for_selector('[data-vis="%s"][data-montado="1"]' % v)
         check(not errors, name + ': los %d interactivos del capítulo montan sin errores' % (len(visuales) + 2))
-        check(p.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), name + ': no hay desborde horizontal')
+        check(p.evaluate('document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1'), name + ': no hay desborde horizontal')
         check(p.locator('[data-vis][data-montado] .vis-fallback').count() == 0, name + ': no quedan errores de montaje o fallbacks visibles')
         ancho = p.locator('[data-vis="lazo-rueda"] .lr-dibujo').evaluate('el => el.clientWidth')
         check(p.locator('[data-vis="lazo-rueda"] .lr-angosto').count() == (1 if ancho < 620 else 0), name + ': el lazo usa la disposición %s' % ('vertical' if ancho < 620 else 'horizontal'))
@@ -147,7 +147,7 @@ with sync_playwright() as pw:
         check('Después · dos decimales\n0,14 m/s' in text_of(p, 'resolucion'), name + ': el dato publicado cambia al cruzar el umbral de redondeo')
         check(p.locator('[data-vis=resolucion] .re-muestras li').count() == 10 and '0,128 m/s' in text_of(p, 'resolucion'), name + ': se explica el promedio con diez muestras etiquetadas como ejemplo')
         check(not errors, name + ': todos los cambios de controles terminaron sin errores')
-        check(p.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), name + ': sigue sin desborde después de interactuar')
+        check(p.evaluate('document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1'), name + ': sigue sin desborde después de interactuar')
         for v in visuales:
             dims = p.locator('[data-vis="%s"] svg' % v).evaluate_all('els => els.map(el => ({w:el.getBoundingClientRect().width, c:el.closest(".vis").getBoundingClientRect().width}))')
             check(all(d['w'] <= d['c'] + 1 for d in dims), name + ': gráficos contenidos en ' + v)

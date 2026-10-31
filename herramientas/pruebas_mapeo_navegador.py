@@ -65,7 +65,7 @@ with sync_playwright() as pw:
             p.locator('[data-vis="%s"]' % v).scroll_into_view_if_needed()
             p.wait_for_selector('[data-vis="%s"][data-montado="1"]' % v)
         check(not errors, name + ': los diez interactivos del capítulo montan sin errores')
-        check(p.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), name + ': no hay desborde horizontal')
+        check(p.evaluate('document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1'), name + ': no hay desborde horizontal')
         check(p.locator('[data-vis][data-montado] .vis-fallback').count() == 0, name + ': no quedan fallbacks visibles')
         check(p.locator('.vis svg style').count() == 0, name + ': los SVG en línea no traen estilos que afecten al resto de la página')
 
@@ -178,7 +178,7 @@ with sync_playwright() as pw:
             check(fill != 'rgb(30, 38, 50)', name + ': los textos de los dibujos usan el color del tema oscuro')
 
         check(not errors, name + ': todos los cambios de controles terminaron sin errores')
-        check(p.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), name + ': sigue sin desborde después de interactuar')
+        check(p.evaluate('document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1'), name + ': sigue sin desborde después de interactuar')
         for v in visuales:
             dims = p.locator('[data-vis="%s"] svg' % v).evaluate_all('els => els.map(el => ({w:el.getBoundingClientRect().width, c:el.closest(".vis").getBoundingClientRect().width}))')
             check(all(d['w'] <= d['c'] + 1 for d in dims), name + ': dibujos contenidos en ' + v)

@@ -80,7 +80,7 @@ with sync_playwright() as pw:
             p.wait_for_selector('[data-vis="%s"][data-montado="1"]' % v)
         check(not errors, name + ': los siete interactivos del capítulo 3 montan sin errores', errors[:3])
         check(p.locator('[data-vis][data-montado] .vis-fallback').count() == 0, name + ': no quedan textos de respaldo visibles')
-        check(p.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), name + ': no hay desborde horizontal')
+        check(p.evaluate('document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1'), name + ': no hay desborde horizontal')
 
         # cinemática
         t = text_of(p, 'cinematica')
@@ -162,7 +162,7 @@ with sync_playwright() as pw:
         check(abs(e['sep'] - 0.021) < 1e-9 and p.locator('[data-vis=cuadrado] [aria-pressed=true]').count() == 0, name + ': con el teclado se ajusta la separación y el caso deja de estar marcado', e)
 
         check(not errors, name + ': los cambios del capítulo 3 terminaron sin errores', errors[:3])
-        check(p.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), name + ': sigue sin desborde después de interactuar')
+        check(p.evaluate('document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1'), name + ': sigue sin desborde después de interactuar')
         fuera = contenidos(p, VIS_MOV)
         check(fuera is None, name + ': gráficos contenidos en su recuadro', fuera)
         term = p.locator('.term').filter(has_text=re.compile(r'^centro de giro$')).first
@@ -208,7 +208,7 @@ with sync_playwright() as pw:
         p.keyboard.press('Enter')
         check(estado(p, 'astar', 'estadoAstar')['k'] == 1, name + ': con teclado se avanza un paso desde el inicio')
         check(not errors, name + ': A estrella sin errores', errors[:3])
-        check(p.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), name + ': navegación sin desborde horizontal')
+        check(p.evaluate('document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1'), name + ': navegación sin desborde horizontal')
         ctx.close()
     browser.close()
 if server:
