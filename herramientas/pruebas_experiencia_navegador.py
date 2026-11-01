@@ -35,7 +35,7 @@ else:
     BASE = 'http://localhost:%d' % server.server_port
 count = 0
 EN_GITHUB = os.environ.get('GITHUB_ACTIONS') == 'true'
-PAGINAS = sorted(p.name for p in ROOT.glob('*.html'))
+PAGINAS = sorted(p.name for p in ROOT.glob('*.html') if p.name not in ('index.html', 'laboratorios.html'))
 MODULOS_VIS = ['vis1.js', 'vis2.js', 'vis3.js', 'sims.js', 'mapeo.js', 'movimiento.js', 'evidencia.js', 'slam-proceso.js']
 MOVIL = {'viewport': {'width': 390, 'height': 844}, 'is_mobile': True, 'has_touch': True, 'device_scale_factor': 2}
 ESCRITORIO = {'viewport': {'width': 1366, 'height': 900}}
@@ -72,7 +72,7 @@ def contexto(nav, **kw):
 
 
 def estatico():
-    print('HTML de las 16 páginas')
+    print('HTML de los capítulos originales; portada y laboratorio en pruebas_redisenio_navegador.py')
     sin_estilo, sin_precarga, con_modulo, videos_mal, titulos = [], [], [], [], []
     for pag in PAGINAS:
         html = (ROOT / pag).read_text(encoding='utf-8')
@@ -97,8 +97,6 @@ def estatico():
     check(not con_modulo, 'ninguna página carga los archivos de interactivos al abrirse', con_modulo)
     check(not videos_mal, 'los videos en bucle no se descargan solos y tienen controles sin JavaScript', videos_mal)
     check(not titulos, 'las tarjetas de decisión usan h3 bajo el h2 de su sección', titulos)
-    hero = BeautifulSoup((ROOT / 'index.html').read_text(encoding='utf-8'), 'html.parser').select_one('.foto-robot source')
-    check('robot-lateral-800.webp 800w' in hero.get('srcset', '') and hero.get('sizes'), 'la foto de la portada ofrece una versión de 800 px con sizes')
     deslizar = BeautifulSoup((ROOT / 'control.html').read_text(encoding='utf-8'), 'html.parser').select('.deslizar img')
     check(len(deslizar) == 2 and all(i.get('loading') == 'lazy' for i in deslizar), 'el comparador del PSO carga sus imágenes al acercarse')
     # bibliografía de la tesis: página propia, con cada referencia en una línea de resumen que se abre con su detalle
@@ -167,7 +165,7 @@ def manifiesto(nav):
     ctx = contexto(nav, **ESCRITORIO)
     p = ctx.new_page()
     faltan = []
-    p.goto(BASE + '/index.html')
+    p.goto(BASE + '/problema.html')
     modulos = p.evaluate('window.SITIO.MODULOS')
     registrados = {n for lista in modulos.values() for n in lista.split()}
     for pag in PAGINAS:
@@ -196,7 +194,7 @@ def manifiesto(nav):
 def fuentes_y_cls(nav):
     print('Fuentes lentas sin desplazamientos')
     for nombre, kw in [('teléfono', MOVIL), ('escritorio', ESCRITORIO)]:
-        for pag in ['index.html', 'control.html', 'preguntas.html']:
+        for pag in ['problema.html', 'control.html', 'preguntas.html']:
             ctx = contexto(nav, **kw)
             ctx.add_init_script(OBSERVADOR_CLS)
 
@@ -253,58 +251,6 @@ def titulos(nav):
     distintos = ['%s a %d px' % (pag, w) for pag in temas for w, a, b in zip(anchos, respaldo[pag], web[pag]) if a != b]
     check(not distintos, 'entre 320 y 480 px, el título de cada tema ocupa las mismas líneas con el respaldo (%s) que con Archivo'
           % ', '.join(sorted(f.strip('"') for f in usados)), distintos[:10])
-
-
-def portada(nav):
-    print('Portada')
-    ctx = contexto(nav, **MOVIL)
-    p = ctx.new_page()
-    pedidos = []
-    p.on('request', lambda r: pedidos.append((time.time(), r.url)))
-    t0 = time.time()
-    p.goto(BASE + '/index.html', wait_until='load')
-    t_load = time.time()
-    r = p.evaluate("""() => { const t = [...document.querySelectorAll('.tarjeta-tema')].map(a => a.getBoundingClientRect());
-      const s = document.getElementById('temas').getBoundingClientRect();
-      const v = document.querySelector('.portada-media video');
-      return { alto: Math.max(...t.map(x => x.height)), filas: t.every(x => x.width > 300), temas: s.height,
-               poster: v.getAttribute('poster'), controles: v.hasAttribute('controls'), ancho: document.documentElement.scrollWidth - document.documentElement.clientWidth }; }""")
-    check(r['alto'] < 190 and r['filas'], 'teléfono: cada tema es una fila compacta de menos de 190 px (%d)' % r['alto'], r)
-    check(r['temas'] < 2300, 'teléfono: la sección de temas mide %d px, antes unos 4 200' % r['temas'], r)
-    check(r['poster'].endswith('.webp') and not r['controles'], 'el video de la portada muestra su portada WebP y usa el botón propio', r)
-    check(r['ancho'] <= 1, 'teléfono: la portada no desborda', r['ancho'])
-    temprano = [u for (t, u) in pedidos if u.endswith('.mp4') and t < t_load + 0.5]
-    check(not temprano, 'el video de la portada no se descarga junto con la página', temprano)
-    p.locator('.portada-media .inset').scroll_into_view_if_needed()
-    p.wait_for_function("() => { const v = document.querySelector('.portada-media video'); return v && !v.paused; }", timeout=12000)
-    check(True, 'el video de la portada corre cuando está a la vista y el navegador quedó libre')
-    # simulación del ciclo en azul noche
-    p.locator('#sim-hero').scroll_into_view_if_needed()
-    p.wait_for_selector('#sim-hero[data-montado="1"]', timeout=10000)
-    p.wait_for_timeout(400)
-    fondo = p.evaluate("""() => { const c = document.querySelector('#sim-hero canvas'), x = c.getContext('2d');
-      const d = x.getImageData(4, 4, 1, 1).data; return [d[0], d[1], d[2]]; }""")
-    check(sum(fondo) < 200 and fondo[2] > fondo[0], 'la simulación de la portada se dibuja con el fondo azul noche', fondo)
-    barrido = p.evaluate("""() => { const s = getComputedStyle(document.querySelector('.portada-media .escaneo'), '::after');
-      return { dur: parseFloat(s.animationDuration) + parseFloat(s.animationDelay), veces: s.animationIterationCount, nombre: s.animationName }; }""")
-    check(barrido['nombre'] == 'barrer' and barrido['dur'] <= 5 and barrido['veces'] == '1', 'el barrido del LiDAR dura menos de 5 s y no se repite', barrido)
-    ctx.close()
-    ctx = contexto(nav, reduced_motion='reduce', **MOVIL)
-    p = ctx.new_page()
-    p.goto(BASE + '/index.html', wait_until='load')
-    p.wait_for_timeout(1800)
-    r = p.evaluate("""() => { const v = document.querySelector('.portada-media video');
-      return { pausado: v.paused, poster: v.getAttribute('poster'), barrido: getComputedStyle(document.querySelector('.portada-media .escaneo'), '::after').animationName,
-               aparicion: getComputedStyle(document.querySelector('.tarjeta-tema')).animationName }; }""")
-    check(r['pausado'] and r['poster'] and r['barrido'] == 'none' and r['aparicion'] == 'none', 'con movimiento reducido no hay barrido, aparición ni video en marcha', r)
-    ctx.close()
-    ctx = contexto(nav, java_script_enabled=False, **MOVIL)
-    p = ctx.new_page()
-    p.goto(BASE + '/index.html')
-    r = p.evaluate("""() => { const v = document.querySelector('.portada-media video');
-      return { controles: v.hasAttribute('controls'), poster: !!v.getAttribute('poster'), visibles: [...document.querySelectorAll('.tarjeta-tema')].every(a => a.getBoundingClientRect().height > 0) }; }""")
-    check(r['controles'] and r['poster'] and r['visibles'], 'sin JavaScript el video se puede reproducir a mano y los temas se ven', r)
-    ctx.close()
 
 
 def decisiones(nav):
@@ -505,24 +451,10 @@ def bibliografia(nav):
     ctx.close()
 
 
-def tema_oscuro(nav):
-    print('Tema oscuro e identidad')
-    ctx = contexto(nav, color_scheme='dark', **ESCRITORIO)
-    p = ctx.new_page()
-    p.goto(BASE + '/index.html', wait_until='load')
-    r = p.evaluate("""() => { const c = s => getComputedStyle(document.querySelector(s));
-      return { banda: c('.banda').backgroundColor, pie: c('.pie').backgroundColor, lab: c('.cierre-lab').backgroundColor,
-               vt: c('#cabecera').viewTransitionName, ancho: document.documentElement.scrollWidth - document.documentElement.clientWidth }; }""")
-    check(r['banda'] == r['lab'] == r['pie'] and r['banda'] != 'rgba(0, 0, 0, 0)', 'la banda, el laboratorio y el pie comparten el azul noche', r)
-    check(r['vt'] == 'cabecera', 'la cabecera queda fija durante la transición entre páginas', r)
-    check(r['ancho'] <= 1, 'tema oscuro: sin desborde horizontal', r)
-    ctx.close()
-
-
 with sync_playwright() as pw:
     estatico()
     nav = pw.chromium.launch()
-    for prueba in (manifiesto, fuentes_y_cls, titulos, portada, decisiones, glosario_y_menu, bibliografia, tema_oscuro):
+    for prueba in (manifiesto, fuentes_y_cls, titulos, decisiones, glosario_y_menu, bibliografia):
         prueba(nav)
     nav.close()
 if server:

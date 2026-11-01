@@ -30,6 +30,11 @@ for name, soup in pages.items():
             if u.scheme or u.netloc:
                 continue
             target = unquote(u.path) or name
+            # Astro publica bajo el prefijo de proyecto de GitHub Pages.
+            if target.startswith('/tesis_explain/'):
+                target = target[len('/tesis_explain/'):] or 'index.html'
+            elif target == '/tesis_explain':
+                target = 'index.html'
             check((ROOT/target).exists(), name + ': recurso inexistente ' + raw)
             if u.fragment and target in pages:
                 check(pages[target].find(id=unquote(u.fragment)) is not None, name + ': ancla inexistente ' + raw)

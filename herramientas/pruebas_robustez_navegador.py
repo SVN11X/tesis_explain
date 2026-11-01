@@ -59,7 +59,7 @@ with sync_playwright() as pw:
     ctx = browser.new_context(viewport=dict(width=1366, height=900), reduced_motion='reduce')
     ctx.route(EXTERNO, lambda r: r.fulfill(status=200, body=''))
     ctx.route('**/datos/proyecto.js', lambda r: r.fulfill(status=404, body=''))
-    for pagina in ['index.html', 'control.html', 'mapeo.html', 'recursos.html']:
+    for pagina in ['problema.html', 'control.html', 'mapeo.html', 'recursos.html']:
         p = ctx.new_page(); errores = []
         p.on('pageerror', lambda e: errores.append(str(e)))
         p.goto(BASE + '/' + pagina); recorrer(p)
@@ -78,7 +78,7 @@ with sync_playwright() as pw:
     ctx.route(EXTERNO, lambda r: r.fulfill(status=200, body=''))
     ctx.add_init_script('''(() => { const orig = window.matchMedia.bind(window);
       window.matchMedia = q => { const m = orig(q); return { get matches() { return m.matches; }, media: m.media, addListener: f => m.addListener(f), removeListener: f => m.removeListener(f) }; }; })();''')
-    for pagina in ['mapeo.html', 'navegacion.html', 'index.html']:
+    for pagina in ['mapeo.html', 'navegacion.html', 'problema.html']:
         p = ctx.new_page(); errores = []
         p.on('pageerror', lambda e: errores.append(str(e)))
         p.goto(BASE + '/' + pagina); recorrer(p)

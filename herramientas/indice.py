@@ -25,7 +25,7 @@ import json, os, re, sys
 from bs4 import BeautifulSoup
 
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..') + os.sep
-ORDEN = ['index', 'problema', 'robot', 'movimiento', 'control', 'mapeo', 'navegacion', 'exploracion',
+ORDEN = ['index', 'laboratorios', 'problema', 'robot', 'movimiento', 'control', 'mapeo', 'navegacion', 'exploracion',
          'gemelo', 'resultados', 'replicar', 'mundo-real', 'lecciones', 'preguntas', 'laboratorio', 'recursos',
          'bibliografia']
 # Filas de la ficha de una referencia que el buscador indexa. Las demás, como el acceso o la procedencia,

@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
         with:
-          node-version: '22'
+          node-version: '24'
       - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
@@ -26,6 +26,14 @@ jobs:
           python -m playwright install --with-deps chromium
       - name: Datos, índice y enlaces
         run: python herramientas/verificar_sitio.py
+      - name: Nueva experiencia Astro y Svelte
+        run: |
+          npm ci
+          npm run check
+          npm run test:lidar
+          npm run build
+          python herramientas/indice.py
+          git diff --exit-code -- index.html laboratorios.html _astro datos/indice.js
       - name: Ejemplos sintéticos y figuras de respaldo al día
         run: |
           node herramientas/ejemplos_laboratorio.js --comprobar
@@ -52,3 +60,4 @@ jobs:
           python herramientas/pruebas_evidencia_navegador.py
           python herramientas/pruebas_navegador.py
           python herramientas/pruebas_experiencia_navegador.py
+          python herramientas/pruebas_redisenio_navegador.py

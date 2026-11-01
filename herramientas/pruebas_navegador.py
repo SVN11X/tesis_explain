@@ -41,7 +41,7 @@ else:
     server = ThreadingHTTPServer(('127.0.0.1', 0), partial(QuietHandler, directory=REPO))
     Thread(target=server.serve_forever, daemon=True).start()
     BASE = 'http://localhost:%d' % server.server_port
-PAGINAS = sorted(os.path.basename(p) for p in glob.glob(os.path.join(REPO, '*.html')))
+PAGINAS = sorted(os.path.basename(p) for p in glob.glob(os.path.join(REPO, '*.html')) if os.path.basename(p) not in ('index.html', 'laboratorios.html'))
 fallos, total = [], 0
 
 
@@ -211,7 +211,7 @@ def probar_buscador(nav):
     print('Buscador')
     ctx0 = contexto(nav, )
     p = ctx0.new_page()
-    p.goto(BASE + '/index.html')
+    p.goto(BASE + '/problema.html')
     p.add_script_tag(url=BASE + '/datos/indice.js')
     r = p.evaluate("""() => {
       const B = SITIO.busqueda, I = window.INDICE;
@@ -287,7 +287,7 @@ def probar_buscador(nav):
     retenidas = []
     p = ctx0.new_page()
     p.route('**/datos/indice.js', lambda r: retenidas.append(r))
-    p.goto(BASE + '/index.html')
+    p.goto(BASE + '/problema.html')
     p.click('#btn-buscar')
     p.wait_for_selector('dialog.buscador[open]')
     carga = p.text_content('dialog.buscador .bus-res')
@@ -678,7 +678,7 @@ def probar_tactil(nav):
     ctx = contexto(nav, viewport={'width': 390, 'height': 844}, has_touch=True, is_mobile=True, device_scale_factor=2)
     sel = ('.lateral a, .lateral details > summary, .miga a, .b-ctl, .cab button, .cab a.btn-icono, .marca, .b-ampliar, .vbtn, .chip, .segmento button, '
            'details.detalle > summary, details.pregunta > summary, .q-herramientas .btn, .q-interruptor, a.etiqueta, .cifra a.fuente')
-    for pag in ['index.html', 'robot.html', 'movimiento.html', 'control.html', 'navegacion.html', 'exploracion.html', 'resultados.html', 'preguntas.html', 'recursos.html', 'bibliografia.html']:
+    for pag in ['problema.html', 'robot.html', 'movimiento.html', 'control.html', 'navegacion.html', 'exploracion.html', 'resultados.html', 'preguntas.html', 'recursos.html', 'bibliografia.html']:
         p = ctx.new_page()
         p.goto(BASE + '/' + pag)
         p.wait_for_timeout(250)

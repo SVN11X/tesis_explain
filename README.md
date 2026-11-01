@@ -6,6 +6,34 @@ Guía abierta sobre el trabajo de titulación **"Navegación y exploración aut�
 
 **Sitio:** https://svn11x.github.io/tesis_explain/
 
+## Nueva experiencia visual, primera entrega
+
+La portada y `laboratorios.html` estrenan una dirección visual industrial, un robot tridimensional con giro y despiece, y un laboratorio de LiDAR con escenas 3D y mapa 2D sincronizados. El robot y los recintos son ilustrativos. Las mediciones publicadas de la tesis siguen en sus capítulos y archivos originales.
+
+Esta entrega utiliza Astro, Svelte, TypeScript, Three.js y GSAP. No requiere servicios externos de pago ni claves. Los archivos compilados se incluyen en la raíz para seguir publicando con GitHub Pages desde `main` y `/ (root)`. No hay que subir `node_modules` ni cambiar el destino de publicación.
+
+Para desarrollar, con Node.js 24:
+
+```bash
+npm ci
+npm run dev
+```
+
+Abre `http://localhost:4321/tesis_explain/`. Edita las páginas en `web/src/pages`, los componentes en `web/src/components` y los estilos en `web/src/styles`. `index.html`, `laboratorios.html` y `_astro/` son salidas generadas: no se editan a mano.
+
+Para compilar y verificar:
+
+```bash
+npm run check
+npm run test:lidar
+npm run build
+python -m pip install beautifulsoup4
+python herramientas/indice.py
+python herramientas/verificar_sitio.py
+```
+
+Consulta [la guía de aplicación, alcance y validación](docs/experiencia-v1.md). Los apartados históricos de este README describen los capítulos que conservan la implementación anterior; su migración visual completa corresponde a la siguiente entrega.
+
 ![Una corrida real: a la izquierda la cámara cenital, a la derecha el mapa que construye el robot en RViz](img/mapa-crece.gif)
 
 ## Qué es
@@ -16,7 +44,8 @@ Un robot de bajo costo, con ROS 2, que entra a un recinto que no conoce, lo reco
 
 | Página | Tema |
 |---|---|
-| `index.html` | Portada, video, el ciclo en cuatro pasos con su simulación, temas, cifras, casos reales, una muestra de preguntas, rutas de lectura y el laboratorio |
+| `index.html` | Nueva experiencia visual, robot 3D desmontable, ciclo, laboratorio de percepción, video real, evidencia y acceso a los diez capítulos |
+| `laboratorios.html` | LiDAR en 3D y mapa 2D, tres escenarios sintéticos, inspección de rayos, historial, enlace reproducible y exportación JSON |
 | `problema.html` | Autonomía en interiores, estado del arte y un comparador que resalta por qué se descartó cada alternativa |
 | `robot.html` | Piezas, energía, red, reparto entre Arduino, Raspberry Pi y computador, ROS 2 y costo |
 | `movimiento.html` | Tracción diferencial y centro de giro, encoders, odometría, ensayos de recta y giro, qué corrige una calibración y el cuadrado en dos sentidos |
@@ -167,7 +196,9 @@ La página pesa 111 KB comprimida. Lighthouse en teléfono, con un servidor loca
 12. **Tipografía.** Los anchos de lectura van en `em` y no en `ch`, porque el cero de Atkinson Hyperlegible es mucho más ancho que el de las fuentes del sistema. Las familias `Archivo Respaldo` y `Atkinson Respaldo` de `css/estilo.css` usan una fuente del sistema escalada para ocupar el mismo ancho mientras llegan las fuentes: Arial o sus equivalentes de igual ancho en Windows, macOS, iOS, ChromeOS y Linux, y las variantes `Roboto` y `DejaVu` en Android y en Linux sin Arial. Los títulos de los temas usan su propio respaldo, `--f-tema`, porque son cortos y el de la portada es largo. Si cambias una fuente, recalcula su `size-adjust`.
 13. **Figuras y ejemplos generados.** `node herramientas/diagramas_control.js` regenera la figura de respaldo del PID, `node herramientas/diagramas_mapeo.js` las del capítulo 05, `node herramientas/diagramas_plano.js` el esquema del plano del recinto y `node herramientas/ejemplos_laboratorio.js` los archivos sintéticos del laboratorio. Con `--comprobar` no escriben nada y fallan si un archivo guardado quedó atrás de su modelo, que es como los ejecuta GitHub Actions. Si cambias un texto que también va en una figura, como la etiqueta de los candidatos de cierre, vuelve a generarla.
 
-## Ver el sitio en tu computador
+## Ver los capítulos originales en tu computador
+
+Para la nueva portada y el laboratorio usa `npm run dev`, como se indica al inicio.
 
 ```bash
 python3 -m http.server 8000
@@ -203,7 +234,7 @@ node herramientas/diagramas_control.js --comprobar
 
 Las comprobaciones de desborde comparan el ancho del contenido con `document.documentElement.clientWidth` y no con `innerWidth`. En modo teléfono `innerWidth` crece junto con lo que desborda, así que la comparación anterior siempre se cumplía y no detectó que la cabecera se salía de la pantalla. `pruebas_navegador.py` recorre además las 17 páginas a 320 y 375 px con pantalla táctil.
 
-`pruebas_experiencia_navegador.py` comprueba lo agregado en la revisión de experiencia: con las fuentes 1,2 s tarde el CLS queda bajo 0,02, ninguna página carga los archivos de interactivos al abrirse, el video de la portada no se descarga junto con la página, los temas son filas compactas en un teléfono, el comparador de decisiones, el filtro del glosario, la bibliografía en su página, con el resumen y los cinco bloques de cada referencia, el plegado de los bloques largos, la ficha en una o dos columnas, los botones para copiar la cita y su BibTeX, el filtro, el teclado, la impresión y el traslado de los enlaces antiguos de Recursos, las secciones en el menú del teléfono, el movimiento reducido y el tema oscuro. También compara, entre 320 y 480 px, las líneas del título de cada tema con el respaldo y con Archivo. Si el sistema no tiene ninguna fuente de respaldo compatible, omite esas mediciones y lo avisa.
+`pruebas_experiencia_navegador.py` comprueba lo agregado en la revisión de experiencia: con las fuentes 1,2 s tarde el CLS queda bajo 0,02, ninguna página carga los archivos de interactivos al abrirse, el comparador de decisiones, el filtro del glosario, la bibliografía en su página, con el resumen y los cinco bloques de cada referencia, el plegado de los bloques largos, la ficha en una o dos columnas, los botones para copiar la cita y su BibTeX, el filtro, el teclado, la impresión y el traslado de los enlaces antiguos de Recursos, las secciones en el menú del teléfono, el movimiento reducido de los capítulos. También compara, entre 320 y 480 px, las líneas del título de cada tema con el respaldo y con Archivo. Si el sistema no tiene ninguna fuente de respaldo compatible, omite esas mediciones y lo avisa.
 
 `pruebas_robustez_navegador.py` bloquea `datos/proyecto.js` y quita `MediaQueryList.addEventListener` para comprobar que la cabecera, el pie y los interactivos sigan funcionando. También recorre con teclado las tablas anchas en un teléfono, mide la altura del aviso académico en móvil, revisa las lecturas por regla del PID, el mapa armado del grafo de poses, las fichas del concepto y el estado académico sin JavaScript.
 
@@ -238,7 +269,9 @@ git commit -m "Describe el cambio"
 git push origin main
 ```
 
-## Experiencia y rendimiento
+## Experiencia y rendimiento de la versión anterior
+
+Este apartado documenta la revisión del 26 de octubre, previa a la nueva portada Astro/Svelte.
 
 La revisión del 26 de octubre de 2026 conserva el HTML, CSS y JavaScript sin compilación y suma una identidad de plano técnico: la rejilla de ocupación detrás de los títulos, los anillos del LiDAR alrededor del prototipo, paneles azul noche y la franja azul y verde de la UTEM. La simulación del ciclo en la portada se dibuja como una consola azul noche, las imágenes de los temas comparten un tono azul que recupera su color al apuntarlas y en un teléfono cada tema es una fila compacta.
 

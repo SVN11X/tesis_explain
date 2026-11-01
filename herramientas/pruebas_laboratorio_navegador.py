@@ -121,7 +121,7 @@ with sync_playwright() as pw:
     # Navegación modal: foco, aislamiento, Escape y regreso al botón.
     ctx = browser.new_context(viewport=dict(width=390, height=844))
     ctx.route(re.compile(r'^https?://(?!localhost)'), lambda r: r.fulfill(status=200, body=''))
-    p = ctx.new_page(); p.goto(BASE + '/index.html'); p.click('#btn-menu')
+    p = ctx.new_page(); p.goto(BASE + '/problema.html'); p.click('#btn-menu')
     check(p.locator('#contenido').evaluate('el => el.inert'), 'Menú móvil aísla el contenido de fondo')
     p.locator('#cajon a').last.focus(); p.keyboard.press('Tab')
     check(p.evaluate("document.activeElement === document.querySelector('#cajon a')"), 'Tab al final vuelve al primer control del diálogo')

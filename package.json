@@ -1,0 +1,25 @@
+{
+  "name": "robot-explorador",
+  "version": "2.0.0-preview.1",
+  "private": true,
+  "description": "Guía y laboratorio de robótica de la tesis de Sebastián Valderas",
+  "engines": { "node": ">=22.16.0" },
+  "scripts": {
+    "dev": "node herramientas/preparar-web.mjs && astro dev --host 0.0.0.0",
+    "build": "node herramientas/preparar-web.mjs && astro build && node herramientas/publicar-web.mjs",
+    "check": "svelte-check --workspace web --tsconfig ../tsconfig.json",
+    "test:lidar": "node --experimental-strip-types --test web/tests/lidar.test.mjs"
+  },
+  "dependencies": {
+    "@astrojs/svelte": "9.1.2",
+    "astro": "7.4.4",
+    "gsap": "3.15.0",
+    "svelte": "5.57.3",
+    "three": "0.187.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.183.1",
+    "svelte-check": "^4.3.3",
+    "typescript": "^5.9.3"
+  }
+}
