@@ -1,4 +1,6 @@
-# Experiencia visual y laboratorio de percepción · V1
+# Experiencia visual y laboratorio de percepción · V1.1
+
+Corrección del 1 de noviembre de 2026: explicaciones de la portada recuperadas.
 
 ## Qué cambia
 
@@ -12,9 +14,19 @@ El laboratorio incluye tres escenarios: recinto, esquina y caja baja. Usa 230 ra
 
 «Copiar escena» conserva escenario, posición, rumbo, altura y alcance en un enlace. El receptor inicia un mapa nuevo desde ese barrido; no recibe todo el historial. «Exportar JSON» incluye geometría, medidas, pose, rejilla, unidades y procedencia sintética. Todo se calcula localmente.
 
+## Explicaciones recuperadas
+
+Esta revisión reintegra el contenido explicativo de la portada anterior dentro del nuevo diseño. Conserva la introducción y autoría, los cuatro pasos y sus frecuencias, las definiciones, la figura de arquitectura, la lectura del video real, las métricas y sus matices, los diez capítulos con sus descripciones, tres casos del mundo real, diez lecciones, tres preguntas destacadas, cuatro rutas de lectura y la explicación de fuentes y del laboratorio de datos. Un índice permite saltar entre las secciones.
+
+La comparación con `fcb47bd` comprobó los 36 párrafos originales de al menos 35 caracteres: 34 permanecen literalmente tras normalizar espacios y puntuación. Dos se adaptaron a la ubicación de sus controles: el video de YouTube se abre mediante enlace y la simulación completa de exploración se enlaza desde la explicación del ciclo. Se conservó el contenido informativo de ambos. Se revisaron también las cifras, las lecciones y las rutas, que estaban en listas y otros elementos.
+
+El video local del crecimiento del mapa vuelve con controles manuales. El diagrama original puede ampliarse. Los textos aparecen en el HTML generado y se pueden leer sin JavaScript. No se ocultan detrás de interacciones ni se trasladan solo a un archivo descargable. Los capítulos interiores siguen sin modificaciones.
+
+La trazabilidad y el criterio para futuras ediciones están en [contenido-portada.md](contenido-portada.md).
+
 ## Aplicar el parche a tu repositorio
 
-El parche parte del commit `fcb47bdc0dc5c453e2576ddeda2f86d64991fb0d`. Está pensado para aplicarse sobre esa versión, sin cambios locales pendientes.
+Si todavía no aplicaste la primera entrega, usa el **parche completo actualizado**, `tesis_explain_ux3d_v1_cambios_git_am.patch`. Incluye el rediseño y esta corrección. El parche parte del commit `fcb47bdc0dc5c453e2576ddeda2f86d64991fb0d`. Está pensado para aplicarse sobre esa versión, sin cambios locales pendientes.
 
 ```bash
 git switch -c redisenio/experiencia-v1 fcb47bdc0dc5c453e2576ddeda2f86d64991fb0d
@@ -22,6 +34,16 @@ git am /ruta/tesis_explain_ux3d_v1_cambios_git_am.patch
 npm ci
 npm run dev
 ```
+
+Si **ya aplicaste la V1 anterior**, usa solamente `tesis_explain_restaurar_explicaciones_cambios_git_am.patch`, sobre tu rama del rediseño y con el árbol limpio:
+
+```bash
+git status --short
+git switch -c redisenio/conservar-explicaciones
+git am /ruta/tesis_explain_restaurar_explicaciones_cambios_git_am.patch
+```
+
+El parche incremental parte del árbol de la entrega V1, identificado en el repositorio de trabajo por `09eb863003d13c8b8ae20077614fff540b76dccf`. No apliques ambos parches: el completo ya contiene la corrección. Si añadiste cambios propios después de V1, revisa su integración antes de aplicarlo.
 
 En Windows, reemplaza `/ruta/` por la ubicación del archivo descargado. Abre `http://localhost:4321/tesis_explain/`. También puedes extraer el ZIP completo y ejecutar los dos comandos de npm en su carpeta. La nueva portada necesita un servidor HTTP: abrir el HTML directamente con `file://` no inicia los módulos.
 
@@ -50,7 +72,16 @@ Las dependencias están fijadas con `package-lock.json`. Las fuentes se sirven l
 
 WebGL añade materiales, iluminación de entorno y sombras. Si no está disponible, una proyección SVG de la misma geometría mantiene el giro, el despiece y el experimento. Ese modo reduce la frecuencia de dibujo y no reproduce los efectos de materiales de WebGL. Si ambos visores fallan, quedan la fotografía y el mapa 2D. Sin JavaScript se puede leer la portada, seguir los capítulos y ver la explicación alternativa del sensor.
 
-## Verificación de esta entrega
+## Verificación de la corrección V1.1
+
+- Compilación estática y `npm run check`: correctos; Svelte y TypeScript sin errores ni advertencias.
+- 2.925 comprobaciones estáticas correctas en 18 páginas, con índice regenerado (642 entradas).
+- Revisión del contenido original: párrafos, cifras, descripciones y listas. Se conservan los 49 destinos externos a la portada presentes en sus enlaces originales.
+- Revisión visual en navegador de las secciones de lectura en escritorio y en marcos de 360 y 768 px. El ancho útil de los marcos es menor por la barra de desplazamiento; no es una prueba de rendimiento en un teléfono físico.
+- Los cálculos y motores 3D no se modificaron en esta corrección. Las pruebas numéricas de V1 indicadas abajo corresponden a aquella entrega.
+- El ZIP y los parches completo e incremental se verifican en copias limpias de sus respectivas bases.
+
+## Verificación previa de V1
 
 - `npm run check`: TypeScript y Svelte, sin errores ni advertencias.
 - 203 comprobaciones de los modelos originales y 7 pruebas nuevas de LiDAR: correctas.

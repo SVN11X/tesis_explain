@@ -2,33 +2,126 @@
 import Shell from '../layouts/Shell.astro';
 import RobotHero from '../components/RobotHero.svelte';
 import LidarLab from '../components/LidarLab.svelte';
+import { chapters, cycle, lessons, questions } from '../lib/home-content';
 const base=import.meta.env.BASE_URL.replace(/\/?$/,'/');
-const chapters=[
- ['01','El problema','Autonomía en interiores. Las decisiones detrás del prototipo.','problema'],
- ['02','El robot','Mecánica, electrónica y tres procesadores trabajando juntos.','robot'],
- ['03','Movimiento','Dos ruedas, encoders y una estimación de dónde estamos.','movimiento'],
- ['04','Control','De una velocidad deseada al esfuerzo de los motores.','control'],
- ['05','Mapeo','LiDAR, odometría y SLAM: construir un mapa mientras te ubicas.','mapeo'],
- ['06','Navegación','Planear un camino y convertirlo en movimiento con Nav2.','navegacion'],
- ['07','Exploración','Elegir la siguiente frontera entre lo conocido y lo desconocido.','exploracion'],
- ['08','Gemelo digital','El robot en Gazebo y los límites de la simulación.','gemelo'],
- ['09','Evidencia','Ensayos, resultados y preguntas que siguen abiertas.','resultados'],
- ['10','Construcción','Materiales, conexiones, software y lecciones de taller.','replicar']
-];
 ---
-<Shell title="El mundo no viene con un mapa" description="Entra al robot, experimenta con su LiDAR y descubre cómo explora interiores. Una guía visual e interactiva de robótica con ROS 2.">
+<Shell title="El mundo no viene con un mapa" description="Una guía abierta para entender cómo se construyó un robot de bajo costo que mapea, navega y explora interiores con ROS 2. Explicaciones, ensayos e interactivos.">
   <section class="hero section-shell" id="experiencia" aria-labelledby="hero-title">
-    <div class="hero-copy"><p class="eyebrow"><span class="live-dot"></span> ROBÓTICA ABIERTA / ROS 2</p><h1 id="hero-title">El mundo<br/>no viene con<br/>un <span class="map-word">mapa<svg viewBox="0 0 270 16" aria-hidden="true"><path d="M2 12C75 2 181 3 266 7"/></svg></span>.</h1><p class="hero-lead">Este robot aprende a recorrerlo.<br/>Descubre cómo ve, se mueve y explora un lugar que nunca había visitado.</p><div class="hero-cta"><a class="button dark" href="#laboratorio">Entra al laboratorio <span aria-hidden="true">↗</span></a><a class="under-link" href="#video">Ver el robot real <span aria-hidden="true">↘</span></a></div><p class="hero-note mono">UNA TESIS QUE PUEDES EXPLORAR.</p></div>
+    <div class="hero-copy">
+      <p class="eyebrow"><span class="live-dot"></span> ROBÓTICA ABIERTA / ROS 2</p>
+      <h1 id="hero-title">El mundo <br/>no viene con <br/>un <span class="map-word">mapa<svg viewBox="0 0 270 16" aria-hidden="true"><path d="M2 12C75 2 181 3 266 7"/></svg></span>.</h1>
+      <p class="hero-lead">Un robot que entra a un lugar que no conoce, lo recorre solo y dibuja su plano.</p>
+      <div class="hero-cta"><a class="button dark" href="#laboratorio">Entra al laboratorio <span aria-hidden="true">↗</span></a><a class="under-link" href="#video">Ver el robot real <span aria-hidden="true">↘</span></a></div>
+      <p class="hero-note mono">UNA TESIS QUE PUEDES EXPLORAR.</p>
+    </div>
     <div class="hero-model"><RobotHero client:load base={base}/></div>
-    <div class="hero-bottom"><span class="mono">01 / DE LA MÁQUINA A LA IDEA</span><p>Gira. Desmonta. Experimenta.</p><a href="#ciclo" class="scroll-cue" aria-label="Descubrir cómo funciona">↓</a></div>
+    <div class="hero-bottom"><span class="mono">01 / DE LA MÁQUINA A LA IDEA</span><p>Gira. Desmonta. Experimenta.</p><a href="#guia-abierta" class="scroll-cue" aria-label="Leer de qué trata la guía">↓</a></div>
   </section>
+
+  <section class="guide-opening section-shell" id="guia-abierta" aria-labelledby="opening-title">
+    <div class="opening-copy" data-reveal>
+      <p class="eyebrow">TRABAJO DE TITULACIÓN · INGENIERÍA CIVIL ELECTRÓNICA · UTEM · 2026</p>
+      <h2 id="opening-title">Entender el robot. <br/><em>Desde la idea hasta la evidencia.</em></h2>
+      <p>Una guía abierta para entender cómo se construyó un robot de bajo costo que mapea, navega y explora interiores con ROS 2. Cada tema explica la idea, muestra la evidencia medida, cita sus fuentes y conecta con casos del mundo real.</p>
+      <p class="opening-definition"><strong>ROS 2</strong> es un conjunto de bibliotecas y herramientas de código abierto para construir sistemas robóticos modulares y distribuidos.</p>
+      <a class="under-link" href={`${base}problema.html`}>Empezar por el primer tema ↗</a>
+    </div>
+    <aside class="reading-index" aria-label="Índice de la portada">
+      <p class="eyebrow">EN ESTA PÁGINA</p>
+      <nav><a href="#ciclo">01 <span>Cómo funciona</span> ↓</a><a href="#laboratorio">02 <span>Experimentar con el LiDAR</span> ↓</a><a href="#video">03 <span>El prototipo y sus ensayos</span> ↓</a><a href="#cifras">04 <span>Resultados y límites</span> ↓</a><a href="#temas">05 <span>Los diez capítulos</span> ↓</a><a href="#mundo">06 <span>Casos del mundo real</span> ↓</a><a href="#lecciones">07 <span>Lecciones de ingeniería</span> ↓</a><a href="#preguntas">08 <span>Preguntas difíciles</span> ↓</a><a href="#rutas">09 <span>Rutas de lectura</span> ↓</a><a href="#sobre">10 <span>Sobre este sitio y sus fuentes</span> ↓</a></nav>
+      <p class="thesis-credit">Basada en la tesis <cite>Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial</cite>, de Sebastián Valderas Neculqueo, con el profesor guía Patricio Galarce Acevedo.</p>
+    </aside>
+  </section>
+
   <section class="cycle-section section-shell" id="ciclo" aria-labelledby="cycle-title">
-    <div class="section-intro" data-reveal><p class="eyebrow">UN CICLO. CUATRO PREGUNTAS.</p><h2 id="cycle-title">Lo desconocido<br/>se descubre <em>paso a paso.</em></h2><p>La autonomía surge cuando las piezas trabajan juntas. Sigue el recorrido de una medida hasta la siguiente decisión.</p></div>
-    <div class="cycle-strip" data-reveal>{[['01','¿Qué hay alrededor?','Un láser mide distancias en un plano.','Ver','mapeo.html#lidar'],['02','¿Dónde estoy?','La odometría estima el movimiento; SLAM relaciona las observaciones.','Ubicar','mapeo.html'],['03','¿Por dónde voy?','El planificador propone una ruta y el controlador la sigue.','Navegar','navegacion.html'],['04','¿Qué falta descubrir?','El explorador elige una frontera y el ciclo vuelve a empezar.','Explorar','exploracion.html']].map(([n,title,text,verb,url])=><a class="cycle-step" href={base+url}><span class="cycle-top mono">{n}<span aria-hidden="true">↗</span></span><strong>{verb}</strong><h3>{title}</h3><p>{text}</p></a>)}</div>
+    <div class="section-intro" data-reveal><p class="eyebrow">LA IDEA EN CUATRO PASOS</p><h2 id="cycle-title">Cómo hace un robot <br/>para <em>explorar solo.</em></h2><p>La autonomía surge cuando las piezas trabajan juntas. Las ruedas se corrigen 30 veces por segundo y el destino se revisa cada 3,3 s.</p></div>
+    <div class="cycle-strip" data-reveal>{cycle.map(([n,title,text,verb,url])=><a class="cycle-step" href={base+url}><span class="cycle-top mono">{n}<span aria-hidden="true">↗</span></span><strong>{verb}</strong><h3>{title}</h3><p>{text}</p></a>)}</div>
+    <dl class="cycle-definitions">
+      <div><dt>Odometría</dt><dd>Estimación de la posición sumando el giro medido de las ruedas.</dd></div>
+      <div><dt>Frontera</dt><dd>Borde entre el espacio libre conocido y lo desconocido en un mapa.</dd></div>
+      <div><dt>LiDAR</dt><dd>Sensor que mide distancias con luz láser; su versión 2D gira y mide en un plano horizontal.</dd></div>
+    </dl>
+    <div class="architecture-story" data-reveal>
+      <div class="architecture-copy"><p class="eyebrow">DÓNDE CORRE CADA PASO</p><h3>Tres procesadores. <br/>Un mismo sistema.</h3><p>Lo rápido y crítico va a bordo del robot, lo pesado en un computador conectado por una red Wi-Fi dedicada.</p><p>El Arduino controla las ruedas; la Raspberry Pi integra los sensores y la odometría; la estación de trabajo ejecuta el mapeo, la navegación y la exploración.</p><a class="under-link" href={`${base}robot.html#reparto`}>Ver el reparto de tareas ↗</a></div>
+      <figure class="architecture-figure"><a href={`${base}img/tesis/arquitectura.png`} aria-label="Ampliar el diagrama de arquitectura del robot"><img src={`${base}img/tesis/arquitectura-med.webp`} width="1200" height="678" loading="lazy" decoding="async" alt="Dos zonas: a bordo, encoders y LiDAR 2D, Arduino con control de motores y Raspberry Pi 4 con ROS 2 y odometría; en la estación, SLAM Toolbox, Nav2, explorador de fronteras y RViz2."/></a><figcaption>Fig. 2.1 de la tesis. <a href={`${base}robot.html#reparto`}>Anatomía del robot</a>. El bloque rotulado PID usa en el código heredado una ley que opera como PI; <a href={`${base}control.html`}>se explica en Control</a>.</figcaption></figure>
+    </div>
+    <p class="cycle-simulation-link">También puedes seguir el ciclo completo en la <a href={`${base}exploracion.html#simulador`}>simulación de exploración con controles</a>: el robot mide con su láser, busca el borde entre lo conocido y lo desconocido, va hacia él y repite hasta que no queda nada por descubrir. Es una simulación ilustrativa; termina sola cuando no quedan fronteras.</p>
   </section>
-  <section class="lab-section" id="laboratorio" aria-labelledby="lab-title"><div class="section-shell"><div class="lab-section-heading" data-reveal><div><p class="eyebrow"><span class="live-dot"></span> LABORATORIO 01 / PERCEPCIÓN</p><h2 id="lab-title">El mundo existe.<br/><span>El mapa se construye.</span></h2></div><div><p>Mueve el robot. Cambia la altura del láser. Mira cómo una misma escena produce mapas diferentes.</p><a class="under-link" href={`${base}laboratorios.html`}>Abrir laboratorio completo ↗</a></div></div><LidarLab client:visible={{rootMargin:"500px"}} base={base}/><noscript><p class="no-script">Activa JavaScript para experimentar. Puedes leer la <a href={`${base}mapeo.html#lidar`}>explicación del LiDAR y sus figuras</a> sin activar el visor.</p></noscript></div></section>
-  <section class="reality-section section-shell" id="video" aria-labelledby="real-title"><div class="section-intro" data-reveal><p class="eyebrow">DEL MODELO A LA MESA</p><h2 id="real-title">Esto también pasa<br/><em>fuera de la pantalla.</em></h2><p>Un prototipo construido, un recinto de ensayo y registros que permiten mirar de cerca lo que ocurrió.</p></div><div class="reality-grid" data-reveal><a class="video-feature" href="https://www.youtube.com/watch?v=iTTC10eGDmc"><img src={`${base}img/fotos/video-portada.webp`} width="1280" height="720" loading="lazy" alt="Vista del robot real en el recinto de prueba junto a su mapa en RViz"/><span class="video-play" aria-hidden="true">↗</span><span class="video-caption"><span class="mono">REGISTRO DEL PROTOTIPO</span><strong>Ver una exploración real</strong><span>Video en YouTube ↗</span></span></a><figure class="prototype-photo"><img src={`${base}img/fotos/robot-derecha-800.webp`} width="800" height="633" loading="lazy" alt="Prototipo físico con carcasa negra y franjas amarillas, visto desde su lado derecho"/><figcaption><span class="mono">EL OBJETO REAL</span><p>Fabricación propia. Tracción diferencial. LiDAR 2D.</p><a href={`${base}robot.html`}>Conocer su arquitectura ↗</a></figcaption></figure></div></section>
-  <section class="evidence-section section-shell" id="cifras" aria-labelledby="evidence-title"><div class="evidence-copy" data-reveal><p class="eyebrow">RESULTADOS CON CONTEXTO</p><h2 id="evidence-title">Una buena demostración<br/>deja ver sus límites.</h2><p>El experimento interactivo es una explicación. La evidencia de la tesis viene de ensayos documentados: aquí puedes revisar qué se midió y qué quedó pendiente.</p><a class="button dark" href={`${base}resultados.html`}>Examinar la evidencia ↗</a></div><div class="evidence-numbers" data-reveal><a href={`${base}resultados.html#objetivos`}><strong>2<span>/4</span></strong><div><h3>Objetivos completos</h3><p>Los otros dos quedaron parciales. Cada resultado tiene su explicación.</p><span class="mono">REVISAR OBJETIVOS ↗</span></div></a><a href={`${base}movimiento.html#tres-distancias`}><strong>7,18<span>%</span></strong><div><h3>Déficit de avance físico</h3><p>En el ensayo de recta de 2 m. Es diferente del error de la odometría.</p><span class="mono">VER CÓMO SE MIDIÓ ↗</span></div></a></div></section>
-  <section class="guide-section section-shell" id="temas" aria-labelledby="guide-title"><div class="guide-heading" data-reveal><div><p class="eyebrow">TU SIGUIENTE PREGUNTA</p><h2 id="guide-title">Abre el sistema.</h2></div><p>Diez capítulos para ir de la intuición al detalle.<br/>Entra por el tema que te despierte curiosidad.</p></div><div class="chapter-list">{chapters.map(([n,title,text,url])=><a href={`${base}${url}.html`} class="chapter-row" data-reveal><span class="chapter-number mono">{n}</span><h3>{title}</h3><p>{text}</p><span class="chapter-arrow" aria-hidden="true">↗</span></a>)}</div><div class="extra-paths" id="rutas"><a href={`${base}problema.html`}>Empiezo desde cero ↗</a><a href={`${base}laboratorio.html`}>Quiero trabajar con datos ↗</a><a href={`${base}recursos.html`}>Busco parámetros y fuentes ↗</a></div></section>
-  <section class="beyond-section section-shell" aria-labelledby="beyond-title" data-reveal><p class="eyebrow">SEGUIR EXPLORANDO</p><h2 id="beyond-title">La pregunta no termina aquí.</h2><div class="beyond-links"><a id="mundo" href={`${base}mundo-real.html`}><span class="mono">01 / A OTRA ESCALA</span><h3>Robots en el mundo real</h3><p>De este recinto a túneles, minas y otros entornos.</p><span aria-hidden="true">↗</span></a><a id="lecciones" href={`${base}lecciones.html`}><span class="mono">02 / DESDE EL TALLER</span><h3>Lo que enseñó construirlo</h3><p>Decisiones y dificultades que un diagrama no cuenta.</p><span aria-hidden="true">↗</span></a><a id="preguntas" href={`${base}preguntas.html`}><span class="mono">03 / SIN DUDAS SUELTAS</span><h3>Preguntas frecuentes</h3><p>Respuestas cortas y enlaces para profundizar.</p><span aria-hidden="true">↗</span></a></div></section>
+
+  <section class="lab-section" id="laboratorio" aria-labelledby="lab-title"><div class="section-shell">
+    <div class="lab-section-heading" data-reveal><div><p class="eyebrow"><span class="live-dot"></span> LABORATORIO 01 / PERCEPCIÓN</p><h2 id="lab-title">El mundo existe. <br/><span>El mapa se construye.</span></h2></div><div><p>Mueve el robot. Cambia la altura del láser. Mira cómo una misma escena produce mapas diferentes.</p><a class="under-link" href={`${base}laboratorios.html`}>Abrir laboratorio completo ↗</a></div></div>
+    <p class="lab-reading-note">Aquí aislamos una parte del ciclo: <strong>medir y representar lo observado</strong>. La posición es conocida y «Recorrer» sigue una ruta prefijada. Este experimento no ejecuta SLAM ni decide destinos; sus cifras son sintéticas y no corresponden a los ensayos de la tesis.</p>
+    <LidarLab client:visible={{rootMargin:"500px"}} base={base}/>
+    <noscript><p class="no-script">Activa JavaScript para experimentar. Puedes leer la <a href={`${base}mapeo.html#lidar`}>explicación del LiDAR y sus figuras</a> sin activar el visor.</p></noscript>
+  </div></section>
+
+  <section class="reality-section section-shell" id="video" aria-labelledby="real-title">
+    <div class="section-intro" data-reveal><p class="eyebrow">EL PROTOTIPO EN UNA CORRIDA REAL</p><h2 id="real-title">Míralo explorar <br/><em>por su cuenta.</em></h2><p>Nadie le indica a dónde ir. El robot mide con su láser, arma el mapa, elige el borde de lo desconocido más conveniente, planifica una ruta y avanza, hasta que no queda nada nuevo por descubrir.</p></div>
+    <div class="reality-grid" data-reveal>
+      <figure class="real-video"><a class="video-feature" href="https://www.youtube.com/watch?v=iTTC10eGDmc"><img src={`${base}img/fotos/video-portada.webp`} width="1280" height="720" loading="lazy" alt="Vista del robot real en el recinto de prueba junto a su mapa en RViz"/><span class="video-play" aria-hidden="true">↗</span><span class="video-caption"><span class="mono">REGISTRO DEL PROTOTIPO</span><strong>Ver una exploración real</strong><span>Video en YouTube ↗</span></span></a><figcaption>Ejecución de demostración sobre el robot real. En RViz, el programa que muestra los datos del robot, la línea verde es la ruta planificada hacia la frontera elegida. El enlace abre el video en YouTube.</figcaption></figure>
+      <figure class="prototype-photo"><img src={`${base}img/fotos/robot-derecha-800.webp`} width="800" height="633" loading="lazy" alt="Prototipo físico con carcasa negra y franjas amarillas, visto desde su lado derecho"/><figcaption><span class="mono">EL OBJETO REAL</span><p>Fabricación propia. Tracción diferencial. LiDAR 2D.</p><a href={`${base}robot.html`}>Conocer su arquitectura ↗</a></figcaption></figure>
+    </div>
+    <div class="prototype-facts">
+      <article><p class="fact-value">5 <span>de 6</span></p><h3>Exploraciones completadas</h3><p>Terminaron solas al no quedar fronteras, sin que nadie interviniera.</p><a href={`${base}exploracion.html#fin`}>Cómo se midió ↗</a></article>
+      <article><p class="fact-value">3,63 <span>%</span></p><h3>Error medio de la odometría</h3><p>Frente a la cinta métrica, en una recta de dos metros repetida cinco veces.</p><a href={`${base}movimiento.html#recta`}>Qué significa ↗</a></article>
+      <article><p class="fact-value">444 643 <span>CLP</span></p><h3>Materiales montados en el robot</h3><p>Un 32 % menos que un TurtleBot 3 Burger, sin sus mismas prestaciones. Es la comparación documentada en la tesis.</p><a href={`${base}robot.html#costo`}>Ver el desglose ↗</a></article>
+    </div>
+    <div class="map-record" data-reveal>
+      <figure><video muted playsinline controls preload="none" poster={`${base}img/mapa-crece-fija.webp`} width="720" height="404" aria-label="Animación del mapa que construye el robot: parte como una zona pequeña y crece hasta cubrir casi todo el recinto."><source src={`${base}img/mapa-crece.mp4`} type="video/mp4"/></video><figcaption>El mapa crece mientras el robot explora. Usa los controles del video para reproducirlo o pausarlo.</figcaption></figure>
+      <div><p class="eyebrow">DEL REGISTRO AL RESULTADO</p><p class="fact-value">3,50 <span>m²</span></p><h3>De área libre mapeada en promedio</h3><p>Esta cifra procede de los ensayos del prototipo. <a href={`${base}mapeo.html#cobertura`}>Revisa cómo se distingue del índice de cobertura</a> y de las áreas calculadas en el experimento interactivo.</p></div>
+    </div>
+    <div class="software-note"><h3>Software libre de punta a punta</h3><p>ROS 2, SLAM Toolbox, Nav2, explore_lite y Gazebo. <strong>Nav2</strong> planifica rutas, las sigue y se recupera de fallas; <strong>explore_lite</strong> busca fronteras en el mapa y las envía como metas a la navegación.</p><a class="under-link" href={`${base}replicar.html`}>Cómo replicarlo ↗</a></div>
+  </section>
+
+  <section class="evidence-section section-shell" id="cifras" aria-labelledby="evidence-title">
+    <div class="evidence-copy" data-reveal><p class="eyebrow">RESULTADOS, CON SUS MATICES</p><h2 id="evidence-title">Lo que se logró <br/>y cómo se midió.</h2><p>Las cifras vienen de la tesis. También se dice qué no se alcanzó a medir.</p><p>El experimento interactivo es una explicación. La evidencia de la tesis viene de ensayos documentados: aquí puedes revisar qué se midió y qué quedó pendiente.</p><a class="button dark" href={`${base}resultados.html`}>Examinar la evidencia ↗</a></div>
+    <div class="evidence-numbers" data-reveal>
+      <a href={`${base}resultados.html#objetivos`}><strong>2<span>/4</span></strong><div><h3>Objetivos completos</h3><p>Objetivos específicos cumplidos por completo. Los otros dos quedaron parciales, con su explicación.</p><span class="mono">VER LOS OBJETIVOS ↗</span></div></a>
+      <a href={`${base}mapeo.html#cobertura`}><strong>62,2<span>%</span></strong><div><h3>Índice medio de cobertura</h3><p>Varió mucho entre corridas porque depende del tamaño de la imagen, no del recinto.</p><span class="mono">CÓMO LEER ESTA CIFRA ↗</span></div></a>
+      <a href={`${base}exploracion.html#abortadas`}><strong>53<span>/54</span></strong><div><h3>Metas abortadas y reemplazadas</h3><p>Coinciden en el tiempo con un reemplazo hecho por el propio explorador. Por eso no sirven como tasa de éxito.</p><span class="mono">LA EXPLICACIÓN ↗</span></div></a>
+      <a href={`${base}movimiento.html#tres-distancias`}><strong>7,18<span>%</span></strong><div><h3>Déficit de avance físico</h3><p>Menos de lo pedido avanzó el robot en la recta de dos metros. Es otra cifra que el 3,63 % de la odometría.</p><span class="mono">POR QUÉ SON DISTINTAS ↗</span></div></a>
+    </div>
+    <aside class="measurement-limit"><h3>Lo que quedó sin medir</h3><p>La tasa de éxito al navegar hacia destinos fijos elegidos por una persona y la localización sobre un mapa guardado. La navegación funcionó de punta a punta durante la exploración, pero no tiene un indicador cuantitativo propio. <a href={`${base}resultados.html#limitaciones`}>Ver las limitaciones</a>.</p></aside>
+  </section>
+
+  <section class="guide-section section-shell" id="temas" aria-labelledby="guide-title">
+    <div class="guide-heading" data-reveal><div><p class="eyebrow">LA GUÍA</p><h2 id="guide-title">Los temas, del problema <br/>a la construcción.</h2></div><p>Diez capítulos para ir de la intuición al detalle. Se pueden leer en orden o por separado.</p></div>
+    <div class="chapter-list">{chapters.map(([n,title,text,url,level],i)=><Fragment>{[0,2,8].includes(i)&&<h3 class="chapter-group mono">{i===0?'El contexto':i===2?'Cómo funciona':'Evidencia y práctica'}</h3>}<a href={`${base}${url}.html`} class="chapter-row" data-reveal><span class="chapter-number mono">{n}</span><div class="chapter-title"><span class="chapter-level mono">{level}</span><h4>{title}</h4></div><p>{text}</p><span class="chapter-arrow" aria-hidden="true">↗</span></a></Fragment>)}</div>
+  </section>
+
+  <section class="reading-section section-shell" id="mundo" aria-labelledby="world-title">
+    <div class="section-intro" data-reveal><p class="eyebrow">FUERA DEL LABORATORIO</p><h2 id="world-title">Las mismas ideas, <br/><em>a otra escala.</em></h2><p>Lo que hace este robot pequeño de interiores es lo que hacen máquinas que trabajan en minas, bodegas, hospitales y otros planetas. Cambian los sensores, el presupuesto y las exigencias de seguridad, no el razonamiento.</p></div>
+    <div class="world-stories">
+      <article><span class="story-number mono">01 / MINERÍA · CHILE · 2026</span><h3>Mapear una mina sin exponer personas</h3><p>En la mina El Teniente, un dron con LiDAR mapea en 3D espacios confinados y sin GPS.</p><a class="under-link" href={`${base}mundo-real.html#el-teniente`}>Ver el caso ↗</a></article>
+      <article><span class="story-number mono">02 / SUBTERRÁNEO · ESTADOS UNIDOS · 2021</span><h3>Explorar túneles y cuevas</h3><p>El equipo CERBERUS ganó el desafío subterráneo de DARPA con robots que exploraron y mapearon túneles por su cuenta.</p><a class="under-link" href={`${base}mundo-real.html#cerberus`}>Ver el caso ↗</a><a class="under-link" href="https://www.youtube.com/watch?v=fCHOU-fw2c0">Ver el video ↗</a></article>
+      <article><span class="story-number mono">03 / MARTE · 2021</span><h3>Replanificar entre rocas</h3><p>El rover Perseverance replanifica su camino entre rocas con un mapa local que actualiza mientras avanza.</p><a class="under-link" href={`${base}mundo-real.html#perseverance`}>Ver el caso ↗</a></article>
+    </div>
+    <a class="button dark section-end-link" href={`${base}mundo-real.html`}>Ver los doce casos, con sus fuentes ↗</a>
+  </section>
+
+  <section class="reading-section lessons-section section-shell" id="lecciones" aria-labelledby="lessons-title">
+    <div class="section-intro" data-reveal><p class="eyebrow">MÁS ALLÁ DE ESTA TESIS</p><h2 id="lessons-title">Lecciones <br/><em>de ingeniería.</em></h2><p>Hay temas que el trabajo resuelve sin nombrarlos y que sirven en cualquier proyecto.</p></div>
+    <ol class="engineering-lessons">{lessons.map(([title,text,anchor],i)=><li><a href={`${base}lecciones.html#${anchor}`}><span class="mono lesson-number">{String(i+1).padStart(2,'0')}</span><div><h3>{title}</h3><p>{text}</p></div><span aria-hidden="true">↗</span></a></li>)}</ol>
+  </section>
+
+  <section class="reading-section section-shell" id="preguntas" aria-labelledby="questions-title">
+    <div class="section-intro" data-reveal><p class="eyebrow">PONTE A PRUEBA</p><h2 id="questions-title">Preguntas <br/><em>difíciles.</em></h2><p>Las preguntas que haría alguien que leyó la tesis con lupa, con una respuesta directa y la sección que la respalda. Hay tres niveles, desde para todo público hasta las que buscan el punto débil.</p></div>
+    <ul class="question-samples">{questions.map(([level,text,anchor])=><li><a href={`${base}preguntas.html#${anchor}`}><span class="mono">{level}</span><h3>{text}</h3><span class="question-answer">Ver la respuesta ↗</span></a></li>)}</ul>
+    <a class="button dark section-end-link" href={`${base}preguntas.html`}>Ver las 106 preguntas, con modo práctica ↗</a>
+  </section>
+
+  <section class="reading-section routes-section section-shell" id="rutas" aria-labelledby="routes-title">
+    <div class="section-intro" data-reveal><p class="eyebrow">RUTAS DE LECTURA</p><h2 id="routes-title">Elige <br/><em>cómo leer.</em></h2><p>Entra por la pregunta que te interesa y sigue un recorrido según tu objetivo.</p></div>
+    <div class="reading-routes">
+      <article><span class="mono route-number">01</span><h3>Tengo diez minutos</h3><p>Sin conocimientos previos</p><ol><li><a href={`${base}problema.html`}>Autonomía en interiores</a></li><li><a href="#video">El robot en video</a></li><li><a href={`${base}resultados.html`}>Qué se demostró</a></li></ol></article>
+      <article><span class="mono route-number">02</span><h3>Estudio ingeniería</h3><p>La guía completa, en orden</p><ol><li>Los diez temas, de <a href={`${base}problema.html`}>Autonomía</a> a <a href={`${base}replicar.html`}>Constrúyelo tú</a></li><li><a href="#temas">Los simuladores de cada tema</a></li><li>El <a href={`${base}recursos.html#glosario`}>glosario</a> a mano</li></ol></article>
+      <article><span class="mono route-number">03</span><h3>Quiero construir uno</h3><p>Lo práctico primero</p><ol><li><a href={`${base}robot.html`}>Anatomía del robot</a></li><li><a href={`${base}control.html`}>Control de las ruedas</a></li><li><a href={`${base}replicar.html`}>Constrúyelo tú</a></li></ol></article>
+      <article><span class="mono route-number">04</span><h3>Voy a exponer o evaluar</h3><p>El argumento y sus fuentes</p><ol><li><a href={`${base}problema.html#estado-del-arte`}>Cada decisión y su alternativa</a></li><li><a href={`${base}resultados.html`}>La evidencia y sus límites</a></li><li><a href={`${base}preguntas.html`}>Preguntas difíciles</a>, para ponerse a prueba</li><li><a href={`${base}bibliografia.html`}>Bibliografía</a> y <a href={`${base}lecciones.html`}>lecciones</a></li></ol></article>
+    </div>
+  </section>
+
+  <section class="about-section section-shell" id="sobre" aria-labelledby="about-title">
+    <div class="about-copy"><p class="eyebrow">SOBRE ESTE SITIO</p><h2 id="about-title">Un trabajo de titulación, <br/><em>abierto a la comunidad.</em></h2><p>Hice este sitio para que el trabajo se pueda entender y repetir sin leer la tesis completa. Explica el trabajo en simple, muestra la evidencia junto con sus límites y deja el camino trazado para quien quiera repetirlo o mejorarlo.</p><p>Las cifras y figuras del robot vienen de la tesis y se citan con su sección o figura. Los casos del mundo real y las lecciones de ingeniería se apoyan en fuentes externas, listadas al final de cada página y reunidas en <a href={`${base}recursos.html`}>Recursos</a>.</p><div class="about-links"><a class="under-link" href={`${base}problema.html`}>Empezar la guía ↗</a><a class="under-link" href={`${base}recursos.html#citar`}>Cómo citar ↗</a><a class="under-link" href={`${base}recursos.html#abstract`} hreflang="en" lang="en">Abstract in English ↗</a><a class="under-link" href="https://github.com/SVN11X/tesis_explain/issues">Sugerir una mejora ↗</a></div></div>
+    <aside class="data-lab-entry"><p class="eyebrow">EVIDENCIA QUE PUEDES REVISAR</p><h3>Comprueba las cifras, <br/>paso a paso.</h3><p>Abre una tabla de la guía o tu archivo CSV. El laboratorio calcula métricas localmente y muestra la fórmula, la condición de cada interpretación y lo que los datos no permiten concluir.</p><a class="button dark" href={`${base}laboratorio.html`}>Abrir el Laboratorio de análisis ↗</a></aside>
+  </section>
 </Shell>

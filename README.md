@@ -8,7 +8,7 @@ Guía abierta sobre el trabajo de titulación **"Navegación y exploración aut�
 
 ## Nueva experiencia visual, primera entrega
 
-La portada y `laboratorios.html` estrenan una dirección visual industrial, un robot tridimensional con giro y despiece, y un laboratorio de LiDAR con escenas 3D y mapa 2D sincronizados. El robot y los recintos son ilustrativos. Las mediciones publicadas de la tesis siguen en sus capítulos y archivos originales.
+La portada y `laboratorios.html` estrenan una dirección visual industrial, un robot tridimensional con giro y despiece, y un laboratorio de LiDAR con escenas 3D y mapa 2D sincronizados. El robot y los recintos son ilustrativos. Las mediciones publicadas de la tesis siguen en sus capítulos y archivos originales. La corrección V1.1 recupera también las explicaciones completas de la portada, sus métricas con matices, lecciones, preguntas y rutas de lectura.
 
 Esta entrega utiliza Astro, Svelte, TypeScript, Three.js y GSAP. No requiere servicios externos de pago ni claves. Los archivos compilados se incluyen en la raíz para seguir publicando con GitHub Pages desde `main` y `/ (root)`. No hay que subir `node_modules` ni cambiar el destino de publicación.
 
@@ -32,7 +32,7 @@ python herramientas/indice.py
 python herramientas/verificar_sitio.py
 ```
 
-Consulta [la guía de aplicación, alcance y validación](docs/experiencia-v1.md). Los apartados históricos de este README describen los capítulos que conservan la implementación anterior; su migración visual completa corresponde a la siguiente entrega.
+El criterio editorial es conservar explicaciones, fuentes, unidades y límites al cambiar su presentación. Consulta [la trazabilidad del contenido de portada](docs/contenido-portada.md) y [la guía de aplicación, alcance y validación](docs/experiencia-v1.md). Los apartados históricos de este README describen los capítulos que conservan la implementación anterior; su migración visual completa corresponde a la siguiente entrega.
 
 ![Una corrida real: a la izquierda la cámara cenital, a la derecha el mapa que construye el robot en RViz](img/mapa-crece.gif)
 
