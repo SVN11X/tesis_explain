@@ -135,8 +135,8 @@ export function heroScene(host:HTMLElement,onSelect:(id:PartId)=>void,onLost:()=
     gsap.to(s.controls.target,{y:value?.24:.095,duration:duration(),onUpdate:s.invalidate});gsap.to(s.camera.position,{x:value?.72:.37,y:value?.53:.3,z:value?.84:.43,duration:duration(),onUpdate:s.invalidate});
   }
   function view(preset:'frente'|'arriba'|'perspectiva'){
-    const p=preset==='arriba'?[0,.65,.005]:preset==='frente'?[0,.16,.56]:[.37,.3,.43];
-    activeTween?.kill();activeTween=gsap.to(s.camera.position,{x:p[0],y:p[1]+(exploded?.18:0),z:p[2],duration:duration(),ease:'power3.inOut',onUpdate:s.invalidate});
+    const p=exploded?(preset==='arriba'?[0,1.3,.005]:preset==='frente'?[0,.27,1.18]:[.72,.53,.84]):(preset==='arriba'?[0,.65,.005]:preset==='frente'?[0,.16,.56]:[.37,.3,.43]);
+    activeTween?.kill();activeTween=gsap.to(s.camera.position,{x:p[0],y:p[1],z:p[2],duration:duration(),ease:'power3.inOut',onUpdate:s.invalidate});
   }
   const mq=()=>{if(reduced.matches)motion=false;};if(reduced.addEventListener)reduced.addEventListener('change',mq);else reduced.addListener(mq);
   return {explode,view,select,lightweight:s.lightweight,setMotion:(v:boolean)=>{motion=v;},dispose:()=>{for(const p of Object.values(robot.parts))gsap.killTweensOf(p.position);gsap.killTweensOf(s.camera.position);gsap.killTweensOf(s.controls.target);host.removeEventListener('pointerdown',onDown);host.removeEventListener('pointerup',onUp);if(reduced.removeEventListener)reduced.removeEventListener('change',mq);else reduced.removeListener(mq);s.dispose();}};
