@@ -30,7 +30,11 @@ npm run build
 python -m pip install beautifulsoup4
 python herramientas/indice.py
 python herramientas/verificar_sitio.py
+python herramientas/pruebas_compilacion.py
+python herramientas/verificar_compilacion.py
 ```
+
+La verificación de compilación compara las salidas con Git y admite únicamente los identificadores internos `uid` de Astro que dependen de la ruta de trabajo. Los textos, atributos funcionales, scripts, estilos, índice y conjunto de recursos deben coincidir. Véase [la corrección de CI](docs/correccion-ci-astro.md).
 
 El criterio editorial es conservar explicaciones, fuentes, unidades y límites al cambiar su presentación. Consulta [la trazabilidad del contenido de portada](docs/contenido-portada.md) y [la guía de aplicación, alcance y validación](docs/experiencia-v1.md). Los apartados históricos de este README describen los capítulos que conservan la implementación anterior; su migración visual completa corresponde a la siguiente entrega.
 

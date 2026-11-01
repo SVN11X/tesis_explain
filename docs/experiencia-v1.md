@@ -1,6 +1,6 @@
-# Experiencia visual y laboratorio de percepción · V1.1
+# Experiencia visual y laboratorio de percepción · V1.2
 
-Corrección del 1 de noviembre de 2026: explicaciones de la portada recuperadas.
+Correcciones del 1 de noviembre de 2026: explicaciones de portada recuperadas (V1.1) y verificación de compilación entre entornos corregida (V1.2).
 
 ## Qué cambia
 
@@ -35,21 +35,23 @@ npm ci
 npm run dev
 ```
 
-Si **ya aplicaste la V1 anterior**, usa solamente `tesis_explain_restaurar_explicaciones_cambios_git_am.patch`, sobre tu rama del rediseño y con el árbol limpio:
+Si **ya aplicaste el rediseño con las explicaciones recuperadas**, como en `main` del commit `9728d788350a4061c349879aa50ef27b07c43b7d`, usa solamente `tesis_explain_corregir_ci_cambios_git_am.patch`:
 
-```bash
+```powershell
 git status --short
-git switch -c redisenio/conservar-explicaciones
-git am /ruta/tesis_explain_restaurar_explicaciones_cambios_git_am.patch
+git am "$env:USERPROFILE\Downloads\tesis_explain_corregir_ci_cambios_git_am.patch"
+if ($LASTEXITCODE -eq 0) { git push }
 ```
 
-El parche incremental parte del árbol de la entrega V1, identificado en el repositorio de trabajo por `09eb863003d13c8b8ae20077614fff540b76dccf`. No apliques ambos parches: el completo ya contiene la corrección. Si añadiste cambios propios después de V1, revisa su integración antes de aplicarlo.
+Revisa que `git status --short` no muestre cambios pendientes antes de aplicar el parche. Esta corrección modifica el flujo de verificación, añade su comprobador y pruebas, y actualiza la documentación. Conserva byte a byte los HTML, los recursos visuales, los modelos y las explicaciones publicados en esa base.
+
+Si todavía tienes la V1 inicial sin las explicaciones, el parche anterior `tesis_explain_restaurar_explicaciones_cambios_git_am.patch` recupera ese contenido; después corresponde aplicar la corrección de CI. El parche completo actualizado ya contiene ambas correcciones: no lo reapliques sobre una entrega instalada.
 
 En Windows, reemplaza `/ruta/` por la ubicación del archivo descargado. Abre `http://localhost:4321/tesis_explain/`. También puedes extraer el ZIP completo y ejecutar los dos comandos de npm en su carpeta. La nueva portada necesita un servidor HTTP: abrir el HTML directamente con `file://` no inicia los módulos.
 
 Si `main` recibió cambios después del commit base, conserva esa rama y revisa la integración antes de fusionar. Para cancelar una aplicación con conflictos, `git am --abort` vuelve al estado previo. El parche y el ZIP representan el mismo árbol de archivos, sin dependencias instaladas.
 
-La entrega local no se ha subido a GitHub ni se ha publicado. Para actualizar el sitio, revisa la rama, fusiónala en tu rama de publicación y súbela mediante tu flujo habitual. Los HTML y `_astro/` ya están compilados, y `.nojekyll` permite servir la carpeta de recursos.
+El rediseño con explicaciones ya fue subido por el usuario a `main` (`9728d78`). Esta corrección de CI se entrega como archivos y aún no se ha subido desde aquí. Para actualizar, aplica el parche correspondiente y súbelo mediante tu flujo habitual. Los HTML y `_astro/` ya están compilados, y `.nojekyll` permite servir la carpeta de recursos.
 
 ## Archivos y compilación
 
@@ -72,6 +74,15 @@ Las dependencias están fijadas con `package-lock.json`. Las fuentes se sirven l
 
 WebGL añade materiales, iluminación de entorno y sombras. Si no está disponible, una proyección SVG de la misma geometría mantiene el giro, el despiece y el experimento. Ese modo reduce la frecuencia de dibujo y no reproduce los efectos de materiales de WebGL. Si ambos visores fallan, quedan la fotografía y el mapa 2D. Sin JavaScript se puede leer la portada, seguir los capítulos y ver la explicación alternativa del sensor.
 
+## Verificación de la corrección de CI V1.2
+
+- El log `logs_112063413767.zip` muestra que TypeScript/Svelte, las 7 pruebas LiDAR y la compilación pasaron. El fallo ocurrió únicamente al ejecutar `git diff --exit-code`, por los UID de Astro en dos HTML.
+- La diferencia de ambos HTML extraída del log pasa la nueva comparación. Ningún otro byte se ignora.
+- Compilación e índice regenerados en una copia Git situada en otra ruta: solo cambian esos UID y la comprobación pasa sobre los 12 archivos compilados.
+- 10 pruebas del nuevo comprobador: correctas, incluidos rechazos de cambios de contenido, atributos, JavaScript, CSS, índice, recursos ausentes y recursos nuevos.
+- Las pruebas posteriores de navegador no llegaron a ejecutarse en el flujo adjunto y no se han vuelto a ejecutar en esta corrección. El resultado final de GitHub Actions se confirmará al subir el parche y ejecutar el flujo completo.
+- Véase [correccion-ci-astro.md](correccion-ci-astro.md) para la causa y el alcance.
+
 ## Verificación de la corrección V1.1
 
 - Compilación estática y `npm run check`: correctos; Svelte y TypeScript sin errores ni advertencias.
@@ -86,7 +97,7 @@ WebGL añade materiales, iluminación de entorno y sombras. Si no está disponib
 - `npm run check`: TypeScript y Svelte, sin errores ni advertencias.
 - 203 comprobaciones de los modelos originales y 7 pruebas nuevas de LiDAR: correctas.
 - 2.813 comprobaciones estáticas de recursos, anclas, estado académico e índice, sobre 18 páginas.
-- Compilación repetida: los HTML, el índice y los recursos generados coinciden byte a byte.
+- Compilación repetida en la misma ruta de trabajo: los HTML, el índice y los recursos generados coincidieron byte a byte. La diferencia entre rutas se identificó y corrigió en la verificación de V1.2.
 - Revisión de interfaz en navegador: despiece, selección de componentes, cámaras, escenario de caja baja, altura con teclado, avance, historial, pestañas móviles, búsqueda, recorrido, enlace de escenario y descarga JSON con 230 rayos y 3.500 celdas.
 - La vista móvil se revisó dentro de un viewport de 390 px, con 375 px útiles por la barra de desplazamiento del entorno. No equivale a una prueba de rendimiento en Android físico.
 - El navegador de revisión tenía WebGL desactivado: la revisión visual e interactiva se hizo con el respaldo SVG. La calidad de materiales y el rendimiento de WebGL quedan por verificar en un equipo con GPU.

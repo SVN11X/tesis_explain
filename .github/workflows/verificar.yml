@@ -33,7 +33,8 @@ jobs:
           npm run test:lidar
           npm run build
           python herramientas/indice.py
-          git diff --exit-code -- index.html laboratorios.html _astro datos/indice.js
+          python herramientas/pruebas_compilacion.py
+          python herramientas/verificar_compilacion.py
       - name: Ejemplos sintéticos y figuras de respaldo al día
         run: |
           node herramientas/ejemplos_laboratorio.js --comprobar
