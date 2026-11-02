@@ -59,7 +59,7 @@
 .ev-nums input[type="number"] { width: 6.5em; min-height: 38px; padding: 4px 8px; font: inherit; font-size: var(--t-sm); color: var(--ink); background: var(--surface); border: 1px solid var(--line-2); border-radius: var(--r); }
 
 @media (prefers-reduced-motion: no-preference) {
-  .ev-barra, .ev-ic-proy { transition: opacity .2s ease; }
+  .ev-barra, .ev-ic-proy { transition: opacity var(--dur-1) var(--curva); }
 }
 @media print {
   .ev-acciones, .ev-filas { display: none; }

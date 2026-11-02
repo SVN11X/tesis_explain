@@ -43,7 +43,8 @@ with sync_playwright() as pw:
         ctx = browser.new_context(viewport={'width': width, 'height': 900}, reduced_motion='reduce')
         for page in ('index.html', 'laboratorios.html'):
             p = ctx.new_page()
-            errors, failed = [], []
+            errors, failed, pedidos = [], [], []
+            p.on('request', lambda r: pedidos.append(r.url))
             p.on('pageerror', lambda e: errors.append(str(e)))
             p.on('response', lambda r: failed.append(r.url) if r.status >= 400 and r.url.startswith(BASE) else None)
             p.goto(BASE + page)
@@ -55,13 +56,23 @@ with sync_playwright() as pw:
                 p.get_by_role('button', name='Mapa 2D', exact=True).click()
                 check(p.locator('.map-wrap').is_visible() and not p.locator('.world-canvas').is_visible(), 'las pestañas móviles cambian la vista')
             check(p.locator('.aviso-academico').count() == 1, 'el estado académico sigue disponible')
+            if page == 'laboratorios.html' and width == 1366:
+                check(not any('robot-cad' in u or u.endswith('/robot.glb') for u in pedidos),
+                      'el laboratorio no descarga el modelo del CAD ni su cargador')
             p.close()
         ctx.close()
 
     ctx = browser.new_context(viewport={'width': 1366, 'height': 900}, reduced_motion='reduce')
     p = ctx.new_page()
+    pedidos = []
+    p.on('request', lambda r: pedidos.append(r.url))
     p.goto(BASE)
     expect(p.get_by_role('button', name='Despiece', exact=False)).to_be_enabled()
+    if p.locator('.robot-stage canvas[data-renderer=webgl]').count():
+        check('hecho a partir de su CAD' in (p.locator('.robot-stage').get_attribute('aria-label') or '')
+              and any(u.endswith('/modelos/robot.glb') for u in pedidos), 'con WebGL la portada muestra el modelo del CAD')
+    else:
+        print('  aviso  este navegador no tiene WebGL: no se comprueba el modelo del CAD', flush=True)
     p.get_by_role('button', name='Despiece', exact=False).click()
     expect(p.get_by_role('button', name='Ensamblar', exact=False)).to_have_attribute('aria-pressed', 'true')
     p.get_by_role('button', name='03 Electrónica').click()
@@ -103,8 +114,11 @@ with sync_playwright() as pw:
     # Respaldo sin GPU: misma geometría, giro, despiece y controles de laboratorio.
     ctx = browser.new_context(reduced_motion='reduce')
     ctx.add_init_script("const original=HTMLCanvasElement.prototype.getContext; HTMLCanvasElement.prototype.getContext=function(type,...args){return /webgl/.test(type)?null:original.call(this,type,...args)}")
-    p = ctx.new_page(); p.goto(BASE)
+    pedidos = []
+    p = ctx.new_page(); p.on('request', lambda r: pedidos.append(r.url)); p.goto(BASE)
     expect(p.locator('.robot-stage svg[data-renderer=svg]')).to_be_visible()
+    check(p.locator('.robot-stage').get_attribute('aria-label') == 'Modelo 3D ilustrativo del robot'
+          and not any(u.endswith('/robot.glb') for u in pedidos), 'sin GPU se usa el robot ilustrativo y no se descarga el modelo del CAD')
     p.get_by_role('button', name='Despiece', exact=False).click()
     check(p.get_by_role('button', name='Ensamblar', exact=False).is_enabled(), 'sin GPU se conserva el despiece 3D')
     ctx.close()

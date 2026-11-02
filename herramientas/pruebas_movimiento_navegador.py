@@ -207,6 +207,57 @@ with sync_playwright() as pw:
         p.locator('[data-vis=astar] [data-a=paso]').focus()
         p.keyboard.press('Enter')
         check(estado(p, 'astar', 'estadoAstar')['k'] == 1, name + ': con teclado se avanza un paso desde el inicio')
+
+        # Rejilla editable: muros, meta, encierro, vuelta al ejemplo y teclado. En los teléfonos se toca.
+        tactil = bool(options.get('has_touch'))
+        rejilla = p.locator('[data-vis=astar] .as-rejilla')
+        rejilla.scroll_into_view_if_needed()
+
+        def tocar(cx, cy):
+            caja = rejilla.bounding_box()
+            x, y = caja['x'] + (cx + .5) * caja['width'] / 24, caja['y'] + (cy + .5) * caja['height'] / 13
+            if tactil:
+                p.touchscreen.tap(x, y)
+            else:
+                p.mouse.click(x, y)
+        check(p.locator('[data-vis=astar] [data-a=ejemplo]').is_disabled(), name + ': sin cambios, Volver al ejemplo está desactivado')
+        tocar(12, 6)
+        e = estado(p, 'astar', 'estadoAstar')
+        t = text_of(p, 'astar')
+        check(e['muros'] == 8 and e['editada'] and e['k'] == 18 and e['camino'] and 'La ruta tiene 17 pasos' in t and '211' in t,
+              name + ': abrir un hueco en el muro recalcula: A estrella revisa 18 celdas y Dijkstra 211 para una ruta de 17 pasos', e)
+        check('Derribaste un muro' in t, name + ': el estado anuncia el cambio')
+        p.locator('[data-vis=astar] [data-modo=meta]').click()
+        tocar(5, 6)
+        e = estado(p, 'astar', 'estadoAstar')
+        check(e['B'] == [5, 6] and e['k'] == 3 and 'La ruta tiene 2 pasos' in text_of(p, 'astar'), name + ': con Meta se mueve la meta a la celda tocada', e)
+        tocar(0, 0)
+        p.locator('[data-vis=astar] [data-modo=muro]').click()
+        tocar(1, 0)
+        tocar(0, 1)
+        e = estado(p, 'astar', 'estadoAstar')
+        t = text_of(p, 'astar')
+        check(e['B'] == [0, 0] and not e['llego'] and not e['camino'] and 'no llegó a la meta' in t and 'sin ruta' in t,
+              name + ': con la meta encerrada no hay ruta y se explica por qué', e)
+        p.locator('[data-vis=astar] [data-a=ejemplo]').click()
+        e = estado(p, 'astar', 'estadoAstar')
+        check(e['k'] == 30 and e['muros'] == 9 and e['A'] == [3, 6] and e['B'] == [20, 6] and not e['editada'] and '30 de 111' in text_of(p, 'astar'),
+              name + ': Volver al ejemplo restaura la rejilla y sus cifras', e)
+        rejilla.focus()
+        for _ in range(3):
+            p.keyboard.press('ArrowRight')
+        p.keyboard.press('Enter')
+        e = estado(p, 'astar', 'estadoAstar')
+        check(e['cur'] == [6, 6] and e['muros'] == 10 and e['n'] == 110, name + ': con el teclado las flechas mueven el marco y Enter levanta un muro', e)
+        if not tactil:
+            caja = rejilla.bounding_box()
+            punto = lambda cx, cy: (caja['x'] + (cx + .5) * caja['width'] / 24, caja['y'] + (cy + .5) * caja['height'] / 13)
+            p.mouse.move(*punto(3, 6))
+            p.mouse.down()
+            p.mouse.move(*punto(4, 2), steps=8)
+            p.mouse.up()
+            e = estado(p, 'astar', 'estadoAstar')
+            check(e['A'] == [4, 2] and e['muros'] == 10, name + ': el robot se arrastra a otra celda sin tocar los muros', e)
         check(not errors, name + ': A estrella sin errores', errors[:3])
         check(p.evaluate('document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1'), name + ': navegación sin desborde horizontal')
         ctx.close()

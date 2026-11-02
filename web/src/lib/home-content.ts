@@ -1,5 +1,5 @@
 // Explicaciones de la portada original (fcb47bd), conservadas en el nuevo diseño.
-// Los datos de ensayo pertenecen a la tesis; los visores 3D son ilustrativos.
+// Los datos de ensayo pertenecen a la tesis. El robot de la portada sale del CAD y el del laboratorio LiDAR es ilustrativo.
 export const chapters = [
   ['01', 'Autonomía en interiores', 'Qué significa ser autónomo, qué alternativas existían y por qué se eligió cada pieza.', 'problema', 'básico'],
   ['02', 'Anatomía del robot', 'Piezas, energía, red, el reparto entre tres procesadores y el costo frente a plataformas comerciales.', 'robot', 'básico'],

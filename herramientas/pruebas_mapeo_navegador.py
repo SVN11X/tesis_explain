@@ -24,10 +24,10 @@ else:
 count = 0
 
 
-def check(cond, text):
+def check(cond, text, detalle=None):
     global count
     count += 1
-    assert cond, text
+    assert cond, text + ('' if detalle is None else '  ' + str(detalle))
     print('  ok   ' + text)
 
 
@@ -71,7 +71,7 @@ with sync_playwright() as pw:
 
         # LiDAR: leyenda, teclado, casos y obstáculo que el láser no ve
         check(p.locator('[data-vis=lidar] .mp-legend').count() == 1 and 'punto medido' in text_of(p, 'lidar'), name + ': el LiDAR explica qué es cada punto y trazo')
-        check(p.locator('[data-vis=lidar] .mp-robot').count() == 1 and '1 m' in p.locator('[data-vis=lidar] .mp-lidar-scene').inner_text(), name + ': el dibujo del LiDAR tiene robot y escala de 1 m')
+        check(p.locator('[data-vis=lidar] .mp-lidar-scene .robot-planta').count() == 1 and '1 m' in p.locator('[data-vis=lidar] .mp-lidar-scene').inner_text(), name + ': el dibujo del LiDAR tiene el robot con su planta en U y escala de 1 m')
         p.locator('[data-vis=lidar] .mp-lidar-scene').focus()
         p.keyboard.press('ArrowRight')
         check(p.locator('[data-out="mp-lidar-x"]').inner_text() == '1,08 m', name + ': las flechas mueven el robot 8 cm')
@@ -83,6 +83,33 @@ with sync_playwright() as pw:
         set_range(p, '#mp-lidar-x', 2.4)
         estado = p.locator('[data-vis=lidar]').evaluate('el => el.estadoSim()')
         check(estado['robot']['x'] < 1.6 and 'detenido por un obstáculo' in text_of(p, 'lidar'), name + ': la caja baja detiene al robot aunque el láser no la vea')
+
+        # Vista 3D del mismo barrido: se dibuja, explica las alturas, cambia de punto de vista y gira
+        v3 = p.locator('[data-vis=lidar] .mp-3d-lienzo')
+        v3.scroll_into_view_if_needed()
+        vista = lambda: p.locator('[data-vis=lidar]').evaluate('el => el.estadoSim().vista3d')
+        pintado = v3.evaluate("c => { const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0, t = 0; for (let i = 0; i < d.length; i += 4 * 97) { t++; if (d[i] !== d[0] || d[i + 1] !== d[1] || d[i + 2] !== d[2]) n++; } return n / t; }")
+        check(pintado > .25, name + ': la vista 3D dibuja la sala, el robot y el plano del láser', pintado)
+        cruza = p.evaluate("['pared', 'pata', 'caja', 'tablero'].map(t => window.MAPEO.cruzaPlano3D(t))")
+        check(cruza == [True, True, False, False] and '20 cm' in p.locator('#mp-3d-desc').inner_text(), name + ': en 3D el plano cruza paredes y patas y deja fuera la caja baja y la cubierta, como dice el texto', cruza)
+        p.locator('[data-vis=lidar] [data-v3=arriba]').click()
+        if name != 'movimiento reducido':
+            p.wait_for_timeout(500)
+        v = vista()
+        check(abs(v['pitch'] - 1.45) < 1e-6 and p.locator('[data-vis=lidar] [data-v3=arriba]').get_attribute('aria-pressed') == 'true', name + ': Desde arriba mira el plano desde arriba' + (' sin animar' if name == 'movimiento reducido' else ''), v)
+        v3.focus()
+        p.keyboard.press('ArrowRight')
+        check(abs(vista()['yaw'] - v['yaw'] - .14) < 1e-6, name + ': las flechas giran la vista 3D')
+        if not options.get('has_touch'):
+            caja = v3.bounding_box()
+            y0 = vista()['yaw']
+            p.mouse.move(caja['x'] + caja['width'] / 2, caja['y'] + caja['height'] / 2)
+            p.mouse.down()
+            p.mouse.move(caja['x'] + caja['width'] / 2 + 100, caja['y'] + caja['height'] / 2 - 40, steps=5)
+            p.mouse.up()
+            v = vista()
+            check(abs(v['yaw'] - y0 - .9) < 1e-6 and v['pitch'] < 1.45, name + ': arrastrar gira e inclina la vista 3D', v)
+        check(v3.evaluate('c => c.getBoundingClientRect().width <= c.closest(".vis").getBoundingClientRect().width + 1'), name + ': la vista 3D cabe en su recuadro')
 
         # Rejilla: lecturas de área e índice y navegación por teclado
         p.locator('[data-vis=rejilla] [data-fase="3"]').click()
@@ -175,7 +202,7 @@ with sync_playwright() as pw:
 
         if name == 'oscuro':
             fill = p.locator('[data-vis=lidar] .mp-svg text').first.evaluate('el => getComputedStyle(el).fill')
-            check(fill != 'rgb(30, 38, 50)', name + ': los textos de los dibujos usan el color del tema oscuro')
+            check(fill == 'rgb(230, 233, 222)', name + ': los textos de los dibujos usan el color del tema oscuro', fill)
 
         check(not errors, name + ': todos los cambios de controles terminaron sin errores')
         check(p.evaluate('document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1'), name + ': sigue sin desborde después de interactuar')

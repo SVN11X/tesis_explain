@@ -17,7 +17,7 @@
   M.svgEstatico = false;
   function svg(w, h, title, body) {
     return '<svg xmlns="http://www.w3.org/2000/svg" class="mp-svg" viewBox="0 0 ' + w + ' ' + h + '" role="img" aria-label="' + esc(title) + '">' +
-      (M.svgEstatico ? '<style>text{font-family:Arial,sans-serif;fill:#1e2632}.mp-bg{fill:#fff}.mp-room{fill:#eef2f8}.mp-beam{stroke:#004eaa;stroke-width:1;opacity:.15}.mp-border{stroke:#cbd3de}.mp-muted{fill:#5a6371}.mp-blue{stroke:#004eaa}.mp-green{stroke:#3a6b0e}.mp-orange{stroke:#9a4505}.mp-node{fill:#004eaa;stroke:#fff;stroke-width:1.2}.mp-selected{fill:#3a6b0e;stroke:#1e2632;stroke-width:2}</style>' : '') +
+      (M.svgEstatico ? '<style>text{font-family:Arial,sans-serif;fill:#1e2632}.mp-bg{fill:#fff}.mp-room{fill:#eef2f8}.mp-beam{stroke:#004eaa;stroke-width:1;opacity:.15}.mp-border{stroke:#cbd3de}.mp-muted{fill:#5a6371}.mp-blue{stroke:#004eaa}.mp-green{stroke:#3a6b0e}.mp-orange{stroke:#9a4505}.mp-node{fill:#004eaa;stroke:#fff;stroke-width:1.2}.mp-selected{fill:#3a6b0e;stroke:#1e2632;stroke-width:2}.mp-cubierta{fill:#b4bcc8}.mp-pata{fill:#3b4250}.mp-cajab{fill:#eda100}.mp-robot-lat{fill:#004eaa}.mp-caja{fill:#eef2f8;stroke:#8794a8}.mp-caja-verde{fill:#edf6e2;stroke:#3a6b0e}.mp-caja-azul{fill:#e5edf8;stroke:#004eaa}</style>' : '') +
       '<rect class="mp-bg" width="' + w + '" height="' + h + '"/>' + body + '</svg>';
   }
   function txt(x, y, s, size, cls) { return '<text x="' + x + '" y="' + y + '" font-size="' + (size || 14) + '" class="' + (cls || "mp-ink") + '">' + esc(s) + '</text>'; }
@@ -88,8 +88,8 @@
     return out;
   };
   M.lidarLateralSVG = function () {
-    var s = line(20, 160, 340, 160, "mp-border") + '<rect x="125" y="40" width="125" height="10" fill="#b4bcc8"/><rect x="135" y="50" width="8" height="110" fill="#3b4250"/><rect x="235" y="50" width="8" height="110" fill="#3b4250"/><rect x="287" y="138" width="35" height="22" fill="#eda100"/>';
-    s += '<rect x="33" y="118" width="54" height="42" rx="8" fill="#004eaa"/>';
+    var s = line(20, 160, 340, 160, "mp-border") + '<rect x="125" y="40" width="125" height="10" class="mp-cubierta"/><rect x="135" y="50" width="8" height="110" class="mp-pata"/><rect x="235" y="50" width="8" height="110" class="mp-pata"/><rect x="287" y="138" width="35" height="22" class="mp-cajab"/>';
+    s += '<rect x="33" y="118" width="54" height="42" rx="8" class="mp-robot-lat"/>';
     s += line(65, 110, 338, 110, "mp-blue", "6 4") + txt(15, 18, "Solo un plano de altura", 16) + txt(148, 35, "cubierta", 13) + txt(151, 83, "patas", 13) + txt(277, 132, "caja", 13) + txt(88, 104, "láser", 13);
     return svg(360, 185, "El láser cruza las patas, pasa bajo la cubierta de la mesa y sobre una caja baja", s);
   };
@@ -97,8 +97,8 @@
     var X = function (x) { return 82 + x * 94; }, Y = function (y) { return 30 + y * 94; }, b = "";
     if (!solo) {
       b += '<rect x="' + X(0) + '" y="' + Y(0) + '" width="376" height="244.4" class="mp-room"/>';
-      b += '<rect x="' + X(1.62) + '" y="' + Y(1.67) + '" width="90.2" height="71.4" fill="#cdd3dc" fill-opacity=".35" stroke="' + (caso === "altura" ? "#004eaa" : "#5a6371") + '" stroke-width="' + (caso === "altura" ? 3 : 1) + '" stroke-dasharray="5 4"/>';
-      b += '<rect x="' + X(1.6) + '" y="' + Y(.35) + '" width="28.2" height="23.5" fill="#eda100" fill-opacity=".35" stroke="#9a4505" stroke-width="' + (caso === "altura" ? 3 : 1) + '" stroke-dasharray="5 4"/>';
+      b += '<rect x="' + X(1.62) + '" y="' + Y(1.67) + '" width="90.2" height="71.4" class="mp-mesa' + (caso === "altura" ? " resaltada" : "") + '" stroke-width="' + (caso === "altura" ? 3 : 1) + '" stroke-dasharray="5 4"/>';
+      b += '<rect x="' + X(1.6) + '" y="' + Y(.35) + '" width="28.2" height="23.5" class="mp-cajab mp-translucida" stroke-width="' + (caso === "altura" ? 3 : 1) + '" stroke-dasharray="5 4"/>';
       M.segmentosLidar().forEach(function (s) {
         var color = s[4] === "vidrio" ? "#2a78d6" : "#3b4250", dash = s[4] === "vidrio" ? ' stroke-dasharray="6 4"' : "";
         b += '<line x1="' + X(s[0]) + '" y1="' + Y(s[1]) + '" x2="' + X(s[2]) + '" y2="' + Y(s[3]) + '" class="' + (s[4] === "vidrio" ? "mp-glass" : "mp-wall") + '" stroke="' + color + '" stroke-width="' + (s[4] === "pata" ? 3 : 4) + '"' + dash + '/>';
@@ -110,13 +110,213 @@
       rays.forEach(function (p) { if (p.d !== null) b += line(X(rob.x), Y(rob.y), X(rob.x + Math.cos(p.a) * p.d), Y(rob.y + Math.sin(p.a) * p.d), "mp-beam"); });
     }
     rays.forEach(function (p) { if (p.d !== null) b += '<circle cx="' + X(rob.x + Math.cos(p.a) * p.d) + '" cy="' + Y(rob.y + Math.sin(p.a) * p.d) + '" r="2.4" class="mp-return" fill="#b42318"/>'; });
-    /* El robot: un círculo azul con el LiDAR al centro. El sensor mide en 360°, por eso no se dibuja una dirección. */
-    b += '<circle cx="' + X(rob.x) + '" cy="' + Y(rob.y) + '" r="13" class="mp-robot"/><circle cx="' + X(rob.x) + '" cy="' + Y(rob.y) + '" r="4.5" class="mp-sensor"/>';
+    /* El robot visto desde arriba, como en las demás figuras: la cubierta en U y el LiDAR, de donde salen los rayos.
+       Mide en 360°, así que el rumbo del dibujo no cambia lo que ve. */
+    var U = window.U;
+    if (U && U.robot) {
+      var g = U.robot.svg(X(rob.x), Y(rob.y), 0, 94, "lidar");
+      b += '<g class="robot-planta"><path class="cuerpo" d="' + g.cuerpo + '"/><circle class="lidar" cx="' + g.lidar[0].toFixed(2) + '" cy="' + g.lidar[1].toFixed(2) + '" r="' + g.lidarR.toFixed(2) + '"/></g>';
+    } else b += '<circle cx="' + X(rob.x) + '" cy="' + Y(rob.y) + '" r="13" class="mp-robot"/><circle cx="' + X(rob.x) + '" cy="' + Y(rob.y) + '" r="4.5" class="mp-sensor"/>';
     /* Escala gráfica de 1 m, igual en las dos vistas. */
     b += '<path d="M' + X(3) + ' 300v-7M' + X(3) + ' 296.5H' + X(4) + 'M' + X(4) + ' 300v-7" class="mp-escala" fill="none" stroke-width="2"/>' + '<text class="mp-ink" font-size="14" text-anchor="middle" x="' + X(3.5) + '" y="316">1 m</text>';
     b += txt(16, 316, solo ? "Solo puntos de este barrido · no es un mapa" : "Vista superior · escenario de ejemplo", 16);
     return svg(490, 324, "Barrido LiDAR y robot. Controles de posición debajo del dibujo", b);
   };
+  /* Vista 3D del mismo barrido, dibujada a mano en un canvas, sin bibliotecas. Proyección ortográfica, caras
+     ordenadas de atrás hacia adelante y la escena partida a la altura del láser: lo que queda bajo el plano se ve
+     a través de él y lo que sobresale lo tapa. Las alturas son de ejemplo, no las cotas del prototipo. */
+  var ALTO = { pared: .45, laser: .2, cuerpo: .13, mesa: .7, tablero: .03, caja: .1, oscuro: .45 };
+  M.ALTURAS_3D = ALTO;
+  M.cajas3D = function () {
+    var out = [];
+    function pared(x0, y0, x1, y1, tipo) {
+      /* tramos de medio metro como máximo, para que el orden de dibujo no falle en paredes largas */
+      var n = Math.max(1, Math.ceil(Math.hypot(x1 - x0, y1 - y0) / .5)), e = .02;
+      for (var i = 0; i < n; i++) {
+        var ax = x0 + (x1 - x0) * i / n, ay = y0 + (y1 - y0) * i / n, bx = x0 + (x1 - x0) * (i + 1) / n, by = y0 + (y1 - y0) * (i + 1) / n;
+        out.push({ x0: Math.min(ax, bx) - e, x1: Math.max(ax, bx) + e, y0: Math.min(ay, by) - e, y1: Math.max(ay, by) + e, z0: 0, z1: ALTO.pared, tipo: tipo });
+      }
+    }
+    M.segmentosLidar().forEach(function (q) { if (q[4] === "pared" || q[4] === "vidrio" || q[4] === "exterior") pared(q[0], q[1], q[2], q[3], q[4]); });
+    out.push({ x0: 3, y0: 1.6, x1: 3.8, y1: 2.4, z0: 0, z1: ALTO.oscuro, tipo: "oscuro" });
+    [[1.7, 1.75], [2.5, 1.75], [1.7, 2.35], [2.5, 2.35]].forEach(function (q) { out.push({ x0: q[0] - .025, x1: q[0] + .025, y0: q[1] - .025, y1: q[1] + .025, z0: 0, z1: ALTO.mesa, tipo: "pata" }); });
+    out.push({ x0: 1.62, x1: 2.58, y0: 1.67, y1: 2.43, z0: ALTO.mesa, z1: ALTO.mesa + ALTO.tablero, tipo: "tablero" });
+    out.push({ x0: 1.6, x1: 1.9, y0: .35, y1: .6, z0: 0, z1: ALTO.caja, tipo: "caja" });
+    return out;
+  };
+  /* Qué cruza el plano del láser: lo que empieza bajo él y termina sobre él */
+  M.cruzaPlano3D = function (tipo) { return M.cajas3D().some(function (c) { return c.tipo === tipo && c.z0 < ALTO.laser && c.z1 > ALTO.laser; }); };
+  var VISTAS_3D = { perspectiva: [-.62, .62], lado: [0, .06], arriba: [0, 1.45] };
+  M.vista3D = function (cont) {
+    var cv = document.createElement("canvas"), ctx = cv.getContext("2d");
+    cv.className = "mp-3d-lienzo"; cont.appendChild(cv);
+    var st = { yaw: VISTAS_3D.perspectiva[0], pitch: VISTAS_3D.perspectiva[1] }, datos = null, P = null, W = 0, H = 0, anim = 0;
+    var CX = 1.6, CY = 1.3, cajas = M.cajas3D();
+    function hex(c) { c = (c || "#888").trim().replace("#", ""); if (c.length === 3) c = c.split("").map(function (x) { return x + x; }).join(""); var n = parseInt(c, 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+    function mezcla(a, b, t) { return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]; }
+    function color(rgb, f, a) { return "rgba(" + Math.round(rgb[0] * f) + "," + Math.round(rgb[1] * f) + "," + Math.round(rgb[2] * f) + "," + (a == null ? 1 : a) + ")"; }
+    function paleta() {
+      var cs = getComputedStyle(cont), v = function (n) { return hex(cs.getPropertyValue(n)); };
+      P = { fondo: v("--surface"), piso: v("--surface-2"), linea: v("--line"), linea2: v("--line-2"), ink: v("--ink"), muted: v("--muted"), obst: v("--obst"),
+        azul: v("--azul"), azulM: v("--azul-medio"), rojo: v("--rojo"), caja: v("--s4"), oscuro: [38, 43, 41] };
+    }
+    function medir() {
+      var w = Math.max(260, Math.round(cont.clientWidth || 600)), h = Math.round(w * .62), dpr = Math.min(2, window.devicePixelRatio || 1);
+      if (w === W && h === H) return;
+      W = w; H = h; cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); cv.style.aspectRatio = w + " / " + h;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    /* de metros a pantalla: giro alrededor del eje vertical y luego inclinación. prof crece hacia la cámara. */
+    function base(x, y, z) {
+      var c = Math.cos(st.yaw), s = Math.sin(st.yaw), sp = Math.sin(st.pitch), cp = Math.cos(st.pitch);
+      var x1 = (x - CX) * c - (y - CY) * s, y1 = (x - CX) * s + (y - CY) * c;
+      return [x1, y1 * sp - z * cp, y1 * cp + z * sp];
+    }
+    var esc = 1, ox = 0, oy = 0;
+    function encuadrar() {
+      var a = [Infinity, Infinity], b = [-Infinity, -Infinity];
+      [-.7, 4].forEach(function (x) { [0, 2.6].forEach(function (y) { [0, .75].forEach(function (z) { var q = base(x, y, z); a[0] = Math.min(a[0], q[0]); a[1] = Math.min(a[1], q[1]); b[0] = Math.max(b[0], q[0]); b[1] = Math.max(b[1], q[1]); }); }); });
+      esc = Math.min((W - 24) / (b[0] - a[0]), (H - 24) / (b[1] - a[1]));
+      ox = W / 2 - (a[0] + b[0]) / 2 * esc; oy = H / 2 - (a[1] + b[1]) / 2 * esc;
+    }
+    function pt(x, y, z) { var q = base(x, y, z); return [ox + q[0] * esc, oy + q[1] * esc, q[2]]; }
+    /* hacia la cámara, en coordenadas del mundo */
+    function haciaCamara(n) {
+      var c = Math.cos(st.yaw), s = Math.sin(st.yaw);
+      return (n[0] * s + n[1] * c) * Math.cos(st.pitch) + n[2] * Math.sin(st.pitch);
+    }
+    var LUZ = [-.55, -.65, .52];
+    function luz(n) { var d = n[0] * LUZ[0] + n[1] * LUZ[1] + n[2] * LUZ[2]; return .66 + .34 * Math.max(0, d); }
+    function prisma(poly, z0, z1, rgb, alfa, caras, tapa) {
+      /* poly: planta convexa. Cada cara lateral mira hacia afuera del centro de la planta */
+      var cx = 0, cy = 0;
+      poly.forEach(function (q) { cx += q[0] / poly.length; cy += q[1] / poly.length; });
+      if (tapa !== false) caras.push({ v: poly.map(function (q) { return [q[0], q[1], z1]; }), n: [0, 0, 1], rgb: rgb, a: alfa });
+      for (var i = 0; i < poly.length; i++) {
+        var a = poly[i], b = poly[(i + 1) % poly.length], dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1, n = [dy / L, -dx / L, 0];
+        if (n[0] * ((a[0] + b[0]) / 2 - cx) + n[1] * ((a[1] + b[1]) / 2 - cy) < 0) n = [-n[0], -n[1], 0];
+        caras.push({ v: [[a[0], a[1], z0], [b[0], b[1], z0], [b[0], b[1], z1], [a[0], a[1], z1]], n: n, rgb: rgb, a: alfa });
+      }
+    }
+    function rect(c) { return [[c.x0, c.y0], [c.x0, c.y1], [c.x1, c.y1], [c.x1, c.y0]]; }
+    function caras() {
+      var h = ALTO.laser, bajo = [], sobre = [];
+      var tinte = { pared: [mezcla(P.obst, P.fondo, .42), 1], exterior: [P.muted, .8], vidrio: [P.azulM, .45], oscuro: [P.oscuro, 1], pata: [P.obst, 1], tablero: [P.linea2, .92], caja: [P.caja, 1] };
+      /* corte de maqueta: las paredes entre la cámara y el centro de la sala se dibujan casi transparentes */
+      var centro = base(2, 1.3, 0)[2];
+      cajas.forEach(function (c) {
+        var t = tinte[c.tipo], pol = rect(c);
+        if ((c.tipo === "pared" || c.tipo === "vidrio") && base((c.x0 + c.x1) / 2, (c.y0 + c.y1) / 2, 0)[2] > centro + .35) t = [t[0], Math.min(t[1], .2)];
+        if (c.z1 <= h) prisma(pol, c.z0, c.z1, t[0], t[1], bajo);
+        else if (c.z0 >= h) prisma(pol, c.z0, c.z1, t[0], t[1], sobre);
+        else { prisma(pol, c.z0, h, t[0], t[1], bajo, false); prisma(pol, h, c.z1, t[0], t[1], sobre); }
+      });
+      /* el robot: la planta en U de js/comun.js extruida, con el LiDAR como un cilindro que llega al plano */
+      if (datos && U && U.robot) {
+        var MR = U.robot.medidas, rb = datos.rob, d0 = MR.lidar, contorno = [], k;
+        contorno.push([MR.atras - d0, MR.r], [MR.atras - d0, -MR.r]);
+        for (k = 0; k <= 12; k++) { var ang = -Math.PI / 2 + Math.PI * k / 12; contorno.push([MR.curva - d0 + Math.cos(ang) * MR.r, Math.sin(ang) * MR.r]); }
+        prisma(contorno.map(function (q) { return [rb.x + q[0], rb.y + q[1]]; }), 0, ALTO.cuerpo, P.azul, 1, bajo);
+        var cil = [];
+        for (k = 0; k < 14; k++) { var a2 = -TAU * k / 14; cil.push([rb.x + Math.cos(a2) * MR.lidarR, rb.y + Math.sin(a2) * MR.lidarR]); }
+        prisma(cil, ALTO.cuerpo, h, P.ink, 1, bajo);
+        prisma(cil, h, h + .02, P.ink, 1, sobre);
+      }
+      return { bajo: bajo, sobre: sobre };
+    }
+    function pintar(lista) {
+      lista.forEach(function (f) { if (f.n[2] < .5 && haciaCamara(f.n) <= 1e-6) return; f.p = f.v.map(function (q) { return pt(q[0], q[1], q[2]); }); f.prof = f.p.reduce(function (s, q) { return s + q[2]; }, 0) / f.p.length; });
+      lista.filter(function (f) { return f.p; }).sort(function (a, b) { return a.prof - b.prof; }).forEach(function (f) {
+        ctx.beginPath(); f.p.forEach(function (q, i) { if (i) ctx.lineTo(q[0], q[1]); else ctx.moveTo(q[0], q[1]); }); ctx.closePath();
+        ctx.fillStyle = color(f.rgb, luz(f.n), f.a); ctx.fill();
+        ctx.strokeStyle = color(P.ink, 1, .22 * Math.min(1, f.a * 1.6)); ctx.lineWidth = .75; ctx.stroke();
+      });
+    }
+    function rotulo(txt, x, y, z) {
+      var q = pt(x, y, z);
+      ctx.font = "600 12px " + (getComputedStyle(cont).getPropertyValue("--f-body").trim() || "sans-serif");
+      ctx.textAlign = "center"; ctx.lineJoin = "round"; ctx.lineWidth = 3.5; ctx.strokeStyle = color(P.fondo, 1, .9); ctx.strokeText(txt, q[0], q[1]);
+      ctx.fillStyle = color(P.ink, 1, 1); ctx.fillText(txt, q[0], q[1]); ctx.textAlign = "start";
+    }
+    function dibujar() {
+      if (!P) paleta();
+      medir(); encuadrar();
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = color(P.fondo, 1, 1); ctx.fillRect(0, 0, W, H);
+      /* piso de la sala con cuadrícula de 50 cm */
+      var piso = [[0, 0], [4, 0], [4, 2.6], [0, 2.6]].map(function (q) { return pt(q[0], q[1], 0); });
+      ctx.beginPath(); piso.forEach(function (q, i) { if (i) ctx.lineTo(q[0], q[1]); else ctx.moveTo(q[0], q[1]); }); ctx.closePath();
+      ctx.fillStyle = color(P.piso, 1, 1); ctx.fill();
+      ctx.strokeStyle = color(P.linea, 1, 1); ctx.lineWidth = 1; ctx.beginPath();
+      for (var gx = .5; gx < 4; gx += .5) { var a = pt(gx, 0, 0), b = pt(gx, 2.6, 0); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); }
+      for (var gy = .5; gy < 2.6; gy += .5) { var c1 = pt(0, gy, 0), c2 = pt(4, gy, 0); ctx.moveTo(c1[0], c1[1]); ctx.lineTo(c2[0], c2[1]); }
+      ctx.stroke();
+      var cs = caras();
+      pintar(cs.bajo);
+      /* el plano del láser: los sectores con retorno, los rayos y los puntos medidos */
+      if (datos) {
+        var h = ALTO.laser, rb = datos.rob, rays = datos.rays, o = pt(rb.x, rb.y, h);
+        ctx.fillStyle = color(P.azul, 1, .13);
+        for (var i = 0; i < rays.length; i++) {
+          var r1 = rays[i], r2 = rays[(i + 1) % rays.length];
+          if (r1.d === null || r2.d === null) continue;
+          var p1 = pt(rb.x + Math.cos(r1.a) * r1.d, rb.y + Math.sin(r1.a) * r1.d, h), p2 = pt(rb.x + Math.cos(r2.a) * r2.d, rb.y + Math.sin(r2.a) * r2.d, h);
+          ctx.beginPath(); ctx.moveTo(o[0], o[1]); ctx.lineTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]); ctx.closePath(); ctx.fill();
+        }
+        ctx.strokeStyle = color(P.azul, 1, .3); ctx.lineWidth = .8; ctx.beginPath();
+        rays.forEach(function (r, j) { if (r.d === null || j % 2) return; var q = pt(rb.x + Math.cos(r.a) * r.d, rb.y + Math.sin(r.a) * r.d, h); ctx.moveTo(o[0], o[1]); ctx.lineTo(q[0], q[1]); });
+        ctx.stroke();
+        ctx.fillStyle = color(P.rojo, 1, 1);
+        rays.forEach(function (r) { if (r.d === null) return; var q = pt(rb.x + Math.cos(r.a) * r.d, rb.y + Math.sin(r.a) * r.d, h); ctx.beginPath(); ctx.arc(q[0], q[1], 2.1, 0, TAU); ctx.fill(); });
+      }
+      pintar(cs.sobre);
+      rotulo("mesa", 2.1, 2.05, ALTO.mesa + ALTO.tablero + .06);
+      rotulo("caja baja", 1.75, .47, ALTO.caja + .12);
+      rotulo("oscuro", 3.4, 2, ALTO.oscuro + .08);
+      rotulo("vidrio", 0, 1.45, ALTO.pared + .08);
+      rotulo("exterior", -.6, 1.45, ALTO.pared + .08);
+    }
+    var api = {
+      lienzo: cv,
+      actualizar: function (d) { datos = d; dibujar(); },
+      vista: function (nombre) {
+        var dest = VISTAS_3D[nombre]; if (!dest) return;
+        if (anim) { cancelAnimationFrame(anim); anim = 0; }
+        if (U && U.quieto && U.quieto()) { st.yaw = dest[0]; st.pitch = dest[1]; dibujar(); return; }
+        var ini = [st.yaw, st.pitch], t0 = null;
+        (function paso(ts) {
+          if (t0 === null) t0 = ts;
+          var k = Math.min(1, (ts - t0) / 380), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+          st.yaw = ini[0] + (dest[0] - ini[0]) * e; st.pitch = ini[1] + (dest[1] - ini[1]) * e; dibujar();
+          anim = k < 1 ? requestAnimationFrame(paso) : 0;
+        })(performance.now());
+      },
+      girar: function (dy, dp) { st.yaw += dy; st.pitch = clamp(st.pitch + dp, .12, 1.5); dibujar(); },
+      estado: function () { return { yaw: st.yaw, pitch: st.pitch, ancho: W, alto: H }; },
+      repintar: function () { P = null; dibujar(); }
+    };
+    /* arrastrar gira la escena. Con el dedo solo cuenta el arrastre horizontal, así deslizar en vertical sigue desplazando la página */
+    var previo = null;
+    cv.addEventListener("pointerdown", function (e) {
+      previo = { x: e.clientX, y: e.clientY, toque: e.pointerType === "touch" };
+      if (!previo.toque && cv.setPointerCapture) try { cv.setPointerCapture(e.pointerId); } catch (x) {}
+    });
+    cv.addEventListener("pointermove", function (e) {
+      if (!previo) return;
+      var dx = e.clientX - previo.x, dy = e.clientY - previo.y; previo.x = e.clientX; previo.y = e.clientY;
+      if (anim) { cancelAnimationFrame(anim); anim = 0; }
+      api.girar(dx * .009, previo.toque ? 0 : dy * .007);
+    });
+    ["pointerup", "pointercancel", "lostpointercapture"].forEach(function (n) { cv.addEventListener(n, function () { previo = null; }); });
+    cv.addEventListener("keydown", function (e) {
+      var d = { ArrowLeft: [-.14, 0], ArrowRight: [.14, 0], ArrowUp: [0, .1], ArrowDown: [0, -.1] }[e.key];
+      if (d) { e.preventDefault(); api.girar(d[0], d[1]); }
+    });
+    if ("ResizeObserver" in window) new ResizeObserver(function () { if (datos) dibujar(); }).observe(cont);
+    document.addEventListener("temacambio", function () { setTimeout(api.repintar, 30); });
+    return api;
+  };
+
   V.lidar = function (el) {
     var rob = { x: 1, y: 1.3 }, caso = "ideal", solo = false, aviso = "";
     var casos = { ideal: "Ideal y sombras", altura: "Mesa y caja baja", vidrio: "Vidrio", oscuro: "Superficie oscura" };
@@ -129,15 +329,20 @@
     el.innerHTML = '<div class="mp-panel"><div class="mp-cases" role="group" aria-label="Casos del LiDAR">' + Object.keys(casos).map(function (k) { return '<button class="vbtn sec" type="button" data-caso="' + k + '" aria-pressed="' + (k === caso) + '">' + casos[k] + '</button>'; }).join("") + '</div>' +
       '<div class="mp-controls" role="group" aria-label="Vista del barrido"><button class="vbtn sec" type="button" data-vista="sala" aria-pressed="true">Sala y láser</button><button class="vbtn sec" type="button" data-vista="puntos" aria-pressed="false">Solo puntos</button><button class="vbtn sec" type="button" data-reset>Restablecer posición</button></div>' +
       '<div class="mp-chart mp-lidar-scene" tabindex="0" role="group" aria-label="Mover el robot con las flechas o arrastrar en el dibujo"></div>' +
-      '<div class="mp-legend"><span><i class="mp-dot mp-dot-rojo" aria-hidden="true"></i>punto medido: donde volvió el láser</span><span><i class="mp-raya" aria-hidden="true"></i>rayo que llegó a un obstáculo</span><span><i class="mp-dot mp-dot-azul" aria-hidden="true"></i>robot con el LiDAR al centro</span><span><i class="mp-contorno" aria-hidden="true"></i>objeto fuera de la altura del láser</span><span><i class="mp-raya mp-raya-vidrio" aria-hidden="true"></i>vidrio</span></div>' +
+      '<div class="mp-legend"><span><i class="mp-dot mp-dot-rojo" aria-hidden="true"></i>punto medido: donde volvió el láser</span><span><i class="mp-raya" aria-hidden="true"></i>rayo que llegó a un obstáculo</span><span>' + (window.U && window.U.robot ? window.U.robot.icono() : '<i class="mp-dot mp-dot-azul" aria-hidden="true"></i>') + 'robot visto desde arriba, con su LiDAR</span><span><i class="mp-contorno" aria-hidden="true"></i>objeto fuera de la altura del láser</span><span><i class="mp-raya mp-raya-vidrio" aria-hidden="true"></i>vidrio</span></div>' +
       '<div class="mp-ranges">' + range("mp-lidar-x", "Posición horizontal", .15, 3.85, .01, rob.x) + range("mp-lidar-y", "Posición vertical en el dibujo", .15, 2.45, .01, rob.y) + '</div>' +
       readings(["Sectores con retorno", "Sectores sin retorno"]) +
-      '<p class="mp-status" aria-live="polite"></p><figure class="mp-fig mp-lateral">' + M.lidarLateralSVG() + '<figcaption>Vista lateral de ejemplo. El plano cruza las patas, pero no la cubierta ni la caja. No representa las cotas del prototipo.</figcaption></figure>' +
+      '<p class="mp-status" aria-live="polite"></p>' +
+      '<figure class="mp-fig mp-3d"><div class="mp-controls" role="group" aria-label="Punto de vista de la vista 3D"><button class="vbtn sec" type="button" data-v3="perspectiva" aria-pressed="true">Perspectiva</button><button class="vbtn sec" type="button" data-v3="lado" aria-pressed="false">De lado</button><button class="vbtn sec" type="button" data-v3="arriba" aria-pressed="false">Desde arriba</button></div>' +
+      '<div class="mp-3d-escena"></div><figcaption id="mp-3d-desc">Vista 3D de ejemplo, con la misma sala y el mismo robot. En este ejemplo el láser mide en un plano a ' + fmt(ALTO.laser * 100, 0) + ' cm del suelo: cruza las patas de la mesa y las paredes, pasa sobre la caja baja de ' + fmt(ALTO.caja * 100, 0) + ' cm y bajo la cubierta, a ' + fmt(ALTO.mesa * 100, 0) + ' cm. Arrástrala o usa las flechas para girarla. No representa las cotas del prototipo.</figcaption></figure>' +
       '<p class="vnota">230 sectores por vuelta, rango 0,15–12 m, según el nodo descrito en la tesis. La escena es un modelo idealizado, sin ruido ni movimiento durante el barrido. La posición del robot se conoce en esta ilustración. El LiDAR solo no resuelve su localización. Los dos dibujos usan la misma referencia para comparar.</p></div>';
-    var chart = el.querySelector(".mp-lidar-scene");
+    var chart = el.querySelector(".mp-lidar-scene"), v3 = M.vista3D(el.querySelector(".mp-3d-escena"));
+    v3.lienzo.setAttribute("tabindex", "0"); v3.lienzo.setAttribute("role", "group"); v3.lienzo.setAttribute("aria-roledescription", "vista 3D");
+    v3.lienzo.setAttribute("aria-label", "Vista 3D del barrido. Arrastra o usa las flechas para girarla."); v3.lienzo.setAttribute("aria-describedby", "mp-3d-desc");
     function draw() {
       var rays = M.barridoLidar(rob, caso), n = rays.filter(function (r) { return r.d !== null; }).length;
       chart.innerHTML = M.lidarSVG(rob, caso, solo, rays);
+      v3.actualizar({ rob: rob, caso: caso, rays: rays });
       el.querySelector("#mp-lidar-x").value = rob.x; el.querySelector("#mp-lidar-y").value = rob.y;
       el.querySelector('[data-out="mp-lidar-x"]').textContent = fmt(rob.x, 2) + " m";
       el.querySelector('[data-out="mp-lidar-y"]').textContent = fmt(rob.y, 2) + " m";
@@ -168,13 +373,15 @@
       if (e.target.id === "mp-lidar-y") move(rob.x, +e.target.value);
     });
     el.addEventListener("click", function (e) {
+      var v = e.target.closest("[data-v3]");
+      if (v) { v3.vista(v.getAttribute("data-v3")); pressed(el, "data-v3", v.getAttribute("data-v3")); return; }
       var b = e.target.closest("[data-caso], [data-vista], [data-reset]"); if (!b) return;
       if (b.hasAttribute("data-caso")) { caso = b.getAttribute("data-caso"); aviso = ""; pressed(el, "data-caso", caso); }
       if (b.hasAttribute("data-vista")) { solo = b.getAttribute("data-vista") === "puntos"; pressed(el, "data-vista", solo ? "puntos" : "sala"); }
       if (b.hasAttribute("data-reset")) { rob = { x: 1, y: 1.3 }; aviso = ""; }
       draw();
     });
-    el.estadoSim = function () { return { robot: rob, caso: caso, solo: solo, barrido: M.barridoLidar(rob, caso) }; };
+    el.estadoSim = function () { return { robot: rob, caso: caso, solo: solo, barrido: M.barridoLidar(rob, caso), vista3d: v3.estado() }; };
     draw();
   };
 
@@ -681,11 +888,11 @@
   };
   /* Open Karto es una base compartida, no una equivalencia de resultados. */
   M.trejosSVG = function () {
-    var b = '<rect x="92" y="20" width="276" height="52" rx="9" fill="#eef2f8" stroke="#8794a8"/>';
+    var b = '<rect x="92" y="20" width="276" height="52" rx="9" class="mp-caja"/>';
     b += txt(169, 52, "Open Karto", 19);
     b += line(152, 73, 119, 135, "mp-blue") + line(308, 73, 340, 135, "mp-blue");
     b += txt(29, 103, "Base de Karto SLAM", 13) + txt(280, 103, "Base de SLAM Toolbox", 13);
-    b += '<rect x="16" y="137" width="205" height="93" rx="9" fill="#edf6e2" stroke="#3a6b0e"/><rect x="239" y="137" width="205" height="93" rx="9" fill="#e5edf8" stroke="#004eaa"/>';
+    b += '<rect x="16" y="137" width="205" height="93" rx="9" class="mp-caja-verde"/><rect x="239" y="137" width="205" height="93" rx="9" class="mp-caja-azul"/>';
     b += txt(55, 166, "Karto SLAM", 18) + txt(26, 191, "Evaluado por Trejos (2022)", 14) + txt(29, 213, "En simulación controlada", 13);
     b += txt(276, 166, "SLAM Toolbox", 18) + txt(260, 191, "Usado en este prototipo", 14) + txt(260, 213, "No evaluado por Trejos", 13);
     b += txt(42, 265, "Misma base ≠ mismas métricas o prestaciones", 16);

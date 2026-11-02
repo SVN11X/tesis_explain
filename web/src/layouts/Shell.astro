@@ -1,6 +1,6 @@
 ---
 import '../styles/experience.css';
-// Cabecera, aviso académico, pie y buscador comunes a todo el sitio: herramientas/datos.py los genera desde
+// Metadatos del tema, cabecera, aviso académico, pie y buscador comunes a todo el sitio: herramientas/datos.py los genera desde
 // herramientas/plantillas/, igual que en las páginas de la guía.
 import marco from '../generado/marco.json';
 const {title, description, page='inicio'} = Astro.props;
@@ -17,7 +17,7 @@ const cabecera=marco.cabecera.replaceAll(`data-nav="${actual}"`, `data-nav="${ac
     <title>{title} · Robot explorador</title>
     <meta name="description" content={description} />
     <meta name="author" content="Sebastián Valderas Neculqueo" />
-    <meta name="theme-color" content="#f1f1e9" />
+    <Fragment set:html={marco.tema} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" href={`${base}img/icono.svg`} type="image/svg+xml" />
     <link rel="preload" href={`${base}fuentes/archivo-latin-variable.woff2`} as="font" type="font/woff2" crossorigin />

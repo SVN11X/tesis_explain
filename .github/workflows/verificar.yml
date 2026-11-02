@@ -8,7 +8,7 @@ permissions:
 jobs:
   pruebas:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     env:
       # registros en orden aunque la salida no sea una terminal
       PYTHONUNBUFFERED: '1'

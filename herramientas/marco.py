@@ -1,4 +1,5 @@
-"""Marco común del sitio: cabecera, aviso académico, pie y buscador, desde herramientas/plantillas/.
+"""Marco común del sitio: metadatos y script del tema, cabecera, aviso académico, pie y buscador, desde
+herramientas/plantillas/.
 
 datos.py lo inserta en cada página de la guía y escribe web/src/generado/marco.json para que la portada
 y los laboratorios, compilados con Astro, usen exactamente el mismo marcado.
@@ -38,7 +39,7 @@ def rellenar(texto, academic):
 
 def plantillas(academic):
     return {nombre: rellenar((PLANTILLAS / (nombre + '.html')).read_text(encoding='utf-8').strip(), academic)
-            for nombre in ('cabecera', 'pie')}
+            for nombre in ('tema', 'cabecera', 'pie')}
 
 
 def marcar(texto, pagina):

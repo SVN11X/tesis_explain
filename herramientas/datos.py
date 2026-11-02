@@ -135,6 +135,8 @@ for path in sorted(ROOT.glob('*.html')):
         text = re.sub(r'<!-- CARTA GANTT:.*?<!-- FIN CARTA GANTT -->', lambda _: gantt, text, flags=re.S)
     if 'ESTADO DETALLE:' in text:
         text = re.sub(r'<!-- ESTADO DETALLE:.*?<!-- FIN ESTADO DETALLE -->', lambda _: detalle, text, flags=re.S)
+    if 'TEMA:' in text:
+        text = re.sub(r'(<!-- TEMA:[^>]*-->\n).*?(<!-- FIN TEMA -->)', lambda m: m.group(1) + frame['tema'] + '\n' + m.group(2), text, flags=re.S)
     if 'CABECERA:' in text:
         text = re.sub(r'(<!-- CABECERA:[^>]*-->\n).*?(<!-- FIN CABECERA -->)', lambda m: m.group(1) + marco.marcar(frame['cabecera'], path.stem) + '\n' + m.group(2), text, flags=re.S)
     if 'PIE:' in text:

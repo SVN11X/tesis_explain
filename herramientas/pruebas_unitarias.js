@@ -118,6 +118,16 @@ ok(bA.pasos.every(function (p) { return p.f === p.g + p.h && p.g === p.camino.le
 ok(bA.pasos.every(function (p, i) { return !i || p.f >= bA.pasos[i - 1].f; }), "A estrella revisa con f que nunca baja");
 ok(bD.pasos.every(function (p, i) { return p.h === 0 && (!i || p.g >= bD.pasos[i - 1].g); }), "Dijkstra no estima y revisa por distancia al robot");
 ok(bA.pasos.every(function (p) { return p.pendAntes >= 1 + p.empates; }), "las celdas empatadas son parte de las pendientes");
+/* rejilla editada por el lector: un hueco en el muro y una meta encerrada */
+function murosEjemplo() { var m = {}; Object.keys(AS.muro).forEach(function (k) { m[k] = 1; }); return m; }
+var conHueco = { A: [3, 6], B: [20, 6], muro: murosEjemplo() }; delete conHueco.muro["12,6"];
+var hA = AS.buscar(true, conHueco), hD = AS.buscar(false, conHueco);
+ok(hA.llego && hA.camino.length - 1 === 17 && hA.pasos.length === 18 && hD.pasos.length === 211, "con un hueco en el muro la ruta baja a 17 pasos y A estrella revisa 18 celdas", hA.pasos.length + " " + hD.pasos.length);
+ok(AS.buscar(true).pasos.length === 111, "editar una copia no cambia el ejemplo");
+var encerrada = { A: [3, 6], B: [0, 0], muro: murosEjemplo() }; encerrada.muro["1,0"] = 1; encerrada.muro["0,1"] = 1;
+var eA = AS.buscar(true, encerrada);
+ok(!eA.llego && eA.pasos.length === 300, "con la meta encerrada no hay ruta y se revisan todas las celdas alcanzables", eA.pasos.length);
+ok(AS.h(0, 0, [5, 6]) === 11 && AS.h(3, 6) === 17, "h usa la meta de la rejilla editada");
 ok(bA.camino.every(function (c, i) { var a = bA.camino[i - 1]; return !AS.muro[c.join(",")] && (!i || Math.abs(c[0] - a[0]) + Math.abs(c[1] - a[1]) === 1); }) &&
   bA.camino[0].join(",") === AS.A.join(",") && bA.camino[bA.camino.length - 1].join(",") === AS.B.join(","), "la ruta va del robot a la meta por celdas vecinas y libres");
 

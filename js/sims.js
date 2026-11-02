@@ -25,16 +25,17 @@
     var n = parseInt(hex, 16);
     return "rgba(" + ((n >> 16) & 255) + "," + ((n >> 8) & 255) + "," + (n & 255) + "," + a + ")";
   }
-  /* Los colores salen de las variables CSS del elemento. Un contenedor con data-paleta="oscura"
-     redefine esas variables y se dibuja con trazos claros sobre fondo oscuro. */
+  /* Los colores salen de las variables CSS del elemento, que cambian con el tema. Un contenedor con
+     data-paleta="oscura" redefine esas variables y se dibuja como en el tema oscuro en cualquier tema. */
   function paleta(el) {
     var c = function (n) { return css(n, el); };
     return {
       bg: c("--bg"), sup: c("--surface"), sup2: c("--surface-2"), linea: c("--line"), linea2: c("--line-2"),
       ink: c("--ink"), muted: c("--muted"), azul: c("--azul"), verde: c("--verde-texto"), verdeV: c("--verde"),
       rojo: c("--rojo"), ambar: c("--ambar"), violeta: c("--violeta"), desc: c("--desc"), obst: c("--obst"),
-      s1: c("--s1"), s2: c("--s2"), s3: c("--s3"), s4: c("--s4"),
-      oscuro: !!(el && el.closest && el.closest('[data-paleta="oscura"]'))
+      s1: c("--s1"), s2: c("--s2"), s3: c("--s3"), s4: c("--s4"), ruta: c("--ruta"),
+      oscuro: !!(el && el.closest && el.closest('[data-paleta="oscura"]')) || document.documentElement.getAttribute("data-theme") === "dark" ||
+        (document.documentElement.getAttribute("data-theme") !== "light" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches)
     };
   }
   /* crea un canvas nítido en pantallas de alta densidad y lo redimensiona con su contenedor.
@@ -61,6 +62,7 @@
     if ("ResizeObserver" in window) new ResizeObserver(function () { medir(); }).observe(padre);
     return o;
   }
+  function alTema(fn) { document.addEventListener("temacambio", function () { setTimeout(fn, 30); }); }
   function quieto() { return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches; }
   function fmt(v, d) { return U ? U.fmt(v, d) : v.toFixed(d).replace(".", ","); }
   function limitar(v, a, b) { return Math.max(a, Math.min(b, v)); }
@@ -364,6 +366,7 @@
     var cont = el.querySelector(".ex-lienzo");
     var L = lienzo(cont, hero ? 16 / 10.5 : 16 / 10, function () { dibujar(); });
     var P = paleta(el);
+    alTema(function () { P = paleta(el); dibujar(); });
 
     function dibujar() {
       if (!conoc) return;
@@ -404,7 +407,7 @@
       }
       /* ruta planificada, en verde como en RViz */
       if (ruta.length) {
-        ctx.strokeStyle = P.oscuro ? "#5BE07A" : "#13A538"; ctx.lineWidth = Math.max(2, s * .45); ctx.lineJoin = "round"; ctx.lineCap = "round";
+        ctx.strokeStyle = P.ruta; ctx.lineWidth = Math.max(2, s * .45); ctx.lineJoin = "round"; ctx.lineCap = "round";
         ctx.beginPath(); ctx.moveTo(ox + robot.x * s, oy + robot.y * s);
         ruta.forEach(function (p) { ctx.lineTo(ox + p[0] * s, oy + p[1] * s); }); ctx.stroke();
       }
@@ -415,14 +418,18 @@
         for (var q = 0; q < 10; q++) { var rr = q % 2 ? r * .45 : r, aa = -Math.PI / 2 + q * Math.PI / 5; ctx.lineTo(mx + Math.cos(aa) * rr, my + Math.sin(aa) * rr); }
         ctx.closePath(); ctx.fill();
       }
-      /* robot: cuerpo en forma de U como el prototipo, con el láser al centro */
-      ctx.save(); ctx.translate(ox + robot.x * s, oy + robot.y * s); ctx.rotate(robot.th + Math.PI / 2);
-      var R = RADIO * s;
+      /* robot: la planta en U del prototipo (U.robot en js/comun.js), con la curva adelante como el robot real,
+         su LiDAR y un triángulo que marca el rumbo */
+      var R = RADIO * s, px = ox + robot.x * s, py = oy + robot.y * s, cR = Math.cos(robot.th), sR = Math.sin(robot.th), frente = R;
       ctx.fillStyle = P.azul; ctx.strokeStyle = P.sup; ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.moveTo(-R, -R * .9); ctx.lineTo(R, -R * .9); ctx.lineTo(R, R * .1); ctx.arc(0, R * .1, R, 0, Math.PI); ctx.closePath(); ctx.fill(); ctx.stroke();
-      ctx.fillStyle = P.sup; ctx.beginPath(); ctx.arc(0, R * .15, R * .42, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = P.verdeV; ctx.beginPath(); ctx.moveTo(0, -R * 1.25); ctx.lineTo(R * .32, -R * .85); ctx.lineTo(-R * .32, -R * .85); ctx.closePath(); ctx.fill();
-      ctx.restore();
+      if (U && U.robot) {
+        var MR = U.robot.medidas, kR = R / MR.r, gR = U.robot.canvas(ctx, px, py, robot.th, kR, "centro");
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle = P.sup; ctx.beginPath(); ctx.arc(gR.lidar[0], gR.lidar[1], Math.max(2, gR.lidarR), 0, Math.PI * 2); ctx.fill();
+        frente = (MR.frente - MR.atras) / 2 * kR;
+      } else { ctx.beginPath(); ctx.arc(px, py, R, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); }
+      var pR = function (a, b) { return [px + a * cR - b * sR, py + a * sR + b * cR]; }, t1 = pR(frente + R * .42, 0), t2 = pR(frente + R * .1, -R * .3), t3 = pR(frente + R * .1, R * .3);
+      ctx.fillStyle = P.verdeV; ctx.beginPath(); ctx.moveTo(t1[0], t1[1]); ctx.lineTo(t2[0], t2[1]); ctx.lineTo(t3[0], t3[1]); ctx.closePath(); ctx.fill();
       /* aviso final */
       if (terminado) {
         var msg = "Exploración terminada: no quedan fronteras";
@@ -510,6 +517,7 @@
       '<p class="vnota" id="ci-nota">El centro de giro es el punto alrededor del cual el robot gira en ese instante. Está sobre la línea que une las dos ruedas, del lado de la rueda más lenta. Cada rueda recorre su propio círculo alrededor de ese punto, y la de afuera va más rápido porque su círculo es más largo. Ticks por ciclo son los flancos de encoder que se cuentan en cada rueda durante 1/30 s, la unidad con que trabaja el control del capítulo 4. La animación avanza 1,5 veces más rápido que el robot real.</p>';
     var cont = el.querySelector(".ci-l"), L = lienzo(cont, 16 / 10, function () { dibujar(); });
     L.cv.setAttribute("role", "img"); L.cv.setAttribute("aria-describedby", "ci-nota");
+    alTema(function () { P = paleta(); dibujar(); });
     var VIEW = 3.2, VIEW_H = VIEW / 1.6;  /* metros visibles de ancho y de alto */
     /* Si el círculo cabe, el robot parte de modo que su centro de giro quede al centro del dibujo
        y da vueltas sin salirse. Si no cabe o va recto, parte desde un costado. */
@@ -574,7 +582,9 @@
       ctx.save(); ctx.translate(X(pose.x), Y(pose.y)); ctx.rotate(-pose.th);
       var L1 = 0.20 * esc, L2 = 0.08 * esc, A = 0.13 * esc, rw = r * esc, bw = b / 2 * esc;
       ctx.fillStyle = rgba(P.azul, .18); ctx.strokeStyle = P.azul; ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.rect(-L2, -A, L1 + L2, 2 * A); ctx.fill(); ctx.stroke();
+      /* la planta en U del prototipo, con las medidas del CAD (U.robot en js/comun.js) */
+      if (U && U.robot) U.robot.canvas(ctx, 0, 0, 0, esc, "giro"); else { ctx.beginPath(); ctx.rect(-L2, -A, L1 + L2, 2 * A); }
+      ctx.fill(); ctx.stroke();
       ctx.fillStyle = P.ink;
       ctx.fillRect(-rw, -bw - 0.012 * esc, 2 * rw, 0.024 * esc); ctx.fillRect(-rw, bw - 0.012 * esc, 2 * rw, 0.024 * esc);
       ctx.fillStyle = P.verde; ctx.beginPath(); ctx.moveTo(L1 + 6, 0); ctx.lineTo(L1 - 4, -6); ctx.lineTo(L1 - 4, 6); ctx.closePath(); ctx.fill();
@@ -623,6 +633,7 @@
       '<p class="vnota">Ilustración con un imán de 6 pares de polos y la rueda girando muy lento. Usa Avanzar un paso: la primera cuenta sube en cada flanco y la segunda solo en uno de cada cuatro. Esa es la multiplicación por cuatro. En el robot, contar los cuatro flancos da 1980 por vuelta de rueda, unos 0,11 mm de avance por flanco, porque el sensor está en el eje del motor, antes de la caja reductora. Contando solo las subidas de A serían 495 por vuelta, unos 0,43 mm cada una.</p>';
     var cont = el.querySelector(".en-l"), L = lienzo(cont, 16 / 7, function () { dibujar(); });
     L.cv.setAttribute("role", "img"); L.cv.setAttribute("aria-label", "Disco magnético del encoder y las señales de los canales A y B en el tiempo");
+    alTema(function () { P = paleta(); dibujar(); });
     function canal(a, desfase) { return Math.sin(polos * a + desfase) >= 0 ? 1 : 0; }
     function avanzarAng(da) {
       ang += da;
@@ -725,6 +736,7 @@
       '<div class="vctl"><button type="button" class="vbtn sec" data-a="borrar" disabled>Quitar la curva anterior</button></div>' +
       '<p class="vnota">Modelo ilustrativo de una rueda con un retardo de primer orden, una ganancia y una constante de tiempo del orden de las que identifiqué, y el PWM limitado a 255. Unidades de este simulador: P en PWM por cada m/s de error. I en PWM por cada m/s de error sostenido durante 1 s. D en PWM por cada m/s de error que cambia en 1 s. Estas ganancias no son las del firmware, que usa otra escala y otra ley. Las lecturas usan el último segundo como valor estabilizado.</p>';
     var cont = el.querySelector(".pid-l"), L = lienzo(cont, function (w) { return w < 520 ? 4 / 3 : 16 / 7; }, function () { dibujar(); });
+    alTema(function () { P = paleta(); dibujar(); });
     function sim(c) { return CM.simularPID(c); }
     function medidas(d) { return CM.medidasPID(d); }
     function dibujar() {
@@ -833,6 +845,7 @@
       '<p class="vnota">El peso de inercia dice cuánto conserva cada partícula de su velocidad anterior: alto al comienzo, para explorar, y bajo al final, para afinar cerca de lo mejor encontrado. La dispersión es la distancia media de las partículas al mejor punto, en porcentaje del lado del dibujo. El costo de este dibujo es ilustrativo y no tiene unidad.</p>' +
       '<p class="vnota">Ilustración en dos dimensiones para poder dibujarla. En el script de sintonía cada partícula tiene tres coordenadas, Kp, Kd y Ki, y su costo se calcula simulando el modelo de cada rueda. Se usan los mismos parámetros del script, factor de constricción 0,7298, coeficientes 2,05 y peso de inercia que baja de 1 a 0.</p>';
     var cont = el.querySelector(".pso-l"), L = lienzo(cont, 16 / 9, function () { mapa = null; dibujar(); });
+    alTema(function () { P = paleta(); mapa = null; dibujar(); });
     function fondo(W, H) {
       var c = document.createElement("canvas"); c.width = 160; c.height = 90; var cx = c.getContext("2d"), img = cx.createImageData(160, 90);
       var mn = Infinity, mx = -Infinity, vals = [];
@@ -902,6 +915,7 @@
     var cont = el.querySelector(".in-l"), L = lienzo(cont, Wm / Hm, function () { dibujar(); });
     L.cv.classList.add("arrastrable"); L.cv.tabIndex = 0; L.cv.setAttribute("role", "img");
     L.cv.setAttribute("aria-describedby", uid + "-ayuda");
+    alTema(function () { P = paleta(); dibujar(); });
     var dist = new Float32Array(C * F);
     function distancias() {
       for (var i = 0; i < C * F; i++) {
@@ -1004,7 +1018,7 @@
       '<label for="' + uid + '-ox">Obstáculo, posición x<b class="num" data-v="ox"></b><input id="' + uid + '-ox" type="range" min="0.1" max="' + (Wm - 0.1) + '" step="0.01" data-o-k="x"></label>' +
       '<label for="' + uid + '-oy">Obstáculo, posición y<b class="num" data-v="oy"></b><input id="' + uid + '-oy" type="range" min="0.1" max="' + (Hm - 0.1) + '" step="0.01" data-o-k="y"></label></div>' +
       '<div class="dw-l"></div><div class="dw-z"></div>' +
-      '<div class="vley"><span><i class="lin" style="background:#13A538"></i>ruta global</span><span><i class="cu huella"></i>huella del robot configurada en Nav2, con su centro de giro</span><span><i class="lin azul"></i>trayectoria elegida</span><span><i class="lin" style="background:var(--line-2)"></i>candidatas, más marcadas cuanto mejor es su puntaje</span><span><i class="lin rojo"></i>descartadas por chocar</span><span><i class="cu" style="background:none;border:1px dashed var(--muted);border-radius:50%"></i>zona donde el obstáculo penaliza</span></div>' +
+      '<div class="vley"><span><i class="lin" style="background:var(--ruta)"></i>ruta global</span><span><i class="cu huella"></i>huella del robot configurada en Nav2, con su centro de giro</span><span><i class="lin azul"></i>trayectoria elegida</span><span><i class="lin" style="background:var(--line-2)"></i>candidatas, más marcadas cuanto mejor es su puntaje</span><span><i class="lin rojo"></i>descartadas por chocar</span><span><i class="cu" style="background:none;border:1px dashed var(--muted);border-radius:50%"></i>zona donde el obstáculo penaliza</span></div>' +
       '<div class="tabla-env"><table class="tabla dw-tabla"><caption>Puntaje de la trayectoria elegida, menor es mejor. Cada término es peso por medida.</caption><thead><tr><th>Criterio</th><th class="n">Medida</th><th class="n">Peso</th><th class="n">Aporte</th></tr></thead><tbody data-o="tabla"></tbody></table></div>' +
       '<p class="vestado" aria-live="polite" data-o="msg"></p>' +
       '<p class="vnota" id="' + uid + '-ayuda">Ilustrativo. Se prueban 7 velocidades lineales entre 0 y 0,15 m/s y 15 de giro entre ±0,35 rad/s, los límites que DWB tiene configurados en el robot real. Aquí cada candidata se proyecta 1,7 s hacia adelante para que el dibujo se lea, la configuración del robot real usa 3,5 s. Los pesos, la zona de 0,35 m donde el obstáculo penaliza y el margen de choque de 0,12 m son propios de esta demostración y no equivalen a las escalas de los críticos del robot real. El obstáculo aparece después de planificar la ruta global, por eso la ruta lo atraviesa. Muévelo con los deslizadores, arrastrándolo o con las flechas del teclado cuando el dibujo tiene el foco.</p>';
@@ -1014,6 +1028,7 @@
        muestra 50 cm de ancho alrededor del robot. */
     var ANCHO_ZOOM = 0.5, LZ = lienzo(el.querySelector(".dw-z"), 1.8, function () { dibujar(); });
     LZ.cv.setAttribute("role", "img"); LZ.cv.setAttribute("aria-label", "Vista ampliada alrededor del robot: las trayectorias candidatas, las descartadas y la elegida");
+    alTema(function () { P = paleta(); dibujar(); });
     function evaluarCandidatas() {
       var out = [];
       for (var i = 0; i < 7; i++) for (var j = 0; j < 15; j++) {
@@ -1040,7 +1055,7 @@
       ctx.strokeStyle = P.linea; ctx.lineWidth = 1;
       for (var gx = Math.ceil(x0 / paso - 1e-9) * paso; X(gx) <= W + .5; gx += paso) { ctx.beginPath(); ctx.moveTo(X(gx), 0); ctx.lineTo(X(gx), H); ctx.stroke(); }
       for (var gy = Math.ceil(y0 / paso - 1e-9) * paso; Y(gy) <= H + .5; gy += paso) { ctx.beginPath(); ctx.moveTo(0, Y(gy)); ctx.lineTo(W, Y(gy)); ctx.stroke(); }
-      ctx.strokeStyle = P.oscuro ? "#5BE07A" : "#13A538"; ctx.lineWidth = 3; trazo(ruta);
+      ctx.strokeStyle = P.ruta; ctx.lineWidth = 3; trazo(ruta);
       /* zona de influencia del obstáculo en esta demostración */
       ctx.setLineDash([4, 4]); ctx.strokeStyle = P.muted; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(X(obs.x), Y(obs.y), (obs.r + D_INFL) * k, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
       var rObs = obs.r * k;

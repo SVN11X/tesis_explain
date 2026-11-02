@@ -9,14 +9,17 @@
     {id:'traccion',name:'Ruedas',text:'Dos velocidades hacen la diferencia. Radio de rueda: 33,5 mm. Separación: 188 mm.'},
   ];
   let host:HTMLDivElement;
-  let api:ReturnType<typeof import('../lib/robot-three').heroScene>|undefined;
-  let ready=$state(false), failed=$state(false), lightweight=$state(false), exploded=$state(false), moving=$state(true), selected=$state<PartId>('laser');
+  let api:Awaited<ReturnType<typeof import('../lib/robot-three').heroScene>>|undefined;
+  let ready=$state(false), failed=$state(false), lightweight=$state(false), cad=$state(false), exploded=$state(false), moving=$state(true), selected=$state<PartId>('laser');
   let destroyed=false;
   let current=$derived(pieces.find(p=>p.id===selected)!);
   function choose(id:PartId){selected=id;api?.select(id);}
   async function init(){
     failed=false;
-    try{const module=await import('../lib/robot-three');if(destroyed)return;api?.dispose();api=module.heroScene(host,choose,()=>{failed=true;ready=false;});api.setMotion(moving);api.explode(exploded);api.select(selected);lightweight=api.lightweight;ready=true;}
+    try{const module=await import('../lib/robot-three');if(destroyed)return;api?.dispose();
+      const nuevo=await module.heroScene(host,choose,()=>{failed=true;ready=false;},`${base}modelos/robot.glb`);
+      if(destroyed){nuevo.dispose();return;}
+      api=nuevo;api.setMotion(moving);api.explode(exploded);api.select(selected);lightweight=api.lightweight;cad=api.cad;ready=true;}
     catch{failed=true;ready=false;}
   }
   onMount(()=>{moving=!matchMedia('(prefers-reduced-motion: reduce)').matches;init();return()=>{destroyed=true;api?.dispose();};});
@@ -25,7 +28,7 @@
 
 <div class="robot-viewer" class:exploded>
   <div class="viewer-coordinate mono" aria-hidden="true">PROTOTIPO / VISTA {exploded?'EXPLOTADA':'ESPACIAL'}<span>01—04</span></div>
-  <div class="robot-stage" bind:this={host} role="group" aria-label="Modelo tridimensional ilustrativo del robot">
+  <div class="robot-stage" bind:this={host} role="group" aria-label={cad?'Modelo 3D del prototipo, hecho a partir de su CAD':'Modelo 3D ilustrativo del robot'}>
     {#if !ready}<img class="robot-poster" src={`${base}img/fotos/robot-lateral-800.webp`} width="800" height="633" alt="Fotografía del prototipo negro con franjas amarillas y LiDAR superior" fetchpriority="high" />{/if}
   </div>
   <div class="model-label mono"><span class="live-dot"></span>{ready?(lightweight?'3D LIGERO · ARRASTRA PARA GIRAR':'ARRASTRA PARA GIRAR'):failed?'VISTA FOTOGRÁFICA':'PREPARANDO VISOR'}</div>
@@ -42,5 +45,5 @@
     {#each pieces as piece,i}<button aria-pressed={selected===piece.id} onclick={()=>choose(piece.id as PartId)}><span class="mono">0{i+1}</span>{piece.name}</button>{/each}
   </div>
   <div class="part-caption"><span class="caption-rule"></span><p><strong>{current.name}.</strong> {current.text}</p></div>
-  <p class="model-credit">Geometría e interior ilustrativos. <a href={`${base}robot.html`}>Ver el prototipo documentado ↗</a></p>
+  <p class="model-credit">{cad||!ready?'Modelo del CAD del prototipo, simplificado para la web.':'Vista ligera con geometría ilustrativa.'} <a href={`${base}robot.html`}>Ver el prototipo documentado ↗</a></p>
 </div>

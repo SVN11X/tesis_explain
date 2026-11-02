@@ -37,7 +37,11 @@
     const px=(x:number)=>(x+WORLD.width/2)/WORLD.width*width,pz=(z:number)=>(z+WORLD.depth/2)/WORLD.depth*height;
     if(laser){ctx.strokeStyle='rgba(217,235,119,.09)';ctx.lineWidth=.7;ctx.beginPath();for(const r of frame.rays){ctx.moveTo(px(frame.pose.x),pz(frame.pose.z));ctx.lineTo(px(r.x),pz(r.z));}ctx.stroke();const r=frame.rays[ray];ctx.strokeStyle='#80ded4';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(px(frame.pose.x),pz(frame.pose.z));ctx.lineTo(px(r.x),pz(r.z));ctx.stroke();}
     const x=px(frame.pose.x),y=pz(frame.pose.z),rr=WORLD.robotRadius/WORLD.width*width;
-    ctx.fillStyle='#e8ed87';ctx.beginPath();ctx.arc(x,y,Math.max(rr,5),0,2*Math.PI);ctx.fill();ctx.strokeStyle='#142124';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+Math.cos(frame.pose.yaw)*Math.max(rr,7),y+Math.sin(frame.pose.yaw)*Math.max(rr,7));ctx.stroke();
+    // El robot con la planta en U del CAD del prototipo, como en las figuras de la guía (js/comun.js): borde recto atrás,
+    // curva adelante y el LiDAR, de donde salen los rayos. Medidas en metros desde el LiDAR, escaladas al radio del modelo.
+    const k=Math.max(rr,6)/.115,c=Math.cos(frame.pose.yaw),s=Math.sin(frame.pose.yaw),p=(u:number,v:number):[number,number]=>[x+(u*c-v*s)*k,y+(u*s+v*c)*k];
+    ctx.beginPath();ctx.moveTo(...p(-.17,-.115));ctx.lineTo(...p(-.035,-.115));for(let i=1;i<=12;i++){const a=-Math.PI/2+Math.PI*i/12;ctx.lineTo(...p(-.035+Math.cos(a)*.115,Math.sin(a)*.115));}ctx.lineTo(...p(-.17,.115));ctx.closePath();
+    ctx.fillStyle='#e8ed87';ctx.fill();ctx.strokeStyle='#142124';ctx.lineWidth=1.5;ctx.stroke();ctx.fillStyle='#142124';ctx.beginPath();ctx.arc(x,y,Math.max(2,.035*k),0,2*Math.PI);ctx.fill();
     ctx.fillStyle='#b8c7bf';ctx.font='10px monospace';ctx.fillText('1 m',width-56,height-19);ctx.strokeStyle='#b8c7bf';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(width-20-width/WORLD.width,height-11);ctx.lineTo(width-20,height-11);ctx.stroke();
   }
   function mapMove(e:PointerEvent){const rect=mapCanvas.getBoundingClientRect();const x=(e.clientX-rect.left)/rect.width*WORLD.width-WORLD.width/2,z=(e.clientY-rect.top)/rect.height*WORLD.depth-WORLD.depth/2;move(x,z);}
@@ -96,4 +100,4 @@
   {#if shareURL}<label class="share-result">Enlace al escenario<input readonly value={shareURL} aria-label="Enlace para compartir el escenario" onclick={e=>e.currentTarget.select()}/></label>{/if}
   </fieldset>
 </div>
-<div class="lab-footnotes"><p><strong>Un ejemplo para experimentar.</strong> Recinto sintético de 5,6 × 4 m. Barrido ideal, sin ruido y con pose conocida. «Recorrer» sigue puntos prefijados; no ejecuta navegación autónoma ni SLAM.</p><p>El porcentaje cuenta celdas observadas del ejemplo, no la cobertura reportada en la tesis. <a href={`${base}mapeo.html#lidar`}>Cómo funciona el sensor real ↗</a></p></div>
+<div class="lab-footnotes"><p><strong>Un ejemplo para experimentar.</strong> Recinto sintético de 5,6 × 4 m. Barrido ideal, sin ruido y con pose conocida. «Recorrer» sigue puntos prefijados y no ejecuta navegación autónoma ni SLAM.</p><p>El porcentaje cuenta celdas observadas del ejemplo, no la cobertura reportada en la tesis. <a href={`${base}mapeo.html#lidar`}>Cómo funciona el sensor real ↗</a></p></div>

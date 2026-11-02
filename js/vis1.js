@@ -12,11 +12,14 @@
      el camino que la alcanzó y las celdas pendientes. Así se puede avanzar, retroceder y reproducir. */
   var AS = { C: 24, R: 13, A: [3, 6], B: [20, 6], muro: {} };
   for (var my = 2; my < 11; my++) AS.muro[12 + "," + my] = 1;
-  AS.h = function (x, y) { return Math.abs(x - AS.B[0]) + Math.abs(y - AS.B[1]); };
-  AS.buscar = function (conH) {
-    var C = AS.C, R = AS.R, A = AS.A, B = AS.B, muro = AS.muro;
+  /* h cuenta las cuadras hasta la meta como si no hubiera muros. esc es una rejilla editada por el lector,
+     con su propio inicio A, meta B y muros; sin ella vale el ejemplo. */
+  AS.h = function (x, y, B) { B = B || AS.B; return Math.abs(x - B[0]) + Math.abs(y - B[1]); };
+  AS.buscar = function (conH, esc) {
+    esc = esc || AS;
+    var C = AS.C, R = AS.R, A = esc.A, B = esc.B, muro = esc.muro;
     var g = {}, padre = {}, cerrado = {}, abiertos = [], pasos = [];
-    function hk(k) { if (!conH) return 0; var p = k.split(","); return AS.h(+p[0], +p[1]); }
+    function hk(k) { if (!conH) return 0; var p = k.split(","); return AS.h(+p[0], +p[1], B); }
     function pendientes() { var u = {}; abiertos.forEach(function (a) { if (!cerrado[a.k]) u[a.k] = 1; }); return Object.keys(u); }
     function camino(k) { var out = []; while (k) { var p = k.split(","); out.unshift([+p[0], +p[1]]); k = padre[k]; } return out; }
     var k0 = A.join(",");
@@ -38,7 +41,7 @@
         var ng = g[c.k] + 1;
         if (g[nk] == null || ng < g[nk]) {
           g[nk] = ng; padre[nk] = c.k;
-          var h = conH ? AS.h(nx, ny) : 0;
+          var h = conH ? AS.h(nx, ny, B) : 0;
           abiertos.push({ k: nk, x: nx, y: ny, f: ng + h, h: h });
         }
       });
@@ -49,63 +52,95 @@
   };
   window.ASTAR_PRUEBAS = AS;
 
+  /* El robot en una rejilla: la planta en U del prototipo (js/comun.js), centrada en su celda y mirando a la
+     derecha. Sin js/comun.js queda el círculo de antes. */
+  function robotCelda(cx, cy, T) {
+    var U = window.U;
+    if (!U || !U.robot) return '<circle class="f-verde" cx="' + cx + '" cy="' + cy + '" r="6"/>';
+    var g = U.robot.svg(cx, cy, 0, T * 1.15 / (2 * U.robot.medidas.r), "centro");
+    return '<g class="robot-planta verde"><path class="cuerpo" d="' + g.cuerpo + '"/><circle class="lidar" cx="' + g.lidar[0].toFixed(2) + '" cy="' + g.lidar[1].toFixed(2) + '" r="' + g.lidarR.toFixed(2) + '"/></g>';
+  }
   V.astar = function (el) {
-    var C = AS.C, R = AS.R, T = 16, A = AS.A, B = AS.B, muro = AS.muro;
-    var res = { d: AS.buscar(false), a: AS.buscar(true) };
+    var C = AS.C, R = AS.R, T = 16;
     var NOMBRE = { d: "Dijkstra", a: "A estrella" }, INICIO = 30;
-    var st = { alg: "a", k: INICIO }, uid = "as" + Math.random().toString(36).slice(2, 7), anim = 0, tUlt = 0, acum = 0;
-    var s = '<svg class="vsvg" viewBox="0 0 ' + C * T + ' ' + R * T + '" role="img" aria-labelledby="' + uid + '-t"><title id="' + uid + '-t">Rejilla de búsqueda</title>';
+    /* esc es la rejilla que se muestra: el ejemplo o la que editó el lector */
+    function ejemplo() { var m = {}; Object.keys(AS.muro).forEach(function (k) { m[k] = 1; }); return { A: AS.A.slice(), B: AS.B.slice(), muro: m }; }
+    var esc = ejemplo(), editada = false;
+    function calcular() { return { d: AS.buscar(false, esc), a: AS.buscar(true, esc) }; }
+    var res = calcular();
+    var st = { alg: "a", k: INICIO, modo: "muro", cur: esc.A.slice() }, uid = "as" + Math.random().toString(36).slice(2, 7), anim = 0, tUlt = 0, acum = 0;
+    var MODOS = { muro: "Muros", robot: "Robot", meta: "Meta" };
+    var s = '<svg class="vsvg as-rejilla" viewBox="0 0 ' + C * T + ' ' + R * T + '" role="group" tabindex="0" aria-labelledby="' + uid + '-t" aria-describedby="' + uid + '-ed"><title id="' + uid + '-t">Rejilla de búsqueda</title>';
     for (var yy = 0; yy < R; yy++) for (var xx = 0; xx < C; xx++) {
-      s += '<rect data-c="' + xx + ',' + yy + '" x="' + (xx * T + .5) + '" y="' + (yy * T + .5) + '" width="' + (T - 1) + '" height="' + (T - 1) + '" rx="2" class="' + (muro[xx + "," + yy] ? 'f-obst' : 'f-celda') + '"/>';
+      s += '<rect data-c="' + xx + ',' + yy + '" x="' + (xx * T + .5) + '" y="' + (yy * T + .5) + '" width="' + (T - 1) + '" height="' + (T - 1) + '" rx="2" class="f-celda"/>';
     }
     s += '<path class="as-h k-ambar" fill="none" stroke-width="2.5" stroke-dasharray="5 4" stroke-linecap="round" d=""/>';
     s += '<path class="as-g k-azul" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d=""/>';
     s += '<path class="as-camino k-azul" fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" d=""/>';
-    s += '<circle class="f-verde" cx="' + (A[0] * T + T / 2) + '" cy="' + (A[1] * T + T / 2) + '" r="6"/><rect class="f-rojo" x="' + (B[0] * T + 2) + '" y="' + (B[1] * T + 2) + '" width="' + (T - 4) + '" height="' + (T - 4) + '" rx="2"/></svg>';
+    s += '<g class="as-robot">' + robotCelda(0, 0, T) + '</g><rect class="f-rojo as-meta" x="2" y="2" width="' + (T - 4) + '" height="' + (T - 4) + '" rx="2"/>';
+    s += '<rect class="as-cursor" x="0" y="0" width="' + T + '" height="' + T + '" rx="3" fill="none"/></svg>';
     el.innerHTML =
       '<div class="vctl"><div class="segmento" role="group" aria-label="Algoritmo"><button type="button" data-alg="d" aria-pressed="false">Dijkstra</button><button type="button" data-alg="a" aria-pressed="true">A estrella</button></div>' +
       '<button type="button" class="vbtn" data-a="play" aria-pressed="false">Reproducir</button><button type="button" class="vbtn sec" data-a="paso">Un paso</button><button type="button" class="vbtn sec" data-a="fin">Ver el final</button><button type="button" class="vbtn sec" data-a="cero">Desde el inicio</button></div>' +
+      '<div class="vctl as-edicion"><span class="as-edicion-t" id="' + uid + '-m">Edita la rejilla:</span><div class="segmento" role="group" aria-labelledby="' + uid + '-m">' +
+      Object.keys(MODOS).map(function (m) { return '<button type="button" data-modo="' + m + '" aria-pressed="' + (m === st.modo) + '">' + MODOS[m] + '</button>'; }).join("") +
+      '</div><button type="button" class="vbtn sec" data-a="ejemplo" disabled>Volver al ejemplo</button></div>' +
       '<label class="desl-linea" for="' + uid + '-k">Celdas revisadas<b class="num" data-o="k"></b><input id="' + uid + '-k" type="range" min="0" step="1" data-k="k"></label>' +
       s +
-      '<div class="vley"><span><i class="pt verde"></i>robot</span><span><i class="cu rojo"></i>meta</span><span><i class="cu obst"></i>obstáculo</span><span><i class="cu as-rev"></i>revisada</span><span><i class="cu as-pend"></i>pendiente, en la cola</span><span><i class="cu azul"></i>la que revisa ahora</span>' +
+      '<p class="vnota as-ayuda" id="' + uid + '-ed">Con Muros, haz clic o arrastra sobre las celdas para levantar o derribar muros. Con Robot o Meta, toca la celda donde lo quieres, o arrastra el robot o la meta. Con el teclado, las flechas mueven el marco dentro de la rejilla y Enter o la barra espaciadora aplican lo elegido.</p>' +
+      '<div class="vley"><span>' + (window.U && window.U.robot ? window.U.robot.icono("verde") : '<i class="pt verde"></i>') + 'robot</span><span><i class="cu rojo"></i>meta</span><span><i class="cu obst"></i>muro</span><span><i class="cu as-rev"></i>revisada</span><span><i class="cu as-pend"></i>pendiente, en la cola</span><span><i class="cu azul"></i>la que revisa ahora</span>' +
       '<span><i class="lin azul"></i>g, el camino que la alcanzó</span><span><i class="lin" style="background:repeating-linear-gradient(90deg,var(--ambar) 0 5px,transparent 5px 9px)"></i>h, lo que estima que falta</span></div>' +
       '<div class="as-cuenta"><div><span>g, lo ya recorrido</span><b class="num" data-o="g"></b><small>pasos desde el robot</small></div><div><span>h, lo que estima que falta</span><b class="num" data-o="h"></b><small data-o="h-s"></small></div><div><span>f = g + h</span><b class="num" data-o="f"></b><small>se revisa primero la menor</small></div><div><span>Pendientes en la cola</span><b class="num" data-o="pend"></b><small>celdas por revisar</small></div></div>' +
       '<p class="vestado" aria-live="polite" data-o="msg"></p>' +
-      '<div class="as-cuenta"><div><span>Dijkstra revisa</span><b class="num">' + res.d.pasos.length + '</b><small>celdas hasta la meta</small></div><div><span>A estrella revisa</span><b class="num">' + res.a.pasos.length + '</b><small>celdas hasta la meta</small></div><div><span>Largo de la ruta</span><b class="num">' + (res.a.camino.length - 1) + '</b><small>pasos, igual en las dos</small></div></div>' +
+      '<div class="as-cuenta"><div><span>Dijkstra revisa</span><b class="num" data-o="cmp-d"></b><small data-o="cmp-d-s"></small></div><div><span>A estrella revisa</span><b class="num" data-o="cmp-a"></b><small data-o="cmp-a-s"></small></div><div><span>Largo de la ruta</span><b class="num" data-o="cmp-l"></b><small data-o="cmp-l-s"></small></div></div>' +
       '<p class="vnota">Grilla de ejemplo con 4 vecinos y cada paso de costo 1. La h cuenta las cuadras hasta la meta como si no hubiera obstáculos, por eso la línea discontinua puede cruzar el muro. Así nunca estima más de lo que falta, una h admisible, y A estrella encuentra la ruta más corta. Si dos celdas empatan en f, se revisa primero la de menor h.</p>';
-    var rects = {}; el.querySelectorAll("rect[data-c]").forEach(function (r) { rects[r.getAttribute("data-c")] = r; });
+    var svg = el.querySelector(".as-rejilla"), rects = {}; el.querySelectorAll("rect[data-c]").forEach(function (r) { rects[r.getAttribute("data-c")] = r; });
     var pg = el.querySelector(".as-g"), ph = el.querySelector(".as-h"), pc = el.querySelector(".as-camino"), rango = el.querySelector("input[data-k]"), estado = el.querySelector('[data-o="msg"]');
-    var bPlay = el.querySelector('[data-a="play"]');
+    var gRobot = el.querySelector(".as-robot"), rMeta = el.querySelector(".as-meta"), rCur = el.querySelector(".as-cursor"), bEjemplo = el.querySelector('[data-a="ejemplo"]');
+    var bPlay = el.querySelector('[data-a="play"]'), aviso = "";
     function o(k) { return el.querySelector('[data-o="' + k + '"]'); }
     function d(pts) { return pts.length ? "M" + pts.map(function (p) { return (p[0] * T + T / 2) + " " + (p[1] * T + T / 2); }).join(" L") : ""; }
+    function hA() { return AS.h(esc.A[0], esc.A[1], esc.B); }
+    function comparar() {
+      var lleg = res.a.llego && res.d.llego;
+      o("cmp-d").textContent = res.d.pasos.length; o("cmp-a").textContent = res.a.pasos.length;
+      o("cmp-d-s").textContent = lleg ? "celdas hasta la meta" : "celdas, sin llegar"; o("cmp-a-s").textContent = lleg ? "celdas hasta la meta" : "celdas, sin llegar";
+      o("cmp-l").textContent = lleg ? res.a.camino.length - 1 : "sin ruta"; o("cmp-l-s").textContent = lleg ? "pasos, igual en las dos" : "la meta no se alcanza";
+    }
     function dibujar() {
       var r = res[st.alg], n = r.pasos.length, k = Math.max(0, Math.min(n, st.k)), act = k ? r.pasos[k - 1] : null, fin = k === n;
       var clase = {};
       for (var i = 0; i < k; i++) clase[r.pasos[i].x + "," + r.pasos[i].y] = "as-rev";
-      (act ? act.pend : [A.join(",")]).forEach(function (q) { if (!clase[q]) clase[q] = "as-pend"; });
+      (act ? act.pend : [esc.A.join(",")]).forEach(function (q) { if (!clase[q]) clase[q] = "as-pend"; });
       if (act && !fin) clase[act.x + "," + act.y] = "as-act";
-      Object.keys(rects).forEach(function (q) { if (!muro[q]) rects[q].setAttribute("class", clase[q] || "f-celda"); });
-      pc.setAttribute("d", fin ? d(r.camino) : "");
+      Object.keys(rects).forEach(function (q) { rects[q].setAttribute("class", esc.muro[q] ? "f-obst" : (clase[q] || "f-celda")); });
+      gRobot.setAttribute("transform", "translate(" + (esc.A[0] * T + T / 2) + " " + (esc.A[1] * T + T / 2) + ")");
+      rMeta.setAttribute("x", esc.B[0] * T + 2); rMeta.setAttribute("y", esc.B[1] * T + 2);
+      rCur.setAttribute("x", st.cur[0] * T); rCur.setAttribute("y", st.cur[1] * T);
+      pc.setAttribute("d", fin && r.llego ? d(r.camino) : "");
       pg.setAttribute("d", act && !fin ? d(act.camino) : "");
-      ph.setAttribute("d", act && !fin && st.alg === "a" ? d([[act.x, act.y], [B[0], act.y], B]) : "");
+      ph.setAttribute("d", act && !fin && st.alg === "a" ? d([[act.x, act.y], [esc.B[0], act.y], esc.B]) : "");
       o("k").textContent = k + " de " + n;
       o("g").textContent = act ? act.g : "0";
-      o("h").textContent = st.alg === "a" ? (act ? act.h : AS.h(A[0], A[1])) : "0";
+      o("h").textContent = st.alg === "a" ? (act ? act.h : hA()) : "0";
       o("h-s").textContent = st.alg === "a" ? "cuadras hasta la meta" : "Dijkstra no estima";
-      o("f").textContent = act ? act.f : (st.alg === "a" ? AS.h(A[0], A[1]) : 0);
+      o("f").textContent = act ? act.f : (st.alg === "a" ? hA() : 0);
       o("pend").textContent = act ? act.pend.length : 1;
-      var msg;
+      var msg, otro = st.alg === "d" ? res.a : res.d;
       if (!k) msg = "Todavía no revisa ninguna celda. En la cola solo está la del robot, con g = 0.";
-      else if (fin) msg = NOMBRE[st.alg] + " llegó a la meta después de revisar " + n + " celdas. La ruta tiene " + (r.camino.length - 1) + " pasos." + (st.alg === "d" ? " A estrella encuentra una igual de corta revisando " + res.a.pasos.length + "." : " Dijkstra necesita revisar " + res.d.pasos.length + " para encontrar una igual de corta.");
+      else if (fin && !r.llego) msg = NOMBRE[st.alg] + " revisó las " + n + " celdas que puede alcanzar y no llegó a la meta: los muros la separan del robot. Abre un hueco en el muro o mueve la meta.";
+      else if (fin) msg = NOMBRE[st.alg] + " llegó a la meta después de revisar " + n + " celdas. La ruta tiene " + (r.camino.length - 1) + " pasos." + (st.alg === "d" ? " A estrella encuentra una igual de corta revisando " + otro.pasos.length + "." : " Dijkstra necesita revisar " + otro.pasos.length + " para encontrar una igual de corta.");
       else if (st.alg === "a") {
         msg = "Paso " + k + ". Revisa la celda marcada: llegar hasta ella costó g = " + act.g + " pasos y h estima " + act.h + " más hasta la meta, así que f = " + act.f + ". Tenía la menor f entre " + act.pendAntes + (act.pendAntes === 1 ? " celda pendiente" : " celdas pendientes") + (act.empates ? ", empatada con otras " + act.empates + "; entre ellas se elige la de menor h." : ".");
         msg = msg.replace("; entre ellas", ". Entre ellas");
-        if (act.f > AS.h(A[0], A[1])) msg += " Como el muro corta el camino directo, ya no quedan pendientes con f = " + AS.h(A[0], A[1]) + ", la estimación desde el robot, y la búsqueda pasa a caminos más largos.";
+        if (act.f > hA()) msg += " Como los muros cortan el camino directo, ya no quedan pendientes con f = " + hA() + ", la estimación desde el robot, y la búsqueda pasa a caminos más largos.";
       } else msg = "Paso " + k + ". Revisa la celda marcada, a g = " + act.g + " pasos del robot. Sin estimación, revisa primero las más cercanas al robot en todas las direcciones, aunque se alejen de la meta.";
-      estado.textContent = msg;
+      estado.textContent = (aviso ? aviso + " " : "") + msg; aviso = "";
       rango.max = n; if (document.activeElement !== rango) rango.value = k;
       el.querySelectorAll("[data-alg]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-alg") === st.alg)); });
-      el.querySelector("title").textContent = "Búsqueda con " + NOMBRE[st.alg] + ", " + k + " de " + n + " celdas revisadas" + (fin ? ", con la ruta encontrada." : ".");
+      el.querySelectorAll("[data-modo]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-modo") === st.modo)); });
+      bEjemplo.disabled = !editada;
+      el.querySelector("title").textContent = "Búsqueda con " + NOMBRE[st.alg] + ", " + k + " de " + n + " celdas revisadas" + (fin ? (r.llego ? ", con la ruta encontrada." : ", sin ruta hasta la meta.") : ".");
     }
     function marcar() {
       bPlay.textContent = anim ? "Pausar" : (st.k >= res[st.alg].pasos.length ? "Reproducir de nuevo" : "Reproducir");
@@ -127,13 +162,83 @@
       if (U.quieto()) { st.k = res[st.alg].pasos.length; dibujar(); marcar(); return; }
       tUlt = 0; acum = 0; anim = requestAnimationFrame(cuadro); marcar();
     }
+    /* Edición. Cada cambio recalcula las dos búsquedas y muestra el final, con la ruta nueva y sus cifras. */
+    function clave(c) { return c[0] + "," + c[1]; }
+    function igual(a, b) { return a[0] === b[0] && a[1] === b[1]; }
+    function recalcular(texto) {
+      parar(); editada = true; res = calcular(); st.k = res[st.alg].pasos.length; aviso = texto; comparar(); dibujar(); marcar();
+    }
+    /* devuelve true si la celda cambió algo */
+    function aplicar(c, modo, valor) {
+      if (modo === "robot" || modo === "meta") {
+        var cual = modo === "robot" ? "A" : "B", otra = modo === "robot" ? esc.B : esc.A;
+        if (esc.muro[clave(c)] || igual(c, otra) || igual(c, esc[cual])) return false;
+        esc[cual] = c.slice(); recalcular(modo === "robot" ? "Moviste el robot." : "Moviste la meta."); return true;
+      }
+      if (igual(c, esc.A) || igual(c, esc.B)) return false;
+      var hay = !!esc.muro[clave(c)], quiere = valor == null ? !hay : valor;
+      if (hay === quiere) return false;
+      if (quiere) esc.muro[clave(c)] = 1; else delete esc.muro[clave(c)];
+      recalcular(quiere ? "Levantaste un muro." : "Derribaste un muro.");
+      return true;
+    }
+    function celda(e) {
+      var r = svg.getBoundingClientRect();
+      var cx = Math.floor((e.clientX - r.left) / r.width * C), cy = Math.floor((e.clientY - r.top) / r.height * R);
+      return cx < 0 || cy < 0 || cx >= C || cy >= R ? null : [cx, cy];
+    }
+    /* Con ratón o lápiz se arrastra: el robot, la meta o una pasada de muros. Con el dedo, tocar una celda aplica
+       el modo elegido y deslizar sigue desplazando la página. */
+    var arrastre = null;
+    svg.addEventListener("pointerdown", function (e) {
+      if (e.button) return;
+      var c = celda(e); if (!c) return;
+      var que = igual(c, esc.A) ? "robot" : igual(c, esc.B) ? "meta" : st.modo;
+      if (e.pointerType === "touch") { arrastre = { toque: true, c: c, que: que }; return; }
+      e.preventDefault();
+      arrastre = { que: que, valor: que === "muro" ? !esc.muro[clave(c)] : null, ult: c };
+      if (svg.setPointerCapture) try { svg.setPointerCapture(e.pointerId); } catch (x) {}
+      st.cur = c.slice();
+      if (que === "muro") aplicar(c, "muro", arrastre.valor);
+      else if (!igual(c, que === "robot" ? esc.A : esc.B)) aplicar(c, que);
+      else dibujar();
+    });
+    svg.addEventListener("pointermove", function (e) {
+      if (!arrastre || arrastre.toque) return;
+      var c = celda(e); if (!c || igual(c, arrastre.ult)) return;
+      arrastre.ult = c; st.cur = c.slice();
+      aplicar(c, arrastre.que, arrastre.valor);
+    });
+    function soltar(e) {
+      if (arrastre && arrastre.toque && e.type === "pointerup") {
+        var c = celda(e);
+        if (c && igual(c, arrastre.c)) { st.cur = c.slice(); if (!aplicar(c, st.modo)) dibujar(); }
+      }
+      arrastre = null;
+    }
+    svg.addEventListener("pointerup", soltar); svg.addEventListener("pointercancel", soltar);
+    svg.addEventListener("keydown", function (e) {
+      var mov = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key];
+      if (mov) {
+        e.preventDefault();
+        st.cur = [Math.max(0, Math.min(C - 1, st.cur[0] + mov[0])), Math.max(0, Math.min(R - 1, st.cur[1] + mov[1]))];
+        dibujar(); return;
+      }
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        if (!aplicar(st.cur.slice(), st.modo)) { aviso = st.modo === "muro" ? "En esa celda está el robot o la meta." : "Esa celda está ocupada."; dibujar(); }
+      }
+    });
     el.addEventListener("click", function (e) {
       var b = e.target.closest("[data-alg]");
       if (b) { parar(); st.alg = b.getAttribute("data-alg"); st.k = 0; dibujar(); marcar(); return; }
+      var m = e.target.closest("[data-modo]");
+      if (m) { st.modo = m.getAttribute("data-modo"); dibujar(); return; }
       var a = e.target.closest("[data-a]"); if (!a) return;
       var k = a.getAttribute("data-a"), n = res[st.alg].pasos.length;
       if (k === "play") { reproducir(); return; }
       parar();
+      if (k === "ejemplo") { esc = ejemplo(); editada = false; res = calcular(); st.k = INICIO; st.cur = esc.A.slice(); aviso = "Volviste a la rejilla del ejemplo."; comparar(); dibujar(); marcar(); return; }
       if (k === "paso") st.k = Math.min(n, st.k + 1);
       if (k === "fin") st.k = n;
       if (k === "cero") st.k = 0;
@@ -146,8 +251,8 @@
       var mqr = window.matchMedia("(prefers-reduced-motion: reduce)"), alReducir = function (e) { if (e.matches) parar(); };
       if (mqr.addEventListener) mqr.addEventListener("change", alReducir); else if (mqr.addListener) mqr.addListener(alReducir);
     }
-    dibujar(); marcar();
-    el.estadoAstar = function () { var r = res[st.alg], act = st.k ? r.pasos[st.k - 1] : null; return { alg: st.alg, k: st.k, n: r.pasos.length, g: act && act.g, h: act && act.h, f: act && act.f, pend: act ? act.pend.length : 1, activo: !!anim, camino: el.querySelector(".as-camino").getAttribute("d") !== "" }; };
+    comparar(); dibujar(); marcar();
+    el.estadoAstar = function () { var r = res[st.alg], act = st.k ? r.pasos[st.k - 1] : null; return { alg: st.alg, k: st.k, n: r.pasos.length, g: act && act.g, h: act && act.h, f: act && act.f, pend: act ? act.pend.length : 1, activo: !!anim, camino: el.querySelector(".as-camino").getAttribute("d") !== "", llego: r.llego, A: esc.A.slice(), B: esc.B.slice(), muros: Object.keys(esc.muro).length, modo: st.modo, cur: st.cur.slice(), editada: editada }; };
   };
 
   /* Frontera según Yamauchi y según explore_lite */
@@ -202,7 +307,7 @@
           if (!ok) s += '<path class="k-ink" stroke-width="1.6" d="M' + (p[0] * T + 5) + ' ' + (p[1] * T + 5) + ' l' + (T - 10) + ' ' + (T - 10) + ' M' + (p[0] * T + T - 5) + ' ' + (p[1] * T + 5) + ' l-' + (T - 10) + ' ' + (T - 10) + '"/>';
         });
       });
-      s += '<circle class="f-verde" cx="' + (2 * T + T / 2) + '" cy="' + (5 * T + T / 2) + '" r="6"/></svg>';
+      s += robotCelda(2 * T + T / 2, 5 * T + T / 2, T) + '</svg>';
       return { svg: s, acept: acept, rech: rech };
     }
     var a = panel(fy, 5, "Fronteras según Yamauchi"), b = panel(fe, 1, "Fronteras según explore_lite");
@@ -211,7 +316,7 @@
       '<p class="vnota">' + a.acept + ' región aceptada, ' + a.rech + ' descartada por chica.</p></figure>' +
       '<figure><figcaption><b>explore_lite, configurado en este robot</b><span>Celda desconocida junto a una libre. Mínimo 0,05 m, basta una celda.</span></figcaption>' + b.svg +
       '<p class="vnota">' + b.acept + ' regiones aceptadas, incluida la celda suelta del medio.</p></figure></div>' +
-      '<div class="vley"><span><i class="cu sup"></i>libre</span><span><i class="cu desc"></i>desconocida</span><span><i class="cu obst"></i>ocupada</span><span><i class="cu ambar"></i>frontera aceptada</span><span><i class="cu rech"></i>frontera descartada</span><span><i class="pt verde"></i>robot</span></div>' +
+      '<div class="vley"><span><i class="cu sup"></i>libre</span><span><i class="cu desc"></i>desconocida</span><span><i class="cu obst"></i>ocupada</span><span><i class="cu ambar"></i>frontera aceptada</span><span><i class="cu rech"></i>frontera descartada</span><span>' + (window.U && window.U.robot ? window.U.robot.icono("verde") : '<i class="pt verde"></i>') + 'robot</span></div>' +
       '<p class="vnota">Mapa de ejemplo. La celda suelta del medio representa una lectura de ruido del láser.</p>';
   };
 

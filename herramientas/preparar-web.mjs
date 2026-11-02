@@ -6,7 +6,7 @@ const target = resolve(root, 'web/public');
 await rm(resolve(root, 'build'), { recursive: true, force: true });
 await rm(target, { recursive: true, force: true });
 await mkdir(target, { recursive: true });
-for (const directory of ['img', 'fuentes', 'css', 'js', 'datos']) {
+for (const directory of ['img', 'fuentes', 'css', 'js', 'datos', 'modelos']) {
   await cp(resolve(root, directory), resolve(target, directory), { recursive: true });
 }
 for (const file of await readdir(root)) {

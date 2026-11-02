@@ -13,7 +13,9 @@ de inflación, DWB, exploración y encoder; las páginas de Recursos y de Biblio
 traslado de las anclas antiguas; el contenido plegado y sus anclas; el botón Ampliar; el alto mínimo de los controles en un teléfono; el visor de fotos,
 el esquema con puntos, la línea de tiempo y los bloques de video preparados; la cabecera fija
 y el panel de Temas dentro de la pantalla en varios anchos; y las herramientas de Preguntas
-difíciles: búsqueda, filtros, modo práctica, pregunta al azar y lectura sin JavaScript.
+difíciles: búsqueda, filtros, modo práctica, pregunta al azar y lectura sin JavaScript. También recorre las
+páginas con el tema oscuro del sistema y prueba el botón de tema: sigue al sistema, guarda la elección, se aplica
+antes de pintar, avisa a los simuladores y funciona en el menú del teléfono.
 """
 import os, re, sys, json, glob
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
@@ -1068,6 +1070,103 @@ def probar_cabecera(nav):
     ctx.close()
 
 
+def probar_tema(nav):
+    print('Tema claro y oscuro')
+    claro, oscuro = 'rgb(241, 241, 233)', 'rgb(18, 26, 23)'
+    # los dos bloques oscuros de cada hoja, el del sistema y el del botón, llevan los mismos valores
+    for hoja in ('css/marco.css', 'css/estilo.css', 'web/src/styles/experience.css'):
+        css = open(os.path.join(REPO, hoja), encoding='utf-8').read()
+        m1 = re.search(r'@media \(prefers-color-scheme: dark\) \{\s*:root:not\(\[data-theme="light"\]\) \{(.*?)\}\s*\}', css, re.S)
+        m2 = re.search(r':root\[data-theme="dark"\] \{(.*?)\}', css, re.S)
+        norm = lambda t: sorted(re.sub(r'\s+', ' ', x).strip() for x in t.split(';') if x.strip())
+        ok(bool(m1 and m2) and norm(m1.group(1)) == norm(m2.group(1)), hoja + ': el tema oscuro del sistema y el del botón tienen los mismos valores')
+    # el script del tema va en el <head> antes de las hojas de estilo, así la primera pintura ya usa el tema guardado
+    malas = []
+    for ruta in sorted(glob.glob(os.path.join(REPO, '*.html'))):
+        head = BeautifulSoup(open(ruta, encoding='utf-8').read(), 'html.parser').head
+        orden = [e for e in head.find_all(['script', 'link']) if (e.name == 'script' and 'localStorage.getItem("tema")' in (e.string or '')) or (e.name == 'link' and 'stylesheet' in (e.get('rel') or []))]
+        if not orden or orden[0].name != 'script' or head.find('meta', attrs={'name': 'color-scheme'}).get('content') != 'light dark':
+            malas.append(os.path.basename(ruta))
+    ok(not malas, 'las 18 páginas aplican el tema guardado antes de cargar los estilos y declaran los dos esquemas', malas)
+    for esquema in ('light', 'dark'):
+        ctx = contexto(nav, viewport={'width': 1366, 'height': 800}, color_scheme=esquema)
+        p = ctx.new_page()
+        errores = []
+        p.on('pageerror', lambda e: errores.append(str(e)))
+        p.goto(BASE + '/control.html')
+        p.wait_for_timeout(200)
+        fondo = lambda: p.evaluate('getComputedStyle(document.body).backgroundColor')
+        estado = lambda: p.evaluate("""() => { const b = document.querySelector('.site-header .theme-toggle');
+          return { attr: document.documentElement.getAttribute('data-theme'), guardado: localStorage.getItem('tema'), pulsado: b.getAttribute('aria-pressed'),
+                   listo: b.classList.contains('listo'), metas: [...document.querySelectorAll('meta[name="theme-color"]')].map(m => m.content), avisos: window.__avisos || 0 }; }""")
+        r = estado()
+        ok(r['attr'] is None and r['guardado'] is None and r['listo'] and r['pulsado'] == ('true' if esquema == 'dark' else 'false') and fondo() == (oscuro if esquema == 'dark' else claro),
+           'sistema %s: sin elección guardada el sitio sigue al sistema' % esquema, r)
+        p.evaluate("window.__avisos = 0; document.addEventListener('temacambio', () => window.__avisos++)")
+        lienzo = "(() => { const c = document.querySelector('[data-vis=pid] canvas'); return c ? [...c.getContext('2d').getImageData(4, 4, 1, 1).data].slice(0, 3).join(',') : null; })()"
+        p.locator('[data-vis=pid]').scroll_into_view_if_needed()
+        p.wait_for_selector('[data-vis=pid][data-montado="1"]')
+        p.wait_for_timeout(150)
+        antes = p.evaluate(lienzo)
+        p.locator('.site-header .theme-toggle').click()
+        p.wait_for_timeout(150)
+        otro = 'light' if esquema == 'dark' else 'dark'
+        r = estado()
+        ok(r['attr'] == otro and r['guardado'] == otro and r['avisos'] == 1 and r['pulsado'] == ('true' if otro == 'dark' else 'false')
+           and fondo() == (oscuro if otro == 'dark' else claro) and r['metas'] == ['#121a17' if otro == 'dark' else '#f1f1e9'] * 2,
+           'sistema %s: el botón cambia a %s, lo guarda, avisa una vez y actualiza la barra del navegador' % (esquema, otro), r)
+        ok(antes is not None and p.evaluate(lienzo) != antes, 'sistema %s: el simulador PID se vuelve a dibujar con los colores del tema' % esquema, (antes, p.evaluate(lienzo)))
+        p.goto(BASE + '/mapeo.html', wait_until='domcontentloaded')
+        ok(p.evaluate("document.documentElement.getAttribute('data-theme')") == otro, 'sistema %s: la elección se mantiene al cambiar de página' % esquema)
+        p.wait_for_timeout(200)
+        p.locator('.site-header .theme-toggle').click()
+        p.wait_for_timeout(100)
+        r = estado()
+        ok(r['attr'] is None and r['guardado'] is None and fondo() == (oscuro if esquema == 'dark' else claro), 'sistema %s: volver al tema del sistema borra la elección guardada' % esquema, r)
+        ok(not errores, 'sistema %s: cambiar el tema no produce errores' % esquema, errores[:3])
+        ctx.close()
+    # sin elección guardada, un cambio del sistema se aplica en vivo
+    ctx = contexto(nav, viewport={'width': 1366, 'height': 800}, color_scheme='light')
+    p = ctx.new_page()
+    p.goto(BASE + '/navegacion.html')
+    p.wait_for_timeout(150)
+    p.emulate_media(color_scheme='dark')
+    p.wait_for_timeout(150)
+    ok(p.evaluate('getComputedStyle(document.body).backgroundColor') == oscuro and p.locator('.site-header .theme-toggle').get_attribute('aria-pressed') == 'true',
+       'un cambio del tema del sistema se aplica sin recargar')
+    ctx.close()
+    # en el teléfono el botón vive en el menú y el menú sigue abierto al usarlo
+    ctx = contexto(nav, viewport={'width': 390, 'height': 844}, has_touch=True, is_mobile=True)
+    p = ctx.new_page()
+    p.goto(BASE + '/robot.html')
+    p.wait_for_timeout(200)
+    ok(p.locator('.site-header > .header-actions > .theme-toggle').is_hidden() and p.locator('.menu-tema').is_hidden(), 'teléfono: el botón de tema no ocupa la cabecera')
+    p.locator('.mobile-menu > summary').tap()
+    p.wait_for_timeout(150)
+    fila = p.locator('.menu-tema')
+    caja = fila.bounding_box()
+    ok(fila.is_visible() and caja['height'] >= 44, 'teléfono: el menú ofrece el tema oscuro con un control de al menos 44 px', caja)
+    fila.tap()
+    p.wait_for_timeout(150)
+    ok(p.evaluate("document.documentElement.getAttribute('data-theme')") == 'dark' and p.evaluate("document.querySelector('.mobile-menu').open")
+       and fila.get_attribute('aria-pressed') == 'true', 'teléfono: la fila del menú activa el tema oscuro y el menú queda abierto')
+    ctx.close()
+    # la portada y los laboratorios cambian con su escena 3D, sin errores
+    for pag in ('index.html', 'laboratorios.html'):
+        ctx = contexto(nav, viewport={'width': 1366, 'height': 900})
+        p = ctx.new_page()
+        errores = []
+        p.on('pageerror', lambda e: errores.append(str(e)))
+        p.on('console', lambda m: errores.append(m.text) if m.type == 'error' else None)
+        p.goto(BASE + '/' + pag)
+        p.wait_for_timeout(600)
+        p.locator('.site-header .theme-toggle').click()
+        p.wait_for_timeout(300)
+        r = p.evaluate("() => ({ fondo: getComputedStyle(document.body).backgroundColor, halo: getComputedStyle(document.documentElement).getPropertyValue('--h-halo').trim() })")
+        ok(r['fondo'] == oscuro and r['halo'] == '#26332d' and not errores, '%s: el tema oscuro cambia la página y sus colores propios sin errores' % pag, (r, errores[:3]))
+        ctx.close()
+
+
 def probar_preguntas(nav):
     print('Preguntas difíciles')
     EST = "document.getElementById('q-herramientas').estadoPreguntas()"
@@ -1174,6 +1273,8 @@ with sync_playwright() as pw:
     recorrer_paginas(nav, 'escritorio', {'width': 1366, 'height': 900}, {})
     recorrer_paginas(nav, 'móvil', {'width': 390, 'height': 844}, {'has_touch': True, 'is_mobile': True, 'device_scale_factor': 2})
     recorrer_paginas(nav, 'movimiento reducido', {'width': 1280, 'height': 900}, {'reduced_motion': 'reduce'})
+    recorrer_paginas(nav, 'tema oscuro', {'width': 1366, 'height': 900}, {'color_scheme': 'dark'})
+    probar_tema(nav)
     probar_anchos_moviles(nav)
     probar_buscador(nav)
     probar_terminos(nav)

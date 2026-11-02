@@ -5,17 +5,14 @@ import { SVGRenderer } from 'three/addons/renderers/SVGRenderer.js';
 import gsap from 'gsap';
 
 export type PartId = 'laser' | 'cubierta' | 'electronica' | 'traccion';
-export const PARTS: Record<PartId, {name:string; text:string; number:string}> = {
-  laser: { name:'LiDAR 2D', number:'01', text:'Mide distancias en un plano horizontal. Sus retornos permiten observar paredes y construir el mapa.' },
-  cubierta: { name:'Chasis y cubierta', number:'02', text:'La estructura reúne y protege los componentes. La geometría de este visor es una reconstrucción ilustrativa.' },
-  electronica: { name:'Electrónica a bordo', number:'03', text:'La Raspberry Pi integra ROS 2; el Arduino lee los encoders y controla las ruedas. Distribución interior ilustrativa.' },
-  traccion: { name:'Tracción diferencial', number:'04', text:'Dos ruedas, dos velocidades. El radio publicado es 33,5 mm y la separación entre ruedas es 188 mm.' },
-};
+export const PARTS: PartId[] = ['laser','cubierta','electronica','traccion'];
 
-/** Geometría propia y procedural, no CAD/URDF del prototipo. Dimensiones de rueda publicadas. */
-export function createRobot() {
+export type Robot = {root:THREE.Group; parts:Record<PartId,THREE.Group>; wheels:THREE.Group[]; original:Record<PartId,number>; head?:THREE.Object3D; cad?:boolean};
+
+/** Geometría propia y procedural, no el CAD del prototipo. Queda para el visor ligero sin WebGL y para el laboratorio. */
+export function createRobot():Robot {
   const root = new THREE.Group();
-  const parts = Object.fromEntries(Object.keys(PARTS).map(k => [k, new THREE.Group()])) as Record<PartId, THREE.Group>;
+  const parts = Object.fromEntries(PARTS.map(k => [k, new THREE.Group()])) as Record<PartId, THREE.Group>;
   const black = new THREE.MeshStandardMaterial({color:0x202529,roughness:.52,metalness:.25});
   const lidMat = new THREE.MeshStandardMaterial({color:0x303638,roughness:.43,metalness:.35});
   const yellow = new THREE.MeshStandardMaterial({color:0xe7ed63,roughness:.36,metalness:.15});
@@ -78,7 +75,7 @@ export function stage(host:HTMLElement, options:{ hero?:boolean; onFrame?:(dt:nu
   const renderer=gpu??new SVGRenderer();
   if(renderer instanceof SVGRenderer){renderer.setQuality('high');renderer.setPrecision(2);renderer.overdraw=.35;renderer.setClearColor(new THREE.Color(options.hero?0xf1f1e9:0x1a2b2b),1);}
   renderer.setPixelRatio(Math.min(window.devicePixelRatio,1.7));
-  if(gpu){gpu.shadowMap.enabled=true;gpu.shadowMap.type=THREE.PCFSoftShadowMap;gpu.toneMapping=THREE.ACESFilmicToneMapping;gpu.toneMappingExposure=1.15;}
+  if(gpu){gpu.shadowMap.enabled=true;gpu.shadowMap.type=THREE.PCFShadowMap;gpu.toneMapping=THREE.ACESFilmicToneMapping;gpu.toneMappingExposure=1.15;}
   renderer.domElement.setAttribute('aria-hidden','true');renderer.domElement.dataset.renderer=gpu?'webgl':'svg';host.append(renderer.domElement);
   const scene=new THREE.Scene();
   const camera=new THREE.PerspectiveCamera(options.hero?35:41,1,.01,60);
@@ -113,16 +110,42 @@ export function stage(host:HTMLElement, options:{ hero?:boolean; onFrame?:(dt:nu
   return {renderer,scene,camera,controls,invalidate,dispose,lightweight:!gpu};
 }
 
-export function heroScene(host:HTMLElement,onSelect:(id:PartId)=>void,onLost:()=>void){
-  const robot=createRobot();let motion=!matchMedia('(prefers-reduced-motion: reduce)').matches;
+/** Tema efectivo de la página: el elegido con el botón de la cabecera o, si no hay elección, el del sistema. */
+export function temaOscuro(){const t=document.documentElement.getAttribute('data-theme');return t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches);}
+
+export async function heroScene(host:HTMLElement,onSelect:(id:PartId)=>void,onLost:()=>void,modelUrl?:string){
+  let motion=!matchMedia('(prefers-reduced-motion: reduce)').matches, spin:THREE.Object3D|undefined;
   let exploded=false, activeTween:gsap.core.Tween|undefined;
-  const s=stage(host,{hero:true,onLost,onFrame:(dt)=>{if(motion&&!exploded){robot.parts.laser.rotation.y+=dt*.75;s.invalidate();return true;}return false;}});
+  const s=stage(host,{hero:true,onLost,onFrame:(dt)=>{if(spin&&motion&&!exploded){spin.rotation.y+=dt*.75;s.invalidate();return true;}return false;}});
+  // Sin WebGL el visor dibuja en SVG y el modelo del CAD sería demasiado pesado: queda el robot procedural.
+  // El cargador del CAD va en su propio módulo, para que el laboratorio LiDAR no lo descargue.
+  let robot:Robot;
+  if(s.lightweight||!modelUrl)robot=createRobot();
+  else{try{const {loadRobot}=await import('./robot-cad');robot=await loadRobot(modelUrl);}catch(error){console.warn('No se pudo cargar el modelo del CAD; se usa el robot ilustrativo.',error);robot=createRobot();}}
+  spin=robot.head??robot.parts.laser;
+  // Despiece y cámara: el modelo del CAD mide 15 cm de alto y el ilustrativo, 20 cm.
+  const C=robot.cad?{offsets:{traccion:0,electronica:.075,cubierta:.15,laser:.24},target:[.075,.19],cam:[[.37,.3,.43],[.6,.45,.72]]}
+    :{offsets:{traccion:0,electronica:.10,cubierta:.21,laser:.34},target:[.095,.24],cam:[[.37,.3,.43],[.72,.53,.84]]};
+  s.controls.target.y=C.target[0];s.controls.update();
   s.scene.add(robot.root);
-  const plinth=new THREE.Mesh(new THREE.CylinderGeometry(.21,.218,.012,80),new THREE.MeshStandardMaterial({color:0x263331,roughness:.8,metalness:.2}));plinth.position.y=-.009;plinth.receiveShadow=true;s.scene.add(plinth);
-  const ring=new THREE.Mesh(new THREE.RingGeometry(.225,.226,80),new THREE.MeshBasicMaterial({color:0x8b9b7e,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.y=-.001;s.scene.add(ring);
+  const plinthMat=new THREE.MeshStandardMaterial({color:0x263331,roughness:.8,metalness:.2}),ringMat=new THREE.MeshBasicMaterial({color:0x8b9b7e,side:THREE.DoubleSide});
+  const plinth=new THREE.Mesh(new THREE.CylinderGeometry(.21,.218,.012,80),plinthMat);plinth.position.y=-.009;plinth.receiveShadow=true;s.scene.add(plinth);
+  const ring=new THREE.Mesh(new THREE.RingGeometry(.225,.226,80),ringMat);ring.rotation.x=-Math.PI/2;ring.position.y=-.001;s.scene.add(ring);
+  // En el tema oscuro el robot negro se perdería sobre el fondo: la base y el aro se aclaran y la luz de contorno sube.
+  const rim=s.scene.children.find(o=>o instanceof THREE.DirectionalLight&&o.position.z<0) as THREE.DirectionalLight|undefined,rimBase=rim?.intensity??0;
+  function tema(){const oscuro=temaOscuro();plinthMat.color.setHex(oscuro?0x3f4c47:0x263331);ringMat.color.setHex(oscuro?0xb7c79a:0x8b9b7e);if(rim)rim.intensity=rimBase*(oscuro?1.8:1);
+    if(s.renderer instanceof SVGRenderer)s.renderer.setClearColor(new THREE.Color(oscuro?0x121a17:0xf1f1e9),1);s.invalidate();}
+  tema();document.addEventListener('temacambio',tema);
   if(!s.lightweight){const floor=new THREE.Mesh(new THREE.PlaneGeometry(6,6),new THREE.ShadowMaterial({opacity:.35}));floor.rotation.x=-Math.PI/2;floor.position.y=-.018;floor.receiveShadow=true;s.scene.add(floor);}
+  // Con el CAD el aro rodea cada grupo a la altura de su borde superior, medido sin despiece.
+  robot.root.updateMatrixWorld(true);
+  const anillos=Object.fromEntries((Object.keys(robot.parts) as PartId[]).map(id=>{const part=robot.parts[id],b=new THREE.Box3().setFromObject(part),size=b.getSize(new THREE.Vector3()),c=part.worldToLocal(b.getCenter(new THREE.Vector3()));
+    return [id,{r:Math.max(size.x,size.z)/2*1.04,x:c.x,y:part.worldToLocal(b.max.clone()).y+.003,z:c.z}];})) as Record<PartId,{r:number;x:number;y:number;z:number}>;
   const highlight=new THREE.Mesh(new THREE.TorusGeometry(.049,.0008,5,64),new THREE.MeshBasicMaterial({color:0xa4bb64,transparent:true,opacity:.8,depthTest:false}));highlight.rotation.x=Math.PI/2;highlight.renderOrder=20;robot.parts.laser.add(highlight);highlight.position.y=.045;
-  function select(id:PartId){robot.parts[id].add(highlight);const radius=id==='laser'?.049:id==='electronica'?.078:.121;highlight.scale.setScalar(radius/.049);highlight.position.set(0,id==='laser'?.045:id==='electronica'?.015:id==='cubierta'?.026:.055,0);s.invalidate();}
+  function select(id:PartId){robot.parts[id].add(highlight);
+    if(robot.cad){const a=anillos[id];highlight.scale.setScalar(a.r/.049);highlight.position.set(a.x,a.y,a.z);}
+    else{const radius=id==='laser'?.049:id==='electronica'?.078:.121;highlight.scale.setScalar(radius/.049);highlight.position.set(0,id==='laser'?.045:id==='electronica'?.015:id==='cubierta'?.026:.055,0);}
+    s.invalidate();}
   const raycaster=new THREE.Raycaster();let down={x:0,y:0};
   const onDown=(e:PointerEvent)=>{down={x:e.clientX,y:e.clientY};};
   const onUp=(e:PointerEvent)=>{if(Math.hypot(e.clientX-down.x,e.clientY-down.y)>7)return;const r=host.getBoundingClientRect();raycaster.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),s.camera);
@@ -130,14 +153,15 @@ export function heroScene(host:HTMLElement,onSelect:(id:PartId)=>void,onLost:()=
   };host.addEventListener('pointerdown',onDown);host.addEventListener('pointerup',onUp);
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
   const duration=()=>reduced.matches?0:.8;
-  function explode(value:boolean){exploded=value;const offsets={traccion:0,electronica:.10,cubierta:.21,laser:.34};
+  function explode(value:boolean){exploded=value;const offsets=C.offsets;
     for(const id of Object.keys(robot.parts) as PartId[]){gsap.killTweensOf(robot.parts[id].position);gsap.to(robot.parts[id].position,{y:robot.original[id]+(value?offsets[id]:0),duration:duration(),ease:'power3.inOut',onUpdate:s.invalidate});}
-    gsap.to(s.controls.target,{y:value?.24:.095,duration:duration(),onUpdate:s.invalidate});gsap.to(s.camera.position,{x:value?.72:.37,y:value?.53:.3,z:value?.84:.43,duration:duration(),onUpdate:s.invalidate});
+    const cam=C.cam[value?1:0];gsap.to(s.controls.target,{y:C.target[value?1:0],duration:duration(),onUpdate:s.invalidate});gsap.to(s.camera.position,{x:cam[0],y:cam[1],z:cam[2],duration:duration(),onUpdate:s.invalidate});
   }
   function view(preset:'frente'|'arriba'|'perspectiva'){
-    const p=exploded?(preset==='arriba'?[0,1.3,.005]:preset==='frente'?[0,.27,1.18]:[.72,.53,.84]):(preset==='arriba'?[0,.65,.005]:preset==='frente'?[0,.16,.56]:[.37,.3,.43]);
+    const k=robot.cad?.86:1;
+    const p=(exploded?(preset==='arriba'?[0,1.3,.005]:preset==='frente'?[0,.27,1.18]:[.72,.53,.84]):(preset==='arriba'?[0,.65,.005]:preset==='frente'?[0,.16,.56]:[.37,.3,.43])).map(v=>v*k);
     activeTween?.kill();activeTween=gsap.to(s.camera.position,{x:p[0],y:p[1],z:p[2],duration:duration(),ease:'power3.inOut',onUpdate:s.invalidate});
   }
   const mq=()=>{if(reduced.matches)motion=false;};if(reduced.addEventListener)reduced.addEventListener('change',mq);else reduced.addListener(mq);
-  return {explode,view,select,lightweight:s.lightweight,setMotion:(v:boolean)=>{motion=v;},dispose:()=>{for(const p of Object.values(robot.parts))gsap.killTweensOf(p.position);gsap.killTweensOf(s.camera.position);gsap.killTweensOf(s.controls.target);host.removeEventListener('pointerdown',onDown);host.removeEventListener('pointerup',onUp);if(reduced.removeEventListener)reduced.removeEventListener('change',mq);else reduced.removeListener(mq);s.dispose();}};
+  return {explode,view,select,lightweight:s.lightweight,cad:!!robot.cad,setMotion:(v:boolean)=>{motion=v;},dispose:()=>{for(const p of Object.values(robot.parts))gsap.killTweensOf(p.position);gsap.killTweensOf(s.camera.position);gsap.killTweensOf(s.controls.target);host.removeEventListener('pointerdown',onDown);host.removeEventListener('pointerup',onUp);if(reduced.removeEventListener)reduced.removeEventListener('change',mq);else reduced.removeListener(mq);document.removeEventListener('temacambio',tema);s.dispose();}};
 }

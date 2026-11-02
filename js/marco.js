@@ -1,4 +1,4 @@
-/* Comportamiento del marco común (herramientas/plantillas/): el menú del teléfono y el buscador.
+/* Comportamiento del marco común (herramientas/plantillas/): el tema, el menú del teléfono y el buscador.
    Lo cargan todas las páginas, también la portada y los laboratorios compilados con Astro. */
 (function () {
   "use strict";
@@ -9,6 +9,48 @@
   function guardar(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }
   /* Ícono de Phosphor Icons (MIT, ver LICENSE-iconos.txt) */
   var RECIENTE = '<svg class="ph" viewBox="0 0 256 256" aria-hidden="true"><path d="M136,80v43.47l36.12,21.67a8,8,0,0,1-8.24,13.72l-40-24A8,8,0,0,1,120,128V80a8,8,0,0,1,16,0Zm-8-48A95.44,95.44,0,0,0,60.08,60.15C52.81,67.51,46.35,74.59,40,82V64a8,8,0,0,0-16,0v40a8,8,0,0,0,8,8H72a8,8,0,0,0,0-16H49c7.15-8.42,14.27-16.35,22.39-24.57a80,80,0,1,1,1.66,114.75,8,8,0,1,0-11,11.64A96,96,0,1,0,128,32Z"/></svg>';
+
+  /* Tema claro u oscuro. Sin una elección guardada sigue al sistema. El script en línea del <head>
+     (herramientas/plantillas/tema.html) aplica la elección guardada antes de pintar, así la página no parpadea.
+     Cada cambio avisa con el evento temacambio para que los dibujos en canvas y las escenas 3D se repinten. */
+  var COLOR_TEMA = { light: "#f1f1e9", dark: "#121a17" };
+  function tema() {
+    var raiz = document.documentElement;
+    var mq = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+    var botones = [].slice.call(document.querySelectorAll("[data-tema-alternar]"));
+    function sistema() { return mq && mq.matches ? "dark" : "light"; }
+    function elegido() { var t = raiz.getAttribute("data-theme"); return t === "dark" || t === "light" ? t : null; }
+    function efectivo() { return elegido() || sistema(); }
+    function pintar() {
+      var t = efectivo();
+      botones.forEach(function (b) { b.setAttribute("aria-pressed", String(t === "dark")); b.classList.add("listo"); });
+      /* la barra del navegador del teléfono toma el color del tema elegido, no solo el del sistema */
+      [].forEach.call(document.querySelectorAll('meta[name="theme-color"]'), function (m) { m.setAttribute("content", COLOR_TEMA[t]); });
+    }
+    function avisar() { pintar(); document.dispatchEvent(new CustomEvent("temacambio", { detail: { tema: efectivo() } })); }
+    function aplicar(t) {
+      /* el cambio es inmediato: sin transiciones durante dos cuadros, para que no se vea un fundido a medias */
+      raiz.classList.add("tema-cambiando");
+      /* si la elección coincide con el sistema no se guarda, y el sitio vuelve a seguirlo */
+      if (t === sistema()) { raiz.removeAttribute("data-theme"); guardar("tema", null); }
+      else { raiz.setAttribute("data-theme", t); guardar("tema", t); }
+      avisar();
+      requestAnimationFrame(function () { requestAnimationFrame(function () { raiz.classList.remove("tema-cambiando"); }); });
+    }
+    botones.forEach(function (b) { b.addEventListener("click", function () { aplicar(efectivo() === "dark" ? "light" : "dark"); }); });
+    if (mq) {
+      var alSistema = function () { if (elegido()) pintar(); else avisar(); };
+      if (mq.addEventListener) mq.addEventListener("change", alSistema); else if (mq.addListener) mq.addListener(alSistema);
+    }
+    /* el tema cambió en otra pestaña del sitio */
+    window.addEventListener("storage", function (e) {
+      if (e.key !== "tema") return;
+      if (e.newValue === "dark" || e.newValue === "light") raiz.setAttribute("data-theme", e.newValue); else raiz.removeAttribute("data-theme");
+      avisar();
+    });
+    S.tema = { efectivo: efectivo, aplicar: aplicar };
+    pintar();
+  }
 
   /* Menú del teléfono. Es un details, así que abre sin JavaScript. Con JavaScript se comporta como un
      diálogo: aísla el resto de la página, el foco circula dentro y Escape lo cierra. */
@@ -257,7 +299,7 @@
   }
 
   function arrancar() {
-    [menu, buscador].forEach(function (f) { try { f(); } catch (e) { if (window.console) console.error(e); } });
+    [tema, menu, buscador].forEach(function (f) { try { f(); } catch (e) { if (window.console) console.error(e); } });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", arrancar); else arrancar();
 })();
