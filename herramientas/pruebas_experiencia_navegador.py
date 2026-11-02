@@ -39,10 +39,19 @@ PAGINAS = sorted(p.name for p in ROOT.glob('*.html') if p.name not in ('index.ht
 MODULOS_VIS = ['vis1.js', 'vis2.js', 'vis3.js', 'sims.js', 'mapeo.js', 'movimiento.js', 'evidencia.js', 'slam-proceso.js']
 MOVIL = {'viewport': {'width': 390, 'height': 844}, 'is_mobile': True, 'has_touch': True, 'device_scale_factor': 2}
 ESCRITORIO = {'viewport': {'width': 1366, 'height': 900}}
+# Además del total guarda qué se movió, para que un fallo en CI diga qué elemento cambió de lugar.
 OBSERVADOR_CLS = """
-window.__cls = 0;
-new PerformanceObserver(l => { for (const e of l.getEntries()) if (!e.hadRecentInput) window.__cls += e.value; })
-  .observe({ type: 'layout-shift', buffered: true });
+window.__cls = 0; window.__movidos = [];
+new PerformanceObserver(l => { for (const e of l.getEntries()) if (!e.hadRecentInput) {
+  window.__cls += e.value;
+  for (const f of e.sources || []) {
+    const n = f.node, el = n && (n.nodeType === 1 ? n : n.parentElement);
+    window.__movidos.push({ valor: +e.value.toFixed(4), t: Math.round(e.startTime),
+      nodo: el ? el.tagName.toLowerCase() + (el.id ? '#' + el.id : '') + (el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\\s+/).join('.') : '') : '?',
+      de: [Math.round(f.previousRect.x), Math.round(f.previousRect.y), Math.round(f.previousRect.height)],
+      a: [Math.round(f.currentRect.x), Math.round(f.currentRect.y), Math.round(f.currentRect.height)] });
+  }
+} }).observe({ type: 'layout-shift', buffered: true });
 """
 
 
@@ -214,7 +223,8 @@ def fuentes_y_cls(nav):
                 omitir('%s, %s: el sistema no tiene ninguna fuente de respaldo compatible, se omite el CLS (%.4f)' % (pag, nombre, cls))
                 ctx.close()
                 continue
-            check(cls < 0.02, '%s, %s: con las fuentes 1,2 s tarde el CLS es %.4f (respaldo: %s)' % (pag, nombre, cls, ', '.join(sorted(set(f.strip('"') for f in usados)))), cls)
+            movidos = p.evaluate('window.__movidos.slice(0, 12)')
+            check(cls < 0.02, '%s, %s: con las fuentes 1,2 s tarde el CLS es %.4f (respaldo: %s)' % (pag, nombre, cls, ', '.join(sorted(set(f.strip('"') for f in usados)))), movidos)
             check('Respaldo' in familia, '%s, %s: el título tiene una fuente de respaldo con métricas ajustadas' % (pag, nombre), familia)
             ctx.close()
 
