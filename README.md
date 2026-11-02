@@ -8,7 +8,21 @@ Guía abierta sobre el trabajo de titulación **"Navegación y exploración aut�
 
 ## Un solo diseño para todo el sitio
 
-La portada, `laboratorios.html` y las 16 páginas de la guía comparten el mismo sistema visual: papel claro, tinta verde oscuro, un acento lima para lo que está activo, Archivo en los títulos, Atkinson Hyperlegible en el texto e IBM Plex Mono en las etiquetas. Los bordes son líneas finas y las esquinas, rectas. El sitio tiene un solo tema, claro, igual que la portada.
+La portada, `laboratorios.html` y las 16 páginas de la guía comparten el mismo sistema visual: papel claro, tinta verde oscuro, un acento lima para lo que está activo, Archivo en los títulos, Atkinson Hyperlegible en el texto e IBM Plex Mono en las etiquetas. Los bordes son líneas finas y las esquinas, rectas.
+
+## Tema claro y oscuro
+
+Todo el sitio tiene tema claro y oscuro, también la portada y sus escenas 3D. Sin elección, sigue al sistema. El botón de la cabecera, con una luna o un sol, cambia el tema. En el teléfono está en el menú, como una fila con interruptor. La elección se guarda en el navegador de quien la hace, con la clave `tema`, y si coincide con el sistema se borra, así el sitio vuelve a seguirlo.
+
+Un script en línea al inicio del `<head>` aplica la elección guardada antes de cargar los estilos, así la página no parpadea. Sale de `herramientas/plantillas/tema.html` y `datos.py` lo pone en las 18 páginas, junto con `color-scheme` y el color de la barra del navegador. Los colores son variables: `css/marco.css` define la paleta común, `css/estilo.css` las superficies y los colores de los datos de la guía y `web/src/styles/experience.css` los de la portada. Cada hoja tiene dos bloques oscuros con los mismos valores, uno para el sistema y otro para el botón, y `pruebas_navegador.py` comprueba que coincidan.
+
+Cada cambio de tema avisa con el evento `temacambio`. Los simuladores dibujados en canvas y las escenas 3D lo escuchan y se vuelven a dibujar. Los colores de los datos conservan su tono en el tema oscuro, para que «la curva azul» siga siendo azul, y las rejillas de ocupación conservan los grises de un mapa PGM, porque el texto los nombra: blanco libre, negro ocupado y gris desconocido. Las fotos del robot se funden con el papel en el tema claro y se muestran tal cual en el oscuro.
+
+## El robot, el mismo en todas partes
+
+Las figuras de la guía dibujan el robot con su planta real, una U con la parte curva adelante y el LiDAR en la curva, con las medidas del CAD del prototipo. La función está en `js/comun.js` (`U.robot`) y la usan el LiDAR del capítulo 5, A estrella y las fronteras, el simulador de exploración y la cinemática. Donde importa la huella rectangular que usa Nav2, como en la inflación y la ventana dinámica, se dibuja esa huella. El logo y el ícono del sitio muestran la misma planta, con la curva hacia adelante.
+
+La portada muestra el modelo 3D del prototipo, convertido de su CAD por `herramientas/modelo_robot.py` y guardado en `modelos/robot.glb`. El despiece separa la tracción, la electrónica, la cubierta y el LiDAR, cuyo cabezal gira. El cargador del modelo está en `web/src/lib/robot-cad.ts` y solo lo pide la portada. Sin WebGL, el visor dibuja en SVG un robot ilustrativo más liviano. El laboratorio 3D de `laboratorios.html` conserva por ahora su robot ilustrativo. Véase [el detalle del modelo](modelos/README.md).
 
 El marco de cada página es el mismo en todas: la cabecera con la marca del robot, la navegación y el buscador, el menú del teléfono, el aviso académico, el pie y la ventana de búsqueda. Su marcado vive en `herramientas/plantillas/`, sus estilos en `css/marco.css` y su comportamiento en `js/marco.js`. `python3 herramientas/datos.py` lo inserta en las páginas de la guía y escribe `web/src/generado/marco.json`, que la portada y los laboratorios usan al compilarse. Para cambiar el marco se edita la plantilla, se ejecuta `datos.py` y después `npm run build`. `pruebas_navegador.py` compara el marcado y los estilos del marco entre la portada y las páginas de la guía.
 
@@ -38,7 +52,7 @@ python herramientas/verificar_compilacion.py
 
 La verificación de compilación compara las salidas con Git y admite únicamente los identificadores internos `uid` de Astro que dependen de la ruta de trabajo. Los textos, atributos funcionales, scripts, estilos, índice y conjunto de recursos deben coincidir. Véase [la corrección de CI](docs/correccion-ci-astro.md).
 
-El criterio editorial es conservar explicaciones, fuentes, unidades y límites al cambiar su presentación. Consulta [la trazabilidad del contenido de portada](docs/contenido-portada.md), [la guía de la portada Astro](docs/experiencia-v1.md) y [el informe del diseño común](docs/informe-tecnico.md).
+El criterio editorial es conservar explicaciones, fuentes, unidades y límites al cambiar su presentación. Consulta [la trazabilidad del contenido de portada](docs/contenido-portada.md), [la guía de la portada Astro](docs/experiencia-v1.md) y [el informe del diseño común](docs/historial/informe-tecnico-b018ab8.md).
 
 ![Una corrida real: a la izquierda la cámara cenital, a la derecha el mapa que construye el robot en RViz](img/mapa-crece.gif)
 
@@ -117,6 +131,7 @@ Las cifras y figuras del robot salen de la tesis y se citan con su sección, tab
 ├── herramientas/        generadores, índice del buscador y pruebas
 ├── herramientas/plantillas/ marcado del marco común, que datos.py inserta en cada página
 ├── web/src/             portada y laboratorios en Astro y Svelte
+├── modelos/             modelo 3D del prototipo para la portada, generado desde el CAD
 ├── fuentes/             tipografías locales con su licencia OFL
 └── img/                 fotos, figuras de la tesis, animaciones y miniaturas
 ```
@@ -138,6 +153,8 @@ El cuadrado en dos sentidos ilustra el método UMBmark de Borenstein y Feng con 
 ## Capítulo 6: A estrella paso a paso
 
 El interactivo de búsqueda guarda cada paso de Dijkstra y de A estrella. Se puede reproducir, pausar, avanzar de a uno o ir a cualquier paso con un deslizador. En cada paso muestra la celda que se revisa, el camino que la alcanzó (g), la estimación hasta la meta (h), f = g + h y las celdas pendientes. Las cuentas finales, 291 y 111 celdas para una ruta de 27 pasos, quedan siempre a la vista.
+
+La rejilla se puede editar. Con Muros, un clic o un arrastre levanta o derriba muros. Con Robot o Meta, tocar una celda los lleva ahí, y también se pueden arrastrar. Con el teclado, las flechas mueven un marco por la rejilla y Enter o la barra espaciadora aplican lo elegido. Cada cambio recalcula las dos búsquedas y muestra la ruta nueva con sus cifras. Si los muros separan la meta del robot, la figura lo explica y no dibuja una ruta. Volver al ejemplo restaura la rejilla original. En el teléfono, deslizar sobre la rejilla sigue desplazando la página: se edita tocando.
 
 El simulador de la ventana dinámica dibuja la huella del robot, el rectángulo configurado en Nav2, translúcida y bajo las trayectorias. Antes iba opaca encima y tapaba las 105 candidatas, que avanzan a lo más 26 cm desde el centro de giro, y también la elegida, del mismo azul. Una segunda vista muestra 50 cm alrededor del robot, ampliados unas cuatro veces en un teléfono, con su escala de 10 cm. Los puntajes, los escenarios y la proyección de 1,7 s no cambian.
 
@@ -239,6 +256,7 @@ python3 herramientas/pruebas_robustez_navegador.py
 python3 herramientas/pruebas_evidencia_navegador.py
 python3 herramientas/pruebas_navegador.py
 python3 herramientas/pruebas_experiencia_navegador.py
+python3 herramientas/pruebas_redisenio_navegador.py
 node herramientas/ejemplos_laboratorio.js --comprobar
 node herramientas/diagramas_plano.js --comprobar
 node herramientas/diagramas_mapeo.js --comprobar
@@ -253,7 +271,7 @@ Las comprobaciones de desborde comparan el ancho del contenido con `document.doc
 
 `pruebas_navegador.py` también comprueba que la cabecera, el aviso, el pie y el buscador tengan el mismo marcado y los mismos estilos en la portada, los laboratorios y la guía, que la cabecera quepa entre 320 y 1920 px, que el menú del teléfono lleve la guía numerada, que las herramientas de Preguntas difíciles funcionen con y sin JavaScript y que un botón deshabilitado se vea apagado, sin la mano ni resaltado al pasar el ratón.
 
-Las pruebas de Node revisan la geometría, el reloj y los casos numéricos de control. Las pruebas del capítulo 3 comprueban la cinemática y el centro de giro, la integración sobre arcos, los datos de la recta frente a su CSV, la calibración y el cuadrado en dos sentidos. Las pruebas unitarias incluyen además la búsqueda A estrella, con su h admisible. `pruebas_movimiento_navegador.py` recorre el capítulo 3 y A estrella en escritorio, móvil de 390 y 320 px, esquema oscuro del sistema y movimiento reducido. Las pruebas de mapeo añaden oclusión y colisiones del LiDAR, celdas no observadas, el índice de cobertura, la curva de desacuerdo de los barridos, transformaciones SE(2) y optimización del grafo. `pruebas_control_navegador.py` inicia un servidor local temporal y comprueba los interactivos del capítulo 4 en escritorio, móvil de 390 y 320 px, esquema oscuro del sistema y movimiento reducido. `pruebas_evidencia_navegador.py` recorre los interactivos de estabilidad, del plano y de las repeticiones en escritorio, en teléfonos de 390 y 320 px y en tema oscuro, y lee sus respaldos sin JavaScript. `pruebas_mapeo_navegador.py` hace lo mismo con los diez interactivos del capítulo 05: teclado, lecturas de área e índice, la cadena TF, la curva de los barridos, el desacuerdo del grafo y que los SVG en línea no traigan estilos. Requiere Playwright con Chromium instalado solo para desarrollo. `pruebas_navegador.py` usa Chromium con Playwright y recorre las páginas en escritorio, en teléfono y con movimiento reducido. Revisa errores, enlaces, anclas, el buscador, el glosario, los simuladores y el uso en teléfono.
+Las pruebas de Node revisan la geometría, el reloj y los casos numéricos de control. Las pruebas del capítulo 3 comprueban la cinemática y el centro de giro, la integración sobre arcos, los datos de la recta frente a su CSV, la calibración y el cuadrado en dos sentidos. Las pruebas unitarias incluyen además la búsqueda A estrella, con su h admisible. `pruebas_movimiento_navegador.py` recorre el capítulo 3 y A estrella en escritorio, móvil de 390 y 320 px, esquema oscuro del sistema y movimiento reducido. Las pruebas de mapeo añaden oclusión y colisiones del LiDAR, celdas no observadas, el índice de cobertura, la curva de desacuerdo de los barridos, transformaciones SE(2) y optimización del grafo. `pruebas_control_navegador.py` inicia un servidor local temporal y comprueba los interactivos del capítulo 4 en escritorio, móvil de 390 y 320 px, esquema oscuro del sistema y movimiento reducido. `pruebas_evidencia_navegador.py` recorre los interactivos de estabilidad, del plano y de las repeticiones en escritorio, en teléfonos de 390 y 320 px y en tema oscuro, y lee sus respaldos sin JavaScript. `pruebas_mapeo_navegador.py` hace lo mismo con los diez interactivos del capítulo 05: teclado, lecturas de área e índice, la cadena TF, la curva de los barridos, el desacuerdo del grafo y que los SVG en línea no traigan estilos. Requiere Playwright con Chromium instalado solo para desarrollo. `pruebas_navegador.py` usa Chromium con Playwright y recorre las páginas en escritorio, en teléfono y con movimiento reducido. Revisa errores, enlaces, anclas, el buscador, el glosario, los simuladores y el uso en teléfono. También prueba el tema: que cada página lo aplique antes de pintar, que el botón lo cambie y lo recuerde entre páginas, que los simuladores se vuelvan a dibujar y que los dos bloques oscuros de cada hoja coincidan.
 
 ## Capítulo 05: lo que mide cada interactivo
 
@@ -261,7 +279,7 @@ La ampliación del 22 de octubre de 2026 explica los cuatro componentes de SLAM 
 
 Se distinguen PGM/YAML y sesión serializada, mapeo, localización, continuación y lifelong mapping, con enlaces por minutos a ROSCon 2019. La tabla de parámetros separa lo declarado en la guía de los valores que no se publicaron: no copia valores predeterminados al prototipo. AMCL se presenta como una de las localizaciones posibles de un protocolo de metas fijas, junto con la de SLAM, y se precisan las descripciones de GMapping y del marco map en todas las páginas relacionadas. El estado académico y las tablas originales se conservan. Detalle y aplicación del parche en [docs/mejoras-slam-20261022.md](docs/mejoras-slam-20261022.md).
 
-El LiDAR tiene leyenda, escala de 1 m y un robot que no se confunde con un botón. La rejilla calcula el área libre y el índice de cobertura con la misma fórmula de los resultados. La cadena TF se dibuja en el marco map: al aplicar map → odom se mueve el origen de odom y la flecha de las ruedas conserva su largo. El ajuste de barridos muestra la curva del desacuerdo total, con mínimo en 30 cm frente a los 40 cm que estiman las ruedas. El grafo de poses informa el desacuerdo en cada paso: 0 sin cierre, 29,3 al añadirlo y 0,18 después de optimizar. El ejemplo de cobertura conserva la celda ocupada en ambas imágenes y permite agrandar el margen desconocido para ver que el índice baja mientras el área no cambia.
+El LiDAR tiene leyenda, escala de 1 m y un robot que no se confunde con un botón. Bajo la vista superior, una vista 3D de la misma sala muestra el plano del láser a su altura: cruza las patas de la mesa y las paredes, pasa sobre la caja baja y bajo la cubierta. Está dibujada a mano en un canvas, sin bibliotecas, con las caras ordenadas de atrás hacia adelante y la escena partida a la altura del láser. Se gira arrastrando o con las flechas y tiene tres puntos de vista. Sus alturas son de ejemplo. La rejilla calcula el área libre y el índice de cobertura con la misma fórmula de los resultados. La cadena TF se dibuja en el marco map: al aplicar map → odom se mueve el origen de odom y la flecha de las ruedas conserva su largo. El ajuste de barridos muestra la curva del desacuerdo total, con mínimo en 30 cm frente a los 40 cm que estiman las ruedas. El grafo de poses informa el desacuerdo en cada paso: 0 sin cierre, 29,3 al añadirlo y 0,18 después de optimizar. El ejemplo de cobertura conserva la celda ocupada en ambas imágenes y permite agrandar el margen desconocido para ver que el índice baja mientras el área no cambia.
 
 Los SVG en línea no llevan estilos propios, para que no afecten al resto de la página. Los archivos exportados a `img/diagramas/` sí los incluyen.
 
@@ -284,7 +302,7 @@ git push origin main
 
 ## Experiencia y rendimiento de la versión anterior
 
-Este apartado documenta la revisión del 26 de octubre, previa a la portada Astro/Svelte y al diseño común. La paleta azul de la UTEM, el tema oscuro y la cabecera fija que describe ya no están.
+Este apartado documenta la revisión del 26 de octubre, previa a la portada Astro/Svelte y al diseño común. La paleta azul de la UTEM, el tema oscuro de entonces y la cabecera fija que describe ya no están. El tema oscuro actual es otro, común a todo el sitio.
 
 La revisión del 26 de octubre de 2026 conserva el HTML, CSS y JavaScript sin compilación y suma una identidad de plano técnico: la rejilla de ocupación detrás de los títulos, los anillos del LiDAR alrededor del prototipo, paneles azul noche y la franja azul y verde de la UTEM. La simulación del ciclo en la portada se dibuja como una consola azul noche, las imágenes de los temas comparten un tono azul que recupera su color al apuntarlas y en un teléfono cada tema es una fila compacta.
 
@@ -294,11 +312,11 @@ La revisión del 26 de octubre de 2026 conserva el HTML, CSS y JavaScript sin co
 - **Interactivos nuevos.** Comparador de decisiones en `problema.html#estado-del-arte`, filtro del glosario en `recursos.html#glosario` y bibliografía de la tesis, hoy en `bibliografia.html`, en grupos y con filtro, donde cada referencia es una línea de resumen que se abre con su detalle. El buscador del sitio lleva directo a cada referencia abierta.
 - **Movimiento con propósito.** Las tarjetas aparecen con un leve ascenso al desplazarse y el barrido del LiDAR de la portada dura menos de 5 s. Con movimiento reducido no hay animaciones.
 
-Lighthouse local, con compresión gzip como GitHub Pages: rendimiento de 78 a 94 antes y de 95 a 99 después en teléfono, 100 en escritorio, accesibilidad 100 y SEO 100 en las 16 páginas. El detalle está en `docs/informe-tecnico.md`.
+Lighthouse local, con compresión gzip como GitHub Pages: rendimiento de 78 a 94 antes y de 95 a 99 después en teléfono, 100 en escritorio, accesibilidad 100 y SEO 100 en las 16 páginas. El detalle está en `docs/historial/informe-tecnico-a5bd066.md`.
 
 ## Accesibilidad
 
-Se comprueban el esquema oscuro del sistema, con el que el sitio conserva su paleta clara, movimiento reducido, navegación por teclado y respaldos. El menú móvil limita el foco y aísla el fondo, y el aviso académico y la navegación esencial funcionan sin JavaScript. Una tabla que no cabe en la pantalla se vuelve una región enfocable con nombre, para recorrerla con las flechas, y deja de serlo cuando vuelve a caber. Cada parte del arranque se inicia aislada: si una falla, las demás siguen. Las verificaciones automáticas y la revisión visual no son una certificación completa de WCAG 2.2 AA ni sustituyen pruebas con lectores de pantalla.
+Se comprueban los temas claro y oscuro, el del sistema y el elegido con el botón, movimiento reducido, navegación por teclado y respaldos. El menú móvil limita el foco y aísla el fondo, y el aviso académico y la navegación esencial funcionan sin JavaScript. Una tabla que no cabe en la pantalla se vuelve una región enfocable con nombre, para recorrerla con las flechas, y deja de serlo cuando vuelve a caber. Cada parte del arranque se inicia aislada: si una falla, las demás siguen. Las verificaciones automáticas y la revisión visual no son una certificación completa de WCAG 2.2 AA ni sustituyen pruebas con lectores de pantalla.
 
 ## Cómo citar
 
@@ -308,7 +326,7 @@ El formato BibTeX está en `recursos.html#citar`.
 
 ## Licencia
 
-El código del sitio, es decir `js/`, `css/`, `herramientas/` y la estructura de las páginas HTML, usa la licencia MIT del archivo `LICENSE`. Los textos, diagramas, fotos, figuras propias y las tablas de `datos/ensayos/` y `datos/analisis/` usan CC BY 4.0, como detalla `LICENSE-contenido.md`. Las imágenes de productos de terceros quedan fuera de esa licencia, las tipografías de `fuentes/` se rigen por la licencia OFL y los íconos de Phosphor por la licencia MIT de `LICENSE-iconos.txt`. Titular: Sebastián Valderas Neculqueo, 2026.
+El código del sitio, es decir `js/`, `css/`, `herramientas/` y la estructura de las páginas HTML, usa la licencia MIT del archivo `LICENSE`. Los textos, diagramas, fotos, figuras propias y las tablas de `datos/ensayos/` y `datos/analisis/` usan CC BY 4.0, como detalla `LICENSE-contenido.md`. Las imágenes de productos de terceros quedan fuera de esa licencia, las tipografías de `fuentes/` se rigen por la licencia OFL y los íconos de Phosphor por la licencia MIT de `LICENSE-iconos.txt`. `modelos/robot.glb` incluye modelos de componentes comerciales que vienen en el ensamblaje del autor, como el RPLidar A1 y las placas. El autor confirmó que sus licencias permiten publicarlos, como indica `modelos/README.md`. Titular: Sebastián Valderas Neculqueo, 2026.
 
 ## Créditos de imágenes
 

@@ -6,7 +6,7 @@
   "fecha_datos": "Exploración y mapeo, 22 de junio de 2026 (Anexo 7). La tesis no fecha los demás ensayos.",
   "revision_datos": null,
   "ultima_actualizacion_sitio": "2026-11-02",
-  "revision_base": "b018ab812c960ebd82b0d3b812c9f608423f198d",
+  "revision_base": "0e148bb1fe281eac9de2349b1bc0ee25c6290122",
   "tesis_pdf": null,
   "pendientes": [
     {
@@ -72,6 +72,11 @@
       "fecha": "2026-11-02",
       "tipo": "plataforma",
       "cambio": "Todo el sitio comparte el diseño de la portada: la misma cabecera, aviso, pie, buscador y menú, la misma paleta clara y la misma tipografía. La guía numera sus 16 partes y despliega las secciones de cada una. El buscador sugiere búsquedas y recuerda las recientes. Se agregan el detalle de las 51 compras, la carta Gantt y el PDF de las 106 preguntas. Los íconos son de Phosphor y el logo es el robot visto desde arriba. El contenido académico y las tablas experimentales no cambian."
+    },
+    {
+      "fecha": "2026-11-02",
+      "tipo": "plataforma",
+      "cambio": "Tema oscuro en todo el sitio, con un botón en la cabecera y en el menú del teléfono, que sigue el del sistema mientras no se elija otro. La portada muestra el robot hecho a partir del CAD del prototipo y todas las figuras dibujan su planta real: la cubierta en U, con el frente curvo y el LiDAR adelante. En la búsqueda A estrella se pueden mover el robot, la meta y los muros. Mapeo agrega una vista 3D del plano del láser frente a las paredes, la mesa y la caja. El contenido académico y las tablas experimentales no cambian."
     }
   ]
 }

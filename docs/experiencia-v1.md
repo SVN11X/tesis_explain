@@ -6,7 +6,7 @@ Correcciones del 1 de noviembre de 2026: explicaciones de portada recuperadas (V
 
 La portada se reconstruye con una composición editorial de robótica: tipografía grande, colores industriales, un robot manipulable, el ciclo de percepción y decisión, un laboratorio integrado y acceso directo a los ensayos y a los diez capítulos. La nueva página `laboratorios.html` ofrece el mismo experimento con explicaciones y sin el resto de la portada.
 
-El robot se puede girar, desmontar y ensamblar. Hay cámaras de frente, superior y perspectiva, selección de cuatro componentes y un control para detener el movimiento del sensor. Es geometría propia y procedural, no el CAD ni el URDF del robot. La ubicación de los elementos internos es ilustrativa. El radio de rueda de 33,5 mm y la separación de 188 mm provienen de los parámetros publicados.
+El robot se puede girar, desmontar y ensamblar. Hay cámaras de frente, superior y perspectiva, selección de cuatro componentes y un control para detener el movimiento del sensor. Desde noviembre de 2026 el modelo sale del CAD del prototipo, simplificado para la web, como explica [modelos/README.md](../modelos/README.md). Sin WebGL, o si el archivo no carga, la portada vuelve a la geometría propia de la V1, que no es el CAD ni el URDF. El laboratorio LiDAR sigue usando esa geometría. El radio de rueda de 33,5 mm y la separación de 188 mm provienen de los parámetros publicados.
 
 El laboratorio incluye tres escenarios: recinto, esquina y caja baja. Usa 230 rayos, primer impacto geométrico, un plano de medida ajustable y una rejilla de 70 × 50 celdas de 8 cm. Se puede arrastrar el robot, tocar el mapa o introducir posición y rumbo. Altura, alcance y rayo seleccionado tienen controles de teclado. La historia conserva hasta 240 barridos; al retroceder y editar se abre una nueva secuencia desde ese punto.
 
@@ -130,10 +130,12 @@ La entrega incluye el repositorio completo y un parche `git am`, generado con í
 
 Esta es la primera sección funcional de la reconstrucción: portada, objeto 3D y laboratorio de percepción. Los diez capítulos, el laboratorio de datos, las preguntas y la bibliografía siguen accesibles con su diseño previo. Aún no se ha convertido todo el sitio al nuevo sistema visual.
 
-Actualización del 2 de noviembre de 2026: los diez capítulos y los seis complementos ya usan el sistema visual de la portada, con la misma cabecera, aviso, pie, menú y buscador, que salen de `herramientas/plantillas/`. El detalle está en [informe-tecnico.md](informe-tecnico.md).
+Actualización del 2 de noviembre de 2026: los diez capítulos y los seis complementos ya usan el sistema visual de la portada, con la misma cabecera, aviso, pie, menú y buscador, que salen de `herramientas/plantillas/`. El detalle está en [historial/informe-tecnico-b018ab8.md](historial/informe-tecnico-b018ab8.md).
 
 Los próximos módulos pueden usar este patrón para movimiento diferencial, control de las ruedas y navegación. El CAD/URDF real, registros de ensayo y precisiones del autor permitirán sustituir las aproximaciones identificadas sin rehacer la interfaz. No se han creado mediciones, credenciales, servicios de pago ni afirmaciones de aprobación académica.
 
 ## Licencias
 
 Astro, Svelte y Three.js se distribuyen bajo MIT. GSAP usa su licencia estándar sin cargo; no se debe presentar como MIT. Se incluyen los avisos de las dependencias principales en `docs/licencias-web/`. Las imágenes, las fuentes y los datos originales conservan sus créditos existentes. No se incorporaron modelos 3D ni fotografías de terceros.
+
+Desde noviembre de 2026 la portada carga el modelo del CAD con el decodificador de meshoptimizer que trae Three.js, de licencia MIT, cuyo aviso también está en `docs/licencias-web/`. El ensamblaje del autor incluye modelos de componentes comerciales, como el RPLidar A1 y las placas. El autor confirmó que sus licencias permiten publicarlos, como indica `modelos/README.md`.
