@@ -101,7 +101,7 @@ def generar():
         s = BeautifulSoup(open(f, encoding='utf-8').read(), 'html.parser')
         titulo = limpio(s.find('h1').get_text(' ')) if pid != 'index' else 'Inicio'
         url = pid + '.html'
-        for x in s.select('script, style, .fuentes-tema, nav, .lateral, #cabecera, #pie, [hidden]'):
+        for x in s.select('script, style, .fuentes-tema, nav, .lateral, .skip-link, .site-header, .academic-note, .site-footer, .search-dialog, [hidden]'):
             x.decompose()
         if pid == 'preguntas':
             for d in s.select('details.pregunta[id]'):
@@ -182,6 +182,25 @@ def generar():
     return out
 
 
+def secciones():
+    """Secciones de cada parte de la guía, con el mismo criterio que el índice lateral de js/sitio.js.
+    Así una página puede desplegar las secciones de las demás sin cargar el índice del buscador."""
+    out = {}
+    for pid in ORDEN:
+        if pid == 'index':
+            continue
+        s = BeautifulSoup(open(REPO + pid + '.html', encoding='utf-8').read(), 'html.parser')
+        art = s.select_one('.articulo')
+        if art is not None:
+            out[pid] = [[h['id'], re.sub(r'\s+', ' ', h.get_text()).strip()] for h in art.select('section > h2[id]')]
+    return out
+
+
+def js_secciones(datos):
+    return ('/* Secciones de cada parte de la guía. Generado por herramientas/indice.py. No editar a mano. */\n'
+            'window.SECCIONES = ' + json.dumps(datos, ensure_ascii=False, separators=(',', ':')) + ';\n')
+
+
 def comprobar_anclas(out):
     """Cada enlace del índice debe apuntar a una página y a un id que existan."""
     errores = []
@@ -208,3 +227,6 @@ if __name__ == '__main__':
     js = '/* Índice del buscador. Generado por herramientas/indice.py a partir de las páginas del sitio. No editar a mano. */\nwindow.INDICE = ' + json.dumps(out, ensure_ascii=False, separators=(',', ':')) + ';\n'
     open(REPO + 'datos/indice.js', 'w', encoding='utf-8').write(js)
     print(len(out), 'entradas,', len(js) // 1024, 'KB')
+    sec = secciones()
+    open(REPO + 'datos/secciones.js', 'w', encoding='utf-8').write(js_secciones(sec))
+    print(sum(len(v) for v in sec.values()), 'secciones en', len(sec), 'partes')

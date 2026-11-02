@@ -63,7 +63,7 @@ with sync_playwright() as pw:
         p = ctx.new_page(); errores = []
         p.on('pageerror', lambda e: errores.append(str(e)))
         p.goto(BASE + '/' + pagina); recorrer(p)
-        check(p.locator('#cabecera .cab').count() == 1 and p.locator('#pie footer').count() == 1, pagina + ' sin proyecto.js: cabecera y pie presentes')
+        check(p.locator('header.site-header').count() == 1 and p.locator('footer.site-footer').count() == 1, pagina + ' sin proyecto.js: cabecera y pie presentes')
         check(not errores, pagina + ' sin proyecto.js: sin excepciones sin capturar', errores)
         check(p.locator('.aviso-academico').is_visible(), pagina + ' sin proyecto.js: el aviso estático sigue visible')
         if pagina == 'control.html':
@@ -82,7 +82,7 @@ with sync_playwright() as pw:
         p = ctx.new_page(); errores = []
         p.on('pageerror', lambda e: errores.append(str(e)))
         p.goto(BASE + '/' + pagina); recorrer(p)
-        check(p.locator('[data-vis][data-montado]').count() == p.locator('[data-vis]').count() and p.locator('#cabecera .cab').count() == 1, pagina + ': sin addEventListener en MediaQueryList se montan cabecera e interactivos')
+        check(p.locator('[data-vis][data-montado]').count() == p.locator('[data-vis]').count() and p.locator('header.site-header').count() == 1, pagina + ': sin addEventListener en MediaQueryList se montan cabecera e interactivos')
         check(not errores and p.locator('[data-error-vis]').count() == 0, pagina + ': sin addEventListener en MediaQueryList no hay excepciones ni respaldos por error', errores)
         p.close()
     ctx.close()

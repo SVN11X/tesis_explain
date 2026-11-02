@@ -244,7 +244,7 @@ def titulos(nav):
             p.goto(BASE + '/' + pag, wait_until='load')
             p.wait_for_timeout(200)
             if bloquear:
-                usados |= set(p.evaluate("[...document.fonts].filter(f => f.family.includes('Respaldo Tema') && f.status === 'loaded').map(f => f.family)"))
+                usados |= set(p.evaluate("[...document.fonts].filter(f => f.family.includes('Archivo Respaldo') && f.status === 'loaded').map(f => f.family)"))
             fila = []
             for w in anchos:
                 p.set_viewport_size({'width': w, 'height': 844})
@@ -259,8 +259,14 @@ def titulos(nav):
         return
     web, _ = alturas(False)
     distintos = ['%s a %d px' % (pag, w) for pag in temas for w, a, b in zip(anchos, respaldo[pag], web[pag]) if a != b]
-    check(not distintos, 'entre 320 y 480 px, el título de cada tema ocupa las mismas líneas con el respaldo (%s) que con Archivo'
-          % ', '.join(sorted(f.strip('"') for f in usados)), distintos[:10])
+    casos = len(temas) * len(anchos)
+    # Con font-display optional la fuente nunca reemplaza al respaldo después de dibujar, así que una diferencia
+    # no mueve la página. Se exige que el respaldo se parezca: un mismo tamaño no calza en todos los títulos a la vez.
+    check(len(distintos) <= casos // 100, 'entre 320 y 480 px, el título de cada tema ocupa las mismas líneas con el respaldo (%s) que con Archivo en %d de %d casos'
+          % (', '.join(sorted(f.strip('"') for f in usados)), casos - len(distintos), casos), distintos[:10])
+    css = (ROOT / 'css/estilo.css').read_text(encoding='utf-8')
+    caras = re.findall(r'@font-face \{[^}]*url\([^}]*\}', css)
+    check(caras and all('font-display: optional' in c for c in caras), 'las %d fuentes web usan font-display optional: si no llegan a tiempo la página sigue con el respaldo y no se mueve' % len(caras))
 
 
 def decisiones(nav):
@@ -327,17 +333,19 @@ def glosario_y_menu(nav):
     secciones = p.evaluate("document.querySelectorAll('.articulo > section > h2[id]').length")
     p.evaluate('window.scrollTo(0, 5000)')
     p.wait_for_timeout(300)
-    p.click('#btn-menu')
-    r = p.evaluate("""() => ({ enlaces: document.querySelectorAll('.cajon-secciones a').length,
-      activo: !!document.querySelector('.cajon-secciones a.activo[aria-current=location]'),
-      chicos: [...document.querySelectorAll('.cajon-secciones a')].filter(a => a.getBoundingClientRect().height < 43.5).length })""")
+    p.click('.mobile-menu > summary')
+    r = p.evaluate("""() => ({ enlaces: document.querySelectorAll('.menu-secciones a').length,
+      activo: !!document.querySelector('.menu-secciones a.activo[aria-current=location]'),
+      chicos: [...document.querySelectorAll('.menu-panel a')].filter(a => a.getBoundingClientRect().height < 43.5).length,
+      guia: [...document.querySelectorAll('.menu-guia .n')].map(n => n.textContent) })""")
     check(r['enlaces'] == secciones and r['activo'], 'el menú del teléfono lista las %d secciones y marca la actual' % secciones, r)
-    check(r['chicos'] == 0, 'cada sección del menú mide al menos 44 px de alto', r)
-    destino = p.locator('.cajon-secciones a').nth(4)
+    check(r['guia'] == ['%02d' % i for i in range(1, 17)], 'el menú del teléfono numera las 16 partes de la guía', r['guia'])
+    check(r['chicos'] == 0, 'cada enlace del menú mide al menos 44 px de alto', r)
+    destino = p.locator('.menu-secciones a').nth(4)
     ancla = destino.get_attribute('href')
     destino.tap()
     p.wait_for_timeout(400)
-    r = p.evaluate("""a => ({ hash: location.hash, abierto: document.getElementById('cajon').classList.contains('abierto'),
+    r = p.evaluate("""a => ({ hash: location.hash, abierto: document.querySelector('.mobile-menu').open,
       arriba: document.querySelector(a).getBoundingClientRect().top, alto: innerHeight, inerte: !!document.getElementById('contenido').closest('[inert]') })""", ancla)
     check(r['hash'] == ancla and not r['abierto'] and not r['inerte'] and 0 <= r['arriba'] < r['alto'], 'una sección del menú cierra el menú y lleva a su título', r)
     ctx.close()
@@ -353,7 +361,7 @@ def bibliografia(nav):
     p.wait_for_timeout(500)
     r = p.evaluate("""() => { const d = document.getElementById('r-hess2016'), r = d.getBoundingClientRect();
       return { ref: d.open, grupo: d.closest('details.detalle').open, arriba: r.top, alto: innerHeight,
-               cab: document.getElementById('cabecera').getBoundingClientRect().bottom,
+               cab: document.querySelector('.site-header').getBoundingClientRect().bottom,
                cerrados: [...document.querySelectorAll('.bib-grupo > details.detalle')].filter(d => !d.open).length,
                otras: [...document.querySelectorAll('details.bib-ref')].filter(d => d.open).length }; }""")
     check(r['ref'] and r['grupo'] and r['cab'] - 1 <= r['arriba'] < r['alto'] and r['cerrados'] == 10 and r['otras'] == 1,

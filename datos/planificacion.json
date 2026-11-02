@@ -1,0 +1,144 @@
+{
+  "titulo": "Planificación del trabajo de título",
+  "fuente": "Carta Gantt del autor (carta_gantt.xlsx). Los nombres de las etapas siguen la Metodología de la tesis.",
+  "periodo": {
+    "desde": "2026-03-01",
+    "hasta": "2026-08-31"
+  },
+  "meses": [
+    "marzo",
+    "abril",
+    "mayo",
+    "junio",
+    "julio",
+    "agosto"
+  ],
+  "semanas_por_mes": 4,
+  "nota_semanas": "Cada mes se divide en cuatro semanas, como en la carta Gantt del autor.",
+  "etapas": [
+    {
+      "nombre": "Diseño del gemelo digital y simulación",
+      "actividades": [
+        {
+          "nombre": "Modelado URDF/xacro del robot diferencial",
+          "desde": 1,
+          "hasta": 2
+        },
+        {
+          "nombre": "Configuración de Gazebo y plugins de simulación",
+          "desde": 2,
+          "hasta": 3
+        },
+        {
+          "nombre": "Validación de cinemática y odometría en simulación",
+          "desde": 3,
+          "hasta": 4
+        }
+      ]
+    },
+    {
+      "nombre": "Construcción del hardware",
+      "actividades": [
+        {
+          "nombre": "Ensamblaje mecánico y cableado (RPi4, Arduino, L298N)",
+          "desde": 5,
+          "hasta": 6
+        },
+        {
+          "nombre": "Integración de RPLidar A1 y encoders",
+          "desde": 6,
+          "hasta": 7
+        },
+        {
+          "nombre": "Configuración de ros2_control y comunicación serial",
+          "desde": 7,
+          "hasta": 8
+        }
+      ]
+    },
+    {
+      "nombre": "Control de bajo nivel",
+      "actividades": [
+        {
+          "nombre": "Firmware PID en Arduino Nano (sintonización por PSO)",
+          "desde": 9,
+          "hasta": 10
+        },
+        {
+          "nombre": "Desarrollo de interfaz de hardware (plugin ros2_control)",
+          "desde": 10,
+          "hasta": 11
+        },
+        {
+          "nombre": "Validación de control: pruebas en línea recta y giro",
+          "desde": 11,
+          "hasta": 12
+        }
+      ]
+    },
+    {
+      "nombre": "SLAM y navegación autónoma",
+      "actividades": [
+        {
+          "nombre": "Configuración de SLAM (slam_toolbox) y mapeo",
+          "desde": 13,
+          "hasta": 14
+        },
+        {
+          "nombre": "Configuración de Nav2 (planificador global A*, controlador local DWB)",
+          "desde": 14,
+          "hasta": 15
+        },
+        {
+          "nombre": "Pruebas de navegación con evasión de obstáculos",
+          "desde": 15,
+          "hasta": 16
+        }
+      ]
+    },
+    {
+      "nombre": "Exploración y validación final",
+      "actividades": [
+        {
+          "nombre": "Exploración autónoma de fronteras (explore_lite)",
+          "desde": 17,
+          "hasta": 18
+        },
+        {
+          "nombre": "Validación del sistema completo en entorno real",
+          "desde": 18,
+          "hasta": 19
+        },
+        {
+          "nombre": "Pruebas cuantitativas y análisis de desempeño",
+          "desde": 19,
+          "hasta": 21
+        }
+      ]
+    },
+    {
+      "nombre": "Documentación",
+      "actividades": [
+        {
+          "nombre": "Redacción del documento de tesis",
+          "desde": 13,
+          "hasta": 24
+        },
+        {
+          "nombre": "Revisión final y entrega del manuscrito",
+          "desde": 24,
+          "hasta": 24
+        }
+      ]
+    }
+  ],
+  "hitos": [
+    {
+      "fecha": "2026-06-22",
+      "semana": 16,
+      "texto": "Sesión de exploración y mapeo registrada en la tesis",
+      "fuente": "Anexo 7"
+    }
+  ],
+  "nota": "Es la planificación, no un registro de fechas. La tesis sitúa la sesión de exploración y mapeo el 22 de junio de 2026 (Anexo 7), antes de las semanas que el plan reservaba para explorar, y no fecha los demás ensayos."
+}

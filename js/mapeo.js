@@ -12,8 +12,8 @@
   function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
   function wrap(x) { return Math.atan2(Math.sin(x), Math.cos(x)); }
   /* Las figuras exportadas a img/diagramas llevan sus propios estilos. En la página no se incluyen:
-     un <style> dentro de un SVG en línea no queda aislado y afectaría a todo el documento,
-     también en el tema oscuro. Allí los colores vienen de css/mapeo.css. */
+     un <style> dentro de un SVG en línea no queda aislado y afectaría a todo el documento.
+     Allí los colores vienen de css/mapeo.css. */
   M.svgEstatico = false;
   function svg(w, h, title, body) {
     return '<svg xmlns="http://www.w3.org/2000/svg" class="mp-svg" viewBox="0 0 ' + w + ' ' + h + '" role="img" aria-label="' + esc(title) + '">' +

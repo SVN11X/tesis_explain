@@ -41,6 +41,7 @@ jobs:
           node herramientas/diagramas_plano.js --comprobar
           node herramientas/diagramas_mapeo.js --comprobar
           node herramientas/diagramas_control.js --comprobar
+          python herramientas/descarga_preguntas.py --comprobar
       - name: Modelos numéricos
         run: |
           node herramientas/pruebas_unitarias.js

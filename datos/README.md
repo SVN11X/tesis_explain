@@ -17,3 +17,9 @@ No muevas indiscriminadamente los textos HTML aquí. Si el comité cambia un par
 `academico.json` guarda los pendientes como objetos `{texto, enlace}` y un `historial` de cambios del sitio. `herramientas/datos.py` los escribe como HTML estático en `recursos.html#estado-academico`. Un cambio de plataforma se registra con `tipo: plataforma` y uno de contenido académico, autorizado por el autor, con `tipo: contenido`.
 
 `ejemplos/` contiene archivos **sintéticos** para probar el laboratorio. Se generan con `node herramientas/ejemplos_laboratorio.js` y no son datos del robot ni de la tesis.
+
+`costos.csv` es el registro de compras del autor (`costos_materiales.xlsx`, hoja DETALLE), con cada compra asignada a su partida de la Tabla A1.1. Los nombres se tradujeron y unificaron sin cambiar montos, cantidades ni fechas. Las tres baterías de una misma compra van en dos filas: una montada en el robot y dos de repuesto, como en la tesis. Las sumas de cada partida coinciden con la Tabla A1.1, y `herramientas/planificacion.py` lo comprueba. No incluye los enlaces de compra.
+
+`planificacion.json` es la carta Gantt del autor (`carta_gantt.xlsx`), de marzo a agosto de 2026, con cuatro semanas por mes. Las etapas llevan el nombre que les da la Metodología de la tesis. Es un plan: la única fecha real que agrega es la sesión de exploración y mapeo del 22 de junio de 2026, del Anexo 7.
+
+`secciones.js` lista las secciones de cada parte de la guía para el índice lateral. Lo genera `herramientas/indice.py`.

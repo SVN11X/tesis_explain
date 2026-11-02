@@ -121,7 +121,7 @@ with sync_playwright() as pw:
     # Navegación modal: el artículo puede heredar el aislamiento de .cap-layout.
     # HTMLElement.inert refleja solo el atributo propio, no el de sus ancestros.
     # Probar también el foco evita aceptar un atributo que no bloquee el fondo.
-    for width in (320, 390, 768):
+    for width in (320, 390, 640):
         ctx = browser.new_context(viewport=dict(width=width, height=844))
         ctx.route(re.compile(r'^https?://(?!localhost)'), lambda r: r.fulfill(status=200, body=''))
         for page in ('problema.html', 'laboratorio.html'):
@@ -130,19 +130,20 @@ with sync_playwright() as pw:
             fondo = p.locator('#contenido a[href]:visible').first
             fondo.focus()
             expect(fondo).to_be_focused()
-            p.click('#btn-menu')
-            expect(p.locator('#btn-menu')).to_have_attribute('aria-expanded', 'true')
+            boton = p.locator('.mobile-menu > summary')
+            boton.click()
+            expect(boton).to_have_attribute('aria-expanded', 'true')
             check(p.locator('#contenido').evaluate("el => !!el.closest('[inert]')"), label + 'menú aísla el contenido de fondo')
-            expect(p.locator('#cajon a').first).to_be_focused()
             fondo.focus()
-            check(not fondo.evaluate('el => el === document.activeElement') and p.evaluate("document.querySelector('#cajon').contains(document.activeElement)"), label + 'el fondo no puede recibir foco mientras el menú está abierto')
-            p.locator('#cajon a').last.focus(); p.keyboard.press('Tab')
-            check(p.locator('#cajon a').first.evaluate('el => el === document.activeElement'), label + 'Tab al final vuelve al primer control del diálogo')
+            check(not fondo.evaluate('el => el === document.activeElement') and p.evaluate("document.querySelector('.mobile-menu').contains(document.activeElement)"), label + 'el fondo no puede recibir foco mientras el menú está abierto')
+            enlaces = p.locator('.menu-panel a')
+            enlaces.last.focus(); p.keyboard.press('Tab')
+            check(boton.evaluate('el => el === document.activeElement'), label + 'Tab al final vuelve al botón del menú')
             p.keyboard.press('Shift+Tab')
-            check(p.locator('#cajon a, #cajon button').last.evaluate('el => el === document.activeElement'), label + 'Shift+Tab recorre en sentido inverso')
+            check(enlaces.last.evaluate('el => el === document.activeElement'), label + 'Shift+Tab recorre en sentido inverso')
             p.keyboard.press('Escape')
-            expect(p.locator('#btn-menu')).to_have_attribute('aria-expanded', 'false')
-            expect(p.locator('#btn-menu')).to_be_focused()
+            expect(boton).to_have_attribute('aria-expanded', 'false')
+            expect(boton).to_be_focused()
             check(p.locator('#contenido').evaluate("el => !el.closest('[inert]')"), label + 'Escape restaura foco y contenido')
             fondo.focus()
             check(fondo.evaluate('el => el === document.activeElement'), label + 'el fondo vuelve a recibir foco después de cerrar')
@@ -187,7 +188,10 @@ with sync_playwright() as pw:
 
     ctx = browser.new_context(java_script_enabled=False, viewport=dict(width=320, height=740))
     p = ctx.new_page(); p.goto(BASE + '/laboratorio.html')
-    check(p.locator('.aviso-academico').is_visible() and p.locator('.nav-estatica').is_visible(), 'Sin JS: estado y navegación disponibles')
+    # a 320 px la navegación es el menú, un details que abre sin JavaScript
+    p.locator('.mobile-menu > summary').click()
+    check(p.locator('.aviso-academico').is_visible() and p.locator('.menu-panel a[href="recursos.html"]').is_visible(), 'Sin JS: estado y navegación disponibles')
+    p.locator('.mobile-menu > summary').click()
     check(p.locator('#formatos').is_visible() and p.locator('#lab-controles').is_hidden(), 'Sin JS: fórmulas y descargas, sin controles inertes')
     p.goto(BASE + '/preguntas.html'); p.locator('#p-giro summary').click()
     check(p.locator('#p-giro .q-pendiente').is_visible(), 'Sin JS: pendientes del autor accesibles')

@@ -32,6 +32,12 @@ else:
         def log_message(self, *args):
             pass
 
+        # la portada y los laboratorios, compilados con Astro, piden sus recursos con el prefijo de GitHub Pages
+        def translate_path(self, path):
+            if path.startswith('/tesis_explain/'):
+                path = path[len('/tesis_explain'):]
+            return super().translate_path(path)
+
         def handle(self):
             # El navegador corta descargas al cambiar de página; no es un fallo del sitio.
             try:
@@ -201,7 +207,7 @@ def probar_anchos_moviles(nav):
             p.evaluate("window.scrollTo(0, document.body.scrollHeight)")
             p.wait_for_timeout(150)
             r = p.evaluate("""() => ({ sobra: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-                                       menu: Math.round(document.getElementById('btn-menu').getBoundingClientRect().right) })""")
+                                       menu: Math.round(document.querySelector('.mobile-menu > summary').getBoundingClientRect().right) })""")
             ok(r['sobra'] <= 1 and r['menu'] <= ancho, '%s a %d px: sin desplazamiento lateral y con el botón del menú en pantalla' % (pag, ancho), r)
             p.close()
         ctx.close()
@@ -250,7 +256,7 @@ def probar_buscador(nav):
       for (const pg of paginas) {
         const html = await (await fetch(pg)).text();
         const d = new DOMParser().parseFromString(html, 'text/html');
-        d.querySelectorAll('script, style, .fuentes-tema, nav, .lateral, #cabecera, #pie, [hidden]').forEach(x => x.remove());
+        d.querySelectorAll('script, style, .fuentes-tema, nav, .lateral, .skip-link, .site-header, .academic-note, .site-footer, .search-dialog, [hidden]').forEach(x => x.remove());
         // de la ficha de una referencia el índice solo lleva los datos clave, que se comprueban aparte
         d.querySelectorAll('.bib-ficha').forEach(x => x.remove());
         d.querySelectorAll('main p, main li, main td, main th, main figcaption, main dd').forEach(x => {
@@ -273,32 +279,32 @@ def probar_buscador(nav):
     # interfaz
     p.goto(BASE + '/movimiento.html')
     p.keyboard.press('/')
-    p.wait_for_selector('dialog.buscador[open]')
-    p.fill('dialog.buscador input', '3.63')
+    p.wait_for_selector('dialog.search-dialog[open]')
+    p.fill('dialog.search-dialog input', '3.63')
     p.wait_for_timeout(400)
-    marcas = p.eval_on_selector_all('dialog.buscador .bus-res mark', 'ms => ms.map(m => m.textContent)')
+    marcas = p.eval_on_selector_all('dialog.search-dialog .search-results mark', 'ms => ms.map(m => m.textContent)')
     ok('3,63' in marcas, 'la ventana del buscador resalta 3,63 al escribir 3.63', marcas[:5])
-    estado = p.text_content('dialog.buscador .bus-estado')
-    ok('resultado' in estado, 'el número de resultados se anuncia a lectores de pantalla', estado)
+    estado = p.text_content('dialog.search-dialog .search-status')
+    ok('encontrada' in estado, 'el número de resultados se anuncia a lectores de pantalla', estado)
     p.keyboard.press('Escape')
-    ok(p.evaluate("!document.querySelector('dialog.buscador').open"), 'Escape cierra el buscador')
+    ok(p.evaluate("!document.querySelector('dialog.search-dialog').open"), 'Escape cierra el buscador')
     p.close()
     # el índice queda retenido para ver el estado de carga, y después se suelta
     retenidas = []
     p = ctx0.new_page()
     p.route('**/datos/indice.js', lambda r: retenidas.append(r))
     p.goto(BASE + '/problema.html')
-    p.click('#btn-buscar')
-    p.wait_for_selector('dialog.buscador[open]')
-    carga = p.text_content('dialog.buscador .bus-res')
+    p.click('.search-trigger')
+    p.wait_for_selector('dialog.search-dialog[open]')
+    carga = p.text_content('dialog.search-dialog .search-status')
     ok('Cargando' in carga, 'mientras llega el índice, el buscador avisa que está cargando', carga)
     for r in retenidas:
         r.continue_()
-    p.fill('dialog.buscador input', 'odometria')
-    p.wait_for_selector('dialog.buscador .bus-res a')
+    p.fill('dialog.search-dialog input', 'odometria')
+    p.wait_for_selector('dialog.search-dialog .search-results a')
     p.keyboard.press('ArrowDown')
     p.keyboard.press('ArrowDown')
-    m = p.evaluate("""() => [...document.querySelectorAll('dialog.buscador .bus-res a')].slice(0, 2).map(a => {
+    m = p.evaluate("""() => [...document.querySelectorAll('dialog.search-dialog .search-results a')].slice(0, 2).map(a => {
       const s = getComputedStyle(a); return { foco: a === document.activeElement, fondo: s.backgroundColor, borde: s.outlineStyle }; })""")
     ok(m[1]['foco'] and m[1]['borde'] != 'none' and m[0]['fondo'] == 'rgba(0, 0, 0, 0)', 'al bajar con las flechas solo el resultado enfocado queda marcado, con un borde', m)
     p.close()
@@ -571,7 +577,7 @@ def probar_recursos(nav):
         ok(r['lat'] > 10 and r['enPagina'] >= 6 and r['alto'] > 40, '%s: el lateral de Recursos tiene índice útil' % nombre, r)
         ok(r['nav'] == ['laboratorio.html', 'bibliografia.html'], '%s: navegación anterior y siguiente de Recursos' % nombre, r['nav'])
         ok(r['actual'], '%s: Recursos aparece como página actual' % nombre)
-        ok(r['numeros'][:10] == ['%02d' % i for i in range(1, 11)] and r['numeros'][10:] == ['+'] * 6, '%s: la numeración de los diez temas se conserva y hay seis complementos' % nombre, r['numeros'])
+        ok(r['numeros'] == ['%02d' % i for i in range(1, 17)], '%s: la guía numera sus 16 partes, de los diez temas a los seis complementos' % nombre, r['numeros'])
         if nombre == 'escritorio':
             e = p.evaluate("""() => { const pie = document.querySelector('.pie'), ab = document.getElementById('abstract').closest('section');
               return { mit: !!pie.querySelector('a[href$="/LICENSE"]'), cc: !!pie.querySelector('a[href*="licenses/by/4.0"]'), rev: (pie.querySelector('time') || {}).textContent || '',
@@ -614,9 +620,9 @@ def probar_plegados(nav):
     p.goto(BASE + '/control.html')
     p.wait_for_timeout(200)
     ok(p.evaluate("[...document.querySelectorAll('details.detalle')].every(d => !d.open)"), 'sin ancla, los bloques técnicos parten plegados')
-    p.evaluate("document.getElementById('btn-buscar').click()")
-    p.wait_for_selector('dialog.buscador[open]')
-    p.fill('dialog.buscador input', 'Un ciclo del firmware')
+    p.evaluate("document.querySelector('.search-trigger').click()")
+    p.wait_for_selector('dialog.search-dialog[open]')
+    p.fill('dialog.search-dialog input', 'Un ciclo del firmware')
     p.wait_for_timeout(500)
     p.keyboard.press('Enter')
     p.wait_for_timeout(400)
@@ -676,7 +682,7 @@ def probar_ampliar(nav):
 def probar_tactil(nav):
     print('Controles en un teléfono de 390 por 844')
     ctx = contexto(nav, viewport={'width': 390, 'height': 844}, has_touch=True, is_mobile=True, device_scale_factor=2)
-    sel = ('.lateral a, .lateral details > summary, .miga a, .b-ctl, .cab button, .cab a.btn-icono, .marca, .b-ampliar, .vbtn, .chip, .segmento button, '
+    sel = ('.lateral a, .lateral details > summary, .gl-plegar, .miga a, .b-ctl, .site-header button, .mobile-menu > summary, .brand, .b-ampliar, .vbtn, .chip, .segmento button, '
            'details.detalle > summary, details.pregunta > summary, .q-herramientas .btn, .q-interruptor, a.etiqueta, .cifra a.fuente')
     for pag in ['problema.html', 'robot.html', 'movimiento.html', 'control.html', 'navegacion.html', 'exploracion.html', 'resultados.html', 'preguntas.html', 'recursos.html', 'bibliografia.html']:
         p = ctx.new_page()
@@ -721,6 +727,173 @@ def probar_cursor(nav):
     p.wait_for_timeout(150)
     ok(p.evaluate("getComputedStyle(document.getElementById('lab-exportar')).backgroundColor") == r['fondo'], 'pasar el ratón sobre un botón deshabilitado no lo resalta')
     ctx.close()
+
+
+def probar_guia(nav):
+    print('Guía numerada con secciones desplegables')
+    ctx = contexto(nav, viewport={'width': 1280, 'height': 900})
+    p = ctx.new_page()
+    p.goto(BASE + '/control.html')
+    p.wait_for_timeout(250)
+    sec = json.loads(open(os.path.join(REPO, 'datos/secciones.js'), encoding='utf-8').read().split('window.SECCIONES = ', 1)[1].rsplit(';', 1)[0])
+    r = p.evaluate("""() => { const act = document.querySelector('.gl-item.actual');
+      return { numeros: [...document.querySelectorAll('.guia-lista .gl-fila .n')].map(x => x.textContent), pos: document.querySelector('.gl-pos').textContent,
+               abierta: act.classList.contains('abierto') && act.querySelector('.gl-plegar').getAttribute('aria-expanded') === 'true',
+               propias: act.querySelectorAll('.en-pagina a').length, h2: document.querySelectorAll('.articulo section > h2[id]').length,
+               resto: [...document.querySelectorAll('.gl-item:not(.actual) .gl-plegar')].every(b => b.getAttribute('aria-expanded') === 'false') }; }""")
+    ok(r['numeros'] == ['%02d' % i for i in range(1, 17)] and r['pos'] == '04 de 16', 'el lateral numera las 16 partes y dice cuál se lee', r)
+    ok(r['abierta'] and r['propias'] == r['h2'] == len(sec['control']) and r['resto'], 'la parte actual trae sus secciones abiertas y las demás plegadas', r)
+    p.locator('.gl-item[data-pag="mapeo"] .gl-plegar').click()
+    p.wait_for_function("document.querySelectorAll('#gl-mapeo a').length > 0", timeout=5000)
+    r = p.evaluate("""() => ({ enlaces: [...document.querySelectorAll('#gl-mapeo a')].map(a => a.getAttribute('href')),
+      exp: document.querySelector('.gl-item[data-pag="mapeo"] .gl-plegar').getAttribute('aria-expanded') })""")
+    ok(r['exp'] == 'true' and r['enlaces'] == ['mapeo.html#' + x[0] for x in sec['mapeo']], 'desplegar otra parte muestra sus secciones con enlace directo', r['enlaces'][:3])
+    p.locator('.gl-item[data-pag="mapeo"] .gl-plegar').click()
+    p.wait_for_timeout(450)
+    r = p.evaluate("""() => ({ exp: document.querySelector('.gl-item[data-pag="mapeo"] .gl-plegar').getAttribute('aria-expanded'),
+      vis: getComputedStyle(document.getElementById('gl-mapeo')).visibility })""")
+    ok(r['exp'] == 'false' and r['vis'] == 'hidden', 'plegarla de nuevo la oculta también para el teclado', r)
+    p.goto(BASE + '/preguntas.html')
+    p.wait_for_timeout(200)
+    ok(p.evaluate("document.querySelector('.gl-item.actual .n').textContent") == '13' and p.evaluate("document.querySelector('[data-bloque]').textContent").startswith('13 ·'),
+       'un complemento lleva su número en el lateral y sobre su título')
+    ctx.close()
+    ctx = contexto(nav, viewport={'width': 390, 'height': 844}, has_touch=True, is_mobile=True)
+    p = ctx.new_page()
+    p.goto(BASE + '/movimiento.html')
+    p.wait_for_timeout(200)
+    cerrada = p.evaluate("!document.querySelector('.guia-cont').open")
+    p.locator('.guia-cont > summary').tap()
+    p.wait_for_timeout(200)
+    r = p.evaluate("""() => ({ abierta: document.querySelector('.guia-cont').open, partes: document.querySelectorAll('.guia-lista .gl-fila').length,
+      propias: document.querySelectorAll('.gl-item.actual .en-pagina a').length })""")
+    ok(cerrada and r['abierta'] and r['partes'] == 16 and r['propias'] > 3, 'en el teléfono la guía empieza plegada y se abre con sus 16 partes', r)
+    ctx.close()
+
+
+def probar_iconos(nav):
+    print('Íconos, logo y botones con X')
+    ctx = contexto(nav, viewport={'width': 1280, 'height': 900})
+    p = ctx.new_page()
+    for pag in ('index.html', 'control.html'):
+        p.goto(BASE + '/' + pag)
+        p.wait_for_timeout(250)
+        r = p.evaluate("""() => ({ propios: [...document.querySelectorAll('.site-header svg, .search-dialog svg, .caso svg')].filter(s => !s.classList.contains('ph') && !s.closest('.brand')).length,
+          logo: !!document.querySelector('.site-header .brand svg .lidar-centro'), favicon: document.querySelector('link[rel=icon]').getAttribute('href') })""")
+        ok(r['propios'] == 0 and r['logo'] and r['favicon'].endswith('img/icono.svg'), '%s: la cabecera, el buscador y las tarjetas usan los íconos de Phosphor y el logo del robot' % pag, r)
+
+    def centrado(sel_boton):
+        return p.evaluate("""(s) => { const b = document.querySelector(s), i = b.querySelector('svg'), rb = b.getBoundingClientRect(), ri = i.getBoundingClientRect();
+          return [Math.abs(rb.x + rb.width / 2 - ri.x - ri.width / 2), Math.abs(rb.y + rb.height / 2 - ri.y - ri.height / 2)]; }""", sel_boton)
+    p.locator('.search-trigger').click()
+    p.wait_for_timeout(200)
+    d = centrado('.search-dialog [data-search-close]')
+    ok(max(d) < 1, 'la X del buscador queda al centro de su botón', d)
+    p.keyboard.press('Escape')
+    p.goto(BASE + '/replicar.html')
+    p.wait_for_timeout(200)
+    b = p.locator('figure:has(img[data-grande*="circuito"]) .b-ampliar')
+    b.scroll_into_view_if_needed()
+    b.click()
+    p.wait_for_timeout(200)
+    d = centrado('dialog.lightbox button')
+    ok(max(d) < 1, 'la X del visor de imágenes queda al centro de su botón', d)
+    ctx.close()
+
+
+def probar_sugerencias(nav):
+    print('Buscador: sugeridas y recientes')
+    ctx = contexto(nav, viewport={'width': 1280, 'height': 900})
+    p = ctx.new_page()
+    p.goto(BASE + '/index.html')
+    p.wait_for_timeout(200)
+    p.locator('.search-trigger').click()
+    p.wait_for_selector('.search-suggest .chip')
+    sugeridas = p.locator('.search-suggest .chip').all_inner_texts()
+    sin = []
+    for q in sugeridas:
+        p.locator('.search-suggest .chip[data-q="%s"]' % q).click()
+        p.wait_for_timeout(120)
+        if p.locator('.search-results a').count() == 0:
+            sin.append(q)
+        p.fill('#guide-search', '')
+        p.locator('#guide-search').dispatch_event('input')
+        p.wait_for_timeout(120)
+    ok(len(sugeridas) >= 8 and not sin and not p.locator('.search-suggest .chip.reciente').count(), 'el buscador vacío ofrece búsquedas sugeridas y todas dan resultados', sin)
+    p.fill('#guide-search', 'odometría')
+    p.wait_for_timeout(200)
+    with p.expect_navigation():
+        p.locator('.search-results a').first.click()
+    p.locator('.search-trigger').click()
+    p.wait_for_selector('.search-suggest .chip')
+    recientes = p.locator('.search-suggest .chip.reciente').all_inner_texts()
+    ok(recientes[:1] == ['odometría'], 'la búsqueda que llevó a un resultado queda entre las recientes, también al pasar de la portada a una página de la guía', recientes)
+    p.locator('.search-suggest [data-borrar]').click()
+    p.wait_for_timeout(100)
+    ok(p.locator('.search-suggest .chip.reciente').count() == 0 and p.evaluate("localStorage.getItem('busquedas')") is None, 'Borrar quita las búsquedas recientes del navegador')
+    ctx.close()
+
+
+def probar_descarga(nav):
+    print('Descarga de las preguntas en PDF')
+    m = json.load(open(os.path.join(REPO, 'descargas/preguntas-dificiles.json'), encoding='utf-8'))
+    ctx = contexto(nav, viewport={'width': 1280, 'height': 900})
+    p = ctx.new_page()
+    p.goto(BASE + '/preguntas.html')
+    p.wait_for_timeout(150)
+    a = p.locator('.q-descarga a.btn')
+    ok(a.count() == 1 and a.get_attribute('href') == 'descargas/preguntas-dificiles.pdf' and a.get_attribute('download') and '%d preguntas' % m['preguntas'] in a.inner_text(),
+       'Preguntas difíciles ofrece el PDF con las %d preguntas' % m['preguntas'])
+    r = p.request.get(BASE + '/descargas/preguntas-dificiles.pdf')
+    ok(r.status == 200 and r.body()[:5] == b'%PDF-' and len(r.body()) == m['bytes'] and m['preguntas'] == 106, 'el PDF existe, es un PDF y coincide con su manifiesto', (r.status, len(r.body())))
+    ctx.close()
+
+
+def probar_costos_y_plan(nav):
+    print('Costos detallados y carta Gantt')
+    ctx = contexto(nav, viewport={'width': 1280, 'height': 900})
+    p = ctx.new_page()
+    p.goto(BASE + '/robot.html')
+    p.wait_for_timeout(150)
+    r = p.evaluate("""() => { const listas = document.querySelectorAll('ol.barras'), n = t => parseInt(t.replace(/\\D/g, ''), 10);
+      const montos = [...listas[0].querySelectorAll('.b-num')].map(x => n(x.firstChild.textContent));
+      return { partidas: montos.length, suma: montos.reduce((a, b) => a + b, 0), orden: montos.every((v, i) => !i || montos[i - 1] >= v),
+               anios: [...listas[1].querySelectorAll('.b-txt')].map(x => x.textContent), compras: document.querySelectorAll('.tabla-compras tbody tr:not(.partida):not(.total) td:first-child').length,
+               totales: [...document.querySelectorAll('.tabla-compras tr.total td.n')].map(x => x.textContent) }; }""")
+    ok(r['partidas'] == 17 and r['suma'] == 582447 and r['orden'], 'las 17 partidas suman 582 447 CLP, de mayor a menor', r)
+    ok(r['anios'] == ['2024', '2025', '2026'] and r['compras'] == 52 and r['totales'] == ['444 643', '582 447'], 'el gasto por año y el detalle de compras cuadran con la Tabla A1.1', r)
+    plan = json.load(open(os.path.join(REPO, 'datos/planificacion.json'), encoding='utf-8'))
+    p.goto(BASE + '/problema.html')
+    p.wait_for_timeout(150)
+    r = p.evaluate("""() => ({ etapas: document.querySelectorAll('.gantt tr.g-etapa').length, barras: [...document.querySelectorAll('.gantt td.g-barra')].map(td => [td.cellIndex, td.colSpan]),
+      marca: !!document.querySelector('.gantt tr.g-real td.g-marca'), semanas: document.querySelectorAll('.gantt thead tr:nth-child(2) th').length })""")
+    esperadas = [[a['desde'], a['hasta'] - a['desde'] + 1] for e in plan['etapas'] for a in e['actividades']]
+    ok(r['etapas'] == 6 and r['semanas'] == 24 and r['barras'] == esperadas and r['marca'], 'la carta Gantt dibuja las 17 actividades en sus semanas y la fecha del Anexo 7', r)
+    ctx.close()
+
+
+def probar_animaciones(nav):
+    print('Animaciones')
+    for movimiento in ('no-preference', 'reduce'):
+        ctx = contexto(nav, viewport={'width': 1280, 'height': 900}, reduced_motion=movimiento)
+        p = ctx.new_page()
+        p.goto(BASE + '/resultados.html')
+        p.wait_for_load_state('load')
+        p.wait_for_timeout(400)
+        antes = p.evaluate("""() => ({ anima: document.documentElement.classList.contains('anima'),
+          ocultos: [...document.querySelectorAll('.cifras-mini > div')].filter(e => getComputedStyle(e).opacity === '0').length,
+          total: document.querySelectorAll('.cifras-mini > div').length,
+          textos: [...document.querySelectorAll('.cifras-mini b')].map(b => b.textContent) })""")
+        p.evaluate("document.querySelector('.cifras-mini').scrollIntoView({ block: 'center' })")
+        p.wait_for_timeout(1800)
+        despues = p.evaluate("""() => ({ visibles: [...document.querySelectorAll('.cifras-mini > div')].filter(e => getComputedStyle(e).opacity === '1').length,
+          textos: [...document.querySelectorAll('.cifras-mini b')].map(b => b.textContent), restos: document.querySelectorAll('.cuenta').length })""")
+        if movimiento == 'no-preference':
+            ok(antes['anima'] and antes['total'] >= 3 and antes['ocultos'] == antes['total'] and despues['visibles'] == antes['total'], 'las cifras aparecen al llegar a ellas', (antes, despues))
+            ok(despues['textos'] == antes['textos'] and despues['restos'] == 0, 'después de contar, cada cifra vuelve a su texto exacto', despues['textos'])
+        else:
+            ok(not antes['anima'] and antes['ocultos'] == 0 and despues['textos'] == antes['textos'], 'con movimiento reducido no hay aparición ni conteo', antes)
+        ctx.close()
 
 
 def probar_vistas(nav):
@@ -833,56 +1006,66 @@ def probar_preparados(nav):
 
 
 def probar_cabecera(nav):
-    print('Cabecera fija y panel de Temas')
-    # el panel de Temas queda dentro de la pantalla en cualquier ancho de escritorio, también con zoom
-    for ancho in (1920, 1532, 1366, 1280, 1180, 1100, 1024, 900, 862):
-        ctx = contexto(nav, viewport={'width': ancho, 'height': 760})
-        p = ctx.new_page()
-        p.goto(BASE + '/recursos.html')
+    print('Marco común: cabecera, aviso, pie y menú')
+    # el mismo marcado en la portada compilada con Astro y en las páginas de la guía
+    ctx = contexto(nav, viewport={'width': 1366, 'height': 800})
+    p = ctx.new_page()
+    marcos = {}
+    for pag in ('index.html', 'laboratorios.html', 'control.html', 'robot.html', 'bibliografia.html'):
+        p.goto(BASE + '/' + pag)
         p.wait_for_timeout(150)
-        p.click('.nav-btn')
-        r = p.evaluate("""() => { const m = document.getElementById('menu-guia'), rm = m.getBoundingClientRect(), w = document.querySelector('.cab .wrap');
-          return { izq: rm.left, der: rm.right, abajo: rm.bottom, ancho: document.documentElement.clientWidth, alto: innerHeight, visible: !m.hidden,
-                   desborde: w.scrollWidth - w.clientWidth, pagina: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-                   enlaces: m.querySelectorAll('a').length }; }""")
-        ok(r['visible'] and r['izq'] >= 0 and r['der'] <= r['ancho'] and r['abajo'] <= r['alto'], '%d px: el panel de Temas cabe completo en la pantalla' % ancho, r)
-        ok(r['desborde'] <= 0 and r['pagina'] <= 1, '%d px: la barra de navegación no se desborda' % ancho, r)
-        ok(r['enlaces'] == 16, '%d px: el panel lleva los diez temas y los seis complementos' % ancho, r['enlaces'])
-        if ancho == 1280:
-            p.keyboard.press('Escape')
-            ok(p.evaluate("document.getElementById('menu-guia').hidden && document.querySelector('.nav-btn').getAttribute('aria-expanded') === 'false'"), 'Escape cierra el panel de Temas')
-            p.click('.nav-btn')
-            p.focus('#menu-guia a')
-            p.keyboard.press('Escape')
-            ok(p.evaluate("document.activeElement.classList.contains('nav-btn')"), 'con el foco dentro del panel, Escape lo cierra y vuelve al botón')
-            p.click('.nav-btn')
-            p.mouse.click(5, 700)
-            ok(p.evaluate("document.getElementById('menu-guia').hidden"), 'un clic fuera cierra el panel')
-        ctx.close()
-    # la cabecera queda fija al bajar, en escritorio y en teléfono
-    for nombre, kw in [('escritorio', {'viewport': {'width': 1366, 'height': 800}}), ('teléfono', {'viewport': {'width': 390, 'height': 844}, 'has_touch': True, 'is_mobile': True})]:
-        ctx = contexto(nav, **kw)
+        marcos[pag] = p.evaluate("""() => {
+          const limpio = el => { const c = el.cloneNode(true); c.querySelectorAll('[aria-current]').forEach(x => x.removeAttribute('aria-current'));
+            c.querySelectorAll('.menu-extra').forEach(x => x.remove()); c.querySelectorAll('.listo').forEach(x => x.classList.remove('listo'));
+            c.querySelectorAll('[aria-expanded]').forEach(x => x.removeAttribute('aria-expanded')); return c.outerHTML; };
+          const est = (sel, props) => { const el = document.querySelector(sel), cs = getComputedStyle(el); return props.map(k => cs[k]).join(' | '); };
+          return { cab: limpio(document.querySelector('header.site-header')), aviso: limpio(document.querySelector('.academic-note')),
+                   pie: limpio(document.querySelector('footer.site-footer')), dialogo: limpio(document.querySelector('.search-dialog')),
+                   estilos: [est('.site-header', ['height', 'backgroundColor', 'borderBottomColor', 'paddingLeft']), est('.brand', ['fontFamily', 'fontSize', 'fontWeight', 'letterSpacing']),
+                             est('.desktop-nav a', ['fontSize', 'color']), est('.academic-note', ['fontSize', 'paddingTop', 'color']),
+                             est('.site-footer', ['backgroundColor', 'paddingTop']), est('.footer-title', ['fontFamily', 'fontSize', 'letterSpacing']),
+                             est('body', ['backgroundColor'])],
+                   actual: [...document.querySelectorAll('.desktop-nav a[aria-current]')].map(a => a.textContent + '=' + a.getAttribute('aria-current')) }; }""")
+    base = marcos['index.html']
+    for pag, m in marcos.items():
+        ok(all(m[k] == base[k] for k in ('cab', 'aviso', 'pie', 'dialogo')), '%s: cabecera, aviso, pie y buscador con el mismo marcado que la portada' % pag,
+           [k for k in ('cab', 'aviso', 'pie', 'dialogo') if m[k] != base[k]])
+        ok(m['estilos'] == base['estilos'], '%s: el marco se ve igual que en la portada: tamaños, colores y tipografía' % pag, [(a, b) for a, b in zip(m['estilos'], base['estilos']) if a != b])
+    ok(marcos['index.html']['actual'] == ['Inicio=page'] and marcos['laboratorios.html']['actual'] == ['Laboratorios=page'] and marcos['control.html']['actual'] == ['Guía=true']
+       and marcos['robot.html']['actual'] == ['El robot=page'], 'la navegación marca la sección actual de cada página', {k: v['actual'] for k, v in marcos.items()})
+    ctx.close()
+    # la cabecera cabe en cualquier ancho: navegación completa sobre 640 px y menú bajo ese ancho
+    for ancho in (1920, 1366, 1180, 1024, 900, 861, 768, 700, 641, 640, 390, 320):
+        movil = ancho <= 640
+        ctx = contexto(nav, viewport={'width': ancho, 'height': 760}, has_touch=movil, is_mobile=movil)
         p = ctx.new_page()
-        p.goto(BASE + '/control.html')
-        p.wait_for_timeout(150)
-        p.evaluate('window.scrollTo(0, 3000)')
-        p.wait_for_timeout(200)
-        r = p.evaluate("""() => { const c = document.querySelector('.cab'), rc = c.getBoundingClientRect(), b = c.querySelector('.progreso-lectura');
-          const arriba = document.elementFromPoint(innerWidth / 2, 10);
-          return { top: rc.top, alto: rc.height, y: scrollY, sombra: c.classList.contains('desplazada'), barra: !!b, barraAbajo: b ? Math.round(b.getBoundingClientRect().bottom - rc.bottom) : null,
-                   encima: !!(arriba && arriba.closest('#cabecera')) }; }""")
-        ok(r['y'] > 1000 and r['top'] == 0 and r['encima'], '%s: la cabecera sigue arriba después de bajar' % nombre, r)
-        ok(r['sombra'] and r['barra'] and abs(r['barraAbajo']) <= 1, '%s: al bajar se marca con sombra y la barra de lectura va en su borde inferior' % nombre, r)
-        if nombre == 'teléfono':
-            p.click('#btn-menu')
-            p.wait_for_timeout(150)
-            rc = p.evaluate("(() => { const r = document.querySelector('.cajon-panel').getBoundingClientRect(); return { top: r.top, bottom: r.bottom, alto: innerHeight }; })()")
-            ok(rc['top'] == 0 and rc['bottom'] >= rc['alto'] - 1, 'teléfono: el menú lateral cubre la pantalla completa aunque la página esté desplazada', rc)
-            ok(p.evaluate("!!document.querySelector('.cajon-panel a[href=\"preguntas.html\"]')"), 'teléfono: el menú lateral lleva a Preguntas difíciles')
-            p.keyboard.press('Escape')
-        else:
-            ok(p.evaluate("document.querySelector('.nav-btn').classList.contains('activo')"), 'en un tema, el botón Temas se marca como sección actual')
+        for pag in ('index.html', 'recursos.html'):
+            p.goto(BASE + '/' + pag)
+            p.wait_for_timeout(120)
+            r = p.evaluate("""() => { const h = document.querySelector('.site-header'), vis = s => { const e = document.querySelector(s); return !!e && getComputedStyle(e).display !== 'none'; };
+              return { desborde: h.scrollWidth - h.clientWidth, pagina: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+                       nav: vis('.desktop-nav'), menu: vis('.mobile-menu'), alto: Math.round(h.getBoundingClientRect().height) }; }""")
+            ok(r['desborde'] <= 0 and r['pagina'] <= 1 and r['nav'] != movil and r['menu'] == movil, '%s a %d px: la cabecera cabe, con %s' % (pag, ancho, 'menú' if movil else 'navegación completa'), r)
         ctx.close()
+    # en el teléfono el menú abre bajo la cabecera, lleva la guía numerada y Escape lo cierra
+    ctx = contexto(nav, viewport={'width': 390, 'height': 844}, has_touch=True, is_mobile=True)
+    p = ctx.new_page()
+    p.goto(BASE + '/control.html')
+    p.wait_for_timeout(200)
+    p.locator('.mobile-menu > summary').tap()
+    p.wait_for_timeout(200)
+    r = p.evaluate("""() => { const pn = document.querySelector('.menu-panel').getBoundingClientRect(), h = document.querySelector('.site-header').getBoundingClientRect();
+      return { arriba: Math.round(pn.top - h.bottom), abajo: pn.bottom <= innerHeight + 1, preguntas: !!document.querySelector('.menu-guia a[href="preguntas.html"]'),
+               actual: (document.querySelector('.menu-guia a[aria-current=page]') || {}).textContent }; }""")
+    ok(0 <= r['arriba'] <= 2 and r['abajo'] and r['preguntas'] and r['actual'] == '04Control de velocidad de las ruedas', 'teléfono: el menú abre bajo la cabecera, cabe en la pantalla y marca la parte actual de la guía', r)
+    p.keyboard.press('Escape')
+    ok(p.evaluate("!document.querySelector('.mobile-menu').open"), 'teléfono: Escape cierra el menú')
+    # la barra de progreso de lectura queda arriba de la pantalla al bajar
+    p.evaluate('window.scrollTo(0, 3000)')
+    p.wait_for_timeout(200)
+    r = p.evaluate("(() => { const b = document.querySelector('.progreso-lectura').getBoundingClientRect(); return { top: b.top, ancho: b.width }; })()")
+    ok(r['top'] == 0 and r['ancho'] > 0, 'teléfono: la barra de lectura avanza en el borde superior', r)
+    ctx.close()
 
 
 def probar_preguntas(nav):
@@ -971,8 +1154,8 @@ def probar_preguntas(nav):
     p = ctx.new_page()
     p.goto(BASE + '/preguntas.html#p-inflacion')
     p.wait_for_timeout(500)
-    r = p.evaluate("(() => { const d = document.getElementById('p-inflacion'), rc = d.getBoundingClientRect(), cab = document.querySelector('.cab').getBoundingClientRect(); return { abierta: d.open, top: rc.top, cab: cab.bottom, alto: innerHeight, ancho: document.documentElement.scrollWidth - document.documentElement.clientWidth }; })()")
-    ok(r['abierta'] and r['cab'] - 1 <= r['top'] < r['alto'] and r['ancho'] <= 1, 'teléfono: un enlace directo abre la pregunta y la deja bajo la cabecera fija', r)
+    r = p.evaluate("(() => { const d = document.getElementById('p-inflacion'), rc = d.getBoundingClientRect(), cab = document.querySelector('.site-header').getBoundingClientRect(); return { abierta: d.open, top: rc.top, cab: cab.bottom, alto: innerHeight, ancho: document.documentElement.scrollWidth - document.documentElement.clientWidth }; })()")
+    ok(r['abierta'] and r['cab'] - 1 <= r['top'] < r['alto'] and r['ancho'] <= 1, 'teléfono: un enlace directo abre la pregunta y la deja a la vista', r)
     ctx.close()
     # sin JavaScript todo se puede leer
     ctx = nav.new_context(java_script_enabled=False, viewport={'width': 1280, 'height': 900})
@@ -1003,6 +1186,12 @@ with sync_playwright() as pw:
     probar_ampliar(nav)
     probar_tactil(nav)
     probar_cursor(nav)
+    probar_guia(nav)
+    probar_iconos(nav)
+    probar_sugerencias(nav)
+    probar_descarga(nav)
+    probar_costos_y_plan(nav)
+    probar_animaciones(nav)
     probar_vistas(nav)
     probar_esquema(nav)
     probar_preparados(nav)

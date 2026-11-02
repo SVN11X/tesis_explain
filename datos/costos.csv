@@ -1,0 +1,53 @@
+grupo,partida,elemento,cantidad,precio_unitario_clp,total_clp,fecha_compra
+Componentes principales del robot,"Raspberry Pi 4 Modelo B de 8 GB, carcasa de aluminio y microSD de 64 GB",Raspberry Pi 4 Modelo B de 8 GB,1,77272,77272,2024-04-30
+Componentes principales del robot,"Raspberry Pi 4 Modelo B de 8 GB, carcasa de aluminio y microSD de 64 GB",Carcasa de aluminio para Raspberry Pi 4,1,9832,9832,2024-06-28
+Componentes principales del robot,"Raspberry Pi 4 Modelo B de 8 GB, carcasa de aluminio y microSD de 64 GB",Tarjeta microSD de 64 GB,1,4655,4655,2024-04-30
+Componentes principales del robot,RPLidar A1,RPLidar A1,1,83324,83324,2024-04-30
+Componentes principales del robot,Arduino Nano V3 y placa base con bornes de tornillo,Arduino Nano V3,1,6000,6000,2025-11-08
+Componentes principales del robot,Arduino Nano V3 y placa base con bornes de tornillo,Placa base con bornes de tornillo para Arduino Nano,1,2000,2000,2024-08-06
+Componentes principales del robot,Motorreductor JGA25-370 de 12 V con encoder y rueda,Motorreductor JGA25-370 de 12 V y 130 RPM con encoder y rueda,2,9019,18038,2024-04-30
+Componentes principales del robot,Driver L298N,Driver de motores L298N,1,3000,3000,2024-09-12
+Componentes principales del robot,Módulo reductor DC-DC de 25 W,Módulo reductor DC-DC GS2678 de 25 W,1,18858,18858,2025-01-01
+Componentes principales del robot,Batería de 12 V y 3000 mAh con adaptador de montaje,Batería recargable de 12 V y 3000 mAh,1,20718,20718,2024-10-10
+Componentes principales del robot,Batería de 12 V y 3000 mAh con adaptador de montaje,Adaptador de montaje para la batería de 12 V,1,4940,4940,2024-07-31
+Componentes principales del robot,Rueda loca,Rueda loca,1,1893,1893,2024-04-30
+"Energía, montaje y cableado del robot","Interruptor, portafusible, conectores XT60 y bloque de distribución","Conectores XT60, 5 pares",1,3478,3478,2024-04-30
+"Energía, montaje y cableado del robot","Interruptor, portafusible, conectores XT60 y bloque de distribución",Bloque de distribución de 6 puertos,1,2832,2832,2024-04-30
+"Energía, montaje y cableado del robot","Interruptor, portafusible, conectores XT60 y bloque de distribución",Interruptor pulsador metálico de 16 mm,1,1773,1773,2024-04-30
+"Energía, montaje y cableado del robot","Interruptor, portafusible, conectores XT60 y bloque de distribución",Portafusible en línea con fusible,1,1464,1464,2024-04-30
+"Energía, montaje y cableado del robot",Filamento PLA+ de 1 kg,Filamento PLA+ negro de 1 kg,1,13353,13353,2026-07-31
+"Energía, montaje y cableado del robot","Tornillería, separadores y tuercas de inserción térmica","Kit de tuercas de inserción térmica M5 y M6, 90 piezas",1,78990,78990,2025-02-16
+"Energía, montaje y cableado del robot","Tornillería, separadores y tuercas de inserción térmica","Kit de pernos de cabeza avellanada y tuercas, M1,6 a M3",1,15202,15202,2024-06-01
+"Energía, montaje y cableado del robot","Tornillería, separadores y tuercas de inserción térmica","Kit de tornillos Allen M3, M4 y M5",1,15089,15089,2024-11-01
+"Energía, montaje y cableado del robot","Tornillería, separadores y tuercas de inserción térmica","Separadores hexagonales M3 de 50 mm, 10 piezas",1,8293,8293,2024-09-30
+"Energía, montaje y cableado del robot","Tornillería, separadores y tuercas de inserción térmica","Kit de tuercas de inserción térmica M2 a M3, 500 piezas",1,7199,7199,2024-06-01
+"Energía, montaje y cableado del robot","Tornillería, separadores y tuercas de inserción térmica","Kit de tuercas de inserción térmica M4, 30 piezas",1,2461,2461,2024-11-01
+"Energía, montaje y cableado del robot","Cables, conectores y terminales","Kit de conectores Dupont de 2,54 mm",2,4526,9052,2025-12-31
+"Energía, montaje y cableado del robot","Cables, conectores y terminales","Kit de terminales JST de 1,25 mm",1,5800,5800,2026-04-23
+"Energía, montaje y cableado del robot","Cables, conectores y terminales","Cable forrado 18 AWG de 2 hilos, 2 m",1,3310,3310,2024-07-31
+"Energía, montaje y cableado del robot","Cables, conectores y terminales","Cable forrado 24 AWG de 6 hilos, 2 m",1,2635,2635,2024-06-28
+"Energía, montaje y cableado del robot","Cables, conectores y terminales","Kit de terminales PH de 2,0 mm",1,2507,2507,2024-06-28
+"Energía, montaje y cableado del robot","Cables, conectores y terminales","Cable forrado 26 AWG de 6 hilos, 2 m",1,2213,2213,2024-06-28
+"Energía, montaje y cableado del robot","Cables, conectores y terminales","Cable de silicona 20 AWG, negro, 5 m",1,2081,2081,2024-04-30
+"Energía, montaje y cableado del robot","Cables, conectores y terminales","Cable de silicona 20 AWG, rojo, 5 m",1,2081,2081,2024-04-30
+"Energía, montaje y cableado del robot","Cables, conectores y terminales","Cable forrado 24 AWG de 2 hilos, 2 m",1,1515,1515,2024-06-28
+"Energía, montaje y cableado del robot","Cables, conectores y terminales","Terminales de crimpado 24 AWG, negros",1,1357,1357,2024-06-28
+"Energía, montaje y cableado del robot","Cables, conectores y terminales","Terminales de crimpado 24 AWG, rojos",1,1357,1357,2024-06-28
+"Energía, montaje y cableado del robot","Cables, conectores y terminales","Cable forrado 26 AWG de 2 hilos, 2 m",1,1318,1318,2024-06-28
+"Energía, montaje y cableado del robot","Cables, conectores y terminales",Cable de extensión micro USB para alimentación,1,1298,1298,2024-06-28
+"Energía, montaje y cableado del robot","Cables, conectores y terminales","Cable micro USB a USB en ángulo de 90°, 25 cm",1,1099,1099,2025-02-16
+"Energía, montaje y cableado del robot","Cables, conectores y terminales","Terminales de crimpado 18 AWG, negros",1,1090,1090,2024-07-31
+"Energía, montaje y cableado del robot","Cables, conectores y terminales","Terminales de crimpado 18 AWG, rojos",1,1090,1090,2024-07-31
+"Energía, montaje y cableado del robot","Cables, conectores y terminales","Terminales de crimpado 22 AWG, negros",1,1061,1061,2024-07-31
+"Energía, montaje y cableado del robot","Cables, conectores y terminales","Terminales de crimpado 22 AWG, rojos",1,1061,1061,2024-07-31
+"Energía, montaje y cableado del robot","Cables, conectores y terminales","Terminales de crimpado 20 AWG, negros",1,1032,1032,2024-06-28
+"Energía, montaje y cableado del robot","Cables, conectores y terminales","Terminales de crimpado 20 AWG, rojos",1,1022,1022,2024-06-28
+"Operación y desarrollo, fuera del robot",Enrutador de viaje GL.iNet GL-MT300N-V2,Enrutador de viaje GL.iNet GL-MT300N-V2,1,22140,22140,2024-04-30
+"Operación y desarrollo, fuera del robot",Cables de red RJ45 Cat-6,Cable de red RJ45 Cat-6 de 10 m,1,5066,5066,2026-04-16
+"Operación y desarrollo, fuera del robot",Cables de red RJ45 Cat-6,Cable de red RJ45 Cat-6 de 5 m,2,1655,3310,2026-04-23
+"Operación y desarrollo, fuera del robot",Cargador de baterías de 12 V,Cargador de baterías de litio de 12 V,1,16169,16169,2024-07-31
+"Operación y desarrollo, fuera del robot",Baterías de 12 V de repuesto,Batería recargable de 12 V y 3000 mAh,2,20718,41436,2024-10-10
+"Operación y desarrollo, fuera del robot","Transmisor y receptor HDMI inalámbrico, cables micro HDMI y hub USB",Transmisor y receptor HDMI inalámbrico,1,32739,32739,2025-03-28
+"Operación y desarrollo, fuera del robot","Transmisor y receptor HDMI inalámbrico, cables micro HDMI y hub USB",Hub USB con adaptador de corriente,1,12400,12400,2025-11-28
+"Operación y desarrollo, fuera del robot","Transmisor y receptor HDMI inalámbrico, cables micro HDMI y hub USB",Conector micro HDMI FPV vertical,1,2727,2727,2024-11-01
+"Operación y desarrollo, fuera del robot","Transmisor y receptor HDMI inalámbrico, cables micro HDMI y hub USB",Cable plano FPV para HDMI de 10 cm,1,1817,1817,2025-03-28

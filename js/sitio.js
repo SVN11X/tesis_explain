@@ -1,8 +1,8 @@
 /*
-  Estructura común del sitio: cabecera, menú de temas, pie, índice lateral,
-  barra de progreso, tema claro u oscuro, buscador, citas con vista previa,
-  términos con definición, comparadores, videos en bucle, video liviano,
-  ampliación de imágenes, secuencia de etapas y carga diferida de los interactivos.
+  Lectura de las páginas de la guía: índice lateral, secciones en el menú del teléfono, barra de progreso,
+  citas con vista previa, términos con definición, comparadores, videos en bucle, video liviano,
+  ampliación de imágenes, secuencia de etapas y carga diferida de los interactivos. La cabecera, el pie,
+  el menú y el buscador son el marco común: herramientas/plantillas/ y js/marco.js.
 
   Para agregar o renombrar un tema basta con editar la lista CAPS.
   El PDF autorizado y los metadatos se editan en datos/academico.json; regenera con herramientas/datos.py.
@@ -10,16 +10,13 @@
 (function () {
   "use strict";
 
-  /* Si datos/proyecto.js no llega (bloqueado, caché corrupta o archivo ausente), la cabecera,
-     el pie y los respaldos deben seguir funcionando. El aviso estático del HTML conserva el estado. */
+  /* Si datos/proyecto.js no llega (bloqueado, caché corrupta o archivo ausente), los respaldos deben
+     seguir funcionando. El aviso estático del HTML conserva el estado. */
   var ACADEMICO = (window.PROYECTO && window.PROYECTO.academico) || {
     estado_texto: "En revisión por comité", tesis_pdf: null, version_documento: null, ultima_actualizacion_sitio: null, sinDatos: true
   };
   /* Sin un enlace verificado en tesis_pdf, el pie no ofrece el PDF y Recursos dice que la tesis no está publicada. */
   var TESIS_PDF = ACADEMICO.tesis_pdf || "";
-  /* Fecha de esta actualización de plataforma, independiente del documento y de los ensayos. */
-  var REVISION = /^\d{4}-\d{2}-\d{2}$/.test(ACADEMICO.ultima_actualizacion_sitio || "") ? { iso: ACADEMICO.ultima_actualizacion_sitio, texto: new Date(ACADEMICO.ultima_actualizacion_sitio + "T12:00:00Z").toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }) } : null;
-  var VERSION_TESIS = ACADEMICO.version_documento || "";
   var REPO = "https://github.com/SVN11X/tesis_explain";
   var VIDEO_ID = "iTTC10eGDmc";
 
@@ -44,177 +41,37 @@
     { id: "recursos", t: "Recursos", d: "Glosario, fuentes agregadas, material para aprender y cómo citar." },
     { id: "bibliografia", t: "Bibliografía de la tesis", d: "Las 72 referencias, cada una con su ficha, de qué trata y qué toma la tesis de ella." }
   ];
-  /* Secuencia de lectura: los diez temas numerados y, después, los complementos sin número.
-     Recursos y la bibliografía van al final, con su índice lateral y su navegación, sin alterar la numeración de los temas. */
+  /* Secuencia de lectura: los diez temas y, a continuación, los complementos, numerados del 11 al 16.
+     Recursos y la bibliografía van al final, con su índice lateral y su navegación. */
   var SECUENCIA = CAPS.concat(EXTRAS);
-  window.SITIO = { CAPS: CAPS, EXTRAS: EXTRAS, REPO: REPO, VIDEO_ID: VIDEO_ID, TESIS_PDF: TESIS_PDF };
+  /* js/marco.js puede haber creado SITIO antes, con el buscador y el menú */
+  var SITIO = window.SITIO = window.SITIO || {};
+  SITIO.CAPS = CAPS; SITIO.EXTRAS = EXTRAS; SITIO.REPO = REPO; SITIO.VIDEO_ID = VIDEO_ID; SITIO.TESIS_PDF = TESIS_PDF;
 
   var pagina = document.body.getAttribute("data-pagina") || "";
   var idxSec = SECUENCIA.map(function (c) { return c.id; }).indexOf(pagina);
   var esCap = CAPS.some(function (c) { return c.id === pagina; });
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function n2(i) { return (i < 9 ? "0" : "") + (i + 1); }
-  function leer(k, d) { try { var v = localStorage.getItem(k); return v == null ? d : v; } catch (e) { return d; } }
-  function guardar(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }
+  var esperaSecciones = null;
+  function cargarSecciones(cb) {
+    if (window.SECCIONES) { cb(); return; }
+    if (esperaSecciones) { esperaSecciones.push(cb); return; }
+    esperaSecciones = [cb];
+    var sc = document.createElement("script"), fin = function () { var l = esperaSecciones; esperaSecciones = null; l.forEach(function (f) { f(); }); };
+    sc.src = "datos/secciones.js"; sc.onload = fin; sc.onerror = function () { sc.remove(); fin(); };
+    document.head.appendChild(sc);
+  }
   var quieto = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  var ICONO = '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 6h22v12a11 11 0 0 1-22 0z" fill="var(--azul)"/><circle cx="16" cy="17" r="5.2" fill="var(--surface)"/><circle cx="16" cy="17" r="2.4" fill="var(--verde)"/><rect x="21" y="8.5" width="4" height="3" rx=".8" fill="var(--verde)"/></svg>';
+  /* Íconos de Phosphor Icons (MIT, ver LICENSE-iconos.txt), en línea para no pedir archivos. */
   var SVG = {
-    sol: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
-    luna: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>',
-    auto: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17a8.5 8.5 0 0 0 0-17z" fill="currentColor"/></svg>',
-    menu: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
-    cerrar: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
-    lupa: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>',
-    arriba: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>',
-    git: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 19c-4 1.3-4-2-6-2.5M15 21v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1-.3-3.4 1.3a11.6 11.6 0 0 0-6 0C6.8 2.8 5.8 3.1 5.8 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4.4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg>',
-    abajo: '<svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px"><path d="M6 9l6 6 6-6"/></svg>',
-    ampliar: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg>'
+    cerrar: '<svg class="ph" viewBox="0 0 256 256" aria-hidden="true"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg>',
+    lupa: '<svg class="ph" viewBox="0 0 256 256" aria-hidden="true"><path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/></svg>',
+    arriba: '<svg class="ph" viewBox="0 0 256 256" aria-hidden="true"><path d="M205.66,117.66a8,8,0,0,1-11.32,0L136,59.31V216a8,8,0,0,1-16,0V59.31L61.66,117.66a8,8,0,0,1-11.32-11.32l72-72a8,8,0,0,1,11.32,0l72,72A8,8,0,0,1,205.66,117.66Z"/></svg>',
+    abajo: '<svg class="ph" viewBox="0 0 256 256" aria-hidden="true"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/></svg>',
+    ampliar: '<svg class="ph" viewBox="0 0 256 256" aria-hidden="true"><path d="M216,48V96a8,8,0,0,1-16,0V67.31l-42.34,42.35a8,8,0,0,1-11.32-11.32L188.69,56H160a8,8,0,0,1,0-16h48A8,8,0,0,1,216,48ZM98.34,146.34,56,188.69V160a8,8,0,0,0-16,0v48a8,8,0,0,0,8,8H96a8,8,0,0,0,0-16H67.31l42.35-42.34a8,8,0,0,0-11.32-11.32ZM208,152a8,8,0,0,0-8,8v28.69l-42.34-42.35a8,8,0,0,0-11.32,11.32L188.69,200H160a8,8,0,0,0,0,16h48a8,8,0,0,0,8-8V160A8,8,0,0,0,208,152ZM67.31,56H96a8,8,0,0,0,0-16H48a8,8,0,0,0-8,8V96a8,8,0,0,0,16,0V67.31l42.34,42.35a8,8,0,0,0,11.32-11.32Z"/></svg>',
   };
-
-  /* Tema claro u oscuro */
-  var TEMAS = ["auto", "light", "dark"];
-  var NOMBRE_TEMA = { auto: "automático", light: "claro", dark: "oscuro" };
-  function temaActual() { return leer("tema", "auto"); }
-  function aplicarTema(t) {
-    if (t === "auto") document.documentElement.removeAttribute("data-theme");
-    else document.documentElement.setAttribute("data-theme", t);
-    guardar("tema", t === "auto" ? null : t);
-    var b = document.getElementById("btn-tema");
-    if (b) {
-      b.innerHTML = t === "dark" ? SVG.luna : (t === "light" ? SVG.sol : SVG.auto);
-      b.setAttribute("aria-label", "Tema " + NOMBRE_TEMA[t] + ". Cambiar tema");
-      b.title = "Tema " + NOMBRE_TEMA[t];
-    }
-    document.dispatchEvent(new CustomEvent("temacambio"));
-  }
-  if (window.matchMedia) {
-    var mq = window.matchMedia("(prefers-color-scheme: dark)");
-    var avisar = function () { document.dispatchEvent(new CustomEvent("temacambio")); };
-    if (mq.addEventListener) mq.addEventListener("change", avisar); else if (mq.addListener) mq.addListener(avisar);
-  }
-
-  function enlace(id, texto, extra) { return '<a href="' + id + '.html"' + (id === pagina ? ' aria-current="page"' : '') + (extra || '') + '>' + texto + '</a>'; }
-
-  /* Cabecera */
-  function cabecera() {
-    var cont = document.getElementById("cabecera");
-    if (!cont) return;
-    var cols = [1, 2, 3].map(function (b) {
-      return '<div class="mg-col"><span>' + BLOQUES[b] + '</span>' + CAPS.map(function (c, i) {
-        if (c.bloque !== b) return "";
-        return '<a href="' + c.id + '.html"' + (c.id === pagina ? ' aria-current="page"' : '') + '><span class="n">' + n2(i) + '</span><b>' + esc(c.t) + '</b><small>' + esc(c.d) + '</small></a>';
-      }).join("") + '</div>';
-    }).join("");
-    var extra = '<div class="mg-extra"><span>Complementos</span>' + EXTRAS.map(function (e) { return enlace(e.id, esc(e.t)); }).join("") + '</div>';
-    /* El panel de Temas cuelga de la cabecera completa y no del botón, para que nunca quede
-       fuera de la pantalla aunque el botón esté lejos del borde derecho. */
-    cont.innerHTML =
-      '<div class="cab"><div class="wrap">' +
-      '<a class="marca" href="index.html">' + ICONO + '<span>Robot explorador<small>Guía abierta de una tesis de la UTEM</small></span></a>' +
-      '<nav class="nav-principal" aria-label="Principal">' +
-      '<a class="nav-texto" href="index.html"' + (pagina === "inicio" ? ' aria-current="page"' : '') + '>Inicio</a>' +
-      '<div class="nav-guia nav-texto"><button type="button" class="nav-btn' + (esCap ? ' activo' : '') + '" aria-expanded="false" aria-controls="menu-guia"' + (esCap ? ' aria-describedby="tema-actual"' : '') + '>Temas ' + SVG.abajo + '</button>' +
-      (esCap ? '<span class="sr" id="tema-actual">Estás en un tema de la guía</span>' : '') +
-      '<div class="menu-guia" id="menu-guia" hidden>' + cols + extra + '</div></div>' +
-      '<span class="nav-texto nav-opcional">' + enlace("mundo-real", "En el mundo real") + '</span>' +
-      '<span class="nav-texto nav-opcional">' + enlace("lecciones", "Lecciones") + '</span>' +
-      '<span class="nav-texto">' + enlace("preguntas", "Preguntas") + '</span>' +
-      '<span class="nav-texto">' + enlace("recursos", "Recursos") + '</span>' +
-      '</nav>' +
-      '<button type="button" class="btn-buscar" id="btn-buscar" aria-label="Buscar en el sitio">' + SVG.lupa + '<span class="bb-txt">Buscar</span><kbd>/</kbd></button>' +
-      '<a class="btn-icono nav-texto" href="' + REPO + '" aria-label="Repositorio en GitHub" title="Repositorio en GitHub">' + SVG.git + '</a>' +
-      '<button type="button" class="btn-icono" id="btn-tema"></button>' +
-      '<button type="button" class="btn-icono btn-menu" id="btn-menu" aria-label="Abrir menú" aria-expanded="false" aria-controls="cajon">' + SVG.menu + '</button>' +
-      '</div></div>' +
-      '<div class="cajon" id="cajon" role="dialog" aria-modal="true" aria-label="Menú"><div class="cajon-fondo" data-cerrar></div><div class="cajon-panel">' +
-      '<div class="cajon-cab"><a class="marca" href="index.html">' + ICONO + '<span>Robot explorador</span></a><button type="button" class="btn-icono" data-cerrar aria-label="Cerrar menú">' + SVG.cerrar + '</button></div>' +
-      '<a href="index.html"' + (pagina === "inicio" ? ' aria-current="page"' : '') + '><span class="n">·</span>Inicio</a><hr>' +
-      CAPS.map(function (c, i) { return '<a href="' + c.id + '.html"' + (c.id === pagina ? ' aria-current="page"' : '') + '><span class="n">' + n2(i) + '</span>' + esc(c.t) + '</a>'; }).join("") +
-      '<hr>' + EXTRAS.map(function (e) { return '<a href="' + e.id + '.html"' + (e.id === pagina ? ' aria-current="page"' : '') + '><span class="n">+</span>' + esc(e.t) + '</a>'; }).join("") +
-      '<a href="' + REPO + '"><span class="n">⌥</span>Código de este sitio</a>' +
-      '</div></div>';
-    aplicarTema(temaActual());
-    document.getElementById("btn-tema").addEventListener("click", function () {
-      var t = temaActual(), i = TEMAS.indexOf(t);
-      aplicarTema(TEMAS[(i + 1) % TEMAS.length]);
-    });
-    var bg = cont.querySelector(".nav-btn"), mg = document.getElementById("menu-guia"), cab = cont.querySelector(".cab");
-    function cerrarGuia(volver) {
-      if (mg.hidden) return;
-      mg.hidden = true; bg.setAttribute("aria-expanded", "false"); cab.classList.remove("menu-abierto");
-      if (volver) bg.focus();
-    }
-    bg.addEventListener("click", function (e) {
-      e.stopPropagation();
-      var ab = mg.hidden; mg.hidden = !ab; bg.setAttribute("aria-expanded", String(ab)); cab.classList.toggle("menu-abierto", ab);
-    });
-    document.addEventListener("click", function (e) { if (!e.target.closest(".nav-guia")) cerrarGuia(); });
-    /* al salir del panel con Tab se cierra, para que no tape la página mientras se recorre con teclado */
-    cont.querySelector(".nav-guia").addEventListener("focusout", function (e) { if (e.relatedTarget && !e.currentTarget.contains(e.relatedTarget)) cerrarGuia(); });
-    document.addEventListener("keydown", function (e) {
-      if (e.key !== "Escape") return;
-      var enPanel = !mg.hidden && document.activeElement && document.activeElement.closest && document.activeElement.closest(".nav-guia");
-      cerrarGuia(enPanel); cerrarCajon();
-    });
-    /* La cabecera queda fija arriba. Al bajar se marca con una sombra para separarla del contenido. */
-    var pendCab = false;
-    function marcarCab() {
-      pendCab = false; cab.classList.toggle("desplazada", window.scrollY > 4);
-      var lat = document.getElementById('lateral');
-      // Al terminar el artículo, el contenedor sticky sale con su padre. Evitar
-      // enlaces parcialmente tapados por la cabecera; la navegación sigue en el pie.
-      if (lat) lat.classList.toggle('al-final', window.innerWidth > 860 && lat.getBoundingClientRect().top < cab.offsetHeight - 1 && !lat.contains(document.activeElement));
-    }
-    window.addEventListener("scroll", function () { if (!pendCab) { pendCab = true; requestAnimationFrame(marcarCab); } }, { passive: true });
-    window.addEventListener('resize', marcarCab);
-    marcarCab();
-    var cajon = document.getElementById("cajon"), bm = document.getElementById("btn-menu");
-    var aislados = [], overflowAnterior = "";
-    cajon.inert = true;
-    function cerrarCajon() {
-      if (!cajon.classList.contains("abierto")) return;
-      cajon.classList.remove("abierto"); cajon.inert = true; bm.setAttribute("aria-expanded", "false");
-      aislados.forEach(function (o) { o.el.inert = o.inert; }); aislados = [];
-      document.body.style.overflow = overflowAnterior; bm.focus();
-    }
-    bm.addEventListener("click", function () {
-      cerrarGuia();
-      aislados = [].slice.call(document.body.children).filter(function (el) { return el !== cont && el.tagName !== "SCRIPT"; }).map(function (el) { var o = { el: el, inert: el.inert }; el.inert = true; return o; });
-      [].forEach.call(cont.children, function (el) { if (el !== cajon) { aislados.push({ el: el, inert: el.inert }); el.inert = true; } });
-      overflowAnterior = document.body.style.overflow; document.body.style.overflow = "hidden";
-      cajon.inert = false; cajon.classList.add("abierto"); bm.setAttribute("aria-expanded", "true");
-      var a = cajon.querySelector("a,button"); if (a) a.focus();
-    });
-    cajon.addEventListener("keydown", function (e) {
-      if (e.key !== "Tab") return;
-      var controls = [].slice.call(cajon.querySelectorAll("a[href],button:not([disabled])"));
-      var first = controls[0], last = controls[controls.length - 1];
-      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-    });
-    window.addEventListener("resize", function () { if (window.innerWidth > 860) cerrarCajon(); });
-    cajon.addEventListener("click", function (e) { if (e.target.closest("[data-cerrar]")) cerrarCajon(); });
-    /* un enlace a una sección de la misma página cierra el menú antes de desplazarse */
-    cajon.addEventListener("click", function (e) { if (e.target.closest(".cajon-secciones a")) cerrarCajon(); });
-  }
-
-  /* Pie */
-  function pie() {
-    var cont = document.getElementById("pie");
-    if (!cont) return;
-    cont.innerHTML = '<footer class="pie"><div class="franja"></div><div class="wrap">' +
-      '<div><h2>Sobre este sitio</h2><p>Guía abierta para entender, cuestionar y reproducir el trabajo de titulación <em>Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial</em>, de Sebastián Valderas Neculqueo, con el profesor guía Patricio Galarce Acevedo. Ingeniería Civil Electrónica, Universidad Tecnológica Metropolitana, Santiago de Chile, 2026.</p>' +
-      '<p>Los datos del robot vienen de la tesis y se citan con su sección. Los ejemplos del mundo real y los temas transversales se apoyan en fuentes externas, enlazadas en cada página.</p>' +
-      (TESIS_PDF ? '<p><a href="' + esc(TESIS_PDF) + '">Descargar la tesis en PDF</a></p>' : '') +
-      '<p>Código bajo licencia <a href="' + REPO + '/blob/main/LICENSE">MIT</a> y contenido bajo <a href="https://creativecommons.org/licenses/by/4.0/deed.es">CC BY 4.0</a>, salvo las excepciones indicadas en <a href="recursos.html#creditos">Créditos</a>.</p>' +
-      '<p><b>' + esc(ACADEMICO.estado_texto) + '.</b> El estado académico es distinto de la verificación de funcionamiento de un subsistema.</p>' +
-      (REVISION ? '<p>Última actualización de la plataforma: <time datetime="' + REVISION.iso + '">' + REVISION.texto + '</time>.</p>' : '') +
-      (VERSION_TESIS ? '<p>Versión del documento de referencia: ' + esc(VERSION_TESIS) + '.</p>' : '') + '</div>' +
-      '<div><h2>Temas</h2><ul>' + CAPS.map(function (c, i) { return '<li><a href="' + c.id + '.html">' + n2(i) + ' · ' + esc(c.t) + '</a></li>'; }).join("") + '</ul></div>' +
-      '<div><h2>Más</h2><ul>' + EXTRAS.map(function (e) { return '<li><a href="' + e.id + '.html">' + esc(e.t) + '</a></li>'; }).join("") + '<li><a href="recursos.html#glosario">Glosario</a></li><li><a href="recursos.html#citar">Cómo citar</a></li><li><a href="recursos.html#autor">Sobre el autor</a></li><li><a href="recursos.html#abstract" hreflang="en">Abstract in English</a></li><li><a href="https://www.youtube.com/watch?v=' + VIDEO_ID + '">Video del robot en YouTube</a></li><li><a href="' + REPO + '">Código de este sitio</a></li><li><a href="' + REPO + '/issues">Reportar un error o sugerir una mejora</a></li></ul></div>' +
-      '</div></footer>';
-  }
 
   /* Tema o complemento: índice lateral, etiquetas y navegación */
   function capitulo() {
@@ -226,8 +83,8 @@
       var min = Math.max(3, Math.round(palabras / 200));
       document.querySelectorAll("[data-lectura]").forEach(function (el) { el.textContent = min + " min de lectura"; });
     }
-    document.querySelectorAll("[data-cap-n]").forEach(function (el) { el.textContent = esCap ? "Tema " + (idxSec + 1) + " de " + CAPS.length : "Complemento"; });
-    document.querySelectorAll("[data-bloque]").forEach(function (el) { el.textContent = esCap ? "Tema " + n2(idxSec) + " · " + BLOQUES[c.bloque] : "Complemento de la guía"; });
+    document.querySelectorAll("[data-cap-n]").forEach(function (el) { el.textContent = esCap ? "Tema " + (idxSec + 1) + " de " + CAPS.length : "Complemento " + n2(idxSec); });
+    document.querySelectorAll("[data-bloque]").forEach(function (el) { el.textContent = esCap ? "Tema " + n2(idxSec) + " · " + BLOQUES[c.bloque] : n2(idxSec) + " · Complemento de la guía"; });
     document.querySelectorAll("[data-nivel]").forEach(function (el) {
       if (!c.nivel) { el.remove(); return; }
       var cls = c.nivel === "básico" ? "basico" : (c.nivel === "avanzado" ? "avanzado" : "intermedio");
@@ -241,37 +98,70 @@
     var lat = document.getElementById("lateral");
     if (lat && art) {
       var hs = Array.prototype.slice.call(art.querySelectorAll("section > h2[id]"));
-      lat.innerHTML =
-        '<nav class="guia-lista" aria-label="Temas de la guía"><h2>La guía</h2><ol>' + SECUENCIA.map(function (x, i) {
-          return '<li><a href="' + x.id + '.html"' + (x.id === pagina ? ' aria-current="page"' : '') + '><span class="n">' + (i < CAPS.length ? n2(i) : "+") + '</span><span>' + esc(x.t) + '</span></a></li>';
-        }).join("") + '</ol></nav>' +
-        (hs.length ? '<details class="en-pagina-cont" open><summary><h2>En esta página <span class="flecha">▾</span></h2></summary><nav class="en-pagina" aria-label="En esta página"><ul>' + hs.map(function (h) {
-          var t = h.cloneNode(true); var an = t.querySelector(".ancla"); if (an) an.remove();
-          return '<li><a href="#' + h.id + '" data-id="' + h.id + '">' + esc(t.textContent.trim()) + '</a></li>';
-        }).join("") + '</ul></nav></details>' : '');
-      if (window.matchMedia("(max-width: 1080px)").matches) { var d = lat.querySelector("details"); if (d) d.open = false; }
-      /* En el teléfono, el menú de la cabecera fija suma las secciones de esta página. Así se salta a
-         cualquiera desde donde se esté leyendo, sin volver al índice del inicio del tema. */
-      var panel = document.querySelector(".cajon-panel"), cab = panel && panel.querySelector(".cajon-cab");
-      if (cab && hs.length) {
-        var sec = document.createElement("nav");
-        sec.className = "cajon-secciones"; sec.setAttribute("aria-label", "Secciones de esta página");
-        sec.innerHTML = '<span class="cajon-titulo">En esta página</span>' + hs.map(function (h) {
-          var t = h.cloneNode(true); var an = t.querySelector(".ancla"); if (an) an.remove();
-          return '<a href="#' + h.id + '" data-id="' + h.id + '"><span class="n" aria-hidden="true">§</span>' + esc(t.textContent.trim()) + '</a>';
-        }).join("");
-        cab.insertAdjacentElement("afterend", sec);
+      var sinAncla = function (h) { var t = h.cloneNode(true); var an = t.querySelector(".ancla"); if (an) an.remove(); return t.textContent.trim(); };
+      /* Las 16 partes van numeradas y cada una despliega sus secciones. La actual las trae abiertas, y las demás
+         las piden a datos/secciones.js solo cuando alguien las despliega. */
+      lat.innerHTML = '<details class="guia-cont" open><summary><h2>La guía <span class="gl-pos">' + n2(idxSec) + ' de ' + SECUENCIA.length + '</span>' + SVG.abajo + '</h2></summary>' +
+        '<nav class="guia-lista" aria-label="Partes de la guía"><ol>' + SECUENCIA.map(function (x, i) {
+          var actual = x.id === pagina, abierta = actual && hs.length > 0;
+          return '<li class="gl-item' + (actual ? ' actual' : '') + (abierta ? ' abierto' : '') + '" data-pag="' + x.id + '"><div class="gl-fila">' +
+            '<a href="' + x.id + '.html"' + (actual ? ' aria-current="page"' : '') + '><span class="n">' + n2(i) + '</span><span>' + esc(x.t) + '</span></a>' +
+            '<button type="button" class="gl-plegar" aria-expanded="' + abierta + '" aria-controls="gl-' + x.id + '" aria-label="Secciones de ' + esc(x.t) + '">' + SVG.abajo + '</button></div>' +
+            '<div class="gl-secciones" id="gl-' + x.id + '">' + (actual ? '<ul class="en-pagina">' + hs.map(function (h) {
+              return '<li><a href="#' + h.id + '" data-id="' + h.id + '">' + esc(sinAncla(h)) + '</a></li>';
+            }).join("") + '</ul>' : '') + '</div></li>';
+        }).join("") + '</ol></nav></details>';
+      var cont = lat.querySelector(".guia-cont"), angosto = window.matchMedia("(max-width: 1080px)");
+      if (angosto.matches) cont.open = false;
+      var seccionesDe = function (li) {
+        var caja = li.querySelector(".gl-secciones"), id = li.getAttribute("data-pag"), lista = (window.SECCIONES || {})[id];
+        if (caja.firstChild) return;
+        caja.innerHTML = lista ? '<ul>' + lista.map(function (s) { return '<li><a href="' + id + '.html#' + esc(s[0]) + '">' + esc(s[1]) + '</a></li>'; }).join("") + '</ul>'
+          : '<p class="gl-error">No se pudieron cargar sus secciones. <a href="' + id + '.html">Abrir la página</a></p>';
+      };
+      lat.addEventListener("click", function (e) {
+        var b = e.target.closest(".gl-plegar");
+        if (!b) return;
+        var li = b.closest(".gl-item"), abrir = !li.classList.contains("abierto");
+        var cambiar = function () { li.classList.toggle("abierto", abrir); b.setAttribute("aria-expanded", String(abrir)); };
+        if (!abrir || li.querySelector(".gl-secciones").firstChild) { cambiar(); return; }
+        cargarSecciones(function () { seccionesDe(li); cambiar(); });
+      });
+      /* Con el lateral fijo, la parte actual queda a la vista aunque esté al final de la lista. */
+      if (!angosto.matches) {
+        var fila = lat.querySelector(".gl-item.actual");
+        if (fila && fila.offsetTop > lat.clientHeight / 2) lat.scrollTop = fila.offsetTop - 60;
+      }
+      /* En el teléfono, el menú de la cabecera suma las secciones de esta página y la guía numerada. Así se
+         salta a cualquier parte desde donde se esté leyendo, sin volver al inicio del tema. */
+      var mp = SITIO.menu && SITIO.menu.panel;
+      if (mp && !mp.querySelector(".menu-extra")) {
+        var extra = document.createElement("div");
+        extra.className = "menu-extra";
+        extra.innerHTML = (hs.length ? '<p class="menu-grupo" id="menu-secciones-t">En esta página</p><nav class="menu-secciones" aria-labelledby="menu-secciones-t">' +
+          hs.map(function (h) { return '<a href="#' + h.id + '" data-id="' + h.id + '">' + esc(sinAncla(h)) + '</a>'; }).join("") + '</nav>' : '') +
+          '<p class="menu-grupo" id="menu-guia-t">La guía</p><nav class="menu-guia" aria-labelledby="menu-guia-t">' + SECUENCIA.map(function (x, i) {
+            return '<a href="' + x.id + '.html"' + (x.id === pagina ? ' aria-current="page"' : '') + '><span class="n">' + n2(i) + '</span>' + esc(x.t) + '</a>';
+          }).join("") + '</nav><p class="menu-grupo">El sitio</p>';
+        mp.insertBefore(extra, mp.firstChild);
       }
       if ("IntersectionObserver" in window && hs.length) {
         var links = {};
-        document.querySelectorAll(".en-pagina a, .cajon-secciones a").forEach(function (a) { var k = a.getAttribute("data-id"); (links[k] = links[k] || []).push(a); });
-        var visibles = new Map();
+        document.querySelectorAll(".en-pagina a, .menu-secciones a").forEach(function (a) { var k = a.getAttribute("data-id"); (links[k] = links[k] || []).push(a); });
+        var visibles = new Map(), previo = null;
         var io = new IntersectionObserver(function (ents) {
           ents.forEach(function (e) { visibles.set(e.target, e.isIntersecting); });
           for (var i = 0; i < hs.length; i++) {
             if (visibles.get(hs[i].parentElement)) {
               var activo = hs[i].id;
               hs.forEach(function (h) { (links[h.id] || []).forEach(function (l) { l.classList.toggle("activo", h.id === activo); if (h.id === activo) l.setAttribute("aria-current", "location"); else l.removeAttribute("aria-current"); }); });
+              /* el enlace activo no se pierde bajo el borde del lateral fijo */
+              var l = (links[activo] || [])[0];
+              if (l && activo !== previo && lat.scrollHeight > lat.clientHeight + 4) {
+                var rl = lat.getBoundingClientRect(), r = l.getBoundingClientRect();
+                if (r.top < rl.top + 24 || r.bottom > rl.bottom - 24) lat.scrollTop += r.top - rl.top - rl.height / 3;
+              }
+              previo = activo;
               break;
             }
           }
@@ -295,8 +185,7 @@
     var art = document.querySelector(".articulo");
     if (!art) return;
     var barra = document.createElement("div"); barra.className = "progreso-lectura"; barra.setAttribute("aria-hidden", "true");
-    /* va en el borde inferior de la cabecera fija, así se ve siempre bajo ella */
-    (document.querySelector(".cab") || document.body).appendChild(barra);
+    document.body.appendChild(barra);
     var pend = false;
     function act() {
       pend = false;
@@ -313,11 +202,16 @@
     var b = document.createElement("button");
     b.type = "button"; b.className = "btn-arriba"; b.setAttribute("aria-label", "Volver al inicio de la página"); b.innerHTML = SVG.arriba;
     document.body.appendChild(b);
-    b.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: quieto ? "auto" : "smooth" }); var s = document.querySelector(".saltar"); if (s) s.focus({ preventScroll: true }); });
-    var pend = false;
+    b.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: quieto ? "auto" : "smooth" }); var s = document.querySelector(".skip-link"); if (s) s.focus({ preventScroll: true }); });
+    /* con el pie a la vista el botón se retira: el pie ya tiene su enlace para volver arriba */
+    var pend = false, pie = document.querySelector(".site-footer");
     window.addEventListener("scroll", function () {
       if (pend) return; pend = true;
-      requestAnimationFrame(function () { pend = false; b.classList.toggle("visible", window.scrollY > window.innerHeight * 1.4); });
+      requestAnimationFrame(function () {
+        pend = false;
+        var enPie = pie && pie.getBoundingClientRect().top < window.innerHeight - 40;
+        b.classList.toggle("visible", window.scrollY > window.innerHeight * 1.4 && !enPie);
+      });
     }, { passive: true });
   }
 
@@ -397,7 +291,7 @@
   function dialogoAmpliar() {
     if (dlgAmpliar) return dlgAmpliar;
     var dlg = dlgAmpliar = document.createElement("dialog"); dlg.className = "lightbox";
-    dlg.innerHTML = '<button type="button" aria-label="Cerrar">×</button><img alt=""><p></p>';
+    dlg.innerHTML = '<button type="button" aria-label="Cerrar">' + SVG.cerrar + '</button><img alt=""><p></p>';
     document.body.appendChild(dlg);
     dlg.querySelector("button").addEventListener("click", function () { dlg.close(); });
     dlg.addEventListener("click", function (e) { if (e.target === dlg) dlg.close(); });
@@ -512,164 +406,6 @@
       ocultar();
     });
     window.addEventListener("resize", function () { if (dueno && !fijada) ocultar(); });
-  }
-
-  /* Normalización y coincidencias del buscador
-     Funciones puras, expuestas en SITIO.busqueda para poder probarlas.
-     norm quita mayúsculas y tildes, une los miles escritos con espacio (49 683 → 49683)
-     y usa coma decimal (3.63 → 3,63). Cada carácter normalizado guarda la posición del
-     original, así el resaltado marca el texto tal como se escribió en la página. */
-  var BUS = (function () {
-    var ESPACIOS = /[    ]/;
-    function normMap(s) {
-      s = String(s == null ? "" : s);
-      var cs = [], ix = [];
-      for (var i = 0; i < s.length; i++) {
-        var ch = s[i];
-        if (ESPACIOS.test(ch)) ch = " ";
-        var d = ch.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
-        for (var k = 0; k < d.length; k++) { cs.push(d[k]); ix.push(i); }
-      }
-      var t = cs.join(""), borrar = {};
-      /* miles separados por espacio: 1 a 3 cifras y luego grupos de exactamente 3 cifras */
-      var re = /(^|[^0-9,.])(\d{1,3}(?: \d{3})+)(?![0-9])/g, m;
-      while ((m = re.exec(t))) {
-        var ini = m.index + m[1].length, grupo = m[2];
-        for (var j = 0; j < grupo.length; j++) if (grupo[j] === " ") borrar[ini + j] = 1;
-      }
-      var cs2 = [], ix2 = [];
-      for (var q = 0; q < cs.length; q++) if (!borrar[q]) { cs2.push(cs[q]); ix2.push(ix[q]); }
-      /* punto decimal entre cifras se escribe como coma */
-      for (var r = 1; r < cs2.length - 1; r++) if (cs2[r] === "." && /\d/.test(cs2[r - 1]) && /\d/.test(cs2[r + 1])) cs2[r] = ",";
-      return { t: cs2.join(""), map: ix2 };
-    }
-    function norm(s) { return normMap(s).t; }
-    function esNumero(tok) { return /^\d+(,\d+)?$/.test(tok); }
-    function tokens(q) {
-      return norm(q).split(/\s+/).map(function (p) { return p.replace(/^[^0-9a-zñ]+|[^0-9a-zñ]+$/g, ""); }).filter(Boolean);
-    }
-    function dig(c) { return c != null && c >= "0" && c <= "9"; }
-    /* posiciones donde aparece tok en t. Un número debe coincidir completo: 3,63 no aparece en 13,63 ni en 3,635 */
-    function posiciones(t, tok, max) {
-      var out = [], desde = 0, num = esNumero(tok);
-      while (out.length < (max || 1e9)) {
-        var p = t.indexOf(tok, desde);
-        if (p < 0) break;
-        desde = p + 1;
-        if (num) {
-          var a = t[p - 1], b = t[p + tok.length];
-          if (dig(a) || (a === "," && dig(t[p - 2]))) continue;
-          if (dig(b) || (b === "," && dig(t[p + tok.length + 1]))) continue;
-        }
-        out.push(p);
-      }
-      return out;
-    }
-    function aparece(t, tok) { return posiciones(t, tok, 1).length > 0; }
-    function buscar(indice, q, max) {
-      var ps = tokens(q);
-      if (!ps.length) return [];
-      return indice.map(function (e, n) {
-        var tt = e._t || (e._t = norm(e.t)), tx = e._x || (e._x = norm(e.x)), puntos = 0;
-        for (var i = 0; i < ps.length; i++) {
-          var enT = aparece(tt, ps[i]), enX = aparece(tx, ps[i]);
-          if (!enT && !enX) return null;
-          puntos += (enT ? 10 : 0) + (enX ? 2 : 0);
-        }
-        return { e: e, p: puntos, n: n };
-      }).filter(Boolean).sort(function (a, b) { return b.p - a.p || a.n - b.n; })
-        /* una sección larga puede tener varias partes: se muestra solo la primera que coincide */
-        .filter(function (r, i, arr) { for (var k = 0; k < i; k++) if (arr[k].e.u === r.e.u) return false; return true; })
-        .slice(0, max || 14);
-    }
-    /* devuelve HTML escapado con <mark> en cada coincidencia, sobre el texto original */
-    function resaltar(txt, ps) {
-      var nm = normMap(txt), rangos = [];
-      ps.forEach(function (p) {
-        if (p.length < 3 && !esNumero(p)) return;
-        posiciones(nm.t, p).forEach(function (i) { rangos.push([nm.map[i], nm.map[i + p.length - 1] + 1]); });
-      });
-      rangos.sort(function (a, b) { return a[0] - b[0]; });
-      var out = "", cur = 0;
-      rangos.forEach(function (r) {
-        if (r[1] <= cur) return;
-        var ini = Math.max(cur, r[0]);
-        out += esc(txt.slice(cur, ini)) + "<mark>" + esc(txt.slice(ini, r[1])) + "</mark>";
-        cur = r[1];
-      });
-      return out + esc(txt.slice(cur));
-    }
-    /* fragmento del texto original alrededor de la primera coincidencia */
-    function extracto(x, ps, largo) {
-      largo = largo || 170;
-      var nm = normMap(x), pos = -1;
-      for (var i = 0; i < ps.length && pos < 0; i++) { var p = posiciones(nm.t, ps[i], 1); if (p.length) pos = nm.map[p[0]]; }
-      if (pos < 0) pos = 0;
-      var ini = Math.max(0, pos - 60);
-      if (ini > 0) { var esp = x.lastIndexOf(" ", ini); if (esp > ini - 20) ini = esp + 1; }
-      var fin = Math.min(x.length, ini + largo);
-      if (fin < x.length) { var e2 = x.indexOf(" ", fin); if (e2 > 0 && e2 < fin + 20) fin = e2; }
-      return { texto: x.slice(ini, fin), antes: ini > 0, despues: fin < x.length };
-    }
-    return { normMap: normMap, norm: norm, tokens: tokens, posiciones: posiciones, buscar: buscar, resaltar: resaltar, extracto: extracto };
-  })();
-  window.SITIO.busqueda = BUS;
-
-  /* Buscador */
-  function buscador() {
-    var btn = document.getElementById("btn-buscar");
-    if (!btn || typeof HTMLDialogElement === "undefined") { if (btn) btn.remove(); return; }
-    var dlg = document.createElement("dialog"); dlg.className = "buscador"; dlg.setAttribute("aria-label", "Buscar en el sitio");
-    dlg.innerHTML = '<div class="bus-cab">' + SVG.lupa + '<input type="search" placeholder="Busca un tema, una cifra o un concepto" aria-label="Buscar" aria-describedby="bus-ayuda" autocomplete="off"><button type="button" class="btn-icono" aria-label="Cerrar buscador">' + SVG.cerrar + '</button></div>' +
-      '<p class="bus-estado sr" role="status" aria-live="polite"></p>' +
-      '<ul class="bus-res" role="list"></ul><div class="bus-pie" id="bus-ayuda"><span>Enter abre el primer resultado</span><span>Esc cierra</span><span>Las cifras se encuentran con coma o punto: 3,63 o 3.63</span></div>';
-    document.body.appendChild(dlg);
-    var input = dlg.querySelector("input"), lista = dlg.querySelector(".bus-res"), estado = dlg.querySelector(".bus-estado");
-    var indice = null, cargando = false;
-    function cargar(cb) {
-      if (indice) { cb(); return; }
-      if (window.INDICE) { indice = window.INDICE; cb(); return; }
-      if (cargando) return; cargando = true;
-      lista.innerHTML = '<li class="bus-vacio">Cargando el índice de búsqueda…</li>'; estado.textContent = "Cargando la búsqueda.";
-      var s = document.createElement("script"); s.src = "datos/indice.js";
-      s.onload = function () { cargando = false; indice = window.INDICE || []; cb(); };
-      s.onerror = function () { cargando = false; s.remove(); lista.innerHTML = '<li class="bus-vacio">No se pudo cargar el índice. <button type="button" class="btn chico" data-reintentar>Reintentar</button> o consulta el <a href="index.html#temas">índice de temas</a>.</li>'; estado.textContent = "Error al cargar la búsqueda."; };
-      document.head.appendChild(s);
-    }
-    function buscar() {
-      var q = input.value.trim();
-      if (!q) { lista.innerHTML = '<li class="bus-vacio">Escribe al menos una palabra.</li>'; estado.textContent = ""; return; }
-      var ps = BUS.tokens(q), res = BUS.buscar(indice, q, 14);
-      if (!res.length) { lista.innerHTML = '<li class="bus-vacio">Sin resultados para «' + esc(q) + '». Revisa el <a href="recursos.html#glosario">glosario</a>.</li>'; estado.textContent = "Sin resultados."; return; }
-      estado.textContent = res.length + (res.length === 1 ? " resultado." : " resultados.");
-      lista.innerHTML = res.map(function (r, i) {
-        var e = r.e, ex = BUS.extracto(e.x, ps, 170);
-        return '<li><a href="' + esc(e.u) + '"' + (i === 0 ? ' class="sel"' : '') + '><small>' + esc(e.p) + '</small><b>' + BUS.resaltar(e.t, ps) + '</b><span>' + (ex.antes ? "…" : "") + BUS.resaltar(ex.texto, ps) + (ex.despues ? "…" : "") + '</span></a></li>';
-      }).join("");
-    }
-    function abrir() { cargar(function () { buscar(); }); dlg.showModal(); input.focus(); input.select(); }
-    btn.addEventListener("click", abrir);
-    dlg.querySelector(".bus-cab button").addEventListener("click", function () { dlg.close(); });
-    dlg.addEventListener("click", function (e) { if (e.target === dlg) dlg.close(); });
-    dlg.addEventListener("close", function () { btn.focus(); });
-    var t = null;
-    input.addEventListener("input", function () { clearTimeout(t); t = setTimeout(function () { if (indice) buscar(); }, 90); });
-    input.addEventListener("keydown", function (e) {
-      if (e.key === "Escape") { e.preventDefault(); dlg.close(); return; }
-      if (e.key === "Enter") { clearTimeout(t); if (indice) buscar(); var a = lista.querySelector("a"); if (a) { e.preventDefault(); var h = a.getAttribute("href"); dlg.close(); location.href = h; } }
-      if (e.key === "ArrowDown") { var f = lista.querySelector("a"); if (f) { e.preventDefault(); f.focus(); } }
-    });
-    lista.addEventListener("keydown", function (e) {
-      var as = Array.prototype.slice.call(lista.querySelectorAll("a")), i = as.indexOf(document.activeElement);
-      if (e.key === "ArrowDown" && i < as.length - 1) { e.preventDefault(); as[i + 1].focus(); }
-      if (e.key === "ArrowUp") { e.preventDefault(); if (i > 0) as[i - 1].focus(); else input.focus(); }
-    });
-    lista.addEventListener("click", function (e) { if (e.target.closest("a")) dlg.close(); });
-    lista.addEventListener("click", function (e) { if (e.target.closest("[data-reintentar]")) cargar(buscar); });
-    document.addEventListener("keydown", function (e) {
-      var tag = (document.activeElement && document.activeElement.tagName) || "";
-      if (e.key === "/" && !/INPUT|TEXTAREA|SELECT/.test(tag) && !dlg.open) { e.preventDefault(); abrir(); }
-    });
   }
 
   /* Secuencia de etapas (cámara y mapa) */
@@ -907,11 +643,13 @@
     /* el texto de cada elemento se normaliza al primer uso, no al cargar: en la bibliografía son unas
        30 000 palabras y hacerlo de entrada bloquearía la página */
     var textos = null;
-    function preparar() { if (!textos) textos = o.items.map(function (d) { return BUS.norm(d.textContent); }); }
+    /* la normalización es la del buscador, que js/marco.js deja en SITIO.busqueda */
+    var B = SITIO.busqueda;
+    function preparar() { if (!textos) textos = o.items.map(function (d) { return B.norm(d.textContent); }); }
     input.addEventListener("focus", preparar);
     input.addEventListener("input", function () {
       preparar();
-      var ps = BUS.tokens(input.value), n = 0;
+      var ps = B.tokens(input.value), n = 0;
       o.items.forEach(function (d, i) {
         var ver = !ps.length || ps.every(function (p) { return textos[i].indexOf(p) >= 0; });
         d.hidden = !ver; if (ver) n++;
@@ -1030,14 +768,74 @@
     });
   }
 
+  /* Movimiento con propósito: los bloques aparecen al llegar a ellos, las cifras clave cuentan hasta su valor y las
+     barras crecen. Solo con movimiento permitido. Sin JavaScript o con movimiento reducido, todo queda quieto y visible. */
+  var REVELA = ".caso, .decision, .articulo figure.fig, .articulo .widget, .articulo .callout, .articulo .galeria, .articulo .argumento, " +
+    ".articulo .tabla-env, .articulo .cifras-mini > div, .nav-cap a";
+  var CUENTA = ".cifras-mini b";
+  function contar(b) {
+    var it = document.createTreeWalker(b, NodeFilter.SHOW_TEXT, null), tn;
+    while ((tn = it.nextNode()) && !/\d/.test(tn.nodeValue)) {}
+    if (!tn) return;
+    var orig = tn.nodeValue, m = orig.match(/\d{1,3}(?: \d{3})+(?:,\d+)?|\d+(?:,\d+)?/);
+    if (!m) return;
+    var dec = (m[0].split(",")[1] || "").length, miles = m[0].indexOf(" ") > 0, valor = parseFloat(m[0].replace(/ /g, "").replace(",", "."));
+    if (!(valor > 0)) return;
+    var fmt = function (v) { var p = v.toFixed(dec).split("."); if (miles) p[0] = p[0].replace(/\B(?=(\d{3})+(?!\d))/g, " "); return p.join(","); };
+    /* el número animado no ocupa más ni menos que el final, así no mueve el texto que lo sigue, y el lector de pantalla lee solo el valor real */
+    var sr = document.createElement("span"), vis = document.createElement("span");
+    sr.className = "sr"; sr.textContent = m[0];
+    vis.className = "cuenta"; vis.setAttribute("aria-hidden", "true"); vis.textContent = m[0];
+    var antes = document.createTextNode(orig.slice(0, m.index)), despues = document.createTextNode(orig.slice(m.index + m[0].length));
+    var padre = tn.parentNode;
+    [antes, sr, vis, despues].forEach(function (n) { padre.insertBefore(n, tn); });
+    padre.removeChild(tn);
+    vis.style.width = vis.getBoundingClientRect().width + "px";
+    var ini = null, dur = 1100;
+    function paso(t) {
+      if (ini === null) ini = t;
+      var k = Math.min(1, (t - ini) / dur), e = 1 - Math.pow(1 - k, 3);
+      vis.textContent = fmt(valor * e);
+      if (k < 1) { requestAnimationFrame(paso); return; }
+      var final = document.createTextNode(orig);
+      padre.insertBefore(final, antes); [antes, sr, vis, despues].forEach(function (n) { padre.removeChild(n); });
+    }
+    vis.textContent = fmt(0);
+    requestAnimationFrame(paso);
+  }
+  function animaciones() {
+    if (quieto || !("IntersectionObserver" in window)) return;
+    document.documentElement.classList.add("anima");
+    var porPadre = new Map();
+    var io = new IntersectionObserver(function (ents) {
+      ents.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        io.unobserve(e.target);
+        e.target.classList.add("visible");
+        if (e.target.matches(CUENTA)) contar(e.target);
+      });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.05 });
+    /* lo que ya se ve al arrancar queda como está: ni parpadea ni vuelve a contar */
+    var aLaVista = function (el) { var r = el.getBoundingClientRect(); return r.bottom > 0 && r.top < window.innerHeight; };
+    document.querySelectorAll(REVELA).forEach(function (el) {
+      var n = porPadre.get(el.parentNode) || 0; porPadre.set(el.parentNode, n + 1);
+      el.classList.add("revela"); el.style.setProperty("--orden", Math.min(n, 4));
+      if (aLaVista(el)) el.classList.add("visible", "ya"); else io.observe(el);
+    });
+    /* las barras crecen una tras otra */
+    document.querySelectorAll(".barras li, .gantt td.g-barra").forEach(function (el) { var k = [].indexOf.call(el.closest(".barras, .gantt").querySelectorAll(el.tagName === "LI" ? "li" : "td.g-barra"), el); el.style.setProperty("--i", Math.min(k, 16)); });
+    document.querySelectorAll(CUENTA + ", .barras, .gantt").forEach(function (el) { if (aLaVista(el)) el.classList.add("visible"); else io.observe(el); });
+    window.addEventListener("beforeprint", function () { document.querySelectorAll(".revela, .barras, .gantt").forEach(function (el) { el.classList.add("visible"); }); });
+  }
+
   /* Cada parte arranca aislada: un fallo en una no impide montar las siguientes. */
   function iniciar(partes) {
     partes.forEach(function (f) {
       try { f(); } catch (e) { if (window.console) console.error("No se pudo iniciar " + (f.name || "una parte del sitio"), e); }
     });
   }
-  /* sitio.js se carga antes que los archivos de interactivos. La cabecera, el pie y las ayudas de lectura
-     se arman en cuanto llega, sin esperar esos archivos. Los interactivos se montan después de
+  /* sitio.js se carga antes que los archivos de interactivos. Las ayudas de lectura se arman en cuanto
+     llega, sin esperar esos archivos. Los interactivos se montan después de
      DOMContentLoaded, cuando todos los scripts diferidos ya registraron sus funciones. */
   function alListo(fn) {
     if (document.readyState === "complete") { fn(); return; }
@@ -1047,9 +845,9 @@
     window.addEventListener("load", una);
   }
   function arrancar() {
-    iniciar([bibliografiaTrasladada, cabecera, pie, capitulo, progreso, arriba, videos, bucles, ampliar, comparadores, citasYTerminos, buscador, glosario, bibliografia, copiarCitas, materiales, etapas, plegados]);
+    iniciar([bibliografiaTrasladada, capitulo, progreso, arriba, videos, bucles, ampliar, comparadores, citasYTerminos, glosario, bibliografia, copiarCitas, materiales, etapas, plegados]);
     document.documentElement.classList.add("js");
-    alListo(function () { iniciar([interactivos, destacarHash, tablasDesplazables]); });
+    alListo(function () { iniciar([interactivos, destacarHash, tablasDesplazables, animaciones]); });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", arrancar); else arrancar();
   window.SITIO.quieto = quieto;

@@ -39,15 +39,6 @@ module = ('/* Generado por herramientas/datos.py desde JSON y CSV; no editar a m
           '})(typeof globalThis!=="undefined"?globalThis:this);\n')
 write(ROOT / 'datos/proyecto.js', module)
 
-note = ('<!-- ESTADO ACADEMICO: generado por herramientas/datos.py -->\n'
-        '<aside class="aviso-academico" aria-label="Estado de la investigación"><div class="wrap">'
-        '<b>' + html.escape(academic['estado_texto']) + '</b><span>' + html.escape(academic['nota']) + '</span>'
-        '<a href="recursos.html#estado-academico">Estado y procedencia</a></div></aside>\n'
-        '<!-- FIN ESTADO ACADEMICO -->')
-fallback = ('<noscript><nav class="nav-estatica wrap" aria-label="Navegación sin JavaScript">'
-            '<a href="index.html#temas">Índice de temas</a> · <a href="preguntas.html">Preguntas</a> · '
-            '<a href="laboratorio.html">Laboratorio</a> · <a href="recursos.html">Recursos y glosario</a>'
-            '</nav></noscript>')
 MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
 
 
@@ -93,6 +84,7 @@ detalle = ('<!-- ESTADO DETALLE: generado por herramientas/datos.py desde datos/
 # siguen los temas de la guía, y cada referencia enlaza las secciones de la guía donde se explica.
 sys.path.insert(0, str(ROOT / 'herramientas'))
 from bibliografia import Bibliografia, fecha_texto  # noqa: E402
+import marco  # noqa: E402
 TEMAS = ['problema', 'robot', 'movimiento', 'control', 'mapeo', 'navegacion', 'exploracion', 'gemelo', 'resultados', 'replicar']
 EXTRAS = {'mundo-real': 'En el mundo real', 'lecciones': 'Lecciones de ingeniería'}
 titulos_h2 = {}
@@ -114,6 +106,11 @@ def destino(href):
     return '<a href="%s">%s</a> (%s)' % (html.escape(href), html.escape(titulos_h2[pag][ancla]), tema)
 
 
+from planificacion import bloque_costos, bloque_gantt  # noqa: E402
+frame = marco.plantillas(academic)
+write(ROOT / 'web/src/generado/marco.json', marco.json_astro(academic))
+costos = bloque_costos()
+gantt = bloque_gantt()
 bib = Bibliografia(json.loads((ROOT / 'datos/bibliografia.json').read_text(encoding='utf-8')), destino)
 bibliografia = bib.pagina()
 bibliografia_mapa = bib.mapa_pagina()
@@ -132,12 +129,16 @@ for path in sorted(ROOT.glob('*.html')):
         text = re.sub(r'<!-- TRASLADO BIBLIOGRAFIA:.*?<!-- FIN TRASLADO BIBLIOGRAFIA -->', lambda _: bibliografia_traslado, text, flags=re.S)
     if 'BIBLIOGRAFIA RESUMEN:' in text:
         text = re.sub(r'<!-- BIBLIOGRAFIA RESUMEN:.*?<!-- FIN BIBLIOGRAFIA RESUMEN -->', lambda _: bibliografia_resumen, text, flags=re.S)
+    if 'COSTOS DETALLE:' in text:
+        text = re.sub(r'<!-- COSTOS DETALLE:.*?<!-- FIN COSTOS DETALLE -->', lambda _: costos, text, flags=re.S)
+    if 'CARTA GANTT:' in text:
+        text = re.sub(r'<!-- CARTA GANTT:.*?<!-- FIN CARTA GANTT -->', lambda _: gantt, text, flags=re.S)
     if 'ESTADO DETALLE:' in text:
         text = re.sub(r'<!-- ESTADO DETALLE:.*?<!-- FIN ESTADO DETALLE -->', lambda _: detalle, text, flags=re.S)
-    if 'ESTADO ACADEMICO:' in text:
-        text = re.sub(r'<!-- ESTADO ACADEMICO:.*?<!-- FIN ESTADO ACADEMICO -->', lambda _: note, text, flags=re.S)
-    else:
-        text = text.replace('<div id="cabecera"></div>', '<div id="cabecera"></div>\n' + note + '\n' + fallback)
+    if 'CABECERA:' in text:
+        text = re.sub(r'(<!-- CABECERA:[^>]*-->\n).*?(<!-- FIN CABECERA -->)', lambda m: m.group(1) + marco.marcar(frame['cabecera'], path.stem) + '\n' + m.group(2), text, flags=re.S)
+    if 'PIE:' in text:
+        text = re.sub(r'(<!-- PIE:[^>]*-->\n).*?(<!-- FIN PIE -->)', lambda m: m.group(1) + frame['pie'] + '\n' + m.group(2), text, flags=re.S)
     if '<script src="datos/proyecto.js" defer></script>' not in text:
         text = text.replace('<script src="js/comun.js" defer></script>', '<script src="datos/proyecto.js" defer></script>\n<script src="js/comun.js" defer></script>')
     write(path, text)

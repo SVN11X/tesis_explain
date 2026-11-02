@@ -26,8 +26,7 @@
     return "rgba(" + ((n >> 16) & 255) + "," + ((n >> 8) & 255) + "," + (n & 255) + "," + a + ")";
   }
   /* Los colores salen de las variables CSS del elemento. Un contenedor con data-paleta="oscura"
-     redefine esas variables (la simulación de la portada usa el azul noche del sitio) y se dibuja
-     como en el tema oscuro, sin importar el tema de la página. */
+     redefine esas variables y se dibuja con trazos claros sobre fondo oscuro. */
   function paleta(el) {
     var c = function (n) { return css(n, el); };
     return {
@@ -35,8 +34,7 @@
       ink: c("--ink"), muted: c("--muted"), azul: c("--azul"), verde: c("--verde-texto"), verdeV: c("--verde"),
       rojo: c("--rojo"), ambar: c("--ambar"), violeta: c("--violeta"), desc: c("--desc"), obst: c("--obst"),
       s1: c("--s1"), s2: c("--s2"), s3: c("--s3"), s4: c("--s4"),
-      oscuro: !!(el && el.closest && el.closest('[data-paleta="oscura"]')) || document.documentElement.getAttribute("data-theme") === "dark" ||
-        (document.documentElement.getAttribute("data-theme") !== "light" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches)
+      oscuro: !!(el && el.closest && el.closest('[data-paleta="oscura"]'))
     };
   }
   /* crea un canvas nítido en pantallas de alta densidad y lo redimensiona con su contenedor.
@@ -63,7 +61,6 @@
     if ("ResizeObserver" in window) new ResizeObserver(function () { medir(); }).observe(padre);
     return o;
   }
-  function alTema(fn) { document.addEventListener("temacambio", function () { setTimeout(fn, 30); }); }
   function quieto() { return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches; }
   function fmt(v, d) { return U ? U.fmt(v, d) : v.toFixed(d).replace(".", ","); }
   function limitar(v, a, b) { return Math.max(a, Math.min(b, v)); }
@@ -367,7 +364,6 @@
     var cont = el.querySelector(".ex-lienzo");
     var L = lienzo(cont, hero ? 16 / 10.5 : 16 / 10, function () { dibujar(); });
     var P = paleta(el);
-    alTema(function () { P = paleta(el); dibujar(); });
 
     function dibujar() {
       if (!conoc) return;
@@ -514,7 +510,6 @@
       '<p class="vnota" id="ci-nota">El centro de giro es el punto alrededor del cual el robot gira en ese instante. Está sobre la línea que une las dos ruedas, del lado de la rueda más lenta. Cada rueda recorre su propio círculo alrededor de ese punto, y la de afuera va más rápido porque su círculo es más largo. Ticks por ciclo son los flancos de encoder que se cuentan en cada rueda durante 1/30 s, la unidad con que trabaja el control del capítulo 4. La animación avanza 1,5 veces más rápido que el robot real.</p>';
     var cont = el.querySelector(".ci-l"), L = lienzo(cont, 16 / 10, function () { dibujar(); });
     L.cv.setAttribute("role", "img"); L.cv.setAttribute("aria-describedby", "ci-nota");
-    alTema(function () { P = paleta(); dibujar(); });
     var VIEW = 3.2, VIEW_H = VIEW / 1.6;  /* metros visibles de ancho y de alto */
     /* Si el círculo cabe, el robot parte de modo que su centro de giro quede al centro del dibujo
        y da vueltas sin salirse. Si no cabe o va recto, parte desde un costado. */
@@ -628,7 +623,6 @@
       '<p class="vnota">Ilustración con un imán de 6 pares de polos y la rueda girando muy lento. Usa Avanzar un paso: la primera cuenta sube en cada flanco y la segunda solo en uno de cada cuatro. Esa es la multiplicación por cuatro. En el robot, contar los cuatro flancos da 1980 por vuelta de rueda, unos 0,11 mm de avance por flanco, porque el sensor está en el eje del motor, antes de la caja reductora. Contando solo las subidas de A serían 495 por vuelta, unos 0,43 mm cada una.</p>';
     var cont = el.querySelector(".en-l"), L = lienzo(cont, 16 / 7, function () { dibujar(); });
     L.cv.setAttribute("role", "img"); L.cv.setAttribute("aria-label", "Disco magnético del encoder y las señales de los canales A y B en el tiempo");
-    alTema(function () { P = paleta(); dibujar(); });
     function canal(a, desfase) { return Math.sin(polos * a + desfase) >= 0 ? 1 : 0; }
     function avanzarAng(da) {
       ang += da;
@@ -731,7 +725,6 @@
       '<div class="vctl"><button type="button" class="vbtn sec" data-a="borrar" disabled>Quitar la curva anterior</button></div>' +
       '<p class="vnota">Modelo ilustrativo de una rueda con un retardo de primer orden, una ganancia y una constante de tiempo del orden de las que identifiqué, y el PWM limitado a 255. Unidades de este simulador: P en PWM por cada m/s de error. I en PWM por cada m/s de error sostenido durante 1 s. D en PWM por cada m/s de error que cambia en 1 s. Estas ganancias no son las del firmware, que usa otra escala y otra ley. Las lecturas usan el último segundo como valor estabilizado.</p>';
     var cont = el.querySelector(".pid-l"), L = lienzo(cont, function (w) { return w < 520 ? 4 / 3 : 16 / 7; }, function () { dibujar(); });
-    alTema(function () { P = paleta(); dibujar(); });
     function sim(c) { return CM.simularPID(c); }
     function medidas(d) { return CM.medidasPID(d); }
     function dibujar() {
@@ -840,7 +833,6 @@
       '<p class="vnota">El peso de inercia dice cuánto conserva cada partícula de su velocidad anterior: alto al comienzo, para explorar, y bajo al final, para afinar cerca de lo mejor encontrado. La dispersión es la distancia media de las partículas al mejor punto, en porcentaje del lado del dibujo. El costo de este dibujo es ilustrativo y no tiene unidad.</p>' +
       '<p class="vnota">Ilustración en dos dimensiones para poder dibujarla. En el script de sintonía cada partícula tiene tres coordenadas, Kp, Kd y Ki, y su costo se calcula simulando el modelo de cada rueda. Se usan los mismos parámetros del script, factor de constricción 0,7298, coeficientes 2,05 y peso de inercia que baja de 1 a 0.</p>';
     var cont = el.querySelector(".pso-l"), L = lienzo(cont, 16 / 9, function () { mapa = null; dibujar(); });
-    alTema(function () { P = paleta(); mapa = null; dibujar(); });
     function fondo(W, H) {
       var c = document.createElement("canvas"); c.width = 160; c.height = 90; var cx = c.getContext("2d"), img = cx.createImageData(160, 90);
       var mn = Infinity, mx = -Infinity, vals = [];
@@ -910,7 +902,6 @@
     var cont = el.querySelector(".in-l"), L = lienzo(cont, Wm / Hm, function () { dibujar(); });
     L.cv.classList.add("arrastrable"); L.cv.tabIndex = 0; L.cv.setAttribute("role", "img");
     L.cv.setAttribute("aria-describedby", uid + "-ayuda");
-    alTema(function () { P = paleta(); dibujar(); });
     var dist = new Float32Array(C * F);
     function distancias() {
       for (var i = 0; i < C * F; i++) {
@@ -1023,7 +1014,6 @@
        muestra 50 cm de ancho alrededor del robot. */
     var ANCHO_ZOOM = 0.5, LZ = lienzo(el.querySelector(".dw-z"), 1.8, function () { dibujar(); });
     LZ.cv.setAttribute("role", "img"); LZ.cv.setAttribute("aria-label", "Vista ampliada alrededor del robot: las trayectorias candidatas, las descartadas y la elegida");
-    alTema(function () { P = paleta(); dibujar(); });
     function evaluarCandidatas() {
       var out = [];
       for (var i = 0; i < 7; i++) for (var j = 0; j < 15; j++) {

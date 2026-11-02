@@ -56,7 +56,7 @@ with sync_playwright() as pw:
         p.on('pageerror', lambda e: errors.append(str(e)))
         p.on('console', lambda m: errors.append(m.text) if m.type == 'error' else None)
         p.goto(BASE + '/control.html')
-        p.locator('details').evaluate_all('nodes => nodes.forEach(n => n.open=true)')
+        p.locator('main details').evaluate_all('nodes => nodes.forEach(n => n.open=true)')
         visuales = ['lazo-rueda', 'estacionario', 'tiempo', 'leyes', 'papeles', 'cancelacion', 'acumulador', 'ciclo', 'truncamiento', 'windup', 'zonas', 'fopdt', 'pso', 'resolucion', 'estabilidad']
         for v in visuales + ['pid', 'enjambre']:
             p.locator('[data-vis="%s"]' % v).scroll_into_view_if_needed()

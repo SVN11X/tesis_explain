@@ -48,6 +48,7 @@ for step in ['datos.py', 'indice.py']:
         check(not indice.comprobar_anclas(expected), 'índice: anclas inválidas')
         current = (ROOT/'datos/indice.js').read_text()
         check(json.loads(current.split('window.INDICE = ',1)[1].rsplit(';',1)[0]) == expected, 'índice desactualizado')
+        check((ROOT/'datos/secciones.js').exists() and (ROOT/'datos/secciones.js').read_text() == indice.js_secciones(indice.secciones()), 'secciones del índice lateral desactualizadas')
 if failures:
     raise SystemExit('\n'.join(failures))
 print('%d verificaciones estáticas correctas en %d páginas' % (checks, len(pages)))

@@ -73,7 +73,7 @@
       catch (e) { if (token === version) { current = null; error(e.message || 'No se pudo analizar el archivo.'); busy(false); } }
     }
     /* Dibujo de mapas: una imagen por píxel de celda, ampliada sin suavizar. Los colores son
-       fijos para que el mapa se lea igual en tema claro u oscuro, y se explican en la leyenda. */
+       fijos, como los grises de un mapa PGM, y se explican en la leyenda. */
     var COLORES_CLASE = [[250, 250, 250], [30, 38, 50], [154, 165, 180]];
     var COLORES_DIF = [[200, 206, 215], [250, 250, 250], [30, 38, 50], [198, 40, 40], [0, 78, 170], [178, 107, 0]];
     function lienzoMapa(ancho, alto, valores, colores, rect, resolucion, etiqueta) {

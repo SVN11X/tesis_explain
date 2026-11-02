@@ -1,0 +1,173 @@
+/* Marco común de todas las páginas: cabecera, menú del teléfono, aviso académico, pie y buscador.
+   Lo cargan la portada y los laboratorios, compilados con Astro, y las páginas de la guía. El marcado
+   sale de herramientas/plantillas/, así que el marco se ve y se comporta igual en todo el sitio. */
+
+:root {
+  --paper: #f1f1e9;
+  --ink: #182825;
+  --muted: #58655c;
+  --line: #ccd0c3;
+  --acid: #dbea7b;
+  --night: #142222;
+  --oliva: #769631;
+  --foco: #578000;
+  --marco-gutter: clamp(22px, 4.6vw, 80px);
+  --marco-ease: cubic-bezier(.2, .65, .25, 1);
+  --marco-mono: "IBM Plex Mono", Plex, ui-monospace, monospace;
+  --marco-titulo: Archivo, "Archivo Respaldo", Arial, sans-serif;
+}
+
+html, body { background: var(--paper); }
+/* Íconos de Phosphor Icons (MIT, ver LICENSE-iconos.txt): rellenos que toman el color del texto */
+svg.ph { fill: currentColor; stroke: none; }
+
+.skip-link { position: fixed; z-index: 100; top: 8px; left: 20px; background: var(--ink); color: var(--paper); padding: 14px 20px; transform: translateY(-180%); text-decoration: none; }
+.skip-link:focus { transform: none; }
+
+/* Cabecera */
+.site-header { height: 96px; padding: 0 var(--marco-gutter); display: flex; align-items: center; justify-content: space-between; gap: 28px; border-bottom: 1px solid var(--line); position: relative; z-index: 20; max-width: 1600px; margin: auto; background: var(--paper); color: var(--ink); font-size: 13px; line-height: 1.5; }
+.site-header a, .site-footer a, .academic-note a, .search-dialog a { color: inherit; text-decoration: none; }
+.brand { display: flex; align-items: center; gap: 12px; font-family: var(--marco-titulo); font-size: 13px; line-height: 1.08; font-weight: 700; letter-spacing: .025em; }
+.brand svg { width: 34px; height: 34px; flex-shrink: 0; stroke: currentColor; stroke-width: 1.4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.brand svg .lidar-centro { fill: currentColor; stroke: none; }
+.brand svg .barrido, .brand-dot { color: var(--oliva); stroke: var(--oliva); }
+.desktop-nav { display: flex; gap: 32px; font-size: 13px; }
+.desktop-nav a { position: relative; padding-block: 15px; }
+.desktop-nav a::after { position: absolute; content: ""; bottom: 7px; left: 0; width: 100%; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: left; transition: transform .25s var(--marco-ease); }
+.desktop-nav a:hover::after, .desktop-nav a[aria-current]::after { transform: scaleX(1); }
+.header-actions { display: flex; align-items: center; gap: 22px; }
+.search-trigger { background: none; border: 0; display: flex; align-items: center; gap: 8px; padding: 10px 0; font: inherit; font-family: var(--marco-mono); font-size: 11px; color: var(--muted); cursor: pointer; }
+/* Sin JavaScript el buscador no funciona: el botón conserva su lugar pero no se muestra hasta que js/marco.js lo activa. */
+.search-trigger:not(.listo) { visibility: hidden; }
+.search-trigger svg { height: 18px; width: 18px; fill: var(--ink); }
+.header-build { font-size: 13px; border-left: 1px solid var(--line); padding: 10px 0 10px 22px; }
+.header-build span { padding-left: 10px; }
+.header-build[aria-current] { text-decoration: underline; text-underline-offset: 4px; }
+
+/* Menú del teléfono: un details que funciona sin JavaScript. js/marco.js lo vuelve modal y le agrega
+   las secciones de la página y la guía numerada. */
+.mobile-menu { display: none; font-size: 12px; }
+.mobile-menu > summary { list-style: none; display: flex; align-items: center; gap: 12px; min-height: 44px; padding-block: 10px; cursor: pointer; }
+.mobile-menu > summary::-webkit-details-marker { display: none; }
+.mobile-menu > summary svg { width: 20px; height: 20px; fill: currentColor; transition: transform .25s var(--marco-ease); }
+.mobile-menu[open] > summary svg { transform: rotate(45deg); }
+.menu-panel { position: absolute; right: 0; left: 0; top: calc(100% + 1px); max-height: calc(100dvh - 78px); overflow-y: auto; overscroll-behavior: contain; padding: 8px var(--marco-gutter) 26px; background: var(--paper); border-bottom: 1px solid var(--line); box-shadow: 0 15px 25px #18282515; }
+.menu-panel nav { display: flex; flex-direction: column; }
+.menu-panel a { display: flex; align-items: center; gap: 14px; min-height: 44px; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+.menu-panel a[aria-current] { background: #e0e6c9; }
+.menu-panel a:hover { background: #e6eadb; }
+.menu-panel .menu-grupo { font-family: var(--marco-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 22px 0 6px; }
+.menu-panel .n { font-family: var(--marco-mono); font-size: 11px; color: var(--muted); min-width: 1.6em; }
+.menu-panel .menu-secciones a { padding-left: 24px; }
+.menu-panel .menu-secciones a.activo { box-shadow: inset 2px 0 0 var(--oliva); }
+
+/* Aviso académico, igual en todas las páginas, bajo la cabecera */
+.academic-note { padding: 10px var(--marco-gutter); border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 25px; font-size: 12px; line-height: 1.45; max-width: 1600px; margin: auto; color: var(--ink); }
+.academic-note > div { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.academic-note strong { font-weight: 400; }
+.academic-note p { color: var(--muted); margin: 0; }
+.academic-note > a { white-space: nowrap; text-decoration: underline; text-underline-offset: 3px; display: inline-flex; align-items: center; gap: .3em; min-height: 32px; }
+.status-dot { width: 6px; height: 6px; background: var(--oliva); border-radius: 50%; flex-shrink: 0; }
+
+/* Pie */
+.site-footer { padding: 60px var(--marco-gutter) 25px; background: #182826; color: #dae2ca; max-width: 1600px; margin: auto; font-size: 13px; line-height: 1.5; }
+.footer-top { display: flex; justify-content: space-between; gap: 50px; padding-bottom: 55px; }
+.footer-title { font-family: var(--marco-titulo); font-weight: 400; font-size: clamp(35px, 4.7vw, 65px); line-height: 1.1; letter-spacing: -.055em; max-width: 600px; }
+.footer-title > .flecha { font-size: 38px; color: #d8e98c; }
+.footer-links { display: grid; gap: 13px; min-width: 190px; font-size: 13px; align-content: center; }
+.footer-links a:hover, .footer-meta a:hover, .footer-bottom a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.footer-meta { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 40px; padding: 22px 0; border-top: 1px solid #415044; font-size: 12px; color: #c3cfb2; }
+.footer-meta p { margin: 0; max-width: 46ch; }
+.footer-meta b { font-weight: 400; color: #e8efd8; }
+.footer-meta a { text-decoration: underline; text-underline-offset: 3px; }
+.footer-bottom { display: flex; justify-content: space-between; gap: 25px; padding-top: 23px; border-top: 1px solid #415044; font-size: 12px; color: #aebc9f; }
+.footer-bottom p { margin: 0; }
+.footer-bottom p > span { color: #a5b596; }
+.footer-bottom a { color: #d2ddbd; white-space: nowrap; }
+.footer-bottom p a { text-decoration: underline; text-underline-offset: 3px; }
+
+/* Buscador */
+.search-dialog { border: 1px solid #88977b; background: var(--paper); color: var(--ink); padding: 25px; width: min(680px, calc(100vw - 30px)); max-height: 80dvh; top: 12dvh; margin: 0 auto; box-shadow: 0 25px 90px #0b1e1955; font-size: 14px; line-height: 1.5; }
+.search-dialog::backdrop { background: #0d211da6; backdrop-filter: blur(8px); }
+.search-heading { display: flex; align-items: center; justify-content: space-between; font-size: 14px; }
+.search-heading button { background: none; border: 0; display: grid; place-items: center; width: 44px; height: 44px; margin-right: -10px; cursor: pointer; color: inherit; }
+.search-heading button svg { width: 22px; height: 22px; fill: currentColor; }
+.search-dialog > input { width: 100%; background: #e4e9da; border: 1px solid #a9b79a; border-radius: 0; padding: 16px; margin-top: 12px; font: inherit; font-size: 19px; color: var(--ink); }
+.search-dialog > input:focus-visible { outline: 3px solid var(--foco); outline-offset: 2px; }
+.search-status { font-size: 12px; color: #4f6344; padding: 14px 0; margin: 0; }
+.search-results { padding: 0; margin: 0; list-style: none; }
+.search-results li { border-top: 1px solid var(--line); }
+.search-results a { display: block; padding: 15px 8px; outline-offset: -3px; }
+.search-results a:hover, .search-results a.sel { background: #dfe7ce; }
+.search-results a:focus-visible { background: #dfe7ce; outline: 3px solid var(--foco); }
+.search-results span { display: block; font-family: var(--marco-mono); font-size: 11px; color: var(--muted); }
+.search-results strong { display: block; font-family: var(--marco-titulo); font-size: 16px; font-weight: 550; margin-block: 5px; }
+.search-results p { font-size: 13px; color: #4f5c52; margin: 0; }
+.search-results mark { background: var(--acid); color: inherit; }
+.search-suggest { display: grid; gap: 18px; padding-bottom: 6px; }
+.search-suggest h2 { line-height: 1.4; display: flex; align-items: center; justify-content: space-between; gap: 12px; font-family: var(--marco-mono); font-size: 11px; font-weight: 400; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+.search-suggest h2 svg { width: 14px; height: 14px; fill: currentColor; vertical-align: -2px; margin-right: 6px; }
+.search-suggest ul { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 0; padding: 0; }
+.search-suggest .chip { background: none; border: 1px solid #a9b79a; color: var(--ink); font: inherit; font-size: 13px; padding: 8px 12px; min-height: 36px; cursor: pointer; }
+.search-suggest .chip:hover, .search-suggest .chip:focus-visible { background: var(--acid); border-color: var(--ink); }
+.search-suggest .borrar { background: none; border: 0; padding: 6px 0; font: inherit; font-size: 12px; letter-spacing: 0; text-transform: none; text-decoration: underline; text-underline-offset: 3px; color: var(--ink); cursor: pointer; }
+.search-help { font-family: var(--marco-mono); font-size: 11px; color: var(--muted); padding-top: 20px; margin: 0; }
+
+.site-header :focus-visible, .academic-note :focus-visible, .site-footer :focus-visible, .search-dialog button:focus-visible, .mobile-menu :focus-visible { outline: 3px solid var(--foco); outline-offset: 4px; }
+.site-footer :focus-visible { outline-color: var(--acid); }
+
+@media (max-width: 1150px) {
+  .desktop-nav { gap: 22px; }
+}
+@media (max-width: 860px) {
+  .site-header { height: 80px; }
+  .desktop-nav { gap: 17px; font-size: 12px; }
+  .header-build { display: none; }
+  .header-actions { gap: 10px; }
+  .search-trigger .mono { display: none; }
+  .academic-note > div { gap: 8px; }
+  .footer-meta { grid-template-columns: 1fr 1fr; }
+  .footer-bottom { flex-wrap: wrap; }
+}
+@media (max-width: 640px) {
+  :root { --marco-gutter: 22px; }
+  .site-header { height: 77px; gap: 15px; }
+  .brand { font-size: 11px; gap: 9px; }
+  .brand svg { width: 29px; height: 29px; }
+  .desktop-nav { display: none; }
+  .header-actions { gap: 18px; }
+  .search-trigger { min-height: 44px; min-width: 44px; justify-content: center; }
+  .mobile-menu { display: block; }
+  /* En el teléfono el aviso es un párrafo corrido: sigue a la vista sin empujar el contenido. */
+  .academic-note { display: block; padding-block: 9px; }
+  .academic-note > div, .academic-note p { display: inline; }
+  .academic-note strong::after { content: ". "; }
+  .status-dot { display: inline-block; vertical-align: 2px; margin-right: 6px; }
+  .academic-note > a { display: inline-block; min-height: 0; padding-block: 5px; margin-left: .3em; white-space: normal; }
+  .site-footer { padding-top: 40px; }
+  .footer-top { flex-direction: column; gap: 35px; padding-bottom: 35px; }
+  .footer-title { font-size: 44px; }
+  .footer-title > .flecha { font-size: 30px; }
+  .footer-links { grid-template-columns: 1fr 1fr; gap: 6px 15px; font-size: 13px; }
+  .footer-links a { display: flex; align-items: center; min-height: 44px; }
+  .footer-meta { grid-template-columns: 1fr; }
+  .footer-bottom { flex-direction: column; gap: 17px; }
+  .search-dialog { padding: 20px; top: 6dvh; max-height: 87dvh; }
+  .search-dialog > input { font-size: 17px; }
+}
+@media (max-width: 360px) {
+  :root { --marco-gutter: 17px; }
+  .footer-title { font-size: 39px; }
+}
+@media (pointer: coarse) {
+  .brand, .header-build { min-height: 44px; }
+  .search-trigger { min-height: 44px; min-width: 44px; justify-content: center; }
+  .footer-bottom a { min-height: 44px; display: inline-flex; align-items: center; }
+  .search-suggest .chip { min-height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .desktop-nav a::after, .mobile-menu > summary svg { transition: none; }
+}
+@media print {
+  .site-header, .mobile-menu, .search-dialog, .site-footer { display: none !important; }
+}
