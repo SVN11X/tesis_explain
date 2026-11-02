@@ -118,18 +118,36 @@ with sync_playwright() as pw:
         check(not errors, name + ': sin errores JavaScript')
         ctx.close()
 
-    # Navegación modal: foco, aislamiento, Escape y regreso al botón.
-    ctx = browser.new_context(viewport=dict(width=390, height=844))
-    ctx.route(re.compile(r'^https?://(?!localhost)'), lambda r: r.fulfill(status=200, body=''))
-    p = ctx.new_page(); p.goto(BASE + '/problema.html'); p.click('#btn-menu')
-    check(p.locator('#contenido').evaluate('el => el.inert'), 'Menú móvil aísla el contenido de fondo')
-    p.locator('#cajon a').last.focus(); p.keyboard.press('Tab')
-    check(p.evaluate("document.activeElement === document.querySelector('#cajon a')"), 'Tab al final vuelve al primer control del diálogo')
-    p.keyboard.press('Shift+Tab')
-    check(p.evaluate("document.activeElement === [...document.querySelectorAll('#cajon a, #cajon button')].at(-1)"), 'Shift+Tab recorre en sentido inverso')
-    p.keyboard.press('Escape')
-    check(p.evaluate("document.activeElement.id === 'btn-menu' && !document.querySelector('#contenido').inert"), 'Escape restaura foco y contenido')
-    ctx.close()
+    # Navegación modal: el artículo puede heredar el aislamiento de .cap-layout.
+    # HTMLElement.inert refleja solo el atributo propio, no el de sus ancestros.
+    # Probar también el foco evita aceptar un atributo que no bloquee el fondo.
+    for width in (320, 390, 768):
+        ctx = browser.new_context(viewport=dict(width=width, height=844))
+        ctx.route(re.compile(r'^https?://(?!localhost)'), lambda r: r.fulfill(status=200, body=''))
+        for page in ('problema.html', 'laboratorio.html'):
+            label = '%s a %d px: ' % (page, width)
+            p = ctx.new_page(); p.goto(BASE + '/' + page)
+            fondo = p.locator('#contenido a[href]:visible').first
+            fondo.focus()
+            expect(fondo).to_be_focused()
+            p.click('#btn-menu')
+            expect(p.locator('#btn-menu')).to_have_attribute('aria-expanded', 'true')
+            check(p.locator('#contenido').evaluate("el => !!el.closest('[inert]')"), label + 'menú aísla el contenido de fondo')
+            expect(p.locator('#cajon a').first).to_be_focused()
+            fondo.focus()
+            check(not fondo.evaluate('el => el === document.activeElement') and p.evaluate("document.querySelector('#cajon').contains(document.activeElement)"), label + 'el fondo no puede recibir foco mientras el menú está abierto')
+            p.locator('#cajon a').last.focus(); p.keyboard.press('Tab')
+            check(p.locator('#cajon a').first.evaluate('el => el === document.activeElement'), label + 'Tab al final vuelve al primer control del diálogo')
+            p.keyboard.press('Shift+Tab')
+            check(p.locator('#cajon a, #cajon button').last.evaluate('el => el === document.activeElement'), label + 'Shift+Tab recorre en sentido inverso')
+            p.keyboard.press('Escape')
+            expect(p.locator('#btn-menu')).to_have_attribute('aria-expanded', 'false')
+            expect(p.locator('#btn-menu')).to_be_focused()
+            check(p.locator('#contenido').evaluate("el => !el.closest('[inert]')"), label + 'Escape restaura foco y contenido')
+            fondo.focus()
+            check(fondo.evaluate('el => el === document.activeElement'), label + 'el fondo vuelve a recibir foco después de cerrar')
+            p.close()
+        ctx.close()
 
     ctx = browser.new_context(viewport=dict(width=1366, height=900), reduced_motion='reduce')
     ctx.route(re.compile(r'^https?://(?!localhost)'), lambda r: r.fulfill(status=200, body=''))

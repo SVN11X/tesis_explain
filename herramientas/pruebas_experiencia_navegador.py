@@ -328,7 +328,7 @@ def glosario_y_menu(nav):
     destino.tap()
     p.wait_for_timeout(400)
     r = p.evaluate("""a => ({ hash: location.hash, abierto: document.getElementById('cajon').classList.contains('abierto'),
-      arriba: document.querySelector(a).getBoundingClientRect().top, alto: innerHeight, inerte: document.getElementById('contenido').inert })""", ancla)
+      arriba: document.querySelector(a).getBoundingClientRect().top, alto: innerHeight, inerte: !!document.getElementById('contenido').closest('[inert]') })""", ancla)
     check(r['hash'] == ancla and not r['abierto'] and not r['inerte'] and 0 <= r['arriba'] < r['alto'], 'una sección del menú cierra el menú y lleva a su título', r)
     ctx.close()
 

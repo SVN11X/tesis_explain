@@ -1,6 +1,6 @@
-# Experiencia visual y laboratorio de percepción · V1.2
+# Experiencia visual y laboratorio de percepción · V1.3
 
-Correcciones del 1 de noviembre de 2026: explicaciones de portada recuperadas (V1.1) y verificación de compilación entre entornos corregida (V1.2).
+Correcciones del 1 de noviembre de 2026: explicaciones de portada recuperadas (V1.1) y verificación de compilación entre entornos corregida (V1.2) y prueba de aislamiento del menú móvil corregida (V1.3).
 
 ## Qué cambia
 
@@ -35,7 +35,17 @@ npm ci
 npm run dev
 ```
 
-Si **ya aplicaste el rediseño con las explicaciones recuperadas**, como en `main` del commit `9728d788350a4061c349879aa50ef27b07c43b7d`, usa solamente `tesis_explain_corregir_ci_cambios_git_am.patch`:
+Si **ya aplicaste la corrección de compilación**, como en `main` del commit `f70a2aba290a3df3975554399db35b00dcf195e7`, aplica únicamente el nuevo parche del menú:
+
+```powershell
+git status --short
+git am "$env:USERPROFILE\Downloads\tesis_explain_corregir_pruebas_menu_cambios_git_am.patch"
+if ($LASTEXITCODE -eq 0) { git push }
+```
+
+Este parche corrige dos pruebas de navegador y la documentación. Comprueba el aislamiento heredado del contenedor, el recorrido del foco y su recuperación en dos páginas a 320, 390 y 768 px. Los archivos publicados y sus explicaciones permanecen idénticos a esa base.
+
+Si **aún estás en `9728d788350a4061c349879aa50ef27b07c43b7d`**, aplica primero `tesis_explain_corregir_ci_cambios_git_am.patch`, que corrige la compilación, y después el nuevo parche del menú. El primer paso es:
 
 ```powershell
 git status --short
@@ -45,13 +55,13 @@ if ($LASTEXITCODE -eq 0) { git push }
 
 Revisa que `git status --short` no muestre cambios pendientes antes de aplicar el parche. Esta corrección modifica el flujo de verificación, añade su comprobador y pruebas, y actualiza la documentación. Conserva byte a byte los HTML, los recursos visuales, los modelos y las explicaciones publicados en esa base.
 
-Si todavía tienes la V1 inicial sin las explicaciones, el parche anterior `tesis_explain_restaurar_explicaciones_cambios_git_am.patch` recupera ese contenido; después corresponde aplicar la corrección de CI. El parche completo actualizado ya contiene ambas correcciones: no lo reapliques sobre una entrega instalada.
+Si todavía tienes la V1 inicial sin las explicaciones, el parche anterior `tesis_explain_restaurar_explicaciones_cambios_git_am.patch` recupera ese contenido; después corresponden la corrección de compilación y la de las pruebas del menú. El parche completo actualizado ya contiene todas las correcciones: no lo reapliques sobre una entrega instalada.
 
 En Windows, reemplaza `/ruta/` por la ubicación del archivo descargado. Abre `http://localhost:4321/tesis_explain/`. También puedes extraer el ZIP completo y ejecutar los dos comandos de npm en su carpeta. La nueva portada necesita un servidor HTTP: abrir el HTML directamente con `file://` no inicia los módulos.
 
 Si `main` recibió cambios después del commit base, conserva esa rama y revisa la integración antes de fusionar. Para cancelar una aplicación con conflictos, `git am --abort` vuelve al estado previo. El parche y el ZIP representan el mismo árbol de archivos, sin dependencias instaladas.
 
-El rediseño con explicaciones ya fue subido por el usuario a `main` (`9728d78`). Esta corrección de CI se entrega como archivos y aún no se ha subido desde aquí. Para actualizar, aplica el parche correspondiente y súbelo mediante tu flujo habitual. Los HTML y `_astro/` ya están compilados, y `.nojekyll` permite servir la carpeta de recursos.
+El rediseño con explicaciones y la corrección de compilación ya fueron subidos por el usuario a `main` (`f70a2ab`). La corrección de las pruebas del menú se entrega como archivos y aún no se ha subido desde aquí. Para actualizar, aplica el parche correspondiente y súbelo mediante tu flujo habitual. Los HTML y `_astro/` ya están compilados, y `.nojekyll` permite servir la carpeta de recursos.
 
 ## Archivos y compilación
 
@@ -74,13 +84,24 @@ Las dependencias están fijadas con `package-lock.json`. Las fuentes se sirven l
 
 WebGL añade materiales, iluminación de entorno y sombras. Si no está disponible, una proyección SVG de la misma geometría mantiene el giro, el despiece y el experimento. Ese modo reduce la frecuencia de dibujo y no reproduce los efectos de materiales de WebGL. Si ambos visores fallan, quedan la fotografía y el mapa 2D. Sin JavaScript se puede leer la portada, seguir los capítulos y ver la explicación alternativa del sensor.
 
+## Verificación de las pruebas del menú V1.3
+
+- El log `logs_112104990237 (1).zip` confirma que la compilación y su nueva comprobación pasaron. También pasaron 325 comprobaciones de control, 261 de mapeo y 214 de movimiento antes del fallo del menú.
+- La prueba consultaba `#contenido.inert`, que solo refleja el atributo del propio artículo. En los capítulos, el menú aísla su contenedor `.cap-layout`; el artículo queda bloqueado aunque su propiedad propia sea falsa.
+- Las pruebas corregidas consideran el ancestro `[inert]` y verifican que un enlace visible del fondo pueda recibir foco antes y después del menú, pero no mientras está abierto. Conservan Tab, Mayús+Tab y Escape. También comprueban la liberación del contenido al elegir una sección.
+- Revisión real en Chromium mediante la vista previa: dos páginas (`problema.html` y `laboratorio.html`) en marcos de 320, 390 y 768 px; aislamiento, ambos sentidos de Tab, Escape y recuperación del foco correctos. Navegar desde el menú a una sección cierra el panel, libera el artículo y sitúa el título en pantalla.
+- La sintaxis de los dos archivos Python, las 10 pruebas del comprobador de compilación y las 2.925 comprobaciones estáticas pasaron. Los 12 archivos compilados coinciden con la base; no se recompiló ni se modificó el sitio publicado.
+- El parche incremental parte de `f70a2ab`; el acumulativo parte de `fcb47bd`. Ambos se aplican y verifican contra el árbol entregado en copias limpias.
+- No se ha ejecutado aquí la suite completa de Playwright. La revisión dirigida en el navegador no sustituye esa suite; su resultado completo se confirmará en la siguiente ejecución de GitHub Actions.
+- Causa, alcance y reproducción: [correccion-ci-menu.md](correccion-ci-menu.md).
+
 ## Verificación de la corrección de CI V1.2
 
 - El log `logs_112063413767.zip` muestra que TypeScript/Svelte, las 7 pruebas LiDAR y la compilación pasaron. El fallo ocurrió únicamente al ejecutar `git diff --exit-code`, por los UID de Astro en dos HTML.
 - La diferencia de ambos HTML extraída del log pasa la nueva comparación. Ningún otro byte se ignora.
 - Compilación e índice regenerados en una copia Git situada en otra ruta: solo cambian esos UID y la comprobación pasa sobre los 12 archivos compilados.
 - 10 pruebas del nuevo comprobador: correctas, incluidos rechazos de cambios de contenido, atributos, JavaScript, CSS, índice, recursos ausentes y recursos nuevos.
-- Las pruebas posteriores de navegador no llegaron a ejecutarse en el flujo adjunto y no se han vuelto a ejecutar en esta corrección. El resultado final de GitHub Actions se confirmará al subir el parche y ejecutar el flujo completo.
+- Las pruebas posteriores de navegador no llegaron a ejecutarse en aquel primer log. El segundo log ya muestra su ejecución hasta el fallo descrito en V1.3; aún falta confirmar el flujo completo.
 - Véase [correccion-ci-astro.md](correccion-ci-astro.md) para la causa y el alcance.
 
 ## Verificación de la corrección V1.1
