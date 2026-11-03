@@ -21,7 +21,7 @@
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#f1f1e9" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#121a17" media="(prefers-color-scheme: dark)">
-<script>try{var t=localStorage.getItem("tema");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script>try{var t=localStorage.getItem("tema");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}try{var d=document.documentElement;if("IntersectionObserver"in window&&!matchMedia("(prefers-reduced-motion: reduce)").matches){d.classList.add("resaltado-animado");setTimeout(function(){if(!window.__resaltado)d.classList.remove("resaltado-animado")},3000)}}catch(e){}</script>
 <!-- FIN TEMA -->
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
 <link rel="preload" href="fuentes/archivo-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
@@ -92,7 +92,7 @@
 
 <section class="en-breve" aria-labelledby="t-breve">
   <h2 id="t-breve">Explorar hasta que no queden fronteras</h2>
-  <p>Una <span class="term" data-t="Frontera" data-def="Borde entre el espacio libre conocido y lo desconocido en un mapa.">frontera</span> es el borde entre el espacio libre conocido y lo desconocido. Ir hacia las fronteras hasta que no quede ninguna es una forma simple y efectiva de explorar, y cinco de seis exploraciones del robot real terminaron solas por ese criterio. El explorador vuelve a elegir destino cada 3,3 s y manda la nueva meta sin cancelar la anterior, que <span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span> cierra como abortada. Por eso 53 de las 54 metas abortadas cumplen un criterio temporal de asociación a reemplazos. El criterio es compatible con ese mecanismo, pero no descarta fallas de Nav2 al mismo tiempo.</p>
+  <p>Una <span class="term" data-t="Frontera" data-def="Borde entre el espacio libre conocido y lo desconocido en un mapa.">frontera</span> es el borde entre el espacio libre conocido y lo desconocido. <mark>Ir hacia las fronteras hasta que no quede ninguna es una forma simple y efectiva de explorar</mark>, y cinco de seis exploraciones del robot real terminaron solas por ese criterio. El explorador vuelve a elegir destino cada 3,3 s y <mark>manda la nueva meta sin cancelar la anterior</mark>, que <span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span> cierra como abortada. Por eso 53 de las 54 metas abortadas cumplen un criterio temporal de asociación a reemplazos. <mark>El criterio es compatible con ese mecanismo, pero no descarta fallas de Nav2 al mismo tiempo.</mark></p>
   <div class="cifras-mini">
     <div><b>5 <small>de 6</small></b><span>exploraciones terminaron solas, sin intervención del operador</span></div>
     <div><b>53 <small>de 54</small></b><span>metas abortadas coinciden en el tiempo con un reemplazo del propio explorador</span></div>
@@ -103,7 +103,7 @@
 
 <section>
   <h2 id="fronteras">La idea de frontera</h2>
-  <p>En 1997, Brian Yamauchi propuso una idea que sigue vigente. Para explorar un lugar desconocido, un robot debería ir hacia las regiones que separan lo que ya vio de lo que todavía no ha visto. Al llegar, observa, actualiza su mapa y vuelve a buscar <a class="ref" href="#f2">2</a>. En su propuesta, el robot elige la frontera accesible más cercana, hace un barrido de 360° al llegar, y si no logra avanzar en cierto tiempo marca esa frontera como inaccesible.</p>
+  <p>En 1997, Brian Yamauchi propuso una idea que sigue vigente. Para explorar un lugar desconocido, <mark>un robot debería ir hacia las regiones que separan lo que ya vio de lo que todavía no ha visto</mark>. Al llegar, observa, actualiza su mapa y vuelve a buscar <a class="ref" href="#f2">2</a>. En su propuesta, el robot elige la frontera accesible más cercana, hace un barrido de 360° al llegar, y si no logra avanzar en cierto tiempo marca esa frontera como inaccesible.</p>
   <p>La idea se mantiene en trabajos recientes que mejoran cómo se puntúa cada frontera <a class="ref" href="#f3">3</a>, y convive con enfoques más complejos, como los que estiman la ganancia de información de cada destino o el active <span class="term" data-def="Localización y mapeo simultáneos, es decir, construir el mapa y estimar la posición al mismo tiempo.">SLAM</span>, que también considera la incertidumbre del mapa <a class="ref" href="#f4">4</a>. Su ventaja es que necesita muy poco. Un mapa de ocupación y un sistema de navegación, justo lo que este robot ya tenía.</p>
   <p class="destacado">Explorar es repetir una pregunta simple: ¿dónde termina lo que conozco?</p>
 </section>
@@ -150,7 +150,7 @@
 
 <section>
   <h2 id="abortadas">Metas abortadas asociadas a reemplazos</h2>
-  <p>En las cinco exploraciones válidas se generaron 60 metas. A primera vista el resultado es alarmante. 54 quedaron abortadas, una se completó y cinco no alcanzaron a registrar su estado final <a class="ref" href="#f1">1</a>. ¿Falló la navegación casi siempre?</p>
+  <p>En las cinco exploraciones válidas se generaron 60 metas. A primera vista el resultado es alarmante. 54 quedaron abortadas, una se completó y cinco no alcanzaron a registrar su estado final <a class="ref" href="#f1">1</a>. <mark>¿Falló la navegación casi siempre?</mark></p>
   <aside class="nota-autor" hidden>
     <p class="nota-autor-rotulo">Nota del autor</p>
     <p>De las 60 metas de las cinco corridas válidas, 54 quedaron registradas como abortadas.</p>
@@ -193,7 +193,7 @@
 
 <section>
   <h2 id="lista-negra">El efecto secundario: la lista negra</h2>
-  <p>La lista negra existe para que el robot no insista para siempre en una frontera inalcanzable, la misma idea de Yamauchi. Un punto entra a la lista si pasan 10 s sin acercarse a él o si Nav2 responde que su meta quedó abortada. Como las metas reemplazadas también quedan abortadas, el explorador tacha fronteras que no fallaron.</p>
+  <p>La lista negra existe para que el robot no insista para siempre en una frontera inalcanzable, la misma idea de Yamauchi. Un punto entra a la lista si pasan 10 s sin acercarse a él o si Nav2 responde que su meta quedó abortada. Como las metas reemplazadas también quedan abortadas, <mark>el explorador tacha fronteras que no fallaron</mark>.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="flujo-lista">Cómo entra un punto a la lista negra</h3><span class="tipo datos">Datos de la tesis</span></div>
     <div class="vis" data-vis="listanegra"><p class="vis-fallback">Un punto entra a la lista por falta de progreso en 10 s o por una respuesta de meta abortada, incluso si fue reemplazada.</p></div>
@@ -204,7 +204,7 @@
 
 <section>
   <h2 id="medir-bien">Qué se aprende de estas metas</h2>
-  <p>La explicación apareció después de los ensayos, porque los contadores automáticos del script no medían lo que parecían medir. El contador de metas generadas quedó en cero, porque el mensaje que buscaba estaba en un nivel de registro que no se imprimía. Y los contadores de éxito y fallo sumaban una vez por cada mensaje de estado, no por cada meta <a class="ref" href="#f1">1</a>.</p>
+  <p>La explicación apareció después de los ensayos, porque <mark>los contadores automáticos del script no medían lo que parecían medir</mark>. El contador de metas generadas quedó en cero, porque el mensaje que buscaba estaba en un nivel de registro que no se imprimía. Y los contadores de éxito y fallo sumaban una vez por cada mensaje de estado, no por cada meta <a class="ref" href="#f1">1</a>.</p>
   <p>Lo pude corregir porque guardé completos los datos crudos. De aquí salen dos prácticas que sirven en cualquier proyecto. Registrar siempre identificadores únicos de cada evento que se quiera contar, y guardar los datos crudos además de los resúmenes, para reconstruir lo que pasó cuando un número no cuadra. El tema se amplía en <a href="lecciones.html#metricas">Lecciones de ingeniería</a>.</p>
 </section>
 

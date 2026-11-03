@@ -21,7 +21,7 @@
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#f1f1e9" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#121a17" media="(prefers-color-scheme: dark)">
-<script>try{var t=localStorage.getItem("tema");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script>try{var t=localStorage.getItem("tema");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}try{var d=document.documentElement;if("IntersectionObserver"in window&&!matchMedia("(prefers-reduced-motion: reduce)").matches){d.classList.add("resaltado-animado");setTimeout(function(){if(!window.__resaltado)d.classList.remove("resaltado-animado")},3000)}}catch(e){}</script>
 <!-- FIN TEMA -->
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
 <link rel="preload" href="fuentes/archivo-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
@@ -92,7 +92,7 @@
 
 <section class="en-breve" aria-labelledby="t-breve">
   <h2 id="t-breve">Un trabajo repartido en tres niveles</h2>
-  <p>El robot divide su trabajo en tres niveles. Un Arduino Nano controla las ruedas varias decenas de veces por segundo, una Raspberry Pi 4 hace de puente con <span class="term" data-def="Conjunto de bibliotecas y herramientas de código abierto para construir sistemas robóticos modulares y distribuidos.">ROS 2</span> y calcula la <span class="term" data-t="Odometría" data-def="Estimación de la posición sumando el giro medido de las ruedas.">odometría</span>, y un computador portátil mapea, navega y explora. Los motores y la electrónica comparten la batería, pero cada uno recibe su propia tensión para que los motores no perturben a los computadores.</p>
+  <p><mark>El robot divide su trabajo en tres niveles.</mark> Un Arduino Nano controla las ruedas varias decenas de veces por segundo, una Raspberry Pi 4 hace de puente con <span class="term" data-def="Conjunto de bibliotecas y herramientas de código abierto para construir sistemas robóticos modulares y distribuidos.">ROS 2</span> y calcula la <span class="term" data-t="Odometría" data-def="Estimación de la posición sumando el giro medido de las ruedas.">odometría</span>, y un computador portátil mapea, navega y explora. Los motores y la electrónica comparten la batería, pero <mark>cada uno recibe su propia tensión para que los motores no perturben a los computadores</mark>.</p>
   <div class="cifras-mini">
     <div><b>444 643 <small>CLP</small></b><span>en materiales montados en el robot, sin contar el computador</span></div>
     <div><b>12 V <small>y 5 V</small></b><span>dos rieles de energía separados, motores y electrónica</span></div>
@@ -115,7 +115,7 @@
 
 <section>
   <h2 id="energia">Energía: potencia y lógica separadas</h2>
-  <p>Un motor que arranca pide de golpe mucha corriente y llena la línea de alimentación de ruido eléctrico. Si la Raspberry Pi bebe de esa misma línea sin protección, puede reiniciarse justo cuando el robot empieza a moverse. Por eso la plataforma tiene dos dominios eléctricos <a class="ref" href="#f1">1</a>.</p>
+  <p>Un motor que arranca pide de golpe mucha corriente y llena la línea de alimentación de ruido eléctrico. Si la Raspberry Pi bebe de esa misma línea sin protección, puede reiniciarse justo cuando el robot empieza a moverse. Por eso <mark>la plataforma tiene dos dominios eléctricos</mark> <a class="ref" href="#f1">1</a>.</p>
   <p>El dominio de potencia usa el bus de 12 V de la batería para mover los motores a través del L298N. Del mismo bus, un módulo reductor de 25 W genera un riel regulado de 5 V para la Raspberry Pi, el Arduino, el láser y los periféricos. Un interruptor y un fusible protegen la entrada, y un pequeño visualizador muestra la tensión y la corriente en la cubierta.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="esquema">Esquema de conexiones</h3><span class="tipo datos">Datos de la tesis</span><p>Cada punto marca un componente rotulado en la figura. Tócalo o llega a él con la tecla Tab para ver qué hace.</p></div>
@@ -127,7 +127,7 @@
 
 <section>
   <h2 id="reparto">Quién hace qué, y por qué</h2>
-  <p>El robot solo no explora. Es una arquitectura distribuida en la que cada equipo hace lo que mejor le calza a su ritmo y a su capacidad de cálculo <a class="ref" href="#f1">1</a>. El argumento es simple. Lo que debe ocurrir decenas de veces por segundo sin fallar, como leer un encoder y corregir un motor, va en un microcontrolador dedicado. Lo que necesita memoria y procesador, como optimizar un mapa o planificar una ruta, va en el computador.</p>
+  <p><mark>El robot solo no explora.</mark> Es una arquitectura distribuida en la que cada equipo hace lo que mejor le calza a su ritmo y a su capacidad de cálculo <a class="ref" href="#f1">1</a>. El argumento es simple. Lo que debe ocurrir decenas de veces por segundo sin fallar, como leer un encoder y corregir un motor, va en un microcontrolador dedicado. Lo que necesita memoria y procesador, como optimizar un mapa o planificar una ruta, va en el computador.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="reparto-vis">El reparto del trabajo</h3><span class="tipo datos">Datos de la tesis</span><p>Pasa por cada equipo para ver sus tareas.</p></div>
     <div class="vis" data-vis="arquitectura"><p class="vis-fallback">Arduino: encoders y control de ruedas. Raspberry Pi: ros2_control, odometría y láser. Computador: SLAM, Nav2 y exploración.</p></div>
@@ -192,7 +192,7 @@
 
 <section>
   <h2 id="seguridad">Seguridad: cómo se detiene el robot</h2>
-  <p>Un robot que se mueve solo tiene que poder detenerse aunque falle el software que lo guía. Este prototipo tiene tres mecanismos, y cada uno cubre una falla distinta <a class="ref" href="#f1">1</a>.</p>
+  <p><mark>Un robot que se mueve solo tiene que poder detenerse aunque falle el software que lo guía.</mark> Este prototipo tiene tres mecanismos, y cada uno cubre una falla distinta <a class="ref" href="#f1">1</a>.</p>
   <div class="decisiones">
     <article class="decision"><span class="d-que">Falla humana</span><h3>Botón de hombre muerto</h3><p>La conducción manual con un mando inalámbrico solo envía órdenes mientras se mantiene presionado un botón. Si la persona lo suelta, el robot se detiene.</p></article>
     <article class="decision"><span class="d-que">Conflicto de órdenes</span><h3>Prioridad de la persona</h3><p>El multiplexor twist_mux elige una sola fuente de órdenes y da prioridad al mando sobre <span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span>. Una persona puede retomar el control en cualquier momento.</p></article>
@@ -203,7 +203,7 @@
 
 <section>
   <h2 id="costo">Cuánto costó y con qué se compara</h2>
-  <p>Los montos son valores pagados entre abril de 2024 y julio de 2026, en pesos chilenos. Los kits de tornillería y cables se cuentan completos, aunque se usó solo una parte. Ningún monto incluye el computador, que es necesario porque ahí corren el mapeo, la navegación y el explorador <a class="ref" href="#f1">1</a>.</p>
+  <p>Los montos son valores pagados entre abril de 2024 y julio de 2026, en pesos chilenos. Los kits de tornillería y cables se cuentan completos, aunque se usó solo una parte. <mark>Ningún monto incluye el computador</mark>, que es necesario porque ahí corren el mapeo, la navegación y el explorador <a class="ref" href="#f1">1</a>.</p>
   <div class="tabla-env">
     <table class="tabla">
       <thead><tr><th>Componente principal</th><th class="n">Costo (CLP)</th></tr></thead>

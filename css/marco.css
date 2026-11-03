@@ -30,6 +30,23 @@
   --dur-2: .28s;
   --dur-3: .55s;
   --curva: cubic-bezier(.2, .65, .25, 1);
+  /* Acentos. Cada parte de la guía tiene un color y lo usa en sus palabras clave, cifras y marcas, así el color
+     dice de qué tema se habla: percibir en turquesa, estimar el avance en naranja, decidir en violeta, moverse en
+     azul, el robot en amarillo, la evidencia en frambuesa y el contexto en verde. El texto de color cumple 4,5:1
+     sobre el papel y sobre su propio fondo, en los dos temas. --c-robot es el amarillo de las franjas del
+     prototipo, para resaltar con texto oscuro encima. */
+  --c-verde: #3d6611; --c-verde-fondo: #dbe0cf;
+  --c-amarillo: #6e5b00; --c-amarillo-fondo: #e1dfcd;
+  --c-naranja: #9e3b08; --c-naranja-fondo: #e7dbce;
+  --c-azul: #2453b3; --c-azul-fondo: #d8dee3;
+  --c-turquesa: #00666e; --c-turquesa-fondo: #d4e0da;
+  --c-violeta: #6a43c2; --c-violeta-fondo: #e1dce4;
+  --c-frambuesa: #ac1e5a; --c-frambuesa-fondo: #e9d8d8;
+  --c-robot: #efe36b;
+  --sobre-robot: #182825;
+  --marca-amarilla: #efe36bc4;
+  /* Intensidad del resaltado de las palabras clave */
+  --marca-mezcla: 34%;
   --marco-mono: "IBM Plex Mono", Plex, ui-monospace, monospace;
   --marco-titulo: Archivo, "Archivo Respaldo", Arial, sans-serif;
   color-scheme: light;
@@ -42,6 +59,10 @@
     --marco-resalte: #263222; --marco-hover: #1d2723; --marco-campo: #1a2320; --marco-borde: #4c5a50; --marco-borde-dialogo: #4c5a50;
     --marco-texto-2: #b9c1b2; --marco-estado: #b0c49a; --marco-sel: #243022; --marco-sombra: #00000099; --marco-velo: #050a09c7;
     --pie-fondo: #0b1211;
+    --c-verde: #a8d66a; --c-verde-fondo: #2c3a25; --c-amarillo: #e8dc4f; --c-amarillo-fondo: #363b21;
+    --c-naranja: #ff9c57; --c-naranja-fondo: #3a3022; --c-azul: #8db4ff; --c-azul-fondo: #27343e;
+    --c-turquesa: #4fd2db; --c-turquesa-fondo: #1c3938; --c-violeta: #bea8ff; --c-violeta-fondo: #2f323e;
+    --c-frambuesa: #ff8cb8; --c-frambuesa-fondo: #3a2d32; --c-robot: #e8dc4f; --marca-mezcla: 32%; --marca-amarilla: #e8dc4f4d;
     color-scheme: dark;
   }
 }
@@ -50,8 +71,44 @@
   --marco-resalte: #263222; --marco-hover: #1d2723; --marco-campo: #1a2320; --marco-borde: #4c5a50; --marco-borde-dialogo: #4c5a50;
   --marco-texto-2: #b9c1b2; --marco-estado: #b0c49a; --marco-sel: #243022; --marco-sombra: #00000099; --marco-velo: #050a09c7;
   --pie-fondo: #0b1211;
+  --c-verde: #a8d66a; --c-verde-fondo: #2c3a25; --c-amarillo: #e8dc4f; --c-amarillo-fondo: #363b21;
+  --c-naranja: #ff9c57; --c-naranja-fondo: #3a3022; --c-azul: #8db4ff; --c-azul-fondo: #27343e;
+  --c-turquesa: #4fd2db; --c-turquesa-fondo: #1c3938; --c-violeta: #bea8ff; --c-violeta-fondo: #2f323e;
+  --c-frambuesa: #ff8cb8; --c-frambuesa-fondo: #3a2d32; --c-robot: #e8dc4f; --marca-mezcla: 32%; --marca-amarilla: #e8dc4f4d;
   color-scheme: dark;
 }
+
+/* Color de cada parte de la guía: la página lo toma de data-pagina en <body> y las listas de la guía, de data-pag
+   en cada elemento. La portada usa el verde y los laboratorios, el turquesa del LiDAR. */
+:root, [data-pag] { --tema: var(--c-verde); --tema-fondo: var(--c-verde-fondo); }
+:is([data-pagina="robot"], [data-pagina="replicar"], [data-pag="robot"], [data-pag="replicar"]) { --tema: var(--c-amarillo); --tema-fondo: var(--c-amarillo-fondo); }
+:is([data-pagina="movimiento"], [data-pagina="lecciones"], [data-pag="movimiento"], [data-pag="lecciones"]) { --tema: var(--c-naranja); --tema-fondo: var(--c-naranja-fondo); }
+:is([data-pagina="control"], [data-pagina="navegacion"], [data-pagina="laboratorio"], [data-pag="control"], [data-pag="navegacion"], [data-pag="laboratorio"]) { --tema: var(--c-azul); --tema-fondo: var(--c-azul-fondo); }
+:is([data-pagina="mapeo"], [data-pagina="gemelo"], [data-experience="laboratorios"], [data-pag="mapeo"], [data-pag="gemelo"], [data-pag="laboratorios"]) { --tema: var(--c-turquesa); --tema-fondo: var(--c-turquesa-fondo); }
+:is([data-pagina="exploracion"], [data-pagina="bibliografia"], [data-pag="exploracion"], [data-pag="bibliografia"]) { --tema: var(--c-violeta); --tema-fondo: var(--c-violeta-fondo); }
+:is([data-pagina="resultados"], [data-pagina="preguntas"], [data-pag="resultados"], [data-pag="preguntas"]) { --tema: var(--c-frambuesa); --tema-fondo: var(--c-frambuesa-fondo); }
+/* Las clases c-… dan el color a una sección, una tarjeta o una palabra sin depender de la página. */
+.c-verde { --tema: var(--c-verde); --tema-fondo: var(--c-verde-fondo); }
+.c-amarillo { --tema: var(--c-amarillo); --tema-fondo: var(--c-amarillo-fondo); }
+.c-naranja { --tema: var(--c-naranja); --tema-fondo: var(--c-naranja-fondo); }
+.c-azul { --tema: var(--c-azul); --tema-fondo: var(--c-azul-fondo); }
+.c-turquesa { --tema: var(--c-turquesa); --tema-fondo: var(--c-turquesa-fondo); }
+.c-violeta { --tema: var(--c-violeta); --tema-fondo: var(--c-violeta-fondo); }
+.c-frambuesa { --tema: var(--c-frambuesa); --tema-fondo: var(--c-frambuesa-fondo); }
+/* El resaltado se calcula donde cambia el color, para que cada página, fila o clase tome el suyo. El del robot es el
+   amarillo de sus franjas. */
+:root, [data-pagina], [data-experience], [data-pag], :is(.c-verde, .c-amarillo, .c-naranja, .c-azul, .c-turquesa, .c-violeta, .c-frambuesa) { --tema-marca: color-mix(in srgb, var(--tema) var(--marca-mezcla), transparent); }
+:is([data-pagina="robot"], [data-pagina="replicar"], [data-pag="robot"], [data-pag="replicar"], .c-amarillo) { --tema-marca: var(--marca-amarilla); }
+/* Palabra clave: el color del tema. */
+.clave { color: var(--tema); }
+/* Resaltado de marcador: <mark>, .resalta y las negritas de los párrafos de la guía (css/estilo.css). Es una franja
+   sobre la mitad baja de la línea. js/marco.js la dibuja de izquierda a derecha cuando el texto llega a la pantalla,
+   y en un resaltado de varias líneas el trazo recorre una línea tras otra. */
+mark, .resalta { color: inherit; background-color: transparent; background-image: linear-gradient(var(--tema-marca), var(--tema-marca)); background-repeat: no-repeat; background-position: 0 88%; background-size: 100% 58%; padding-inline: .06em; }
+.resaltado-animado .resaltable { transition: background-size var(--resalta-dur, .9s) cubic-bezier(.55, .1, .35, 1) var(--resalta-retraso, 0s); }
+.resaltado-animado .resaltable:not(.resaltado-listo) { background-size: 0% 58%; }
+@media (prefers-reduced-motion: reduce) { .resaltado-animado .resaltable { transition: none; } .resaltado-animado .resaltable:not(.resaltado-listo) { background-size: 100% 58%; } }
+@media print { .resaltado-animado .resaltable:not(.resaltado-listo) { background-size: 100% 58%; } }
 
 html, body { background: var(--paper); }
 .tema-cambiando *, .tema-cambiando *::before, .tema-cambiando *::after { transition: none !important; }

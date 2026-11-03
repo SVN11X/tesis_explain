@@ -21,7 +21,7 @@
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#f1f1e9" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#121a17" media="(prefers-color-scheme: dark)">
-<script>try{var t=localStorage.getItem("tema");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script>try{var t=localStorage.getItem("tema");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}try{var d=document.documentElement;if("IntersectionObserver"in window&&!matchMedia("(prefers-reduced-motion: reduce)").matches){d.classList.add("resaltado-animado");setTimeout(function(){if(!window.__resaltado)d.classList.remove("resaltado-animado")},3000)}}catch(e){}</script>
 <!-- FIN TEMA -->
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
 <link rel="preload" href="fuentes/archivo-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
@@ -95,7 +95,7 @@
 
 <section class="en-breve" aria-labelledby="t-breve">
   <h2 id="t-breve">El mismo espacio mapeado en cinco corridas</h2>
-  <p>Se hicieron seis ejecuciones independientes de exploración en el mismo recinto. Cinco produjeron mapas válidos: en ellas quedó registrado un promedio de <b>3,50 m² de espacio libre</b>, entre 3,478 y 3,540 m². Son cinco mapas de distintas corridas, no cinco partes de un único mapa <a class="ref" href="#f1">1</a>.</p>
+  <p>Se hicieron seis ejecuciones independientes de exploración en el mismo recinto. Cinco produjeron mapas válidos: en ellas quedó registrado un promedio de <b>3,50 m² de espacio libre</b>, entre 3,478 y 3,540 m². <mark>Son cinco mapas de distintas corridas, no cinco partes de un único mapa</mark> <a class="ref" href="#f1">1</a>.</p>
   <p>Para construir cada mapa, el <span class="term" data-def="Sensor que mide distancias con luz láser. Este modelo gira y mide en un plano horizontal.">LiDAR</span> toma un <b>barrido</b>: un conjunto de distancias en distintas direcciones. SLAM Toolbox estima desde dónde se tomó cada barrido y enlaza esas posiciones en un <a href="#grafo-poses">grafo de poses</a>. Si reconoce un lugar visitado, puede corregir las estimaciones anteriores. Más abajo veremos cada paso por separado.</p>
   <p class="mp-clave"><b>¿Por qué cambia el porcentaje si el área es casi igual?</b> El índice divide el espacio libre por las celdas libres y desconocidas de la imagen guardada. Una imagen con más margen desconocido da un porcentaje menor, aunque contenga casi los mismos metros cuadrados libres. El 62,2 % no significa que el robot haya visto el 62,2 % del recinto. <a href="#cobertura">Ver las cinco corridas y sus indicadores</a>.</p>
   <div class="cifras-mini">
@@ -108,7 +108,7 @@
 
 <section>
   <h2 id="lidar">Cómo ve un LiDAR 2D</h2>
-  <p>Un LiDAR mide distancias con luz láser. Algunos miden el tiempo que tarda el pulso en volver <a class="ref" href="#f2">2</a> y otros, como el RPLidar A1 de este robot, usan triangulación óptica, es decir, calculan la distancia según el ángulo con que vuelve la luz reflejada <a class="ref" href="#f3">3</a>. En un LiDAR 2D el emisor y el receptor giran sobre un eje vertical y entregan, en cada vuelta, pares de ángulo y distancia en un plano horizontal. Con eso se detectan paredes y obstáculos <a class="ref" href="#f1">1</a>.</p>
+  <p><mark>Un LiDAR mide distancias con luz láser.</mark> Algunos miden el tiempo que tarda el pulso en volver <a class="ref" href="#f2">2</a> y otros, como el RPLidar A1 de este robot, usan triangulación óptica, es decir, calculan la distancia según el ángulo con que vuelve la luz reflejada <a class="ref" href="#f3">3</a>. En un LiDAR 2D el emisor y el receptor giran sobre un eje vertical y entregan, en cada vuelta, pares de ángulo y distancia en un plano horizontal. Con eso se detectan paredes y obstáculos <a class="ref" href="#f1">1</a>.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="sim-lidar">Lo que ve el láser, y lo que no</h3><span class="tipo inter">Interactivo · ilustrativo</span><p>Comprueba tres ideas: el láser se detiene en el primer obstáculo, solo detecta lo que cruza su altura y una lectura ausente no demuestra que el espacio esté libre. Elige un caso y mueve el robot con los controles, arrastrándolo o con las flechas. Los puntos rojos son lo único que entrega el sensor.</p></div>
     <div class="vis" data-vis="lidar"><figure class="mp-fig"><img src="img/diagramas/lidar-plano.svg" width="360" height="185" alt="Vista lateral: el plano del láser cruza las patas de una mesa, pasa bajo su cubierta y por encima de una caja baja."><figcaption>Un LiDAR 2D observa una sección horizontal, no todo el volumen de los objetos.</figcaption></figure><p class="vis-fallback">El modelo ideal devuelve el primer impacto. Los casos de vidrio y absorción se muestran como ejemplos posibles, no como probabilidades medidas. Necesita JavaScript.</p></div>
@@ -122,7 +122,7 @@
 
 <section>
   <h2 id="rejilla">El mapa como una rejilla</h2>
-  <p>El mapa que construye el robot es una <span class="term" data-def="Un mapa dividido en celdas cuadradas iguales. Cada celda se marca como libre, ocupada o desconocida.">rejilla de ocupación</span>. El plano se divide en celdas, aquí de 5 cm por lado, y cada una queda como libre, ocupada o desconocida <a class="ref" href="#f4">4</a>. Al guardarse, el mapa es una imagen en escala de grises en la que lo claro es libre, lo oscuro es ocupado y el gris intermedio es desconocido <a class="ref" href="#f1">1</a>.</p>
+  <p>El mapa que construye el robot es una <span class="term" data-def="Un mapa dividido en celdas cuadradas iguales. Cada celda se marca como libre, ocupada o desconocida.">rejilla de ocupación</span>. El plano se divide en celdas, aquí de 5 cm por lado, y <mark>cada una queda como libre, ocupada o desconocida</mark> <a class="ref" href="#f4">4</a>. Al guardarse, el mapa es una imagen en escala de grises en la que lo claro es libre, lo oscuro es ocupado y el gris intermedio es desconocido <a class="ref" href="#f1">1</a>.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="sim-rejilla">De un rayo a las celdas del mapa</h3><span class="tipo inter">Interactivo · ilustrativo</span><p>Avanza paso a paso: las celdas antes del impacto se observan libres, la del impacto ocupada y las de atrás siguen desconocidas. Después añade otro barrido o inspecciona cualquier celda. Las lecturas calculan también el área libre y el índice de cobertura que se usan en los resultados.</p></div>
     <div class="vis" data-vis="rejilla"><figure class="mp-fig"><img src="img/diagramas/rejilla-ocupacion.svg" width="360" height="280" loading="lazy" alt="Rejilla con celdas blancas libres, negras ocupadas y grises desconocidas. Un rayo atraviesa celdas libres y termina en una pared, y detrás queda gris."><figcaption>Ejemplo de rejilla de ocupación. Cada cuadrado representa 5 × 5 cm, aunque se dibuja ampliado.</figcaption></figure></div>
@@ -164,7 +164,7 @@
 
 <section>
   <h2 id="slam">SLAM: mapear y ubicarse a la vez</h2>
-  <p>SLAM significa <b>localización y mapeo simultáneos</b>: estima la pose del robot mientras construye un mapa del entorno <a class="ref" href="#f7">7</a>. La odometría ofrece una primera estimación del movimiento y el láser permite contrastarla con la geometría observada.</p>
+  <p>SLAM significa <b>localización y mapeo simultáneos</b>: <mark>estima la pose del robot mientras construye un mapa del entorno</mark> <a class="ref" href="#f7">7</a>. La odometría ofrece una primera estimación del movimiento y el láser permite contrastarla con la geometría observada.</p>
   <details class="ficha-concepto"><summary>Ficha del concepto: SLAM por grafo de poses</summary><dl><dt>Qué es</dt><dd>Una forma de estimar a la vez la trayectoria del robot y el mapa. Las poses son nodos y los movimientos relativos entre ellas son aristas.</dd><dt>Para qué sirve</dt><dd>Corregir la deriva de la odometría cuando el robot reconoce un lugar que ya había visto.</dd><dt>Cómo funciona</dt><dd>Cada arista compara el movimiento medido con el que implican las poses. Un cierre de lazo agrega otra restricción y un resolvedor busca las poses que reducen la suma ponderada de esas diferencias. Con las poses corregidas se vuelven a colocar los barridos.</dd><dt>Dónde verlo</dt><dd><a href="#sim-barridos">La misma esquina, antes y después de avanzar</a> y <a href="#sim-lazo">grafo de poses y cierre de lazo</a>.</dd><dt>Ejemplo numérico</dt><dd>En el grafo de ejemplo, el cierre sube el desacuerdo de 0 a 29,3 y optimizar lo baja a 0,18. La pared vista al inicio y al regreso pasa de estar a 17,7 cm de sí misma a coincidir.</dd><dt>En este robot</dt><dd>slam_toolbox en modo asíncrono en línea, con cierre de lazo activado y Ceres como resolvedor, en el computador y no en la Raspberry Pi.</dd><dt>Límites</dt><dd>En las corridas reales no se determinó si hubo cierres de lazo. La exactitud de los mapas se comparó con un plano medido con huincha, no con un instrumento de mayor precisión, y su incertidumbre no está incluida en las cifras.</dd></dl></details>
   <h3 id="dos-barridos">¿Qué significa alinear dos barridos?</h3>
   <p>Son <b>dos conjuntos de medidas tomados en momentos distintos por el mismo LiDAR</b>, no dos sensores. El barrido A puede tomarse antes de avanzar y el B después. La misma pared aparece en coordenadas distintas respecto del sensor. El <b>ajuste de barridos</b> busca la traslación y el giro que hacen coincidir sus partes comunes. Así estima cuánto se movió el robot <a class="ref" href="#f1">1</a> <a class="ref" href="#f18">18</a>.</p>
@@ -234,7 +234,7 @@
 
 <section>
   <h2 id="guardar-sesion">Guardar la imagen y guardar la sesión son operaciones diferentes</h2>
-  <p>SLAM Toolbox puede generar una rejilla para navegar y también serializar la sesión que permitió construirla. <b>Serializar</b> significa guardar estructuras de datos para recuperarlas después. No consiste en tomar una captura de RViz <a class="ref" href="#f21">21</a>.</p>
+  <p>SLAM Toolbox puede generar una rejilla para navegar y también serializar la sesión que permitió construirla. <b>Serializar</b> significa guardar estructuras de datos para recuperarlas después. <mark>No consiste en tomar una captura de RViz</mark> <a class="ref" href="#f21">21</a>.</p>
   <div class="tabla-env"><table class="tabla">
     <thead><tr><th>Salida</th><th>Qué conserva</th><th>Para qué sirve</th></tr></thead>
     <tbody><tr><th>Imagen PGM y YAML</th><td>Celdas e información para interpretarlas, como resolución, origen y umbrales.</td><td>Visualización, análisis de celdas y localización con herramientas compatibles, como AMCL. No conserva el grafo original ni todos los barridos.</td></tr>
@@ -351,7 +351,7 @@
 
 <section>
   <h2 id="exactitud">El mapa frente al plano medido</h2>
-  <p>Repetible y exacto son cosas distintas. Un reloj que se atrasa siempre cinco minutos es muy repetible y nunca da la hora. Con los mapas pasa lo mismo, y para medir exactitud hace falta una referencia que no salga del propio mapa <a class="ref" href="#f1">1</a>.</p>
+  <p><mark>Repetible y exacto son cosas distintas.</mark> Un reloj que se atrasa siempre cinco minutos es muy repetible y nunca da la hora. Con los mapas pasa lo mismo, y para medir exactitud hace falta una referencia que no salga del propio mapa <a class="ref" href="#f1">1</a>.</p>
   <p>La referencia fue un plano del recinto con las distancias entre muros medidas a mano con huincha. Sus muros tienen menos de 2 cm de espesor y se dibujaron como líneas. El largo del tabique corto unido al muro inferior no se midió, así que de él solo se compara su posición. Cada mapa válido se comparó con ese plano en cinco pasos, con la métrica de exactitud que usan Trejos y otros <a class="ref" href="#f12">12</a>.</p>
   <ol class="linea">
     <li><b>Recuperar las celdas</b>De la imagen de cada mapa se recupera la clase de cada celda de 5 cm, con los umbrales del índice. Los conteos reproducen la Tabla 5.4 con a lo sumo dos celdas de diferencia.</li>

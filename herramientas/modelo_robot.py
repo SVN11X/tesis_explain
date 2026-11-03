@@ -1,16 +1,21 @@
 """Modelo 3D del prototipo para la portada: modelos/robot.glb, desde el STEP que exporta Fusion.
 
 Uso: python3 herramientas/modelo_robot.py RUTA/tesis_v2.stp
+     python3 herramientas/modelo_robot.py --retoque
 Requiere: pip install cascadio==0.1.1 trimesh==5.2.0 numpy==2.5.3, y Node para npx @gltf-transform/cli.
+El retoque solo no necesita cascadio.
 
 El STEP no va en el repositorio: pesa unos 45 MB. El script lo convierte a triángulos, agrupa las piezas como el
 despiece de la portada, quita lo que no se ve, pinta cada grupo como el prototipo y comprime el resultado.
 Grupos: cubierta (carcasa, paneles y soporte del LiDAR), traccion (base, ruedas, motores y rueda loca),
 electronica (placas, cámara y separadores) y el LiDAR en dos partes, laser_base y laser_cabezal, que es la que gira.
+
+Al final aplica un retoque sobre el modelo comprimido: pinta de amarillo las franjas del frente, deja plano el panel
+de la cámara, recalcula las normales y marca los materiales como visibles por las dos caras. Con --retoque se aplica
+solo ese paso al modelos/robot.glb actual, sin el STEP. Un modelo ya retocado no se vuelve a retocar.
 """
 import collections, os, subprocess, sys, tempfile
 import numpy as np
-import cascadio
 import trimesh
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -144,12 +149,180 @@ def escenas_por_grupo(piezas):
 
 
 def gltf(*args):
-    subprocess.run(GLTF + [str(a) for a in args], check=True, stdout=subprocess.DEVNULL, cwd=RAIZ)
+    subprocess.run(GLTF + [str(a) for a in args], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, cwd=RAIZ)
+
+
+# Retoque final. Corre sobre el modelo ya comprimido: así da el mismo resultado con el STEP o sin él, a partir del
+# robot.glb que dejaba la versión anterior de este script.
+# Amarillo de las franjas impresas del prototipo, en sRGB, tomado de las fotografías de img/fotos/
+FRANJA = (236, 224, 92)
+# Ángulo entre caras, en grados, desde el que una arista queda viva. Bajo ese ángulo la superficie se ve suave.
+PLIEGUE = 35
+# Panel de la cámara: ancho, profundidad de su cara frontal y plano del frente, en metros
+PANEL_CAMARA = {'x': 0.0151, 'z': (0.1905, 0.1951), 'plano': 0.195}
+MARCA_RETOQUE = 'cubierta__franjas'
+
+
+def es_franja(lo, hi):
+    """Las franjas son cuatro tiras de 5 mm de alto y 10 cm de largo, dos a cada lado del panel de la cámara. En el
+    CAD son cuerpos propios dentro de la carcasa y la conversión las pintaba de negro."""
+    ext = hi - lo
+    return 0.003 <= ext[1] <= 0.007 and ext[0] >= 0.05 and hi[2] >= 0.17 and 0.03 <= (lo[1] + hi[1]) / 2 <= 0.10
+
+
+def soldar(v, f):
+    """Une los vértices de igual posición. Las aristas vivas los duplican, uno por normal."""
+    pos, inv = np.unique(np.round(np.asarray(v, dtype=float), 7), axis=0, return_inverse=True)
+    return pos, inv.reshape(-1)[np.asarray(f)]
+
+
+def cuerpos(pos, caras):
+    """Etiqueta las caras por pieza: dos caras son de la misma pieza si comparten un vértice."""
+    padre = np.arange(len(pos))
+
+    def raiz(i):
+        while padre[i] != i:
+            padre[i] = padre[padre[i]]
+            i = padre[i]
+        return i
+    for a, b, c in caras:
+        ra, rb, rc = raiz(a), raiz(b), raiz(c)
+        padre[rb] = ra
+        padre[raiz(rc)] = ra
+    return np.array([raiz(a) for a in caras[:, 0]])
+
+
+def aplanar_panel_camara(pos, caras):
+    """La simplificación unió las esquinas del panel de la cámara con el fondo del avellanado del lente. La cara
+    frontal quedó como un embudo, que se veía como una X. El panel impreso es plano: sus vértices frontales vuelven
+    al plano del frente y el agujero del lente queda abierto."""
+    p = pos[caras]
+    n = np.cross(p[:, 1] - p[:, 0], p[:, 2] - p[:, 0])
+    z0, z1 = PANEL_CAMARA['z']
+    frente = ((np.abs(p[:, :, 0]).max(axis=1) <= PANEL_CAMARA['x']) & (p[:, :, 2].min(axis=1) >= z0)
+              & (p[:, :, 2].max(axis=1) <= z1) & (n[:, 2] > 0.3 * np.linalg.norm(n, axis=1)))
+    vertices = np.unique(caras[frente])
+    pos = pos.copy()
+    pos[vertices, 2] = PANEL_CAMARA['plano']
+    return pos, int(frente.sum())
+
+
+def normales_con_pliegue(pos, caras, angulo=PLIEGUE):
+    """Normales por vértice y grupo de suavizado. En cada vértice, las caras que difieren en menos de `angulo` de
+    una vecina forman un grupo, y el grupo comparte la normal promedio de sus caras, pesada por el ángulo de cada
+    cara en ese vértice. Así los triángulos largos que deja la simplificación no tuercen el sombreado de las caras
+    planas. Quita las caras sin área. Devuelve vértices, caras y normales."""
+    p = pos[caras]
+    fn = np.cross(p[:, 1] - p[:, 0], p[:, 2] - p[:, 0])
+    largo = np.linalg.norm(fn, axis=1)
+    sana = largo > 1e-12
+    caras, p, fn = caras[sana], p[sana], fn[sana] / largo[sana][:, None]
+
+    def angulo_en(a, b, c):
+        u, w = b - a, c - a
+        cos = np.einsum('ij,ij->i', u, w) / np.maximum(np.linalg.norm(u, axis=1) * np.linalg.norm(w, axis=1), 1e-30)
+        return np.arccos(np.clip(cos, -1, 1))
+    peso = np.stack([angulo_en(p[:, 0], p[:, 1], p[:, 2]), angulo_en(p[:, 1], p[:, 2], p[:, 0]),
+                     angulo_en(p[:, 2], p[:, 0], p[:, 1])], axis=1).reshape(-1)
+    limite = np.cos(np.radians(angulo))
+    vertice, cara = caras.reshape(-1), np.repeat(np.arange(len(caras)), 3)
+    orden = np.argsort(vertice, kind='stable')
+    normal = np.zeros((len(vertice), 3))
+    for grupo in np.split(orden, np.flatnonzero(np.diff(vertice[orden])) + 1):
+        n = fn[cara[grupo]]
+        cerca = (n @ n.T) >= limite
+        # grupos de suavizado: cierre transitivo de «cerca» entre las caras del vértice
+        etiqueta = np.arange(len(grupo))
+        while True:
+            nueva = np.where(cerca, etiqueta[None, :], len(grupo)).min(axis=1)
+            if np.array_equal(nueva, etiqueta):
+                break
+            etiqueta = nueva
+        mismo = etiqueta[:, None] == etiqueta[None, :]
+        suma = (mismo * peso[grupo][None, :]) @ n
+        lg = np.linalg.norm(suma, axis=1)
+        normal[grupo] = np.where(lg[:, None] > 1e-12, suma / np.maximum(lg, 1e-12)[:, None], n)
+    unicos, nuevo = np.unique(np.column_stack([vertice, np.round(normal, 4)]), axis=0, return_inverse=True)
+    normales = unicos[:, 1:] / np.linalg.norm(unicos[:, 1:], axis=1)[:, None]
+    return pos[unicos[:, 0].astype(int)], nuevo.reshape(-1, 3), normales
+
+
+def material(base, **cambios):
+    datos = {'name': base.name, 'baseColorFactor': base.baseColorFactor, 'roughnessFactor': base.roughnessFactor,
+             'metallicFactor': base.metallicFactor, 'doubleSided': True}
+    datos.update(cambios)
+    return trimesh.visual.material.PBRMaterial(**datos)
+
+
+def retocar(entrada, salida):
+    """Franjas amarillas, panel de la cámara plano, normales con pliegue y materiales de dos caras. Las piezas del CAD
+    no traen todas sus caras orientadas hacia afuera, y con una sola cara la tapa superior se veía hueca."""
+    with tempfile.TemporaryDirectory() as tmp:
+        plano = os.path.join(tmp, 'plano.glb')
+        gltf('dequantize', entrada, plano)
+        escena = trimesh.load(plano, process=False)
+        nodos = sorted(escena.graph.nodes_geometry, key=lambda n: (int(n.split('__')[1]) if n.split('__')[1].isdigit() else 10 ** 6, n))
+        if MARCA_RETOQUE in nodos:
+            print('%s ya tiene el retoque' % os.path.relpath(entrada, RAIZ))
+            if os.path.abspath(entrada) != os.path.abspath(salida):
+                subprocess.run(['cp', entrada, salida], check=True)
+            return
+        carcasa, paneles = lineal(NEGROS['carcasa']), lineal(NEGROS['paneles'])
+        nueva, franjas, aplanadas = trimesh.Scene(), 0, 0
+        for nodo in nodos:
+            T, nombre = escena.graph[nodo]
+            geo = escena.geometry[nombre].copy()
+            geo.apply_transform(T)
+            mat = geo.visual.material
+            # glTF omite el color base cuando es el blanco por defecto
+            color = [int(c) for c in mat.baseColorFactor[:3]] if mat.baseColorFactor is not None else [255, 255, 255]
+            pos, caras = soldar(geo.vertices, geo.faces)
+            partes = [(nodo, nombre, caras, material(mat))]
+            if nodo.startswith('cubierta__') and color == paneles:
+                pos, aplanadas = aplanar_panel_camara(pos, caras)
+            if nodo.startswith('cubierta__') and color == carcasa:
+                pieza = cuerpos(pos, caras)
+                es = np.zeros(len(caras), bool)
+                for e in np.unique(pieza):
+                    sel = pieza == e
+                    vs = pos[caras[sel]].reshape(-1, 3)
+                    if es_franja(vs.min(axis=0), vs.max(axis=0)):
+                        es |= sel
+                franjas = int(es.sum())
+                if franjas:
+                    amarillo = material(mat, name='cubierta_franjas', baseColorFactor=[*lineal(FRANJA), 255], roughnessFactor=.5, metallicFactor=0)
+                    partes = [(nodo, nombre, caras[~es], material(mat)), (MARCA_RETOQUE, 'cubierta_franjas', caras[es], amarillo)]
+            for n, g, cs, m in partes:
+                v, c, normales = normales_con_pliegue(pos, cs)
+                malla = trimesh.Trimesh(vertices=v, faces=c, vertex_normals=normales, process=False)
+                malla.visual = trimesh.visual.TextureVisuals(material=m)
+                nueva.add_geometry(malla, node_name=n, geom_name=g)
+        retocado, limpio, podado = (os.path.join(tmp, x) for x in ('retocado.glb', 'limpio.glb', 'podado.glb'))
+        nueva.export(retocado, include_normals=True)
+        gltf('dedup', retocado, limpio)
+        gltf('prune', limpio, podado)
+        gltf('meshopt', podado, salida, '--level', 'medium')
+    print('retoque: %d caras de franjas en amarillo, %d caras del panel de la cámara en su plano' % (franjas, aplanadas))
+
+
+def resumen(ruta):
+    with tempfile.TemporaryDirectory() as tmp:
+        plano = os.path.join(tmp, 'plano.glb')
+        gltf('dequantize', ruta, plano)
+        resultado, caras = trimesh.load(plano, process=False), collections.Counter()
+        for n in resultado.graph.nodes_geometry:
+            caras[str(n).split('__')[0]] += len(resultado.geometry[resultado.graph[n][1]].faces)
+    print('modelos/robot.glb: %d KB, %d triángulos %s' % (os.path.getsize(ruta) // 1024, sum(caras.values()), dict(caras)))
 
 
 def main():
     if len(sys.argv) != 2:
         sys.exit(__doc__)
+    if sys.argv[1] == '--retoque':
+        retocar(SALIDA, SALIDA)
+        resumen(SALIDA)
+        return
+    import cascadio
     with tempfile.TemporaryDirectory() as tmp:
         bruto = os.path.join(tmp, 'bruto.glb')
         cascadio.step_to_glb(sys.argv[1], bruto, tol_linear=0.6, tol_angular=0.6)
@@ -165,12 +338,11 @@ def main():
         gltf('merge', *simplificados, unido, '--merge-scenes')
         gltf('dedup', unido, limpio)
         gltf('prune', limpio, final)
-        resultado, caras = trimesh.load(final), collections.Counter()
-        for n in resultado.graph.nodes_geometry:
-            caras[str(n).split('__')[0]] += len(resultado.geometry[resultado.graph[n][1]].faces)
         os.makedirs(os.path.dirname(SALIDA), exist_ok=True)
-        gltf('meshopt', final, SALIDA, '--level', 'medium')
-    print('modelos/robot.glb: %d KB, %d triángulos %s' % (os.path.getsize(SALIDA) // 1024, sum(caras.values()), dict(caras)))
+        comprimido = os.path.join(tmp, 'comprimido.glb')
+        gltf('meshopt', final, comprimido, '--level', 'medium')
+        retocar(comprimido, SALIDA)
+    resumen(SALIDA)
 
 
 if __name__ == '__main__':

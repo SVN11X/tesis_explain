@@ -21,7 +21,7 @@
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#f1f1e9" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#121a17" media="(prefers-color-scheme: dark)">
-<script>try{var t=localStorage.getItem("tema");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script>try{var t=localStorage.getItem("tema");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}try{var d=document.documentElement;if("IntersectionObserver"in window&&!matchMedia("(prefers-reduced-motion: reduce)").matches){d.classList.add("resaltado-animado");setTimeout(function(){if(!window.__resaltado)d.classList.remove("resaltado-animado")},3000)}}catch(e){}</script>
 <!-- FIN TEMA -->
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
 <link rel="preload" href="fuentes/archivo-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
@@ -94,7 +94,7 @@
 
 <section class="en-breve" aria-labelledby="t-breve">
   <h2 id="t-breve">Contar pulsos para saber cuánto avanzó</h2>
-  <p>El robot dobla haciendo que una rueda gire más rápido que la otra. Para saber cuánto avanzó cuenta los pulsos de los <span class="term" data-t="Encoder" data-def="Sensor que produce dos señales desfasadas al girar un eje, para contar el giro y saber su sentido.">encoders</span>, una técnica llamada <span class="term" data-t="Odometría" data-def="Estimación de la posición sumando el giro medido de las ruedas.">odometría</span>, que es simple y rápida pero acumula error con cada metro. En el robot real esa cuenta se equivocó un 3,63 % en una recta de 2 m, con un error tan parejo que revela un sesgo que se puede corregir.</p>
+  <p>El robot dobla haciendo que una rueda gire más rápido que la otra. Para saber cuánto avanzó cuenta los pulsos de los <span class="term" data-t="Encoder" data-def="Sensor que produce dos señales desfasadas al girar un eje, para contar el giro y saber su sentido.">encoders</span>, una técnica llamada <span class="term" data-t="Odometría" data-def="Estimación de la posición sumando el giro medido de las ruedas.">odometría</span>, que es simple y rápida pero <mark>acumula error con cada metro</mark>. En el robot real esa cuenta <mark>se equivocó un 3,63 % en una recta de 2 m</mark>, con un error tan parejo que revela un sesgo que se puede corregir.</p>
   <div class="cifras-mini">
     <div><b>3,63 <small>%</small></b><span>error medio de la odometría frente a una cinta métrica</span></div>
     <div><b>0,44 <small>%</small></b><span>dispersión entre repeticiones, la firma de un sesgo sistemático</span></div>
@@ -105,7 +105,7 @@
 
 <section>
   <h2 id="traccion">La tracción diferencial</h2>
-  <p>Un robot diferencial tiene dos ruedas motrices, cada una con su motor, y un apoyo pasivo como una rueda loca. No tiene volante. Dobla haciendo que una rueda gire más rápido que la otra, igual que un tanque o una silla de ruedas. Es la configuración más común en robots móviles pequeños por su simpleza mecánica y porque puede girar en su lugar, algo que un auto no puede hacer <a class="ref" href="#f2">2</a>.</p>
+  <p>Un robot diferencial tiene dos ruedas motrices, cada una con su motor, y un apoyo pasivo como una rueda loca. No tiene volante. <mark>Dobla haciendo que una rueda gire más rápido que la otra</mark>, igual que un tanque o una silla de ruedas. Es la configuración más común en robots móviles pequeños por su simpleza mecánica y porque puede girar en su lugar, algo que un auto no puede hacer <a class="ref" href="#f2">2</a>.</p>
   <p>Dos reglas lo resumen todo. La velocidad del robot es el promedio de las velocidades de sus ruedas. Y la rapidez con que gira es la diferencia entre ambas ruedas dividida por la distancia que las separa, 18,8 cm en este robot <a class="ref" href="#f1">1</a>. Con esas dos cifras aparece el <span class="term" data-def="Punto alrededor del cual gira el robot en ese instante. Está sobre la línea que une las ruedas. Si las dos van igual, queda infinitamente lejos y el robot va recto.">centro de giro</span>, el punto alrededor del cual el robot da la vuelta en ese instante. Su distancia al centro del robot es el radio de la curva, la velocidad dividida por el giro.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="sim-cinematica">Prueba con dos velocidades de rueda</h3><span class="tipo inter">Interactivo</span><p>Mueve los deslizadores o elige un caso, y observa dónde queda el centro de giro. El dibujo usa el radio de rueda de 3,35 cm y la separación de 18,8 cm del robot real. Las velocidades son ejemplos.</p></div>
@@ -148,14 +148,14 @@
 
 <section>
   <h2 id="odometria">Odometría: saber dónde estás contando pasos</h2>
-  <p>La odometría estima la posición del robot sumando el desplazamiento de sus ruedas <a class="ref" href="#f3">3</a>. Es la misma idea de la navegación por estima que usaban los barcos antes de los satélites, o de caminar con los ojos cerrados contando pasos. Es barata y rápida, pero cada pequeño error se suma al siguiente y la posición estimada se va alejando de la real.</p>
+  <p>La odometría estima la posición del robot sumando el desplazamiento de sus ruedas <a class="ref" href="#f3">3</a>. Es la misma idea de la navegación por estima que usaban los barcos antes de los satélites, o de caminar con los ojos cerrados contando pasos. Es barata y rápida, pero <mark>cada pequeño error se suma al siguiente</mark> y la posición estimada se va alejando de la real.</p>
   <p>Hay dos tipos de error <a class="ref" href="#f2">2</a>. Los sistemáticos se repiten siempre igual, como un radio de rueda mal calibrado. Los aleatorios cambian de una vez a otra, como el deslizamiento de una rueda sobre la alfombra. La diferencia importa, porque define el remedio. Los primeros se corrigen calibrando. Los segundos solo se acotan con otro sensor. El ensayo de la recta muestra los dos, y en <a href="#sesgo-dispersion">Sesgo y dispersión</a> se ve qué corrige una calibración.</p>
   <p class="destacado">El cuentakilómetros de un auto hace odometría, y por eso marca distinto si cambias el tamaño de los neumáticos.</p>
 </section>
 
 <section>
   <h2 id="recta">El ensayo de la recta de 2 metros</h2>
-  <p>Un script ordenó al robot avanzar a 0,13 m/s durante 15,4 s, el tiempo para recorrer 2 m a esa velocidad, y después lo detuvo. Se repitió cinco veces. En cada repetición registré lo que estimó la odometría y medí con cinta métrica lo que el robot avanzó de verdad <a class="ref" href="#f1">1</a>.</p>
+  <p>Un script ordenó al robot avanzar a 0,13 m/s durante 15,4 s, el tiempo para recorrer 2 m a esa velocidad, y después lo detuvo. <mark>Se repitió cinco veces.</mark> En cada repetición registré lo que estimó la odometría y medí con cinta métrica lo que el robot avanzó de verdad <a class="ref" href="#f1">1</a>.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="tres-distancias">Tres distancias de una misma recta</h3><span class="tipo datos">Datos de la tesis</span><p>Promedio de cinco repeticiones en el robot real.</p></div>
     <div class="vis" data-vis="odometria"><p class="vis-fallback">Ordenado 2,000 m. Encoders 1,924 m. Cinta 1,856 m.</p></div>
@@ -205,7 +205,7 @@
 
 <section>
   <h2 id="giro">El ensayo de giro y lo que enseña su diseño</h2>
-  <p>Para el giro, un script pidió 0,4 rad/s durante el tiempo que tomaría una vuelta completa a esa velocidad, unos 15,7 s. El detalle es que el controlador diferencial limita el giro a 0,35 rad/s. Con ese límite aplicado de forma ideal, el robot llegaría a 315°, no a 360° <a class="ref" href="#f1">1</a>.</p>
+  <p>Para el giro, un script pidió 0,4 rad/s durante el tiempo que tomaría una vuelta completa a esa velocidad, unos 15,7 s. El detalle es que el controlador diferencial limita el giro a 0,35 rad/s. Con ese límite aplicado de forma ideal, <mark>el robot llegaría a 315°, no a 360°</mark> <a class="ref" href="#f1">1</a>.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="giros">Cinco giros medidos frente a 315° y 360°</h3><span class="tipo datos">Datos de la tesis</span></div>
     <div class="vis" data-vis="giro"><p class="vis-fallback">Giros medidos de 355,7°, 340°, 380°, 370° y 356°.</p></div>
@@ -226,7 +226,7 @@
 
 <section>
   <h2 id="iteracion-2">La corrida en que la odometría avanzó y el robot no</h2>
-  <p>De las seis ejecuciones de exploración, una se excluyó. Durante 5,09 minutos el explorador envió 14 metas y la odometría sumó 3,851 m, pero el robot no se movió de su posición inicial. La causa no se determinó <a class="ref" href="#f1">1</a>.</p>
+  <p>De las seis ejecuciones de exploración, una se excluyó. Durante 5,09 minutos el explorador envió 14 metas y la odometría sumó 3,851 m, <mark>pero el robot no se movió de su posición inicial</mark>. La causa no se determinó <a class="ref" href="#f1">1</a>.</p>
   <aside class="nota-autor" hidden>
     <p class="nota-autor-rotulo">Nota del autor</p>
     <p>En la iteración 2 la odometría sumó 3,851 m mientras el robot seguía en su posición inicial.</p>
@@ -246,7 +246,7 @@
 
 <section>
   <h2 id="mejorar">Cómo se mejora una odometría</h2>
-  <p>Un sesgo tan parejo como el de este robot es una buena noticia, porque se puede calibrar. La recta sirve para el error de escala, el que afecta igual a las dos ruedas. Hay otros dos errores sistemáticos que una recta casi no muestra, y según Borenstein y Feng son los dominantes en robots diferenciales <a class="ref" href="#f4">4</a>. Uno es que una rueda avance un poco más que la otra con el mismo conteo, por ejemplo por diámetros distintos, y curva cada tramo que la odometría cree recto. El otro es que la separación efectiva entre ruedas no sea la configurada, y hace que cada giro quede corto o largo.</p>
+  <p><mark>Un sesgo tan parejo como el de este robot es una buena noticia, porque se puede calibrar.</mark> La recta sirve para el error de escala, el que afecta igual a las dos ruedas. Hay otros dos errores sistemáticos que una recta casi no muestra, y según Borenstein y Feng son los dominantes en robots diferenciales <a class="ref" href="#f4">4</a>. Uno es que una rueda avance un poco más que la otra con el mismo conteo, por ejemplo por diámetros distintos, y curva cada tramo que la odometría cree recto. El otro es que la separación efectiva entre ruedas no sea la configurada, y hace que cada giro quede corto o largo.</p>
   <p>Para separarlos propusieron UMBmark. El robot recorre un cuadrado de 4 m guiándose solo por su odometría, cinco veces en sentido horario y cinco en antihorario, y se mide dónde termina respecto de donde partió. Recorrerlo en los dos sentidos es lo importante. En uno, los dos errores pueden compensarse y dar un resultado engañosamente bueno, y en el otro se suman. Con los dos resultados se calcula una corrección para cada causa <a class="ref" href="#f4">4</a>.</p>
   <ol class="mv-pasos">
     <li><b>Corregir la escala.</b> Con una recta medida, como la de este trabajo.</li>

@@ -21,7 +21,7 @@
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#f1f1e9" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#121a17" media="(prefers-color-scheme: dark)">
-<script>try{var t=localStorage.getItem("tema");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script>try{var t=localStorage.getItem("tema");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}try{var d=document.documentElement;if("IntersectionObserver"in window&&!matchMedia("(prefers-reduced-motion: reduce)").matches){d.classList.add("resaltado-animado");setTimeout(function(){if(!window.__resaltado)d.classList.remove("resaltado-animado")},3000)}}catch(e){}</script>
 <!-- FIN TEMA -->
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
 <link rel="preload" href="fuentes/archivo-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
@@ -92,7 +92,7 @@
 
 <section class="en-breve" aria-labelledby="t-breve">
   <h2 id="t-breve">Una ruta global y velocidades que no chocan</h2>
-  <p><span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span> recibe una meta, calcula una ruta completa con <span class="term" data-def="Algoritmo que busca la ruta de menor costo en una rejilla sumando lo recorrido y una estimación de lo que falta.">A estrella</span> sobre un <span class="term" data-t="Mapa de costos" data-def="Rejilla en la que cada celda tiene un costo según su cercanía a obstáculos.">mapa de costos</span>, y un controlador local la sigue eligiendo velocidades que no choquen. Alrededor de cada obstáculo se infla una zona de costo para mantener distancia. En este robot esa zona es más angosta que la esquina del propio robot, y eso enseña algo sobre cómo se configura un sistema para un espacio pequeño. La navegación funcionó de punta a punta, aunque todavía no tiene un indicador propio.</p>
+  <p><span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span> recibe una meta, calcula una ruta completa con <span class="term" data-def="Algoritmo que busca la ruta de menor costo en una rejilla sumando lo recorrido y una estimación de lo que falta.">A estrella</span> sobre un <span class="term" data-t="Mapa de costos" data-def="Rejilla en la que cada celda tiene un costo según su cercanía a obstáculos.">mapa de costos</span>, y un controlador local la sigue eligiendo velocidades que no choquen. Alrededor de cada obstáculo se infla una zona de costo para mantener distancia. <mark>En este robot esa zona es más angosta que la esquina del propio robot</mark>, y eso enseña algo sobre cómo se configura un sistema para un espacio pequeño. <mark>La navegación funcionó de punta a punta, aunque todavía no tiene un indicador propio.</mark></p>
   <div class="cifras-mini">
     <div><b>59</b><span>metas del explorador que Nav2 llegó a ejecutar en el robot real</span></div>
     <div><b>0,15 <small>m</small></b><span>radio de inflación en el robot real, frente a 0,24 m de su esquina</span></div>
@@ -142,7 +142,7 @@
 
 <section>
   <h2 id="astar">A estrella: buscar la ruta</h2>
-  <p>Sobre la rejilla, el planificador busca un camino desde la posición del robot hasta la meta. A estrella revisa las celdas en un orden inteligente. A cada celda candidata le asigna la suma de dos cosas, lo que ya cuesta llegar desde el origen, que se llama g, y una estimación de lo que falta hasta la meta, que se llama h. Siempre avanza primero por la celda con la menor suma, f = g + h <a class="ref" href="#f6">6</a>. Las celdas que esperan su turno forman una cola de pendientes, el borde de la búsqueda.</p>
+  <p>Sobre la rejilla, el planificador busca un camino desde la posición del robot hasta la meta. <mark>A estrella revisa las celdas en un orden inteligente.</mark> A cada celda candidata le asigna la suma de dos cosas, lo que ya cuesta llegar desde el origen, que se llama g, y una estimación de lo que falta hasta la meta, que se llama h. Siempre avanza primero por la celda con la menor suma, f = g + h <a class="ref" href="#f6">6</a>. Las celdas que esperan su turno forman una cola de pendientes, el borde de la búsqueda.</p>
   <details class="ficha-concepto"><summary>Ficha del concepto: A estrella</summary><dl><dt>Qué es</dt><dd>Un algoritmo que busca el camino de menor costo en una rejilla y revisa primero las celdas que parecen más prometedoras.</dd><dt>Para qué sirve</dt><dd>Que el planificador global de Nav2 encuentre una ruta desde el robot hasta la meta sobre el mapa de costos.</dd><dt>Cómo funciona</dt><dd>Ordena las celdas pendientes por f = g + h. g es el costo ya recorrido desde el origen y h una estimación de lo que falta hasta la meta.</dd><dt>Dónde verlo</dt><dd><a href="#sim-astar">A estrella frente a Dijkstra</a>, paso a paso.</dd><dt>Ejemplo numérico</dt><dd>En la grilla de ejemplo con un muro, Dijkstra revisa 291 celdas y A estrella 111 para encontrar la misma ruta de 27 pasos.</dd><dt>En este robot</dt><dd>NavFn con A estrella activado, espacio desconocido permitido y tolerancia de 0,5 m.</dd><dt>Límites</dt><dd>Nav2 suma los costos de su propia representación, cuyo escalamiento no se reconstruyó. Por eso la optimalidad de la ruta no se usa como criterio de validación, sino que el controlador local pueda seguirla.</dd></dl></details>
   <div class="widget">
     <div class="widget-cab"><h3 id="sim-astar">A estrella frente a Dijkstra</h3><span class="tipo inter">Interactivo</span><p>Avanza de a un paso o reproduce cada búsqueda. En cada paso se ve la celda que se revisa, el camino que la alcanzó, g, y la estimación de lo que falta, h. Compara cuántas celdas revisa cada una para encontrar la misma ruta.</p></div>
@@ -154,7 +154,7 @@
 
 <section>
   <h2 id="dwb">La ventana dinámica: seguir la ruta sin chocar</h2>
-  <p>La ruta global es una línea sobre el mapa. El robot, en cambio, solo puede cambiar su velocidad un poco en cada instante. El enfoque de ventana dinámica considera solo las velocidades alcanzables desde el estado actual, simula hacia adelante la trayectoria de cada candidata y le pone un puntaje con varios criterios <a class="ref" href="#f9">9</a>. Se elige la de menor puntaje <a class="ref" href="#f1">1</a>.</p>
+  <p>La ruta global es una línea sobre el mapa. El robot, en cambio, solo puede cambiar su velocidad un poco en cada instante. El enfoque de ventana dinámica <mark>considera solo las velocidades alcanzables desde el estado actual</mark>, simula hacia adelante la trayectoria de cada candidata y le pone un puntaje con varios criterios <a class="ref" href="#f9">9</a>. Se elige la de menor puntaje <a class="ref" href="#f1">1</a>.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="sim-dwb">Trayectorias candidatas y su puntaje</h3><span class="tipo inter">Interactivo</span><p>Cambia cuánto pesa cada criterio y mueve el obstáculo. La tabla muestra de qué se compone el puntaje de la trayectoria elegida.</p></div>
     <div class="vis" data-vis="dwb"><p class="vis-fallback">La ventana dinámica prueba combinaciones de velocidad lineal y de giro alcanzables, proyecta cada trayectoria hacia adelante, descarta las que chocan y puntúa el resto con varios criterios, como seguir la ruta global, acercarse a la meta y alejarse de obstáculos. Elige la de menor puntaje. El simulador prueba 7 velocidades entre 0 y 0,15 m/s y 15 giros entre −0,35 y 0,35 rad/s, los límites de DWB en el robot real. Sus pesos son de demostración.</p></div>
@@ -178,7 +178,7 @@
 
 <section>
   <h2 id="recuperacion">Cuando algo falla: recuperaciones</h2>
-  <p>Si falla la planificación o el seguimiento, el árbol de comportamiento actúa primero sobre el mapa de costos correspondiente, porque muchas veces el problema es un obstáculo fantasma que ya no está. Si falla la navegación completa, ejecuta una secuencia de acciones cada vez más insistentes <a class="ref" href="#f1">1</a>.</p>
+  <p>Si falla la planificación o el seguimiento, el árbol de comportamiento actúa primero sobre el mapa de costos correspondiente, porque <mark>muchas veces el problema es un obstáculo fantasma que ya no está</mark>. Si falla la navegación completa, ejecuta una secuencia de acciones cada vez más insistentes <a class="ref" href="#f1">1</a>.</p>
   <ol class="linea">
     <li><b>Limpiar global</b>Borra el mapa de costos en 1,5 m.</li>
     <li><b>Limpiar local</b>Borra el mapa local en 1,0 m.</li>
@@ -197,7 +197,7 @@
 
 <section>
   <h2 id="evaluacion">Qué se evaluó de la navegación</h2>
-  <p>La navegación se evaluó sobre los destinos que genera el explorador, que es lo comprometido en el objetivo general. Nav2 llevó al robot hacia las metas del explorador en las cinco ejecuciones válidas, durante 12,7 min y 21,9 m de recorrido, sin intervención manual, y 59 metas llegaron a ejecutarse. De los 54 abortos, 53 cumplen el criterio temporal de asociación a reemplazos, pero el registro no permite contar por separado las fallas propias de Nav2 <a class="ref" href="#f1">1</a>. Por eso el resultado de esas metas no sirve como tasa de éxito, por una razón que se explica en <a href="exploracion.html#abortadas">Explorar por fronteras</a>.</p>
+  <p>La navegación se evaluó sobre los destinos que genera el explorador, que es lo comprometido en el objetivo general. Nav2 llevó al robot hacia las metas del explorador en las cinco ejecuciones válidas, durante 12,7 min y 21,9 m de recorrido, <mark>sin intervención manual</mark>, y 59 metas llegaron a ejecutarse. De los 54 abortos, 53 cumplen el criterio temporal de asociación a reemplazos, pero el registro no permite contar por separado las fallas propias de Nav2 <a class="ref" href="#f1">1</a>. Por eso el resultado de esas metas no sirve como tasa de éxito, por una razón que se explica en <a href="exploracion.html#abortadas">Explorar por fronteras</a>.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="alcance-nav">Lo evaluado y lo que exigiría medir con metas fijas</h3><span class="tipo datos">Datos de la tesis</span></div>
     <div class="vis" data-vis="alcance"><p class="vis-fallback">Se evaluó la navegación hacia metas del explorador. Medir metas fijas exigiría metas definidas, referencias físicas medidas, una localización coherente en el marco del mapa, que puede venir de SLAM o de AMCL, y un registro independiente de la pose final.</p></div>

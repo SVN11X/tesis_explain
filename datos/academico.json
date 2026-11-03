@@ -6,7 +6,7 @@
   "fecha_datos": "Exploración y mapeo, 22 de junio de 2026 (Anexo 7). La tesis no fecha los demás ensayos.",
   "revision_datos": null,
   "ultima_actualizacion_sitio": "2026-11-02",
-  "revision_base": "0e148bb1fe281eac9de2349b1bc0ee25c6290122",
+  "revision_base": "c1def7a03ef3dce222bf8d6a2df21b093f020508",
   "tesis_pdf": null,
   "pendientes": [
     {
@@ -77,6 +77,11 @@
       "fecha": "2026-11-02",
       "tipo": "plataforma",
       "cambio": "Tema oscuro en todo el sitio, con un botón en la cabecera y en el menú del teléfono, que sigue el del sistema mientras no se elija otro. La portada muestra el robot hecho a partir del CAD del prototipo y todas las figuras dibujan su planta real: la cubierta en U, con el frente curvo y el LiDAR adelante. En la búsqueda A estrella se pueden mover el robot, la meta y los muros. Mapeo agrega una vista 3D del plano del láser frente a las paredes, la mesa y la caja. El contenido académico y las tablas experimentales no cambian."
+    },
+    {
+      "fecha": "2026-11-02",
+      "tipo": "plataforma",
+      "cambio": "El robot 3D de la portada se ve negro con sus franjas amarillas, el panel de su cámara quedó plano y el visor se acerca con botones, con Ctrl y la rueda, con el pellizco y con el teclado. La portada lista las 16 partes de la guía. Cada parte tiene un color que marca sus términos, cifras y números, y las frases clave se resaltan cuando llegan a la pantalla. El contenido académico y las tablas experimentales no cambian."
     }
   ]
 }

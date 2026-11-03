@@ -21,7 +21,7 @@
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#f1f1e9" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#121a17" media="(prefers-color-scheme: dark)">
-<script>try{var t=localStorage.getItem("tema");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script>try{var t=localStorage.getItem("tema");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}try{var d=document.documentElement;if("IntersectionObserver"in window&&!matchMedia("(prefers-reduced-motion: reduce)").matches){d.classList.add("resaltado-animado");setTimeout(function(){if(!window.__resaltado)d.classList.remove("resaltado-animado")},3000)}}catch(e){}</script>
 <!-- FIN TEMA -->
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
 <link rel="preload" href="fuentes/archivo-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
@@ -95,7 +95,7 @@
 
 <section class="en-breve" aria-labelledby="t-breve">
   <h2 id="t-breve">Qué se logró y con qué evidencia</h2>
-  <p>Sí fue posible mapear y explorar un interior con un robot de bajo costo. Cinco de seis ejecuciones produjeron un mapa válido y terminaron solas, sin intervención. La <span class="term" data-t="Odometría" data-def="Estimación de la posición sumando el giro medido de las ruedas.">odometría</span> quedó validada con mediciones, el control se evaluó en el robot real y su estabilidad se verificó con un modelo, y el mapeo, la navegación y la exploración quedaron verificados en funcionamiento. Los mapas, además, quedaron a 3,4 cm en promedio de un plano medido del recinto. Dos objetivos se cumplieron y dos quedaron parciales, y explico por qué con datos.</p>
+  <p><mark>Sí fue posible mapear y explorar un interior con un robot de bajo costo.</mark> Cinco de seis ejecuciones produjeron un mapa válido y terminaron solas, sin intervención. La <span class="term" data-t="Odometría" data-def="Estimación de la posición sumando el giro medido de las ruedas.">odometría</span> quedó validada con mediciones, el control se evaluó en el robot real y su estabilidad se verificó con un modelo, y el mapeo, la navegación y la exploración quedaron verificados en funcionamiento. Los mapas, además, <mark>quedaron a 3,4 cm en promedio de un plano medido del recinto</mark>. <mark>Dos objetivos se cumplieron y dos quedaron parciales</mark>, y explico por qué con datos.</p>
   <p>Hay que leer todo esto con una advertencia. Los ensayos se repitieron muy pocas veces, cinco o seis, así que sus resultados se informan con intervalos de confianza y como una verificación en el entorno ensayado, no como una tasa que se pueda generalizar. Cuánto permiten afirmar está en <a href="#confianza">Cuánto dicen cinco repeticiones</a>.</p>
   <div class="cifras-mini">
     <div><b>5 <small>de 6</small></b><span>exploraciones que terminaron solas con un mapa válido</span></div>
@@ -107,7 +107,7 @@
 
 <section>
   <h2 id="palabras">Validado, evaluado y verificado</h2>
-  <p>Uso tres niveles de evidencia, y entenderlos es la mejor forma de leer los resultados. La diferencia de fondo es la que hace el manual de ingeniería de sistemas de la NASA entre verificar, que es comprobar que se cumplen los requisitos especificados, y validar, que es demostrar que el producto cumple su propósito en el entorno real <a class="ref" href="#f2">2</a>.</p>
+  <p>Uso tres niveles de evidencia, y <mark>entenderlos es la mejor forma de leer los resultados</mark>. La diferencia de fondo es la que hace el manual de ingeniería de sistemas de la NASA entre verificar, que es comprobar que se cumplen los requisitos especificados, y validar, que es demostrar que el producto cumple su propósito en el entorno real <a class="ref" href="#f2">2</a>.</p>
   <div class="decisiones">
     <article class="decision"><span class="d-que"><span class="estado val">Validado cuantitativamente</span></span><h3>Medido contra una referencia independiente</h3><p>Con repeticiones y una referencia externa al propio sistema. Ejemplo, la odometría frente a una cinta métrica, cinco veces.</p></article>
     <article class="decision"><span class="d-que"><span class="estado ok">Evaluado experimentalmente</span></span><h3>Medido en el robot, en condiciones acotadas</h3><p>Con indicadores reales, pero en un caso particular. Ejemplo, el control de velocidad a 0,13 m/s.</p></article>
@@ -159,7 +159,7 @@
     <li class="par"><b>OE3</b><span><b>Localización, mapeo y navegación.</b> Mapeo y localización verificados en el robot real, con cobertura y área. <span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span> llevó al robot hacia las metas del explorador en las cinco ejecuciones válidas, con 21,9 m de recorrido autónomo. De los 54 abortos, 53 cumplen el criterio temporal de asociación a reemplazos, sin que eso descarte fallas concurrentes. Falta un indicador cuantitativo del desempeño de la navegación.</span><em>Parcial</em></li>
     <li class="ok"><b>OE4</b><span><b>Exploración autónoma.</b> Generó 60 metas sin intervención y cinco de seis ejecuciones terminaron solas con mapa válido. En la restante el robot no se desplazó y la causa no se determinó. Sus mapas se compararon con un plano medido. Su principal limitación es que tacha metas que él mismo reemplaza.</span><em>Cumplido</em></li>
   </ul>
-  <p>Respecto de la pregunta de investigación, la respuesta es afirmativa para mapear y explorar en el entorno ensayado. Con seis ejecuciones, el cinco de seis se considera descriptivo y no se generaliza como tasa de desempeño. La navegación funciona de extremo a extremo, y lo que queda abierto es medirla con un protocolo de metas fijas <a class="ref" href="#f1">1</a>.</p>
+  <p>Respecto de la pregunta de investigación, <mark>la respuesta es afirmativa para mapear y explorar en el entorno ensayado</mark>. Con seis ejecuciones, el cinco de seis se considera descriptivo y no se generaliza como tasa de desempeño. La navegación funciona de extremo a extremo, y lo que queda abierto es medirla con un protocolo de metas fijas <a class="ref" href="#f1">1</a>.</p>
 </section>
 
 <section>
@@ -174,12 +174,12 @@
     <div class="dato"><b class="num">3,4 cm</b><span>distancia media del plano medido a los mapas, con 3,17 a 3,72 cm según la corrida</span></div>
     <div class="dato"><b class="num">21,9 m</b><span>recorridos por Nav2 en las cinco corridas válidas, durante 12,7 min y sin intervención</span></div>
   </div>
-  <p>Cuatro lecturas apresuradas que conviene evitar. Decir que el robot cubre el 62 % del recinto, cuando ese índice depende del tamaño de la imagen. Decir que solo una de cada sesenta metas se cumplió, cuando 53 de los 54 abortos coinciden en el tiempo con reemplazos que hace el propio explorador. Decir que el robot exploró todo el recinto, cuando lo que se sabe es que no quedaron fronteras y que las cinco corridas llegaron a la misma área libre. Y decir que cinco de seis es una tasa de éxito de 83 %, cuando con seis ejecuciones solo se puede afirmar que supera el 35,9 %.</p>
+  <p><mark>Cuatro lecturas apresuradas que conviene evitar.</mark> Decir que el robot cubre el 62 % del recinto, cuando ese índice depende del tamaño de la imagen. Decir que solo una de cada sesenta metas se cumplió, cuando 53 de los 54 abortos coinciden en el tiempo con reemplazos que hace el propio explorador. Decir que el robot exploró todo el recinto, cuando lo que se sabe es que no quedaron fronteras y que las cinco corridas llegaron a la misma área libre. Y decir que cinco de seis es una tasa de éxito de 83 %, cuando con seis ejecuciones solo se puede afirmar que supera el 35,9 %.</p>
 </section>
 
 <section>
   <h2 id="confianza">Cuánto dicen cinco repeticiones</h2>
-  <p>Una media calculada con cinco ensayos no es la media verdadera. Es una estimación, y su intervalo de confianza al 95 % dice entre qué valores es razonable que esté la verdadera. Se calcula con la media, la desviación estándar y un factor de la distribución t de Student, que con cinco repeticiones vale 2,776 <a class="ref" href="#f4">4</a>. Para una proporción, como cinco exploraciones válidas de seis, se usa el intervalo exacto de Clopper y Pearson, uno de los más usados para tasas de éxito en la evaluación de robots <a class="ref" href="#f5">5</a>.</p>
+  <p><mark>Una media calculada con cinco ensayos no es la media verdadera.</mark> Es una estimación, y su intervalo de confianza al 95 % dice entre qué valores es razonable que esté la verdadera. Se calcula con la media, la desviación estándar y un factor de la distribución t de Student, que con cinco repeticiones vale 2,776 <a class="ref" href="#f4">4</a>. Para una proporción, como cinco exploraciones válidas de seis, se usa el intervalo exacto de Clopper y Pearson, uno de los más usados para tasas de éxito en la evaluación de robots <a class="ref" href="#f5">5</a>.</p>
   <div class="tabla-env">
     <table class="tabla">
       <thead><tr><th>Indicador</th><th class="n">n</th><th class="n">Media</th><th class="n">Intervalo al 95 %</th></tr></thead>

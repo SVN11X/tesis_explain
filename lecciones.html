@@ -21,7 +21,7 @@
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#f1f1e9" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#121a17" media="(prefers-color-scheme: dark)">
-<script>try{var t=localStorage.getItem("tema");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script>try{var t=localStorage.getItem("tema");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}try{var d=document.documentElement;if("IntersectionObserver"in window&&!matchMedia("(prefers-reduced-motion: reduce)").matches){d.classList.add("resaltado-animado");setTimeout(function(){if(!window.__resaltado)d.classList.remove("resaltado-animado")},3000)}}catch(e){}</script>
 <!-- FIN TEMA -->
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
 <link rel="preload" href="fuentes/archivo-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
@@ -92,7 +92,7 @@
 
 <section class="en-breve" aria-labelledby="t-breve">
   <h2 id="t-breve">Por qué esta página</h2>
-  <p>El aporte de la tesis es la integración de un robot propio. Al validarlo aparecieron resultados que explican el alcance de cada objetivo, como que la ley llamada <span class="term" data-def="Controlador que combina una acción proporcional al error, una integral del error pasado y una derivativa de su tendencia.">PID</span> opera como <span class="term" data-def="Controlador con acción proporcional e integral, sin la acción derivativa de un PID.">PI</span>, que casi todas las metas abortadas coinciden con reemplazos del propio explorador y que el índice de cobertura depende del encuadre del mapa. Detrás de cada uno hay una lección de método que sirve en cualquier proyecto.</p>
+  <p>El aporte de la tesis es la integración de un robot propio. Al validarlo aparecieron resultados que explican el alcance de cada objetivo, como que la ley llamada <span class="term" data-def="Controlador que combina una acción proporcional al error, una integral del error pasado y una derivativa de su tendencia.">PID</span> opera como <span class="term" data-def="Controlador con acción proporcional e integral, sin la acción derivativa de un PID.">PI</span>, que casi todas las metas abortadas coinciden con reemplazos del propio explorador y que el índice de cobertura depende del encuadre del mapa. Detrás de cada uno hay <mark>una lección de método que sirve en cualquier proyecto</mark>.</p>
   <div class="cifras-mini">
     <div><b>1999</b><span>año en que una mezcla de unidades costó una sonda a Marte</span></div>
     <div><b>3</b><span>capas de seguridad del robot, de la persona a la red</span></div>
@@ -101,14 +101,14 @@
 
 <section>
   <h2 id="unidades">Unidades y convenciones de ROS</h2>
-  <p>ROS fija una convención para todos sus robots. Distancias en metros, ángulos en radianes, tiempos en segundos, el eje x hacia adelante, el y hacia la izquierda y los ángulos creciendo en sentido antihorario <a class="ref" href="#f1">1</a>. Parece burocracia, hasta que dos piezas no la respetan. En este robot, el programa que lee el láser tuvo que invertir el sentido de los ángulos del sensor para cumplirla, y el firmware trabaja en pulsos por ciclo mientras ROS trabaja en radianes por segundo. Cada conversión es un lugar donde un error puede esconderse.</p>
+  <p>ROS fija una convención para todos sus robots. Distancias en metros, ángulos en radianes, tiempos en segundos, el eje x hacia adelante, el y hacia la izquierda y los ángulos creciendo en sentido antihorario <a class="ref" href="#f1">1</a>. <mark>Parece burocracia, hasta que dos piezas no la respetan.</mark> En este robot, el programa que lee el láser tuvo que invertir el sentido de los ángulos del sensor para cumplirla, y el firmware trabaja en pulsos por ciclo mientras ROS trabaja en radianes por segundo. Cada conversión es un lugar donde un error puede esconderse.</p>
   <p>La historia más citada sobre esto es la sonda Mars Climate Orbiter, perdida en 1999 al llegar a Marte. Un equipo entregó datos de impulso de los propulsores en unidades inglesas y el software que los recibía esperaba unidades del sistema métrico. El error se acumuló durante meses de viaje hasta llevar la sonda a una trayectoria demasiado baja <a class="ref" href="#f2">2</a>.</p>
   <p class="destacado">Una convención compartida vale más que una buena intención, porque la cumple también quien no leyó el documento.</p>
 </section>
 
 <section>
   <h2 id="verificar">Verificar y validar</h2>
-  <p>El manual de ingeniería de sistemas de la NASA distingue dos cosas que el lenguaje cotidiano mezcla. Verificar es demostrar que un producto cumple cada requisito especificado. Validar es demostrar que cumple su propósito en el entorno real en que se usará <a class="ref" href="#f3">3</a>. Usé ese vocabulario en todo el trabajo. La <span class="term" data-t="Odometría" data-def="Estimación de la posición sumando el giro medido de las ruedas.">odometría</span> quedó validada contra una cinta métrica, el gemelo digital quedó verificado con cuatro criterios y la exploración quedó verificada en funcionamiento.</p>
+  <p>El manual de ingeniería de sistemas de la NASA distingue dos cosas que el lenguaje cotidiano mezcla. Verificar es demostrar que un producto cumple cada requisito especificado. <mark>Validar es demostrar que cumple su propósito en el entorno real en que se usará</mark> <a class="ref" href="#f3">3</a>. Usé ese vocabulario en todo el trabajo. La <span class="term" data-t="Odometría" data-def="Estimación de la posición sumando el giro medido de las ruedas.">odometría</span> quedó validada contra una cinta métrica, el gemelo digital quedó verificado con cuatro criterios y la exploración quedó verificada en funcionamiento.</p>
   <p>La lección práctica es sencilla. Antes de escribir validado, pregunta contra qué referencia independiente se comparó. Si no hay una, la palabra correcta es otra. Ver <a href="resultados.html#palabras">La evidencia</a>.</p>
 </section>
 
@@ -120,14 +120,14 @@
 
 <section id="tipos-sec">
   <h2 id="tipos">El tipo de dato también es diseño</h2>
-  <p>En el firmware original las ganancias eran enteras y el término integral se guardaba como entero sin perder nada. Al pasar a ganancias con decimales, el término integral siguió siendo un entero de 16 bits, y los productos menores que uno empezaron a desaparecer. En la rueda derecha, el término integral quedó siempre en cero <a class="ref" href="#f4">4</a>.</p>
+  <p>En el firmware original las ganancias eran enteras y el término integral se guardaba como entero sin perder nada. Al pasar a ganancias con decimales, el término integral siguió siendo un entero de 16 bits, y <mark>los productos menores que uno empezaron a desaparecer</mark>. En la rueda derecha, el término integral quedó siempre en cero <a class="ref" href="#f4">4</a>.</p>
   <p>Hay un segundo caso en el mismo firmware. Los contadores de los <span class="term" data-t="Encoder" data-def="Sensor que produce dos señales desfasadas al girar un eje, para contar el giro y saber su sentido.">encoders</span> son enteros de 32 bits, y en un Arduino Nano leer 32 bits no es una operación indivisible. Si una interrupción cambia el contador justo mientras se copia, la lectura puede quedar a medias. Lo documenté como una condición conservada del código original. La recomendación general es leer esas variables con las interrupciones pausadas por un instante.</p>
   <p>Cambiar una parte de un cálculo sin revisar los tipos del resto es uno de los errores más comunes al adaptar código embebido, y uno de los más difíciles de ver, porque nada avisa. Ver <a href="control.html#enteros">Los decimales que se pierden</a>.</p>
 </section>
 
 <section>
   <h2 id="metricas">Qué significa una meta abortada</h2>
-  <p>De 60 metas de navegación, 54 quedaron abortadas. Leído a la ligera, el robot fallaba casi siempre. Leído con cuidado, 53 de esos abortos coinciden en el tiempo con reemplazos hechos por el propio explorador, que cambia de destino cada 3,3 s, y <span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span> informa ese reemplazo con la misma palabra que una falla <a class="ref" href="#f4">4</a>. La lectura cuidadosa también tiene su límite, y conviene decirlo: un criterio temporal no descarta que alguna falla haya ocurrido al mismo tiempo.</p>
+  <p>De 60 metas de navegación, 54 quedaron abortadas. Leído a la ligera, el robot fallaba casi siempre. Leído con cuidado, 53 de esos abortos coinciden en el tiempo con reemplazos hechos por el propio explorador, que cambia de destino cada 3,3 s, y <span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span> <mark>informa ese reemplazo con la misma palabra que una falla</mark> <a class="ref" href="#f4">4</a>. La lectura cuidadosa también tiene su límite, y conviene decirlo: un criterio temporal no descarta que alguna falla haya ocurrido al mismo tiempo.</p>
   <p>El mismo episodio trae una segunda lección. Los contadores automáticos del ensayo contaban mensajes de estado y no metas únicas, y uno de ellos quedó en cero porque buscaba un texto que nunca se imprimía. Se pudo corregir porque los datos crudos se guardaron completos. De ahí dos prácticas que sirven en cualquier experimento. Registrar identificadores únicos de cada evento que se quiera contar, y guardar los datos crudos además de los resúmenes. Ver <a href="exploracion.html#abortadas">Explorar por fronteras</a>.</p>
   <p class="destacado">Antes de confiar en un contador, pregunta qué cuenta exactamente.</p>
 </section>
@@ -141,7 +141,7 @@
 
 <section>
   <h2 id="reproducibilidad">Reproducible significa que otra persona llega al mismo número</h2>
-  <p>El <span class="term" data-def="Optimización por enjambre de partículas, que busca el mejor valor moviendo muchos candidatos que comparten lo que encuentran.">PSO</span> que buscó las ganancias parte de números al azar y no fijaba una semilla, así que al repetirlo da resultados algo distintos. Conservé la salida exacta de la ejecución usada, que es lo mínimo. Lo ideal es fijar la semilla y guardar la salida <a class="ref" href="#f4">4</a>.</p>
+  <p>El <span class="term" data-def="Optimización por enjambre de partículas, que busca el mejor valor moviendo muchos candidatos que comparten lo que encuentran.">PSO</span> que buscó las ganancias parte de números al azar y no fijaba una semilla, así que al repetirlo da resultados algo distintos. Conservé la salida exacta de la ejecución usada, que es lo mínimo. <mark>Lo ideal es fijar la semilla y guardar la salida</mark> <a class="ref" href="#f4">4</a>.</p>
   <p>Las versiones de software son la otra mitad del problema. Ubuntu 20.04, <span class="term" data-def="Conjunto de bibliotecas y herramientas de código abierto para construir sistemas robóticos modulares y distribuidos.">ROS 2</span> Foxy y <span class="term" data-def="Simulador 3D de robots, aquí en su versión 11, que llegó al fin de soporte en enero de 2025.">Gazebo Classic</span> se congelaron al inicio para que toda la cadena funcionara, una decisión razonable para terminar un proyecto. Hoy los tres están fuera de soporte <a class="ref" href="#f5">5</a>. Quien quiera repetir el trabajo necesita esas versiones exactas, que dejé registradas, y quien quiera continuarlo necesita migrar. Una buena práctica es empaquetar el entorno completo en un contenedor, por ejemplo con Docker, para que la versión exacta siga disponible aunque el sistema operativo cambie.</p>
 </section>
 

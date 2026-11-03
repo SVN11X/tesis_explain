@@ -298,8 +298,37 @@
     });
   }
 
+  /* Resaltado de marcador en todo el sitio: los <mark>, los .resalta y las negritas de los párrafos de la guía.
+     El trazo se dibuja de izquierda a derecha cuando el texto llega a la pantalla, como si alguien lo pasara con
+     un marcador, y los de un mismo párrafo van uno tras otro. El script del <head> marca resaltado-animado antes
+     de pintar. Sin JavaScript, con movimiento reducido o si este archivo no llega, el resaltado ya está puesto. */
+  var RESALTABLES = "mark, .resalta, .articulo :is(p, li, dd) > :is(b, strong):not(.bib-donde > b, .bib-cita-tesis > b, .bib-diferencia > b, .bib-codigo > b, .q-respaldo > b)";
+  function resaltados() {
+    var raiz = document.documentElement;
+    if (!raiz.classList.contains("resaltado-animado")) return;
+    window.__resaltado = true;
+    var lista;
+    try { lista = document.querySelectorAll(RESALTABLES); } catch (e) { raiz.classList.remove("resaltado-animado"); return; }
+    var io = new IntersectionObserver(function (ents) {
+      ents.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("resaltado-listo"); io.unobserve(e.target); } });
+    }, { rootMargin: "0px 0px -15% 0px" });
+    var porParrafo = typeof Map === "function" ? new Map() : null;
+    [].forEach.call(lista, function (el) {
+      var p = el.parentElement, orden = porParrafo ? (porParrafo.get(p) || 0) : 0;
+      if (porParrafo) porParrafo.set(p, orden + 1);
+      var largo = (el.textContent || "").length;
+      el.style.setProperty("--resalta-dur", Math.min(1.5, Math.max(.5, largo * .03)).toFixed(2) + "s");
+      el.style.setProperty("--resalta-retraso", (orden * .4).toFixed(2) + "s");
+      el.classList.add("resaltable");
+      io.observe(el);
+    });
+    S.resaltar = function (contenedor) {
+      [].forEach.call((contenedor || document).querySelectorAll(RESALTABLES), function (el) { if (!el.classList.contains("resaltable")) { el.classList.add("resaltable"); io.observe(el); } });
+    };
+  }
+
   function arrancar() {
-    [tema, menu, buscador].forEach(function (f) { try { f(); } catch (e) { if (window.console) console.error(e); } });
+    [tema, menu, buscador, resaltados].forEach(function (f) { try { f(); } catch (e) { if (window.console) console.error(e); } });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", arrancar); else arrancar();
 })();

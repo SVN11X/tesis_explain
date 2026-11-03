@@ -21,7 +21,7 @@
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#f1f1e9" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#121a17" media="(prefers-color-scheme: dark)">
-<script>try{var t=localStorage.getItem("tema");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script>try{var t=localStorage.getItem("tema");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}try{var d=document.documentElement;if("IntersectionObserver"in window&&!matchMedia("(prefers-reduced-motion: reduce)").matches){d.classList.add("resaltado-animado");setTimeout(function(){if(!window.__resaltado)d.classList.remove("resaltado-animado")},3000)}}catch(e){}</script>
 <!-- FIN TEMA -->
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
 <link rel="preload" href="fuentes/archivo-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
@@ -92,7 +92,7 @@
 
 <section class="en-breve" aria-labelledby="t-breve">
   <h2 id="t-breve">Lo necesario para repetir este robot</h2>
-  <p>Los materiales montados en el robot costaron 444 643 pesos, y 582 447 con los accesorios de operación. Falta sumar un computador para el mapeo y la navegación. El software parte de proyectos abiertos, todos citados aquí, con una serie de videos que explica casi cada paso. Si empiezas hoy, usa una distribución vigente de <span class="term" data-def="Conjunto de bibliotecas y herramientas de código abierto para construir sistemas robóticos modulares y distribuidos.">ROS 2</span> y no Foxy. Lo que más me sirvió fue aprender a medir, a registrar y a leer código ajeno.</p>
+  <p>Los materiales montados en el robot costaron 444 643 pesos, y 582 447 con los accesorios de operación. <mark>Falta sumar un computador para el mapeo y la navegación.</mark> El software parte de proyectos abiertos, todos citados aquí, con una serie de videos que explica casi cada paso. <mark>Si empiezas hoy, usa una distribución vigente</mark> de <span class="term" data-def="Conjunto de bibliotecas y herramientas de código abierto para construir sistemas robóticos modulares y distribuidos.">ROS 2</span> y no Foxy. <mark>Lo que más me sirvió fue aprender a medir, a registrar y a leer código ajeno.</mark></p>
   <div class="cifras-mini">
     <div><b>582 447 <small>CLP</small></b><span>costo total del proyecto, sin el computador</span></div>
     <div><b>127 234 <small>CLP</small></b><span>en tornillería y kits, el gasto más fácil de reducir</span></div>
@@ -190,7 +190,7 @@
 
 <section>
   <h2 id="versiones">Versiones de software</h2>
-  <p>Estas son las versiones exactas con que obtuve los resultados <a class="ref" href="#f1">1</a>. Sirven para reproducirlos, no como recomendación para un proyecto nuevo.</p>
+  <p>Estas son las versiones exactas con que obtuve los resultados <a class="ref" href="#f1">1</a>. <mark>Sirven para reproducirlos, no como recomendación para un proyecto nuevo.</mark></p>
   <div class="tabla-env angosta">
     <table class="tabla compacta">
       <tbody>
@@ -253,7 +253,7 @@
 
 <section>
   <h2 id="orden">Una ruta recomendada para replicarlo</h2>
-  <p>Es un orden sugerido para quien empieza: simular antes de construir y avanzar de abajo hacia arriba, sin pasar a la capa siguiente hasta medir la anterior. El orden no sigue la cronología de mi trabajo. La última columna dice qué hice en cada paso, para distinguir lo medido de lo que queda pendiente <a class="ref" href="#f1">1</a>.</p>
+  <p>Es un orden sugerido para quien empieza: <mark>simular antes de construir y avanzar de abajo hacia arriba</mark>, sin pasar a la capa siguiente hasta medir la anterior. El orden no sigue la cronología de mi trabajo. La última columna dice qué hice en cada paso, para distinguir lo medido de lo que queda pendiente <a class="ref" href="#f1">1</a>.</p>
   <div class="tabla-env">
     <table class="tabla ruta-replica">
       <thead><tr><th>Paso</th><th>Qué hacer</th><th>En esta tesis</th></tr></thead>

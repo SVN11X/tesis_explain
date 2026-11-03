@@ -1288,3 +1288,37 @@ figure.esquema .b-ampliar { position: static; margin-top: 10px; }
 .caso .caso-media.icono svg { transition: transform var(--dur-3) var(--curva); }
 .caso:hover .caso-media.icono svg { transform: scale(1.08); }
 @media print { .anima .revela:not(.visible) { opacity: 1; } }
+
+/* 16. Color por tema. Cada página toma su color de css/marco.css (--tema, --tema-fondo y --tema-marca) según
+   data-pagina, y cada fila de la guía según data-pag. El color marca lo que conviene encontrar de un vistazo:
+   los términos con definición, las palabras en negrita, las cifras, el número de cada parte y la parte actual.
+   El texto corrido sigue en tinta. */
+.tema-hero::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 4px; background: var(--tema); }
+.tema-hero .eyebrow[data-bloque] { color: var(--tema); }
+.tema-hero h1::after { content: ""; display: block; width: 2.2em; height: .09em; min-height: 4px; margin-top: .32em; background: var(--tema); }
+.miga a:hover { color: var(--tema); }
+.en-breve::before { background: var(--tema); }
+.en-breve h2 { color: var(--tema); }
+.cifras-mini div { border-top: 2px solid var(--tema); }
+.cifras-mini b { color: var(--tema); }
+.articulo > section > h2:not(#t-breve)::before { content: ""; display: block; width: 44px; height: 4px; margin-bottom: 16px; background: var(--tema); }
+.articulo li::marker { color: var(--tema); }
+.articulo h3 .ancla, .articulo h2 .ancla { color: var(--tema); }
+/* Términos del glosario: el color del tema y el subrayado punteado que anuncia su definición */
+.term { color: var(--tema); text-decoration-color: color-mix(in srgb, var(--tema) 75%, transparent); }
+.term[aria-expanded="true"] { background: var(--tema-fondo); }
+/* Palabras clave en negrita: un resaltador bajo la mitad inferior de la palabra. Las etiquetas que abren un párrafo
+   de la bibliografía y de las preguntas llevan el color del tema sin resaltador. */
+.articulo :is(p, li, dd) > :is(b, strong) { background-image: linear-gradient(var(--tema-marca), var(--tema-marca)); background-repeat: no-repeat; background-position: 0 88%; background-size: 100% 58%; padding-inline: .06em; }
+.articulo :is(.bib-donde, .bib-cita-tesis, .bib-diferencia, .bib-codigo, .q-respaldo) > b { background: none; padding: 0; color: var(--tema); }
+.articulo a:not([class]) { text-decoration-color: color-mix(in srgb, var(--tema) 65%, transparent); }
+.articulo a:not([class]):hover { color: var(--tema); text-decoration-color: currentColor; }
+.ficha-concepto, .articulo .ficha-concepto { border-left-color: var(--tema); }
+.ficha-concepto dt { color: var(--tema); }
+/* La guía en el lateral y en el menú: el número de cada parte con su color, y la actual con su fondo */
+.lateral .gl-item .n, .menu-guia a[data-pag] .n { color: var(--tema); font-weight: 600; font-size: .8125rem; }
+.lateral .gl-fila > a { grid-template-columns: 30px 1fr; }
+.lateral a[aria-current="page"] { background: var(--tema-fondo); box-shadow: inset 3px 0 0 var(--tema); }
+.lateral .gl-secciones a.activo { border-left-color: var(--tema); box-shadow: inset 1px 0 0 var(--tema); }
+.gl-pos { color: var(--tema); }
+@media print { .tema-hero::before { display: none; } }

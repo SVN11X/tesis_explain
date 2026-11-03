@@ -21,7 +21,7 @@
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#f1f1e9" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#121a17" media="(prefers-color-scheme: dark)">
-<script>try{var t=localStorage.getItem("tema");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script>try{var t=localStorage.getItem("tema");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}try{var d=document.documentElement;if("IntersectionObserver"in window&&!matchMedia("(prefers-reduced-motion: reduce)").matches){d.classList.add("resaltado-animado");setTimeout(function(){if(!window.__resaltado)d.classList.remove("resaltado-animado")},3000)}}catch(e){}</script>
 <!-- FIN TEMA -->
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
 <link rel="preload" href="fuentes/archivo-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
@@ -95,7 +95,7 @@
 
 <section class="en-breve" aria-labelledby="t-breve">
   <h2 id="t-breve">Un PI que sigue 0,13 m/s</h2>
-  <p>Cada rueda tiene su propio lazo de control en el Arduino. La ley heredada del firmware se llama <span class="term" data-def="Controlador que combina una acción proporcional al error, una integral del error pasado y una derivativa de su tendencia.">PID</span>, pero al leer su código vi que opera como un <span class="term" data-def="Controlador que en cada ciclo calcula cuánto cambiar la salida, en vez de calcularla completa.">PI incremental</span>, sin acción derivativa. Sus ganancias partieron de una búsqueda con enjambre de partículas sobre un modelo de cada rueda y las terminé de ajustar en el robot real. Con ellas, ambas ruedas siguen 0,13 m/s sin sobreimpulso apreciable dentro de lo que la medición alcanza a ver. Con ese mismo modelo verifiqué que el lazo discreto es estable y calculé cuánto margen le queda, sin olvidar que el análisis es lineal y el firmware no lo es.</p>
+  <p>Cada rueda tiene su propio lazo de control en el Arduino. La ley heredada del firmware se llama <span class="term" data-def="Controlador que combina una acción proporcional al error, una integral del error pasado y una derivativa de su tendencia.">PID</span>, pero al leer su código vi que opera como un <span class="term" data-def="Controlador que en cada ciclo calcula cuánto cambiar la salida, en vez de calcularla completa.">PI incremental</span>, <mark>sin acción derivativa</mark>. Sus ganancias partieron de una búsqueda con enjambre de partículas sobre un modelo de cada rueda y las terminé de ajustar en el robot real. Con ellas, <mark>ambas ruedas siguen 0,13 m/s sin sobreimpulso apreciable</mark> dentro de lo que la medición alcanza a ver. Con ese mismo modelo verifiqué que el lazo discreto es estable y calculé cuánto margen le queda, sin olvidar que <mark>el análisis es lineal y el firmware no lo es</mark>.</p>
   <div class="cifras-mini">
     <div><b>0,002 <small>m/s</small></b><span><span class="term" data-def="Diferencia que queda entre la velocidad pedida y el promedio de la velocidad medida cuando el arranque ya terminó y la respuesta se estabilizó.">error estacionario</span> máximo, en la rueda izquierda</span></div>
     <div><b>0,8 <small>y</small> 1,4 <small>s</small></b><span>tiempo de subida de cada rueda, del 10 al 90 %</span></div>
@@ -106,7 +106,7 @@
 
 <section>
   <h2 id="lazo-cerrado">El lazo cerrado en una idea</h2>
-  <p>Si a un motor se le da siempre la misma tensión, su velocidad cambia con la carga, la batería y el roce. Un lazo cerrado lo resuelve midiendo. Compara la velocidad que se quiere con la que se mide, y la diferencia, llamada error, decide cuánto subir o bajar la tensión media que recibe el motor <a class="ref" href="#f1">1</a>.</p>
+  <p>Si a un motor se le da siempre la misma tensión, su velocidad cambia con la carga, la batería y el roce. <mark>Un lazo cerrado lo resuelve midiendo.</mark> Compara la velocidad que se quiere con la que se mide, y la diferencia, llamada error, decide cuánto subir o bajar la tensión media que recibe el motor <a class="ref" href="#f1">1</a>.</p>
   <p>En este robot las señales del lazo no usan todas la misma unidad. Lo pedido y lo medido se cuentan en <span class="term" data-def="Flancos del encoder contados durante un ciclo de control de 33 ms. A 30 Hz nominales, 1 m/s de la rueda equivale a 313,56 ticks/ciclo.">ticks por ciclo</span>, la orden al motor es <span class="term" data-def="Modulación por ancho de pulso: el driver enciende y apaga el motor muy rápido. El firmware la expresa como un número entre −255 y 255. El signo indica el sentido.">PWM</span> y la rueda responde con una velocidad física en m/s. El dibujo sigue un ciclo completo con esas unidades.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="sim-lazo-rueda">El lazo de una rueda, señal por señal</h3><span class="tipo inter">Interactivo</span><p>Elige una etapa del ciclo para ver qué bloque actúa, qué señal recibe y en qué unidad.</p></div>
@@ -135,7 +135,7 @@
 <section>
   <h2 id="tiempo-discreto">Continuo y discreto: cuándo se calcula el control</h2>
   <h3 id="que-es-ciclo">Un ciclo es una vuelta completa de medir, comparar y actuar</h3>
-  <p>El Arduino cuenta los ticks del encoder, compara con la referencia, calcula la corrección y actualiza el PWM. Esa secuencia es un <span class="term" data-def="Una ejecución completa del lazo: leer lo medido desde la ejecución anterior, calcular el error y actualizar la orden al motor. En este firmware se programa aproximadamente cada 33 ms.">ciclo de control</span>. Después mantiene esa orden hasta el siguiente cálculo. La rueda sigue moviéndose entre ciclos.</p>
+  <p>El Arduino cuenta los ticks del encoder, compara con la referencia, calcula la corrección y actualiza el PWM. Esa secuencia es un <span class="term" data-def="Una ejecución completa del lazo: leer lo medido desde la ejecución anterior, calcular el error y actualizar la orden al motor. En este firmware se programa aproximadamente cada 33 ms.">ciclo de control</span>. Después mantiene esa orden hasta el siguiente cálculo. <mark>La rueda sigue moviéndose entre ciclos.</mark></p>
   <p><strong>Frecuencia</strong> dice cuántos cálculos se hacen en un segundo. <strong>Período</strong> dice cuánto tiempo hay entre ellos. Son inversos: T = 1/f. A 30 Hz, T = 1/30 s = 0,03333 s = 33,33 ms. El firmware calcula <code>1000 / 30</code> como entero y programa <strong>33 ms</strong>, por eso aquí se habla de unos 30 ciclos/s, no de una frecuencia medida exacta <a class="ref" href="#f10">10</a>.</p>
   <div class="tabla-env">
     <table class="tabla">
@@ -246,7 +246,7 @@
 
 <section>
   <h2 id="enteros">Los decimales que se pierden</h2>
-  <p>El Arduino Nano guarda varios resultados intermedios como números enteros. Las ganancias se aplican con decimales, pero el error, el aumento de la salida y el término integral se recortan hacia cero al guardarse <a class="ref" href="#f1">1</a>. Si el incremento calculado es 0,9 PWM, se guarda 0 PWM: la orden al motor no cambia en ese ciclo. No se guarda ese 0,9 para sumarlo después.</p>
+  <p>El Arduino Nano guarda varios resultados intermedios como números enteros. Las ganancias se aplican con decimales, pero el error, el aumento de la salida y el término integral se recortan hacia cero al guardarse <a class="ref" href="#f1">1</a>. Si el incremento calculado es 0,9 PWM, se guarda 0 PWM: <mark>la orden al motor no cambia en ese ciclo</mark>. No se guarda ese 0,9 para sumarlo después.</p>
   <details class="detalle"><summary>Ver el detalle técnico</summary>
   <div class="widget">
     <div class="widget-cab"><h3 id="ciclo">Un ciclo del firmware, con sus números</h3><span class="tipo inter">Interactivo</span><p>Elige una situación o mueve las mediciones. En rojo aparece cada corte.</p></div>
@@ -281,7 +281,7 @@
 
 <section>
   <h2 id="zonas-muertas">Dos zonas muertas que no significan lo mismo</h2>
-  <p>En el conjunto driver y motor, la <strong>zona muerta física</strong> se refiere a un rango de PWM que no consigue mover la rueda. En el firmware, la <span class="term" data-def="Intervalo de error que el software trata como cero: ±1 tick/ciclo en la derecha y ±2 en la izquierda. Se aplica al error, no al PWM del motor.">banda muerta del error</span> es una decisión del software para ignorar diferencias pequeñas. La primera usa PWM y la segunda, ticks/ciclo. No son intercambiables.</p>
+  <p>En el conjunto driver y motor, la <strong>zona muerta física</strong> se refiere a un rango de PWM que no consigue mover la rueda. En el firmware, la <span class="term" data-def="Intervalo de error que el software trata como cero: ±1 tick/ciclo en la derecha y ±2 en la izquierda. Se aplica al error, no al PWM del motor.">banda muerta del error</span> es una decisión del software para ignorar diferencias pequeñas. La primera usa PWM y la segunda, ticks/ciclo. <mark>No son intercambiables.</mark></p>
   <div class="widget">
     <div class="widget-cab"><h3 id="sim-zonas">Hay señal sin movimiento, o hay error que el software ignora</h3><span class="tipo inter">Interactivo</span><p>Primero mueve el PWM a través de un umbral supuesto. Luego cambia el error y la rueda para ver la banda documentada del firmware.</p></div>
     <div class="vis" data-vis="zonas"><p class="vis-fallback">La zona muerta del motor relaciona PWM con velocidad. La banda del software trata como cero errores de hasta 1 tick/ciclo en la derecha y 2 en la izquierda.</p></div>
@@ -365,7 +365,7 @@
 
 <section>
   <h2 id="resultado">El resultado y cómo leerlo</h2>
-  <p>Con las ganancias finales, ambas ruedas alcanzan la referencia de 0,13 m/s en el robot real, y la referencia se alcanza cerca de un segundo antes que con las ganancias del PSO <a class="ref" href="#f1">1</a>.</p>
+  <p>Con las ganancias finales, ambas ruedas alcanzan la referencia de 0,13 m/s en el robot real, y <mark>la referencia se alcanza cerca de un segundo antes que con las ganancias del PSO</mark> <a class="ref" href="#f1">1</a>.</p>
   <div class="tabla-env">
     <table class="tabla">
       <thead><tr><th>Indicador</th><th class="n">Rueda izquierda</th><th class="n">Rueda derecha</th></tr></thead>

@@ -141,7 +141,7 @@
         extra.innerHTML = (hs.length ? '<p class="menu-grupo" id="menu-secciones-t">En esta página</p><nav class="menu-secciones" aria-labelledby="menu-secciones-t">' +
           hs.map(function (h) { return '<a href="#' + h.id + '" data-id="' + h.id + '">' + esc(sinAncla(h)) + '</a>'; }).join("") + '</nav>' : '') +
           '<p class="menu-grupo" id="menu-guia-t">La guía</p><nav class="menu-guia" aria-labelledby="menu-guia-t">' + SECUENCIA.map(function (x, i) {
-            return '<a href="' + x.id + '.html"' + (x.id === pagina ? ' aria-current="page"' : '') + '><span class="n">' + n2(i) + '</span>' + esc(x.t) + '</a>';
+            return '<a href="' + x.id + '.html" data-pag="' + x.id + '"' + (x.id === pagina ? ' aria-current="page"' : '') + '><span class="n">' + n2(i) + '</span>' + esc(x.t) + '</a>';
           }).join("") + '</nav><p class="menu-grupo">El sitio</p>';
         mp.insertBefore(extra, mp.firstChild);
       }

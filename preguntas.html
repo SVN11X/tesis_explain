@@ -21,7 +21,7 @@
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#f1f1e9" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#121a17" media="(prefers-color-scheme: dark)">
-<script>try{var t=localStorage.getItem("tema");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script>try{var t=localStorage.getItem("tema");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}try{var d=document.documentElement;if("IntersectionObserver"in window&&!matchMedia("(prefers-reduced-motion: reduce)").matches){d.classList.add("resaltado-animado");setTimeout(function(){if(!window.__resaltado)d.classList.remove("resaltado-animado")},3000)}}catch(e){}</script>
 <!-- FIN TEMA -->
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
 <link rel="preload" href="fuentes/archivo-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
@@ -99,8 +99,8 @@
 
 <section class="en-breve" aria-labelledby="t-breve">
   <h2 id="t-breve">Cómo usar esta página</h2>
-  <p>Cada pregunta se abre para mostrar su respuesta. Debajo vienen la repregunta más probable, la sección de la tesis que la respalda y un enlace al tema de la guía que la explica con calma. Puedes buscar una palabra o una cifra, filtrar por tema y por nivel, o pedir una pregunta al azar.</p>
-  <p class="q-procedencia">El respaldo indica la sección de la tesis que sostiene cada respuesta, en su versión de octubre de 2026. Las dos decisiones marcadas como pendientes siguen abiertas, y las respuestas no representan palabras del autor.</p>
+  <p>Cada pregunta se abre para mostrar su respuesta. Debajo vienen la repregunta más probable, <mark>la sección de la tesis que la respalda</mark> y un enlace al tema de la guía que la explica con calma. Puedes buscar una palabra o una cifra, filtrar por tema y por nivel, o pedir una pregunta al azar.</p>
+  <p class="q-procedencia">El respaldo indica la sección de la tesis que sostiene cada respuesta, en su versión de octubre de 2026. Las dos decisiones marcadas como pendientes siguen abiertas, y <mark>las respuestas no representan palabras del autor</mark>.</p>
   <p>El <b>modo práctica</b> esconde las respuestas. Al abrir una pregunta primero aparece un espacio para pensar o escribir tu respuesta, y la respuesta de la tesis se muestra recién cuando la pides. Así puedes comparar lo que dijiste con lo que respalda el documento.</p>
 </section>
 

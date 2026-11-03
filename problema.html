@@ -21,7 +21,7 @@
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#f1f1e9" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#121a17" media="(prefers-color-scheme: dark)">
-<script>try{var t=localStorage.getItem("tema");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script>try{var t=localStorage.getItem("tema");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}try{var d=document.documentElement;if("IntersectionObserver"in window&&!matchMedia("(prefers-reduced-motion: reduce)").matches){d.classList.add("resaltado-animado");setTimeout(function(){if(!window.__resaltado)d.classList.remove("resaltado-animado")},3000)}}catch(e){}</script>
 <!-- FIN TEMA -->
 <link rel="icon" href="img/icono.svg" type="image/svg+xml">
 <link rel="preload" href="fuentes/archivo-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
@@ -93,7 +93,7 @@
 
 <section class="en-breve" aria-labelledby="t-breve">
   <h2 id="t-breve">Percibir, ubicarse, moverse y decidir a la vez</h2>
-  <p>Un robot autónomo de interiores tiene que percibir, saber dónde está, mover sus ruedas con precisión y decidir a dónde ir, todo a la vez. Las piezas de software libre para cada tarea ya existían. Mi desafío fue elegirlas con criterio, integrarlas en un robot de bajo costo y medir qué funcionó y qué no.</p>
+  <p>Un robot autónomo de interiores tiene que <mark>percibir, saber dónde está, mover sus ruedas con precisión y decidir a dónde ir, todo a la vez</mark>. Las piezas de software libre para cada tarea ya existían. Mi desafío fue <mark>elegirlas con criterio, integrarlas en un robot de bajo costo y medir qué funcionó y qué no</mark>.</p>
   <div class="cifras-mini">
     <div><b>4</b><span>problemas que se resuelven en un mismo ciclo: percibir, estimar, decidir y moverse</span></div>
     <div><b>2 <small>de 4</small></b><span>objetivos específicos cumplidos por completo, y dos en forma parcial</span></div>
@@ -110,7 +110,7 @@
 
 <section>
   <h2 id="cuatro-problemas">Lo que un robot autónomo resuelve a la vez</h2>
-  <p>Un robot móvil autónomo para interiores necesita resolver cuatro tareas de forma integrada <a class="ref" href="#f1">1</a>. Ninguna funciona sola. Si la estimación de posición falla, el mapa se deforma. Si el mapa se deforma, la ruta pasa por donde hay una pared. Y si las ruedas no siguen la velocidad pedida, la ruta perfecta no sirve de nada.</p>
+  <p>Un robot móvil autónomo para interiores necesita resolver cuatro tareas de forma integrada <a class="ref" href="#f1">1</a>. <mark>Ninguna funciona sola.</mark> Si la estimación de posición falla, el mapa se deforma. Si el mapa se deforma, la ruta pasa por donde hay una pared. Y si las ruedas no siguen la velocidad pedida, la ruta perfecta no sirve de nada.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="ciclo">El ciclo de un robot autónomo</h3><span class="tipo ilus">Diagrama</span><p>Cada caja tiene su tema en esta guía. Las ruedas se corrigen 30 veces por segundo y el destino se revisa cada 3,3 s.</p></div>
     <div class="vis">
@@ -150,7 +150,7 @@
 
 <section>
   <h2 id="estado-del-arte">El estado del arte y cada decisión</h2>
-  <p>Ninguna pieza de este robot es nueva. Mi trabajo fue elegir entre alternativas con costos distintos, y el criterio que repetí fue la integración con ROS 2 y el bajo costo, antes que la máxima capacidad <a class="ref" href="#f1">1</a>. Estas son las decisiones, con las alternativas que descarté y la razón.</p>
+  <p>Ninguna pieza de este robot es nueva. Mi trabajo fue elegir entre alternativas con costos distintos, y el criterio que repetí fue <mark>la integración con ROS 2 y el bajo costo, antes que la máxima capacidad</mark> <a class="ref" href="#f1">1</a>. Estas son las decisiones, con las alternativas que descarté y la razón.</p>
   <div class="decisiones">
     <article class="decision">
       <span class="d-que">Plataforma de software</span>
@@ -210,7 +210,7 @@
 
 <section>
   <h2 id="aporte">Qué aporta este trabajo</h2>
-  <p>El firmware del Arduino y la interfaz con ROS 2 los adapté de proyectos de código abierto, y el paquete del robot partió de uno existente <a class="ref" href="#f13">13</a>. Decir el origen de cada pieza deja claro dónde está el trabajo propio.</p>
+  <p>El firmware del Arduino y la interfaz con ROS 2 los adapté de proyectos de código abierto, y el paquete del robot partió de uno existente <a class="ref" href="#f13">13</a>. <mark>Decir el origen de cada pieza deja claro dónde está el trabajo propio.</mark></p>
   <div class="argumento">
     <div><span class="a-et">Lo que se adaptó</span><p>El paquete articubot_one, la interfaz diffdrive_arduino y el firmware ROSArduinoBridge, de Josh Newans, y el explorador <span class="term" data-def="Paquete de ROS que busca fronteras en el mapa y las envía como metas a la navegación.">explore_lite</span> en su versión para ROS 2. Todos se modificaron y configuraron para este robot.</p></div>
     <div><span class="a-et">Lo que es propio</span><p>La adaptación e integración completa sobre un robot construido para este fin, la parametrización geométrica compartida por simulación y hardware, la identificación de un modelo de cada rueda, la sintonía del PI incremental con ajuste en el robot real y <span class="term" data-def="Optimización por enjambre de partículas, que busca el mejor valor moviendo muchos candidatos que comparten lo que encuentran.">PSO</span> como apoyo para las ganancias iniciales, el análisis de estabilidad de la ley ejecutada y un programa propio para leer el LiDAR por puerto serie.</p></div>
@@ -221,7 +221,7 @@
 
 <section>
   <h2 id="metodo">Cómo se trabajó</h2>
-  <p>Trabajé de forma experimental e iterativa, en seis etapas <a class="ref" href="#f1">1</a>. La idea central fue simular antes de construir, para equivocarse primero en el computador y después en el hardware, y volver atrás cada vez que algo no calza.</p>
+  <p>Trabajé de forma experimental e iterativa, en seis etapas <a class="ref" href="#f1">1</a>. La idea central fue <mark>simular antes de construir</mark>, para equivocarse primero en el computador y después en el hardware, y volver atrás cada vez que algo no calza.</p>
   <ol class="linea con-fotos">
     <li><span class="linea-img"><picture><source srcset="img/fotos/gemelo-modelo.webp" type="image/webp"><img src="img/fotos/gemelo-modelo.jpg" width="532" height="376" loading="lazy" decoding="async" alt="El gemelo digital en Gazebo Classic: un chasis naranja simple con el láser arriba."></picture></span><b>Gemelo digital</b>Modelo <span class="term" data-def="Formato que describe un robot como un árbol de piezas y articulaciones.">URDF</span> y pruebas en Gazebo Classic.<div class="linea-proceso" hidden><!-- PENDIENTE AUTOR: foto del proceso y fecha aproximada de la etapa Gemelo digital. Agrega aquí la imagen con su texto alternativo y la fecha, y quita el atributo hidden. --></div></li>
     <li><span class="linea-img"><picture><source srcset="img/fotos/robot-planta.webp" type="image/webp"><img src="img/fotos/robot-planta.jpg" width="900" height="958" loading="lazy" decoding="async" alt="El robot real visto desde arriba, con su carcasa negra y el láser al centro."></picture></span><b>Hardware</b>Chasis impreso, electrónica e integración con ROS 2.<div class="linea-proceso" hidden><!-- PENDIENTE AUTOR: foto del proceso y fecha aproximada de la etapa Hardware. Agrega aquí la imagen con su texto alternativo y la fecha, y quita el atributo hidden. --></div></li>

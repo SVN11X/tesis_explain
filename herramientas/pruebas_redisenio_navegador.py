@@ -73,6 +73,50 @@ with sync_playwright() as pw:
               and any(u.endswith('/modelos/robot.glb') for u in pedidos), 'con WebGL la portada muestra el modelo del CAD')
     else:
         print('  aviso  este navegador no tiene WebGL: no se comprueba el modelo del CAD', flush=True)
+    # Acercamiento: botones, teclado, Ctrl con la rueda y foco en la pieza elegida. La etiqueta ZOOM dice cuántas veces
+    # está más cerca la cámara que en la vista completa.
+    zoom = lambda: float(p.locator('.viewer-zoom').inner_text().split('×')[1].replace(',', '.'))
+    expect(p.locator('.viewer-zoom')).to_have_text('ZOOM ×1,0')
+    p.get_by_role('button', name='Acercar', exact=True).click()
+    check(zoom() > 1.3, 'el botón Acercar acerca la cámara')
+    p.get_by_role('button', name='Ver todo el robot').click()
+    check(zoom() == 1.0, 'Ver todo el robot vuelve a la vista completa')
+    for _ in range(12):
+        if p.get_by_role('button', name='Acercar', exact=True).is_disabled():
+            break
+        p.get_by_role('button', name='Acercar', exact=True).click()
+    check(p.get_by_role('button', name='Acercar', exact=True).is_disabled() and zoom() > 3, 'el acercamiento tiene un límite y el botón lo indica')
+    p.get_by_role('button', name='Ver todo el robot').click()
+    escenario = p.locator('.robot-stage')
+    escenario.focus()
+    p.keyboard.press('+')
+    cerca = zoom()
+    p.keyboard.press('ArrowLeft')
+    p.keyboard.press('0')
+    check(cerca > 1.1 and zoom() == 1.0, 'con el foco en el modelo, más acerca y cero vuelve a la vista completa')
+    caja = escenario.bounding_box()
+    p.mouse.move(caja['x'] + caja['width'] / 2, caja['y'] + caja['height'] / 2)
+    antes = p.evaluate('scrollY')
+    p.mouse.wheel(0, 300)
+    aviso = p.locator('.wheel-hint').count() == 1
+    # el desplazamiento puede tardar mientras el visor termina de girar por la inercia
+    p.wait_for_function('scrollY > %d' % antes, timeout=8000)
+    check(aviso and p.evaluate('scrollY') > antes and zoom() == 1.0, 'la rueda sola desplaza la página y avisa que el acercamiento va con Ctrl')
+    p.evaluate('scrollTo(0, 0)')
+    caja = escenario.bounding_box()
+    p.mouse.move(caja['x'] + caja['width'] / 2, caja['y'] + caja['height'] / 2)
+    p.keyboard.down('Control')
+    p.mouse.wheel(0, -200)
+    p.keyboard.up('Control')
+    p.wait_for_timeout(250)
+    check(zoom() > 1.0, 'Ctrl con la rueda acerca el modelo')
+    p.get_by_role('button', name='Ver todo el robot').click()
+    p.get_by_role('button', name='03 Electrónica').click()
+    check(zoom() > 1.2 and escenario.get_attribute('data-carcasa') == ('transparente' if p.locator('.robot-stage canvas[data-renderer=webgl]').count() else 'opaca'),
+          'elegir la electrónica acerca la cámara y, con el CAD, vuelve transparente la carcasa')
+    p.get_by_role('button', name='01 LiDAR').click()
+    check(escenario.get_attribute('data-carcasa') == 'opaca', 'con el LiDAR la carcasa vuelve a ser opaca')
+    p.get_by_role('button', name='Ver todo el robot').click()
     p.get_by_role('button', name='Despiece', exact=False).click()
     expect(p.get_by_role('button', name='Ensamblar', exact=False)).to_have_attribute('aria-pressed', 'true')
     p.get_by_role('button', name='03 Electrónica').click()
@@ -125,9 +169,29 @@ with sync_playwright() as pw:
 
     ctx = browser.new_context(java_script_enabled=False, viewport={'width':390,'height':844})
     p = ctx.new_page(); p.goto(BASE)
-    check(p.locator('.robot-poster').is_visible() and p.locator('.chapter-row').count() == 10, 'sin JavaScript hay fotografía y diez capítulos')
+    check(p.locator('.robot-poster').is_visible() and p.locator('.chapter-row').count() == 16, 'sin JavaScript hay fotografía y las 16 partes de la guía')
+    check(p.locator('mark').count() >= 20 and not p.locator('html.resaltado-animado').count(), 'sin JavaScript los resaltados ya están puestos')
     check(p.locator('.no-script').is_visible(), 'el laboratorio explica cómo continuar sin JavaScript')
     ctx.close()
+
+    # Resaltado de marcador: se dibuja cuando el texto llega a la pantalla, y con movimiento reducido ya está puesto
+    tam = "(s) => getComputedStyle(document.querySelectorAll(s)[document.querySelectorAll(s).length - 1]).backgroundSize"
+    for pagina, selector in (('index.html', 'main mark'), ('movimiento.html', '.articulo mark')):
+        ctx = browser.new_context(viewport={'width': 1366, 'height': 900})
+        p = ctx.new_page()
+        p.goto(BASE + pagina)
+        p.wait_for_timeout(300)
+        antes = p.evaluate(tam, selector)
+        p.locator(selector).last.scroll_into_view_if_needed()
+        p.wait_for_timeout(2600)
+        check(p.locator('html.resaltado-animado').count() == 1 and antes.startswith('0%') and p.evaluate(tam, selector).startswith('100%'),
+              '%s: el resaltado se dibuja al llegar a la pantalla' % pagina)
+        ctx.close()
+        ctx = browser.new_context(viewport={'width': 1366, 'height': 900}, reduced_motion='reduce')
+        p = ctx.new_page()
+        p.goto(BASE + pagina)
+        check(not p.locator('html.resaltado-animado').count() and p.evaluate(tam, selector).startswith('100%'), '%s: con movimiento reducido el resaltado ya está puesto' % pagina)
+        ctx.close()
     browser.close()
 server.shutdown()
 print('%d comprobaciones de la nueva experiencia correctas' % count)
