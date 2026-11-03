@@ -7,7 +7,16 @@ pip install cascadio==0.1.1 trimesh==5.2.0 numpy==2.5.3
 python3 herramientas/modelo_robot.py RUTA/tesis_v2.stp
 ```
 
-El STEP pesa unos 45 MB y no va en el repositorio. El archivo web pesa unos 380 KB. Con el mismo STEP y estas versiones, la conversión da el mismo archivo, byte a byte.
+El STEP pesa unos 45 MB y no va en el repositorio. El archivo web pesa unos 470 KB y tiene 39 219 triángulos. Con el mismo STEP y estas versiones, la conversión da el mismo archivo, byte a byte.
+
+Sin el STEP se puede aplicar solo el último paso, el retoque, al `robot.glb` que dejaba la versión anterior del script. Necesita Node para `npx @gltf-transform/cli`, como la conversión completa:
+
+```bash
+pip install trimesh==5.2.0 numpy==2.5.3
+python3 herramientas/modelo_robot.py --retoque
+```
+
+El retoque corre sobre el modelo ya comprimido, así que las dos rutas dan el mismo archivo. Un modelo ya retocado lo reconoce por su nodo `cubierta__franjas` y no lo vuelve a retocar.
 
 ## Qué hace la conversión
 
@@ -17,6 +26,11 @@ El STEP pesa unos 45 MB y no va en el repositorio. El archivo web pesa unos 380 
 4. Pinta cada grupo como el prototipo: PLA negro en la carcasa y la base, goma en las ruedas y metal en los motores. Las placas conservan los colores de sus modelos.
 5. Pone el origen en el centro del eje de las ruedas, sobre el piso, con Y hacia arriba y Z hacia el frente curvo.
 6. Simplifica cada grupo con su propia tolerancia y comprime con meshopt, con `@gltf-transform/cli`.
+7. Retoca el modelo comprimido:
+   1. **Franjas amarillas.** En el CAD las cuatro franjas del frente son cuerpos propios dentro de la carcasa, de 5 mm de alto y 10 cm de largo, dos a cada lado del panel de la cámara. El paso 4 las pintaba de negro con la carcasa. Ahora quedan en su propio nodo, `cubierta__franjas`, con el amarillo de las fotografías del prototipo.
+   2. **Panel de la cámara plano.** La simplificación unió las esquinas del panel con el fondo del avellanado del lente y dejó la cara frontal como un embudo, que con la luz se veía como una X. El panel impreso es plano: sus vértices frontales vuelven al plano del frente, a 0,195 m del eje, y el agujero del lente queda abierto.
+   3. **Normales.** Se recalculan después de simplificar. En cada vértice, las caras que difieren en menos de 35° forman un grupo y comparten una normal, pesada por el ángulo de cada cara. Antes las normales venían de la malla sin simplificar y los triángulos largos torcían el sombreado de las caras planas.
+   4. **Dos caras.** Las piezas del CAD no traen todas sus caras orientadas hacia afuera, y con una sola cara parte de la tapa superior se veía hueca desde arriba. Los materiales se marcan como visibles por las dos caras.
 
 ## Medidas que se leen del CAD
 

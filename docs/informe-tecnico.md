@@ -1,109 +1,112 @@
-# Informe técnico: tema oscuro común y el robot real, sobre 0e148bb
+# Informe técnico: robot negro y amarillo con acercamiento, color por tema y resaltado, sobre c1def7a
 
-Esta revisión agrega un tema oscuro para todo el sitio, también para la portada y sus escenas 3D, y dibuja el robot con su forma real en las figuras. La portada muestra ahora el modelo 3D hecho a partir del CAD del prototipo. La búsqueda A estrella se puede editar y el capítulo de mapeo suma una vista 3D del plano del láser. Las cifras, fórmulas, citas, tablas experimentales, el estado académico y los pendientes del autor no cambian. La tesis sigue en revisión por comité.
+Esta revisión corrige la falla de GitHub Actions sobre `c1def7a`, muestra el robot 3D de la portada con sus colores reales y sin la X del panel de la cámara, le agrega acercamiento al visor, rehace la parte de abajo del visor, lista las 16 partes de la guía en la portada y da un color a cada parte para resaltar sus palabras clave en todo el sitio. Las frases clave de los párrafos se resaltan como con un marcador cuando llegan a la pantalla. Las cifras, fórmulas, citas, tablas experimentales, el estado académico y los pendientes del autor no cambian. La tesis sigue en revisión por comité.
 
-Base: `0e148bb1fe281eac9de2349b1bc0ee25c6290122` de `main`. Son dos commits sobre `main`. El informe anterior está en `historial/informe-tecnico-b018ab8.md`.
+Base: `c1def7a03ef3dce222bf8d6a2df21b093f020508` de `main`. Son tres commits sobre `main`. El informe anterior está en `historial/informe-tecnico-0e148bb.md`.
+
+## Lo que pidió el autor
+
+1. La portada mostraba solo 10 temas.
+2. El robot 3D se veía gris y no negro con líneas amarillas, y donde va la cámara RGB el chasis mostraba una forma de X.
+3. El sitio se veía apagado. Hacía falta más color para resaltar las palabras clave en todo el contenido.
+4. La parte de abajo del modelo 3D se veía mal.
+5. Faltaba acercamiento para observar las partes del modelo.
+6. Durante el trabajo pidió además números más grandes en la lista de temas, un resaltado que se dibuje en los párrafos de todo el sitio y revisar los errores de la ejecución de GitHub Actions, que adjuntó.
+
+## Errores de GitHub Actions
+
+La ejecución sobre `c1def7a` corrió en Ubuntu 26.04 con Playwright 1.64.1 y Chrome for Testing 156.0.8078.4. Pasaron los datos, la compilación, los modelos numéricos y las suites de control, mapeo, movimiento, laboratorio, robustez, evidencia y la general, con sus 654 comprobaciones. Falló `pruebas_experiencia_navegador.py`, en la prueba de títulos con la fuente de respaldo:
+
+> entre 320 y 480 px, el título de cada tema ocupa las mismas líneas con el respaldo (Archivo Respaldo) que con Archivo en 327 de 336 casos
+
+La prueba bloquea las fuentes web, mide la altura del título de las 16 páginas cada 8 px entre 320 y 480 px y la compara con la de Archivo. Acepta hasta 3 diferencias. En CI hubo 9: `bibliografia.html` a 384 px, `exploracion.html` a 384, `movimiento.html` a 456, 464, 472 y 480, `preguntas.html` a 320, `problema.html` a 416 y `robot.html` a 328. En este entorno, con Chrome 153 y la misma Liberation Sans 2.1.5, había una sola, `robot.html` a 328.
+
+Chrome 156 no se pudo descargar aquí: el proxy rechaza `cdn.playwright.dev` y `storage.googleapis.com`. Para encontrar la causa se repitió la medición en Chrome 153 variando el tamaño de cada fuente:
+
+| Cambio simulado en Chrome 153 | Diferencias | Coincide con CI |
+|---|---:|---|
+| Ninguno, respaldo al 94,8 % | 1 | 1 de 9 |
+| Archivo un 1,6 % más ancha | 9 | 7 de 9, con 2 que CI no tiene |
+| Respaldo al 95,6 % | 6 | 6 de 9 |
+| Respaldo al 95,8 % | 9 | los mismos 9 casos |
+| Respaldo al 96,0 % | 10 | 9 de 9, con 1 que CI no tiene |
+
+Con el respaldo al 95,8 % Chrome 153 da exactamente los 9 casos de CI. En el caso de `robot.html` a 328 px el respaldo ocupa dos líneas y Archivo una, la misma dirección. La conclusión es que en el Chrome de CI Liberation Sans Bold resulta cerca de un 1 % más ancha. El `size-adjust` de `Archivo Respaldo` bajó en esa proporción, de 94,8 % a 94 %, y las alturas se recalcularon con la regla del comentario: 93,4 % y 22,4 %. Con HarfBuzz, sin navegador, la razón entre Archivo de peso 560 y Liberation Sans Bold en los 16 títulos es 94,5 %, entre los dos valores. En Chrome 153 quedan 3 diferencias, en el límite. En CI se esperan una o dos: es lo que da Chrome 153 con el respaldo al 95 %, que equivale al 94 % en el navegador de CI. Lo confirmará la próxima ejecución.
+
+La compilación además mostraba dos avisos, que no hacían fallar el flujo:
+
+1. Vite no encontraba las tres fuentes de la portada en `experience.css`, escritas como `/tesis_explain/fuentes/…`. Ahora se escriben `/fuentes/…`, que Vite encuentra en `web/public` y publica con el prefijo. El CSS compilado no cambia.
+2. Un fragmento pasaba de 500 kB: es three.js, de unos 700 kB minificado, en su propio fragmento y solo para los visores 3D. `astro.config.mjs` sube el límite del aviso a 760 kB.
+
+Los avisos de Node sobre `punycode` y de Git sobre el nombre de la rama vienen de las acciones de GitHub, no del sitio.
 
 ## Qué cambió
 
-1. **Tema oscuro común.** Las 18 páginas tienen tema claro y oscuro. Sin elección siguen al sistema. El botón de la cabecera, con una luna o un sol, cambia el tema, y en el teléfono está en el menú, como una fila con interruptor. La elección se guarda en el navegador con la clave `tema`. Si coincide con el sistema se borra, y el sitio vuelve a seguirlo. Un cambio en otra pestaña del sitio también se aplica.
-2. **Sin parpadeo.** Un script en línea al inicio del `<head>` aplica la elección guardada antes de cargar los estilos. Sale de `herramientas/plantillas/tema.html`, que `datos.py` inserta en las 16 páginas de la guía y `Shell.astro` en la portada y los laboratorios, junto con `color-scheme` y el color de la barra del navegador. Durante el cambio se quitan las transiciones por dos cuadros, para que todo cambie a la vez.
-3. **Paleta oscura.** Papel `#121a17`, tinta `#e6e9de` y el mismo acento lima `#dbea7b`, con el texto oscuro `#182825` encima. Los colores son variables. `css/marco.css` define la paleta común, `css/estilo.css` las superficies y los colores de los datos de la guía y `web/src/styles/experience.css` los de la portada. Cada hoja tiene dos bloques oscuros con los mismos valores, uno para el sistema y otro para el botón, y una prueba comprueba que coincidan. La tinta sobre el papel oscuro llega a 14,4:1 y el texto secundario a 7,3:1.
-4. **Datos, simuladores y escenas 3D.** Los colores de los datos conservan su tono, para que «la curva azul» siga siendo azul, y las rejillas de ocupación conservan los grises de un mapa PGM, porque el texto los nombra. Cada cambio de tema avisa con el evento `temacambio`. Los simuladores en canvas se vuelven a dibujar con los colores nuevos, y en las escenas 3D la base y el aro se aclaran y sube la luz de contorno, para que el robot negro no se pierda en el fondo. Las fotos del robot se funden con el papel en el tema claro y se muestran tal cual en el oscuro.
-5. **El robot real en las figuras.** El robot aparecía como un círculo, un punto o una U invertida según la figura. `U.robot`, en `js/comun.js`, dibuja la planta del CAD: la cubierta en U de 0,23 m de ancho, con el borde recto atrás, la curva adelante y el LiDAR 0,115 m delante del eje de las ruedas. La usan la figura del LiDAR, A estrella, las fronteras, la simulación de exploración, la cinemática y el mapa 2D de los laboratorios. La inflación y la ventana dinámica conservan la huella rectangular de Nav2, que es la que usa el planificador.
-6. **Logo e ícono.** La versión anterior ponía el frente del robot en el borde recto. El CAD y la foto del frente muestran la cámara y la rueda loca en la curva, así que el logo, `img/icono.svg` y la imagen para compartir se dieron vuelta.
-7. **Modelo 3D del CAD en la portada.** El cilindro ilustrativo se reemplazó por el prototipo convertido de su STEP, `modelos/robot.glb`, de 381 KB y 39 245 triángulos. `herramientas/modelo_robot.py` hace la conversión, agrupa las piezas para el despiece, quita el interior del LiDAR y los componentes de menos de 3,5 mm de las placas, pinta cada grupo como el prototipo y comprime con meshopt. El cabezal del LiDAR gira sobre su eje. El cargador del modelo va en su propio módulo, `web/src/lib/robot-cad.ts`, de 21 KB comprimido, y solo lo pide la portada, así que el laboratorio LiDAR no lo descarga. Sin WebGL, o si el archivo no carga, la portada usa el robot ilustrativo anterior, que el SVG puede dibujar. El laboratorio 3D de `laboratorios.html` conserva por ahora su robot ilustrativo, porque su LiDAR cambia de altura. El proceso y las medidas están en `modelos/README.md`.
-8. **A estrella editable.** En `navegacion.html` la rejilla se edita con tres modos: Muros, Robot y Meta. Con el ratón se hace clic o se arrastra, con el dedo se toca, para que deslizar siga desplazando la página, y con el teclado las flechas mueven un marco y Enter o la barra espaciadora aplican lo elegido. Cada cambio recalcula Dijkstra y A estrella y muestra la ruta con sus cifras. Si los muros separan la meta del robot, la figura lo explica y no dibuja ruta. «Volver al ejemplo» restaura la rejilla original, con sus 291 y 111 celdas revisadas y la ruta de 27 pasos.
-9. **Vista 3D del LiDAR.** En `mapeo.html#lidar` la figura lateral pasa a una vista 3D de la misma sala, dibujada en un canvas sin bibliotecas, que se gira arrastrando o con las flechas y tiene tres puntos de vista. Muestra el plano del láser a 20 cm cruzando las paredes y las patas de la mesa, pasando sobre la caja de 10 cm y bajo la cubierta de 70 cm. Son medidas de ejemplo, como dice la figura. Las paredes cercanas a la cámara se vuelven translúcidas para no tapar la escena. Sin JavaScript se ve la figura lateral.
-10. **Tiempos de transición comunes.** Las transiciones usaban catorce tiempos escritos a mano y dos nombres para la misma curva. Ahora usan tres duraciones y una curva de `css/marco.css`, también en la portada.
-11. **Textos de la portada.** Seis frases de la portada y los laboratorios usaban punto y coma. Pasaron a puntos y comas, sin cambiar su contenido. La indicación «Arrastra para girar» del visor 3D quedaba sobre la base del robot y no se leía, también en la base anterior. Ahora tiene fondo de papel y un gris más oscuro, de 5,4:1.
-12. **CI.** `pruebas_navegador.py` prueba ahora los dos temas y tarda unos seis minutos. El tiempo límite del flujo sube de 15 a 25 minutos.
-13. **Potree.** Se evaluó y no se usa. Dibuja nubes de puntos 3D de millones de puntos y exige convertirlas a su formato. Los barridos del robot son cientos de puntos en un plano, que el sitio ya dibuja. Tendría sentido si se publica una nube 3D, por ejemplo un escaneo del recinto.
+1. **Las 16 partes en la portada.** La lista de temas mostraba los 10 capítulos y la guía numera 16 partes en su índice lateral y en el menú. La portada suma los seis complementos, del 11 al 16, en un bloque «Para profundizar», con el mismo orden y los mismos títulos de `js/sitio.js`. El índice de la portada dice «Las 16 partes de la guía». Los números de la lista son grandes, de 30 a 40 px, con el color de su tema, y el nivel va en una etiqueta. En el índice lateral de la guía los números también crecen y llevan su color.
+2. **Robot negro con franjas amarillas.** Había dos causas. En el CAD las cuatro franjas del frente son cuerpos dentro del compuesto de la carcasa, y la conversión pintaba todo ese compuesto de negro. Además, el mapeo de tonos ACES y la luz del entorno aclaraban el PLA negro hasta verse gris. `modelo_robot.py` suma un retoque que deja las franjas en su propio nodo, `cubierta__franjas`, con el amarillo de las fotos. La escena de la portada usa el mapeo de tonos neutro de Three.js, menos luz de entorno y una luz principal desde adelante y arriba, y en el tema oscuro sube la luz de contorno para separar el robot del fondo.
+3. **Panel de la cámara sin X.** La simplificación de la malla había unido las esquinas del panel con el fondo del avellanado del lente. La cara frontal quedó como un embudo de triángulos largos, y su sombreado dibujaba una X. El retoque devuelve esos vértices al plano del frente, a 0,195 m del eje, y el lente queda visible por el agujero. Después recalcula las normales de todo el modelo con grupos de suavizado de 35°, así también desaparecen las sombras en V que había al pie de la carcasa.
+4. **Tapa sin huecos.** Parte de la tapa superior tenía las caras hacia adentro y, con una sola cara, desde arriba se veía el interior. Los materiales del modelo se marcan como de dos caras.
+5. **Retoque reproducible.** El retoque corre sobre el modelo comprimido, así se puede aplicar sin el STEP con `python3 herramientas/modelo_robot.py --retoque` y da el mismo archivo que la conversión completa. Se ejecutó dos veces sobre el mismo archivo con resultado idéntico, byte a byte, y no se repite sobre un modelo ya retocado. El modelo pasa de 381 a 467 KB, por las normales separadas en las aristas vivas, y de 39 245 a 39 219 triángulos, porque se quitan 26 sin área.
+6. **Acercamiento.** El visor acerca con los botones más y menos, con Ctrl y la rueda del ratón, que es también el pellizco de un panel táctil, con el gesto de Safari, con el pellizco en el teléfono y, con el foco en el modelo, con las teclas más y menos. Las flechas giran el modelo y cero vuelve a la vista completa, igual que el botón «Ver todo el robot». Acerca hacia el puntero y el centro de giro no se aleja más de 30 cm del robot. La rueda sola sigue desplazando la página y aparece un aviso que explica que el acercamiento va con Ctrl. La etiqueta de arriba dice cuántas veces está más cerca, de ×1,0 a ×5,1.
+7. **La pieza elegida.** Elegir una pieza en las pestañas o tocándola en el modelo acerca la cámara a ella, desde un ángulo pensado para esa pieza. La electrónica y los motores quedan dentro de la carcasa: al elegir la electrónica o las ruedas, la carcasa se vuelve transparente y deja ver dónde va cada pieza. El aro de la pieza tiene el color de su pestaña. Los botones de acercamiento quedan encima del modelo, y un toque en ellos ya no elige la pieza que está debajo.
+8. **La parte de abajo del visor.** El disco claro bajo el robot se cortaba contra el borde del lienzo y los botones quedaban encima. Ahora el piso son anillos de barrido que se desvanecen, con una sombra de contacto, y el lienzo se funde hacia abajo y hacia los lados, así nada se corta aunque se gire o se acerque. Despiece, punto de vista y pausa van en una sola barra. Las cuatro pestañas llevan el color de cada pieza, y la descripción suma dos datos de cada una, como «RPLidar A1» o «Radio de rueda 33,5 mm», que salen de la tesis, de `robot.html` y de las medidas del CAD.
+9. **Color por tema.** `css/marco.css` define siete colores con su fondo, para el tema claro y el oscuro: turquesa percibir, naranja estimar el avance, violeta decidir, azul moverse, amarillo el robot, frambuesa la evidencia y verde el contexto. Cada página toma el suyo de `data-pagina` y cada fila de la guía, de `data-pag`. En la guía lo usan la franja de la cabecera del tema, la raya bajo el título y sobre cada sección, los términos con definición, las cifras, los números del índice lateral y del menú y la parte actual. En la portada cada sección tiene su color en el título, las cifras y los números, y los cuatro pasos del ciclo llevan los colores de sus temas. El botón principal usa el amarillo de las franjas. Los colores de los datos de las figuras no cambian, porque el texto los nombra. El texto de color llega a 4,5:1 o más sobre el papel y sobre su propio fondo en los dos temas.
+10. **Resaltado que se dibuja al leer.** 80 frases clave de 15 páginas de la guía y 26 de la portada y los laboratorios van en `<mark>`. Solo se marcaron frases que ya estaban en el texto, sin cambiar una palabra. Las negritas de los párrafos se resaltan igual. `js/marco.js` dibuja el trazo de izquierda a derecha cuando el texto entra en la pantalla, línea por línea, y los de un mismo párrafo van uno tras otro. La bibliografía conserva sus negritas, que también se resaltan, porque su página se genera desde `datos/bibliografia.json`. El script del `<head>` marca la animación antes de pintar, y si `marco.js` no llega en tres segundos la quita. Sin JavaScript, con movimiento reducido o al imprimir, el resaltado ya está puesto.
 
 ## Archivos
 
 | Área | Archivos |
 |---|---|
-| Tema | `herramientas/plantillas/tema.html`, `herramientas/plantillas/cabecera.html`, `herramientas/marco.py`, `herramientas/datos.py`, `css/marco.css`, `js/marco.js`, `web/src/layouts/Shell.astro`, `web/src/generado/marco.json`, las 16 páginas de la guía |
-| Colores y transiciones | `css/estilo.css`, `css/evidencia.css`, `css/mapeo.css`, `css/preguntas.css`, `web/src/styles/experience.css` |
-| Figuras e interactivos | `js/comun.js`, `js/sims.js`, `js/vis1.js`, `js/mapeo.js`, `img/diagramas/`, `web/src/components/LidarLab.svelte` |
-| Modelo 3D | `modelos/robot.glb`, `herramientas/modelo_robot.py`, `herramientas/preparar-web.mjs`, `web/src/lib/robot-cad.ts`, `web/src/lib/robot-three.ts`, `web/src/components/RobotHero.svelte`, `docs/licencias-web/meshoptimizer-MIT.txt` |
-| Logo y portada | `img/icono.svg`, `img/social.png`, `web/src/pages/index.astro`, `web/src/pages/laboratorios.astro`, `web/src/lib/home-content.ts` y las salidas compiladas |
-| Verificación | `pruebas_navegador.py`, `pruebas_mapeo_navegador.py`, `pruebas_movimiento_navegador.py`, `pruebas_laboratorio_navegador.py`, `pruebas_redisenio_navegador.py`, `pruebas_unitarias.js`, `.github/workflows/verificar.yml` |
-| Documentación | `README.md`, `docs/decisiones.md`, `docs/experiencia-v1.md`, `modelos/README.md`, este informe, `datos/academico.json` |
+| CI | `css/estilo.css`, `web/src/styles/experience.css`, `astro.config.mjs` |
+| Modelo 3D | `herramientas/modelo_robot.py`, `modelos/robot.glb`, `modelos/README.md` |
+| Visor de la portada | `web/src/lib/robot-three.ts`, `web/src/lib/robot-cad.ts`, `web/src/components/RobotHero.svelte`, `web/src/styles/experience.css` |
+| Portada | `web/src/pages/index.astro`, `web/src/pages/laboratorios.astro`, `web/src/lib/home-content.ts` y las salidas compiladas en `index.html`, `laboratorios.html` y `_astro/` |
+| Color y resaltado | `css/marco.css`, `css/estilo.css`, `js/marco.js`, `js/sitio.js`, `herramientas/plantillas/tema.html`, `web/src/generado/marco.json` y las 16 páginas de la guía |
+| Datos | `datos/academico.json`, `datos/proyecto.js`, `datos/indice.js` |
+| Verificación | `herramientas/verificar_sitio.py`, `herramientas/pruebas_redisenio_navegador.py` |
+| Documentación | `README.md`, `docs/decisiones.md`, este informe |
 
 ## Pruebas ejecutadas
 
-Entorno: Node 22.23.4, Python 3.13, Playwright 1.63.0 con Chromium 153. Se ejecutaron los pasos de `verificar.yml` en su orden. La columna Base es el resultado sobre `0e148bb`.
+Entorno: Node 22.23.4, Python 3.13, Playwright 1.63.0 con Chromium 153. Se ejecutaron los pasos de `verificar.yml` en su orden, sobre el último commit. La columna Base repite la del informe anterior, medida sobre el mismo árbol de `c1def7a`.
 
 | Verificación | Base | Revisión |
 |---|---:|---:|
-| `verificar_sitio.py` | 3 457 | 3 457 |
-| `npm run check`, prueba LiDAR y compilación | correctas | correctas |
+| `verificar_sitio.py` | 3 457 | 3 485 |
+| `npm run check`, prueba LiDAR y compilación | correctas | correctas, sin avisos |
 | `pruebas_compilacion.py` y `verificar_compilacion.py` | correctas | correctas |
 | Ejemplos, figuras y PDF de preguntas al día | 5 de 5 | 5 de 5 |
-| Pruebas numéricas en Node, ocho archivos | 203 | 207 |
+| Pruebas numéricas en Node, ocho archivos | 207 | 207 |
 | `pruebas_control_navegador.py` | 325 | 325 |
-| `pruebas_mapeo_navegador.py` | 261 | 289 |
-| `pruebas_movimiento_navegador.py` | 214 | 252 |
-| `pruebas_laboratorio_navegador.py` | 227 | 233 |
+| `pruebas_mapeo_navegador.py` | 289 | 289 |
+| `pruebas_movimiento_navegador.py` | 252 | 252 |
+| `pruebas_laboratorio_navegador.py` | 233 | 233 |
 | `pruebas_robustez_navegador.py` | 71 | 71 |
 | `pruebas_evidencia_navegador.py` | 131 | 131 |
-| `pruebas_navegador.py` | 552 | 654 |
+| `pruebas_navegador.py` | 654 | 654 |
 | `pruebas_experiencia_navegador.py` | 69 | 69 |
-| `pruebas_redisenio_navegador.py` | 41 | 44 |
+| `pruebas_redisenio_navegador.py` | 44 | 57 |
 
 Lo nuevo que comprueban:
 
-- `pruebas_navegador.py`: que las 18 páginas apliquen el tema guardado antes de los estilos y declaren los dos esquemas, que el botón cambie el tema, lo marque y lo recuerde al cambiar de página, que volver al tema del sistema borre la elección, que el simulador PID se vuelva a dibujar y que los dos bloques oscuros de cada hoja coincidan, con el sistema claro y con el oscuro.
-- `pruebas_movimiento_navegador.py`: la edición de A estrella con ratón, con toques en el teléfono y con teclado, el arrastre del robot, el recálculo de las dos búsquedas, la meta inalcanzable y la vuelta al ejemplo.
-- `pruebas_mapeo_navegador.py`: la planta del robot en la figura del LiDAR, que la vista 3D dibuje la sala y el plano, qué cruza el plano y qué deja fuera, la vista desde arriba, el giro con las flechas y arrastrando, que quepa en su recuadro y el color de los textos de las figuras en el tema oscuro.
-- `pruebas_unitarias.js`: A estrella y Dijkstra sobre una rejilla editada, con un hueco en el muro y con la meta encerrada, sin cambiar el ejemplo.
-- `pruebas_laboratorio_navegador.py`: el recorrido del menú del teléfono con la fila del tema al final.
-- `pruebas_redisenio_navegador.py`: que con WebGL la portada cargue el modelo del CAD, que sin WebGL use el robot ilustrativo sin descargar el modelo y que el laboratorio no descargue el modelo ni su cargador.
+- `verificar_sitio.py`: que la lista de la portada tenga las 16 partes con el orden y los títulos de `js/sitio.js`, cada una con su `data-pag`. Que el modelo tenga el nodo de las franjas en amarillo, la carcasa negra y todos sus materiales de dos caras. Que cada color de la paleta llegue a 4,5:1 sobre el papel y sobre su fondo, y la tinta sobre ese fondo, en los dos temas.
+- `pruebas_redisenio_navegador.py`: que «Acercar» acerque, que «Ver todo el robot» vuelva a ×1,0, que el acercamiento tenga un límite y el botón se apague al llegar, que con el foco en el modelo más acerque y cero vuelva, que la rueda sola desplace la página y avise sin acercar, que Ctrl con la rueda acerque, que la electrónica acerque la cámara y vuelva transparente la carcasa del CAD y que el LiDAR la devuelva. Que sin JavaScript se vean las 16 partes y los resaltados puestos. Que en la portada y en `movimiento.html` el resaltado empiece vacío y se dibuje al llegar a la pantalla, y que con movimiento reducido ya esté puesto.
+- `pruebas_experiencia_navegador.py`, sin cambios en la prueba: los títulos con el respaldo coinciden en 333 de 336 casos en Chrome 153, dentro del límite.
 
 Además, fuera del flujo:
 
-- axe-core 4.10 en las 18 páginas, a 390 y 1366 px, en el tema claro y en el oscuro, con los plegables abiertos y las reglas de WCAG 2.0, 2.1 y 2.2 en sus niveles A y AA: sin infracciones. La primera pasada encontró una en el tema oscuro: en los filtros de `preguntas.html`, la cifra del tema elegido quedaba clara sobre el lima, a 1,06:1. Ahora usa el texto oscuro de lo que va sobre lima. También se pasó axe después de usar los controles, en los dos temas: un filtro de preguntas, el modo Robot y la reproducción de A estrella, la vista lateral del LiDAR, el botón del tema y el despiece de la portada. Sin infracciones.
-- Desborde horizontal en las 18 páginas a 320, 360, 390, 768, 1024 y 1366 px en el tema claro y a 320, 390, 768 y 1366 px en el oscuro: ninguno. Sin errores de JavaScript. Las únicas fallas de red son las miniaturas de YouTube, que este entorno no puede descargar.
-- Lighthouse 12.8 en teléfono, con un servidor local que comprime como GitHub Pages y dos corridas por página. Portada: rendimiento 66 a 68 en la base y 67 en la revisión, LCP de 2,1 a 2,3 s y CLS 0 en ambas. El peso al abrir pasa de 362 a 775 KB por el modelo, de 382 KB, y su cargador, de 21 KB comprimido. `laboratorios.html`: 70 en la base y 69 a 70 en la revisión, de 317 a 327 KB. En este entorno no hay GPU, así que las escenas 3D se dibujan por software y el bloqueo del hilo principal decide la nota en las dos versiones. Las cifras sirven para comparar la base con la revisión, no para estimar un teléfono real.
-- Revisión visual de la portada con el modelo del CAD, ensamblado y en despiece, de las figuras con el robot, de A estrella y de la vista 3D, en los dos temas, en escritorio y en teléfono.
+- axe-core 4.10.3 en las 18 páginas, a 390 y 1366 px, en el tema claro y en el oscuro, con los plegables abiertos y las reglas de WCAG 2.0, 2.1 y 2.2 en sus niveles A y AA: sin infracciones en las 72 combinaciones. También en la portada después de elegir la electrónica, acercar, usar la rueda, desmontar y elegir las ruedas, en los dos temas y a los dos anchos.
+- La razón de anchos entre Archivo y Liberation Sans Bold en los 16 títulos, calculada con HarfBuzz, y la simulación del Chrome de CI descrita arriba.
+- Revisión visual de la portada en los dos temas, en escritorio y teléfono: el modelo armado, de frente, desde arriba y en despiece, la electrónica y las ruedas con la carcasa transparente, la lista de temas, las secciones con color y el resaltado antes y después de dibujarse. Y de las páginas de mapeo, movimiento, robot, resultados, bibliografía, preguntas, recursos y laboratorios.
 
 ## Sin verificar
 
-- Teléfonos reales y lectores de pantalla.
-- Chrome 156, el de CI, no se pudo descargar en este entorno. La siguiente ejecución de GitHub Actions lo confirmará.
-- El modelo del CAD en equipos con poca memoria de video. Si WebGL pierde el contexto, la portada muestra la foto y ofrece reintentar, como antes.
+- Chrome 156, el de CI. La prueba de títulos debería pasar con margen, según la simulación. Lo confirmará la próxima ejecución de GitHub Actions.
+- Teléfonos reales, el pellizco en una pantalla táctil real y lectores de pantalla.
+- El gesto de acercar de Safari en macOS, que usa sus propios eventos.
+- Lighthouse. El modelo pesa 86 KB más que antes y solo se descarga con WebGL.
 
-## Confirmado por el autor
+## Notas para el autor
 
-- El ensamblaje incluye modelos de componentes comerciales: el RPLidar A1, el Arduino Nano V3, el adaptador de bornes para Nano de Deek-Robot, el controlador L298N y la cámara V2.1. El autor confirmó que sus licencias permiten publicarlos. Si más adelante se agrega un modelo que no se pueda publicar, se quita poniendo su nombre en `EXCLUIR`, en `herramientas/modelo_robot.py`, y volviendo a generar el modelo. Con `'L298N'`, por ejemplo, el archivo baja a 357 KB.
-- En el CAD los centros de las ruedas quedan a 186 mm, la medida de diseño. La pieza impresa en 3D quedó con 188 mm por un error de la impresora. La tesis y el sitio usan esa medida real, 188 mm, y el radio de 33,5 mm coincide con el CAD. La diferencia de 2 mm no se nota en el modelo de la portada, así que no se corrigió.
-
-## Pendientes
-
-- Siguen pendientes del autor el método de medida del giro físico, el motivo del tamaño mínimo de frontera, la autorización para publicar firmware y registros, los tres videos preparados y las notas en primera persona.
-- El laboratorio 3D de `laboratorios.html` sigue con su robot ilustrativo.
-- La portada conserva textos de 8 a 10 px en etiquetas y leyendas del visor 3D. Cumplen el contraste, pero conviene revisarlos con el diseño de la portada.
-
-## Cómo aplicar el parche
-
-Con `main` en `0e148bb`:
-
-```bash
-git checkout main
-git am /ruta/tesis_explain-tema-oscuro-cad-0e148bb_cambios_git_am.patch
-npm ci
-npm run build
-python3 herramientas/verificar_compilacion.py
-git push origin main
-```
-
-Son dos commits: el primero trae el tema oscuro, el robot en las figuras, el modelo del CAD y las pruebas, y el segundo la documentación y el historial. El parche incluye `modelos/robot.glb` como binario, así que hay que aplicarlo con `git am` y no copiando el texto. GitHub Pages sigue publicando `main` desde la raíz.
-
-Para volver a generar el modelo desde el CAD hacen falta el STEP del ensamblaje, que no va en el repositorio, y Node:
-
-```bash
-pip install cascadio==0.1.1 trimesh==5.2.0 numpy==2.5.3
-python3 herramientas/modelo_robot.py RUTA/tesis_v2.stp
-```
+- El modelo sigue sin la pantalla del medidor de energía, que en la foto de arriba ocupa la ventana trasera derecha. El CAD trae la ventana pero no la pantalla, así que desde arriba se ve el interior por ese hueco.
+- Las negritas de la bibliografía y de las preguntas que abren un párrafo, como «Dónde aparece.», llevan el color del tema sin resaltado, para que no se resalten cientos de etiquetas iguales.
