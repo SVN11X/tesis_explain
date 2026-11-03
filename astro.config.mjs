@@ -11,6 +11,8 @@ export default defineConfig({
   build: { format: 'file', assets: '_astro' },
   integrations: [svelte()],
   devToolbar: { enabled: false },
-  vite: { server: { allowedHosts: ['terminal.local'] } },
+  // three.js pesa unos 700 kB minificado. Va en su propio fragmento y solo lo piden los visores 3D, así que el
+  // aviso de Vite para fragmentos de más de 500 kB no aplica.
+  vite: { server: { allowedHosts: ['terminal.local'] }, build: { chunkSizeWarningLimit: 760 } },
   server: { host: '0.0.0.0', port: Number(process.env.PORT || 4321) },
 });

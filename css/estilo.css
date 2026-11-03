@@ -42,8 +42,12 @@
    Las caras de Roboto para Archivo fijan peso 700 y ancho 100 %. Sin eso, la fuente variable tomaría el peso y
    el ancho pedidos, hasta 820 y 80 % en los títulos, y no tendría las medidas de la negrita con que se calcularon.
    Los anchos máximos de lectura van en em y no en ch: el cero de Atkinson mide 0,648 em y el de Arial 0,556,
-   así que una medida en ch cambiaba de ancho al llegar la fuente y movía el texto. */
-@font-face { font-family: "Archivo Respaldo"; src: local("Arial Bold"), local("Arial-BoldMT"), local("Arimo Bold"), local("Arimo-Bold"), local("Liberation Sans Bold"), local("LiberationSans-Bold"), local("Helvetica Neue Bold"), local("HelveticaNeue-Bold"); font-weight: 100 900; size-adjust: 94.8%; ascent-override: 92.6%; descent-override: 22.2%; line-gap-override: 0%; }
+   así que una medida en ch cambiaba de ancho al llegar la fuente y movía el texto.
+   El 94 % de Archivo Respaldo está ajustado al navegador de GitHub Actions (Chrome 156 en Ubuntu 26.04). Ahí
+   Liberation Sans Bold resultó cerca de un 1 % más ancha que en Chrome 153 y, con el 94,8 % medido en los archivos,
+   9 de 336 títulos de tema cambiaban de líneas entre 320 y 480 px. En Chrome 153, el 95,8 % reproduce esos mismos
+   9 casos, así que el valor se bajó en esa proporción. Detalle en docs/informe-tecnico.md. */
+@font-face { font-family: "Archivo Respaldo"; src: local("Arial Bold"), local("Arial-BoldMT"), local("Arimo Bold"), local("Arimo-Bold"), local("Liberation Sans Bold"), local("LiberationSans-Bold"), local("Helvetica Neue Bold"), local("HelveticaNeue-Bold"); font-weight: 100 900; size-adjust: 94%; ascent-override: 93.4%; descent-override: 22.4%; line-gap-override: 0%; }
 @font-face { font-family: "Archivo Respaldo Roboto"; src: local("Roboto Bold"), local("Roboto-Bold"); font-weight: 100 900; size-adjust: 100.9%; ascent-override: 87%; descent-override: 20.8%; line-gap-override: 0%; }
 @font-face { font-family: "Archivo Respaldo DejaVu"; src: local("DejaVu Sans Bold"), local("DejaVuSans-Bold"); font-weight: 100 900; size-adjust: 79.8%; ascent-override: 110%; descent-override: 26.3%; line-gap-override: 0%; }
 @font-face { font-family: "Atkinson Respaldo"; src: local("Arial"), local("ArialMT"), local("Arimo"), local("Arimo-Regular"), local("Liberation Sans"), local("LiberationSans-Regular"), local("LiberationSans"), local("Helvetica Neue"), local("HelveticaNeue"); font-weight: 400; size-adjust: 98.7%; ascent-override: 96.3%; descent-override: 29.4%; line-gap-override: 0%; }
