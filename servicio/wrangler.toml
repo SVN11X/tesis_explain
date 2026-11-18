@@ -1,0 +1,46 @@
+# Worker de la práctica de defensa oral. Véase docs/defensa/especificacion.md, apartado 6.
+# Los secretos no van aquí: se cargan con `npx wrangler secret put HMAC_CLAVE` y `npx wrangler secret put SESION_CLAVE`,
+# una vez por entorno (agrega `--env preproduccion` para el de pruebas).
+name = "tesis-explain-defensa"
+main = "src/index.mjs"
+compatibility_date = "2026-11-01"
+
+[ai]
+binding = "AI"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "defensa-oral"
+database_id = "REEMPLAZAR-con-el-id-que-entrega-wrangler-d1-create"
+migrations_dir = "migraciones"
+
+[vars]
+AI_PROVIDER = "workers_ai"
+FALLBACK_MODE = "practice_only"
+ADMISION = "abierta"
+ORIGENES = "https://svn11x.github.io"
+
+[triggers]
+crons = ["*/15 * * * *"]
+
+# Preproducción: base propia, mismo contrato. Su consumo se descuenta de la misma asignación diaria.
+[env.preproduccion]
+name = "tesis-explain-defensa-preproduccion"
+
+[env.preproduccion.ai]
+binding = "AI"
+
+[[env.preproduccion.d1_databases]]
+binding = "DB"
+database_name = "defensa-oral-preproduccion"
+database_id = "REEMPLAZAR-con-el-id-de-la-base-de-preproduccion"
+migrations_dir = "migraciones"
+
+[env.preproduccion.vars]
+AI_PROVIDER = "workers_ai"
+FALLBACK_MODE = "practice_only"
+ADMISION = "abierta"
+ORIGENES = "https://svn11x.github.io,http://localhost:4321,http://127.0.0.1:8000"
+
+[env.preproduccion.triggers]
+crons = ["*/15 * * * *"]

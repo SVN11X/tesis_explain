@@ -35,6 +35,8 @@ jobs:
           python herramientas/indice.py
           python herramientas/pruebas_compilacion.py
           python herramientas/verificar_compilacion.py
+      - name: Pruebas del servicio, el catálogo y la validación
+        run: npm test
       - name: Ejemplos sintéticos y figuras de respaldo al día
         run: |
           node herramientas/ejemplos_laboratorio.js --comprobar
