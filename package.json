@@ -8,7 +8,8 @@
     "dev": "node herramientas/preparar-web.mjs && astro dev --host 0.0.0.0",
     "build": "node herramientas/preparar-web.mjs && astro build && node herramientas/publicar-web.mjs",
     "check": "svelte-check --workspace web --tsconfig ../tsconfig.json",
-    "test:lidar": "node --experimental-strip-types --test web/tests/lidar.test.mjs"
+    "test:lidar": "node --experimental-strip-types --test web/tests/lidar.test.mjs",
+    "test": "node --test --experimental-strip-types"
   },
   "dependencies": {
     "@astrojs/svelte": "9.1.2",
