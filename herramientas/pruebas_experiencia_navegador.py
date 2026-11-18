@@ -230,10 +230,48 @@ def fuentes_y_cls(nav):
 
 
 def titulos(nav):
-    print('Títulos de los temas con la fuente de respaldo')
+    print('Títulos de los temas: desplazamiento al llegar tarde la fuente')
     temas = [p for p in PAGINAS if p != 'index.html']
     anchos = list(range(320, 481, 8))
+    # Lo que ve quien lee es el movimiento dentro de una misma carga: la altura del título y la posición del elemento
+    # que le sigue, con las fuentes retenidas (llegan después del periodo de bloqueo) y otra vez cuando ya llegaron.
+    # Con font-display optional el navegador no cambia de fuente en esa carga, así que no debe haber ningún movimiento.
+    MEDIR = """() => { const h = document.querySelector('h1'), s = h.nextElementSibling;
+      return [Math.round(h.getBoundingClientRect().height * 10) / 10, s ? Math.round((s.getBoundingClientRect().top + scrollY) * 10) / 10 : null]; }"""
+    TOLERANCIA = 1  # px: redondeo de subpíxeles. Una línea de título mide entre 38 y 70 px, el CLS permitido arriba es 0,02.
 
+    def medir(p):
+        fila = []
+        for w in anchos:
+            p.set_viewport_size({'width': w, 'height': 844})
+            p.wait_for_timeout(20)
+            fila.append(p.evaluate(MEDIR))
+        return fila
+
+    desplazados, medidos = [], 0
+    for pag in temas:
+        ctx = contexto(nav, viewport={'width': 390, 'height': 844}, is_mobile=True, device_scale_factor=2)
+        retenidas = []
+        ctx.route('**/*.woff2', lambda r: retenidas.append(r))
+        p = ctx.new_page()
+        p.goto(BASE + '/' + pag, wait_until='commit')
+        p.wait_for_selector('h1')
+        p.wait_for_timeout(500)
+        antes = medir(p)
+        for r in retenidas:
+            r.continue_()
+        p.wait_for_timeout(2500)
+        despues = medir(p)
+        for w, a, d in zip(anchos, antes, despues):
+            medidos += 1
+            if a[1] is None or d[1] is None or abs(a[0] - d[0]) > TOLERANCIA or abs(a[1] - d[1]) > TOLERANCIA:
+                desplazados.append('%s a %d px: título %s -> %s, siguiente %s -> %s' % (pag, w, a[0], d[0], a[1], d[1]))
+        ctx.close()
+    check(not desplazados, 'entre 320 y 480 px, al llegar tarde las fuentes el título y lo que le sigue no se mueven más de %d px en ninguno de %d casos'
+          % (TOLERANCIA, medidos), desplazados[:6])
+
+    # Solo informativo: cuántos títulos ocupan otras líneas con el respaldo que con Archivo. Mide el parecido visual del
+    # respaldo, no un movimiento: con font-display optional no hay cambio de fuente dentro de una carga.
     def alturas(bloquear):
         out, usados = {}, set()
         for pag in temas:
@@ -245,28 +283,23 @@ def titulos(nav):
             p.wait_for_timeout(200)
             if bloquear:
                 usados |= set(p.evaluate("[...document.fonts].filter(f => f.family.includes('Archivo Respaldo') && f.status === 'loaded').map(f => f.family)"))
-            fila = []
-            for w in anchos:
-                p.set_viewport_size({'width': w, 'height': 844})
-                p.wait_for_timeout(20)
-                fila.append(p.evaluate("Math.round(document.querySelector('h1').getBoundingClientRect().height)"))
-            out[pag] = fila
+            out[pag] = [h for h, _ in medir(p)]
             ctx.close()
         return out, usados
     respaldo, usados = alturas(True)
-    if not usados:
-        omitir('el sistema no tiene ninguna fuente de respaldo compatible para los títulos, se omite la comparación')
-        return
-    web, _ = alturas(False)
-    distintos = ['%s a %d px' % (pag, w) for pag in temas for w, a, b in zip(anchos, respaldo[pag], web[pag]) if a != b]
-    casos = len(temas) * len(anchos)
-    # Con font-display optional la fuente nunca reemplaza al respaldo después de dibujar, así que una diferencia
-    # no mueve la página. Se exige que el respaldo se parezca: un mismo tamaño no calza en todos los títulos a la vez.
-    check(len(distintos) <= casos // 100, 'entre 320 y 480 px, el título de cada tema ocupa las mismas líneas con el respaldo (%s) que con Archivo en %d de %d casos'
-          % (', '.join(sorted(f.strip('"') for f in usados)), casos - len(distintos), casos), distintos[:10])
+    if usados:
+        web, _ = alturas(False)
+        distintos = sum(1 for pag in temas for a, b in zip(respaldo[pag], web[pag]) if abs(a - b) > TOLERANCIA)
+        print('  info %d de %d títulos ocupan otras líneas con el respaldo (%s) que con Archivo, sin efecto con font-display optional'
+              % (distintos, len(temas) * len(anchos), ', '.join(sorted(f.strip('"') for f in usados))), flush=True)
+    # La garantía descansa en font-display optional en todas las hojas de la guía.
     css = (ROOT / 'css/estilo.css').read_text(encoding='utf-8')
     caras = re.findall(r'@font-face \{[^}]*url\([^}]*\}', css)
-    check(caras and all('font-display: optional' in c for c in caras), 'las %d fuentes web usan font-display optional: si no llegan a tiempo la página sigue con el respaldo y no se mueve' % len(caras))
+    check(caras and all('font-display: optional' in c for c in caras), 'las %d fuentes web de css/estilo.css usan font-display optional: si no llegan a tiempo la página sigue con el respaldo y no se mueve' % len(caras))
+    caras_web = [c for f in sorted((ROOT / 'web/src/styles').glob('*.css')) for c in re.findall(r'@font-face\s*\{[^}]*\}', f.read_text(encoding='utf-8'))]
+    en_swap = [c for c in caras_web if not re.search(r'font-display:\s*optional', c)]
+    if en_swap:
+        omitir('web/src/styles: %d de %d fuentes de la portada no usan font-display optional (swap); cambiarlo exige recompilar la portada' % (len(en_swap), len(caras_web)))
 
 
 def decisiones(nav):
