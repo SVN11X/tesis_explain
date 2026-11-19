@@ -183,4 +183,6 @@ Las pruebas automáticas (`npm test`) cubren el juez, las cuotas sobre SQLite, l
 - El micrófono real en Windows con Edge y Chrome, en Android con Chrome y en iOS con Safari.
 - La validación humana del apartado 7: etiquetas, estabilidad, comentarios y estudiantes.
 - La aprobación de rúbricas: solo existe la candidata de `p-oe3-parcial`.
-- El dictado y la lectura en voz alta: `js/defensa-voz.js` y la carpeta `voz/` no existen todavía en el repositorio, así que el panel solo ofrece escribir. Tampoco se ha hecho la prueba de privacidad del dictado.
+- Los archivos de datos de `voz/` (biblioteca, motor y pesos del dictado privado) todavía no están en `main`. Están en la rama local `defensa-oral/voz`, y GitHub bloquea su subida por un falso positivo de la protección de envíos que el dueño debe descartar. Sin ellos, el dictado privado no funciona en el sitio publicado. El código (`js/defensa-voz.js` y `js/defensa-whisper-worker.js`) sí está en `main`.
+- El dictado privado con el modelo real se verificó en Chromium sin interfaz, en Windows, con WebAssembly: 8 s de audio en español se transcribieron en unos 3 s y las solicitudes fueron solo al propio sitio. Eso no prueba WebGPU real ni un micrófono real.
+- WebGPU real: el dictado solo lo usa si existe un adaptador, y con WebAssembly como respaldo en un Worker nuevo. No se probó con una tarjeta real.

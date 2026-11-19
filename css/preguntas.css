@@ -177,3 +177,14 @@ h4.dv-enunciado { font-size: 1rem; }
   .dv-dialogo, .dv-dialogo * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
 }
 @media print { .dv-dialogo { display: none !important; } }
+
+/* Voz de la práctica de defensa oral: lectura, dictado privado y dictado externo (js/defensa-voz.js) */
+.dv-voz { align-items: center; }
+.dv-voz .btn { flex: 0 1 auto; }
+.dv-voz-estado { flex: 1 1 100%; min-height: 1.4em; color: var(--ink-2); }
+.dv-voz-estado:empty { display: none; }
+.dv-voz-aviso { flex: 1 1 100%; display: grid; gap: 10px; padding: 10px 12px; border: 1px solid var(--line-2); border-left: 3px solid var(--ambar); border-radius: var(--r); background: var(--surface-2); color: var(--ink); }
+.dv-voz-aviso p { margin: 0; }
+@media (max-width: 480px) {
+  .dv-voz .btn, .dv-voz-aviso .btn { flex: 1 1 100%; }
+}
