@@ -263,7 +263,7 @@
       if (estado !== "reposo") return;
       detenerLectura(); detenerExterno();
       limpiarAviso();
-      if (worker && trabajadorListo) { pedirMicro(); return; }
+      if (worker) { pedirMicro(); return; }   /* listo o aún cargando: se reutiliza, no se vuelve a descargar */
       var g = ++gen;
       estado = "consulta"; pintar();
       decir("Comprobando el dictado en este navegador…");
@@ -342,10 +342,11 @@
         volverATexto("El micrófono no está permitido. Sigue escribiendo, el borrador no cambió.");
       });
     }
-    /* Sin micrófono no hay nada que transcribir: si el modelo aún carga, la carga también termina */
-    function volverATexto(mensaje) {
+    /* Sin micrófono no hay nada que transcribir: si el modelo aún carga, la carga también termina.
+       Una grabación muy corta sí tiene micrófono: con conservarModelo la descarga sigue */
+    function volverATexto(mensaje, conservarModelo) {
       liberarCaptura();
-      if (!trabajadorListo) terminarWorker();
+      if (!trabajadorListo && !conservarModelo) terminarWorker();
       estado = "reposo"; pintar();
       decir(mensaje);
       ta.focus();
@@ -378,7 +379,7 @@
       liberarCaptura();
       var audio = unir(partes, tasa);
       partes = null;
-      if (audio.length < HZ * 0.3) { volverATexto("No se oyó nada. Inténtalo otra vez o escribe."); return; }
+      if (audio.length < HZ * 0.3) { volverATexto("No se oyó nada. Inténtalo otra vez o escribe.", true); return; }
       if (worker && trabajadorListo) { transcribir(audio); return; }
       /* el modelo aún carga: la grabación espera aquí, solo en memoria */
       gen++;
