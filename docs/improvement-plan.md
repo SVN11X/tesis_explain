@@ -42,7 +42,7 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 - [ ] (yellow) Playful states: one drawn SVG robot for search without results, as the example, with its reason recorded for a decorative illustration. Each state says what happened and the next action.
 - [ ] (green) Motion rich: record the purpose of each animation in docs/decisions/, and give a pause control to anything that moves for more than 5 s.
 - [ ] (green) Review palette and motion for what distracts or tires people with attention difficulties, and check the home page's first screen at 360 and 1280 px. Report with screenshots, change nothing.
-- [ ] (green) Measure the weight and use of Archivo, Atkinson Hyperlegible and IBM Plex Mono, and record the font decision in DESIGN.md.
+- [x] (green) Measure the weight and use of Archivo, Atkinson Hyperlegible and IBM Plex Mono, and record the font decision in DESIGN.md.
 - [ ] (green) After part (b): list the current tokens (spacing, type sizes, radii, durations, easing) in DESIGN.md from the site's CSS.
 - [ ] (green) After part (b): record the performance budget in docs/decisions/, measured on dist/, with each page's critical path against 170 KB compressed.
 
