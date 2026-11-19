@@ -180,10 +180,10 @@ with sync_playwright() as pw:
         ctx = browser.new_context(viewport={'width': 1366, 'height': 900})
         p = ctx.new_page()
         p.goto(BASE + pagina)
-        p.wait_for_timeout(300)
+        p.wait_for_function('window.__resaltado === true')  # marco.js ya marcó los resaltados pendientes
         antes = p.evaluate(tam, selector)
         p.locator(selector).last.scroll_into_view_if_needed()
-        p.wait_for_timeout(2600)
+        p.wait_for_function("(a) => getComputedStyle(document.querySelectorAll(a[0])[document.querySelectorAll(a[0]).length - 1]).backgroundSize.startsWith('100%')", arg=[selector], timeout=10000)
         check(p.locator('html.resaltado-animado').count() == 1 and antes.startswith('0%') and p.evaluate(tam, selector).startswith('100%'),
               '%s: el resaltado se dibuja al llegar a la pantalla' % pagina)
         ctx.close()
