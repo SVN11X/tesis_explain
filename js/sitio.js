@@ -13,7 +13,7 @@
   /* Si datos/proyecto.js no llega (bloqueado, caché corrupta o archivo ausente), los respaldos deben
      seguir funcionando. El aviso estático del HTML conserva el estado. */
   var ACADEMICO = (window.PROYECTO && window.PROYECTO.academico) || {
-    estado_texto: "En revisión por comité", tesis_pdf: null, version_documento: null, ultima_actualizacion_sitio: null, sinDatos: true
+    estado_texto: "En proceso de defensa", tesis_pdf: null, version_documento: null, ultima_actualizacion_sitio: null, sinDatos: true
   };
   /* Sin un enlace verificado en tesis_pdf, el pie no ofrece el PDF y Recursos dice que la tesis no está publicada. */
   var TESIS_PDF = ACADEMICO.tesis_pdf || "";

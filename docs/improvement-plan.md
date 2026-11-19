@@ -27,7 +27,7 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 
 ## Thesis content
 
-- [ ] (green) Academic notice: the thesis is in its defense process (owner, 2026-11-19), no longer under committee review. Update README.md and datos/academico.json, then run datos.py and indice.py.
+- [x] (green) Academic notice: the thesis is in its defense process (owner, 2026-11-19), no longer under committee review. Update README.md and datos/academico.json, then run datos.py and indice.py.
 - [ ] (yellow) Inventory of differences between the site and the final thesis (169 pages, the site follows the 152-page October one): figures and section, table and figure numbers, using docs/trazabilidad.csv.
 - [ ] (yellow) Fix the differences, one pull request per chapter, plus one each for the bibliography, the data CSVs and the questions. A change to preguntas.html regenerates its PDF and catalogo.json and rechecks the approved rubric.
 - [ ] (yellow) After the fixes, publish the final PDF (9.5 MB) as a Release asset or compressed under 5 MB, with a clear name, checked metadata, and version_documento and tesis_pdf updated in datos/academico.json.

@@ -2,7 +2,7 @@
 
 Guía abierta sobre el trabajo de titulación **"Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial"**, de Sebastián Valderas Neculqueo, con el profesor guía Patricio Galarce Acevedo. Ingeniería Civil Electrónica, Universidad Tecnológica Metropolitana (UTEM), 2026.
 
-**Estado académico: en revisión por comité. La tesis no está aprobada.** La guía sigue la versión de octubre de 2026 del documento. Las cifras pueden cambiar tras la revisión, sin que esta plataforma decida conclusiones académicas.
+**Estado académico: en proceso de defensa. La tesis aún no está aprobada.** La guía sigue la versión de octubre de 2026 del documento. Las cifras pueden cambiar tras la defensa, sin que esta plataforma decida conclusiones académicas.
 
 **Sitio:** https://svn11x.github.io/tesis_explain/
 
@@ -330,7 +330,7 @@ Se comprueban los temas claro y oscuro, el del sistema y el elegido con el botó
 
 ## Cómo citar
 
-Valderas Neculqueo, S. (2026). *Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial* [Trabajo de titulación en revisión por comité, versión de octubre de 2026]. Universidad Tecnológica Metropolitana.
+Valderas Neculqueo, S. (2026). *Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial* [Trabajo de titulación en proceso de defensa, versión de octubre de 2026]. Universidad Tecnológica Metropolitana.
 
 El formato BibTeX está en `recursos.html#citar`.
 
