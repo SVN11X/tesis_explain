@@ -222,6 +222,17 @@
     for (var i = 0; i < l.length; i++) if (l[i] && l[i].id === id) return l[i];
     return null;
   }
+  function idsContradicciones(qid) {
+    var ps = (catalogo && catalogo.preguntas) || [];
+    for (var i = 0; i < ps.length; i++) {
+      if (ps[i] && ps[i].id === qid) {
+        var cc = ps[i].rubrica && ps[i].rubrica.contradicciones_criticas, ids = [];
+        if (Array.isArray(cc)) for (var j = 0; j < cc.length; j++) if (cc[j] && cc[j].id) ids.push(cc[j].id);
+        return ids;
+      }
+    }
+    return [];
+  }
   function nodoResultado(res, extra) {
     var caja = el("div", "dv-res");
     if (extra) caja.appendChild(el("p", "dv-intento", extra));
@@ -229,7 +240,26 @@
       var d = res.data, v = /^(correcta|parcial|incorrecta|indeterminada)$/.test(d.veredicto) ? d.veredicto : "indeterminada";
       caja.classList.add("dv-v-" + v);
       caja.appendChild(el("p", "dv-veredicto", VEREDICTOS[v]));
-      var fuentes = [];
+      var fuentes = [], contra = null;
+      if (v === "incorrecta") {
+        var ids = idsContradicciones(d.question_id), lc = d.criterios || [];
+        for (var k = 0; ids.length && k < lc.length; k++) {
+          if (lc[k] && ids.indexOf(lc[k].id) >= 0 && lc[k].estado === "contradicho") { contra = lc[k]; break; }
+        }
+      }
+      if (contra) {
+        var pc = el("p", "dv-fila");
+        pc.appendChild(el("b", "", "Contradicción detectada: "));
+        pc.appendChild(document.createTextNode(String(contra.texto || contra.id)));
+        caja.appendChild(pc);
+        if (typeof contra.fragmento === "string" && contra.fragmento) {
+          var pf = el("p", "dv-fila");
+          pf.appendChild(el("b", "", "Lo que escribiste: "));
+          pf.appendChild(document.createTextNode("«" + contra.fragmento + "»"));
+          caja.appendChild(pf);
+        }
+        if (fuenteSegura(contra.fuente)) fuentes.push(contra.fuente);
+      }
       function fila(rotulo, id) {
         var c = id && criterio(d, id);
         if (!c) return;
@@ -240,7 +270,7 @@
         if (fuenteSegura(c.fuente) && fuentes.indexOf(c.fuente) < 0) fuentes.push(c.fuente);
       }
       fila("Lo que acertaste:", d.acierto);
-      fila("Para mejorar:", d.mejorar);
+      if (!contra || d.mejorar !== contra.id) fila("Para mejorar:", d.mejorar);
       if (typeof d.pista === "string" && d.pista) {
         var pp = el("p", "dv-fila");
         pp.appendChild(el("b", "", "Pista: "));

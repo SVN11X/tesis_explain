@@ -48,6 +48,10 @@ SOUP = BeautifulSoup((ROOT / 'preguntas.html').read_text(encoding='utf-8'), 'htm
 TARJETAS = SOUP.select('details.pregunta')
 CATALOGO = {'version': VERSION, 'total': len(TARJETAS), 'pendientes': [],
             'preguntas': [{'id': d['id'], 'evaluable': d['data-respuesta'] == 'guia' and d['id'] != NO_EVALUABLE[1]} for d in TARJETAS]}
+for _q in CATALOGO['preguntas']:
+    if _q['id'] == UNICA[1]:
+        _q['rubrica'] = {'criterios': [{'id': 'C1', 'esencial': True}, {'id': 'C2', 'esencial': True}],
+                         'contradicciones_criticas': [{'id': 'X1', 'texto': 'Afirmar que se probó con destinos fijos.', 'fuente': 'preguntas.html#p-metas-fijas'}]}
 GUIA_UNICA = re.sub(r'\s+', ' ', SOUP.select_one('#' + UNICA[1] + ' .q-cuerpo p').get_text(' ')).strip()[:40]
 
 
@@ -839,6 +843,40 @@ with sync_playwright() as pw:
     check(pg.locator('dialog.dv-dialogo .dv-voz-nota').is_visible() and not boton(pg, 'Escuchar pregunta').is_visible(), 'una voz que no es en español no la reemplaza')
     pg.evaluate("__S.cambiar([{name: 'Local', lang: 'es-ES', localService: true}])")
     check(not pg.locator('dialog.dv-dialogo .dv-voz-nota').is_visible() and boton(pg, 'Escuchar pregunta').is_visible(), 'con una voz en español la nota desaparece')
+    ctx.close()
+
+    # Contradicción crítica detectada.
+    print('Entrenar: contradicción crítica')
+    def con_x1(fragmento='destinos fijos', **extra):
+        crit = [{'id': 'C1', 'estado': 'presente', 'texto': 'El mapa quedó verificado.', 'fragmento': 'mapa', 'fuente': 'resultados.html#palabras'},
+                {'id': 'C2', 'estado': 'ausente', 'texto': 'Faltó medir la navegación.', 'fragmento': None, 'fuente': 'resultados.html#palabras'},
+                {'id': 'X1', 'estado': 'contradicho', 'texto': 'Afirmar que se probó con destinos fijos.', 'fragmento': fragmento, 'fuente': 'preguntas.html#p-metas-fijas'}]
+        return evaluada(veredicto='incorrecta', criterios=crit, **extra)
+    ctx, s = contexto(browser, api=API)
+    p = pagina(ctx)
+    s.envios = [con_x1(mejorar='X1')]
+    entrenar_con(p, UNICA[0], 'Probé con destinos fijos.')
+    txt = esperar_resultado(p)
+    check('Contradicción detectada: Afirmar que se probó con destinos fijos.' in txt and 'Lo que escribiste: «destinos fijos»' in txt, 'incorrecta muestra la contradicción y el fragmento', txt)
+    check(p.locator('dialog.dv-dialogo .dv-fuentes a[href="preguntas.html#p-metas-fijas"]').count() == 1, 'enlaza la fuente de la contradicción una sola vez')
+    check('Para mejorar' not in txt, 'no repite la contradicción en «Para mejorar»', txt)
+    cerrar(p)
+    s.envios = [con_x1(mejorar='C2')]
+    entrenar_con(p, UNICA[0], 'Probé con destinos fijos.')
+    txt = esperar_resultado(p)
+    check('Contradicción detectada:' in txt and 'Para mejorar: Faltó medir la navegación.' in txt, 'con otro criterio por mejorar muestra ambos', txt)
+    cerrar(p)
+    s.envios = [evaluada()]
+    entrenar_con(p, UNICA[0], 'Respuesta normal.')
+    txt = esperar_resultado(p)
+    check('Contradicción detectada' not in txt, 'un resultado parcial normal no muestra contradicción', txt)
+    ctx.close()
+    ctx, s = contexto(browser, api=API, ancho=360, alto=640)
+    p = pagina(ctx)
+    s.envios = [con_x1(fragmento='x' * 250, mejorar='X1')]
+    entrenar_con(p, UNICA[0], 'Respuesta.')
+    esperar_resultado(p)
+    check(sin_desborde(p), 'a 360 px un fragmento largo no desborda')
     ctx.close()
 
     # 11.2, 11.4, 11.6 Entrenar sin corrector.
