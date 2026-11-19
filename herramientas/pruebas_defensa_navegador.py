@@ -179,9 +179,18 @@ def foco_llega(p, condicion, ms=3000):
         return False
 
 
+def cerrar_con(p, accion):
+    """Cierra el diálogo con `accion` y espera su evento close, que el navegador entrega una tarea después de
+    close(): ahí el panel detiene la voz, termina el Worker y devuelve el foco. Este escuchador se agrega después
+    del del panel, así que cuando corre el del panel ya terminó."""
+    p.evaluate("""() => { window.__cerrado = false;
+      document.querySelector('dialog.dv-dialogo').addEventListener('close', () => { window.__cerrado = true; }, {once: true}); }""")
+    accion()
+    p.wait_for_function('window.__cerrado === true', timeout=5000)
+
+
 def cerrar(p):
-    p.keyboard.press('Escape')
-    p.wait_for_selector('dialog.dv-dialogo:not([open])', state='attached')
+    cerrar_con(p, lambda: p.keyboard.press('Escape'))
 
 
 def sin_desborde(p):
@@ -227,8 +236,7 @@ with sync_playwright() as pw:
     check(despues == antes and despues['tema'] == 'control', 'los filtros se conservan', (antes, despues))
     p.evaluate("document.getElementById('q-defensa').click()")
     p.wait_for_selector('dialog.dv-dialogo[open] .dv-modos')
-    boton(p, 'Cerrar').click()
-    p.wait_for_selector('dialog.dv-dialogo:not([open])', state='attached')
+    cerrar_con(p, lambda: boton(p, 'Cerrar').click())
     check(foco_llega(p, 'e.id === "q-defensa"'), 'Cerrar cierra y el foco vuelve a #q-defensa')
     check(p.evaluate('scrollY') == y0, 'el desplazamiento se conserva tras Cerrar')
     # Reabrir en la misma tarea en que se cerró: el evento close atrasado no debe dejar el panel en «Cargando».
@@ -240,9 +248,7 @@ with sync_playwright() as pw:
     except Exception:
         pass
     check(p.locator('dialog.dv-dialogo[open] .dv-modos').count() == 1, 'reabrir enseguida tras cerrar muestra el primer paso')
-    boton(p, 'Cerrar').click()
-    p.wait_for_selector('dialog.dv-dialogo:not([open])', state='attached')
-    foco_llega(p, 'e.id === "q-defensa"')
+    cerrar_con(p, lambda: boton(p, 'Cerrar').click())
     p.evaluate("document.getElementById('q-defensa').click()")
     p.wait_for_selector('dialog.dv-dialogo[open] .dv-modos')
     check('11 preguntas' in p.locator('dialog.dv-dialogo .dv-cuerpo').inner_text(), 'cuenta las tarjetas visibles con guía', p.locator('dialog.dv-dialogo .dv-cuerpo').inner_text()[:120])
@@ -521,8 +527,7 @@ with sync_playwright() as pw:
     check(foco['dentro'], 'teclado: tras el resultado el foco sigue dentro')
     p.keyboard.press('Tab')
     check(p.evaluate('(() => { const c = getComputedStyle(document.activeElement); return c.outlineStyle !== "none" && parseFloat(c.outlineWidth) >= 2; })()'), 'teclado: el foco tiene contorno visible')
-    p.keyboard.press('Escape')
-    p.wait_for_selector('dialog.dv-dialogo:not([open])', state='attached')
+    cerrar(p)
     check(foco_llega(p, 'e.id === "q-defensa"'), 'teclado: Escape devuelve el foco a #q-defensa')
     ctx.close()
 
@@ -758,8 +763,7 @@ with sync_playwright() as pw:
     pg.wait_for_selector('dialog.dv-dialogo .dv-voz button', state='attached')
     boton(pg, 'Dictar en este navegador').click(); boton(pg, 'Descargar y dictar').click()
     pg.wait_for_selector('dialog.dv-dialogo .dv-voz button:has-text("Terminar dictado")')
-    boton(pg, 'Cerrar').click()
-    pg.wait_for_selector('dialog.dv-dialogo:not([open])', state='attached')
+    cerrar_con(pg, lambda: boton(pg, 'Cerrar').click())
     pg.wait_for_function('__G.pistasParadas === 2 && __A.cerrados === 2 && __W.terminados === 2', timeout=3000) if pg.evaluate('__W.creados.length') == 2 else None
     check(pg.evaluate('__G.pistasParadas') == 2 and pg.evaluate('__A.cerrados') == 2 and pg.evaluate('__W.terminados') == 2, 'al cerrar durante la grabación suelta pistas, AudioContext y Worker', pg.evaluate('[__G.pistasParadas, __A.cerrados, __W.terminados, __W.creados.length]'))
     ctx.close()
