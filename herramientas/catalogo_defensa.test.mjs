@@ -60,16 +60,17 @@ function ejecutar({ ids = ['p-a', 'p-b'], respaldos = {}, rubricas = {}, total, 
   } finally { limpiar(); }
 }
 
-test('el catálogo real tiene 106 preguntas, dos pendientes y ninguna evaluable', () => {
+test('el catálogo real tiene 106 preguntas, dos pendientes y solo p-oe3-parcial evaluable', () => {
   const c = JSON.parse(readFileSync(CATALOGO, 'utf8'));
   assert.equal(c.total, 106);
   assert.equal(c.preguntas.length, 106);
   assert.deepEqual(c.pendientes, ['p-giro', 'p-frontera-minima']);
-  assert.equal(c.preguntas.filter((p) => p.evaluable).length, 0);
+  assert.deepEqual(c.preguntas.filter((p) => p.evaluable).map((p) => p.id), ['p-oe3-parcial']);
   assert.match(c.version, /^[0-9a-f]{12}$/);
   assert.equal(c.preguntas.filter((p) => p.rubrica).length, 1);
   const p = c.preguntas.find((q) => q.id === 'p-oe3-parcial');
-  assert.equal(p.rubrica.estado, 'candidata');
+  assert.equal(p.rubrica.estado, 'aprobada');
+  assert.ok(p.rubrica.aprobada_por && p.rubrica.fecha_aprobacion);
   assert.equal(p.tema, 'objetivos');
   assert.equal(p.dificultad, 'tecnica');
   assert.equal(p.respaldo, 'guia');

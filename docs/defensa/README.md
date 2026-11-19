@@ -120,7 +120,7 @@ Comprobar con `GET <dirección>/v1/salud`.
 
 ## 6. Aprobar una rúbrica
 
-La IA solo evalúa una pregunta cuya rúbrica en `datos/defensa/rubricas.json` esté `aprobada`. La rúbrica de `p-oe3-parcial` está en `candidata`.
+La IA solo evalúa una pregunta cuya rúbrica en `datos/defensa/rubricas.json` esté `aprobada`. La de `p-oe3-parcial` quedó aprobada el 19 de noviembre de 2026 por delegación del autor en Claude, sin una revisión humana criterio por criterio y antes de la validación del apartado 7. Para apagarla basta pasarla a `suspendida`, ejecutar `python herramientas/catalogo_defensa.py` y volver a desplegar el Worker.
 
 1. Leer la rúbrica contra la tesis. Revisar criterios, alternativas válidas y contradicciones críticas, y editar lo que haga falta.
 2. En `datos/defensa/rubricas.json`, cambiar `estado` a `aprobada` y completar `aprobada_por` y `fecha_aprobacion`. Una pregunta con respaldo `pendiente` no puede aprobarse.
@@ -184,7 +184,7 @@ Las pruebas automáticas (`npm test`) cubren el juez, las cuotas sobre SQLite, l
 - El coste efectivo en Neurons por respuesta, que se debe leer en el panel de Cloudflare.
 - El micrófono real en Windows con Edge y Chrome, en Android con Chrome y en iOS con Safari.
 - La validación humana del apartado 7: etiquetas, estabilidad, comentarios y estudiantes.
-- La aprobación de rúbricas: solo existe la candidata de `p-oe3-parcial`.
+- La revisión humana de rúbricas: solo existe la de `p-oe3-parcial`, aprobada por delegación. Las demás preguntas siguen sin rúbrica.
 - Los archivos de datos de `voz/` (biblioteca, motor y pesos del dictado privado) todavía no están en `main`. Están en la rama local `defensa-oral/voz`, y GitHub bloquea su subida por un falso positivo de la protección de envíos que el dueño debe descartar. Sin ellos, el dictado privado no funciona en el sitio publicado. El código (`js/defensa-voz.js` y `js/defensa-whisper-worker.js`) sí está en `main`.
 - El dictado privado con el modelo real se verificó en Chromium sin interfaz, en Windows, con WebAssembly: 8 s de audio en español se transcribieron en unos 3 s y las solicitudes fueron solo al propio sitio. Eso no prueba WebGPU real ni un micrófono real.
 - WebGPU real: el dictado solo lo usa si existe un adaptador, y con WebAssembly como respaldo en un Worker nuevo. No se probó con una tarjeta real.
