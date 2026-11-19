@@ -8,3 +8,17 @@ web/public/
 .astro/
 .sites-runtime/
 .wrangler/
+
+# standard
+.standards/
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+dist/
+.cache/
+coverage/
+.vite/
