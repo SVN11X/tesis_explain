@@ -218,18 +218,28 @@ export function crearApi({ repo, proveedor, catalogo, claves, config = {}, reloj
     // Paso 7: una sola ronda de tres lecturas.
     let guardado;
     let vencida = false;
+    const inicioRonda = Date.now();
+    let registro = { tecnico: null, detalle: null };
     try {
-      const { lecturas, tecnico } = await evaluarConProveedor(
+      const { lecturas, tecnico, detalle } = await evaluarConProveedor(
         proveedor,
         { rubrica: pregunta.rubrica, pregunta: pregunta.enunciado, texto: respuesta },
         { plazoMs },
       );
+      registro = { tecnico, detalle };
       vencida = tecnico.vencidas > 0;
       guardado = aGuardado(consenso(lecturas), respuesta);
-    } catch {
+    } catch (e) {
+      registro.detalle = ["ronda: " + String((e && e.message) || e).slice(0, 160)];
       vencida = true;
       guardado = { estado: "no_evaluable", causa: "ai_unavailable" };
     }
+    // Registro técnico de la ronda (propuesta: «el conteo técnico registra el fallo del proveedor o del esquema»).
+    // Lleva solo identificadores, conteos y motivos fijos: nunca la respuesta del estudiante.
+    console.log(JSON.stringify({
+      evento: "ronda", request_id, question_id, version_catalogo, version_rubrica: ver.version_rubrica,
+      ms: Date.now() - inicioRonda, ...registro, estado: guardado.estado, causa: guardado.causa ?? null, veredicto: guardado.veredicto ?? null,
+    }));
     try {
       if (vencida) await repo.marcarIndeterminada({ sessionId, requestId: request_id });
       else await repo.complete({ sessionId, requestId: request_id, resultado: { ...guardado, question_id, version_catalogo, version_rubrica: ver.version_rubrica }, ahora: reloj() });
