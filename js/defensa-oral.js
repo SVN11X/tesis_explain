@@ -82,6 +82,7 @@
     dlg.appendChild(cuerpo);
     dlg.addEventListener("close", function () {
       generacion++;
+      detenerVoz();
       if (scrollAlAbrir && (window.scrollX !== scrollAlAbrir.x || window.scrollY !== scrollAlAbrir.y)) window.scrollTo(scrollAlAbrir.x, scrollAlAbrir.y);
       if (origen) origen.focus({ preventScroll: true });
     });
@@ -89,6 +90,7 @@
   }
   function vista(nodos, enfocar) {
     generacion++;
+    detenerVoz();
     cuerpo.textContent = "";
     nodos.forEach(function (n) { cuerpo.appendChild(n); });
     anunciar("");
@@ -250,6 +252,31 @@
     return caja;
   }
 
+  /* ── voz: js/defensa-voz.js se pide la primera vez que se muestra una pregunta ── */
+  var cargaVoz = null;
+  function cargarVoz() {
+    if (window.DefensaVoz) return Promise.resolve();
+    if (!cargaVoz) cargaVoz = new Promise(function (resolver, rechazar) {
+      var s = document.createElement("script");
+      s.src = new URL("js/defensa-voz.js", document.baseURI).href;
+      s.onload = resolver;
+      s.onerror = function () { s.remove(); cargaVoz = null; rechazar(new Error("voz")); };
+      document.head.appendChild(s);
+    });
+    return cargaVoz;
+  }
+  function montarVoz(ta, enunciado, contenedor) {
+    function montar() {
+      if (!window.DefensaVoz || typeof window.DefensaVoz.montar !== "function" || contenedor.childElementCount) return;
+      try { window.DefensaVoz.montar({ textarea: ta, enunciado: enunciado, contenedor: contenedor }); } catch (e) { /* el panel sigue con texto */ }
+    }
+    /* siempre tras `vista()`, que suelta lo montado antes. Así cada bloque se monta ya dentro del diálogo */
+    cargarVoz().then(function () { if (contenedor.isConnected) montar(); }, function () { /* sin voz: el panel sigue con texto */ });
+  }
+  function detenerVoz(conservar) {
+    if (window.DefensaVoz && typeof window.DefensaVoz.detenerTodo === "function") window.DefensaVoz.detenerTodo(conservar);
+  }
+
   /* ── un bloque de pregunta: enunciado, borrador, revisión y envío ── */
   function crearBloque(q, cfg) {
     var n = ++contador, b = { q: q, guiaVista: false, intentos: 0 };
@@ -267,6 +294,7 @@
       var t = ta.value;
       if (!t.trim()) { anunciar("Escribe tu respuesta antes de revisarla."); ta.focus(); return; }
       if (t.length > MAX) { anunciar("La respuesta pasa de " + MAX + " caracteres."); ta.focus(); return; }
+      detenerVoz(true);
       pre.textContent = t;
       ta.readOnly = true;
       acciones.hidden = true; rev.hidden = false;
@@ -309,9 +337,7 @@
       resultado.appendChild(nodoResultado(res, extra));
       rev.hidden = true;
     };
-    if (window.DefensaVoz && typeof window.DefensaVoz.montar === "function") {
-      try { window.DefensaVoz.montar({ textarea: ta, enunciado: q.enunciado, contenedor: voz }); } catch (e) { /* el panel sigue con texto */ }
-    }
+    montarVoz(ta, q.enunciado, voz);
     return b;
   }
 
@@ -422,6 +448,7 @@
     function mostrar() {
       cab.textContent = "Pregunta " + (actual + 1) + " de " + qs.length;
       items.forEach(function (it, i) { it.b.raiz.hidden = i !== actual; });
+      detenerVoz(true);
       var b = items[actual].b;
       b.titulo.setAttribute("tabindex", "-1"); b.titulo.focus({ preventScroll: true });
       anunciar(cab.textContent);

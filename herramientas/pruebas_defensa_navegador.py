@@ -527,6 +527,246 @@ with sync_playwright() as pw:
     check(colores['light']['fondo'] == 'rgb(248, 248, 242)' and colores['dark']['fondo'] == 'rgb(24, 33, 32)', 'usa --surface de cada tema', colores)
     check(colores['dark']['areaTexto'] != colores['dark']['area'] and colores['light']['areaTexto'] != colores['light']['area'], 'el borrador es legible en los dos temas')
 
+    # 10. Voz (8 de la especificación) con simulacros: ni se descargan los 71 MB ni se usa un micrófono real.
+    print('Voz: lectura, dictado externo y dictado privado')
+    MANIFIESTO = {'bytes_total': 71127843, 'archivos': []}
+
+    def fakes(sintesis=True, sr=True):
+        return """
+        (() => {
+          const S = {voces: [], hablados: [], cancelados: 0, esc: {}};
+          window.__S = S;
+          if (%s) {
+            const sy = {getVoices: () => S.voces,
+              speak: u => { S.hablados.push({texto: u.text, voz: u.voice && u.voice.name}); S.ultimo = u; },
+              cancel: () => { S.cancelados++; },
+              addEventListener: (t, f) => { (S.esc[t] = S.esc[t] || []).push(f); },
+              removeEventListener: (t, f) => { S.esc[t] = (S.esc[t] || []).filter(x => x !== f); }};
+            Object.defineProperty(window, 'speechSynthesis', {value: sy, configurable: true});
+            window.SpeechSynthesisUtterance = function (t) { this.text = t; };
+            S.cambiar = v => { S.voces = v; (S.esc.voiceschanged || []).forEach(f => f(new Event('voiceschanged'))); };
+          } else {
+            Object.defineProperty(window, 'speechSynthesis', {value: undefined, configurable: true});
+          }
+          const R = {instancias: 0, starts: 0, stops: 0};
+          window.__R = R;
+          class SR { constructor() { R.instancias++; R.ultimo = this; } start() { R.starts++; } stop() { R.stops++; } }
+          Object.defineProperty(window, 'SpeechRecognition', {value: %s ? SR : undefined, configurable: true});
+          Object.defineProperty(window, 'webkitSpeechRecognition', {value: %s ? SR : undefined, configurable: true});
+          const G = {llamadas: 0, pistasParadas: 0, negar: false};
+          window.__G = G;
+          Object.defineProperty(navigator, 'mediaDevices', {configurable: true, value: {getUserMedia: () => {
+            G.llamadas++;
+            if (G.negar) return Promise.reject(new DOMException('no', 'NotAllowedError'));
+            return Promise.resolve({getTracks: () => [{stop: () => { G.pistasParadas++; }}]});
+          }}});
+          const A = {creados: 0, cerrados: 0};
+          window.__A = A;
+          class AC { constructor(o) { this.sampleRate = (o && o.sampleRate) || 48000; this.state = 'running'; this.destination = {}; A.creados++; }
+            createMediaStreamSource() { return {connect() {}, disconnect() {}}; }
+            createScriptProcessor() { const p = {connect() {}, disconnect() {}, onaudioprocess: null}; A.proc = p; return p; }
+            close() { this.state = 'closed'; A.cerrados++; return Promise.resolve(); } resume() {} }
+          window.AudioContext = AC; window.webkitAudioContext = AC;
+          const W = {creados: [], mensajes: [], terminados: 0, retener: false, texto: 'texto privado'};
+          window.__W = W;
+          window.Worker = class {
+            constructor(url, o) { this.url = String(url); W.creados.push({url: this.url, tipo: o && o.type}); W.ultimo = this; }
+            listo() { if (!this.terminado && this.onmessage) this.onmessage({data: {tipo: 'listo', dispositivo: 'wasm'}}); }
+            postMessage(m) {
+              W.mensajes.push({tipo: m.tipo, total: m.total, largo: m.audio ? m.audio.length : null, buffer: m.audio ? m.audio.constructor.name : null});
+              if (m.tipo === 'iniciar') {
+                this.onmessage && this.onmessage({data: {tipo: 'progreso', cargado: 10000000, total: m.total}});
+                if (!W.retener) setTimeout(() => this.listo(), 20);
+              } else if (m.tipo === 'transcribir') {
+                setTimeout(() => { if (!this.terminado && this.onmessage) this.onmessage({data: {tipo: 'texto', texto: W.texto}}); }, 20);
+              }
+            }
+            terminate() { this.terminado = true; W.terminados++; }
+          };
+        })();
+        """ % ('true' if sintesis else 'false', 'true' if sr else 'false', 'true' if sr else 'false')
+
+    def ctx_voz(manifiesto=True, **kw):
+        c, _ = contexto(browser, **kw)
+        c.add_init_script(fakes())
+        if manifiesto:
+            c.route('**/voz/manifiesto.json', lambda r: r.fulfill(status=200, content_type='application/json', body=json.dumps(MANIFIESTO)))
+        else:
+            c.route('**/voz/manifiesto.json', lambda r: r.fulfill(status=404, body='no existe'))
+        return c
+
+    def voz_p(c):
+        pg = pagina(c)
+        filtrar(pg, UNICA[0])
+        abrir(pg)
+        boton(pg, 'Entrenar').click()
+        pg.wait_for_selector('dialog.dv-dialogo .dv-voz button', state='attached')
+        return pg
+
+    def mensaje_voz(pg):
+        return pg.locator('dialog.dv-dialogo .dv-voz-estado').inner_text() + ' ' + pg.locator('dialog.dv-dialogo .dv-voz-aviso').inner_text()
+
+    def ta_valor(pg):
+        return pg.locator('dialog.dv-dialogo textarea').input_value()
+
+    # 10a. Lectura en voz alta.
+    ctx = ctx_voz()
+    pg = voz_p(ctx)
+    check(pg.evaluate('typeof window.DefensaVoz.montar') == 'function', 'js/defensa-voz.js se carga al mostrar la primera pregunta')
+    check(not boton(pg, 'Escuchar pregunta').is_visible(), 'sin voces, «Escuchar pregunta» queda oculto')
+    check(pg.locator('dialog.dv-dialogo .dv-enunciado').is_visible(), 'la pregunta sigue visible sin voz')
+    pg.evaluate('''() => __S.cambiar([{name: 'Remota', lang: 'es-MX', localService: false}, {name: 'Inglesa', lang: 'en-US', localService: true}])''')
+    check(not boton(pg, 'Escuchar pregunta').is_visible(), 'una voz en español remota o una local en otro idioma no bastan')
+    pg.evaluate('''() => __S.cambiar([{name: 'Remota', lang: 'es-MX', localService: false}, {name: 'Local', lang: 'es-ES', localService: true}])''')
+    check(boton(pg, 'Escuchar pregunta').is_visible(), 'la voz que llega después con voiceschanged muestra el botón')
+    boton(pg, 'Escuchar pregunta').click()
+    check(pg.evaluate('__S.hablados.length') == 1 and pg.evaluate('__S.hablados[0].voz') == 'Local' and pg.evaluate('__S.hablados[0].texto').startswith('¿'),
+          'lee el enunciado con la voz en español de localService true', pg.evaluate('__S.hablados'))
+    check(boton(pg, 'Detener lectura').is_visible(), 'mientras lee ofrece «Detener lectura»')
+    c0 = pg.evaluate('__S.cancelados')
+    boton(pg, 'Detener lectura').click()
+    check(pg.evaluate('__S.cancelados') > c0 and boton(pg, 'Escuchar pregunta').is_visible(), '«Detener lectura» corta la voz')
+    boton(pg, 'Escuchar pregunta').click()
+    c0 = pg.evaluate('__S.cancelados')
+    boton(pg, 'Dictado externo').click()
+    check(pg.evaluate('__S.cancelados') > c0 and boton(pg, 'Escuchar pregunta').is_visible(), 'la lectura se detiene antes de cualquier dictado')
+    ctx.close()
+
+    # 10b. Dictado externo: aviso, rechazo sin reconocedor, aceptación y texto agregado.
+    ctx = ctx_voz()
+    pg = voz_p(ctx)
+    pg.locator('dialog.dv-dialogo textarea').fill('Borrador previo')
+    boton(pg, 'Dictado externo').click()
+    aviso = pg.locator('dialog.dv-dialogo .dv-voz-aviso')
+    check(aviso.locator('p').inner_text() == 'El audio puede procesarse en servidores del proveedor de tu navegador', 'el aviso del dictado externo dice exactamente lo acordado', aviso.inner_text())
+    check(boton(pg, 'Aceptar y dictar').count() == 1 and boton(pg, 'Seguir escribiendo').count() == 1 and pg.evaluate('__R.instancias') == 0, 'ofrece Aceptar y dictar y Seguir escribiendo, sin crear el reconocedor')
+    boton(pg, 'Seguir escribiendo').click()
+    check(pg.evaluate('__R.instancias') == 0 and pg.evaluate('__R.starts') == 0, 'rechazar no crea ningún reconocedor')
+    c = pg.evaluate('DefensaVoz.consentimiento()')
+    check(c and c['aceptado'] is False and c['version'] == 1 and re.match(r'\d{4}-\d\d-\d\dT', c['hora']), 'la elección, la versión 1 y la hora quedan en memoria', c)
+    check(pg.evaluate('JSON.stringify([localStorage, sessionStorage])') == '[{},{}]' and ta_valor(pg) == 'Borrador previo', 'nada se guarda en el navegador y el borrador sigue igual')
+    boton(pg, 'Dictado externo').click()
+    boton(pg, 'Aceptar y dictar').click()
+    check(pg.evaluate('__R.instancias') == 1 and pg.evaluate('__R.starts') == 1, 'aceptar crea el reconocedor y lo inicia')
+    pg.evaluate("() => { const r = [{transcript: 'dictado externo'}]; r.isFinal = true; __R.ultimo.onresult({resultIndex: 0, results: [r]}); }")
+    check(ta_valor(pg) == 'Borrador previo dictado externo', 'el texto dictado se agrega al borrador y no lo reemplaza', ta_valor(pg))
+    pg.evaluate("() => __R.ultimo.onerror({error: 'not-allowed'})")
+    check(ta_valor(pg) == 'Borrador previo dictado externo' and 'no está permitido' in mensaje_voz(pg) and boton(pg, 'Dictado externo').is_enabled(), 'micrófono negado vuelve a texto sin recargar y conserva el borrador')
+    boton(pg, 'Dictado externo').click()
+    check(pg.evaluate('__R.instancias') == 2 and boton(pg, 'Aceptar y dictar').count() == 0, 'ya aceptado en esta sesión no vuelve a preguntar')
+    s0 = pg.evaluate('__R.stops')
+    cerrar(pg)
+    check(pg.evaluate('__R.stops') > s0, 'al cerrar el panel se detiene el dictado externo')
+    ctx.close()
+
+    ctx, _ = contexto(browser)
+    ctx.add_init_script(fakes(sintesis=False, sr=False))
+    pg = pagina(ctx)
+    filtrar(pg, UNICA[0]); abrir(pg); boton(pg, 'Entrenar').click()
+    pg.wait_for_selector('dialog.dv-dialogo .dv-voz button', state='attached')
+    check(boton(pg, 'Dictado externo').count() == 0 and not boton(pg, 'Escuchar pregunta').is_visible() and boton(pg, 'Dictar en este navegador').count() == 1,
+          'sin SpeechRecognition ni speechSynthesis solo queda el dictado privado')
+    check(not pg.errores, 'sin errores de JavaScript sin esas interfaces', pg.errores)
+    ctx.close()
+
+    # 10c. Dictado privado: confirmación, cancelación, grabación, red y limpieza.
+    ctx = ctx_voz()
+    todas = []
+    ctx.on('request', lambda r: todas.append(r.url))
+    pg = voz_p(ctx)
+    pg.locator('dialog.dv-dialogo textarea').fill('Mi borrador')
+    pg.evaluate('window.__marca = 1')
+    boton(pg, 'Dictar en este navegador').click()
+    pg.wait_for_selector('dialog.dv-dialogo .dv-voz-aviso:not([hidden])')
+    check('71,1 MB' in mensaje_voz(pg), 'muestra el tamaño de voz/manifiesto.json (71,1 MB) antes de descargar', mensaje_voz(pg))
+    voz_antes = [u for u in todas if '/voz/' in u and not u.endswith('manifiesto.json')]
+    check(not voz_antes and pg.evaluate('__W.creados.length') == 0 and pg.evaluate('__G.llamadas') == 0,
+          'sin confirmar no se pide nada más de voz/ ni se llama a getUserMedia', voz_antes)
+    boton(pg, 'Seguir escribiendo').click()
+    check(pg.evaluate('__W.creados.length') == 0 and ta_valor(pg) == 'Mi borrador', 'rechazar la descarga no crea el Worker y conserva el borrador')
+    pg.evaluate('__W.retener = true')
+    boton(pg, 'Dictar en este navegador').click()
+    boton(pg, 'Descargar y dictar').click()
+    pg.wait_for_function('__W.creados.length === 1')
+    w = pg.evaluate('__W.creados[0]')
+    check(w['url'].endswith('/js/defensa-whisper-worker.js') and w['tipo'] == 'module', 'crea el Worker de módulo bajo /tesis_explain/', w)
+    check(pg.evaluate('__W.mensajes[0].tipo') == 'iniciar' and pg.evaluate('__G.llamadas') == 0, 'durante la descarga no pide el micrófono')
+    check('10,0 MB de 71,1 MB' in mensaje_voz(pg), 'muestra el progreso de la descarga', mensaje_voz(pg))
+    boton(pg, 'Cancelar').click()
+    check(pg.evaluate('__W.terminados') == 1 and 'Descarga cancelada' in mensaje_voz(pg) and pg.evaluate('__G.llamadas') == 0, 'cancelar termina el Worker y no toca el micrófono', mensaje_voz(pg))
+    check(ta_valor(pg) == 'Mi borrador' and pg.locator('dialog.dv-dialogo .dv-enunciado').is_visible() and pg.evaluate('window.__marca') == 1,
+          'cancelar durante la descarga mantiene la pregunta y el borrador sin recargar')
+    pg.evaluate('__W.retener = false')
+    boton(pg, 'Dictar en este navegador').click()
+    boton(pg, 'Descargar y dictar').click()
+    pg.wait_for_selector('dialog.dv-dialogo .dv-voz button:has-text("Terminar dictado")')
+    check(pg.evaluate('__G.llamadas') == 1 and pg.evaluate('__A.creados') == 1, 'solo al terminar la descarga pide el micrófono y abre el AudioContext')
+    pg.evaluate("() => { const e = {inputBuffer: {getChannelData: () => new Float32Array(16000).fill(0.1)}}; __A.proc.onaudioprocess(e); __A.proc.onaudioprocess(e); }")
+    boton(pg, 'Terminar dictado').click()
+    check(pg.evaluate('__G.pistasParadas') == 1 and pg.evaluate('__A.cerrados') == 1, 'al terminar detiene las pistas y cierra el AudioContext')
+    m = pg.evaluate('__W.mensajes[__W.mensajes.length - 1]')
+    check(m['tipo'] == 'transcribir' and m['buffer'] == 'Float32Array' and m['largo'] == 32000, 'envía al Worker un Float32Array de 16 kHz', m)
+    pg.wait_for_function("document.querySelector('dialog.dv-dialogo textarea').value.includes('texto privado')")
+    check(ta_valor(pg) == 'Mi borrador texto privado', 'el texto dictado se agrega al borrador', ta_valor(pg))
+    t0 = pg.evaluate('__W.terminados')
+    cerrar(pg)
+    check(pg.evaluate('__W.terminados') == t0 + 1, 'al cerrar el panel el Worker se termina')
+    ajenas = [u for u in todas if not u.startswith('http://localhost')]
+    check(not ajenas, 'durante el dictado privado no sale ninguna petición a otro host', ajenas)
+    check(not pg.errores, 'sin errores de JavaScript en el dictado privado', pg.errores)
+    ctx.close()
+
+    # 10d. Micrófono negado y limpieza al cambiar de pregunta o cerrar durante la grabación.
+    ctx = ctx_voz()
+    pg = voz_p(ctx)
+    pg.locator('dialog.dv-dialogo textarea').fill('Borrador B')
+    pg.evaluate('window.__marca = 1; __G.negar = true')
+    boton(pg, 'Dictar en este navegador').click(); boton(pg, 'Descargar y dictar').click()
+    pg.wait_for_function('__G.llamadas === 1')
+    pg.wait_for_function("document.querySelector('dialog.dv-dialogo .dv-voz-estado').textContent.includes('no está permitido')")
+    check(ta_valor(pg) == 'Borrador B' and boton(pg, 'Dictar en este navegador').is_enabled() and pg.evaluate('window.__marca') == 1,
+          'micrófono negado vuelve a texto sin recargar y conserva el borrador')
+    check(pg.evaluate('__A.creados') == 0, 'con el micrófono negado no se crea ningún AudioContext')
+    pg.evaluate('__G.negar = false')
+    boton(pg, 'Dictar en este navegador').click()
+    pg.wait_for_selector('dialog.dv-dialogo .dv-voz button:has-text("Terminar dictado")')
+    check(pg.evaluate('__W.creados.length') == 1, 'con el Worker ya listo no vuelve a descargar ni a preguntar')
+    boton(pg, 'Otra pregunta').click()
+    check(pg.evaluate('__G.pistasParadas') == 1 and pg.evaluate('__A.cerrados') == 1 and pg.evaluate('__W.terminados') == 1, 'al cambiar de pregunta suelta pistas, AudioContext y Worker')
+    pg.wait_for_selector('dialog.dv-dialogo .dv-voz button', state='attached')
+    boton(pg, 'Dictar en este navegador').click(); boton(pg, 'Descargar y dictar').click()
+    pg.wait_for_selector('dialog.dv-dialogo .dv-voz button:has-text("Terminar dictado")')
+    boton(pg, 'Cerrar').click()
+    pg.wait_for_selector('dialog.dv-dialogo:not([open])', state='attached')
+    check(pg.evaluate('__G.pistasParadas') == 2 and pg.evaluate('__A.cerrados') == 2 and pg.evaluate('__W.terminados') == 2, 'al cerrar durante la grabación suelta pistas, AudioContext y Worker')
+    ctx.close()
+
+    # 10e. Copia del sitio sin voz/manifiesto.json.
+    ctx = ctx_voz(manifiesto=False)
+    pg = voz_p(ctx)
+    boton(pg, 'Dictar en este navegador').click()
+    pg.wait_for_function("document.querySelector('dialog.dv-dialogo .dv-voz-estado').textContent.includes('no está disponible en esta copia del sitio')")
+    check(pg.evaluate('__W.creados.length') == 0 and pg.evaluate('__G.llamadas') == 0, 'sin manifiesto explica que no hay dictado y no descarga ni graba')
+    escribir_y_enviar(pg, 'Sigue funcionando')
+    pg.wait_for_selector('dialog.dv-dialogo .dv-guia')
+    check(ta_valor(pg) == 'Sigue funcionando', 'el resto del panel sigue funcionando sin dictado privado')
+    ctx.close()
+
+    # 10f. 320 px y los dos temas con los controles de voz y el aviso abiertos.
+    for tema in ('light', 'dark'):
+        ctx = ctx_voz(ancho=320, alto=700, color_scheme=tema)
+        pg = pagina(ctx)
+        pg.evaluate('document.documentElement.setAttribute("data-theme", "%s")' % tema)
+        filtrar(pg, UNICA[0]); abrir(pg); boton(pg, 'Entrenar').click()
+        pg.wait_for_selector('dialog.dv-dialogo .dv-voz button', state='attached')
+        pg.evaluate("__S.cambiar([{name: 'Local', lang: 'es-ES', localService: true}])")
+        boton(pg, 'Dictar en este navegador').click()
+        pg.wait_for_selector('dialog.dv-dialogo .dv-voz-aviso:not([hidden])')
+        check(sin_desborde(pg), '320 px sin desplazamiento horizontal con la voz y el aviso (%s)' % tema)
+        colores[tema + '-aviso'] = pg.evaluate('getComputedStyle(document.querySelector(".dv-voz-aviso")).backgroundColor')
+        ctx.close()
+    check(colores['light-aviso'] != colores['dark-aviso'], 'el aviso de voz cambia de color entre los dos temas', colores)
+
     browser.close()
 server.shutdown()
 print('\n%d comprobaciones del panel de defensa oral correctas' % count)
