@@ -192,6 +192,34 @@ with sync_playwright() as pw:
         p.goto(BASE + pagina)
         check(not p.locator('html.resaltado-animado').count() and p.evaluate(tam, selector).startswith('100%'), '%s: con movimiento reducido el resaltado ya está puesto' % pagina)
         ctx.close()
+    # Propósito del movimiento (docs/decisions/0005): el indicador de carga desaparece al terminar y nada
+    # que se mueva sin que se pida corre sin fin sin un control de pausa.
+    INFINITAS = "() => document.getAnimations().filter(a => a.playState === 'running' && a.effect.getComputedTiming().iterations === Infinity).map(a => (a.effect.target && a.effect.target.className) || '?')"
+    for pagina in ('index.html', 'laboratorios.html'):
+        ctx = browser.new_context(viewport={'width': 1366, 'height': 900})
+        p = ctx.new_page()
+        p.goto(BASE + pagina)
+        p.locator('.world-canvas').scroll_into_view_if_needed()
+        p.wait_for_function("document.querySelector('.world-canvas [data-renderer]') || document.querySelector('.scene-loading button')", timeout=30000)
+        check(p.locator('.scan-loader').count() == 0, '%s: el indicador de carga sale del DOM cuando termina la escena' % pagina)
+        check(p.evaluate(INFINITAS) == [], '%s: ninguna animación CSS corre sin fin tras la carga' % pagina)
+        if pagina == 'index.html' and p.locator('.robot-stage canvas[data-renderer=webgl]').count():
+            boton = p.get_by_role('button', name='Pausar movimiento del sensor')
+            boton.wait_for(timeout=10000)
+            boton.click()
+            check(p.get_by_role('button', name='Animar el sensor').get_attribute('aria-pressed') == 'false', 'index.html: el giro del robot 3D se puede pausar')
+        ctx.close()
+    ctx = browser.new_context(viewport={'width': 1366, 'height': 900})
+    p = ctx.new_page()
+    p.goto(BASE + 'navegacion.html')
+    boton = p.locator('.bucle .b-ctl').first
+    boton.scroll_into_view_if_needed()
+    p.wait_for_function("document.querySelector('.bucle video') && !document.querySelector('.bucle video').paused", timeout=15000)
+    boton.click()
+    p.wait_for_function("document.querySelector('.bucle video').paused", timeout=5000)
+    p.wait_for_timeout(300)
+    check(p.evaluate("document.querySelector('.bucle video').paused") and 'Reproducir' in boton.inner_text(), 'navegacion.html: el video en bucle se pausa con su botón')
+    ctx.close()
     browser.close()
 server.shutdown()
 print('%d comprobaciones de la nueva experiencia correctas' % count)
