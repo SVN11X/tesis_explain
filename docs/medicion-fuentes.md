@@ -68,7 +68,7 @@ Cifras tabulares, prueba con anchos renderizados a 20 px (`111`, `000`):
 |---|---|---|
 | Atkinson | 24,1 / 38,9 | 38,3 / 38,3 |
 | Plex Mono | 28,5 / 30,0 | 28,5 / 30,0 |
-| Archivo | 27,8 / 30,0 | 27,8 / 27,8 en ambos (sin cambio al activar) |
+| Archivo | 27,8 / 30,0 | 27,8 / 30,0 (sin cambio) |
 
 Atkinson sí tiene cifras tabulares (`tnum`): con `tabular-nums` el ancho de `111` y `000` se iguala. Plex Mono es monoespaciada, siempre iguales. Archivo no cambia al activarlo, así que no tiene `tnum`. No se inspeccionó con fontTools porque falta el módulo brotli para leer woff2.
 
