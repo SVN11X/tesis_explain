@@ -6,9 +6,11 @@
 */
 "use strict";
 var path = require("path"), fs = require("fs"), vm = require("vm");
-var ctx = { window: {}, console: console, Math: Math };
+var ctx = { window: { addEventListener: function () {} }, console: console, Math: Math };
 ctx.window.window = ctx.window;
 vm.createContext(ctx);
+/* sims.js usa el kit de js/comun.js (U.limitar) en la huella, así que se carga primero */
+vm.runInContext(fs.readFileSync(path.join(__dirname, "..", "js", "comun.js"), "utf8"), ctx);
 vm.runInContext(fs.readFileSync(path.join(__dirname, "..", "js", "sims.js"), "utf8"), ctx);
 var G = ctx.window.SIMS_PRUEBAS;
 var fallos = 0, total = 0;

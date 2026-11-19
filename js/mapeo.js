@@ -24,7 +24,6 @@
   function line(x1, y1, x2, y2, cls, dash) { return '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" class="' + cls + '" stroke-width="2"' + (dash ? ' stroke-dasharray="' + dash + '"' : '') + '/>'; }
   function range(id, label, min, max, step, val) { return '<label for="' + id + '">' + label + '<output data-out="' + id + '" for="' + id + '"></output><input id="' + id + '" type="range" min="' + min + '" max="' + max + '" step="' + step + '" value="' + val + '"></label>'; }
   function readings(names) { return '<div class="mp-readings">' + names.map(function (n, i) { return '<div><span>' + n + '</span><b data-read="' + i + '"></b></div>'; }).join("") + '</div>'; }
-  function pressed(el, attr, selected) { el.querySelectorAll("[" + attr + "]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute(attr) === String(selected))); }); }
 
   /* Geometría LiDAR: una medición ideal termina en el primer impacto. */
   M.interseccion = function (o, d, s) {
@@ -374,10 +373,10 @@
     });
     el.addEventListener("click", function (e) {
       var v = e.target.closest("[data-v3]");
-      if (v) { v3.vista(v.getAttribute("data-v3")); pressed(el, "data-v3", v.getAttribute("data-v3")); return; }
+      if (v) { v3.vista(v.getAttribute("data-v3")); U.marcar(el, "data-v3", v.getAttribute("data-v3")); return; }
       var b = e.target.closest("[data-caso], [data-vista], [data-reset]"); if (!b) return;
-      if (b.hasAttribute("data-caso")) { caso = b.getAttribute("data-caso"); aviso = ""; pressed(el, "data-caso", caso); }
-      if (b.hasAttribute("data-vista")) { solo = b.getAttribute("data-vista") === "puntos"; pressed(el, "data-vista", solo ? "puntos" : "sala"); }
+      if (b.hasAttribute("data-caso")) { caso = b.getAttribute("data-caso"); aviso = ""; U.marcar(el, "data-caso", caso); }
+      if (b.hasAttribute("data-vista")) { solo = b.getAttribute("data-vista") === "puntos"; U.marcar(el, "data-vista", solo ? "puntos" : "sala"); }
       if (b.hasAttribute("data-reset")) { rob = { x: 1, y: 1.3 }; aviso = ""; }
       draw();
     });
@@ -457,7 +456,7 @@
     }
     el.addEventListener("click", function (e) {
       var b = e.target.closest("[data-fase], [data-cell]"); if (!b) return;
-      if (b.hasAttribute("data-fase")) { fase = +b.getAttribute("data-fase"); pressed(el, "data-fase", fase); draw(); }
+      if (b.hasAttribute("data-fase")) { fase = +b.getAttribute("data-fase"); U.marcar(el, "data-fase", fase); draw(); }
       else select(+b.getAttribute("data-cell"), false);
     });
     chart.addEventListener("keydown", function (e) {
@@ -536,7 +535,7 @@
     el.addEventListener("input", function (e) { if (e.target.id === "mp-tf-distancia") d = +e.target.value; if (e.target.id === "mp-tf-sesgo") bias = +e.target.value; draw(); });
     el.querySelector("#mp-tf-activo").addEventListener("change", function (e) { active = e.target.checked; draw(); });
     el.estadoSim = function () { return M.tfRecta(d, bias, active); }; draw();
-    if (U && U.alCambiarAncho) U.alCambiarAncho(el.querySelector(".mp-chart"), draw);
+    U.alAncho(el.querySelector(".mp-chart"), draw);
   };
   /* Dos observaciones locales de una esquina estática, con 30 cm de avance. */
   M.esquina = [[-.3, .8], [0, .8], [.3, .8], [.6, .8], [.9, .8], [.9, .5], [.9, .2]];
@@ -867,8 +866,8 @@
     }
     el.addEventListener("click", function (e) {
       var b = e.target.closest("[data-paso], [data-node], [data-restablecer-grafo]"); if (!b) return;
-      if (b.hasAttribute('data-restablecer-grafo')) { escalaPct = 4; giroDeg = 1; pesoCierre = 1; selected = 12; phase = 0; verMapa = true; el.querySelector("#mp-grafo-mapa").checked = true; calcular(); pressed(el, 'data-paso', phase); }
-      else if (b.hasAttribute("data-paso")) { phase = +b.getAttribute("data-paso"); pressed(el, "data-paso", phase); }
+      if (b.hasAttribute('data-restablecer-grafo')) { escalaPct = 4; giroDeg = 1; pesoCierre = 1; selected = 12; phase = 0; verMapa = true; el.querySelector("#mp-grafo-mapa").checked = true; calcular(); U.marcar(el, 'data-paso', phase); }
+      else if (b.hasAttribute("data-paso")) { phase = +b.getAttribute("data-paso"); U.marcar(el, "data-paso", phase); }
       else selected = +b.getAttribute("data-node");
       draw();
     });
@@ -877,7 +876,7 @@
       if (e.target.id === "mp-pose") { selected = +e.target.value; draw(); }
       else if (e.target.id === 'mp-grafo-escala' || e.target.id === 'mp-grafo-giro') {
         escalaPct = +el.querySelector('#mp-grafo-escala').value; giroDeg = +el.querySelector('#mp-grafo-giro').value;
-        phase = 0; calcular(); pressed(el, 'data-paso', phase); draw();
+        phase = 0; calcular(); U.marcar(el, 'data-paso', phase); draw();
       }
       else if (e.target.id === 'mp-grafo-peso') {
         pesoCierre = +e.target.value; calcular(); draw();
@@ -936,7 +935,7 @@
       el.querySelector(".mp-chart").innerHTML = M.rvizSVG(nav, selected);
       var item = M.capasRviz.filter(function (c) { return c.id === selected; })[0];
       el.querySelector(".mp-status").textContent = item ? item.text + (!nav && item.nav ? " Esta capa está oculta: activa las capas de navegación para verla." : "") : nav ? "Elige un color para resaltarlo. Magenta y gris describen ocupación. Los márgenes de colores, la ruta verde y el modelo naranja son capas añadidas para navegar." : "Se ocultaron las capas añadidas. Quedan los obstáculos, lo libre y lo desconocido. Una rejilla de ocupación se guarda normalmente en escala de grises.";
-      pressed(el, "data-color", selected || "");
+      U.marcar(el, "data-color", selected || "");
     }
     el.querySelector("#mp-rviz-nav").addEventListener("change", function (e) { nav = e.target.checked; draw(); });
     el.addEventListener("click", function (e) { var b = e.target.closest("[data-color], [data-todas]"); if (!b) return; selected = b.hasAttribute("data-todas") ? null : b.getAttribute("data-color"); draw(); });

@@ -16,56 +16,16 @@
   "use strict";
   var V = window.VISUALES = window.VISUALES || {};
   var U = window.U;
+  /* El kit de lienzo vive en js/comun.js (U.*). Se enlaza al montar cada simulación y no al cargar el archivo,
+     para que las pruebas en Node puedan cargar este archivo sin js/comun.js. */
+  var css, rgba, paleta, lienzo, alTema, limitar, bucle, alCambiarMovimiento;
+  function kit() {
+    U = window.U;
+    css = U.css; rgba = U.rgba; paleta = U.paleta; lienzo = U.lienzo; alTema = U.alTema; limitar = U.limitar;
+    bucle = U.bucle; alCambiarMovimiento = U.alCambiarMovimiento;
+  }
+  function fmt(v, d) { return U.fmt(v, d); }
 
-  /* utilidades de color y lienzo */
-  function css(nombre, el) { return getComputedStyle(el || document.documentElement).getPropertyValue(nombre).trim() || "#888"; }
-  function rgba(hex, a) {
-    hex = hex.replace("#", "");
-    if (hex.length === 3) hex = hex.split("").map(function (c) { return c + c; }).join("");
-    var n = parseInt(hex, 16);
-    return "rgba(" + ((n >> 16) & 255) + "," + ((n >> 8) & 255) + "," + (n & 255) + "," + a + ")";
-  }
-  /* Los colores salen de las variables CSS del elemento, que cambian con el tema. Un contenedor con
-     data-paleta="oscura" redefine esas variables y se dibuja como en el tema oscuro en cualquier tema. */
-  function paleta(el) {
-    var c = function (n) { return css(n, el); };
-    return {
-      bg: c("--bg"), sup: c("--surface"), sup2: c("--surface-2"), linea: c("--line"), linea2: c("--line-2"),
-      ink: c("--ink"), muted: c("--muted"), azul: c("--azul"), verde: c("--verde-texto"), verdeV: c("--verde"),
-      rojo: c("--rojo"), ambar: c("--ambar"), violeta: c("--violeta"), desc: c("--desc"), obst: c("--obst"),
-      s1: c("--s1"), s2: c("--s2"), s3: c("--s3"), s4: c("--s4"), ruta: c("--ruta"),
-      oscuro: !!(el && el.closest && el.closest('[data-paleta="oscura"]')) || document.documentElement.getAttribute("data-theme") === "dark" ||
-        (document.documentElement.getAttribute("data-theme") !== "light" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches)
-    };
-  }
-  /* crea un canvas nítido en pantallas de alta densidad y lo redimensiona con su contenedor.
-     proporcion puede ser un número (ancho/alto) o una función del ancho, para dar más alto en un teléfono. */
-  function lienzo(padre, proporcion, alDimensionar) {
-    var cv = document.createElement("canvas");
-    cv.className = "lienzo";
-    padre.appendChild(cv);
-    var ctx = cv.getContext("2d"), o = { cv: cv, ctx: ctx, w: 0, h: 0 }, listo = false;
-    function medir() {
-      var w = Math.max(260, Math.round(padre.clientWidth || cv.parentNode.clientWidth || 600));
-      var h = Math.round(w / (typeof proporcion === "function" ? proporcion(w) : proporcion));
-      if (w === o.w && h === o.h) return;
-      var dpr = Math.min(2, window.devicePixelRatio || 1);
-      cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
-      cv.style.aspectRatio = w + " / " + h;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      o.w = w; o.h = h;
-      if (listo && alDimensionar) alDimensionar();
-    }
-    o.medir = medir;
-    medir();
-    listo = true;
-    if ("ResizeObserver" in window) new ResizeObserver(function () { medir(); }).observe(padre);
-    return o;
-  }
-  function alTema(fn) { document.addEventListener("temacambio", function () { setTimeout(fn, 30); }); }
-  function quieto() { return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches; }
-  function fmt(v, d) { return U ? U.fmt(v, d) : v.toFixed(d).replace(".", ","); }
-  function limitar(v, a, b) { return Math.max(a, Math.min(b, v)); }
   /* Paso fijo con acumulador. Se acumula el tiempo real multiplicado por la velocidad
      y se ejecutan tantos pasos de duración h como quepan, guardando la fracción pendiente.
      Así 1×, 2× y 4× avanzan en proporción con cualquier frecuencia de pantalla.
@@ -84,36 +44,6 @@
       reiniciar: function () { acc = 0; },
       get pendiente() { return acc; }
     };
-  }
-  /* bucle que corre solo cuando el elemento está a la vista y la pestaña está visible.
-     El primer cuadro después de arrancar o de volver a la vista entrega dt = 0, para no saltar. */
-  function bucle(el, paso) {
-    var activo = false, enVista = true, pestana = !document.hidden, ult = 0, id = 0;
-    function puede() { return activo && enVista && pestana; }
-    function tick(ts) {
-      if (!puede()) { id = 0; return; }
-      var dt = ult ? Math.min(0.1, Math.max(0, (ts - ult) / 1000)) : 0;
-      ult = ts;
-      paso(dt);
-      id = requestAnimationFrame(tick);
-    }
-    function arrancar() { if (!id && puede()) { ult = 0; id = requestAnimationFrame(tick); } }
-    if ("IntersectionObserver" in window) {
-      new IntersectionObserver(function (es) { enVista = es[es.length - 1].isIntersecting; arrancar(); }, { threshold: 0.05 }).observe(el);
-    }
-    document.addEventListener("visibilitychange", function () { pestana = !document.hidden; arrancar(); });
-    return {
-      play: function () { activo = true; arrancar(); },
-      pausa: function () { activo = false; if (id) { cancelAnimationFrame(id); id = 0; } },
-      get activo() { return activo; }
-    };
-  }
-  /* preferencia de movimiento reducido, con aviso cuando cambia */
-  function alCambiarMovimiento(fn) {
-    if (!window.matchMedia) return;
-    var mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    var f = function () { fn(mq.matches); };
-    if (mq.addEventListener) mq.addEventListener("change", f); else if (mq.addListener) mq.addListener(f);
   }
 
   /* Geometría de la huella, usada por el simulador de inflación */
@@ -159,13 +89,14 @@
       if (ocup[i]) fisicas.push(i);
       else { var c = costoDe(i); if (c > 0) { margen.push(i); if (c >= 253) inscritas++; } }
     });
-    var ci = limitar(Math.floor(centro[1] / res), 0, F - 1) * C + limitar(Math.floor(centro[0] / res), 0, C - 1);
+    var ci = U.limitar(Math.floor(centro[1] / res), 0, F - 1) * C + U.limitar(Math.floor(centro[0] / res), 0, C - 1);
     return { fisico: fisicas.length > 0, celdasFisicas: fisicas, margen: margen.length > 0, celdasMargen: margen, inscritas: inscritas, costoCentro: costoDe(ci), celdaCentro: ci };
   }
   window.SIMS_PRUEBAS = { pasoFijo: pasoFijo, poligonoTocaRect: poligonoTocaRect, huellaEnMundo: huellaEnMundo, celdasTocadas: celdasTocadas, evaluarHuella: evaluarHuella };
 
   /* 1. Exploración por fronteras */
   V.exploracion = function (el) {
+    kit();
     var hero = el.getAttribute("data-modo") === "hero";
     var C = 72, F = 46;                       /* columnas y filas de la rejilla */
     var mundo = new Uint8Array(C * F);        /* 1 = pared real */
@@ -475,21 +406,24 @@
         var setTxt = function () { bp.textContent = B.activo ? "Pausar" : "Reproducir"; bp.setAttribute("aria-pressed", B.activo ? "true" : "false"); };
         var pausadoUsuario = false;
         bp.addEventListener("click", function () { if (B.activo) { B.pausa(); pausadoUsuario = true; } else { B.play(); pausadoUsuario = false; } setTxt(); });
-        if (!quieto()) B.play();
+        if (!U.quieto()) B.play();
         setTxt();
-        alCambiarMovimiento(function (reducido) { if (reducido) B.pausa(); else if (!pausadoUsuario) B.play(); setTxt(); });
-      } else if (!quieto()) B.play();
+        alCambiarMovimiento(function (reducido) { if (!reducido && !pausadoUsuario) B.play(); setTxt(); });
+      } else if (!U.quieto()) B.play();
       return;
     }
+    function textoPlay() { var bp = el.querySelector('[data-a="play"]'); bp.textContent = B.activo ? "Pausar" : (terminado ? "Explorar de nuevo" : "Explorar"); bp.setAttribute("aria-pressed", B.activo ? "true" : "false"); }
+    /* el bucle se pausa solo con movimiento reducido, y el botón debe decirlo */
+    alCambiarMovimiento(textoPlay);
     el.addEventListener("click", function (e) {
       var b = e.target.closest("[data-a]");
       if (b) {
         if (b.getAttribute("data-a") === "play") { if (B.activo) B.pausa(); else { if (terminado) reiniciar(); B.play(); } }
         if (b.getAttribute("data-a") === "reset") { reiniciar(); dibujar(); }
-        var bp = el.querySelector('[data-a="play"]'); bp.textContent = B.activo ? "Pausar" : (terminado ? "Explorar de nuevo" : "Explorar"); bp.setAttribute("aria-pressed", B.activo ? "true" : "false");
+        textoPlay();
       }
       var v = e.target.closest("[data-v]");
-      if (v) { vel = +v.getAttribute("data-v"); el.querySelectorAll("[data-v]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === v)); }); }
+      if (v) { vel = +v.getAttribute("data-v"); U.marcar(el, "data-v", v.getAttribute("data-v")); }
     });
     el.addEventListener("change", function (e) {
       var k = e.target.getAttribute("data-t"); if (!k) return;
@@ -501,6 +435,7 @@
 
   /* 2. Cinemática diferencial. Los cálculos están en js/movimiento-modelo.js. */
   V.cinematica = function (el) {
+    kit();
     var MV = window.MOVIMIENTO, r = MV.R, b = MV.B;
     var st = { vl: 0.10, vr: 0.13 }, pose, rastro, P = paleta();
     var PRE = [["Recto a 0,13 m/s", 0.13, 0.13], ["Curva suave", 0.10, 0.13], ["Giro sobre su eje", -0.0329, 0.0329], ["Curva cerrada", 0.02, 0.13], ["Retroceso", -0.08, -0.08]];
@@ -608,13 +543,13 @@
     var B = bucle(el, function (dt) { paso(dt * 1.5); }), bMover = el.querySelector('[data-a="mover"]'), pausadoUsuario = false;
     function marcar() { bMover.textContent = B.activo ? "Pausar" : "Mover"; bMover.setAttribute("aria-pressed", String(B.activo)); }
     /* sin movimiento reducido arranca sola; con movimiento reducido espera a que la persona lo pida */
-    if (!quieto()) B.play();
+    if (!U.quieto()) B.play();
     marcar();
-    alCambiarMovimiento(function (reducido) { if (reducido) B.pausa(); else if (!pausadoUsuario) B.play(); marcar(); });
-    el.addEventListener("input", function (e) { var k = e.target.getAttribute("data-k"); if (!k) return; st[k] = parseFloat(e.target.value); el.querySelectorAll("[data-p]").forEach(function (x) { x.setAttribute("aria-pressed", "false"); }); kAct = calc(); dibujar(); });
+    alCambiarMovimiento(function (reducido) { if (!reducido && !pausadoUsuario) B.play(); marcar(); });
+    el.addEventListener("input", function (e) { var k = e.target.getAttribute("data-k"); if (!k) return; st[k] = parseFloat(e.target.value); U.marcar(el, "data-p", ""); kAct = calc(); dibujar(); });
     el.addEventListener("click", function (e) {
       var p = e.target.closest("[data-p]");
-      if (p) { var d = PRE[+p.getAttribute("data-p")]; st.vl = d[1]; st.vr = d[2]; el.querySelectorAll("[data-p]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === p)); }); kAct = calc(); reset(); dibujar(); }
+      if (p) { var d = PRE[+p.getAttribute("data-p")]; st.vl = d[1]; st.vr = d[2]; U.marcar(el, "data-p", p.getAttribute("data-p")); kAct = calc(); reset(); dibujar(); }
       var a = e.target.closest("[data-a]");
       if (a && a.getAttribute("data-a") === "reset") { reset(); dibujar(); }
       if (a && a.getAttribute("data-a") === "mover") { if (B.activo) { B.pausa(); pausadoUsuario = true; } else { B.play(); pausadoUsuario = false; } marcar(); }
@@ -624,6 +559,7 @@
 
   /* 3. Encoder de cuadratura */
   V.encoder = function (el) {
+    kit();
     var P = paleta(), ang = 0, sentido = 1, VEL0 = 0.6, vel = VEL0, cuenta = 0, cuenta1 = 0, hist = [], prevA = null, prevB = null, polos = 6;
     el.innerHTML = '<div class="vctl"><button type="button" class="vbtn" data-a="anim" aria-pressed="false">Reproducir</button><div class="segmento" role="group" aria-label="Sentido de giro"><button type="button" data-s="1" aria-pressed="true">Adelante</button><button type="button" data-s="-1" aria-pressed="false">Atrás</button></div>' +
       '<label class="desl-linea" for="en-v">Velocidad de giro del disco<b class="num"><span data-o="vel"></span> rad/s</b><input id="en-v" type="range" min="0" max="1.5" step="0.05" value="' + VEL0 + '"></label><button type="button" class="vbtn sec" data-a="paso">Avanzar un paso</button><button type="button" class="vbtn sec" data-a="cero">Contador a cero</button></div>' +
@@ -689,15 +625,15 @@
     function marcar() {
       var on = B.activo;
       bAnim.textContent = on ? "Pausar" : "Reproducir"; bAnim.setAttribute("aria-pressed", String(on));
-      el.querySelector('[data-o="estado"]').textContent = on ? "Animación en marcha." : (quieto() && !pausadoUsuario ? "Imagen fija porque el sistema pide reducir el movimiento. Usa Reproducir o Avanzar un paso." : "Animación en pausa.");
+      el.querySelector('[data-o="estado"]').textContent = on ? "Animación en marcha." : (U.quieto() && !pausadoUsuario ? "Imagen fija porque el sistema pide reducir el movimiento. Usa Reproducir o Avanzar un paso." : "Animación en pausa.");
     }
     function velTxt() { el.querySelector('[data-o="vel"]').textContent = fmt(vel, 2); }
     /* sin movimiento reducido arranca sola; con movimiento reducido queda fija hasta que la persona la inicie */
-    if (!quieto()) B.play();
+    if (!U.quieto()) B.play();
     velTxt(); marcar();
-    alCambiarMovimiento(function (reducido) { if (reducido) B.pausa(); else if (!pausadoUsuario) B.play(); marcar(); });
+    alCambiarMovimiento(function (reducido) { if (!reducido && !pausadoUsuario) B.play(); marcar(); });
     el.addEventListener("click", function (e) {
-      var s = e.target.closest("[data-s]"); if (s) { sentido = +s.getAttribute("data-s"); el.querySelectorAll("[data-s]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === s)); }); }
+      var s = e.target.closest("[data-s]"); if (s) { sentido = +s.getAttribute("data-s"); U.marcar(el, "data-s", s.getAttribute("data-s")); }
       var a = e.target.closest("[data-a]"); if (!a) return;
       var k = a.getAttribute("data-a");
       if (k === "cero") { cuenta = 0; cuenta1 = 0; el.querySelector('[data-o="c"]').textContent = 0; el.querySelector('[data-o="c1"]').textContent = 0; }
@@ -712,6 +648,7 @@
 
   /* 5. PID de una rueda. Al cambiar las ganancias queda dibujada la curva anterior, para comparar. */
   V.pid = function (el) {
+    kit();
     /* El modelo y sus lecturas viven en js/control-modelo.js, donde se prueban en Node. */
     var CM = window.CONTROL;
     if (!CM || !CM.simularPID) throw new Error("Falta el modelo del capítulo 4");
@@ -784,7 +721,7 @@
     el.addEventListener("input", function (e) {
       var k = e.target.getAttribute("data-k"); if (!k) return;
       if (!editando) { anterior = copia(confirmado); editando = true; }
-      st[k] = parseFloat(e.target.value); el.querySelectorAll("[data-p]").forEach(function (x) { x.setAttribute("aria-pressed", "false"); }); dibujar();
+      st[k] = parseFloat(e.target.value); U.marcar(el, "data-p", ""); dibujar();
     });
     el.addEventListener("change", function (e) {
       if (e.target.getAttribute("data-k")) { editando = false; confirmado = copia(st); return; }
@@ -798,7 +735,7 @@
       var antes = copia(st); st.kp = v[0]; st.ki = v[1]; st.kd = v[2];
       if (!igual(antes, st)) anterior = antes;
       confirmado = copia(st); editando = false;
-      el.querySelectorAll("[data-p]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === p)); }); dibujar();
+      U.marcar(el, "data-p", p.getAttribute("data-p")); dibujar();
     });
     el.estadoSim = function () { var m = medidas(sim(st)); return { actual: m, anterior: anterior ? medidas(sim(anterior)) : null, ganancias: copia(st), reglas: CM.lecturaPID(st, m).map(function (r) { return r.id; }) }; };
     dibujar();
@@ -806,6 +743,7 @@
 
   /* 6. Enjambre de partículas */
   V.enjambre = function (el) {
+    kit();
     var P = paleta(), N = 24, GMAX = 60, ZETA = 0.7298, C1 = 2.05, C2 = 2.05;
     var parts, gBest, gCost, gen, semilla = 1;
     function rnd() { semilla = (semilla * 16807) % 2147483647; return (semilla - 1) / 2147483646; }
@@ -888,11 +826,14 @@
       if (k === "paso") { B.pausa(); bp.textContent = "Seguir"; bp.setAttribute("aria-pressed", "false"); generacion(); dibujar(); }
       if (k === "reset") { B.pausa(); bp.textContent = "Buscar"; bp.setAttribute("aria-pressed", "false"); reset(); dibujar(); }
     });
+    /* el bucle se pausa solo con movimiento reducido, y el botón debe decirlo */
+    alCambiarMovimiento(function (reducido) { if (!reducido) return; var bp = el.querySelector('[data-a="play"]'); bp.textContent = "Seguir"; bp.setAttribute("aria-pressed", "false"); });
     reset(); dibujar();
   };
 
   /* 7. Inflación y huella del robot */
   V.inflacion = function (el) {
+    kit();
     var P = paleta(), RES = 0.05, Wm = 1.6, Hm = 0.9, C = Math.round(Wm / RES), F = Math.round(Hm / RES);
     var st = { infl: 0.15, ang: 57, x: 0.45, y: 0.61 }, BETA = 5.0, INSC = 0.08;
     var LIM = { x: [0.1, Wm - 0.1], y: [0.1, Hm - 0.1] };
@@ -995,7 +936,7 @@
       dibujar();
     });
     el.addEventListener("input", function (e) { var k = e.target.getAttribute("data-k"); if (!k) return; st[k] = parseFloat(e.target.value); if (k === "infl") el.querySelectorAll("[data-r]").forEach(function (x) { x.setAttribute("aria-pressed", String(Math.abs(parseFloat(x.getAttribute("data-r")) - st.infl) < 1e-9)); }); dibujar(); });
-    el.addEventListener("click", function (e) { var b = e.target.closest("[data-r]"); if (!b) return; st.infl = parseFloat(b.getAttribute("data-r")); el.querySelectorAll("[data-r]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); dibujar(); });
+    el.addEventListener("click", function (e) { var b = e.target.closest("[data-r]"); if (!b) return; st.infl = parseFloat(b.getAttribute("data-r")); U.marcar(el, "data-r", b.getAttribute("data-r")); dibujar(); });
     distancias(); dibujar();
     el.estadoSim = function () { var ev = evaluar(); return { st: { x: st.x, y: st.y, ang: st.ang, infl: st.infl }, fisico: ev.fisico, margen: ev.margen, inscritas: ev.inscritas, costoCentro: ev.costoCentro, celdasFisicas: ev.celdasFisicas.length }; };
     el.fijarSim = function (o) { Object.keys(o).forEach(function (k) { st[k] = o[k]; }); dibujar(); };
@@ -1003,6 +944,7 @@
 
   /* 8. Ventana dinámica (DWB) */
   V.dwb = function (el) {
+    kit();
     var P = paleta(), Wm = 2.0, Hm = 1.4, SIMT = 1.7, VMAX = 0.15, WMAX = 0.35;
     var D_INFL = 0.35, D_CHOQUE = 0.12;   /* parámetros de esta demostración, no de la configuración real */
     var ESCENAS = { cerca: { x: 0.72, y: 0.72 }, lejos: { x: 0.95, y: 0.62 } };

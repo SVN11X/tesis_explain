@@ -10,18 +10,6 @@
   /* rótulo de eje: signo menos tipográfico y sin signo más */
   function rotulo(v, d) { return (v < 0 ? "−" : "") + f(Math.abs(v), d); }
   function esc(s) { return U.esc(s); }
-  function chips(items, attr, actual, titulo) {
-    return '<div class="chips" role="group" aria-label="' + esc(titulo) + '">' + items.map(function (x) {
-      return '<button type="button" class="chip" ' + attr + '="' + esc(x[0]) + '" aria-pressed="' + (String(x[0]) === String(actual)) + '">' + esc(x[1]) + '</button>';
-    }).join("") + '</div>';
-  }
-  function marcar(el, attr, valor) {
-    el.querySelectorAll("[" + attr + "]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute(attr) === String(valor))); });
-  }
-  function tarjetas(items) {
-    /* un cuarto elemento "t" marca un valor de texto, que no usa la tipografía de cifras */
-    return items.map(function (x) { return '<div><span>' + x[0] + '</span><b' + (x[3] === "t" ? '' : ' class="num"') + '>' + x[1] + '</b><small>' + (x[2] || "") + '</small></div>'; }).join("");
-  }
   /* Recorta un segmento a un rectángulo (Liang y Barsky). Devuelve null si queda fuera. */
   function recortar(x0, y0, x1, y1, r) {
     var t0 = 0, t1 = 1, dx = x1 - x0, dy = y1 - y0, p = [-dx, dx, -dy, dy], q = [x0 - r.x0, r.x1 - x0, y0 - r.y0, r.y1 - y0];
@@ -50,8 +38,8 @@
     var CONJ = [["definitivas", "Definitivas"], ["pso-evaluado", "PSO, Kd evaluado = 25"], ["pso-informado", "PSO, Kd informado"], ["original", "Firmware original"]];
     el.innerHTML =
       '<div class="ev-controles">' +
-        '<div class="ev-grupo"><span>Rueda</span>' + chips([["izq", "Izquierda"], ["der", "Derecha"]], "data-rueda", st.rueda, "Rueda del modelo") + '</div>' +
-        '<div class="ev-grupo"><span>Ganancias</span>' + chips(CONJ, "data-conj", st.conjunto, "Conjunto de ganancias") + '</div>' +
+        '<div class="ev-grupo"><span>Rueda</span>' + U.chips([["izq", "Izquierda"], ["der", "Derecha"]], "data-rueda", st.rueda, "Rueda del modelo") + '</div>' +
+        '<div class="ev-grupo"><span>Ganancias</span>' + U.chips(CONJ, "data-conj", st.conjunto, "Conjunto de ganancias") + '</div>' +
       '</div>' +
       '<div class="ev-controles">' +
         '<label class="desl-linea" for="ev-ld">Retardo del modelo, Ld <b class="num" data-o="ld"></b><input id="ev-ld" type="range" min="0" max="0.1" step="0.005" value="0"></label>' +
@@ -150,7 +138,7 @@
       out("polos").innerHTML = polosSVG(r);
       out("nyquist").innerHTML = nyquistSVG(r);
       var gmVeces = isFinite(r.gm) ? r.gm : NaN;
-      out("datos").innerHTML = tarjetas([
+      out("datos").innerHTML = U.tarjetas([
         ["Estabilidad", '<span class="ev-estado ' + (r.estable ? 'ok">Estable' : 'no">Inestable') + '</span>', "Polo más lejano, |z| = " + f(r.poloMayor, 4) + (r.estable ? ". Todas las raíces dentro del círculo unitario." : ". Al menos una raíz fuera del círculo: la oscilación crecería.")],
         ["Margen de fase", isFinite(r.pm) ? f(r.pm, 1) + "°" : "no aplica", "Atraso extra que tolera donde |L| = 1."],
         ["Margen de ganancia", isFinite(gmVeces) ? f(r.gmDb, 1) + " dB = " + f(gmVeces, gmVeces < 10 ? 1 : 0) + " veces" : "no aplica", "Cuánto puede crecer la ganancia del lazo."],
@@ -184,10 +172,10 @@
     el.addEventListener("click", function (e) {
       var b = e.target.closest("button");
       if (!b || !el.contains(b)) return;
-      if (b.hasAttribute("data-rueda")) { st.rueda = b.getAttribute("data-rueda"); marcar(el, "data-rueda", st.rueda); }
-      else if (b.hasAttribute("data-conj")) { st.conjunto = b.getAttribute("data-conj"); marcar(el, "data-conj", st.conjunto); }
+      if (b.hasAttribute("data-rueda")) { st.rueda = b.getAttribute("data-rueda"); U.marcar(el, "data-rueda", st.rueda); }
+      else if (b.hasAttribute("data-conj")) { st.conjunto = b.getAttribute("data-conj"); U.marcar(el, "data-conj", st.conjunto); }
       else if (b.dataset.a === "zoom") st.zoom = !st.zoom;
-      else if (b.dataset.a === "tesis") { var z = st.zoom; st = JSON.parse(JSON.stringify(INICIAL)); st.zoom = z; marcar(el, "data-rueda", st.rueda); marcar(el, "data-conj", st.conjunto); }
+      else if (b.dataset.a === "tesis") { var z = st.zoom; st = JSON.parse(JSON.stringify(INICIAL)); st.zoom = z; U.marcar(el, "data-rueda", st.rueda); U.marcar(el, "data-conj", st.conjunto); }
       else return;
       pintar();
     });
@@ -301,7 +289,7 @@
         cont.innerHTML = graficoDistancias(cont);
         out("ley").innerHTML = '<div class="vley"><span><i class="cu azul"></i>pasillo</span><span><i class="cu verde"></i>paso entre muros</span><span><i class="cu ambar"></i>tabique</span><span><i class="cu gris"></i>recinto</span><span><i class="lin ink"></i>rango de los cinco mapas</span><span><i class="cu verde-s"></i>dentro de una celda</span></div>';
         var r = filas.filter(function (x) { return x.id === st.sel; })[0], txt;
-        out("datos").innerHTML = tarjetas([
+        out("datos").innerHTML = U.tarjetas([
           ["Distancia", esc(r.distancia), r.tipo === "tabique" ? "Tabique corto, dibujado con pocas celdas." : r.tipo === "pasillo" ? "Ancho libre entre dos muros." : r.tipo === "paso" ? "Hueco que deja un muro largo." : "Alto interior del recinto.", "t"],
           ["Plano, medido con huincha", f(r.plano_m, 2) + " m", "Fig. A8.1 de la tesis."],
           ["Los cinco mapas", f(r.media_mapas_m, 2) + " m", "De " + f(r.minimo_mapas_m, 2) + " a " + f(r.maximo_mapas_m, 2) + " m."],
@@ -318,7 +306,7 @@
         out("ley").innerHTML = '<div class="vley"><span><i class="cu azul"></i>distancia media</span><span><i class="cu azul-s"></i>percentil 95</span><span><i class="lin-disc"></i>media de los cinco mapas</span><span><i class="cu verde-s"></i>menos de una celda</span></div>';
         var kMed = st.sentido === "plano" ? "plano_a_mapa_media_cm" : "mapa_a_plano_media_cm", xs = its.map(function (r) { return r[kMed]; });
         var ic = S ? S.intervaloMedia(xs) : null, mn = Math.min.apply(null, xs), mx = Math.max.apply(null, xs);
-        out("datos").innerHTML = tarjetas([
+        out("datos").innerHTML = U.tarjetas([
           ["Media de los cinco mapas", f(xs.reduce(function (a, b) { return a + b; }, 0) / xs.length, 2) + " cm", "De " + f(mn, 2) + " a " + f(mx, 2) + " cm según la iteración."],
           ["Intervalo al 95 %", ic ? f(ic.inf, 1) + " a " + f(ic.sup, 1) + " cm" : "no disponible", st.sentido === "plano" ? "Es el de la Tabla A8.4, con n = 5." : "Cálculo de esta guía con el mismo método."],
           ["Percentil 95", st.sentido === "plano" ? "8,4 cm" : "9,7 a 12,2 cm", st.sentido === "plano" ? "En conjunto, con las distancias de todos los puntos incluidos. No es el promedio de los percentiles." : "Por mapa, Tabla A8.2."],
@@ -339,7 +327,7 @@
     });
     el.estadoPlano = function () { return { vista: st.vista, sel: st.sel, sentido: st.sentido, pasillos: pasillos, dentro: dentro }; };
     pintar();
-    U.alCambiarAncho(out("graf"), pintar);
+    U.alAncho(out("graf"), pintar);
   };
 
   /* ---------- 3. Cuánto dicen cinco repeticiones ---------- */
@@ -358,13 +346,13 @@
     var st = { ind: "error_odometrico", n: 5, k: val.length, total: en.mapeo.length };
     el.innerHTML =
       '<h4 class="vsub">La media y su intervalo de confianza al 95 %</h4>' +
-      chips(IND.map(function (i) { return [i.id, i.t]; }), "data-ind", st.ind, "Indicador") +
+      U.chips(IND.map(function (i) { return [i.id, i.t]; }), "data-ind", st.ind, "Indicador") +
       '<div class="ev-graf" data-o="recta"></div>' +
       '<label class="desl-linea" for="ev-n">Repeticiones, suponiendo la misma media y la misma dispersión <b class="num" data-o="n"></b><input id="ev-n" type="range" min="3" max="20" step="1" value="5"></label>' +
       '<div class="vley"><span><i class="pt azul"></i>cada repetición</span><span><i class="cu azul-s"></i>intervalo con las cinco</span><span><i class="lin ambar"></i>intervalo proyectado</span></div>' +
       '<div class="control-datos ev-datos" data-o="datos-m" aria-live="polite"></div>' +
       '<h4 class="vsub">Una proporción de éxitos: intervalo de Clopper y Pearson</h4>' +
-      chips([["5-6", "5 de 6 · exploraciones válidas"], ["15-15", "15 de 15 · protocolo propuesto"], ["17-17", "17 de 17"]], "data-pre", "5-6", "Casos de ejemplo") +
+      U.chips([["5-6", "5 de 6 · exploraciones válidas"], ["15-15", "15 de 15 · protocolo propuesto"], ["17-17", "17 de 17"]], "data-pre", "5-6", "Casos de ejemplo") +
       '<div class="ev-nums"><label for="ev-k">Éxitos<input id="ev-k" type="number" min="0" max="40" step="1" value="5"></label><label for="ev-t">Intentos<input id="ev-t" type="number" min="1" max="40" step="1" value="6"></label></div>' +
       '<div class="ev-graf" data-o="prop"></div>' +
       '<div class="control-datos ev-datos" data-o="datos-p" aria-live="polite"></div>' +
@@ -396,7 +384,7 @@
       cont.innerHTML = s + '</svg>';
       out("n").textContent = st.n + (st.n === 5 ? " · las de la tesis" : " · proyección");
       var red = 1 - hn / ic.semi;
-      out("datos-m").innerHTML = tarjetas([
+      out("datos-m").innerHTML = U.tarjetas([
         ["Media de las cinco", f(ic.media, I.d) + " " + I.u, I.src + "."],
         ["Desviación estándar", f(ic.s, I.d + 1) + " " + I.u, "Con n − 1 en el denominador."],
         ["Intervalo al 95 %, n = 5", f(ic.inf, I.d) + " a " + f(ic.sup, I.d) + " " + I.u, "t = " + f(ic.t, 3) + " con 4 grados de libertad."],
@@ -412,7 +400,7 @@
       [0.5, 0.8].forEach(function (v) { s += '<line class="ev-umbral" x1="' + x(v) + '" x2="' + x(v) + '" y1="10" y2="' + (H - 26) + '"/><text class="ev-t" x="' + (x(v) + 4) + '" y="12">' + Math.round(v * 100) + ' %</text>'; });
       s += '<rect class="ev-prop" x="' + x(c.inf) + '" y="' + (yb - 12) + '" width="' + Math.max(2, x(c.sup) - x(c.inf)) + '" height="24" rx="4"/><circle class="ev-prop-p" r="5" cx="' + x(c.p) + '" cy="' + yb + '"/>';
       cont.innerHTML = s + '</svg>';
-      out("datos-p").innerHTML = tarjetas([
+      out("datos-p").innerHTML = U.tarjetas([
         ["Proporción observada", st.k + " de " + st.total + " = " + f(c.p * 100, 1) + " %", ""],
         ["Intervalo exacto al 95 %", f(c.inf * 100, 1) + " a " + f(c.sup * 100, 1) + " %", "Clopper y Pearson."],
         ["Lo que se puede afirmar", "más de " + f(c.inf * 100, 1) + " %", "Es el límite inferior del intervalo."],
@@ -428,7 +416,7 @@
       var t = Math.max(1, Math.min(40, Math.round(+inT.value || 1))), k = Math.max(0, Math.min(t, Math.round(+inK.value || 0)));
       st.total = t; st.k = k; inK.max = t;
       var pre = st.k + "-" + st.total;
-      marcar(el, "data-pre", ["5-6", "15-15", "17-17"].indexOf(pre) >= 0 ? pre : "");
+      U.marcar(el, "data-pre", ["5-6", "15-15", "17-17"].indexOf(pre) >= 0 ? pre : "");
     }
     el.addEventListener("input", function (e) {
       if (e.target === inN) { st.n = +inN.value; pintarMedia(); }
@@ -438,11 +426,11 @@
     el.addEventListener("click", function (e) {
       var b = e.target.closest("button");
       if (!b || !el.contains(b)) return;
-      if (b.hasAttribute("data-ind")) { st.ind = b.getAttribute("data-ind"); marcar(el, "data-ind", st.ind); pintarMedia(); }
+      if (b.hasAttribute("data-ind")) { st.ind = b.getAttribute("data-ind"); U.marcar(el, "data-ind", st.ind); pintarMedia(); }
       else if (b.hasAttribute("data-pre")) { var v = b.getAttribute("data-pre").split("-"); inK.value = v[0]; inT.value = v[1]; leerProp(); pintarProp(); }
     });
     el.estadoRepeticiones = function () { return { ind: st.ind, n: st.n, k: st.k, total: st.total }; };
     pintar();
-    U.alCambiarAncho(out("recta"), pintar);
+    U.alAncho(out("recta"), pintar);
   };
 })();

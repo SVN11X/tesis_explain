@@ -27,21 +27,27 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 
 ## Thesis content
 
-- [ ] (green) Academic notice: the thesis is in its defense process (owner, 2026-11-19), no longer under committee review. Update README.md and datos/academico.json, then run datos.py and indice.py.
+- [x] (green) Academic notice: the thesis is in its defense process (owner, 2026-11-19), no longer under committee review. Update README.md and datos/academico.json, then run datos.py and indice.py.
 - [ ] (yellow) Inventory of differences between the site and the final thesis (169 pages, the site follows the 152-page October one): figures and section, table and figure numbers, using docs/trazabilidad.csv.
-- [ ] (yellow) Fix the differences, one pull request per chapter, plus one each for the bibliography, the data CSVs and the questions. A change to preguntas.html regenerates its PDF and catalogo.json and rechecks the approved rubric.
+- [x] (yellow) Fix the differences, one pull request per chapter, plus one each for the bibliography, the data CSVs and the questions. A change to preguntas.html regenerates its PDF and catalogo.json and rechecks the approved rubric.
 - [ ] (yellow) After the fixes, publish the final PDF (9.5 MB) as a Release asset or compressed under 5 MB, with a clear name, checked metadata, and version_documento and tesis_pdf updated in datos/academico.json.
 
 ## Learning and attention
 
 - [x] (yellow) control.html (8,287 words, 15 % folded): a short summary per section that keeps figures and thesis references visible, the rest folded. Search results and #anchors open the folded part, with a test.
-- [ ] (yellow) mapeo.html (7,116 words, 10 % folded): the same treatment and the same test.
+- [ ] (yellow) control.html: an interactive inside the first 4 screens at 360 px (first video now at screen 7.0, comparison slider at 33.4; revision-atencion 5).
+- [ ] (yellow) mapeo.html (7,116 words, 10 % folded): the same treatment and the same test, with an interactive inside the first 4 screens at 360 px.
 - [ ] (yellow) The same for robot, movimiento and resultados, one page per pull request. Then the owner reviews before problema, navegacion, exploracion and replicar.
 - [ ] (yellow) A short challenge with instant feedback in one example chapter, using data the page already shows. The owner decides whether it spreads.
 - [ ] (yellow) A step-by-step diagram or interactive for lecciones, then mundo-real, which have none today. One page per pull request.
 - [ ] (yellow) Playful states: one drawn SVG robot for search without results, as the example, with its reason recorded for a decorative illustration. Each state says what happened and the next action.
 - [ ] (green) Motion rich: record the purpose of each animation in docs/decisions/, and give a pause control to anything that moves for more than 5 s.
-- [ ] (green) Review palette and motion for what distracts or tires people with attention difficulties, and check the home page's first screen at 360 and 1280 px. Report with screenshots, change nothing.
+- [x] (green) Review palette and motion for what distracts or tires people with attention difficulties, and check the home page's first screen at 360 and 1280 px. Report with screenshots, change nothing.
+- [ ] (yellow) Home first screen: primary button «Empieza la guía» to the guide and secondary «Juega con el robot 3D» to the viewer, with the 3D robot fully visible at 360 px (docs/revision-atencion.md 1 and 2).
+- [ ] (yellow) Home first screen shows the robot exploring and the map growing, reusing img/mapa-crece.mp4 or the existing LiDAR scene, so a first visit sees what the robot does (revision-atencion 3).
+- [ ] (green) Home 3D viewer: only the active tab keeps its topic color, the others stay neutral (revision-atencion 8). Confirm that the .scan-loader spinner hides after loading.
+- [ ] (green) Measure the contrast of the small gray uppercase labels on the home page at 360 px and fix anything under 4.5:1.
+- [ ] (green) Home page fonts use font-display: swap without metric-matched fallbacks, unlike the guide pages. Align them with the guide pages (docs/medicion-fuentes.md).
 - [x] (green) Measure the weight and use of Archivo, Atkinson Hyperlegible and IBM Plex Mono, and record the font decision in DESIGN.md.
 - [ ] (green) After part (b): list the current tokens (spacing, type sizes, radii, durations, easing) in DESIGN.md from the site's CSS.
 - [ ] (green) After part (b): record the performance budget in docs/decisions/, measured on dist/, with each page's critical path against 170 KB compressed.
@@ -51,8 +57,8 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 - [ ] (green) docs/decisiones.md: mark rows 5 (native HTML only), 13 (no inference) and 14 (no automatic publishing) as superseded, and record the Astro, AI correction and Actions decisions in docs/decisions/.
 - [x] (green) Deep maintainability review of js/ (sims.js 1,157 lines, mapeo.js 945, sitio.js 854). Its findings become new items here.
 - [ ] (green) Move the canvas kit (sims.js:20-117: css, rgba, paleta, lienzo, alTema, quieto, fmt, limitar, bucle) and robotCelda (vis1.js:57) into comun.js as U.*, so the split does not copy it four times.
-- [ ] (green) Shared helpers in comun.js: U.marcar (aria-pressed, 11 copies), U.chips, U.tarjetas and one U.alAncho for redraw on resize (comun.js:17-31, sims.js:62 and inline copies). Same pull request as the kit if small.
-- [ ] (green) One reduced-motion path: U.quieto and one U.alCambiarMovimiento. bucle pauses pid, enjambre and exploracion when reduced motion turns on mid-run, as cinematica and encoder already do.
+- [x] (green) Shared helpers in comun.js: U.marcar (aria-pressed, 11 copies), U.chips, U.tarjetas and one U.alAncho for redraw on resize (comun.js:17-31, sims.js:62 and inline copies). Same pull request as the kit if small.
+- [x] (green) One reduced-motion path: U.quieto and one U.alCambiarMovimiento. bucle pauses pid, enjambre and exploracion when reduced motion turns on mid-run, as cinematica and encoder already do.
 - [ ] (green) Remove dead code: the sims.js hero mode (no page uses data-modo="hero"), ICO stored in VISUALES (comun.js:92), stale notes (vis1.js:8, :323, sims.js:9, :711) and SITIO.quieto (sitio.js:853).
 - [ ] (green) Tests before the split: list files from SITIO.MODULOS instead of hardcoded names, check that each file registers exactly its MODULOS names, and add a Node test for the exploration simulation.
 - [ ] (yellow) Split vis1, vis2, vis3 and sims.js by chapter: navegacion, exploracion, control, robot, plus mapeo (cobertura) and movimiento. Consider static HTML for versiones, gemelo and fallaria.

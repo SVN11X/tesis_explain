@@ -52,14 +52,6 @@
   };
   window.ASTAR_PRUEBAS = AS;
 
-  /* El robot en una rejilla: la planta en U del prototipo (js/comun.js), centrada en su celda y mirando a la
-     derecha. Sin js/comun.js queda el círculo de antes. */
-  function robotCelda(cx, cy, T) {
-    var U = window.U;
-    if (!U || !U.robot) return '<circle class="f-verde" cx="' + cx + '" cy="' + cy + '" r="6"/>';
-    var g = U.robot.svg(cx, cy, 0, T * 1.15 / (2 * U.robot.medidas.r), "centro");
-    return '<g class="robot-planta verde"><path class="cuerpo" d="' + g.cuerpo + '"/><circle class="lidar" cx="' + g.lidar[0].toFixed(2) + '" cy="' + g.lidar[1].toFixed(2) + '" r="' + g.lidarR.toFixed(2) + '"/></g>';
-  }
   V.astar = function (el) {
     var C = AS.C, R = AS.R, T = 16;
     var NOMBRE = { d: "Dijkstra", a: "A estrella" }, INICIO = 30;
@@ -77,7 +69,7 @@
     s += '<path class="as-h k-ambar" fill="none" stroke-width="2.5" stroke-dasharray="5 4" stroke-linecap="round" d=""/>';
     s += '<path class="as-g k-azul" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d=""/>';
     s += '<path class="as-camino k-azul" fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" d=""/>';
-    s += '<g class="as-robot">' + robotCelda(0, 0, T) + '</g><rect class="f-rojo as-meta" x="2" y="2" width="' + (T - 4) + '" height="' + (T - 4) + '" rx="2"/>';
+    s += '<g class="as-robot">' + U.robot.celda(0, 0, T) + '</g><rect class="f-rojo as-meta" x="2" y="2" width="' + (T - 4) + '" height="' + (T - 4) + '" rx="2"/>';
     s += '<rect class="as-cursor" x="0" y="0" width="' + T + '" height="' + T + '" rx="3" fill="none"/></svg>';
     el.innerHTML =
       '<div class="vctl"><div class="segmento" role="group" aria-label="Algoritmo"><button type="button" data-alg="d" aria-pressed="false">Dijkstra</button><button type="button" data-alg="a" aria-pressed="true">A estrella</button></div>' +
@@ -137,8 +129,8 @@
       } else msg = "Paso " + k + ". Revisa la celda marcada, a g = " + act.g + " pasos del robot. Sin estimación, revisa primero las más cercanas al robot en todas las direcciones, aunque se alejen de la meta.";
       estado.textContent = (aviso ? aviso + " " : "") + msg; aviso = "";
       rango.max = n; if (document.activeElement !== rango) rango.value = k;
-      el.querySelectorAll("[data-alg]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-alg") === st.alg)); });
-      el.querySelectorAll("[data-modo]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-modo") === st.modo)); });
+      U.marcar(el, "data-alg", st.alg);
+      U.marcar(el, "data-modo", st.modo);
       bEjemplo.disabled = !editada;
       el.querySelector("title").textContent = "Búsqueda con " + NOMBRE[st.alg] + ", " + k + " de " + n + " celdas revisadas" + (fin ? (r.llego ? ", con la ruta encontrada." : ", sin ruta hasta la meta.") : ".");
     }
@@ -246,11 +238,7 @@
     });
     rango.addEventListener("input", function () { parar(); st.k = +rango.value; dibujar(); marcar(); });
     document.addEventListener("visibilitychange", function () { if (document.hidden) parar(); });
-    if (window.matchMedia) {
-      /* addListener cubre Safari anterior a la versión 14, donde MediaQueryList no tiene addEventListener */
-      var mqr = window.matchMedia("(prefers-reduced-motion: reduce)"), alReducir = function (e) { if (e.matches) parar(); };
-      if (mqr.addEventListener) mqr.addEventListener("change", alReducir); else if (mqr.addListener) mqr.addListener(alReducir);
-    }
+    U.alCambiarMovimiento(function (reducido) { if (reducido) parar(); });
     comparar(); dibujar(); marcar();
     el.estadoAstar = function () { var r = res[st.alg], act = st.k ? r.pasos[st.k - 1] : null; return { alg: st.alg, k: st.k, n: r.pasos.length, g: act && act.g, h: act && act.h, f: act && act.f, pend: act ? act.pend.length : 1, activo: !!anim, camino: el.querySelector(".as-camino").getAttribute("d") !== "", llego: r.llego, A: esc.A.slice(), B: esc.B.slice(), muros: Object.keys(esc.muro).length, modo: st.modo, cur: st.cur.slice(), editada: editada }; };
   };
@@ -307,7 +295,7 @@
           if (!ok) s += '<path class="k-ink" stroke-width="1.6" d="M' + (p[0] * T + 5) + ' ' + (p[1] * T + 5) + ' l' + (T - 10) + ' ' + (T - 10) + ' M' + (p[0] * T + T - 5) + ' ' + (p[1] * T + 5) + ' l-' + (T - 10) + ' ' + (T - 10) + '"/>';
         });
       });
-      s += robotCelda(2 * T + T / 2, 5 * T + T / 2, T) + '</svg>';
+      s += U.robot.celda(2 * T + T / 2, 5 * T + T / 2, T) + '</svg>';
       return { svg: s, acept: acept, rech: rech };
     }
     var a = panel(fy, 5, "Fronteras según Yamauchi"), b = panel(fe, 1, "Fronteras según explore_lite");
@@ -370,7 +358,7 @@
       parar = U.animar(7000, function (k) { Tact = k * TT; dibujar(); });
     });
     dibujar();
-    U.alCambiarAncho(cont, dibujar);
+    U.alAncho(cont, dibujar);
   };
 
   /* Lista negra */

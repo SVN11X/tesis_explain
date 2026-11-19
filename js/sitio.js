@@ -13,7 +13,7 @@
   /* Si datos/proyecto.js no llega (bloqueado, caché corrupta o archivo ausente), los respaldos deben
      seguir funcionando. El aviso estático del HTML conserva el estado. */
   var ACADEMICO = (window.PROYECTO && window.PROYECTO.academico) || {
-    estado_texto: "En revisión por comité", tesis_pdf: null, version_documento: null, ultima_actualizacion_sitio: null, sinDatos: true
+    estado_texto: "En proceso de defensa", tesis_pdf: null, version_documento: null, ultima_actualizacion_sitio: null, sinDatos: true
   };
   /* Sin un enlace verificado en tesis_pdf, el pie no ofrece el PDF y Recursos dice que la tesis no está publicada. */
   var TESIS_PDF = ACADEMICO.tesis_pdf || "";
@@ -62,7 +62,8 @@
     sc.src = "datos/secciones.js"; sc.onload = fin; sc.onerror = function () { sc.remove(); fin(); };
     document.head.appendChild(sc);
   }
-  var quieto = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  /* lectura en vivo desde js/comun.js, que cada página carga antes que este archivo */
+  var quieto = function () { return window.U.quieto(); };
 
   /* Íconos de Phosphor Icons (MIT, ver LICENSE-iconos.txt), en línea para no pedir archivos. */
   var SVG = {
@@ -202,7 +203,7 @@
     var b = document.createElement("button");
     b.type = "button"; b.className = "btn-arriba"; b.setAttribute("aria-label", "Volver al inicio de la página"); b.innerHTML = SVG.arriba;
     document.body.appendChild(b);
-    b.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: quieto ? "auto" : "smooth" }); var s = document.querySelector(".skip-link"); if (s) s.focus({ preventScroll: true }); });
+    b.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: quieto() ? "auto" : "smooth" }); var s = document.querySelector(".skip-link"); if (s) s.focus({ preventScroll: true }); });
     /* con el pie a la vista el botón se retira: el pie ya tiene su enlace para volver arriba */
     var pend = false, pie = document.querySelector(".site-footer");
     window.addEventListener("scroll", function () {
@@ -266,8 +267,8 @@
       vid.addEventListener("play", marcar); vid.addEventListener("pause", marcar);
       caja.appendChild(b);
       vid.muted = true; vid.setAttribute("playsinline", ""); vid.loop = true;
-      if (quieto || !("IntersectionObserver" in window)) ponerPortada(vid);
-      if (quieto) { vid.removeAttribute("autoplay"); vid.pause(); marcar(); return; }
+      if (quieto() || !("IntersectionObserver" in window)) ponerPortada(vid);
+      if (quieto()) { vid.removeAttribute("autoplay"); vid.pause(); marcar(); return; }
       if ("IntersectionObserver" in window) {
         var cerca = new IntersectionObserver(function (ents) {
           if (ents.some(function (e) { return e.isIntersecting; })) { ponerPortada(vid); vid.preload = "auto"; cerca.disconnect(); }
@@ -431,11 +432,7 @@
         timer = setInterval(function () { ir((i + 1) % btns.length); }, 2600);
       });
       document.addEventListener("visibilitychange", function () { if (document.hidden) parar(); });
-      if (window.matchMedia) {
-        /* Safari anterior a la versión 14 solo ofrece addListener; sin esta guarda, el error detenía el resto del arranque. */
-        var mqm = window.matchMedia("(prefers-reduced-motion: reduce)"), alReducir = function (e) { if (e.matches) parar(); };
-        if (mqm.addEventListener) mqm.addEventListener("change", alReducir); else if (mqm.addListener) mqm.addListener(alReducir);
-      }
+      window.U.alCambiarMovimiento(function (reducido) { if (reducido) parar(); });
       /* Precarga de los otros mapas en el formato que el navegador ya eligió para el primero, y solo
          cuando la secuencia se acerca a la pantalla. Antes se pedían los JPG al cargar la página
          aunque se mostraran los WebP. */
@@ -827,7 +824,7 @@
     requestAnimationFrame(paso);
   }
   function animaciones() {
-    if (quieto || !("IntersectionObserver" in window)) return;
+    if (quieto() || !("IntersectionObserver" in window)) return;
     document.documentElement.classList.add("anima");
     var porPadre = new Map();
     var io = new IntersectionObserver(function (ents) {
@@ -873,5 +870,4 @@
     alListo(function () { iniciar([interactivos, destacarHash, tablasDesplazables, animaciones]); });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", arrancar); else arrancar();
-  window.SITIO.quieto = quieto;
 })();

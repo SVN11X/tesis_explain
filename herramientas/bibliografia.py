@@ -432,7 +432,7 @@ class Bibliografia:
 
     def bibtex(self, fecha):
         lineas = ['% Bibliografía de la tesis «Navegación y exploración autónoma de interiores utilizando un robot móvil',
-                  '% de tracción diferencial» (Valderas Neculqueo, 2026), en revisión por comité.',
+                  '% de tracción diferencial» (Valderas Neculqueo, 2026), en proceso de defensa.',
                   '% Generado por herramientas/datos.py desde datos/bibliografia.json el ' + fecha + '. No editar a mano.',
                   '% Cada entrada va precedida de un comentario con su número en la tesis. Codificación UTF-8, pensado',
                   '% para biblatex con biber. Los títulos van entre llaves dobles para conservar sus mayúsculas.', '']
