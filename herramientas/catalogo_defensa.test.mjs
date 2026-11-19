@@ -86,7 +86,8 @@ test('generar dos veces da bytes idénticos y coincide con el archivo versionado
     assert.equal(python(['--salida', a]).status, 0);
     assert.equal(python(['--salida', b]).status, 0);
     assert.ok(readFileSync(a).equals(readFileSync(b)));
-    assert.ok(readFileSync(a).equals(readFileSync(CATALOGO)));
+    // Git en Windows puede convertir los saltos de línea del archivo versionado.
+    assert.equal(readFileSync(a, 'utf8'), readFileSync(CATALOGO, 'utf8').replace(/\r\n/g, '\n'));
     assert.equal(readFileSync(a, 'utf8').endsWith('}\n'), true);
   } finally { limpiar(); }
 });

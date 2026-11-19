@@ -121,7 +121,8 @@ def main(argv=None):
         return 1
     texto = serializar(construir(tarjetas, rubricas))
     if a.comprobar:
-        actual = a.salida.read_bytes().decode('utf-8') if a.salida.exists() else None
+        # Git en Windows puede convertir los saltos de línea al sacar el archivo: no cuentan como diferencia.
+        actual = a.salida.read_bytes().decode('utf-8').replace('\r\n', '\n') if a.salida.exists() else None
         if actual != texto:
             print('El catálogo de defensa quedó atrás. Ejecuta: python herramientas/catalogo_defensa.py', file=sys.stderr)
             return 1
