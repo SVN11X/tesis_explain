@@ -161,6 +161,37 @@
       setTimeout(function () { d.classList.remove("destacar"); }, 2400);
     });
 
+    /* Práctica de defensa oral: js/defensa-oral.js se pide la primera vez que se pulsa el botón */
+    var defensa = document.getElementById("q-defensa");
+    var cargaDefensa = null;
+    function cargarDefensa() {
+      if (window.DefensaOral) return Promise.resolve();
+      if (!cargaDefensa) cargaDefensa = new Promise(function (resolver, rechazar) {
+        var s = document.createElement("script");
+        s.src = "js/defensa-oral.js";
+        s.onload = resolver;
+        s.onerror = function () { s.remove(); cargaDefensa = null; rechazar(new Error("carga")); };
+        document.head.appendChild(s);
+      });
+      return cargaDefensa;
+    }
+    if (defensa) defensa.addEventListener("click", function () {
+      defensa.disabled = true;
+      cargarDefensa().then(function () {
+        defensa.disabled = false;
+        window.DefensaOral.abrir({
+          preguntas: preguntas.filter(function (d) { return !d.hidden; }),
+          /* las mismas tarjetas sin el filtro de tema, para «Ampliar a todos los temas» */
+          ampliadas: function () { return datos.filter(function (d) { return coincide(d, true); }).map(function (d) { return d.el; }); },
+          origen: defensa
+        });
+      }, function () {
+        defensa.disabled = false;
+        conteo.textContent = "No se pudo cargar la práctica de defensa oral. Revisa tu conexión e inténtalo otra vez.";
+        ultimoTexto = "";
+      });
+    });
+
     /* Un enlace a una pregunta que quedó oculta por un filtro quita los filtros */
     function alAncla() {
       var id;
