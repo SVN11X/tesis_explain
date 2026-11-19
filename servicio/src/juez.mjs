@@ -67,7 +67,8 @@ export function validarLectura(salida, rubrica, textoConfirmado) {
 
   const hay = salida.observaciones.some((o) => o.evidencia !== null);
   const esperado = veredictoPorReglas(salida.observaciones, rubrica, hay);
-  if (esperado !== salida.veredicto) return no("el veredicto del modelo no coincide con las reglas");
+  // El modelo siempre puede abstenerse con `indeterminada`. Cualquier otro veredicto debe coincidir con las reglas.
+  if (salida.veredicto !== "indeterminada" && esperado !== salida.veredicto) return no("el veredicto del modelo no coincide con las reglas");
 
   return {
     valida: true,
@@ -79,9 +80,9 @@ export function validarLectura(salida, rubrica, textoConfirmado) {
 
 /**
  * Calcula el veredicto que dictan las reglas de la rúbrica, en este orden:
- * contradicción crítica con evidencia, todos los esenciales presentes, mezcla, ninguno presente.
- * Un esencial contradicho cuenta como ausente. En el último caso, solo hay `incorrecta`
- * si la rúbrica lo permite y existe contenido pertinente; sin contenido, `indeterminada`.
+ * contradicción crítica con evidencia, todos los esenciales presentes, algún esencial presente
+ * o contenido pertinente con algo faltante, y nada pertinente (`incorrecta` si la rúbrica lo permite,
+ * si no `indeterminada`). Un esencial contradicho cuenta como ausente.
  * @param {object[]} observaciones
  * @param {object} rubrica
  * @param {boolean} [hayContenidoPertinente] Por defecto, si alguna observación tiene evidencia.
@@ -97,8 +98,8 @@ export function veredictoPorReglas(observaciones, rubrica, hayContenidoPertinent
   const ess = esenciales(rubrica).map((c) => porId.get(c.id));
   const presentes = ess.filter((o) => o && o.estado === "presente").length;
   if (ess.length > 0 && presentes === ess.length) return "correcta";
-  if (presentes > 0) return "parcial";
-  return rubrica.permite_incorrecta_ajena && hay ? "incorrecta" : "indeterminada";
+  if (presentes > 0 || hay) return "parcial";
+  return rubrica.permite_incorrecta_ajena ? "incorrecta" : "indeterminada";
 }
 
 const noEvaluable = (causa) => ({ estado: "no_evaluable", causa });

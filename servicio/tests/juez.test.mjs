@@ -33,9 +33,27 @@ test("veredictoPorReglas: reglas 1 a 4", () => {
   assert.equal(veredictoPorReglas(obs(P1, P2), rubrica, true), "correcta");
   assert.equal(veredictoPorReglas(obs(P1, A), rubrica, true), "parcial");
   assert.equal(veredictoPorReglas(obs(P1, ["contradicho", F2]), rubrica, true), "parcial");
-  assert.equal(veredictoPorReglas(obs(A, A), rubrica, true), "incorrecta");
-  assert.equal(veredictoPorReglas(obs(A, A), { ...rubrica, permite_incorrecta_ajena: false }, true), "indeterminada");
-  assert.equal(veredictoPorReglas(obs(A, A), rubrica, false), "indeterminada");
+  assert.equal(veredictoPorReglas(obs(A, A), rubrica, true), "parcial");
+  assert.equal(veredictoPorReglas(obs(A, A), { ...rubrica, permite_incorrecta_ajena: false }, false), "indeterminada");
+});
+
+test("respuesta ajena: incorrecta si la rúbrica lo permite, si no indeterminada", () => {
+  const sin = { ...rubrica, permite_incorrecta_ajena: false };
+  assert.equal(veredictoPorReglas(obs(A, A), rubrica, false), "incorrecta");
+  assert.equal(veredictoPorReglas(obs(A, A), sin, false), "indeterminada");
+});
+
+test("un esencial contradicho con evidencia y nada presente da parcial", () => {
+  assert.equal(veredictoPorReglas(obs(["contradicho", F1], A), rubrica), "parcial");
+  assert.equal(lectura(salida("parcial", obs(["contradicho", F1], A))).valida, true);
+});
+
+test("el modelo puede abstenerse con indeterminada aunque las reglas den correcta", () => {
+  const s = salida("indeterminada", obs(P1, P2));
+  const l = lectura(s);
+  assert.equal(l.valida, true);
+  assert.deepEqual(consenso([l, l, l]), { estado: "no_evaluable", causa: "insufficient_evidence" });
+  assert.equal(lectura({ ...s, veredicto: "incorrecta" }).valida, false);
 });
 
 test("una contradicción crítica sin evidencia no cuenta", () => {
