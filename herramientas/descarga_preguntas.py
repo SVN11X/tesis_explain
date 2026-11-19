@@ -155,7 +155,7 @@ def escribir_boton(m, comprobar):
     nuevo = re.sub(r'<!-- DESCARGA PREGUNTAS:.*?<!-- FIN DESCARGA PREGUNTAS -->', lambda _: boton(m), t, flags=re.S)
     if comprobar:
         return nuevo == t
-    p.write_text(nuevo, encoding='utf-8')
+    p.write_text(nuevo, encoding='utf-8', newline='\n')
     return True
 
 
@@ -184,7 +184,7 @@ def main():
     PDF.parent.mkdir(exist_ok=True)
     with tempfile.TemporaryDirectory() as tmp:
         ruta = Path(tmp) / 'preguntas.html'
-        ruta.write_text(documento, encoding='utf-8')
+        ruta.write_text(documento, encoding='utf-8', newline='\n')
         with sync_playwright() as pw:
             nav = pw.chromium.launch()
             pag = nav.new_page()
@@ -197,7 +197,7 @@ def main():
     paginas = len(re.findall(rb'/Type\s*/Page[^s]', datos))
     m = {'archivo': 'descargas/preguntas-dificiles.pdf', 'preguntas': total, 'temas': len(temas), 'paginas': paginas, 'bytes': len(datos),
          'huella': h, 'version_tesis': academico['version_documento'], 'plantilla': VERSION_PLANTILLA}
-    MANIFIESTO.write_text(json.dumps(m, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    MANIFIESTO.write_text(json.dumps(m, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='\n')
     escribir_boton(m, False)
     print('PDF de preguntas: %d preguntas, %d páginas, %d KB' % (total, paginas, len(datos) // 1024))
 

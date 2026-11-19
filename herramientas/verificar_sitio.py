@@ -46,9 +46,9 @@ for step in ['datos.py', 'indice.py']:
         import indice
         expected = indice.generar()
         check(not indice.comprobar_anclas(expected), 'índice: anclas inválidas')
-        current = (ROOT/'datos/indice.js').read_text()
+        current = (ROOT/'datos/indice.js').read_text(encoding='utf-8')
         check(json.loads(current.split('window.INDICE = ',1)[1].rsplit(';',1)[0]) == expected, 'índice desactualizado')
-        check((ROOT/'datos/secciones.js').exists() and (ROOT/'datos/secciones.js').read_text() == indice.js_secciones(indice.secciones()), 'secciones del índice lateral desactualizadas')
+        check((ROOT/'datos/secciones.js').exists() and (ROOT/'datos/secciones.js').read_text(encoding='utf-8') == indice.js_secciones(indice.secciones()), 'secciones del índice lateral desactualizadas')
 # La lista de temas de la portada tiene las 16 partes de la guía, en el orden y con los títulos de js/sitio.js
 import re, struct
 sitio = (ROOT/'js/sitio.js').read_text(encoding='utf-8')

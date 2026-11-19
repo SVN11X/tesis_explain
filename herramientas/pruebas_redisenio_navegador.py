@@ -149,7 +149,7 @@ with sync_playwright() as pw:
     with p.expect_download() as event:
         p.get_by_role('button', name='Exportar JSON ↓').click()
     import json
-    export = json.loads(Path(event.value.path()).read_text())
+    export = json.loads(Path(event.value.path()).read_text(encoding='utf-8'))
     check(len(export['measurements']) == 230 and len(export['grid']['values']) == 3500, 'la exportación contiene medidas y mapa completo')
     p.get_by_role('button', name='Reiniciar experimento').click()
     check(p.get_by_label('Altura del láser en metros').input_value() == '0.24', 'reiniciar recupera los parámetros iniciales')

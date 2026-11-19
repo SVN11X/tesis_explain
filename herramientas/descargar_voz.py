@@ -80,7 +80,7 @@ def main(args):
             archivos.append({'ruta': ruta, 'origen': origen, 'bytes': len(datos), 'sha256': huella(datos)})
         m = {'transformers': TRANSFORMERS, 'onnxruntime_web': ORT, 'whisper': WHISPER, 'revision': REVISION,
              'bytes_total': sum(a['bytes'] for a in archivos), 'archivos': archivos}
-        MANIFIESTO.write_text(json.dumps(m, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+        MANIFIESTO.write_text(json.dumps(m, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='\n')
         print(f"Manifiesto con {len(archivos)} archivos, {m['bytes_total'] / 1e6:.1f} MB.")
         return 0
     m = json.loads(MANIFIESTO.read_text(encoding='utf-8'))
