@@ -11,10 +11,10 @@ const base=import.meta.env.BASE_URL.replace(/\/?$/,'/');
       <p class="eyebrow"><span class="live-dot"></span> ROBÓTICA ABIERTA / ROS 2</p>
       <h1 id="hero-title">El mundo <br/>no viene con <br/>un <span class="map-word">mapa<svg viewBox="0 0 270 16" aria-hidden="true"><path d="M2 12C75 2 181 3 266 7"/></svg></span>.</h1>
       <p class="hero-lead">Un robot que entra a un lugar que no conoce, <mark class="c-amarillo">lo recorre solo y dibuja su plano</mark>.</p>
-      <div class="hero-cta"><a class="button robot" href="#laboratorio">Entra al laboratorio <span aria-hidden="true">↗</span></a><a class="under-link" href="#video">Ver el robot real <span aria-hidden="true">↘</span></a></div>
+      <div class="hero-cta"><a class="button robot" href="#temas">Empieza la guía <span aria-hidden="true">↗</span></a><a class="under-link" href="#robot-3d">Juega con el robot 3D <span aria-hidden="true">↘</span></a></div>
       <p class="hero-note mono">UNA TESIS QUE PUEDES EXPLORAR.</p>
     </div>
-    <div class="hero-model"><RobotHero client:load base={base}/></div>
+    <div class="hero-model" id="robot-3d"><RobotHero client:load base={base}/></div>
     <div class="hero-bottom"><span class="mono">01 / DE LA MÁQUINA A LA IDEA</span><p><span class="clave c-turquesa">Gira.</span> <span class="clave c-naranja">Acerca.</span> <span class="clave c-violeta">Desmonta.</span> <span class="clave c-azul">Experimenta.</span></p><a href="#guia-abierta" class="scroll-cue" aria-label="Leer de qué trata la guía"><svg class="ph" viewBox="0 0 256 256" aria-hidden="true"><path d="M204.24,148.24l-72,72a6,6,0,0,1-8.48,0l-72-72a6,6,0,0,1,8.48-8.48L122,201.51V40a6,6,0,0,1,12,0V201.51l61.76-61.75a6,6,0,0,1,8.48,8.48Z"/></svg></a></div>
   </section>
 
