@@ -34,7 +34,7 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 
 ## Learning and attention
 
-- [ ] (yellow) control.html (8,287 words, 15 % folded): a short summary per section that keeps figures and thesis references visible, the rest folded. Search results and #anchors open the folded part, with a test.
+- [x] (yellow) control.html (8,287 words, 15 % folded): a short summary per section that keeps figures and thesis references visible, the rest folded. Search results and #anchors open the folded part, with a test.
 - [ ] (yellow) mapeo.html (7,116 words, 10 % folded): the same treatment and the same test.
 - [ ] (yellow) The same for robot, movimiento and resultados, one page per pull request. Then the owner reviews before problema, navegacion, exploracion and replicar.
 - [ ] (yellow) A short challenge with instant feedback in one example chapter, using data the page already shows. The owner decides whether it spreads.
