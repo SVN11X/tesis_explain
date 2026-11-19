@@ -16,6 +16,8 @@ migrations_dir = "migraciones"
 
 [vars]
 AI_PROVIDER = "workers_ai"
+# Uno de MODELOS en src/proveedores.mjs. Cambiarlo exige repetir la validación (especificación, 5 y 9).
+AI_MODELO = "@cf/google/gemma-4-26b-a4b-it"
 FALLBACK_MODE = "practice_only"
 ADMISION = "abierta"
 ORIGENES = "https://svn11x.github.io"
@@ -38,6 +40,7 @@ migrations_dir = "migraciones"
 
 [env.preproduccion.vars]
 AI_PROVIDER = "workers_ai"
+AI_MODELO = "@cf/google/gemma-4-26b-a4b-it"
 FALLBACK_MODE = "practice_only"
 ADMISION = "abierta"
 ORIGENES = "https://svn11x.github.io,http://localhost:4321,http://127.0.0.1:8000"
