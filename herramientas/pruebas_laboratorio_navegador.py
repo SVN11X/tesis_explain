@@ -65,7 +65,7 @@ with sync_playwright() as pw:
         data = json.loads(Path(download.path()).read_text(encoding='utf-8'))
         text = (ROOT / 'datos/ensayos/metas.csv').read_bytes()
         check(data['procedencia']['sha256_texto_utf8'] == hashlib.sha256(text).hexdigest(), name + ': exporta una huella verificable')
-        check(data['estado_academico'] == 'en_revision_comite' and len(data['filas']) == 5, name + ': exporta origen, estado y filas completas')
+        check(data['estado_academico'] == 'en_proceso_defensa' and len(data['filas']) == 5, name + ': exporta origen, estado y filas completas')
         own = 'tiempo_s,referencia_m_s,velocidad_m_s,pwm\n0,1,0,255\n1,1,0.5,255\n2,1,1.1,100\n3,1,1.01,100\n4,1,1,100\n5,1,1,100'
         p.set_input_files('#lab-archivo', dict(name='registro-propio.csv', mimeType='text/csv', buffer=own.encode('utf-8')))
         expect(p.locator('#lab-estado')).to_contain_text('serie-control')
