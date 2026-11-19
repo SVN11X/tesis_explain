@@ -13,22 +13,47 @@
     return (Math.round(v * f + 1e-9) / f).toFixed(dec).replace(".", ",");
   };
   U.quieto = function () { return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches; };
-  /* redibujo al cambiar el ancho */
-  var alAncho = [];
-  U.alCambiarAncho = function (el, fn) {
-    var w = el.clientWidth;
-    alAncho.push({ el: el, fn: fn, w: w });
+  /* Preferencia de movimiento reducido, con aviso cuando cambia. fn recibe true si ahora se pide menos movimiento.
+     addListener cubre Safari anterior a la versión 14, donde MediaQueryList no tiene addEventListener. */
+  U.alCambiarMovimiento = function (fn) {
+    if (!window.matchMedia) return;
+    var mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    var f = function () { fn(mq.matches); };
+    if (mq.addEventListener) mq.addEventListener("change", f); else if (mq.addListener) mq.addListener(f);
+  };
+  /* Redibujo al cambiar el ancho del contenedor: una sola lista y un solo oyente de resize.
+     Las entradas cuyo elemento ya no está en la página se descartan al repintar. */
+  var anchos = [];
+  U.alAncho = function (el, fn) {
+    anchos.push({ el: el, fn: fn, w: el.clientWidth });
   };
   var t = null;
   window.addEventListener("resize", function () {
     clearTimeout(t);
     t = setTimeout(function () {
-      alAncho.forEach(function (o) {
+      anchos = anchos.filter(function (o) { return o.el.isConnected !== false; });
+      anchos.forEach(function (o) {
         var w = o.el.clientWidth;
         if (Math.abs(w - o.w) > 8) { o.w = w; o.fn(); }
       });
     }, 120);
   });
+  /* Ayudas de marcado que comparten los interactivos. Todo texto que entra en el HTML se escapa. */
+  /* aria-pressed en los botones que llevan attr: true solo en el que vale valor */
+  U.marcar = function (el, attr, valor) {
+    el.querySelectorAll("[" + attr + "]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute(attr) === String(valor))); });
+  };
+  /* grupo de chips; items son pares [valor, rótulo] */
+  U.chips = function (items, attr, actual, titulo) {
+    return '<div class="chips" role="group" aria-label="' + U.esc(titulo) + '">' + items.map(function (x) {
+      return '<button type="button" class="chip" ' + attr + '="' + U.esc(x[0]) + '" aria-pressed="' + (String(x[0]) === String(actual)) + '">' + U.esc(x[1]) + '</button>';
+    }).join("") + '</div>';
+  };
+  /* tarjetas de datos; items son [rótulo, valor, nota]. Un cuarto elemento "t" marca un valor de texto,
+     que no usa la tipografía de cifras. Los textos ya traen su marcado y no se escapan. */
+  U.tarjetas = function (items) {
+    return items.map(function (x) { return '<div><span>' + x[0] + '</span><b' + (x[3] === "t" ? '' : ' class="num"') + '>' + x[1] + '</b><small>' + (x[2] || "") + '</small></div>'; }).join("");
+  };
   /* animación simple de 0 a 1 */
   U.animar = function (ms, cada, fin) {
     if (U.quieto()) { cada(1); if (fin) fin(); return function () {}; }
@@ -153,21 +178,15 @@
       new IntersectionObserver(function (es) { enVista = es[es.length - 1].isIntersecting; arrancar(); }, { threshold: 0.05 }).observe(el);
     }
     document.addEventListener("visibilitychange", function () { pestana = !document.hidden; arrancar(); });
+    /* si se pide movimiento reducido con el bucle en marcha, se pausa solo. Volver a arrancarlo queda a cargo de quien lo usa. */
+    U.alCambiarMovimiento(function (reducido) { if (reducido) { activo = false; if (id) { cancelAnimationFrame(id); id = 0; } } });
     return {
       play: function () { activo = true; arrancar(); },
       pausa: function () { activo = false; if (id) { cancelAnimationFrame(id); id = 0; } },
       get activo() { return activo; }
     };
   }
-  /* preferencia de movimiento reducido, con aviso cuando cambia */
-  function alCambiarMovimiento(fn) {
-    if (!window.matchMedia) return;
-    var mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    var f = function () { fn(mq.matches); };
-    if (mq.addEventListener) mq.addEventListener("change", f); else if (mq.addListener) mq.addListener(f);
-  }
   U.css = css; U.rgba = rgba; U.paleta = paleta; U.lienzo = lienzo; U.alTema = alTema; U.limitar = limitar; U.bucle = bucle;
-  U.alCambiarMovimiento = alCambiarMovimiento;
   /* El robot en una rejilla SVG: la planta en U centrada en su celda y mirando a la derecha. */
   U.robot.celda = function (cx, cy, T) {
     var g = U.robot.svg(cx, cy, 0, T * 1.15 / (2 * U.robot.medidas.r), "centro");

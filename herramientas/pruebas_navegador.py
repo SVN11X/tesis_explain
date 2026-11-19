@@ -562,6 +562,48 @@ def probar_encoder(nav):
     ctx.close()
 
 
+def probar_movimiento_reducido_en_marcha(nav):
+    print('Movimiento reducido que se activa con la animación en marcha')
+    ctx = contexto(nav, viewport={'width': 1280, 'height': 900})
+    ctx.add_init_script(RELOJ)
+    p = ctx.new_page()
+    # exploración: el bucle se pausa solo y el botón lo dice
+    p.goto(BASE + '/exploracion.html')
+    sel = '.articulo [data-vis="exploracion"]'
+    p.evaluate("s => document.querySelector(s).scrollIntoView({block: 'center'})", sel)
+    p.wait_for_function("s => document.querySelector(s) && document.querySelector(s).getAttribute('data-montado')", arg=sel, polling=100)
+    est = lambda: p.evaluate("s => document.querySelector(s).estadoSim()", sel)
+    if not est()['activo']:
+        p.click(sel + ' [data-a="play"]')
+    p.evaluate("window.__cuadros(60, 1)")
+    ok(est()['activo'], 'la exploración corre antes del cambio')
+    p.emulate_media(reduced_motion='reduce')
+    p.wait_for_function("s => !document.querySelector(s).estadoSim().activo", arg=sel, polling=20, timeout=3000)
+    t = est()['t']; p.evaluate("window.__cuadros(60, 1)")
+    ok(est()['t'] == t, 'la exploración se detiene con movimiento reducido')
+    ok(p.get_attribute(sel + ' [data-a="play"]', 'aria-pressed') == 'false' and p.text_content(sel + ' [data-a="play"]') != 'Pausar', 'el botón de la exploración deja de decir Pausar')
+    # enjambre y PID, en el capítulo de control
+    p.emulate_media(reduced_motion='no-preference')
+    sel = montar(p, 'control.html', 'enjambre')
+    gen = lambda: p.text_content(sel + ' [data-o="gen"]')
+    p.click(sel + ' [data-a="play"]')
+    p.evaluate("window.__cuadros(60, 1)")
+    g0 = gen()
+    ok(g0 != '0 de 30' and p.get_attribute(sel + ' [data-a="play"]', 'aria-pressed') == 'true', 'el enjambre avanza antes del cambio', g0)
+    p.emulate_media(reduced_motion='reduce')
+    p.wait_for_function("s => document.querySelector(s + ' [data-a=play]').getAttribute('aria-pressed') === 'false'", arg=sel, polling=20, timeout=3000)
+    g1 = gen(); p.evaluate("window.__cuadros(60, 2)")
+    ok(gen() == g1, 'el enjambre se detiene con movimiento reducido', (g1, gen()))
+    ok(p.text_content(sel + ' [data-a="play"]') == 'Seguir', 'el botón del enjambre ofrece seguir')
+    # el simulador PID no tiene bucle: sigue quieto y responde a sus controles
+    p.emulate_media(reduced_motion='no-preference')
+    sel = montar(p, 'control.html', 'pid')
+    a = p.evaluate("s => JSON.stringify(document.querySelector(s).estadoSim().actual)", sel)
+    p.emulate_media(reduced_motion='reduce'); p.evaluate("window.__cuadros(60, 1)")
+    ok(a == p.evaluate("s => JSON.stringify(document.querySelector(s).estadoSim().actual)", sel), 'el PID no cambia por sí solo al pedir movimiento reducido')
+    ctx.close()
+
+
 def probar_recursos(nav):
     print('Recursos')
     for nombre, vista in [('escritorio', {'width': 1280, 'height': 900}), ('móvil', {'width': 390, 'height': 844})]:
@@ -1282,6 +1324,7 @@ with sync_playwright() as pw:
     probar_dwb(nav)
     probar_exploracion(nav)
     probar_encoder(nav)
+    probar_movimiento_reducido_en_marcha(nav)
     probar_recursos(nav)
     probar_plegados(nav)
     probar_ampliar(nav)

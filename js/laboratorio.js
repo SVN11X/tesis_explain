@@ -240,7 +240,7 @@
     function referenciaInicial() { return PARAM.control ? PARAM.control.referencia_m_s : 0.13; }
     function resolucionInicial() { return PARAM.mapeo ? PARAM.mapeo.resolucion_reportada_m : 0.05; }
     $('referencia').value = referenciaInicial(); $('resolucion').value = resolucionInicial();
-    U.alCambiarAncho($('grafica'), function () { if (result) chart(result.grafica); });
+    U.alAncho($('grafica'), function () { if (result) chart(result.grafica); });
     if (!AM) { $('analizar-mapa').disabled = true; $('ejemplo-mapa').disabled = true; }
     controls.hidden = false; status('Listo. Elige una tabla de la guía, abre tu archivo CSV o un mapa PGM.');
   }

@@ -4,19 +4,9 @@
   var V = window.VISUALES, U = window.U, C = window.CONTROL;
   function f(v, d) { return U.fmt(v, d == null ? 2 : d); }
   function signo(v, d) { return (v > 0 ? "+" : "") + f(v, d); }
-  function botones(items, atributo, actual, titulo) {
-    return '<div class="chips" role="group" aria-label="' + titulo + '">' + items.map(function (x) {
-      return '<button type="button" class="chip" ' + atributo + '="' + x[0] + '" aria-pressed="' + (x[0] === actual) + '">' + x[1] + '</button>';
-    }).join("") + '</div>';
-  }
-  function marcar(el, attr, valor) {
-    el.querySelectorAll('[' + attr + ']').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute(attr) === String(valor))); });
-  }
-  function ruedaBotones() { return botones([["der", "Rueda derecha"], ["izq", "Rueda izquierda"]], "data-rueda", "der", "Rueda del ejemplo"); }
+  function ruedaBotones() { return U.chips([["der", "Rueda derecha"], ["izq", "Rueda izquierda"]], "data-rueda", "der", "Rueda del ejemplo"); }
   function pasoBotones() { return '<div class="vctl"><button type="button" class="vbtn sec" data-a="atras">Ciclo anterior</button><button type="button" class="vbtn" data-a="paso">Siguiente ciclo</button><button type="button" class="vbtn sec" data-a="reiniciar">Reiniciar</button></div>'; }
-  function tarjetas(items) {
-    return '<div class="control-datos">' + items.map(function (x) { return '<div><span>' + x[0] + '</span><b class="num">' + x[1] + '</b><small>' + (x[2] || '') + '</small></div>'; }).join("") + '</div>';
-  }
+  function tarjetas(items) { return '<div class="control-datos">' + U.tarjetas(items) + '</div>'; }
   /* SVG con ejes comunes, etiquetas de unidades y escala explícita. */
   var idGrafico = 0;
   function grafico(cont, o) {
@@ -46,7 +36,6 @@
     var rango = max - min;
     return [min, 0, max].filter(function (v, i) { return i === 1 || Math.abs(v) > rango * .18; });
   }
-  function alAncho(cont, pintar) { pintar(); U.alCambiarAncho(cont, pintar); }
 
   V.estacionario = function (el) {
     el.innerHTML = '<label class="desl-linea" for="ee-v">Velocidad que queda al estabilizarse <b class="num" data-v></b><input id="ee-v" type="range" min="0.100" max="0.150" step="0.001" value="0.128"></label><div class="ee-barras"></div><div class="ee-res" aria-live="polite"></div><p class="vnota">0,128 m/s es el promedio estacionario de la rueda izquierda en la tesis. Los otros valores que elijas son ejemplos. El error estacionario se evalúa después del arranque, cuando la respuesta ya se estabilizó.</p>';
@@ -61,7 +50,7 @@
 
   V.tiempo = function (el) {
     var hz = 30, k = 1;
-    el.innerHTML = botones([[10, "10 Hz"], [30, "30 Hz · robot"], [60, "60 Hz"]], "data-hz", hz, "Frecuencia de cálculo") + '<div class="ti-datos"></div><div class="control-graf ti-graf"></div><div class="vley"><span><i class="lin rojo"></i>continua, valor en cualquier instante</span><span><i class="lin azul"></i>discreta, cálculo y mantenimiento entre muestras</span></div>' + pasoBotones() + '<p class="vestado" aria-live="polite"></p><p class="vnota">Representación de una misma señal PWM de ejemplo. Entre dos cálculos, el Arduino mantiene la última orden y el motor sigue moviéndose. La frecuencia de cálculo del control es distinta de la frecuencia de conmutación del PWM.</p>';
+    el.innerHTML = U.chips([[10, "10 Hz"], [30, "30 Hz · robot"], [60, "60 Hz"]], "data-hz", hz, "Frecuencia de cálculo") + '<div class="ti-datos"></div><div class="control-graf ti-graf"></div><div class="vley"><span><i class="lin rojo"></i>continua, valor en cualquier instante</span><span><i class="lin azul"></i>discreta, cálculo y mantenimiento entre muestras</span></div>' + pasoBotones() + '<p class="vestado" aria-live="polite"></p><p class="vnota">Representación de una misma señal PWM de ejemplo. Entre dos cálculos, el Arduino mantiene la última orden y el motor sigue moviéndose. La frecuencia de cálculo del control es distinta de la frecuencia de conmutación del PWM.</p>';
     var cont = el.querySelector('.ti-graf');
     function valor(t) { return 80 + 70 * (1 - Math.exp(-t / 60)); }
     function pintar() {
@@ -74,13 +63,13 @@
       el.querySelector('.vestado').textContent = (k === 1 ? 'Ha pasado 1 intervalo: ' : 'Han pasado ' + k + ' intervalos: ') + f(k * ts, hz === 60 ? 1 : 0) + ' ms desde el inicio. Se lee la medición, se calcula la corrección y se actualiza el PWM. Eso es un ciclo de control.';
       el.querySelector('[data-a=atras]').disabled = k === 0; el.querySelector('[data-a=paso]').disabled = k === 4;
     }
-    el.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; if (b.hasAttribute('data-hz')) { hz = +b.getAttribute('data-hz'); k = 1; marcar(el, 'data-hz', hz); } else if (b.dataset.a === 'paso') k = Math.min(4, k + 1); else if (b.dataset.a === 'atras') k = Math.max(0, k - 1); else if (b.dataset.a === 'reiniciar') k = 0; pintar(); });
-    alAncho(cont, pintar);
+    el.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; if (b.hasAttribute('data-hz')) { hz = +b.getAttribute('data-hz'); k = 1; U.marcar(el, 'data-hz', hz); } else if (b.dataset.a === 'paso') k = Math.min(4, k + 1); else if (b.dataset.a === 'atras') k = Math.max(0, k - 1); else if (b.dataset.a === 'reiniciar') k = 0; pintar(); });
+    pintar(); U.alAncho(cont, pintar);
   };
 
   V.leyes = function (el) {
     var caso = 'referencia';
-    el.innerHTML = botones([["referencia", "Cambia solo la referencia"], ["medicion", "Cambia solo la medición"]], "data-caso", caso, "Qué cambia entre ciclos") + '<div class="ley-entrada"></div><div class="ley-comparar"></div><p class="vnota">Se aísla un PI tradicional (D=0) con coeficientes equivalentes: P=Kd/Ko, I por ciclo=Kp/Ko, en ticks/ciclo. En esta comparación algebraica Ki del firmware=0, sin enteros ni saturación. No son dos ensayos reales.</p>';
+    el.innerHTML = U.chips([["referencia", "Cambia solo la referencia"], ["medicion", "Cambia solo la medición"]], "data-caso", caso, "Qué cambia entre ciclos") + '<div class="ley-entrada"></div><div class="ley-comparar"></div><p class="vnota">Se aísla un PI tradicional (D=0) con coeficientes equivalentes: P=Kd/Ko, I por ciclo=Kp/Ko, en ticks/ciclo. En esta comparación algebraica Ki del firmware=0, sin enteros ni saturación. No son dos ensayos reales.</p>';
     function pintar() {
       var g = C.RUEDAS.der, r0 = caso === 'referencia' ? .10 : .13, r1 = .13, m0 = .10, m1 = caso === 'medicion' ? .11 : .10;
       var dr = (r1 - r0) * C.FACTOR, dm = (m1 - m0) * C.FACTOR, err = (r1 - m1) * C.FACTOR;
@@ -88,7 +77,7 @@
       el.querySelector('.ley-entrada').innerHTML = tarjetas([["Referencia anterior → nueva", f(r0, 2) + ' → ' + f(r1, 2) + ' m/s'], ["Medición anterior → nueva", f(m0, 2) + ' → ' + f(m1, 2) + ' m/s']]);
       el.querySelector('.ley-comparar').innerHTML = '<div class="control-par"><article><h4>PI tradicional · P sobre el error</h4><p>El cambio de P mira <b>Δreferencia − Δmedición</b>.</p><b class="num">' + signo(pNormal) + ' PWM</b><p>Corrección integral: ' + signo(i) + ' PWM.<br>Cambio total: <b>' + signo(pNormal + i) + ' PWM</b>.</p></article><article><h4>Firmware · P sobre la medición</h4><p>El cambio de P mira <b>−Δmedición</b>.</p><b class="num">' + signo(pUsado) + ' PWM</b><p>Corrección integral: ' + signo(i) + ' PWM.<br>Cambio total: <b>' + signo(pUsado + i) + ' PWM</b>.</p></article></div><p class="control-conclusion" aria-live="polite">' + (caso === 'referencia' ? 'La referencia cambia, pero la rueda todavía no: el firmware no añade el salto proporcional de la referencia. Sí comienza a corregir el error mediante su acción integral efectiva.' : 'Con referencia fija, ambos términos proporcionales reaccionan igual al cambio de la medición. Esto no introduce una acción derivativa efectiva en el firmware.') + '</p>';
     }
-    el.addEventListener('click', function (e) { var b = e.target.closest('[data-caso]'); if (!b) return; caso = b.dataset.caso; marcar(el, 'data-caso', caso); pintar(); }); pintar();
+    el.addEventListener('click', function (e) { var b = e.target.closest('[data-caso]'); if (!b) return; caso = b.dataset.caso; U.marcar(el, 'data-caso', caso); pintar(); }); pintar();
   };
 
   V.papeles = function (el) {
@@ -98,7 +87,7 @@
       Kd: ['Proporcional a la medición', 'Δu = −(Kd/Ko) × cambio de medición', 'Solo hay corrección si cambia la medición. Al sumar los cambios, la contribución total depende de la medición actual menos la inicial. Si deja de cambiar, esta contribución deja de crecer.'],
       Ki: ['Una segunda acumulación', 'ITerm nuevo = ITerm anterior + Ki × error; Δu = ITerm anterior/Ko', 'Primero se guarda error en ITerm. En el siguiente ciclo se añade ese ITerm a la salida. Con error constante, los incrementos van creciendo: la salida se curva, en vez de subir a ritmo constante.']
     };
-    el.innerHTML = botones([["Kp", "Kp · suma el error"], ["Kd", "Kd · resta cambios"], ["Ki", "Ki · acumula dos veces"]], 'data-termino', termino, 'Aislar una ganancia') + ruedaBotones() + botones([["constante", "Error constante de 4 ticks/ciclo"], ["arranque", "La medición alcanza la referencia"]], 'data-escenario', escenario, 'Secuencia de ejemplo') + '<div class="pa-formula"></div><div class="control-graf pa-graf"></div><div class="vley"><span><i class="lin ambar"></i>lo añadido en un solo ciclo · ΔPWM</span><span><i class="lin azul"></i>lo acumulado en la salida · PWM</span></div>' + pasoBotones() + '<div class="pa-datos" aria-live="polite"></div><p class="pa-exp control-conclusion"></p><p class="vnota">Se usan las ganancias finales de la rueda elegida, aislando un término cada vez. Para entender su forma, se conservan decimales y se omiten banda y tope. Cada gráfico ajusta su escala: compara la forma, no la altura entre términos. El interactivo de truncamiento muestra lo que se pierde en el firmware real.</p>';
+    el.innerHTML = U.chips([["Kp", "Kp · suma el error"], ["Kd", "Kd · resta cambios"], ["Ki", "Ki · acumula dos veces"]], 'data-termino', termino, 'Aislar una ganancia') + ruedaBotones() + U.chips([["constante", "Error constante de 4 ticks/ciclo"], ["arranque", "La medición alcanza la referencia"]], 'data-escenario', escenario, 'Secuencia de ejemplo') + '<div class="pa-formula"></div><div class="control-graf pa-graf"></div><div class="vley"><span><i class="lin ambar"></i>lo añadido en un solo ciclo · ΔPWM</span><span><i class="lin azul"></i>lo acumulado en la salida · PWM</span></div>' + pasoBotones() + '<div class="pa-datos" aria-live="polite"></div><p class="pa-exp control-conclusion"></p><p class="vnota">Se usan las ganancias finales de la rueda elegida, aislando un término cada vez. Para entender su forma, se conservan decimales y se omiten banda y tope. Cada gráfico ajusta su escala: compara la forma, no la altura entre términos. El interactivo de truncamiento muestra lo que se pierde en el firmware real.</p>';
     var reset = document.createElement('button'); reset.type = 'button'; reset.className = 'vbtn sec'; reset.dataset.a = 'restablecer'; reset.textContent = 'Restablecer ejemplo'; el.querySelector('.vctl').appendChild(reset);
     var cont = el.querySelector('.pa-graf');
     function pintar() {
@@ -113,18 +102,18 @@
     }
     el.addEventListener('click', function (e) {
       var b = e.target.closest('button'); if (!b) return;
-      if (b.dataset.termino) { termino = b.dataset.termino; marcar(el, 'data-termino', termino); escenario = termino === 'Kd' ? 'arranque' : 'constante'; marcar(el, 'data-escenario', escenario); k = 3; }
-      else if (b.dataset.rueda) { rueda = b.dataset.rueda; marcar(el, 'data-rueda', rueda); }
-      else if (b.dataset.escenario) { escenario = b.dataset.escenario; marcar(el, 'data-escenario', escenario); k = 1; }
-      else if (b.dataset.a === 'restablecer') { termino = 'Kp'; rueda = 'der'; escenario = 'constante'; k = 3; marcar(el, 'data-termino', termino); marcar(el, 'data-rueda', rueda); marcar(el, 'data-escenario', escenario); }
+      if (b.dataset.termino) { termino = b.dataset.termino; U.marcar(el, 'data-termino', termino); escenario = termino === 'Kd' ? 'arranque' : 'constante'; U.marcar(el, 'data-escenario', escenario); k = 3; }
+      else if (b.dataset.rueda) { rueda = b.dataset.rueda; U.marcar(el, 'data-rueda', rueda); }
+      else if (b.dataset.escenario) { escenario = b.dataset.escenario; U.marcar(el, 'data-escenario', escenario); k = 1; }
+      else if (b.dataset.a === 'restablecer') { termino = 'Kp'; rueda = 'der'; escenario = 'constante'; k = 3; U.marcar(el, 'data-termino', termino); U.marcar(el, 'data-rueda', rueda); U.marcar(el, 'data-escenario', escenario); }
       else if (b.dataset.a === 'paso') k = Math.min(7, k + 1); else if (b.dataset.a === 'atras') k = Math.max(1, k - 1); else if (b.dataset.a === 'reiniciar') k = 1;
       pintar();
-    }); alAncho(cont, pintar);
+    }); pintar(); U.alAncho(cont, pintar);
   };
 
   V.cancelacion = function (el) {
     var base = 30, n = 3;
-    el.innerHTML = botones([[30, "Medición inicial: 30 ticks/ciclo"], [0, "Medición inicial: 0 ticks/ciclo"]], 'data-base', base, 'Medición al inicio') + pasoBotones() + '<ol class="kd-secuencia" aria-label="Mediciones por ciclo"></ol><p class="vnota">Se resta cada medición anterior de la nueva. Los valores interiores tachados se cancelan al sumar y los extremos permanecen.</p><div class="kd-cancelacion" aria-label="Suma de diferencias"></div><div class="kd-datos" aria-live="polite"></div><p class="control-conclusion">(m[1] − m[0]) + (m[2] − m[1]) + … + (m[k] − m[k−1]) = m[k] − m[0]. Por eso la contribución de Kd es proporcional al cambio total de medición respecto del inicio. Solo coincide con la medición actual cuando la inicial es cero.</p><p class="vnota">Ejemplo algebraico con Kd=20,05 y Ko=50 (rueda derecha), sin truncamiento ni saturación. La contribución entra con signo menos: cuando aumenta la medición, reduce el PWM.</p>';
+    el.innerHTML = U.chips([[30, "Medición inicial: 30 ticks/ciclo"], [0, "Medición inicial: 0 ticks/ciclo"]], 'data-base', base, 'Medición al inicio') + pasoBotones() + '<ol class="kd-secuencia" aria-label="Mediciones por ciclo"></ol><p class="vnota">Se resta cada medición anterior de la nueva. Los valores interiores tachados se cancelan al sumar y los extremos permanecen.</p><div class="kd-cancelacion" aria-label="Suma de diferencias"></div><div class="kd-datos" aria-live="polite"></div><p class="control-conclusion">(m[1] − m[0]) + (m[2] − m[1]) + … + (m[k] − m[k−1]) = m[k] − m[0]. Por eso la contribución de Kd es proporcional al cambio total de medición respecto del inicio. Solo coincide con la medición actual cuando la inicial es cero.</p><p class="vnota">Ejemplo algebraico con Kd=20,05 y Ko=50 (rueda derecha), sin truncamiento ni saturación. La contribución entra con signo menos: cuando aumenta la medición, reduce el PWM.</p>';
     function pintar() {
       var med = [0, 4, 8, 10, 10, 9].map(function (v) { return v + base; }), r = C.telescopio(med, n, C.RUEDAS.der.Kd / 50);
       el.querySelector('.kd-secuencia').innerHTML = med.map(function (v, i) { return '<li class="' + (i === n ? 'actual' : '') + '"><small>' + (i === 0 ? 'Inicial m[0]' : 'm[' + i + ']') + '</small><b>' + v + '</b><small>ticks/ciclo</small></li>'; }).join('');
@@ -135,7 +124,7 @@
       el.querySelector('.kd-datos').innerHTML = tarjetas([["Suma de los cambios", r.cambios.map(function (v) { return signo(v, 0); }).join(' ') + ' = ' + r.suma, 'ticks/ciclo'], ["Solo quedan los extremos", med[n] + ' − ' + base + ' = ' + r.diferencia, 'ticks/ciclo · igual a la suma'], ["Contribución a la salida", f(-20.05 / 50, 3) + ' × ' + r.suma + ' = ' + f(r.pwm, 3) + ' PWM', 'Se resta al PWM de partida.']]);
       el.querySelector('[data-a=atras]').disabled = n === 1; el.querySelector('[data-a=paso]').disabled = n === 5;
     }
-    el.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; if (b.hasAttribute('data-base')) { base = +b.dataset.base; marcar(el, 'data-base', base); } else if (b.dataset.a === 'paso') n = Math.min(5, n + 1); else if (b.dataset.a === 'atras') n = Math.max(1, n - 1); else if (b.dataset.a === 'reiniciar') n = 1; pintar(); }); pintar();
+    el.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; if (b.hasAttribute('data-base')) { base = +b.dataset.base; U.marcar(el, 'data-base', base); } else if (b.dataset.a === 'paso') n = Math.min(5, n + 1); else if (b.dataset.a === 'atras') n = Math.max(1, n - 1); else if (b.dataset.a === 'reiniciar') n = 1; pintar(); }); pintar();
   };
 
   V.ciclo = function (el) {
@@ -146,7 +135,7 @@
       { id: 'giro', t: 'Giro a 0,35 rad/s', ref: 10.32, med: 9, ant: 10, salida: 37 }
     ];
     var rueda = 'der', preset = 'arranque', st = { ref: 40.76, med: 0, ant: 0, salida: 0, integral: 0 };
-    el.innerHTML = ruedaBotones() + botones(presets.map(function (p) { return [p.id, p.t]; }), 'data-preset', preset, 'Situación del ciclo') + '<div class="deslizadores"><label for="cy-act">Medición de este ciclo · ticks/ciclo<b class="num" data-v="med"></b><input id="cy-act" type="range" min="0" max="70" step="1" data-k="med"></label><label for="cy-ant">Medición anterior · ticks/ciclo<b class="num" data-v="ant"></b><input id="cy-ant" type="range" min="0" max="70" step="1" data-k="ant"></label><label for="cy-sal">Salida anterior · PWM<b class="num" data-v="salida"></b><input id="cy-sal" type="range" min="-255" max="255" step="1" data-k="salida"></label><label for="cy-i">ITerm anterior · unidades internas<b class="num" data-v="integral"></b><input id="cy-i" type="range" min="0" max="100" step="1" data-k="integral"></label></div><p class="cy-nota vnota"></p><ol class="cy-pasos"></ol><div class="cy-res" aria-live="polite"></div><p class="vnota">Una unidad interna (u.int.) es la escala del numerador, antes de dividir por Ko=50. Así, 50 u.int. corresponden a 1 PWM. Kp, Kd y Ki convierten ticks/ciclo a esta escala; no son ganancias de velocidad en m/s. ITerm se usa antes de actualizarlo.</p>';
+    el.innerHTML = ruedaBotones() + U.chips(presets.map(function (p) { return [p.id, p.t]; }), 'data-preset', preset, 'Situación del ciclo') + '<div class="deslizadores"><label for="cy-act">Medición de este ciclo · ticks/ciclo<b class="num" data-v="med"></b><input id="cy-act" type="range" min="0" max="70" step="1" data-k="med"></label><label for="cy-ant">Medición anterior · ticks/ciclo<b class="num" data-v="ant"></b><input id="cy-ant" type="range" min="0" max="70" step="1" data-k="ant"></label><label for="cy-sal">Salida anterior · PWM<b class="num" data-v="salida"></b><input id="cy-sal" type="range" min="-255" max="255" step="1" data-k="salida"></label><label for="cy-i">ITerm anterior · unidades internas<b class="num" data-v="integral"></b><input id="cy-i" type="range" min="0" max="100" step="1" data-k="integral"></label></div><p class="cy-nota vnota"></p><ol class="cy-pasos"></ol><div class="cy-res" aria-live="polite"></div><p class="vnota">Una unidad interna (u.int.) es la escala del numerador, antes de dividir por Ko=50. Así, 50 u.int. corresponden a 1 PWM. Kp, Kd y Ki convierten ticks/ciclo a esta escala; no son ganancias de velocidad en m/s. ITerm se usa antes de actualizarlo.</p>';
     function corte(valor, unidad, dec) { return Math.abs(valor) < 1e-9 ? '<span class="sin-corte">sin pérdida</span>' : '<span class="corte">se pierden ' + f(Math.abs(valor), dec == null ? 3 : dec) + ' ' + unidad + '</span>'; }
     function fila(t, txt, aviso) { return '<li><span class="cy-t">' + t + '</span><span class="cy-c">' + txt + '</span>' + (aviso || '') + '</li>'; }
     function pintar() {
@@ -165,13 +154,13 @@
       el.querySelectorAll('[data-v]').forEach(function (b) { var key = b.dataset.v; b.textContent = st[key] + (key === 'med' || key === 'ant' ? ' ticks/ciclo' : key === 'salida' ? ' PWM' : ' u.int.'); });
       el.querySelectorAll('input[data-k]').forEach(function (i) { i.value = st[i.dataset.k]; });
     }
-    el.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; if (b.dataset.rueda) { rueda = b.dataset.rueda; marcar(el, 'data-rueda', rueda); } else if (b.dataset.preset) { var p = presets.filter(function (a) { return a.id === b.dataset.preset; })[0]; preset = p.id; st = { ref: p.ref, med: p.med, ant: p.ant, salida: p.salida, integral: 0 }; marcar(el, 'data-preset', preset); } pintar(); });
-    el.addEventListener('input', function (e) { if (!e.target.dataset.k) return; st[e.target.dataset.k] = +e.target.value; marcar(el, 'data-preset', ''); pintar(); }); pintar();
+    el.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; if (b.dataset.rueda) { rueda = b.dataset.rueda; U.marcar(el, 'data-rueda', rueda); } else if (b.dataset.preset) { var p = presets.filter(function (a) { return a.id === b.dataset.preset; })[0]; preset = p.id; st = { ref: p.ref, med: p.med, ant: p.ant, salida: p.salida, integral: 0 }; U.marcar(el, 'data-preset', preset); } pintar(); });
+    el.addEventListener('input', function (e) { if (!e.target.dataset.k) return; st[e.target.dataset.k] = +e.target.value; U.marcar(el, 'data-preset', ''); pintar(); }); pintar();
   };
 
   V.truncamiento = function (el) {
     var error = 3, ciclos = 10;
-    el.innerHTML = botones([[3, 'Error de 3 ticks/ciclo'], [5, 'Error de 5 ticks/ciclo']], 'data-error', error, 'Ejemplos de truncamiento') + '<div class="deslizadores"><label for="tr-e">Error constante · ticks/ciclo<b class="num" data-v="error"></b><input id="tr-e" type="range" min="0" max="10" step="1" value="3"></label><label for="tr-n">Número de ciclos<b class="num" data-v="ciclos"></b><input id="tr-n" type="range" min="1" max="30" step="1" value="10"></label></div><div class="tr-datos" aria-live="polite"></div><div class="control-graf tr-graf"></div><div class="vley"><span><i class="lin azul"></i>conservando decimales</span><span><i class="lin rojo"></i>cortando cada incremento hacia cero</span></div><p class="vnota">Solo Kp de la rueda derecha, Kp/Ko=16,42/50; medición constante, Kd y Ki sin aporte. Se parte de 0 PWM para comparar la suma, sin simular el movimiento. Un ciclo dura 33 ms: 10 ciclos son 330 ms. La memoria entera no guarda la fracción descartada para otro ciclo.</p>';
+    el.innerHTML = U.chips([[3, 'Error de 3 ticks/ciclo'], [5, 'Error de 5 ticks/ciclo']], 'data-error', error, 'Ejemplos de truncamiento') + '<div class="deslizadores"><label for="tr-e">Error constante · ticks/ciclo<b class="num" data-v="error"></b><input id="tr-e" type="range" min="0" max="10" step="1" value="3"></label><label for="tr-n">Número de ciclos<b class="num" data-v="ciclos"></b><input id="tr-n" type="range" min="1" max="30" step="1" value="10"></label></div><div class="tr-datos" aria-live="polite"></div><div class="control-graf tr-graf"></div><div class="vley"><span><i class="lin azul"></i>conservando decimales</span><span><i class="lin rojo"></i>cortando cada incremento hacia cero</span></div><p class="vnota">Solo Kp de la rueda derecha, Kp/Ko=16,42/50; medición constante, Kd y Ki sin aporte. Se parte de 0 PWM para comparar la suma, sin simular el movimiento. Un ciclo dura 33 ms: 10 ciclos son 330 ms. La memoria entera no guarda la fracción descartada para otro ciclo.</p>';
     var cont = el.querySelector('.tr-graf');
     function pintar() {
       var delta = 16.42 / 50 * error, entero = Math.trunc(delta), a = [], b = [], max = Math.max(1, Math.ceil(delta * ciclos * 1.1));
@@ -181,8 +170,8 @@
       el.querySelector('[data-v=error]').textContent = error + ' ticks/ciclo'; el.querySelector('[data-v=ciclos]').textContent = ciclos + ' ciclos · ' + ciclos * 33 + ' ms';
       el.querySelector('#tr-e').value = error;
     }
-    el.addEventListener('input', function (e) { if (e.target.id === 'tr-e') { error = +e.target.value; marcar(el, 'data-error', error); } else if (e.target.id === 'tr-n') ciclos = +e.target.value; pintar(); });
-    el.addEventListener('click', function (e) { var b = e.target.closest('[data-error]'); if (!b) return; error = +b.dataset.error; marcar(el, 'data-error', error); pintar(); }); alAncho(cont, pintar);
+    el.addEventListener('input', function (e) { if (e.target.id === 'tr-e') { error = +e.target.value; U.marcar(el, 'data-error', error); } else if (e.target.id === 'tr-n') ciclos = +e.target.value; pintar(); });
+    el.addEventListener('click', function (e) { var b = e.target.closest('[data-error]'); if (!b) return; error = +b.dataset.error; U.marcar(el, 'data-error', error); pintar(); }); pintar(); U.alAncho(cont, pintar);
   };
 
   V.acumulador = function (el) {
@@ -199,12 +188,12 @@
       el.querySelector('[data-v]').textContent = n + ' ciclos · ' + n * 33 + ' ms';
       el.querySelector('.aw-par').innerHTML = '<div class="control-par"><article><h4>PID tradicional · sin antiwindup</h4><p>La memoria integral sigue sumando el error aunque el PWM aplicado no pueda subir más.</p>' + tarjetas([["Pedido interno", f(a.pedido, 1) + ' PWM'], ["Aplicado al motor", f(a.aplicado, 0) + ' PWM'], ["Memoria integral", f(a.integral, 1) + ' PWM', 'Habrá que descargar esta acumulación al liberar la rueda.']]) + '</article><article><h4>Firmware · con sus topes</h4><p>La salida guardada nunca supera ±255. ITerm deja de actualizarse cuando se toca el tope.</p>' + tarjetas([["Candidato antes del tope", b.pedido + ' PWM'], ["Aplicado y guardado", b.aplicado + ' PWM'], ["ITerm guardado", b.integral + ' u.int.', b.saturado ? 'Congelado: el exceso de la salida se descarta.' : 'Todavía no se alcanza el tope.']]) + '</article></div>';
     }
-    el.addEventListener('input', function (e) { n = +e.target.value; pintar(); }); el.addEventListener('click', function (e) { var b = e.target.closest('[data-rueda]'); if (!b) return; rueda = b.dataset.rueda; marcar(el, 'data-rueda', rueda); pintar(); }); alAncho(cont, pintar);
+    el.addEventListener('input', function (e) { n = +e.target.value; pintar(); }); el.addEventListener('click', function (e) { var b = e.target.closest('[data-rueda]'); if (!b) return; rueda = b.dataset.rueda; U.marcar(el, 'data-rueda', rueda); pintar(); }); pintar(); U.alAncho(cont, pintar);
   };
 
   V.windup = function (el) {
     var duracion = 3, rueda = 'der', proteger = false, instante = 3, datos;
-    el.innerHTML = ruedaBotones() + '<div class="deslizadores"><label for="wu-l">Duración del bloqueo<b class="num" data-v="duracion"></b><input id="wu-l" type="range" min="1" max="4" step="1" value="3"></label><label for="wu-t">Instante que quieres inspeccionar<b class="num" data-v="instante"></b><input id="wu-t" type="range" min="0" max="12" step="0.033" value="3"></label></div><div class="casillas"><label><input type="checkbox" id="wu-aw">Agregar antiwindup al PID tradicional</label></div>' + botones([['antes', 'Antes del bloqueo'], ['bloqueo', 'Durante el bloqueo'], ['liberar', 'Al liberar'], ['final', 'Al final']], 'data-fase', 'bloqueo', 'Inspeccionar un momento') + '<div class="wu-estado control-conclusion" aria-live="polite"></div><div class="wu-g control-graf"></div><div class="vley"><span><i class="lin rojo"></i>PID tradicional · D=0</span><span><i class="lin azul"></i>firmware de este capítulo</span><span><i class="cu gris"></i>intervalo de bloqueo</span><span><i class="lin-disc"></i>referencia o tope, según el panel</span></div><div class="wu-datos"></div><div class="wu-res"></div><p class="vnota">Simulación ilustrativa: modelos FOPDT y ganancias finales de la tabla de esta página, a 33 ms, referencia 0,13 m/s (comando k), PWM entre −255 y 255. Encoder aproximado al tick más cercano. El bloqueo y la liberación se imponen al modelo. El PID tradicional se deja en PI (D=0) con P e I efectivos equivalentes para aislar el windup. El firmware conserva Ki, enteros y bandas. Por eso las curvas no son iguales ni se prometen los resultados del ensayo real. Activar antiwindup muestra que un PID tradicional también puede protegerse.</p>';
+    el.innerHTML = ruedaBotones() + '<div class="deslizadores"><label for="wu-l">Duración del bloqueo<b class="num" data-v="duracion"></b><input id="wu-l" type="range" min="1" max="4" step="1" value="3"></label><label for="wu-t">Instante que quieres inspeccionar<b class="num" data-v="instante"></b><input id="wu-t" type="range" min="0" max="12" step="0.033" value="3"></label></div><div class="casillas"><label><input type="checkbox" id="wu-aw">Agregar antiwindup al PID tradicional</label></div>' + U.chips([['antes', 'Antes del bloqueo'], ['bloqueo', 'Durante el bloqueo'], ['liberar', 'Al liberar'], ['final', 'Al final']], 'data-fase', 'bloqueo', 'Inspeccionar un momento') + '<div class="wu-estado control-conclusion" aria-live="polite"></div><div class="wu-g control-graf"></div><div class="vley"><span><i class="lin rojo"></i>PID tradicional · D=0</span><span><i class="lin azul"></i>firmware de este capítulo</span><span><i class="cu gris"></i>intervalo de bloqueo</span><span><i class="lin-disc"></i>referencia o tope, según el panel</span></div><div class="wu-datos"></div><div class="wu-res"></div><p class="vnota">Simulación ilustrativa: modelos FOPDT y ganancias finales de la tabla de esta página, a 33 ms, referencia 0,13 m/s (comando k), PWM entre −255 y 255. Encoder aproximado al tick más cercano. El bloqueo y la liberación se imponen al modelo. El PID tradicional se deja en PI (D=0) con P e I efectivos equivalentes para aislar el windup. El firmware conserva Ki, enteros y bandas. Por eso las curvas no son iguales ni se prometen los resultados del ensayo real. Activar antiwindup muestra que un PID tradicional también puede protegerse.</p>';
     var cont = el.querySelector('.wu-g');
     function pintar() {
       datos = C.windup(rueda, duracion, proteger);
@@ -227,9 +216,9 @@
         '<p class="control-conclusion">El tiempo en el tope mide la memoria que hay que descargar: mientras el motor sigue en ±255, la rueda ya libre acelera por encima de la referencia. Limitar la memoria reduce el windup, pero no garantiza cero sobreimpulso.</p>';
       el.querySelector('[data-v=duracion]').textContent = duracion + ' s'; el.querySelector('[data-v=instante]').textContent = f(instante, 2) + ' s'; el.querySelector('#wu-t').value = instante;
     }
-    el.addEventListener('input', function (e) { if (e.target.id === 'wu-l') { duracion = +e.target.value; var fase = el.querySelector('[data-fase][aria-pressed=true]'); if (fase) instante = { antes: 1.2, bloqueo: 1.5 + duracion / 2, liberar: 1.5 + duracion + .3, final: 11.9 }[fase.dataset.fase]; } else if (e.target.id === 'wu-t') { instante = +e.target.value; marcar(el, 'data-fase', ''); } else return; pintar(); });
+    el.addEventListener('input', function (e) { if (e.target.id === 'wu-l') { duracion = +e.target.value; var fase = el.querySelector('[data-fase][aria-pressed=true]'); if (fase) instante = { antes: 1.2, bloqueo: 1.5 + duracion / 2, liberar: 1.5 + duracion + .3, final: 11.9 }[fase.dataset.fase]; } else if (e.target.id === 'wu-t') { instante = +e.target.value; U.marcar(el, 'data-fase', ''); } else return; pintar(); });
     el.querySelector('#wu-aw').addEventListener('change', function (e) { proteger = e.target.checked; pintar(); });
-    el.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; if (b.dataset.rueda) { rueda = b.dataset.rueda; marcar(el, 'data-rueda', rueda); } else if (b.dataset.fase) { instante = { antes: 1.2, bloqueo: 1.5 + duracion / 2, liberar: 1.5 + duracion + .3, final: 11.9 }[b.dataset.fase]; marcar(el, 'data-fase', b.dataset.fase); } pintar(); }); alAncho(cont, pintar);
+    el.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; if (b.dataset.rueda) { rueda = b.dataset.rueda; U.marcar(el, 'data-rueda', rueda); } else if (b.dataset.fase) { instante = { antes: 1.2, bloqueo: 1.5 + duracion / 2, liberar: 1.5 + duracion + .3, final: 11.9 }[b.dataset.fase]; U.marcar(el, 'data-fase', b.dataset.fase); } pintar(); }); pintar(); U.alAncho(cont, pintar);
   };
 
   V.zonas = function (el) {
@@ -244,7 +233,7 @@
       ['pwm', 'umbral', 'error'].forEach(function (key) { el.querySelector('[data-v=' + key + ']').textContent = { pwm: pwm, umbral: umbral, error: error }[key] + (key === 'error' ? ' ticks/ciclo' : ' PWM'); });
     }
     el.addEventListener('input', function (e) { if (e.target.id === 'zm-p') pwm = +e.target.value; else if (e.target.id === 'zm-u') umbral = +e.target.value; else if (e.target.id === 'zm-e') error = +e.target.value; pintar(); });
-    el.addEventListener('click', function (e) { var b = e.target.closest('[data-rueda]'); if (!b) return; rueda = b.dataset.rueda; marcar(el, 'data-rueda', rueda); pintar(); }); alAncho(cont, pintar);
+    el.addEventListener('click', function (e) { var b = e.target.closest('[data-rueda]'); if (!b) return; rueda = b.dataset.rueda; U.marcar(el, 'data-rueda', rueda); pintar(); }); pintar(); U.alAncho(cont, pintar);
   };
 
   V.pso = function (el) {
@@ -261,7 +250,7 @@
 
   V.resolucion = function (el) {
     var caso = 'recta', real = .132;
-    el.innerHTML = '<h4 class="vsub">1. ¿Cuántos ticks caben en un ciclo?</h4>' + botones([['recta', 'Recta · 0,13 m/s · ensayada'], ['giro', 'Giro · 0,35 rad/s · estimación']], 'data-caso', caso, 'Punto de operación') + '<div class="re-ticks"></div><div class="re-datos"></div><p class="vnota">Conversión usada: ticks/ciclo = velocidad de rueda × 313,56. En el giro sobre el eje, |v|=0,35 rad/s × 0,188 m / 2 ≈0,0329 m/s. Las ruedas llevan sentidos opuestos. Se muestran magnitudes para comparar la resolución; el control del giro no se validó con este ensayo.</p><h4 class="vsub">2. Contar ticks y publicar decimales son dos límites distintos</h4><div class="control-par"><article><h4>Encoder durante el ciclo</h4><b class="num">1 tick/ciclo ≈0,00319 m/s</b><p>Es el escalón de la velocidad estimada a partir del conteo. No es el paso del dato publicado.</p></article><article><h4>Dato de velocidad registrado</h4><b class="num">0,01 m/s por paso</b><p>Al escribir dos decimales, se pierde información adicional. El promedio posterior no recupera los valores descartados.</p></article></div><label class="desl-linea" for="re-v">Velocidad de ejemplo antes de escribir dos decimales<b class="num" data-v></b><input id="re-v" type="range" min="0.115" max="0.144" step="0.001" value="0.132"></label><div class="re-registro" aria-live="polite"></div><p class="vnota">Esta entrada es un ejemplo de redondeo del registro, no una captura real ni una simulación del conteo. Por ejemplo, 0,132 m/s se escribe como 0,13 m/s: un exceso de 0,002 m/s puede quedar oculto. Otros valores pequeños sí pueden cruzar al siguiente escalón.</p><h4 class="vsub">3. ¿Cómo puede un promedio dar 0,128 si se registran dos decimales?</h4><p>Estas diez muestras son un ejemplo que produce el mismo promedio informado para la izquierda; no reconstruyen la serie original.</p><ol class="re-muestras" aria-label="Diez muestras de ejemplo"></ol><p class="control-formula">(8 × 0,13 + 2 × 0,12) / 10 = <b>0,128 m/s</b><small>Un promedio entre dos escalones. No equivale a haber medido cada muestra con tres decimales.</small></p>';
+    el.innerHTML = '<h4 class="vsub">1. ¿Cuántos ticks caben en un ciclo?</h4>' + U.chips([['recta', 'Recta · 0,13 m/s · ensayada'], ['giro', 'Giro · 0,35 rad/s · estimación']], 'data-caso', caso, 'Punto de operación') + '<div class="re-ticks"></div><div class="re-datos"></div><p class="vnota">Conversión usada: ticks/ciclo = velocidad de rueda × 313,56. En el giro sobre el eje, |v|=0,35 rad/s × 0,188 m / 2 ≈0,0329 m/s. Las ruedas llevan sentidos opuestos. Se muestran magnitudes para comparar la resolución; el control del giro no se validó con este ensayo.</p><h4 class="vsub">2. Contar ticks y publicar decimales son dos límites distintos</h4><div class="control-par"><article><h4>Encoder durante el ciclo</h4><b class="num">1 tick/ciclo ≈0,00319 m/s</b><p>Es el escalón de la velocidad estimada a partir del conteo. No es el paso del dato publicado.</p></article><article><h4>Dato de velocidad registrado</h4><b class="num">0,01 m/s por paso</b><p>Al escribir dos decimales, se pierde información adicional. El promedio posterior no recupera los valores descartados.</p></article></div><label class="desl-linea" for="re-v">Velocidad de ejemplo antes de escribir dos decimales<b class="num" data-v></b><input id="re-v" type="range" min="0.115" max="0.144" step="0.001" value="0.132"></label><div class="re-registro" aria-live="polite"></div><p class="vnota">Esta entrada es un ejemplo de redondeo del registro, no una captura real ni una simulación del conteo. Por ejemplo, 0,132 m/s se escribe como 0,13 m/s: un exceso de 0,002 m/s puede quedar oculto. Otros valores pequeños sí pueden cruzar al siguiente escalón.</p><h4 class="vsub">3. ¿Cómo puede un promedio dar 0,128 si se registran dos decimales?</h4><p>Estas diez muestras son un ejemplo que produce el mismo promedio informado para la izquierda; no reconstruyen la serie original.</p><ol class="re-muestras" aria-label="Diez muestras de ejemplo"></ol><p class="control-formula">(8 × 0,13 + 2 × 0,12) / 10 = <b>0,128 m/s</b><small>Un promedio entre dos escalones. No equivale a haber medido cada muestra con tres decimales.</small></p>';
     function pintar() {
       var v = caso === 'recta' ? .13 : .35 * .188 / 2, ticks = v * C.FACTOR, enviado = Math.trunc(ticks), escrito = C.registro(real);
       el.querySelector('.re-ticks').innerHTML = '<div class="ticks-contados" role="img" aria-label="' + enviado + ' ticks enteros de referencia">' + Array.from({ length: 45 }, function (_, i) { return '<i class="' + (i < enviado ? 'lleno' : '') + '" aria-hidden="true"></i>'; }).join('') + '</div><p class="vnota">Cada casilla azul equivale a 1 tick/ciclo en la referencia entera del comando m. El total es <b>' + enviado + '</b>; la conversión antes de truncar da <b>' + f(ticks) + '</b>.</p>';
@@ -270,7 +259,7 @@
       el.querySelector('.re-registro').innerHTML = '<div class="registro-bins">' + [.12, .13, .14].map(function (b) { return '<div class="' + (Math.abs(b - escrito) < 1e-8 ? 'activo' : '') + '"><small>Desde ' + f(b - .005, 3) + ' hasta &lt;' + f(b + .005, 3) + '</small><b>se registra ' + f(b, 2) + ' m/s</b></div>'; }).join('') + '</div>' + tarjetas([["Antes de escribir", f(real, 3) + ' m/s'], ["Después · dos decimales", f(escrito, 2) + ' m/s', 'Diferencia descartada: ' + signo(real - escrito, 3) + ' m/s.']]);
       el.querySelector('.re-muestras').innerHTML = [.13, .12, .13, .13, .13, .13, .12, .13, .13, .13].map(function (v, i) { return '<li><small>' + (i + 1) + '</small><b>' + f(v, 2) + '</b></li>'; }).join('');
     }
-    el.addEventListener('click', function (e) { var b = e.target.closest('[data-caso]'); if (!b) return; caso = b.dataset.caso; marcar(el, 'data-caso', caso); pintar(); }); el.addEventListener('input', function (e) { real = +e.target.value; pintar(); }); pintar();
+    el.addEventListener('click', function (e) { var b = e.target.closest('[data-caso]'); if (!b) return; caso = b.dataset.caso; U.marcar(el, 'data-caso', caso); pintar(); }); el.addEventListener('input', function (e) { real = +e.target.value; pintar(); }); pintar();
   };
 
   /* El lazo de una rueda: bloques, señales con su unidad y las cuatro etapas de un ciclo.
@@ -327,14 +316,14 @@
       cont.innerHTML = s + '</svg>';
       el.querySelector('.lr-estado').textContent = p.txt;
     }
-    el.addEventListener('click', function (e) { var b = e.target.closest('[data-paso]'); if (!b) return; paso = +b.dataset.paso; marcar(el, 'data-paso', paso); pintar(); });
-    alAncho(cont, pintar);
+    el.addEventListener('click', function (e) { var b = e.target.closest('[data-paso]'); if (!b) return; paso = +b.dataset.paso; U.marcar(el, 'data-paso', paso); pintar(); });
+    pintar(); U.alAncho(cont, pintar);
   };
 
   /* Modelo FOPDT de cada rueda: dónde se leen la ganancia, la constante de tiempo y el retardo. */
   V.fopdt = function (el) {
     var rueda = 'izq', pwm = 143;
-    el.innerHTML = botones([["izq", "Anotar la rueda izquierda"], ["der", "Anotar la rueda derecha"]], 'data-rueda', rueda, 'Rueda anotada') + '<label class="desl-linea" for="fo-pwm">Escalón de PWM aplicado en t = 0 <b class="num" data-v></b><input id="fo-pwm" type="range" min="0" max="255" step="1" value="143"></label><div class="control-graf fo-graf"></div><div class="vley"><span><i class="lin azul"></i>modelo de la rueda izquierda</span><span><i class="lin ambar"></i>modelo de la rueda derecha</span><span><i class="lin-disc"></i>valor final y 63 % de la rueda anotada</span></div><div class="fo-datos" aria-live="polite"></div><p class="fo-aviso control-conclusion"></p><p class="vnota">Curvas calculadas con los parámetros de la Tabla A4.4, no la captura original. 143 PWM es el escalón del ensayo de identificación. El modelo es lineal: el doble de PWM da el doble de velocidad final y no tiene zona muerta. Se ajustó con un solo escalón. Lejos de 143 PWM, sus predicciones no se comprobaron.</p>';
+    el.innerHTML = U.chips([["izq", "Anotar la rueda izquierda"], ["der", "Anotar la rueda derecha"]], 'data-rueda', rueda, 'Rueda anotada') + '<label class="desl-linea" for="fo-pwm">Escalón de PWM aplicado en t = 0 <b class="num" data-v></b><input id="fo-pwm" type="range" min="0" max="255" step="1" value="143"></label><div class="control-graf fo-graf"></div><div class="vley"><span><i class="lin azul"></i>modelo de la rueda izquierda</span><span><i class="lin ambar"></i>modelo de la rueda derecha</span><span><i class="lin-disc"></i>valor final y 63 % de la rueda anotada</span></div><div class="fo-datos" aria-live="polite"></div><p class="fo-aviso control-conclusion"></p><p class="vnota">Curvas calculadas con los parámetros de la Tabla A4.4, no la captura original. 143 PWM es el escalón del ensayo de identificación. El modelo es lineal: el doble de PWM da el doble de velocidad final y no tiene zona muerta. Se ajustó con un solo escalón. Lejos de 143 PWM, sus predicciones no se comprobaron.</p>';
     var cont = el.querySelector('.fo-graf');
     function pintar() {
       var g = C.RUEDAS[rueda], otra = C.RUEDAS[rueda === 'izq' ? 'der' : 'izq'], fin = g.K * pwm, t63 = g.retardo + g.tau, N = 120, T = 2;
@@ -359,8 +348,8 @@
       el.querySelector('.fo-aviso').textContent = pwm === 0 ? 'Sin PWM, el modelo predice que la rueda queda detenida.' : pwm < 60 ? 'Con PWM bajo el modelo predice movimiento, ' + f(fin, 3) + ' m/s, porque no incluye la zona muerta. Si el umbral real estuviera sobre ' + pwm + ' PWM, la rueda no se movería. La tesis propone esa diferencia como explicación de lo que pasó con las ganancias del PSO.' : 'Las dos curvas casi se superponen, pero no son iguales: la derecha responde un poco menos y más tarde. Por eso se buscaron ganancias para cada rueda.';
     }
     el.addEventListener('input', function (e) { if (e.target.id !== 'fo-pwm') return; pwm = +e.target.value; pintar(); });
-    el.addEventListener('click', function (e) { var b = e.target.closest('[data-rueda]'); if (!b) return; rueda = b.dataset.rueda; marcar(el, 'data-rueda', rueda); pintar(); });
-    alAncho(cont, pintar);
+    el.addEventListener('click', function (e) { var b = e.target.closest('[data-rueda]'); if (!b) return; rueda = b.dataset.rueda; U.marcar(el, 'data-rueda', rueda); pintar(); });
+    pintar(); U.alAncho(cont, pintar);
   };
 
   /* El protocolo serial y la ley */

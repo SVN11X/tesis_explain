@@ -23,7 +23,6 @@
     var norm = B ? B.norm : function (s) { return String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); };
     var tokens = B ? B.tokens : function (q) { return norm(q).split(/\s+/).filter(Boolean); };
     var aparece = B ? function (t, tok) { return B.posiciones(t, tok, 1).length > 0; } : function (t, tok) { return t.indexOf(tok) >= 0; };
-    var quieto = function () { return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches; };
 
     var estado = { q: "", nivel: "todos", tema: "todos", respaldo: 'todos' };
     var datos = preguntas.map(function (d) {
@@ -155,7 +154,7 @@
       }
       d.open = true;
       if (history.replaceState) history.replaceState(null, "", "#" + d.id);
-      d.scrollIntoView({ behavior: quieto() ? "auto" : "smooth", block: "start" });
+      d.scrollIntoView({ behavior: window.U.quieto() ? "auto" : "smooth", block: "start" });
       d.querySelector("summary").focus({ preventScroll: true });
       d.classList.add("destacar");
       setTimeout(function () { d.classList.remove("destacar"); }, 2400);

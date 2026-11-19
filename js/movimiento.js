@@ -22,7 +22,6 @@
   function ln(x1, y1, x2, y2, cls, extra) { return '<line ' + attrs(Object.assign({ x1: x1.toFixed(1), y1: y1.toFixed(1), x2: x2.toFixed(1), y2: y2.toFixed(1), class: cls }, extra || {})) + '/>'; }
   /* cada lectura tiene un rótulo, un valor y, si hace falta, una aclaración breve debajo */
   function lecturas(items) { return '<div class="lecturas">' + items.map(function (it) { return '<div><span>' + it[0] + '</span><b data-o="' + it[1] + '"></b>' + (it[2] ? '<small data-o="' + it[1] + '-s"></small>' : '') + '</div>'; }).join("") + '</div>'; }
-  function marcar(el, attr, val) { el.querySelectorAll("[" + attr + "]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute(attr) === String(val))); }); }
 
   /* ── Sesgo, dispersión y calibración de la recta ── */
   V.calibracion = function (el) {
@@ -116,7 +115,7 @@
       return r;
     }
     function modo(m) {
-      st.modo = m; marcar(el, "data-modo", m);
+      st.modo = m; U.marcar(el, "data-modo", m);
       el.querySelectorAll("[data-sim]").forEach(function (x) { x.hidden = m !== "sim"; });
       dibujar();
     }
@@ -128,7 +127,7 @@
     });
     el.addEventListener("input", function (e) { var k = e.target.getAttribute("data-k"); if (!k) return; st[k] = parseFloat(e.target.value); dibujar(); });
     modo("real");
-    U.alCambiarAncho(cont, dibujar);
+    U.alAncho(cont, dibujar);
     el.estadoCal = function () { var r = datos(); return { modo: st.modo, factor: r.factor, antes: r.a, despues: r.d, nuevas: r.n || null, sesgo: st.sesgo, variacion: st.variacion }; };
   };
 
@@ -229,7 +228,7 @@
       el.querySelector('[data-v="sep"]').textContent = fmtS(ds.sep, 1) + " %, " + fmt(M.B * (1 + st.sep) * 100, 2) + " cm";
       el.querySelectorAll("input[data-k]").forEach(function (i) { if (document.activeElement !== i) i.value = ds[i.getAttribute("data-k")]; });
       var caso = Object.keys(CASOS).filter(function (k) { return Math.abs(CASOS[k].dif - st.dif) < 5e-5 && Math.abs(CASOS[k].sep - st.sep) < 5e-5; })[0];
-      marcar(el, "data-caso", caso || "");
+      U.marcar(el, "data-caso", caso || "");
       return res;
     }
     el.addEventListener("click", function (e) {
@@ -238,7 +237,7 @@
     });
     el.addEventListener("input", function (e) { var k = e.target.getAttribute("data-k"); if (!k) return; st[k] = parseFloat(e.target.value) / 100; dibujar(); });
     dibujar();
-    U.alCambiarAncho(el, dibujar);
+    U.alAncho(el, dibujar);
     el.estadoCuadrado = function () { var r = M.bidireccional({ dif: st.dif, sep: st.sep }); return { dif: st.dif, sep: st.sep, horario: r.horario.error, antihorario: r.antihorario.error, mayor: r.mayor }; };
   };
 })();
