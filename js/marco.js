@@ -207,6 +207,9 @@
     var input = dlg.querySelector("input"), lista = dlg.querySelector(".search-results"), estado = dlg.querySelector(".search-status"), sug = dlg.querySelector(".search-suggest");
     var indice = null, cargando = false, origen = null;
     function recientes() { try { var l = JSON.parse(leer("busquedas", "[]")); return Array.isArray(l) ? l.filter(function (x) { return typeof x === "string" && x; }).slice(0, 6) : []; } catch (e) { return []; } }
+    /* Un resultado del buscador puede apuntar a texto que está plegado bajo su encabezado. La marca dura unos segundos
+       y la lee plegados() en sitio.js, que abre los detalles de esa sección al llegar. */
+    function marcarBusqueda() { try { sessionStorage.setItem("buscado", String(Date.now())); } catch (e) {} }
     function recordar(q) {
       q = q.trim(); if (!q) return;
       var l = recientes().filter(function (x) { return x.toLowerCase() !== q.toLowerCase(); }); l.unshift(q);
@@ -265,7 +268,7 @@
       if (e.key === "Enter") {
         clearTimeout(t); if (indice) buscar();
         var a = lista.querySelector("a");
-        if (a) { e.preventDefault(); recordar(input.value); var h = a.getAttribute("href"); dlg.close(); location.href = h; }
+        if (a) { e.preventDefault(); recordar(input.value); marcarBusqueda(); var h = a.getAttribute("href"); dlg.close(); location.href = h; }
       }
       /* un campo de búsqueda con texto gasta el primer Escape en borrarlo: aquí cierra de inmediato */
       if (e.key === "Escape") { e.preventDefault(); dlg.close(); }
@@ -282,7 +285,7 @@
     /* al recorrer los resultados con el teclado, solo el enfocado queda marcado */
     lista.addEventListener("focusin", function (e) { var a = e.target.closest("a"); if (!a) return; [].forEach.call(lista.querySelectorAll("a.sel"), function (x) { if (x !== a) x.classList.remove("sel"); }); });
     dlg.addEventListener("click", function (e) {
-      if (e.target.closest(".search-results a")) { recordar(input.value); dlg.close(); return; }
+      if (e.target.closest(".search-results a")) { recordar(input.value); marcarBusqueda(); dlg.close(); return; }
       var c = e.target.closest("[data-q]");
       if (c) { input.value = c.getAttribute("data-q"); cargar(buscar); input.focus(); return; }
       if (e.target.closest("[data-borrar]")) { guardar("busquedas", null); vacio(); input.focus(); return; }

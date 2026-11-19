@@ -569,10 +569,33 @@
     for (var d = el; d; d = d.parentElement) if (d.tagName === "DETAILS" && !d.open) { d.open = true; abrio = true; }
     return abrio;
   }
+  /* Tras un resultado del buscador, el texto buscado puede estar plegado bajo el encabezado de destino. Se abren los
+     detalles de esa sección, hasta el siguiente encabezado del mismo nivel o superior. La marca la deja marco.js y vence a los 8 s. */
+  function buscadoReciente() {
+    try {
+      var t = Number(sessionStorage.getItem("buscado"));
+      sessionStorage.removeItem("buscado");
+      return t > 0 && Date.now() - t < 8000;
+    } catch (e) { return false; }
+  }
+  function abrirSeccion(el) {
+    if (!/^H[23]$/.test(el.tagName)) return false;
+    var nivel = Number(el.tagName.charAt(1)), abrio = false, n = (el.closest(".widget-cab") || el).nextElementSibling;
+    for (; n; n = n.nextElementSibling) {
+      var m = /^H([23])$/.exec(n.tagName);
+      if (m && Number(m[1]) <= nivel) break;
+      if (n.matches && n.matches("details.detalle")) { if (!n.open) { n.open = true; abrio = true; } }
+      else if (n.querySelectorAll) n.querySelectorAll("details.detalle:not([open])").forEach(function (d) { d.open = true; abrio = true; });
+    }
+    return abrio;
+  }
   function plegados() {
     function alAncla() {
       var el = destinoDe(location.hash);
-      if (el && abrirHasta(el)) requestAnimationFrame(function () { el.scrollIntoView({ block: "start" }); });
+      if (!el) return;
+      var abrio = abrirHasta(el);
+      if (buscadoReciente() && abrirSeccion(el)) abrio = true;
+      if (abrio) requestAnimationFrame(function () { el.scrollIntoView({ block: "start" }); });
     }
     alAncla();
     window.addEventListener("hashchange", alAncla);
