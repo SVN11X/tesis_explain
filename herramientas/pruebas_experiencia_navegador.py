@@ -35,8 +35,22 @@ else:
     BASE = 'http://localhost:%d' % server.server_port
 count = 0
 EN_GITHUB = os.environ.get('GITHUB_ACTIONS') == 'true'
+
+
+def modulos_sitio():
+    """SITIO.MODULOS leído de js/sitio.js: {'js/vis1.js': 'astar frontera ...'}"""
+    fuente = (ROOT / 'js' / 'sitio.js').read_text(encoding='utf-8')
+    bloque = re.search(r'var MODULOS = \{(.*?)\n  \};', fuente, re.S).group(1)
+    return dict(re.findall(r'"(js/[^"]+\.js)":\s*"([^"]+)"', bloque))
+
+
+def modulo_de(nombre):
+    """Archivo que registra el interactivo `nombre` según SITIO.MODULOS"""
+    return next(m for m, n in modulos_sitio().items() if nombre in n.split())
+
+
 PAGINAS = sorted(p.name for p in ROOT.glob('*.html') if p.name not in ('index.html', 'laboratorios.html'))
-MODULOS_VIS = ['vis1.js', 'vis2.js', 'vis3.js', 'sims.js', 'mapeo.js', 'movimiento.js', 'evidencia.js', 'slam-proceso.js']
+MODULOS_VIS = [m.split('/')[-1] for m in modulos_sitio()]
 MOVIL = {'viewport': {'width': 390, 'height': 844}, 'is_mobile': True, 'has_touch': True, 'device_scale_factor': 2}
 ESCRITORIO = {'viewport': {'width': 1366, 'height': 900}}
 # Además del total guarda qué se movió, para que un fallo en CI diga qué elemento cambió de lugar.
@@ -186,16 +200,17 @@ def manifiesto(nav):
     pedidos = []
     p.on('request', lambda r: pedidos.append(r.url))
     p.goto(BASE + '/control.html', wait_until='load')
-    r = p.evaluate("""() => { const dcl = performance.getEntriesByType('navigation')[0].domContentLoadedEventEnd;
-      return performance.getEntriesByType('resource').filter(e => /\\/js\\/(vis1|vis2|vis3|sims|mapeo|movimiento|evidencia|slam-proceso)\\.js/.test(e.name))
-        .map(e => ({ n: e.name.split('/').pop(), antes: e.startTime < dcl })); }""")
+    r = p.evaluate("""(re) => { const dcl = performance.getEntriesByType('navigation')[0].domContentLoadedEventEnd;
+      return performance.getEntriesByType('resource').filter(e => new RegExp('/js/(' + re + ')\\.js').test(e.name))
+        .map(e => ({ n: e.name.split('/').pop(), antes: e.startTime < dcl })); }""", '|'.join(m[:-3] for m in MODULOS_VIS))
     check(not any(x['antes'] for x in r), 'control.html no pide archivos de interactivos antes de DOMContentLoaded', r)
     p.locator('[data-vis="estabilidad"]').scroll_into_view_if_needed()
     p.wait_for_selector('[data-vis="estabilidad"][data-montado="1"]', timeout=10000)
     p.locator('[data-vis="windup"]').evaluate('el => { const d = el.closest("details"); if (d) d.open = true; }')
     p.locator('[data-vis="windup"]').scroll_into_view_if_needed()
     p.wait_for_selector('[data-vis="windup"][data-montado="1"]', timeout=10000)
-    vis2 = [u for u in pedidos if u.endswith('/js/vis2.js')]
+    arch = modulo_de('estacionario')
+    vis2 = [u for u in pedidos if u.endswith('/' + arch)]
     check(len(vis2) == 1, 'cada archivo de interactivos se pide una sola vez aunque lo usen varios', len(vis2))
     ctx.close()
 
