@@ -2,7 +2,7 @@
 
 | Decisión | Motivo y alcance |
 |---|---|
-| Conservar HTML/CSS/JS nativos | El sitio ya pasa pruebas y Pages sirve archivos estáticos. No se justifica una reescritura ni un framework nuevo. |
+| Conservar HTML/CSS/JS nativos | El sitio ya pasa pruebas y Pages sirve archivos estáticos. No se justifica una reescritura ni un framework nuevo. Sustituida en noviembre de 2026: la portada y los laboratorios usan Astro y Svelte, y las páginas de la guía siguen en HTML estático (decisión 0003). |
 | Conservar modelos existentes | Las 102 pruebas numéricas de la base pasan, y las diferencias de la ley heredada ya están explicitadas. |
 | Datos en JSON/CSV y módulo generado local | Evita repetir parámetros entre modelos y tablas. JSON/CSV son las fuentes editables, y el módulo permite cargar sin una carrera de fetch. |
 | Aviso académico estático generado | Debe estar disponible sin JavaScript. Los datos desconocidos quedan nulos y la fecha de la plataforma es distinta de la versión académica. |
@@ -10,8 +10,8 @@
 | CSV estricto antes de interpretar | Unidades en encabezados, números finitos, filas compatibles, validación de conteos y faltantes. No se adivinan formatos. |
 | Gráficos SVG y tabla completa exportable | Sin librerías remotas. Tabla accesible y signos/trazos además de color. Vista acotada para rendimiento. |
 | Motor independiente del DOM | Se prueban métricas y reglas en Node, y una futura extensión local es opcional y no altera cálculos documentados. |
-| Sin inferencia en esta versión | Los datos actuales permiten estadísticas y reglas. No se instala IA para explicar lo que puede calcularse directamente. |
-| ZIP y parche con Git local | Entrega revisable, reversible y verificada contra la base, sin push a main ni publicación automática. |
+| Sin inferencia en esta versión | Los datos actuales permiten estadísticas y reglas. No se instala IA para explicar lo que puede calcularse directamente. Sustituida en noviembre de 2026: la práctica de defensa oral corrige con IA mediante un Worker de Cloudflare (decisión 0004). |
+| ZIP y parche con Git local | Entrega revisable, reversible y verificada contra la base, sin push a main ni publicación automática. Sustituida en noviembre de 2026: los cambios entran por pull requests y el sitio se publicará con un flujo de GitHub Actions (decisión 0002). |
 | Arranque aislado por partes | Un fallo en una parte, por ejemplo un módulo de datos ausente o una API antigua del navegador, ya no impide montar la cabecera, el pie ni los interactivos. Los módulos de modelo no se definen si faltan sus datos y cada interactivo conserva su respaldo. |
 | Lecturas por regla en el modelo, no en la vista | `lecturaPID` vive en `js/control-modelo.js`, junto al simulador, para probar en Node que cada frase coincide con el cálculo que la respalda. |
 | Mapa armado con observaciones exactas | El grafo de ejemplo aísla el efecto de la pose sobre el mapa. Añadir ruido de láser mezclaría dos causas y haría menos legible la lección sobre el error de escala. |
