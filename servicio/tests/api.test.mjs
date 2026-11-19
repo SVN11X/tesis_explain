@@ -141,10 +141,12 @@ test("paso 3: 404 de pregunta desconocida y 409 de versión", async () => {
   assert.equal(t.reservas(), 0);
 });
 
-test("paso 4: todas las preguntas del catálogo real son pending_guide, sin reservar ni invocar", async () => {
+test("paso 4: las preguntas del catálogo real sin rúbrica aprobada son pending_guide, sin reservar ni invocar", async () => {
   const t = await montar({ catalogo: catalogoReal });
   const tk = await t.sesion();
-  for (const p of catalogoReal.preguntas) {
+  const sinRubrica = catalogoReal.preguntas.filter((p) => !p.evaluable);
+  assert.equal(sinRubrica.length, catalogoReal.preguntas.length - 1);
+  for (const p of sinRubrica) {
     const c = await leer(await t.evaluar(tk, { question_id: p.id, version_catalogo: catalogoReal.version }), 200);
     assert.deepEqual([c.estado, c.causa, c.question_id], ["no_evaluable", "pending_guide", p.id]);
   }

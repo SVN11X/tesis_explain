@@ -1,5 +1,5 @@
 {
- "version": "fe70f51f3251",
+ "version": "dad13c486ed0",
  "total": 106,
  "pendientes": [
   "p-giro",
@@ -28,9 +28,9 @@
    "guia": "Porque sus partes quedaron con distinto nivel de evidencia. El mapeo y la localización mientras se construye el mapa quedaron verificados en el robot real y caracterizados con cobertura y área libre. La navegación solo quedó verificada en funcionamiento. Nav2 llevó al robot hacia las metas del explorador en las cinco corridas válidas, con 21,9 m de recorrido autónomo. De los 54 abortos, 53 cumplen el criterio temporal de asociación a reemplazos, sin que eso descarte fallas al mismo tiempo, y no se documenta un indicador como una tasa de éxito o un error de posición final. Verificar es comprobar que algo funciona como se diseñó. Validar es medir con números que cumple lo que se necesita. La navegación quedó en el primer nivel.",
    "enlace": "resultados.html#palabras",
    "rubrica": {
-    "estado": "candidata",
-    "aprobada_por": null,
-    "fecha_aprobacion": null,
+    "estado": "aprobada",
+    "aprobada_por": "Sebastián Valderas, por delegación en Claude",
+    "fecha_aprobacion": "2026-11-19",
     "version": 1,
     "fuente": {
      "referencia": "Tabla 5.5 y Conclusiones, OE3",
@@ -63,7 +63,7 @@
     ],
     "permite_incorrecta_ajena": true
    },
-   "evaluable": false
+   "evaluable": true
   },
   {
    "id": "p-una-de-sesenta",

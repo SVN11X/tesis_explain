@@ -2,9 +2,9 @@
   "version_esquema": 1,
   "rubricas": {
     "p-oe3-parcial": {
-      "estado": "candidata",
-      "aprobada_por": null,
-      "fecha_aprobacion": null,
+      "estado": "aprobada",
+      "aprobada_por": "Sebastián Valderas, por delegación en Claude",
+      "fecha_aprobacion": "2026-11-19",
       "version": 1,
       "fuente": {"referencia": "Tabla 5.5 y Conclusiones, OE3", "enlace": "resultados.html#palabras"},
       "criterios": [
