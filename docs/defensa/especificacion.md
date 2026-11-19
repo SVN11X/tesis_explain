@@ -224,7 +224,7 @@ Un fallo de escritura o un resultado ambiguo lanza `Error` con `codigo = "escrit
 
 ### 6.1 Rutas
 
-- `OPTIONS *`: CORS solo para los orígenes de `ORIGENES`, métodos `GET, POST`, cabeceras `content-type, authorization`.
+- `OPTIONS *`: CORS solo para los orígenes de `ORIGENES`, métodos `GET, POST`, cabeceras `content-type, authorization`. Las respuestas con CORS incluyen `Access-Control-Expose-Headers: Retry-After`, porque el panel lee esa cabecera en un `429`.
 - `POST /v1/sesiones`: crea una sesión anónima de dos horas. Responde `201 {token, vence}`. `token` es `id.firma`, con `id` de 128 bits aleatorios en hexadecimal y `firma` el HMAC-SHA-256 de `id.vence` con `SESION_CLAVE`, en base64url (`servicio/src/sesion.mjs`, con `crypto.subtle`).
 - `POST /v1/evaluaciones`, con `Authorization: Bearer <token>` y cuerpo `{request_id, question_id, version_catalogo, modo, respuesta}`.
 - `GET /v1/evaluaciones/<request_id>`, con el mismo token: estado de un intento.
