@@ -11,7 +11,7 @@ binding = "AI"
 [[d1_databases]]
 binding = "DB"
 database_name = "defensa-oral"
-database_id = "REEMPLAZAR-con-el-id-que-entrega-wrangler-d1-create"
+database_id = "7a2c15be-61dc-4528-a740-6796e614a1d2"
 migrations_dir = "migraciones"
 
 [vars]
@@ -33,7 +33,7 @@ binding = "AI"
 [[env.preproduccion.d1_databases]]
 binding = "DB"
 database_name = "defensa-oral-preproduccion"
-database_id = "REEMPLAZAR-con-el-id-de-la-base-de-preproduccion"
+database_id = "77025b39-4d82-4543-a1bf-81dc4c3df931"
 migrations_dir = "migraciones"
 
 [env.preproduccion.vars]
