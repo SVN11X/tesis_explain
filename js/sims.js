@@ -3,10 +3,9 @@
   Todas son ilustrativas: explican una idea con un modelo simple y no reemplazan
   las mediciones del robot real, que se citan desde la tesis en cada capítulo.
 
-  exploracion  robot que explora un plano desconocido por fronteras (portada y capítulo 7)
+  exploracion  robot que explora un plano desconocido por fronteras (capítulo 7)
   cinematica   dos velocidades de rueda y la trayectoria que resulta (capítulo 3)
   encoder      canales en cuadratura y conteo por cuatro (capítulo 3)
-  El LiDAR del capítulo 5 se implementa en js/mapeo.js.
   pid          respuesta de una rueda con P, I y D (capítulo 4)
   enjambre     optimización por enjambre de partículas sobre un costo (capítulo 4)
   inflacion    mapa de costos, radio de inflación y huella del robot (capítulo 6)
@@ -95,9 +94,8 @@
   window.SIMS_PRUEBAS = { pasoFijo: pasoFijo, poligonoTocaRect: poligonoTocaRect, huellaEnMundo: huellaEnMundo, celdasTocadas: celdasTocadas, evaluarHuella: evaluarHuella };
 
   /* 1. Exploración por fronteras */
-  V.exploracion = function (el) {
+  function crearExploracion() {
     kit();
-    var hero = el.getAttribute("data-modo") === "hero";
     var C = 72, F = 46;                       /* columnas y filas de la rejilla */
     var mundo = new Uint8Array(C * F);        /* 1 = pared real */
     function muro(x0, y0, x1, y1) { for (var y = y0; y <= y1; y++) for (var x = x0; x <= x1; x++) if (x >= 0 && y >= 0 && x < C && y < F) mundo[y * C + x] = 1; }
@@ -111,9 +109,8 @@
     muro(12, 33, 14, 35);         /* caja abajo a la izquierda */
     muro(40, 37, 40, F - 1);      /* tabique corto abajo */
     var INICIO = { x: 7.5, y: 40.5, th: -Math.PI / 2 };
-    var RANGO = 13, RAYOS = hero ? 96 : 120, RADIO = 1.25, MIN_FRONT = 2;
+    var RANGO = 13, RAYOS = 120, RADIO = 1.25, MIN_FRONT = 2;
     var conoc, robot, ruta, meta, metaFr, lista, rastro, t, tUlt, est, terminado, fin, eventos;
-    var verLaser = true, verFront = true, verCostos = false, verMundo = false, vel = hero ? 2.4 : 2;
     var rayosFin = [];
 
     function reiniciar() {
@@ -285,21 +282,41 @@
       /* si la ruta cruza una pared recién descubierta, se replanifica */
       for (var k = 0; k < Math.min(ruta.length, 12); k++) { var i = Math.floor(ruta[k][1]) * C + Math.floor(ruta[k][0]); if (conoc[i] === 1) { tUlt = t - 3.3; break; } }
     }
+    function cobertura() {
+      var libres = 0, vistos = 0;
+      for (var i = 0; i < C * F; i++) if (!mundo[i]) { libres++; if (conoc[i] === 0) vistos++; }
+      return vistos / libres * 100;
+    }
+    /* Lo que el dibujo necesita leer. conoc, robot y los demás se reasignan al reiniciar, así que se piden cada vez. */
+    function ver() {
+      return { mundo: mundo, conoc: conoc, robot: robot, ruta: ruta, meta: meta, lista: lista, rastro: rastro, t: t, est: est,
+        terminado: terminado, fin: fin, eventos: eventos, rayosFin: rayosFin, distOb: distOb };
+    }
+    return { C: C, F: F, RADIO: RADIO, reiniciar: reiniciar, avanzar: avanzar, costos: costos, fronteras: fronteras, cobertura: cobertura, ver: ver };
+  }
+  window.SIMS_PRUEBAS.exploracion = crearExploracion;
 
+  /* 1. Exploración por fronteras: la interfaz y el dibujo. La simulación está en crearExploracion. */
+  V.exploracion = function (el) {
+    kit();
+    var S = crearExploracion(), C = S.C, F = S.F, RADIO = S.RADIO;
+    var verLaser = true, verFront = true, verCostos = false, verMundo = false, vel = 2;
     /* interfaz */
-    el.innerHTML = (hero ? '' :
+    el.innerHTML =
       '<div class="vctl"><button type="button" class="vbtn" data-a="play">Explorar</button><button type="button" class="vbtn sec" data-a="reset">Reiniciar</button>' +
       '<div class="segmento" role="group" aria-label="Velocidad de la simulación"><button type="button" data-v="1" aria-pressed="false">1×</button><button type="button" data-v="2" aria-pressed="true">2×</button><button type="button" data-v="4" aria-pressed="false">4×</button></div></div>' +
-      '<div class="casillas"><label><input type="checkbox" data-t="laser" checked>Láser</label><label><input type="checkbox" data-t="front" checked>Fronteras</label><label><input type="checkbox" data-t="costos">Mapa de costos</label><label><input type="checkbox" data-t="mundo">Mostrar el plano real</label></div>') +
+      '<div class="casillas"><label><input type="checkbox" data-t="laser" checked>Láser</label><label><input type="checkbox" data-t="front" checked>Fronteras</label><label><input type="checkbox" data-t="costos">Mapa de costos</label><label><input type="checkbox" data-t="mundo">Mostrar el plano real</label></div>' +
       '<div class="ex-lienzo"></div>' +
-      (hero ? '' : '<div class="lecturas"><div><span>Tiempo simulado</span><b data-o="t">0 s</b></div><div><span>Metas enviadas</span><b data-o="env">0</b></div><div><span>Reemplazadas antes de llegar</span><b data-o="rem">0</b></div><div><span>Alcanzadas</span><b data-o="alc">0</b></div><div><span>Plano descubierto</span><b data-o="cob">0 %</b></div></div>' +
-        '<p class="vestado" aria-live="polite" data-o="ev"></p>');
+      '<div class="lecturas"><div><span>Tiempo simulado</span><b data-o="t">0 s</b></div><div><span>Metas enviadas</span><b data-o="env">0</b></div><div><span>Reemplazadas antes de llegar</span><b data-o="rem">0</b></div><div><span>Alcanzadas</span><b data-o="alc">0</b></div><div><span>Plano descubierto</span><b data-o="cob">0 %</b></div></div>' +
+        '<p class="vestado" aria-live="polite" data-o="ev"></p>';
     var cont = el.querySelector(".ex-lienzo");
-    var L = lienzo(cont, hero ? 16 / 10.5 : 16 / 10, function () { dibujar(); });
+    var L = lienzo(cont, 16 / 10, function () { dibujar(); });
     var P = paleta(el);
     alTema(function () { P = paleta(el); dibujar(); });
 
     function dibujar() {
+      var E = S.ver(), conoc = E.conoc, robot = E.robot, ruta = E.ruta, meta = E.meta, lista = E.lista, rastro = E.rastro,
+        terminado = E.terminado, rayosFin = E.rayosFin, distOb = E.distOb, mundo = E.mundo;
       if (!conoc) return;
       var ctx = L.ctx, W = L.w, H = L.h, s = Math.min(W / C, H / F), ox = (W - C * s) / 2, oy = (H - F * s) / 2;
       ctx.clearRect(0, 0, W, H);
@@ -311,7 +328,7 @@
       ctx.strokeStyle = P.oscuro ? "rgba(255,255,255,.04)" : "rgba(0,0,0,.05)"; ctx.lineWidth = 1;
       for (var k = -F; k < C; k += 2) { ctx.beginPath(); ctx.moveTo(ox + k * s, oy); ctx.lineTo(ox + (k + F) * s, oy + F * s); ctx.stroke(); }
       ctx.restore();
-      var fr = verFront && !terminado ? fronteras().celdas : null;
+      var fr = verFront && !terminado ? S.fronteras().celdas : null;
       for (var y = 0; y < F; y++) for (var x = 0; x < C; x++) {
         var i = y * C + x, v = conoc[i], px = ox + x * s, py = oy + y * s;
         if (v === 0) {
@@ -373,52 +390,30 @@
       }
       salidas();
     }
-    function cobertura() {
-      var libres = 0, vistos = 0;
-      for (var i = 0; i < C * F; i++) if (!mundo[i]) { libres++; if (conoc[i] === 0) vistos++; }
-      return vistos / libres * 100;
-    }
     function salidas() {
-      if (hero) { if (heroEst) heroEst.textContent = terminado ? "Terminó sola, sin fronteras" : (ruta.length ? "Va hacia la frontera elegida" : "Eligiendo frontera"); return; }
+      var E = S.ver(), t = E.t, est = E.est, eventos = E.eventos;
       var o = function (k) { return el.querySelector('[data-o="' + k + '"]'); };
-      o("t").textContent = fmt(t, 0) + " s"; o("env").textContent = est.enviadas; o("rem").textContent = est.reemplazadas; o("alc").textContent = est.alcanzadas; o("cob").textContent = fmt(cobertura(), 0) + " %";
+      o("t").textContent = fmt(t, 0) + " s"; o("env").textContent = est.enviadas; o("rem").textContent = est.reemplazadas; o("alc").textContent = est.alcanzadas; o("cob").textContent = fmt(S.cobertura(), 0) + " %";
       o("ev").textContent = eventos.length ? eventos[0] : "";
     }
-    var heroEst = null;
     /* paso fijo de 1/30 s de tiempo simulado; la velocidad 1×, 2× o 4× multiplica el tiempo real acumulado */
     var H_PASO = 1 / 30, reloj = pasoFijo(H_PASO, 0.1);
     var B = bucle(el, function (dt) {
       var pasos = reloj.pasos(dt, vel);
-      for (var k = 0; k < pasos; k++) avanzar(H_PASO);
-      if (terminado && fin > (hero ? 4 : 1e9)) { reiniciar(); reloj.reiniciar(); }
+      for (var k = 0; k < pasos; k++) S.avanzar(H_PASO);
       if (pasos) dibujar();
     });
-    var reiniciarBase = reiniciar;
-    reiniciar = function () { reiniciarBase(); reloj.reiniciar(); };
+    function reiniciar() { S.reiniciar(); reloj.reiniciar(); }
     reiniciar(); dibujar();
     /* lectura del estado, usada por las pruebas automáticas */
-    el.estadoSim = function () { return { t: t, pasos: Math.round(t / H_PASO), enviadas: est.enviadas, reemplazadas: est.reemplazadas, alcanzadas: est.alcanzadas, terminado: terminado, x: robot.x, y: robot.y, activo: B.activo }; };
-    if (hero) {
-      var barra = document.querySelector('[data-sim-barra="' + (el.id || "") + '"]');
-      if (barra) {
-        heroEst = barra.querySelector("[data-estado]");
-        var bp = barra.querySelector("[data-a=play]");
-        var setTxt = function () { bp.textContent = B.activo ? "Pausar" : "Reproducir"; bp.setAttribute("aria-pressed", B.activo ? "true" : "false"); };
-        var pausadoUsuario = false;
-        bp.addEventListener("click", function () { if (B.activo) { B.pausa(); pausadoUsuario = true; } else { B.play(); pausadoUsuario = false; } setTxt(); });
-        if (!U.quieto()) B.play();
-        setTxt();
-        alCambiarMovimiento(function (reducido) { if (!reducido && !pausadoUsuario) B.play(); setTxt(); });
-      } else if (!U.quieto()) B.play();
-      return;
-    }
-    function textoPlay() { var bp = el.querySelector('[data-a="play"]'); bp.textContent = B.activo ? "Pausar" : (terminado ? "Explorar de nuevo" : "Explorar"); bp.setAttribute("aria-pressed", B.activo ? "true" : "false"); }
+    el.estadoSim = function () { var E = S.ver(), t = E.t, est = E.est, robot = E.robot; return { t: t, pasos: Math.round(t / H_PASO), enviadas: est.enviadas, reemplazadas: est.reemplazadas, alcanzadas: est.alcanzadas, terminado: E.terminado, x: robot.x, y: robot.y, activo: B.activo }; };
+    function textoPlay() { var bp = el.querySelector('[data-a="play"]'); bp.textContent = B.activo ? "Pausar" : (S.ver().terminado ? "Explorar de nuevo" : "Explorar"); bp.setAttribute("aria-pressed", B.activo ? "true" : "false"); }
     /* el bucle se pausa solo con movimiento reducido, y el botón debe decirlo */
     alCambiarMovimiento(textoPlay);
     el.addEventListener("click", function (e) {
       var b = e.target.closest("[data-a]");
       if (b) {
-        if (b.getAttribute("data-a") === "play") { if (B.activo) B.pausa(); else { if (terminado) reiniciar(); B.play(); } }
+        if (b.getAttribute("data-a") === "play") { if (B.activo) B.pausa(); else { if (S.ver().terminado) reiniciar(); B.play(); } }
         if (b.getAttribute("data-a") === "reset") { reiniciar(); dibujar(); }
         textoPlay();
       }
@@ -428,7 +423,7 @@
     el.addEventListener("change", function (e) {
       var k = e.target.getAttribute("data-t"); if (!k) return;
       if (k === "laser") verLaser = e.target.checked; if (k === "front") verFront = e.target.checked;
-      if (k === "costos") { verCostos = e.target.checked; costos(); } if (k === "mundo") verMundo = e.target.checked;
+      if (k === "costos") { verCostos = e.target.checked; S.costos(); } if (k === "mundo") verMundo = e.target.checked;
       dibujar();
     });
   };
@@ -643,8 +638,6 @@
     el.addEventListener("input", function (e) { if (e.target.id === "en-v") { vel = parseFloat(e.target.value); velTxt(); } });
     el.estadoSim = function () { return { activo: B.activo, vel: vel, control: parseFloat(el.querySelector("#en-v").value), etiqueta: el.querySelector('[data-o="vel"]').textContent, ang: ang, cuenta: cuenta, cuenta1: cuenta1 }; };
   };
-
-  /* El capítulo 05 implementa esta visualización en js/mapeo.js. */
 
   /* 5. PID de una rueda. Al cambiar las ganancias queda dibujada la curva anterior, para comparar. */
   V.pid = function (el) {

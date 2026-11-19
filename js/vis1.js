@@ -2,10 +2,6 @@
 (function () {
   "use strict";
   var V = window.VISUALES, U = window.U;
-  /* Iconos compartidos, definidos en js/comun.js */
-  var ICO = V.ICO || (U && U.ICO) || { OK: "", NO: "" }, OK = ICO.OK, NO = ICO.NO;
-
-  /* El capítulo 05 implementa esta visualización en js/mapeo.js. */
 
   /* A estrella frente a Dijkstra, paso a paso.
      La búsqueda se calcula una vez y se guarda cada paso: la celda que se revisa, su g, su h,
@@ -308,8 +304,6 @@
       '<p class="vnota">Mapa de ejemplo. La celda suelta del medio representa una lectura de ruido del láser.</p>';
   };
 
-  /* El capítulo 05 implementa esta visualización en js/mapeo.js. */
-
   /* Reemplazo de metas */
   V.metas = function (el) {
     el.innerHTML = '<div class="vctl"><button type="button" class="vbtn" data-a="play">Reproducir 20 segundos</button><span class="vestado" aria-live="polite"></span></div><div class="mt-graf"></div>' +
@@ -427,6 +421,7 @@
 
   /* Alcance de la navegación */
   V.alcance = function (el) {
+    var OK = U.ICO.OK, NO = U.ICO.NO;
     el.innerHTML =
       '<div class="dos-pan"><div class="lista-ico"><span class="eyebrow">Lo que se evaluó</span>' +
       '<p>' + OK + 'Navegar hacia destinos que genera el explorador</p>' +
