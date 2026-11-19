@@ -256,20 +256,20 @@
 
 <section>
   <h2 id="configuracion-slam">Conectar la explicación con la configuración del robot</h2>
-  <p>Los nombres siguientes se contrastaron con la documentación y el ejemplo de configuración de <b>Foxy</b> <a class="ref" href="#f21">21</a> <a class="ref" href="#f22">22</a>. Un valor predeterminado del paquete no demuestra qué valor se usó en el prototipo. El YAML original de SLAM Toolbox no está publicado en este repositorio.</p>
+  <p>Los nombres siguientes se contrastaron con la documentación y el ejemplo de configuración de <b>Foxy</b> <a class="ref" href="#f21">21</a> <a class="ref" href="#f22">22</a>. Un valor predeterminado del paquete no demuestra qué valor se usó en el prototipo. Los valores principales de slam_toolbox en el robot real están en la Tabla A5.3 de la tesis. El archivo YAML completo no está publicado en este repositorio.</p>
   <div class="tabla-env"><table class="tabla">
     <thead><tr><th>Dato o parámetro</th><th>Qué explica</th><th>Evidencia disponible en la guía</th></tr></thead>
     <tbody>
-      <tr><th>Modo y nodo de ejecución</th><td>Mapeo/localización y política síncrona/asíncrona son decisiones distintas. También importa el nodo lanzado.</td><td>Se declara mapeo asíncrono en línea en el computador. Lanzamiento y YAML originales no publicados.</td></tr>
-      <tr><th><code>solver_plugin</code></th><td>Resolvedor que optimiza las poses.</td><td>Se declara Ceres. No se publican las opciones exactas de su configuración.</td></tr>
+      <tr><th>Modo y nodo de ejecución</th><td>Mapeo/localización y política síncrona/asíncrona son decisiones distintas. También importa el nodo lanzado.</td><td>Se declara mapeo asíncrono en línea en el computador. Anexo 5.4: nodo <code>async_slam_toolbox_node</code> y archivo <code>mapper_params_online_async.yaml</code>, con <code>mode</code> en <code>mapping</code> (Tabla A5.3). El archivo no se publica.</td></tr>
+      <tr><th><code>solver_plugin</code></th><td>Resolvedor que optimiza las poses.</td><td>Se declara Ceres (Tabla A5.3). No se publican las opciones exactas de su configuración.</td></tr>
       <tr><th><code>do_loop_closing</code></th><td>Habilita la búsqueda de cierres, pero no prueba que ocurrieran.</td><td>Se declara activado. Ocurrencia en las corridas: no determinada.</td></tr>
-      <tr><th><code>map_frame</code>, <code>odom_frame</code>, <code>base_frame</code>, <code>scan_topic</code></th><td>Conectan el grafo, TF y las mediciones.</td><td>La guía explica la cadena conceptual. Los nombres literales deben contrastarse con el YAML y URDF originales, incluidos marcos intermedios.</td></tr>
-      <tr><th><code>minimum_travel_distance</code>, <code>minimum_travel_heading</code></th><td>Criterios de movimiento para incorporar observaciones.</td><td>Valores del prototipo no publicados aquí. No se sustituyen por los del ejemplo del paquete.</td></tr>
+      <tr><th><code>map_frame</code>, <code>odom_frame</code>, <code>base_frame</code>, <code>scan_topic</code></th><td>Conectan el grafo, TF y las mediciones.</td><td>La guía explica la cadena conceptual. Tabla A5.3: <code>map_frame</code> es <code>map</code>, <code>odom_frame</code> es <code>odom</code>, <code>base_frame</code> es <code>base_link</code> y <code>scan_topic</code> es <code>/scan</code>.</td></tr>
+      <tr><th><code>minimum_travel_distance</code>, <code>minimum_travel_heading</code></th><td>Criterios de movimiento para incorporar observaciones.</td><td>Tabla A5.3: 0,05 m y 0,05 rad. Otros intervalos configurados: <code>map_update_interval</code> de 1,0 s, <code>transform_publish_period</code> de 0,02 s y <code>max_laser_range</code> de 10,0 m. Son valores de configuración, no mediciones.</td></tr>
       <tr><th><code>loop_search_maximum_distance</code>, <code>loop_match_minimum_response_fine</code></th><td>Búsqueda espacial y aceptación geométrica de cierres.</td><td>Valores del prototipo no publicados aquí. Los umbrales del interactivo son supuestos didácticos.</td></tr>
       <tr><th><code>resolution</code></th><td>Tamaño de celda. No es la resolución del ajuste de barridos ni un error de posición.</td><td>0,05 m por celda, según la Tabla 5.4 y <a href="datos/parametros.json">los parámetros transcritos</a>.</td></tr>
     </tbody>
   </table></div>
-  <p>Documentar esos archivos, si se dispone de ellos, es una tarea de trazabilidad. No cambia las mediciones ni convierte una capacidad del paquete en un resultado experimental.</p>
+  <p>Publicar los archivos YAML completos, si se dispone de ellos, es una tarea de trazabilidad. No cambia las mediciones ni convierte una capacidad del paquete en un resultado experimental.</p>
   <h3 id="guia-roscon">Recorrer la charla con una pregunta por tramo</h3>
   <ul>
     <li><a href="https://vimeo.com/378682207#t=3m54s">03:54–05:43 · Grafo y cierre de lazo.</a> ¿Quién selecciona candidatos, quién compara y quién optimiza?</li>
