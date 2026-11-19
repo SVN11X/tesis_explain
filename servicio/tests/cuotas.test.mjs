@@ -150,3 +150,8 @@ test("completar una reserva inexistente es ambiguo", async () => {
     (e) => e.codigo === "escritura_ambigua",
   );
 });
+
+test("costeReservado usa la tarifa del modelo: Gemma 4 reserva 81,82 Neurons con 1.500 tokens de entrada", () => {
+  assert.ok(Math.abs(costeReservado(3000, { entrada: 9091, salida: 27273 }) - 81.819) < 0.01);
+  assert.ok(Math.abs(costeReservado(3000) - 22.176) < 0.001);
+});

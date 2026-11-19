@@ -177,3 +177,20 @@ test("extremo a extremo con fixture: una lectura mal formada", async () => {
   assert.equal(tecnico.malformadas, 1);
   assert.deepEqual(consenso(lecturas), { estado: "no_evaluable", causa: "ai_unavailable" });
 });
+
+test("AI_MODELO elige un modelo de la lista con su tarifa, y un ID desconocido desactiva la IA", async () => {
+  const llamadas = [];
+  const parametros = [];
+  const AI = { run: async (m, p) => { llamadas.push(m); parametros.push(p); return { response: "{}" }; } };
+  const gemma = crearProveedor({ AI_PROVIDER: "workers_ai", AI_MODELO: "@cf/google/gemma-4-26b-a4b-it", AI });
+  assert.equal(gemma.modelo, "@cf/google/gemma-4-26b-a4b-it");
+  assert.equal(gemma.tarifa.entrada, 9091);
+  assert.equal(gemma.tarifa.salida, 27273);
+  await gemma.evaluate({ mensajes: [], temperatura: 0.1, maxTokens: 500, esquema: ESQUEMA_SALIDA });
+  assert.equal(llamadas[0], "@cf/google/gemma-4-26b-a4b-it");
+  assert.deepEqual(parametros[0].chat_template_kwargs, { enable_thinking: false });
+  assert.equal(parametros[0].temperature, 0.1);
+  assert.equal(crearProveedor({ AI_PROVIDER: "workers_ai", AI }).modelo, "@cf/ibm-granite/granite-4.0-h-micro");
+  const raro = crearProveedor({ AI_PROVIDER: "workers_ai", AI_MODELO: "@cf/otro/modelo", AI });
+  await assert.rejects(raro.evaluate({ mensajes: [], temperatura: 0.1, maxTokens: 500, esquema: ESQUEMA_SALIDA }), (e) => e.codigo === "ai_unavailable");
+});

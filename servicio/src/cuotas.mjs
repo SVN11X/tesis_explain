@@ -18,10 +18,10 @@ export const LIMITES_POR_DEFECTO = Object.freeze({
   registroMs: 48 * 3_600_000,
 });
 
-/** Neurons que se reservan por respuesta (tres lecturas). */
-export function costeReservado(caracteresPrompt) {
+/** Neurons que se reservan por respuesta (tres lecturas), con la tarifa del modelo en uso (Granite por defecto). */
+export function costeReservado(caracteresPrompt, tarifa = { entrada: TARIFA_ENTRADA, salida: TARIFA_SALIDA }) {
   const tokensEntrada = Math.ceil(caracteresPrompt / 2);
-  return (LLAMADAS * (tokensEntrada * TARIFA_ENTRADA + SALIDA_MAXIMA * TARIFA_SALIDA)) / 1_000_000;
+  return (LLAMADAS * (tokensEntrada * tarifa.entrada + SALIDA_MAXIMA * tarifa.salida)) / 1_000_000;
 }
 
 /** Día UTC en formato AAAA-MM-DD. */

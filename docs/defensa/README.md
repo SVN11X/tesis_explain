@@ -9,9 +9,9 @@ La IA queda apagada para cada pregunta hasta que una persona apruebe su rúbrica
 - GitHub Pages sirve la página `preguntas.html`, el panel (`js/defensa-oral.js`) y las guías. No ejecuta nada del lado del servidor.
 - Un Worker de Cloudflare (`servicio/`) recibe cada respuesta que el estudiante confirmó. No recibe audio.
 - Una base D1 admite o rechaza cada solicitud según los topes de cuota y detecta las repetidas.
-- El Worker pide al modelo `@cf/ibm-granite/granite-4.0-h-micro` tres lecturas de la misma respuesta, a temperatura 0,1, 0,2 y 0,3, con el mismo prompt y en paralelo.
+- El Worker pide al modelo `@cf/google/gemma-4-26b-a4b-it`, sin razonamiento, tres lecturas de la misma respuesta, a temperatura 0,1, 0,2 y 0,3, con el mismo prompt y en paralelo. El modelo se elige con la variable `AI_MODELO` de `servicio/wrangler.toml`, entre los de `MODELOS` en `servicio/src/proveedores.mjs`. Nunca cambia solo.
 - Solo se muestra un comentario si las tres lecturas son válidas y coinciden en el veredicto y en el estado de cada criterio (unanimidad). Si no coinciden, el sistema se abstiene: responde `no_evaluable` con `disagreement` y el panel ofrece la guía. Un fallo técnico nunca se convierte en `incorrecta` ni dispara otra ronda.
-- Cada lectura debe citar fragmentos literales de la respuesta y su veredicto debe coincidir con las reglas de la rúbrica. Si no, la lectura se descarta.
+- Cada lectura debe citar fragmentos literales de la respuesta. Si no, la lectura se descarta. El veredicto de cada lectura lo calcula el servidor con las reglas de la rúbrica a partir de los criterios. El modelo solo puede abstenerse con `indeterminada`.
 
 ## 2. Contrato HTTP
 
@@ -36,11 +36,11 @@ Códigos principales: `200` con `evaluada` o `no_evaluable`, `202` en curso, `40
 
 ## 4. Presupuesto
 
-- Cada llamada al modelo cuesta (1.500 × 1,542 + 500 × 10,158) ÷ 1.000.000 = 7,392 Neurons, con 1.500 tokens de entrada y 500 de salida. Cada respuesta hace tres llamadas, así que reserva 22,176 Neurons (`costeReservado` en `servicio/src/cuotas.mjs`).
-- Topes: 100 respuestas por día UTC y 7.000 Neurons por día como tope interno. La asignación diaria gratuita de Workers AI es de 10.000 Neurons y se reinicia a las 00:00 UTC. A 22,176 por respuesta, 100 respuestas son unos 2.218 Neurons.
-- Escenario de 200 respuestas por día: unos 4.435 Neurons, que también caben bajo el tope. Se activaría más adelante con un cambio revisado: `servicio/src/index.mjs` hoy crea el repositorio con los límites por defecto (`LIMITES_POR_DEFECTO` en `servicio/src/cuotas.mjs`) y habría que pasarle `respuestasDia: 200`. Hoy no está activo.
+- Con Gemma 4, cada llamada cuesta (1.500 × 9.091 + 500 × 27.273) ÷ 1.000.000 = 27,27 Neurons, con 1.500 tokens de entrada y 500 de salida. Cada respuesta hace tres llamadas, así que reserva 81,82 Neurons (`costeReservado` en `servicio/src/cuotas.mjs`, con la tarifa del modelo en uso). Con Granite serían 22,176.
+- Topes: 100 respuestas por día UTC y 7.000 Neurons por día como tope interno. La asignación diaria gratuita de Workers AI es de 10.000 Neurons y se reinicia a las 00:00 UTC. A 81,82 por respuesta, el tope de Neurons llega primero: unas 85 respuestas al día, como prevé la tabla de la propuesta para Gemma 4.
+- Escenario de 200 respuestas por día: con Granite serían unos 4.435 Neurons. Con Gemma 4 no cabe bajo el tope interno. Se activaría más adelante con un cambio revisado: `servicio/src/index.mjs` hoy crea el repositorio con los límites por defecto (`LIMITES_POR_DEFECTO` en `servicio/src/cuotas.mjs`) y habría que pasarle `respuestasDia: 200`. Hoy no está activo.
 - Una sola cuenta de producción. Una segunda cuenta gratuita no agrega capacidad para la misma aplicación y el Self-Serve Subscription Agreement, apartado 2.2.1(c), prohíbe usar cuentas adicionales para esquivar los límites sin permiso escrito de Cloudflare.
-- Modelos alternativos a validar antes de usarlos: Gemma 4 26B A4B IT y Llama 3.3 70B FP8 Fast.
+- Por qué Gemma 4 y no Granite: en una medición de desarrollo con 6 casos sintéticos, Granite acertó 1 de 6 y marcó `parcial` una contradicción crítica, mientras Gemma 4 acertó 6 de 6 en unos 3 s (especificación, apartado 5.1). No reemplaza la validación del apartado 7. Llama 3.3 70B FP8 Fast queda como alternativa a validar.
 
 ## 5. Despliegue paso a paso
 
@@ -176,10 +176,12 @@ Formato de entrada:
 
 ## 8. Qué falta y no está probado
 
+Desplegado el 19 de noviembre de 2026: las bases `defensa-oral` y `defensa-oral-preproduccion` con la migración 0001, los Workers `tesis-explain-defensa` y `tesis-explain-defensa-preproduccion` con sus secretos y la limpieza cada 15 minutos. Producción responde en `https://tesis-explain-defensa.valde-transfer.workers.dev` y el sitio ya apunta ahí. Contra el Worker real se comprobaron salud, CORS solo para el sitio, sesiones, `pending_guide`, 401, 404, 409 y, en preproducción, rondas completas con Workers AI.
+
 Las pruebas automáticas (`npm test`) cubren el juez, las cuotas sobre SQLite, los proveedores y la API con proveedores simulados, el catálogo y la herramienta de validación. No se ha probado:
 
-- El Worker real en Cloudflare ni la base D1 real. Las pruebas usan un adaptador sobre `node:sqlite`.
-- Workers AI con el modelo real, sus latencias y su coste efectivo.
+- La concurrencia sobre la base D1 real. Las pruebas automáticas usan un adaptador sobre `node:sqlite`.
+- El coste efectivo en Neurons por respuesta, que se debe leer en el panel de Cloudflare.
 - El micrófono real en Windows con Edge y Chrome, en Android con Chrome y en iOS con Safari.
 - La validación humana del apartado 7: etiquetas, estabilidad, comentarios y estudiantes.
 - La aprobación de rúbricas: solo existe la candidata de `p-oe3-parcial`.

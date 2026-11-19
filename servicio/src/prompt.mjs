@@ -43,6 +43,17 @@ function sanearTexto(texto) {
   return t;
 }
 
+/** Un JSON de ejemplo con los ID reales de la rúbrica, para fijar la forma de la salida. */
+function ejemplo(esenciales, contradicciones) {
+  const obs = [
+    ...esenciales.map((c, i) => (i === 0
+      ? { criterio: c.id, estado: "presente", evidencia: "frase copiada tal cual del bloque" }
+      : { criterio: c.id, estado: "ausente", evidencia: null })),
+    ...contradicciones.map((x) => ({ criterio: x.id, estado: "ausente", evidencia: null })),
+  ];
+  return { veredicto: esenciales.length > 1 ? "parcial" : "correcta", observaciones: obs, pista: "Una frase para mejorar." };
+}
+
 /**
  * Construye los mensajes de sistema y de usuario.
  * @param {{rubrica: object, pregunta: string, texto: string}} datos
@@ -72,7 +83,10 @@ export function construirMensajes({ rubrica, pregunta, texto }) {
     "",
     "Haz una observación por cada criterio esencial y por cada contradicción crítica, usando su ID en el campo criterio.",
     "El estado es presente, ausente o contradicho. Si es ausente, la evidencia es null.",
-    `Si es presente o contradicho, la evidencia es un fragmento literal de la respuesta, de como máximo ${MAX_EVIDENCIA} caracteres. Nunca inventes una cita.`,
+    "Una paráfrasis con el mismo sentido cuenta como presente. Afirmar lo que describe una contradicción crítica es contradicho.",
+    `Si es presente o contradicho, la evidencia es un fragmento copiado del bloque del estudiante, de como máximo ${MAX_EVIDENCIA} caracteres.`,
+    "Cópialo carácter por carácter: mismas palabras, tildes, mayúsculas y puntuación, sin comillas ni puntos agregados.",
+    "Elige un fragmento corto, una frase o parte de ella. Nunca resumas, corrijas ni inventes una cita.",
     "",
     "Reglas del veredicto, en este orden:",
     "1. Alguna contradicción crítica contradicha con evidencia: incorrecta.",
@@ -84,6 +98,9 @@ export function construirMensajes({ rubrica, pregunta, texto }) {
     "Un criterio esencial contradicho cuenta como ausente.",
     "Si la respuesta es ambigua y no puedes decidir, puedes responder indeterminada.",
     "La pista es una frase para mejorar, o null. No tengas en cuenta el tiempo que tardó el estudiante.",
+    "",
+    "Forma de la respuesta (los valores son de ejemplo):",
+    JSON.stringify(ejemplo(esenciales, contradicciones)),
   ].join("\n");
 
   const usuario = `Pregunta: ${pregunta}\n\n${MARCA_INICIO}\n${sanearTexto(texto)}\n${MARCA_FIN}`;
