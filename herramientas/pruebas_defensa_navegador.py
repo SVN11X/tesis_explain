@@ -116,6 +116,10 @@ def contexto(browser, api=None, catalogo=True, ancho=1280, alto=900, servicio=No
                   body='window.DEFENSA_CONFIG = {api: "%s", sondeoMs: 100, plazoMs: 700};' % api))
         servicio = servicio or Servicio()
         ctx.route(API + '/**', servicio.manejar)
+    else:
+        # Sin servicio simulado, api vacía: estas pruebas no dependen de la dirección publicada en defensa-config.js.
+        ctx.route('**/js/defensa-config.js', lambda r: r.fulfill(status=200, content_type='text/javascript',
+                  body='window.DEFENSA_CONFIG = {api: ""};'))
     if catalogo:
         ctx.route('**/datos/defensa/catalogo.json', lambda r: r.fulfill(status=200, content_type='application/json', body=json.dumps(CATALOGO)))
     else:
