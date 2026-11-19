@@ -194,5 +194,4 @@
   };
   window.U = U;
   window.VISUALES = window.VISUALES || {};
-  window.VISUALES.ICO = U.ICO;
 })();
