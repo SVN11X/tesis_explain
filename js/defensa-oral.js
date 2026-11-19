@@ -81,6 +81,9 @@
     dlg.appendChild(estadoEl);
     dlg.appendChild(cuerpo);
     dlg.addEventListener("close", function () {
+      /* El evento close llega una tarea después de close(). Si en ese intervalo el diálogo ya se
+         volvió a abrir, este cierre es viejo: no debe invalidar la vista nueva ni mover el foco. */
+      if (dlg.open) return;
       generacion++;
       detenerVoz();
       if (scrollAlAbrir && (window.scrollX !== scrollAlAbrir.x || window.scrollY !== scrollAlAbrir.y)) window.scrollTo(scrollAlAbrir.x, scrollAlAbrir.y);

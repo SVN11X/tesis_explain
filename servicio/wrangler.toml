@@ -1,0 +1,49 @@
+# Worker de la práctica de defensa oral. Véase docs/defensa/especificacion.md, apartado 6.
+# Los secretos no van aquí: se cargan con `npx wrangler secret put HMAC_CLAVE` y `npx wrangler secret put SESION_CLAVE`,
+# una vez por entorno (agrega `--env preproduccion` para el de pruebas).
+name = "tesis-explain-defensa"
+main = "src/index.mjs"
+compatibility_date = "2026-11-01"
+
+[ai]
+binding = "AI"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "defensa-oral"
+database_id = "7a2c15be-61dc-4528-a740-6796e614a1d2"
+migrations_dir = "migraciones"
+
+[vars]
+AI_PROVIDER = "workers_ai"
+# Uno de MODELOS en src/proveedores.mjs. Cambiarlo exige repetir la validación (especificación, 5 y 9).
+AI_MODELO = "@cf/google/gemma-4-26b-a4b-it"
+FALLBACK_MODE = "practice_only"
+ADMISION = "abierta"
+ORIGENES = "https://svn11x.github.io"
+
+[triggers]
+crons = ["*/15 * * * *"]
+
+# Preproducción: base propia, mismo contrato. Su consumo se descuenta de la misma asignación diaria.
+[env.preproduccion]
+name = "tesis-explain-defensa-preproduccion"
+
+[env.preproduccion.ai]
+binding = "AI"
+
+[[env.preproduccion.d1_databases]]
+binding = "DB"
+database_name = "defensa-oral-preproduccion"
+database_id = "77025b39-4d82-4543-a1bf-81dc4c3df931"
+migrations_dir = "migraciones"
+
+[env.preproduccion.vars]
+AI_PROVIDER = "workers_ai"
+AI_MODELO = "@cf/google/gemma-4-26b-a4b-it"
+FALLBACK_MODE = "practice_only"
+ADMISION = "abierta"
+ORIGENES = "https://svn11x.github.io,http://localhost:4321,http://127.0.0.1:8000"
+
+[env.preproduccion.triggers]
+crons = ["*/15 * * * *"]
