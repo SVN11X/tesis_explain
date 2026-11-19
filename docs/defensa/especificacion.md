@@ -127,7 +127,7 @@ Devuelve `{valida: true, veredicto, observaciones, pista}` o `{valida: false, mo
 - falta un campo, sobra una clave, o un valor no es de los enumerados;
 - una observación cita un criterio que no está en la rúbrica, o falta la observación de un criterio;
 - una evidencia no es un fragmento literal de `textoConfirmado` (comparación exacta tras normalizar espacios), mide más de 300 caracteres, o es `null` con estado `presente` o `contradicho`;
-- el veredicto del modelo no coincide con el que calcula `veredictoPorReglas`.
+- el veredicto del modelo no coincide con el que calcula `veredictoPorReglas`, salvo `indeterminada`, que siempre es coherente porque el modelo puede abstenerse ante una ambigüedad aunque las reglas decidirían. Lo demás de la validación se exige igual.
 
 ### 3.3 `veredictoPorReglas(observaciones, rubrica, hayContenidoPertinente)`
 
@@ -135,10 +135,10 @@ En este orden:
 
 1. Alguna contradicción crítica `contradicho` con evidencia: `incorrecta`.
 2. Todos los esenciales `presente`: `correcta`.
-3. Algún esencial `presente` y alguno `ausente`: `parcial`.
-4. Ningún esencial presente: `incorrecta` si `rubrica.permite_incorrecta_ajena`, si no `indeterminada`.
+3. Algún esencial `presente`, o contenido pertinente, con algo que falta: `parcial`.
+4. Nada pertinente: respuesta claramente ajena a la pregunta, `incorrecta` si `rubrica.permite_incorrecta_ajena`, si no `indeterminada`.
 
-Un esencial `contradicho` cuenta como ausente. `hayContenidoPertinente` es verdadero si alguna observación tiene evidencia.
+Un esencial `contradicho` cuenta como ausente. `hayContenidoPertinente` es verdadero si alguna observación tiene evidencia, por ejemplo un esencial contradicho. Así una respuesta como «El robot avanzó durante las pruebas» es `parcial`.
 
 ### 3.4 `consenso(lecturas)`
 

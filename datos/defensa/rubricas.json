@@ -1,0 +1,24 @@
+{
+  "version_esquema": 1,
+  "rubricas": {
+    "p-oe3-parcial": {
+      "estado": "candidata",
+      "aprobada_por": null,
+      "fecha_aprobacion": null,
+      "version": 1,
+      "fuente": {"referencia": "Tabla 5.5 y Conclusiones, OE3", "enlace": "resultados.html#palabras"},
+      "criterios": [
+        {"id": "C1", "tipo": "esencial", "texto": "El mapeo y la localización mientras se construye el mapa quedaron verificados en el robot real.", "fuente": "resultados.html#palabras"},
+        {"id": "C2", "tipo": "esencial", "texto": "La navegación solo quedó verificada en funcionamiento: faltó medir con números su desempeño al alcanzar destinos.", "fuente": "resultados.html#palabras"}
+      ],
+      "alternativas_validas": [
+        "Decir que Nav2 llevó al robot hacia las metas del explorador, pero que no se midió con qué precisión llegaba, cumple C2.",
+        "Omitir la distancia recorrida o el número de corridas no resta."
+      ],
+      "contradicciones_criticas": [
+        {"id": "X1", "texto": "Afirmar que se probó con destinos fijos y se midió el error final de posición.", "fuente": "preguntas.html#p-metas-fijas"}
+      ],
+      "permite_incorrecta_ajena": true
+    }
+  }
+}

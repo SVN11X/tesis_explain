@@ -12,6 +12,7 @@ regenerar el PDF. El botón de descarga se escribe en preguntas.html, entre los 
 from pathlib import Path
 import hashlib, html, json, re, sys, tempfile
 from bs4 import BeautifulSoup
+from catalogo_defensa import leer_tarjetas
 
 ROOT = Path(__file__).resolve().parents[1]
 PDF = ROOT / 'descargas/preguntas-dificiles.pdf'
@@ -37,6 +38,7 @@ def absolutos(nodo):
 
 def contenido():
     s = BeautifulSoup((ROOT / 'preguntas.html').read_text(encoding='utf-8'), 'html.parser')
+    tarjetas = {c['id']: c for c in leer_tarjetas(s)}
     temas = []
     for h in s.select('.articulo section > h2[id]'):
         sec = h.find_parent('section')
@@ -46,8 +48,9 @@ def contenido():
         preguntas = []
         for q in qs:
             cuerpo = absolutos(q.select_one('.q-cuerpo'))
-            preguntas.append({'id': q['id'], 'n': q.select_one('.q-n').get_text(strip=True), 'titulo': q.select_one('.q-t').get_text(' ', strip=True),
-                              'nivel': NIVELES[q['data-dificultad']], 'cuerpo': cuerpo.decode_contents().strip()})
+            c = tarjetas[q['id']]
+            preguntas.append({'id': c['id'], 'n': q.select_one('.q-n').get_text(strip=True), 'titulo': c['enunciado'],
+                              'nivel': NIVELES[c['dificultad']], 'cuerpo': cuerpo.decode_contents().strip()})
         temas.append({'id': h['id'], 'titulo': h.get_text(' ', strip=True), 'preguntas': preguntas})
     metodo = absolutos(s.find('h2', id='como-responder').find_parent('section'))
     metodo.find('h2').decompose()
