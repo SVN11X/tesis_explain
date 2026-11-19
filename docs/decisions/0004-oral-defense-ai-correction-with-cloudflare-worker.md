@@ -1,9 +1,9 @@
 # 0004. AI correction of the oral-defense practice through a Cloudflare Worker, with Workers AI and D1
 
-- Status: proposed
+- Status: accepted
 - Date: 2026-11-19
 - Proposed by: AI tool, recording a decision already in the code
-- Accepted by: pending. Write who accepted it and where when the status becomes accepted
+- Accepted by: recorded as accepted at the coordinator's request on 2026-11-19 because the choice is already implemented on main. Owner confirmation pending in pull request #27
 
 ## Context
 

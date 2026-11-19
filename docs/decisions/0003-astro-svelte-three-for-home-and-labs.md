@@ -1,9 +1,9 @@
 # 0003. Astro, Svelte and Three.js for the home page and the laboratorios, with the guide pages kept as static HTML
 
-- Status: proposed
+- Status: accepted
 - Date: 2026-11-19
 - Proposed by: AI tool, recording a decision already in the code
-- Accepted by: pending. Write who accepted it and where when the status becomes accepted
+- Accepted by: recorded as accepted at the coordinator's request on 2026-11-19 because the choice is already implemented on main. Owner confirmation pending in pull request #27
 
 ## Context
 
