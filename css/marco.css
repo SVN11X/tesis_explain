@@ -103,11 +103,11 @@
 .clave { color: var(--tema); }
 /* Resaltado de marcador: <mark>, .resalta y las negritas de los párrafos de la guía (css/estilo.css). Es una franja
    sobre la mitad baja de la línea. js/marco.js la dibuja de izquierda a derecha cuando el texto llega a la pantalla,
-   y en un resaltado de varias líneas el trazo recorre una línea tras otra. */
+   y en un resaltado de varias líneas el trazo recorre una línea tras otra. La transición solo vale con resaltado-listo: al marcar el texto como pendiente (0%) el cambio es inmediato y no se ve un trazo hacia atrás. */
 mark, .resalta { color: inherit; background-color: transparent; background-image: linear-gradient(var(--tema-marca), var(--tema-marca)); background-repeat: no-repeat; background-position: 0 88%; background-size: 100% 58%; padding-inline: .06em; }
-.resaltado-animado .resaltable { transition: background-size var(--resalta-dur, .9s) cubic-bezier(.55, .1, .35, 1) var(--resalta-retraso, 0s); }
+.resaltado-animado .resaltado-listo { transition: background-size var(--resalta-dur, .9s) cubic-bezier(.55, .1, .35, 1) var(--resalta-retraso, 0s); }
 .resaltado-animado .resaltable:not(.resaltado-listo) { background-size: 0% 58%; }
-@media (prefers-reduced-motion: reduce) { .resaltado-animado .resaltable { transition: none; } .resaltado-animado .resaltable:not(.resaltado-listo) { background-size: 100% 58%; } }
+@media (prefers-reduced-motion: reduce) { .resaltado-animado .resaltado-listo { transition: none; } .resaltado-animado .resaltable:not(.resaltado-listo) { background-size: 100% 58%; } }
 @media print { .resaltado-animado .resaltable:not(.resaltado-listo) { background-size: 100% 58%; } }
 
 html, body { background: var(--paper); }
