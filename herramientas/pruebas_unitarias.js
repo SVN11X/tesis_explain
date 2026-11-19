@@ -1,17 +1,29 @@
 /*
-  Pruebas unitarias de la geometría de la huella, del reloj de paso fijo y de la búsqueda A estrella.
+  Pruebas unitarias de la huella, del reloj de paso fijo, de la búsqueda A estrella, del registro de interactivos y de la exploración.
   No requieren navegador. Uso, desde la raíz del repositorio:
       node herramientas/pruebas_unitarias.js
   Las pruebas de búsqueda, interacción y páginas están en herramientas/pruebas_navegador.py.
 */
 "use strict";
 var path = require("path"), fs = require("fs"), vm = require("vm");
-var ctx = { window: { addEventListener: function () {} }, console: console, Math: Math };
-ctx.window.window = ctx.window;
-vm.createContext(ctx);
-/* sims.js usa el kit de js/comun.js (U.limitar) en la huella, así que se carga primero */
-vm.runInContext(fs.readFileSync(path.join(__dirname, "..", "js", "comun.js"), "utf8"), ctx);
-vm.runInContext(fs.readFileSync(path.join(__dirname, "..", "js", "sims.js"), "utf8"), ctx);
+var RAIZ = path.join(__dirname, "..");
+/* SITIO.MODULOS, leído de js/sitio.js: archivo -> nombres de interactivo que registra */
+var MODULOS = {};
+(function () {
+  var bloque = /var MODULOS = \{([\s\S]*?)\n  \};/.exec(fs.readFileSync(path.join(RAIZ, "js", "sitio.js"), "utf8"))[1], re = /"(js\/[^"]+\.js)":\s*"([^"]+)"/g, m;
+  while ((m = re.exec(bloque))) MODULOS[m[1]] = m[2].split(" ");
+})();
+function archivoDe(nombre) { return Object.keys(MODULOS).filter(function (f) { return MODULOS[f].indexOf(nombre) >= 0; })[0]; }
+function cargar(contexto, archivo) { vm.runInContext(fs.readFileSync(path.join(RAIZ, archivo), "utf8"), contexto); }
+function nuevoContexto() {
+  var c = { window: { addEventListener: function () {} }, console: console, Math: Math };
+  c.window.window = c.window;
+  return vm.createContext(c);
+}
+var ctx = nuevoContexto();
+/* los archivos de interactivos usan el kit de js/comun.js (U.limitar), así que se carga primero */
+cargar(ctx, "js/comun.js");
+cargar(ctx, archivoDe("exploracion"));
 var G = ctx.window.SIMS_PRUEBAS;
 var fallos = 0, total = 0;
 function ok(cond, nombre, detalle) {
@@ -100,7 +112,7 @@ ok(r2.pendiente === 0, "reiniciar descarta la fracción pendiente");
 console.log("A estrella y Dijkstra, paso a paso");
 var ctxA = { window: { VISUALES: {}, U: {} }, Math: Math };
 vm.createContext(ctxA);
-vm.runInContext(fs.readFileSync(path.join(__dirname, "..", "js", "vis1.js"), "utf8"), ctxA);
+cargar(ctxA, archivoDe("astar"));
 var AS = ctxA.window.ASTAR_PRUEBAS, bA = AS.buscar(true), bD = AS.buscar(false);
 ok(bA.llego && bD.llego && bA.camino.length - 1 === 27 && bD.camino.length - 1 === 27, "las dos búsquedas llegan con una ruta de 27 pasos");
 ok(bA.pasos.length === 111 && bD.pasos.length === 291, "A estrella revisa 111 celdas y Dijkstra 291", bA.pasos.length + " " + bD.pasos.length);
@@ -132,6 +144,34 @@ ok(!eA.llego && eA.pasos.length === 300, "con la meta encerrada no hay ruta y se
 ok(AS.h(0, 0, [5, 6]) === 11 && AS.h(3, 6) === 17, "h usa la meta de la rejilla editada");
 ok(bA.camino.every(function (c, i) { var a = bA.camino[i - 1]; return !AS.muro[c.join(",")] && (!i || Math.abs(c[0] - a[0]) + Math.abs(c[1] - a[1]) === 1); }) &&
   bA.camino[0].join(",") === AS.A.join(",") && bA.camino[bA.camino.length - 1].join(",") === AS.B.join(","), "la ruta va del robot a la meta por celdas vecinas y libres");
+
+console.log("Cada archivo registra exactamente los interactivos de SITIO.MODULOS");
+Object.keys(MODULOS).forEach(function (archivo) {
+  var c = nuevoContexto();
+  cargar(c, "js/comun.js"); cargar(c, archivo);
+  var reales = Object.keys(c.window.VISUALES).sort().join(" "), previstos = MODULOS[archivo].slice().sort().join(" ");
+  ok(reales === previstos, archivo + " registra lo que dice SITIO.MODULOS", reales + " | " + previstos);
+});
+
+console.log("Exploración por fronteras, sin DOM y con paso fijo");
+function exploracion(pasos) {
+  var S = ctx.window.SIMS_PRUEBAS.exploracion();
+  S.reiniciar();
+  for (var i = 0; i < pasos; i++) S.avanzar(1 / 30);
+  return S;
+}
+var ex0 = exploracion(0), v0 = ex0.ver();
+ok(v0.est.enviadas === 1 && v0.ruta.length > 0 && v0.meta && v0.t === 0, "al reiniciar envía la primera meta con una ruta", JSON.stringify(v0.est));
+ok(cerca(ex0.cobertura(), 9.81, 0.01), "el primer barrido del láser descubre cerca del 9,8 % del plano", ex0.cobertura());
+var ex30 = exploracion(30), v30 = ex30.ver();
+ok(cerca(v30.t, 1, 1e-9) && cerca(v30.robot.x, 7.5, 1e-6) && cerca(v30.robot.y, 36.9, 0.01), "tras 1 s simulado avanza recto hacia la meta, de y 40,5 a 36,9", v30.robot.x + " " + v30.robot.y);
+ok(ex30.cobertura() > ex0.cobertura(), "al moverse descubre más plano");
+var e1 = exploracion(300).ver(), e2 = exploracion(300).ver();
+ok(e1.robot.x === e2.robot.x && e1.robot.y === e2.robot.y && e1.est.enviadas === 4 && e1.est.reemplazadas === 3 && e2.est.enviadas === 4, "dos corridas iguales dan lo mismo: 4 metas enviadas, 3 reemplazadas a los 10 s", JSON.stringify(e1.est));
+var exF = exploracion(9000);
+ok(exF.ver().terminado && cerca(exF.cobertura(), 100, 0.01), "a los 300 s termina sola sin fronteras y con el plano completo", exF.cobertura());
+var rf = ex0.fronteras();
+ok(rf.grupos.length > 0 && rf.grupos.every(function (g) { return g.length > 0; }), "hay fronteras al empezar");
 
 console.log("\n" + (total - fallos) + " de " + total + " pruebas correctas");
 process.exit(fallos ? 1 : 0);

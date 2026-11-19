@@ -2,8 +2,6 @@
 (function () {
   "use strict";
   var V = window.VISUALES, U = window.U;
-  /* Iconos compartidos, definidos en js/comun.js */
-  var ICO = V.ICO || (U && U.ICO) || { OK: "", NO: "" }, OK = ICO.OK, NO = ICO.NO;
 
   /* Recta de 2 metros */
   V.odometria = function (el) {
@@ -122,6 +120,7 @@
 
   /* Gemelo digital */
   V.gemelo = function (el) {
+    var OK = U.ICO.OK, NO = U.ICO.NO;
     el.innerHTML =
       '<h4 class="vsub">Los cuatro criterios de la Tabla A2.2</h4>' +
       '<div class="criterios">' +
@@ -157,6 +156,7 @@
 
   /* Dónde fallaría */
   V.fallaria = function (el) {
+    var OK = U.ICO.OK, NO = U.ICO.NO;
     var lado = '<svg class="vsvg" viewBox="0 0 400 200" role="img" aria-label="Vista lateral del plano del láser">' +
       '<line class="k-ink" stroke-width="2" x1="10" y1="170" x2="390" y2="170"/>' +
       '<rect class="f-azul" x="30" y="138" width="56" height="30" rx="4"/><rect class="f-obst" x="50" y="124" width="16" height="14" rx="2"/>' +

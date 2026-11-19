@@ -34,7 +34,7 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 
 ## Learning and attention
 
-- [ ] (yellow) control.html (8,287 words, 15 % folded): a short summary per section that keeps figures and thesis references visible, the rest folded. Search results and #anchors open the folded part, with a test.
+- [x] (yellow) control.html (8,287 words, 15 % folded): a short summary per section that keeps figures and thesis references visible, the rest folded. Search results and #anchors open the folded part, with a test.
 - [ ] (yellow) control.html: an interactive inside the first 4 screens at 360 px (first video now at screen 7.0, comparison slider at 33.4; revision-atencion 5).
 - [ ] (yellow) mapeo.html (7,116 words, 10 % folded): the same treatment and the same test, with an interactive inside the first 4 screens at 360 px.
 - [ ] (yellow) The same for robot, movimiento and resultados, one page per pull request. Then the owner reviews before problema, navegacion, exploracion and replicar.
@@ -43,7 +43,7 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 - [ ] (yellow) Playful states: one drawn SVG robot for search without results, as the example, with its reason recorded for a decorative illustration. Each state says what happened and the next action.
 - [x] (green) Motion rich: record the purpose of each animation in docs/decisions/, and give a pause control to anything that moves for more than 5 s.
 - [x] (green) Review palette and motion for what distracts or tires people with attention difficulties, and check the home page's first screen at 360 and 1280 px. Report with screenshots, change nothing.
-- [ ] (yellow) Home first screen: primary button «Empieza la guía» to the guide and secondary «Juega con el robot 3D» to the viewer, with the 3D robot fully visible at 360 px (docs/revision-atencion.md 1 and 2).
+- [x] (yellow) Home first screen: primary button «Empieza la guía» to the guide and secondary «Juega con el robot 3D» to the viewer, with the 3D robot fully visible at 360 px (docs/revision-atencion.md 1 and 2).
 - [ ] (yellow) Home first screen shows the robot exploring and the map growing, reusing img/mapa-crece.mp4 or the existing LiDAR scene, so a first visit sees what the robot does (revision-atencion 3).
 - [ ] (green) Home 3D viewer: only the active tab keeps its topic color, the others stay neutral (revision-atencion 8). Confirm that the .scan-loader spinner hides after loading.
 - [ ] (green) Measure the contrast of the small gray uppercase labels on the home page at 360 px and fix anything under 4.5:1.
@@ -59,8 +59,8 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 - [ ] (green) Move the canvas kit (sims.js:20-117: css, rgba, paleta, lienzo, alTema, quieto, fmt, limitar, bucle) and robotCelda (vis1.js:57) into comun.js as U.*, so the split does not copy it four times.
 - [x] (green) Shared helpers in comun.js: U.marcar (aria-pressed, 11 copies), U.chips, U.tarjetas and one U.alAncho for redraw on resize (comun.js:17-31, sims.js:62 and inline copies). Same pull request as the kit if small.
 - [x] (green) One reduced-motion path: U.quieto and one U.alCambiarMovimiento. bucle pauses pid, enjambre and exploracion when reduced motion turns on mid-run, as cinematica and encoder already do.
-- [ ] (green) Remove dead code: the sims.js hero mode (no page uses data-modo="hero"), ICO stored in VISUALES (comun.js:92), stale notes (vis1.js:8, :323, sims.js:9, :711) and SITIO.quieto (sitio.js:853).
-- [ ] (green) Tests before the split: list files from SITIO.MODULOS instead of hardcoded names, check that each file registers exactly its MODULOS names, and add a Node test for the exploration simulation.
+- [x] (green) Remove dead code: the sims.js hero mode (no page uses data-modo="hero"), ICO stored in VISUALES (comun.js:92), stale notes (vis1.js:8, :323, sims.js:9, :711) and SITIO.quieto (sitio.js:853).
+- [x] (green) Tests before the split: list files from SITIO.MODULOS instead of hardcoded names, check that each file registers exactly its MODULOS names, and add a Node test for the exploration simulation.
 - [ ] (yellow) Split vis1, vis2, vis3 and sims.js by chapter: navegacion, exploracion, control, robot, plus mapeo (cobertura) and movimiento. Consider static HTML for versiones, gemelo and fallaria.
 - [ ] (green) After part (b): shorten README.md (364 lines) to what it is, for whom, use, status, layout and license. The audit reports go to docs/historial/ with every link fixed.
 

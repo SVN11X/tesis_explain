@@ -13,6 +13,13 @@ import hashlib, json, os, re
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def modulo_de(nombre):
+    """Archivo de js/ que registra el interactivo `nombre` según SITIO.MODULOS en js/sitio.js"""
+    fuente = (ROOT / 'js' / 'sitio.js').read_text(encoding='utf-8')
+    bloque = re.search(r'var MODULOS = \{(.*?)\n  \};', fuente, re.S).group(1)
+    return next(m for m, n in re.findall(r'"(js/[^"]+\.js)":\s*"([^"]+)"', bloque) if nombre in n.split())
+
+
 class Quiet(SimpleHTTPRequestHandler):
     def log_message(self, *args):
         pass
@@ -180,10 +187,11 @@ with sync_playwright() as pw:
     # Fallo inducido: conserva la explicación original y reintenta tras recuperar módulo.
     ctx = browser.new_context()
     ctx.route(re.compile(r'^https?://(?!localhost)'), lambda r: r.fulfill(status=200, body=''))
-    ctx.route('**/js/vis2.js', lambda route: route.fulfill(status=200, body=''))
+    ARCH = modulo_de('estacionario')
+    ctx.route('**/' + ARCH, lambda route: route.fulfill(status=200, body=''))
     p = ctx.new_page(); p.goto(BASE + '/control.html#sim-estacionario'); p.locator('[data-vis=estacionario]').scroll_into_view_if_needed()
     check('error estacionario de 0,002' in p.locator('[data-vis=estacionario]').inner_text(), 'Módulo ausente conserva explicación original')
-    p.add_script_tag(content=(ROOT/'js/vis2.js').read_text(encoding='utf-8'))
+    p.add_script_tag(content=(ROOT / ARCH).read_text(encoding='utf-8'))
     p.locator('[data-vis=estacionario] .vis-error button').click()
     check(p.locator('[data-vis=estacionario][data-montado="1"]').count() == 1, 'Reintento monta el módulo recuperado')
     ctx.close()
