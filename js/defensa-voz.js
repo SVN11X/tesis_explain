@@ -5,7 +5,8 @@
   Agrega tres controles a cada pregunta:
   - «Escuchar pregunta»: speechSynthesis con una voz en español que funcione sin red (localService).
   - «Dictar en este navegador»: Whisper tiny dentro de un Web Worker, con los archivos de voz/ servidos por este sitio.
-    Antes de descargar muestra el tamaño de voz/manifiesto.json y pide confirmar. El micrófono se pide al terminar.
+    Graba al pulsar, sin pregunta previa: pide el micrófono y prepara el modelo en paralelo. Si la grabación termina
+    antes, espera con el progreso y un botón Cancelar.
   - «Dictado externo»: SpeechRecognition del navegador, solo tras aceptar el aviso de que el audio puede salir.
 
   El dictado agrega texto al borrador, nunca lo reemplaza. Nada se guarda en el navegador. La elección sobre el
@@ -19,6 +20,7 @@
   var MAX_SEGUNDOS = 120;      /* tope de una grabación: acota la memoria */
   var PLAZO_TRANSCRIBIR_MS = 90000;
   var HZ = 16000;
+  var TEXTO_PREPARAR = "No se pudo preparar el dictado. Tu borrador sigue aquí. Puedes escribir o usar el dictado externo.";
   var TEXTO_FALLO = "No se pudo dictar en este navegador. Tu pregunta y lo escrito siguen aquí. Puedes escribir o usar el dictado externo.";
 
   var instancias = [];
@@ -77,8 +79,12 @@
     var voz = null;                  /* voz en español sin red */
     var leyendo = false;
     var externo = null;              /* instancia de SpeechRecognition */
-    var estado = "reposo";           /* reposo, consulta, confirmando, descargando, micro, grabando, transcribiendo */
+    /* reposo, consulta (lee el manifiesto), micro (espera el permiso), grabando, preparando (grabación terminada que
+       espera al modelo) y transcribiendo. El modelo carga en paralelo desde que se pulsa el botón. */
+    var estado = "reposo";
     var worker = null, trabajadorListo = false, temporizador = null;
+    var pendiente = null;            /* audio ya grabado que espera a que el modelo esté listo */
+    var progreso = { cargado: 0, total: 0 }, decilAnunciado = 0;
     var flujo = null, ctx = null, proc = null, fuente = null, trozos = null, muestras = 0;
     var gen = 0;                     /* invalida los pasos asíncronos de una acción ya cancelada */
 
@@ -107,7 +113,7 @@
         bExterno.disabled = estado !== "reposo";
       }
       bEscuchar.textContent = leyendo ? "Detener lectura" : "Escuchar pregunta";
-      bCancelar.hidden = !(estado === "consulta" || estado === "descargando" || estado === "micro" || estado === "transcribiendo");
+      bCancelar.hidden = !(estado === "consulta" || estado === "micro" || estado === "preparando" || estado === "transcribiendo");
     }
     function limpiarAviso() { area.textContent = ""; area.hidden = true; }
 
@@ -232,6 +238,7 @@
     }
     function fallo(mensaje) {
       gen++;
+      pendiente = null;
       liberarCaptura(); terminarWorker(); limpiarAviso();
       estado = "reposo"; pintar();
       decir(mensaje || TEXTO_FALLO);
@@ -239,6 +246,7 @@
     function detenerPrivado(silencio) {
       if (estado === "reposo" && !worker) return;
       gen++;
+      pendiente = null;
       liberarCaptura(); terminarWorker(); limpiarAviso();
       estado = "reposo"; pintar();
       if (!silencio) decir("");
@@ -246,10 +254,8 @@
     function detenerDictados() { detenerExterno(); detenerPrivado(true); }
 
     function cancelar() {
-      var antes = estado;
       detenerPrivado(true);
-      decir(antes === "descargando" ? "Descarga cancelada. Tu pregunta y tu borrador siguen aquí. Puedes escribir o usar el dictado externo." :
-        "Dictado cancelado. Tu pregunta y tu borrador siguen aquí.");
+      decir("Dictado cancelado. Tu pregunta y tu borrador siguen aquí.");
       bPrivado.focus();
     }
     function alPulsarPrivado() {
@@ -263,7 +269,10 @@
       decir("Comprobando el dictado en este navegador…");
       leerManifiesto().then(function (m) {
         if (g !== gen) return;
-        confirmarDescarga(m, g);
+        /* sin pregunta previa: el micrófono se pide ya y el modelo se prepara en paralelo */
+        if (!worker) cargar(m);
+        if (!worker) return;     /* cargar falló y ya dejó el panel en reposo */
+        pedirMicro();
       }, function () {
         if (g !== gen) return;
         estado = "reposo"; pintar();
@@ -273,52 +282,48 @@
         if (!activo || activo === document.body || caja.contains(activo)) bPrivado.focus();
       });
     }
-    function confirmarDescarga(m, g) {
-      estado = "confirmando"; pintar();
-      area.textContent = "";
-      area.appendChild(el("p", "", "El dictado en este navegador descarga " + megas(m.bytes_total) + " desde este mismo sitio, una sola vez por sesión. El audio no sale de tu equipo. ¿Descargar ahora?"));
-      var fila = el("div", "dv-acciones");
-      var si = boton("Descargar y dictar", "prim", function () { limpiarAviso(); descargar(m, g); });
-      var no = boton("Seguir escribiendo", "", function () {
-        gen++; limpiarAviso(); estado = "reposo"; pintar();
-        decir("Seguirás escribiendo. No se descargó nada.");
-        ta.focus();
-      });
-      fila.appendChild(si); fila.appendChild(no);
-      area.appendChild(fila);
-      area.hidden = false;
-      decir("");
-      si.focus();
+    function textoProgreso() { return megas(Math.min(progreso.cargado, progreso.total)) + " de " + megas(progreso.total); }
+    function mensajeGrabando() {
+      var t = "Grabando. Pulsa «Terminar dictado» cuando acabes.";
+      if (worker && !trabajadorListo) t += " Mientras hablas, tu navegador prepara el dictado: " + textoProgreso() + ". Solo la primera vez.";
+      return t;
     }
-    function descargar(m, g, dispositivo) {
-      if (g !== gen) return;
-      estado = "descargando"; pintar();
-      decir("Descargando el modelo de voz: 0 de " + megas(m.bytes_total));
+    function mensajePreparando() { return "Preparando el dictado: " + textoProgreso() + ". Tu grabación espera aquí."; }
+    /* Carga el modelo sin bloquear nada. El progreso se anuncia como mucho una vez por cada 10 % */
+    function cargar(m, dispositivo) {
+      progreso = { cargado: 0, total: m.bytes_total }; decilAnunciado = 0;
       try {
         worker = new Worker(new URL("js/defensa-whisper-worker.js", document.baseURI).href, { type: "module" });
-      } catch (e) { fallo(); return; }
+      } catch (e) { fallo(TEXTO_PREPARAR); return; }
       var w = worker;
-      w.onerror = function () { if (w === worker) fallo(); };
+      w.onerror = function () { if (w === worker) fallo(trabajadorListo ? undefined : TEXTO_PREPARAR); };
       w.onmessage = function (ev) {
         if (w !== worker) return;
         var d = ev.data || {};
         if (d.tipo === "progreso") {
           var total = d.total > 0 ? d.total : m.bytes_total;
-          decir("Descargando el modelo de voz: " + megas(Math.min(d.cargado, total)) + " de " + megas(total));
+          progreso = { cargado: d.cargado, total: total };
+          var decil = Math.floor(Math.min(d.cargado / total, 1) * 10);
+          if (decil > decilAnunciado) {
+            decilAnunciado = decil;
+            if (estado === "grabando") decir(mensajeGrabando());
+            else if (estado === "preparando") decir(mensajePreparando());
+          }
         } else if (d.tipo === "listo") {
           trabajadorListo = true;
-          pedirMicro();
+          if (estado === "preparando" && pendiente) { var a = pendiente; pendiente = null; transcribir(a); }
+          else if (estado === "grabando") decir(mensajeGrabando());
         } else if (d.tipo === "texto") {
           if (temporizador) { clearTimeout(temporizador); temporizador = null; }
           estado = "reposo"; pintar();
           decir(agregar(d.texto) ? "Texto agregado al final de tu respuesta. Revísalo y corrígelo antes de confirmar." : "No se entendió nada. Inténtalo otra vez o escribe.");
           ta.focus();
         } else if (d.tipo === "reintentar") {
-          /* la biblioteca recuerda una carga fallida: el respaldo wasm va en un Worker nuevo */
+          /* la biblioteca recuerda una carga fallida: el respaldo wasm va en un Worker nuevo. El audio pendiente se conserva */
           terminarWorker();
-          descargar(m, g, d.dispositivo === "wasm" ? "wasm" : undefined);
+          cargar(m, d.dispositivo === "wasm" ? "wasm" : undefined);
         } else if (d.tipo === "error") {
-          fallo();
+          fallo(trabajadorListo ? undefined : TEXTO_PREPARAR);
         }
       };
       w.postMessage({ tipo: "iniciar", total: m.bytes_total, dispositivo: dispositivo });
@@ -326,7 +331,7 @@
     function pedirMicro() {
       var g = ++gen;
       estado = "micro"; pintar();
-      decir("Modelo listo. Pidiendo el micrófono…");
+      decir("Pidiendo el micrófono…");
       var md = navigator.mediaDevices;
       if (!md || typeof md.getUserMedia !== "function") { volverATexto("Este navegador no permite usar el micrófono aquí. Sigue escribiendo."); return; }
       md.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true } }).then(function (s) {
@@ -337,8 +342,10 @@
         volverATexto("El micrófono no está permitido. Sigue escribiendo, el borrador no cambió.");
       });
     }
+    /* Sin micrófono no hay nada que transcribir: si el modelo aún carga, la carga también termina */
     function volverATexto(mensaje) {
       liberarCaptura();
+      if (!trabajadorListo) terminarWorker();
       estado = "reposo"; pintar();
       decir(mensaje);
       ta.focus();
@@ -362,7 +369,7 @@
         fuente.connect(proc); proc.connect(ctx.destination);
       } catch (e) { volverATexto("No se pudo grabar el audio en este navegador. Sigue escribiendo."); return; }
       estado = "grabando"; pintar();
-      decir("Grabando. Pulsa «Terminar dictado» cuando acabes.");
+      decir(mensajeGrabando());
       bPrivado.focus();
     }
     function terminarGrabacion() {
@@ -372,6 +379,14 @@
       var audio = unir(partes, tasa);
       partes = null;
       if (audio.length < HZ * 0.3) { volverATexto("No se oyó nada. Inténtalo otra vez o escribe."); return; }
+      if (worker && trabajadorListo) { transcribir(audio); return; }
+      /* el modelo aún carga: la grabación espera aquí, solo en memoria */
+      gen++;
+      pendiente = audio;
+      estado = "preparando"; pintar();
+      decir(mensajePreparando());
+    }
+    function transcribir(audio) {
       var g = ++gen;
       estado = "transcribiendo"; pintar();
       decir("Transcribiendo en tu navegador…");

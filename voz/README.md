@@ -8,7 +8,7 @@ Archivos que usa el dictado de la práctica de defensa oral cuando el estudiante
 | `ort/` | Motor ONNX Runtime Web, WebAssembly con WebGPU | 1.31.0-dev.20260914-8d85527a0 | MIT |
 | `whisper-tiny/` | Whisper tiny multilingüe, pesos cuantizados a 8 bits | revisión `ff41770` de onnx-community/whisper-tiny | Apache 2.0 |
 
-Son 71,1 MB. El panel muestra ese tamaño antes de descargar y antes de pedir el micrófono.
+Son 71,1 MB. El panel graba al pulsar y descarga el modelo mientras el estudiante habla, mostrando el progreso. Después el navegador los guarda en su caché (`transformers-cache`) y las visitas siguientes no vuelven a descargarlos.
 
 `voz/manifiesto.json` guarda el origen, el tamaño y la huella SHA-256 de cada archivo. Las huellas de los dos pesos coinciden con las que publica Hugging Face para esa revisión.
 
