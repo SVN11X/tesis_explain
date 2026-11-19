@@ -408,19 +408,22 @@
         bp.addEventListener("click", function () { if (B.activo) { B.pausa(); pausadoUsuario = true; } else { B.play(); pausadoUsuario = false; } setTxt(); });
         if (!U.quieto()) B.play();
         setTxt();
-        alCambiarMovimiento(function (reducido) { if (reducido) B.pausa(); else if (!pausadoUsuario) B.play(); setTxt(); });
+        alCambiarMovimiento(function (reducido) { if (!reducido && !pausadoUsuario) B.play(); setTxt(); });
       } else if (!U.quieto()) B.play();
       return;
     }
+    function textoPlay() { var bp = el.querySelector('[data-a="play"]'); bp.textContent = B.activo ? "Pausar" : (terminado ? "Explorar de nuevo" : "Explorar"); bp.setAttribute("aria-pressed", B.activo ? "true" : "false"); }
+    /* el bucle se pausa solo con movimiento reducido, y el botón debe decirlo */
+    alCambiarMovimiento(textoPlay);
     el.addEventListener("click", function (e) {
       var b = e.target.closest("[data-a]");
       if (b) {
         if (b.getAttribute("data-a") === "play") { if (B.activo) B.pausa(); else { if (terminado) reiniciar(); B.play(); } }
         if (b.getAttribute("data-a") === "reset") { reiniciar(); dibujar(); }
-        var bp = el.querySelector('[data-a="play"]'); bp.textContent = B.activo ? "Pausar" : (terminado ? "Explorar de nuevo" : "Explorar"); bp.setAttribute("aria-pressed", B.activo ? "true" : "false");
+        textoPlay();
       }
       var v = e.target.closest("[data-v]");
-      if (v) { vel = +v.getAttribute("data-v"); el.querySelectorAll("[data-v]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === v)); }); }
+      if (v) { vel = +v.getAttribute("data-v"); U.marcar(el, "data-v", v.getAttribute("data-v")); }
     });
     el.addEventListener("change", function (e) {
       var k = e.target.getAttribute("data-t"); if (!k) return;
@@ -542,11 +545,11 @@
     /* sin movimiento reducido arranca sola; con movimiento reducido espera a que la persona lo pida */
     if (!U.quieto()) B.play();
     marcar();
-    alCambiarMovimiento(function (reducido) { if (reducido) B.pausa(); else if (!pausadoUsuario) B.play(); marcar(); });
-    el.addEventListener("input", function (e) { var k = e.target.getAttribute("data-k"); if (!k) return; st[k] = parseFloat(e.target.value); el.querySelectorAll("[data-p]").forEach(function (x) { x.setAttribute("aria-pressed", "false"); }); kAct = calc(); dibujar(); });
+    alCambiarMovimiento(function (reducido) { if (!reducido && !pausadoUsuario) B.play(); marcar(); });
+    el.addEventListener("input", function (e) { var k = e.target.getAttribute("data-k"); if (!k) return; st[k] = parseFloat(e.target.value); U.marcar(el, "data-p", ""); kAct = calc(); dibujar(); });
     el.addEventListener("click", function (e) {
       var p = e.target.closest("[data-p]");
-      if (p) { var d = PRE[+p.getAttribute("data-p")]; st.vl = d[1]; st.vr = d[2]; el.querySelectorAll("[data-p]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === p)); }); kAct = calc(); reset(); dibujar(); }
+      if (p) { var d = PRE[+p.getAttribute("data-p")]; st.vl = d[1]; st.vr = d[2]; U.marcar(el, "data-p", p.getAttribute("data-p")); kAct = calc(); reset(); dibujar(); }
       var a = e.target.closest("[data-a]");
       if (a && a.getAttribute("data-a") === "reset") { reset(); dibujar(); }
       if (a && a.getAttribute("data-a") === "mover") { if (B.activo) { B.pausa(); pausadoUsuario = true; } else { B.play(); pausadoUsuario = false; } marcar(); }
@@ -628,9 +631,9 @@
     /* sin movimiento reducido arranca sola; con movimiento reducido queda fija hasta que la persona la inicie */
     if (!U.quieto()) B.play();
     velTxt(); marcar();
-    alCambiarMovimiento(function (reducido) { if (reducido) B.pausa(); else if (!pausadoUsuario) B.play(); marcar(); });
+    alCambiarMovimiento(function (reducido) { if (!reducido && !pausadoUsuario) B.play(); marcar(); });
     el.addEventListener("click", function (e) {
-      var s = e.target.closest("[data-s]"); if (s) { sentido = +s.getAttribute("data-s"); el.querySelectorAll("[data-s]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === s)); }); }
+      var s = e.target.closest("[data-s]"); if (s) { sentido = +s.getAttribute("data-s"); U.marcar(el, "data-s", s.getAttribute("data-s")); }
       var a = e.target.closest("[data-a]"); if (!a) return;
       var k = a.getAttribute("data-a");
       if (k === "cero") { cuenta = 0; cuenta1 = 0; el.querySelector('[data-o="c"]').textContent = 0; el.querySelector('[data-o="c1"]').textContent = 0; }
@@ -718,7 +721,7 @@
     el.addEventListener("input", function (e) {
       var k = e.target.getAttribute("data-k"); if (!k) return;
       if (!editando) { anterior = copia(confirmado); editando = true; }
-      st[k] = parseFloat(e.target.value); el.querySelectorAll("[data-p]").forEach(function (x) { x.setAttribute("aria-pressed", "false"); }); dibujar();
+      st[k] = parseFloat(e.target.value); U.marcar(el, "data-p", ""); dibujar();
     });
     el.addEventListener("change", function (e) {
       if (e.target.getAttribute("data-k")) { editando = false; confirmado = copia(st); return; }
@@ -732,7 +735,7 @@
       var antes = copia(st); st.kp = v[0]; st.ki = v[1]; st.kd = v[2];
       if (!igual(antes, st)) anterior = antes;
       confirmado = copia(st); editando = false;
-      el.querySelectorAll("[data-p]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === p)); }); dibujar();
+      U.marcar(el, "data-p", p.getAttribute("data-p")); dibujar();
     });
     el.estadoSim = function () { var m = medidas(sim(st)); return { actual: m, anterior: anterior ? medidas(sim(anterior)) : null, ganancias: copia(st), reglas: CM.lecturaPID(st, m).map(function (r) { return r.id; }) }; };
     dibujar();
@@ -823,6 +826,8 @@
       if (k === "paso") { B.pausa(); bp.textContent = "Seguir"; bp.setAttribute("aria-pressed", "false"); generacion(); dibujar(); }
       if (k === "reset") { B.pausa(); bp.textContent = "Buscar"; bp.setAttribute("aria-pressed", "false"); reset(); dibujar(); }
     });
+    /* el bucle se pausa solo con movimiento reducido, y el botón debe decirlo */
+    alCambiarMovimiento(function (reducido) { if (!reducido) return; var bp = el.querySelector('[data-a="play"]'); bp.textContent = "Seguir"; bp.setAttribute("aria-pressed", "false"); });
     reset(); dibujar();
   };
 
@@ -931,7 +936,7 @@
       dibujar();
     });
     el.addEventListener("input", function (e) { var k = e.target.getAttribute("data-k"); if (!k) return; st[k] = parseFloat(e.target.value); if (k === "infl") el.querySelectorAll("[data-r]").forEach(function (x) { x.setAttribute("aria-pressed", String(Math.abs(parseFloat(x.getAttribute("data-r")) - st.infl) < 1e-9)); }); dibujar(); });
-    el.addEventListener("click", function (e) { var b = e.target.closest("[data-r]"); if (!b) return; st.infl = parseFloat(b.getAttribute("data-r")); el.querySelectorAll("[data-r]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); dibujar(); });
+    el.addEventListener("click", function (e) { var b = e.target.closest("[data-r]"); if (!b) return; st.infl = parseFloat(b.getAttribute("data-r")); U.marcar(el, "data-r", b.getAttribute("data-r")); dibujar(); });
     distancias(); dibujar();
     el.estadoSim = function () { var ev = evaluar(); return { st: { x: st.x, y: st.y, ang: st.ang, infl: st.infl }, fisico: ev.fisico, margen: ev.margen, inscritas: ev.inscritas, costoCentro: ev.costoCentro, celdasFisicas: ev.celdasFisicas.length }; };
     el.fijarSim = function (o) { Object.keys(o).forEach(function (k) { st[k] = o[k]; }); dibujar(); };

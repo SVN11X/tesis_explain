@@ -26,7 +26,7 @@
       cont.innerHTML = s + '</svg>';
     }
     dibujar();
-    U.alCambiarAncho(cont, dibujar);
+    U.alAncho(cont, dibujar);
   };
 
   /* Iteración 2 */
@@ -58,7 +58,7 @@
       cont.innerHTML = s + '</svg>';
     }
     dibujar();
-    U.alCambiarAncho(cont, dibujar);
+    U.alAncho(cont, dibujar);
   };
 
   /* Giro */
@@ -90,7 +90,7 @@
       cont.innerHTML = s + '</svg>';
     }
     dibujar();
-    U.alCambiarAncho(cont, dibujar);
+    U.alAncho(cont, dibujar);
   };
 
   /* Robot y computador */

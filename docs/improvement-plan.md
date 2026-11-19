@@ -51,8 +51,8 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 - [ ] (green) docs/decisiones.md: mark rows 5 (native HTML only), 13 (no inference) and 14 (no automatic publishing) as superseded, and record the Astro, AI correction and Actions decisions in docs/decisions/.
 - [x] (green) Deep maintainability review of js/ (sims.js 1,157 lines, mapeo.js 945, sitio.js 854). Its findings become new items here.
 - [ ] (green) Move the canvas kit (sims.js:20-117: css, rgba, paleta, lienzo, alTema, quieto, fmt, limitar, bucle) and robotCelda (vis1.js:57) into comun.js as U.*, so the split does not copy it four times.
-- [ ] (green) Shared helpers in comun.js: U.marcar (aria-pressed, 11 copies), U.chips, U.tarjetas and one U.alAncho for redraw on resize (comun.js:17-31, sims.js:62 and inline copies). Same pull request as the kit if small.
-- [ ] (green) One reduced-motion path: U.quieto and one U.alCambiarMovimiento. bucle pauses pid, enjambre and exploracion when reduced motion turns on mid-run, as cinematica and encoder already do.
+- [x] (green) Shared helpers in comun.js: U.marcar (aria-pressed, 11 copies), U.chips, U.tarjetas and one U.alAncho for redraw on resize (comun.js:17-31, sims.js:62 and inline copies). Same pull request as the kit if small.
+- [x] (green) One reduced-motion path: U.quieto and one U.alCambiarMovimiento. bucle pauses pid, enjambre and exploracion when reduced motion turns on mid-run, as cinematica and encoder already do.
 - [ ] (green) Remove dead code: the sims.js hero mode (no page uses data-modo="hero"), ICO stored in VISUALES (comun.js:92), stale notes (vis1.js:8, :323, sims.js:9, :711) and SITIO.quieto (sitio.js:853).
 - [ ] (green) Tests before the split: list files from SITIO.MODULOS instead of hardcoded names, check that each file registers exactly its MODULOS names, and add a Node test for the exploration simulation.
 - [ ] (yellow) Split vis1, vis2, vis3 and sims.js by chapter: navegacion, exploracion, control, robot, plus mapeo (cobertura) and movimiento. Consider static HTML for versiones, gemelo and fallaria.
