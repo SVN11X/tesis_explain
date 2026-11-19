@@ -90,11 +90,14 @@
     bEscuchar.hidden = true;
     var bPrivado = boton("Dictar en este navegador", "", alPulsarPrivado);
     var bExterno = reconocimiento() ? boton("Dictado externo", "", alPulsarExterno) : null;
+    var nota = el("p", "dv-voz-nota", "Este navegador no tiene una voz en español para leer la pregunta.");
+    nota.hidden = true;
     var bCancelar = boton("Cancelar", "", cancelar);
     bCancelar.hidden = true;
-    [bEscuchar, bPrivado, bExterno, bCancelar, area, estadoEl].forEach(function (n) { if (n) caja.appendChild(n); });
+    [bEscuchar, bPrivado, bExterno, bCancelar, nota, area, estadoEl].forEach(function (n) { if (n) caja.appendChild(n); });
 
-    function decir(t) { estadoEl.textContent = t; }
+    /* Un aviso nuevo reemplaza al anterior: el mensaje y el aviso con botones no conviven */
+    function decir(t) { estadoEl.textContent = t; if (t) limpiarAviso(); }
     function pintar() {
       var ocupado = estado !== "reposo" && estado !== "grabando";
       bPrivado.textContent = estado === "grabando" ? "Terminar dictado" : "Dictar en este navegador";
@@ -123,12 +126,13 @@
     /* ── lectura en voz alta ── */
     function elegirVoz() {
       voz = null;
-      if (!window.speechSynthesis || typeof speechSynthesis.getVoices !== "function") return;
+      if (!window.speechSynthesis || typeof speechSynthesis.getVoices !== "function") { nota.hidden = false; return; }
       var lista = speechSynthesis.getVoices() || [];
       for (var i = 0; i < lista.length; i++) {
         if (lista[i] && /^es([-_]|$)/i.test(lista[i].lang || "") && lista[i].localService === true) { voz = lista[i]; break; }
       }
       bEscuchar.hidden = !voz;
+      nota.hidden = !!voz;
       if (!voz && leyendo) detenerLectura();
     }
     function detenerLectura() {
@@ -167,6 +171,7 @@
       if (externo) { detenerExterno(); decir("Dictado externo detenido."); return; }
       detenerLectura();
       if (consentimiento && consentimiento.aceptado && consentimiento.version === AVISO_VERSION) { iniciarExterno(); return; }
+      decir("");
       area.textContent = "";
       area.appendChild(el("p", "", AVISO_EXTERNO));
       var fila = el("div", "dv-acciones");
@@ -263,6 +268,9 @@
         if (g !== gen) return;
         estado = "reposo"; pintar();
         decir("El dictado en este navegador no está disponible en esta copia del sitio. Puedes escribir o usar el dictado externo.");
+        /* el botón estaba desactivado y el foco se perdió: vuelve al botón */
+        var activo = document.activeElement;
+        if (!activo || activo === document.body || caja.contains(activo)) bPrivado.focus();
       });
     }
     function confirmarDescarga(m, g) {
