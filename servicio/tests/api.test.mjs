@@ -348,3 +348,25 @@ test("index: construye la API desde env, atiende fetch y scheduled", async () =>
   await construirApiDefecto.scheduled({}, env);
   assert.equal(typeof construirApi, "function");
 });
+
+test("registro técnico: una línea por ronda con el motivo de cada lectura y sin texto del estudiante", async () => {
+  const guion = { 0.1: "no es json", 0.2: new Error("caído"), 0.3: lectura() };
+  const t = await montar({ guion });
+  const tk = await t.sesion();
+  const lineas = [];
+  const original = console.log;
+  console.log = (...a) => lineas.push(a.join(" "));
+  try {
+    await leer(await t.evaluar(tk), 200);
+  } finally {
+    console.log = original;
+  }
+  const rondas = lineas.map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter((r) => r && r.evento === "ronda");
+  assert.equal(rondas.length, 1);
+  const r = rondas[0];
+  assert.deepEqual(r.tecnico, { fallos: 1, vencidas: 0, malformadas: 1 });
+  assert.match(r.detalle[0], /^malformada: 10 caracteres/);
+  assert.match(r.detalle[1], /^fallo: caído/);
+  assert.equal(r.causa, "ai_unavailable");
+  assert.ok(!lineas.join("\n").includes("SECRETO-DEL-ESTUDIANTE"), "el registro no lleva la respuesta del estudiante");
+});
