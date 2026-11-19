@@ -87,6 +87,92 @@
       return '<svg class="ley-robot' + (clase ? " " + clase : "") + '" viewBox="-6 1 26 24" aria-hidden="true"><path d="' + g.cuerpo + '"/><circle cx="' + g.lidar[0].toFixed(1) + '" cy="' + g.lidar[1].toFixed(1) + '" r="' + g.lidarR.toFixed(1) + '"/></svg>';
     }
   };
+  /* Kit de lienzo compartido por las simulaciones (js/sims.js y los demás módulos interactivos). Vive aquí porque
+     cada página carga solo los módulos que usa, y así no se copia en cada uno. */
+  /* utilidades de color y lienzo */
+  function css(nombre, el) { return getComputedStyle(el || document.documentElement).getPropertyValue(nombre).trim() || "#888"; }
+  function rgba(hex, a) {
+    hex = hex.replace("#", "");
+    if (hex.length === 3) hex = hex.split("").map(function (c) { return c + c; }).join("");
+    var n = parseInt(hex, 16);
+    return "rgba(" + ((n >> 16) & 255) + "," + ((n >> 8) & 255) + "," + (n & 255) + "," + a + ")";
+  }
+  /* Los colores salen de las variables CSS del elemento, que cambian con el tema. Un contenedor con
+     data-paleta="oscura" redefine esas variables y se dibuja como en el tema oscuro en cualquier tema. */
+  function paleta(el) {
+    var c = function (n) { return css(n, el); };
+    return {
+      bg: c("--bg"), sup: c("--surface"), sup2: c("--surface-2"), linea: c("--line"), linea2: c("--line-2"),
+      ink: c("--ink"), muted: c("--muted"), azul: c("--azul"), verde: c("--verde-texto"), verdeV: c("--verde"),
+      rojo: c("--rojo"), ambar: c("--ambar"), violeta: c("--violeta"), desc: c("--desc"), obst: c("--obst"),
+      s1: c("--s1"), s2: c("--s2"), s3: c("--s3"), s4: c("--s4"), ruta: c("--ruta"),
+      oscuro: !!(el && el.closest && el.closest('[data-paleta="oscura"]')) || document.documentElement.getAttribute("data-theme") === "dark" ||
+        (document.documentElement.getAttribute("data-theme") !== "light" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches)
+    };
+  }
+  /* crea un canvas nítido en pantallas de alta densidad y lo redimensiona con su contenedor.
+     proporcion puede ser un número (ancho/alto) o una función del ancho, para dar más alto en un teléfono. */
+  function lienzo(padre, proporcion, alDimensionar) {
+    var cv = document.createElement("canvas");
+    cv.className = "lienzo";
+    padre.appendChild(cv);
+    var ctx = cv.getContext("2d"), o = { cv: cv, ctx: ctx, w: 0, h: 0 }, listo = false;
+    function medir() {
+      var w = Math.max(260, Math.round(padre.clientWidth || cv.parentNode.clientWidth || 600));
+      var h = Math.round(w / (typeof proporcion === "function" ? proporcion(w) : proporcion));
+      if (w === o.w && h === o.h) return;
+      var dpr = Math.min(2, window.devicePixelRatio || 1);
+      cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+      cv.style.aspectRatio = w + " / " + h;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      o.w = w; o.h = h;
+      if (listo && alDimensionar) alDimensionar();
+    }
+    o.medir = medir;
+    medir();
+    listo = true;
+    if ("ResizeObserver" in window) new ResizeObserver(function () { medir(); }).observe(padre);
+    return o;
+  }
+  function alTema(fn) { document.addEventListener("temacambio", function () { setTimeout(fn, 30); }); }
+  function limitar(v, a, b) { return Math.max(a, Math.min(b, v)); }
+  /* bucle que corre solo cuando el elemento está a la vista y la pestaña está visible.
+     El primer cuadro después de arrancar o de volver a la vista entrega dt = 0, para no saltar. */
+  function bucle(el, paso) {
+    var activo = false, enVista = true, pestana = !document.hidden, ult = 0, id = 0;
+    function puede() { return activo && enVista && pestana; }
+    function tick(ts) {
+      if (!puede()) { id = 0; return; }
+      var dt = ult ? Math.min(0.1, Math.max(0, (ts - ult) / 1000)) : 0;
+      ult = ts;
+      paso(dt);
+      id = requestAnimationFrame(tick);
+    }
+    function arrancar() { if (!id && puede()) { ult = 0; id = requestAnimationFrame(tick); } }
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (es) { enVista = es[es.length - 1].isIntersecting; arrancar(); }, { threshold: 0.05 }).observe(el);
+    }
+    document.addEventListener("visibilitychange", function () { pestana = !document.hidden; arrancar(); });
+    return {
+      play: function () { activo = true; arrancar(); },
+      pausa: function () { activo = false; if (id) { cancelAnimationFrame(id); id = 0; } },
+      get activo() { return activo; }
+    };
+  }
+  /* preferencia de movimiento reducido, con aviso cuando cambia */
+  function alCambiarMovimiento(fn) {
+    if (!window.matchMedia) return;
+    var mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    var f = function () { fn(mq.matches); };
+    if (mq.addEventListener) mq.addEventListener("change", f); else if (mq.addListener) mq.addListener(f);
+  }
+  U.css = css; U.rgba = rgba; U.paleta = paleta; U.lienzo = lienzo; U.alTema = alTema; U.limitar = limitar; U.bucle = bucle;
+  U.alCambiarMovimiento = alCambiarMovimiento;
+  /* El robot en una rejilla SVG: la planta en U centrada en su celda y mirando a la derecha. */
+  U.robot.celda = function (cx, cy, T) {
+    var g = U.robot.svg(cx, cy, 0, T * 1.15 / (2 * U.robot.medidas.r), "centro");
+    return '<g class="robot-planta verde"><path class="cuerpo" d="' + g.cuerpo + '"/><circle class="lidar" cx="' + g.lidar[0].toFixed(2) + '" cy="' + g.lidar[1].toFixed(2) + '" r="' + g.lidarR.toFixed(2) + '"/></g>';
+  };
   window.U = U;
   window.VISUALES = window.VISUALES || {};
   window.VISUALES.ICO = U.ICO;
