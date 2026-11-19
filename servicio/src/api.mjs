@@ -181,7 +181,7 @@ export function crearApi({ repo, proveedor, catalogo, claves, config = {}, reloj
     // Paso 6: reserva.
     const contenido = await hmacBase64url(claves.hmac, `${question_id}\n${version_catalogo}\n${respuesta}`);
     const mensajes = construirMensajes({ rubrica: pregunta.rubrica, pregunta: pregunta.enunciado, texto: respuesta });
-    const coste = costeReservado(mensajes.reduce((n, m) => n + m.content.length, 0));
+    const coste = costeReservado(mensajes.reduce((n, m) => n + m.content.length, 0), proveedor.tarifa);
     const ahora = reloj();
     let reserva;
     try {
@@ -284,7 +284,7 @@ export function crearApi({ repo, proveedor, catalogo, claves, config = {}, reloj
           return new Response(null, { status: Object.keys(cors).length ? 204 : 403, headers: cors });
         }
         if (pathname === "/v1/salud" && request.method === "GET") {
-          return json(request, 200, { proveedor: nombre, admision });
+          return json(request, 200, { proveedor: nombre, modelo: proveedor.modelo ?? null, admision });
         }
         if (pathname === "/v1/sesiones" && request.method === "POST") return await crearSesionHttp(request);
         if (pathname === "/v1/evaluaciones" && request.method === "POST") return await evaluar(request);

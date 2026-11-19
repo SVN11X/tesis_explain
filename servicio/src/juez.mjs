@@ -29,6 +29,18 @@ function idsEsperados(rubrica) {
 }
 
 /**
+ * Pista fija, sin contenido, de por qué una evidencia no es literal: sirve para medir el error en el
+ * registro técnico sin guardar la respuesta del estudiante.
+ */
+function pistaDeEvidencia(frag, texto) {
+  const plano = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  const sinBordes = (s) => s.replace(/^[\s"'«»“”.,;:¡!¿?()-]+|[\s"'«»“”.,;:¡!¿?()-]+$/g, "");
+  if (texto.includes(sinBordes(frag))) return " (sobra puntuación o comillas en los bordes)";
+  if (plano(texto).includes(plano(sinBordes(frag)))) return " (cambian mayúsculas o tildes)";
+  return " (palabras distintas)";
+}
+
+/**
  * Valida la salida de una lectura del modelo.
  * @param {unknown} salida Objeto ya convertido desde el JSON del modelo.
  * @param {object} rubrica Rúbrica aprobada de la pregunta.
@@ -60,19 +72,24 @@ export function validarLectura(salida, rubrica, textoConfirmado) {
       if (o.evidencia.length > MAX_EVIDENCIA) return no("evidencia de más de 300 caracteres");
       const frag = normalizar(o.evidencia);
       if (frag === "") return no("evidencia vacía");
-      if (!texto.includes(frag)) return no("evidencia que no es texto literal de la respuesta");
+      if (!texto.includes(frag)) return no("evidencia que no es texto literal de la respuesta" + pistaDeEvidencia(frag, texto));
     }
   }
   if (esperados.some((id) => !vistos.has(id))) return no("falta la observación de un criterio");
 
   const hay = salida.observaciones.some((o) => o.evidencia !== null);
-  const esperado = veredictoPorReglas(salida.observaciones, rubrica, hay);
-  // El modelo siempre puede abstenerse con `indeterminada`. Cualquier otro veredicto debe coincidir con las reglas.
-  if (salida.veredicto !== "indeterminada" && esperado !== salida.veredicto) return no("el veredicto del modelo no coincide con las reglas");
+  const porReglas = veredictoPorReglas(salida.observaciones, rubrica, hay);
+  // El servidor calcula el veredicto de cada lectura con las reglas, a partir de los criterios (propuesta:
+  // «El servidor calcula un veredicto por lectura con las mismas reglas y después comprueba el consenso»).
+  // El modelo solo decide por su cuenta abstenerse con `indeterminada` ante una ambigüedad.
+  // `coherente` dice si su etiqueta coincidía con las reglas, para medirlo en la validación.
+  const abstencion = salida.veredicto === "indeterminada";
 
   return {
     valida: true,
-    veredicto: salida.veredicto,
+    veredicto: abstencion ? "indeterminada" : porReglas,
+    veredictoModelo: salida.veredicto,
+    coherente: abstencion || salida.veredicto === porReglas,
     observaciones: salida.observaciones.map((o) => ({ criterio: o.criterio, estado: o.estado, evidencia: o.evidencia })),
     pista: salida.pista,
   };

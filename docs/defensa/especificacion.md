@@ -122,12 +122,13 @@ Hay una observación por cada criterio esencial y por cada contradicción críti
 
 ### 3.2 `validarLectura(salida, rubrica, textoConfirmado)`
 
-Devuelve `{valida: true, veredicto, observaciones, pista}` o `{valida: false, motivo}`. Es inválida si:
+Devuelve `{valida: true, veredicto, veredictoModelo, coherente, observaciones, pista}` o `{valida: false, motivo}`. Es inválida si:
 
 - falta un campo, sobra una clave, o un valor no es de los enumerados;
 - una observación cita un criterio que no está en la rúbrica, o falta la observación de un criterio;
-- una evidencia no es un fragmento literal de `textoConfirmado` (comparación exacta tras normalizar espacios), mide más de 300 caracteres, o es `null` con estado `presente` o `contradicho`;
-- el veredicto del modelo no coincide con el que calcula `veredictoPorReglas`, salvo `indeterminada`, que siempre es coherente porque el modelo puede abstenerse ante una ambigüedad aunque las reglas decidirían. Lo demás de la validación se exige igual.
+- una evidencia no es un fragmento literal de `textoConfirmado` (comparación exacta tras normalizar espacios), mide más de 300 caracteres, o es `null` con estado `presente` o `contradicho`. El motivo agrega, sin contenido, el tipo de diferencia: puntuación o comillas en los bordes, mayúsculas o tildes, o palabras distintas.
+
+El veredicto de una lectura válida lo calcula el servidor con `veredictoPorReglas`, a partir de los criterios, como dice la propuesta: «El servidor calcula un veredicto por lectura con las mismas reglas y después comprueba el consenso». El modelo solo decide por su cuenta abstenerse: si su etiqueta es `indeterminada`, la lectura queda `indeterminada`. `veredictoModelo` guarda la etiqueta del modelo y `coherente` dice si coincidía con las reglas, para medirlo en la validación y en el registro técnico.
 
 ### 3.3 `veredictoPorReglas(observaciones, rubrica, hayContenidoPertinente)`
 
@@ -197,7 +198,7 @@ Un fallo de escritura o un resultado ambiguo lanza `Error` con `codigo = "escrit
 
 ### 4.3 Coste reservado
 
-`costeReservado(caracteresPrompt)` = 3 × (⌈caracteresPrompt / 2⌉ × 1 542 + 500 × 10 158) ÷ 1 000 000 Neurons, la tarifa publicada de Granite 4.0 H Micro con un tope de 500 tokens de salida. Con 1 500 tokens de entrada da 22,176 por respuesta, como la propuesta.
+`costeReservado(caracteresPrompt, tarifa)` = 3 × (⌈caracteresPrompt / 2⌉ × entrada + 500 × salida) ÷ 1 000 000 Neurons, con la tarifa publicada del modelo en uso y un tope de 500 tokens de salida. Sin tarifa usa la de Granite 4.0 H Micro (1 542 y 10 158), que con 1 500 tokens de entrada da 22,176 por respuesta, como la propuesta. Con Gemma 4 26B A4B (9 091 y 27 273) da 81,82, así que el tope interno de 7 000 Neurons admite unas 85 respuestas al día.
 
 ### 4.4 Adaptador de pruebas
 
@@ -208,13 +209,25 @@ Un fallo de escritura o un resultado ambiguo lanza `Error` con `codigo = "escrit
 `servicio/src/proveedores.mjs`:
 
 - Interfaz `AIProvider`: `evaluate({mensajes, temperatura, maxTokens, esquema})` devuelve el texto de la respuesta, y `healthCheck()` devuelve `{ok, modelo}`.
-- `crearWorkersAI(ai, modelo = "@cf/ibm-granite/granite-4.0-h-micro")` llama `ai.run(modelo, {messages, temperature, max_tokens, response_format: {type: "json_schema", json_schema: esquema}})` y devuelve `respuesta.response` como texto (si llega un objeto, lo serializa).
+- `MODELOS` lista los modelos que el dueño puede elegir, con su tarifa publicada y sus opciones: Granite 4.0 H Micro, Gemma 4 26B A4B (con `chat_template_kwargs: {enable_thinking: false}`, porque si razona gasta los 500 tokens y se corta sin responder) y Llama 3.3 70B FP8 Fast.
+- `crearWorkersAI(ai, modelo = "@cf/ibm-granite/granite-4.0-h-micro")` llama `ai.run(modelo, {...opciones, messages, temperature, max_tokens, response_format: {type: "json_schema", json_schema: esquema}})`. Lee el texto de `respuesta.response` o, en los modelos con formato de OpenAI como Granite y Gemma, de `choices[0].message.content`. Si llega un objeto, lo serializa. Sin texto lanza un error que dice, sin contenido, por qué terminó, cuántos tokens usó y si hubo razonamiento.
 - `crearFixture(guion)` devuelve respuestas preparadas por temperatura y simula demora, desacuerdo, indisponibilidad y JSON mal formado sin red.
 - `crearDesactivado()`: `evaluate` lanza un error con `codigo = "ai_unavailable"`.
-- `crearProveedor(env)` elige por `env.AI_PROVIDER`: `workers_ai`, `fixture` o `disabled`. Cualquier otro valor equivale a `disabled`. Ningún otro modelo se elige solo si el principal falla.
-- `evaluarConProveedor(proveedor, {rubrica, pregunta, texto}, {temperaturas = [0.1, 0.2, 0.3], plazoMs = 20000})` hace exactamente tres llamadas en paralelo, una por temperatura, con el mismo prompt. Cada una que falla, vence o no es JSON da `null`. Devuelve `{lecturas: [tres elementos validados con validarLectura o null], tecnico: {fallos, vencidas, malformadas}}`.
+- `crearProveedor(env)` elige por `env.AI_PROVIDER`: `workers_ai`, `fixture` o `disabled`. Cualquier otro valor equivale a `disabled`. Con `workers_ai`, `env.AI_MODELO` elige uno de `MODELOS` (Granite si falta). Un ID fuera de la lista desactiva la IA. Ningún otro modelo se elige solo si el elegido falla, y cada cambio de modelo exige repetir la validación.
+- `evaluarConProveedor(proveedor, {rubrica, pregunta, texto}, {temperaturas = [0.1, 0.2, 0.3], plazoMs = 20000})` hace exactamente tres llamadas en paralelo, una por temperatura, con el mismo prompt. Cada una que falla, vence o no es JSON da `null`. Devuelve `{lecturas: [tres elementos validados con validarLectura o null], tecnico: {fallos, vencidas, malformadas}, detalle}`, con el motivo de cada lectura para el registro técnico.
 
-`servicio/src/prompt.mjs` exporta `construirMensajes({rubrica, pregunta, texto})` y `ESQUEMA_SALIDA`. El mensaje de sistema explica las reglas de 3.3, enumera los criterios con su ID y pide solo el JSON de 3.1. El texto del estudiante va en el mensaje de usuario, entre las marcas `<<<RESPUESTA` y `RESPUESTA>>>`, y el sistema avisa que es material a evaluar, no instrucciones.
+`servicio/src/prompt.mjs` exporta `construirMensajes({rubrica, pregunta, texto})` y `ESQUEMA_SALIDA`. El mensaje de sistema explica las reglas de 3.3, enumera los criterios con su ID, pide copiar la evidencia carácter por carácter y termina con un JSON de ejemplo armado con los ID de la rúbrica. El texto del estudiante va en el mensaje de usuario, entre las marcas `<<<RESPUESTA` y `RESPUESTA>>>`, y el sistema avisa que es material a evaluar, no instrucciones.
+
+### 5.1 Medición de desarrollo del 19 de noviembre de 2026
+
+No es la validación de la sección 9: son 6 casos sintéticos sobre `p-oe3-parcial`, en preproducción y con la rúbrica aprobada solo para la prueba. Los casos son las tres respuestas ilustrativas de la propuesta, una paráfrasis correcta, una respuesta ajena y una que solo cumple C1.
+
+| Modelo | Veredicto esperado | Lecturas válidas | Tiempo por respuesta |
+|---|---|---|---|
+| Granite 4.0 H Micro | 1 de 6 (marcó `parcial` una contradicción crítica) | 10 de 18 | 5 a 8 s |
+| Gemma 4 26B A4B, sin razonamiento | 6 de 6 | 18 de 18 | 3 s |
+
+Por eso la configuración usa Gemma 4. Antes de aprobar una rúbrica se ejecuta la validación de la sección 9 con ese modelo.
 
 ## 6. Contrato HTTP del Worker
 

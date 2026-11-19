@@ -53,7 +53,11 @@ test("el modelo puede abstenerse con indeterminada aunque las reglas den correct
   const l = lectura(s);
   assert.equal(l.valida, true);
   assert.deepEqual(consenso([l, l, l]), { estado: "no_evaluable", causa: "insufficient_evidence" });
-  assert.equal(lectura({ ...s, veredicto: "incorrecta" }).valida, false);
+  // Una etiqueta distinta de indeterminada no es abstención: decide la regla, y se anota la incoherencia.
+  const x = lectura({ ...s, veredicto: "incorrecta" });
+  assert.equal(x.valida, true);
+  assert.equal(x.veredicto, "correcta");
+  assert.equal(x.coherente, false);
 });
 
 test("una contradicción crítica sin evidencia no cuenta", () => {
@@ -95,14 +99,30 @@ test("evidencia: literal tras normalizar espacios, máximo 300, no nula si prese
   assert.equal(validarLectura(salida("parcial", obs(["presente", largo], A)), rubrica, largo).valida, false);
 });
 
-test("un veredicto distinto al de las reglas es inválido", () => {
-  assert.equal(lectura(salida("correcta", obs(P1, A))).valida, false);
+test("el veredicto lo calculan las reglas: una etiqueta distinta se anota como incoherente", () => {
+  const l = lectura(salida("correcta", obs(P1, A)));
+  assert.equal(l.valida, true);
+  assert.equal(l.veredicto, "parcial");
+  assert.equal(l.veredictoModelo, "correcta");
+  assert.equal(l.coherente, false);
+  const c = lectura(salida("parcial", obs(P1, A)));
+  assert.equal(c.coherente, true);
+});
+
+test("evidencia no literal: el motivo dice el tipo de diferencia, sin el contenido", () => {
+  const motivo = (l) => l.valida ? "" : l.motivo;
+  assert.ok(motivo(lectura(salida("parcial", obs(["presente", "«" + F1 + "»"], A)))).includes("bordes"));
+  assert.ok(motivo(lectura(salida("parcial", obs(["presente", F1.toUpperCase()], A)))).includes("mayúsculas o tildes"));
+  assert.ok(motivo(lectura(salida("parcial", obs(["presente", "algo que nunca dijo"], A)))).includes("palabras distintas"));
+  assert.ok(!motivo(lectura(salida("parcial", obs(["presente", "algo que nunca dijo"], A)))).includes("nunca dijo"));
 });
 
 test("contradicción crítica respaldada da incorrecta aunque estén los esenciales", () => {
   const s = salida("incorrecta", obs(P1, P2, ["contradicho", F2]));
   assert.equal(lectura(s).veredicto, "incorrecta");
-  assert.equal(lectura({ ...s, veredicto: "correcta" }).valida, false);
+  const x = lectura({ ...s, veredicto: "correcta" });
+  assert.equal(x.veredicto, "incorrecta");
+  assert.equal(x.coherente, false);
 });
 
 test("consenso: null o inválida da ai_unavailable", () => {

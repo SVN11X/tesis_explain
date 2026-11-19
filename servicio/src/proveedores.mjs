@@ -5,6 +5,18 @@ import { construirMensajes, ESQUEMA_SALIDA } from "./prompt.mjs";
 export const MODELO_PRINCIPAL = "@cf/ibm-granite/granite-4.0-h-micro";
 
 /**
+ * Modelos que el dueño puede elegir con AI_MODELO, con su tarifa publicada en Neurons por millón de tokens
+ * (developers.cloudflare.com/workers-ai/platform/pricing, consultada el 19 de noviembre de 2026).
+ * Un ID fuera de esta lista desactiva la IA: nunca se cambia de modelo solo, y cada cambio exige repetir la validación.
+ */
+export const MODELOS = Object.freeze({
+  "@cf/ibm-granite/granite-4.0-h-micro": Object.freeze({ entrada: 1542, salida: 10158 }),
+  // Gemma 4 razona antes de responder y, con 500 tokens, se corta sin escribir la respuesta (fin: length).
+  "@cf/google/gemma-4-26b-a4b-it": Object.freeze({ entrada: 9091, salida: 27273, opciones: Object.freeze({ chat_template_kwargs: { enable_thinking: false } }) }),
+  "@cf/meta/llama-3.3-70b-instruct-fp8-fast": Object.freeze({ entrada: 26668, salida: 204805 }),
+});
+
+/**
  * @typedef {object} AIProvider
  * @property {(p: {mensajes: object[], temperatura: number, maxTokens: number, esquema: object, senal?: AbortSignal}) => Promise<string>} evaluate
  *   Devuelve el texto de la respuesta del modelo.
@@ -25,8 +37,11 @@ function errorConCodigo(mensaje, codigo) {
  */
 export function crearWorkersAI(ai, modelo = MODELO_PRINCIPAL) {
   return {
+    modelo,
+    tarifa: MODELOS[modelo] ?? MODELOS[MODELO_PRINCIPAL],
     async evaluate({ mensajes, temperatura, maxTokens, esquema }) {
       const respuesta = await ai.run(modelo, {
+        ...((MODELOS[modelo] || {}).opciones || {}),
         messages: mensajes,
         temperature: temperatura,
         max_tokens: maxTokens,
@@ -34,8 +49,14 @@ export function crearWorkersAI(ai, modelo = MODELO_PRINCIPAL) {
       });
       // Algunos modelos de Workers AI, como Granite 4.0, responden con el formato de OpenAI
       // (choices[0].message.content) y no con `response`. Se aceptan los dos.
-      const r = respuesta?.response ?? respuesta?.choices?.[0]?.message?.content;
-      if (r === undefined || r === null) throw new Error("respuesta del modelo sin texto");
+      const eleccion = respuesta?.choices?.[0];
+      const r = respuesta?.response ?? eleccion?.message?.content;
+      if (r === undefined || r === null || r === "") {
+        // Solo datos técnicos, sin contenido: por qué terminó, cuántos tokens usó y si hubo razonamiento aparte.
+        const razonamiento = Boolean(eleccion?.message?.reasoning_content || eleccion?.message?.reasoning);
+        throw new Error("respuesta del modelo sin texto (fin: " + (eleccion?.finish_reason ?? "?") + ", tokens de salida: "
+          + (respuesta?.usage?.completion_tokens ?? "?") + ", razonamiento: " + (razonamiento ? "sí" : "no") + ")");
+      }
       return typeof r === "string" ? r : JSON.stringify(r);
     },
     async healthCheck() {
@@ -86,13 +107,16 @@ export function crearDesactivado() {
 
 /**
  * Elige el proveedor por `env.AI_PROVIDER`: workers_ai, fixture o disabled. Cualquier otro valor equivale a disabled.
- * @param {{AI_PROVIDER?: string, AI?: object, FIXTURE_GUION?: any}} env
+ * Con workers_ai, `env.AI_MODELO` elige uno de MODELOS (Granite por defecto). Un ID desconocido desactiva la IA.
+ * @param {{AI_PROVIDER?: string, AI_MODELO?: string, AI?: object, FIXTURE_GUION?: any}} env
  * @returns {AIProvider}
  */
 export function crearProveedor(env = {}) {
   switch (env.AI_PROVIDER) {
     case "workers_ai":
-      return env.AI ? crearWorkersAI(env.AI) : crearDesactivado();
+      if (!env.AI) return crearDesactivado();
+      if (env.AI_MODELO && !MODELOS[env.AI_MODELO]) return crearDesactivado();
+      return crearWorkersAI(env.AI, env.AI_MODELO || MODELO_PRINCIPAL);
     case "fixture":
       return crearFixture(env.FIXTURE_GUION ?? {});
     default:
@@ -148,6 +172,7 @@ export async function evaluarConProveedor(proveedor, { rubrica, pregunta, texto 
     }
     const lectura = validarLectura(salida, rubrica, texto);
     if (!lectura.valida) detalle[i] = "invalida: " + lectura.motivo;
+    else if (!lectura.coherente) detalle[i] = "ok (el modelo dijo " + lectura.veredictoModelo + ", las reglas " + lectura.veredicto + ")";
     return lectura;
   };
 
