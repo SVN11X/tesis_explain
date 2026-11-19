@@ -24,7 +24,7 @@
   };
   var VEREDICTOS = { correcta: "Respuesta correcta", parcial: "Respuesta parcial", incorrecta: "Respuesta incorrecta", indeterminada: "Sin veredicto" };
 
-  var dlg, cuerpo, estadoEl, origen, entrada, catalogo, evaluables;
+  var dlg, cab, cuerpo, estadoEl, origen, entrada, catalogo, evaluables;
   var generacion = 0, contador = 0, token = null, sesionEnCurso = null, scrollAlAbrir = null;
 
   /* ── utilidades ── */
@@ -68,7 +68,7 @@
     if (dlg) return;
     dlg = el("dialog", "dv-dialogo");
     dlg.setAttribute("aria-labelledby", "dv-titulo");
-    var cab = el("div", "dv-cab");
+    cab = el("div", "dv-cab");
     var h = el("h2", "", "Práctica de defensa oral");
     h.id = "dv-titulo";
     cab.appendChild(h);
@@ -95,7 +95,11 @@
     nodos.forEach(function (n) { cuerpo.appendChild(n); });
     anunciar("");
     if (enfocar) { enfocar.setAttribute("tabindex", "-1"); enfocar.focus({ preventScroll: true }); }
+    medirCabecera();
+    dlg.scrollTop = 0;   /* vista nueva: la cabecera fija no tapa el título ni el estado */
   }
+  /* La cabecera es fija: los títulos que reciben el foco dejan ese margen al desplazarse (css/preguntas.css) */
+  function medirCabecera() { if (dlg && cab) dlg.style.setProperty("--dv-cab", cab.offsetHeight + "px"); }
   function titulo3(t) { var h = el("h3", "dv-h", t); h.id = "dv-h" + (++contador); return h; }
 
   /* ── catálogo: versión y evaluables. Si falta, el panel trabaja solo con la guía ── */
@@ -114,6 +118,8 @@
 
   /* ── cliente del contrato (7.3) ── */
   function aviso(mensaje, guia) { return { tipo: "aviso", mensaje: mensaje, guia: !!guia }; }
+  /* Modo guía normal, no un fallo: el estado dice que la guía está abajo para comparar */
+  function neutro(res, estado) { res.neutro = estado; return res; }
   var FALLA = function () { return aviso("No se pudo obtener la corrección. Tu borrador sigue aquí y puedes comparar con la guía.", true); };
 
   function conSesion() {
@@ -178,13 +184,19 @@
   }
   /* Punto único de envío. Sin servicio, sin catálogo o con la pregunta no evaluable, no hay red. */
   function enviar(q, texto, modo) {
-    if (!API) return Promise.resolve(aviso("Este panel no tiene corrector conectado. Compara tu borrador con la guía.", true));
-    if (!catalogo) return Promise.resolve(aviso("No se pudo leer el catálogo de la práctica. Compara tu borrador con la guía.", true));
-    if (!evaluables[q.id]) return Promise.resolve({ tipo: "no_evaluable", causa: "pending_guide", data: {}, guia: true });
+    if (!API) return Promise.resolve(neutro(aviso("Este panel no tiene corrector conectado. Compara tu borrador con la guía.", true), "Sin corrector conectado: compara tu respuesta con la de la guía."));
+    if (!catalogo) return Promise.resolve(neutro(aviso("No se pudo leer el catálogo de la práctica. Compara tu borrador con la guía.", true), "Sin corrección ahora: compara tu respuesta con la de la guía."));
+    if (!evaluables[q.id]) return Promise.resolve(neutro({ tipo: "no_evaluable", causa: "pending_guide", data: {}, guia: true }, "Esta pregunta aún no tiene corrección: compara tu respuesta con la de la guía."));
     return evaluar(q, texto, modo, false, null);
   }
 
   /* ── guía y resultado ── */
+  function nodoBorrador(texto) {
+    var caja = el("div", "dv-borrador");
+    caja.appendChild(el("h4", "", "Tu respuesta"));
+    caja.appendChild(el("pre", "dv-texto", texto));
+    return caja;
+  }
   function nodoGuia(q) {
     var caja = el("div", "dv-guia");
     var h = el("h4", "", "Respuesta de la guía");
@@ -195,7 +207,7 @@
       var copia = orig.cloneNode(true);
       [].forEach.call(copia.querySelectorAll(".q-velo, .q-tu-respuesta"), function (n) { n.remove(); });
       [].forEach.call(copia.querySelectorAll("[id]"), function (n) { n.removeAttribute("id"); });
-      [].forEach.call(copia.querySelectorAll("a[href^='#']"), function (a) { a.replaceWith(el("span", "", a.textContent)); });
+      [].forEach.call(copia.querySelectorAll("a[href^='#']"), function (a) { a.replaceWith(el("span", a.className, a.textContent)); });
       copia.removeAttribute("tabindex");
       copia.className = "dv-guia-texto";
       caja.appendChild(copia);
@@ -292,6 +304,7 @@
     var acciones = el("div", "dv-acciones");
     var revisar = boton("Revisar antes de enviar", "prim", function () {
       var t = ta.value;
+      anunciar("");
       if (!t.trim()) { anunciar("Escribe tu respuesta antes de revisarla."); ta.focus(); return; }
       if (t.length > MAX) { anunciar("La respuesta pasa de " + MAX + " caracteres."); ta.focus(); return; }
       detenerVoz(true);
@@ -330,8 +343,10 @@
     };
     b.mostrarGuia = function (enfocar) {
       if (!b.guiaVista) { guia.appendChild(nodoGuia(q)); b.guiaVista = true; }
-      if (enfocar) guia.querySelector("h4").focus({ preventScroll: false });
+      if (enfocar) { medirCabecera(); guia.querySelector("h4").focus({ preventScroll: false }); }
     };
+    b.verResultado = function () { medirCabecera(); resultado.scrollIntoView({ block: "start" }); };
+    b.mostrarBorrador = function (texto) { resultado.appendChild(nodoBorrador(texto)); };
     b.mostrarResultado = function (res, extra) {
       resultado.textContent = "";
       resultado.appendChild(nodoResultado(res, extra));
@@ -385,11 +400,12 @@
           if (delServicio) b.intentos++;
           var rotulo = delServicio ? "Intento " + b.intentos + " de 2" + (asistida ? ", práctica asistida" : "") : null;
           b.mostrarResultado(res, rotulo);
-          if (res.guia) b.mostrarGuia(false);
-          anunciar(res.tipo === "evaluada" ? VEREDICTOS[res.data.veredicto] || "Corrección lista." : "La corrección no se pudo completar.");
+          if (res.guia) { b.mostrarBorrador(texto); b.mostrarGuia(false); }
+          anunciar(res.tipo === "evaluada" ? VEREDICTOS[res.data.veredicto] || "Corrección lista." : res.neutro || "La corrección no se pudo completar.");
           botonesResultado(b);
           if (b.intentos >= 2) { b.acciones.hidden = true; b.ta.readOnly = true; b.resultado.appendChild(el("p", "dv-nota", "Usaste tus dos intentos con esta pregunta.")); }
           else { b.editar(); }
+          if (res.guia) b.verResultado();
         });
       },
       soloGuia: function (b) {
@@ -491,6 +507,7 @@
       var res = it.res;
       if (!res) s.appendChild(el("p", "dv-nota", "Sin enviar. Elegiste seguir solo con la guía."));
       else s.appendChild(nodoResultado(res));
+      if (it.texto != null && (!res || res.tipo !== "evaluada")) s.appendChild(nodoBorrador(it.texto));
       if (!res || res.tipo !== "evaluada") s.appendChild(nodoGuia(it.q));
       nodos.push(s);
     });

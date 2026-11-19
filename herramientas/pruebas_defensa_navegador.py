@@ -780,6 +780,107 @@ with sync_playwright() as pw:
         ctx.close()
     check(colores['light-aviso'] != colores['dark-aviso'], 'el aviso de voz cambia de color entre los dos temas', colores)
 
+    # 11. Correcciones de la revisión de uso (api vacía, la configuración publicada).
+    print('Revisión de uso: teclado, borradores, desplazamiento, mensajes, voz y botones táctiles')
+    CAB = 'document.querySelector("dialog.dv-dialogo .dv-cab").getBoundingClientRect().bottom'
+
+    # 11.1 Sin manifiesto, el foco no se pierde en BODY.
+    ctx = ctx_voz(manifiesto=False)
+    pg = voz_p(ctx)
+    pg.locator('dialog.dv-dialogo textarea').focus()
+    boton(pg, 'Dictar en este navegador').focus()
+    pg.keyboard.press('Enter')
+    pg.wait_for_function("document.querySelector('dialog.dv-dialogo .dv-voz-estado').textContent.includes('no está disponible en esta copia del sitio')")
+    check(pg.evaluate('!!document.activeElement.closest("dialog.dv-dialogo") && document.activeElement !== document.body'), 'sin manifiesto el foco sigue dentro del diálogo', pg.evaluate('document.activeElement.tagName'))
+    check(pg.evaluate('document.activeElement.textContent') == 'Dictar en este navegador', 'sin manifiesto el foco vuelve al botón de dictado')
+
+    # 11.7 Cada aviso de voz reemplaza al anterior.
+    boton(pg, 'Dictado externo').click()
+    m = mensaje_voz(pg)
+    check('no está disponible' not in m and 'servidores del proveedor' in m, 'el aviso del dictado externo reemplaza al mensaje anterior', m)
+    boton(pg, 'Seguir escribiendo').click()
+    check('no está disponible' not in mensaje_voz(pg) and 'servidores' not in mensaje_voz(pg), 'al decidir queda solo el mensaje nuevo', mensaje_voz(pg))
+    ctx.close()
+
+    # 11.5 Sin voz en español se explica por qué no hay «Escuchar pregunta».
+    ctx = ctx_voz()
+    pg = voz_p(ctx)
+    check(pg.locator('dialog.dv-dialogo .dv-voz-nota').is_visible() and 'voz en español' in pg.locator('dialog.dv-dialogo .dv-voz-nota').inner_text(), 'sin voz en español explica por qué no hay lectura')
+    pg.evaluate("__S.cambiar([{name: 'Inglesa', lang: 'en-US', localService: true}])")
+    check(pg.locator('dialog.dv-dialogo .dv-voz-nota').is_visible() and not boton(pg, 'Escuchar pregunta').is_visible(), 'una voz que no es en español no la reemplaza')
+    pg.evaluate("__S.cambiar([{name: 'Local', lang: 'es-ES', localService: true}])")
+    check(not pg.locator('dialog.dv-dialogo .dv-voz-nota').is_visible() and boton(pg, 'Escuchar pregunta').is_visible(), 'con una voz en español la nota desaparece')
+    ctx.close()
+
+    # 11.2, 11.4, 11.6 Entrenar sin corrector.
+    ctx, _ = contexto(browser, ancho=360, alto=640)
+    pg = pagina(ctx)
+    filtrar(pg, UNICA[0]); abrir(pg); boton(pg, 'Entrenar').click()
+    boton(pg, 'Revisar antes de enviar').click()
+    check('Escribe tu respuesta' in pg.inner_text('dialog.dv-dialogo .dv-estado'), 'con el borrador vacío avisa')
+    borrador = 'Mi <i>borrador</i> & más'
+    pg.locator('dialog.dv-dialogo textarea').fill(borrador)
+    boton(pg, 'Revisar antes de enviar').click()
+    check(pg.inner_text('dialog.dv-dialogo .dv-estado').strip() == '', 'con el texto válido se borra el aviso viejo', pg.inner_text('dialog.dv-dialogo .dv-estado'))
+    boton(pg, 'Confirmar').click()
+    pg.wait_for_selector('dialog.dv-dialogo .dv-guia')
+    pg.wait_for_timeout(300)
+    estado = pg.inner_text('dialog.dv-dialogo .dv-estado')
+    check(estado == 'Sin corrector conectado: compara tu respuesta con la de la guía.', 'sin servicio el estado es neutro', estado)
+    check('no se pudo completar' not in estado, 'sin servicio no dice que falló')
+    check(pg.locator('dialog.dv-dialogo .dv-borrador pre').evaluate('e => e.textContent') == borrador and pg.locator('dialog.dv-dialogo .dv-borrador pre *').count() == 0, 'Entrenar muestra el borrador como texto plano junto a la guía')
+    pos = pg.evaluate('''() => { const c = document.querySelector("dialog.dv-dialogo .dv-cab").getBoundingClientRect().bottom,
+      g = document.querySelector("dialog.dv-dialogo .dv-guia").getBoundingClientRect(), b = document.querySelector("dialog.dv-dialogo .dv-borrador").getBoundingClientRect();
+      return {c: c, gt: g.top, gb: g.bottom, bt: b.top, h: innerHeight}; }''')
+    check(pos['bt'] >= pos['c'] - 1 and pos['gt'] < pos['h'], 'el borrador y el inicio de la guía quedan a la vista bajo la cabecera', pos)
+    # 11.6 Las referencias de la copia conservan su formato.
+    check(pg.locator('dialog.dv-dialogo .dv-guia .ref').count() > 0, 'la copia de la guía conserva las referencias con su clase')
+    est = pg.evaluate('''() => { const r = document.querySelector("dialog.dv-dialogo .dv-guia .ref"), o = document.querySelector("#%s .q-cuerpo a.ref"),
+      a = getComputedStyle(r), b = getComputedStyle(o); return [a.verticalAlign, a.fontSize, b.verticalAlign, b.fontSize]; }''' % UNICA[1])
+    check(est[0] == 'super' and est[0] == est[2] and est[1] == est[3], 'las referencias de la copia se ven como en la página', est)
+    ctx.close()
+
+    # 11.2 y 11.3 Simular sin corrector a 360 px.
+    ctx, _ = contexto(browser, ancho=360, alto=640)
+    pg = pagina(ctx)
+    abrir(pg)
+    boton(pg, 'Simular').click()
+    escritos = ['Primero <b>uno</b>', 'Segundo dos', 'Tercero tres']
+    for i, t in enumerate(escritos):
+        pg.locator('dialog.dv-dialogo textarea:visible').fill(t)
+        boton(pg, 'Revisar antes de enviar').click()
+        if i == 2:
+            pg.evaluate('document.querySelector("dialog.dv-dialogo").scrollTop = 40')
+        boton(pg, 'Confirmar').click()
+    pg.wait_for_selector('dialog.dv-dialogo .dv-guia')
+    pg.wait_for_timeout(300)
+    textos = pg.locator('dialog.dv-dialogo .dv-borrador pre').evaluate_all('l => l.map(e => e.textContent)')
+    check(textos == escritos, 'el resumen muestra cada borrador confirmado', textos)
+    check(pg.locator('dialog.dv-dialogo .dv-borrador pre *').count() == 0, 'los borradores se muestran como texto plano')
+    check(all(pg.locator('dialog.dv-dialogo .dv-pregunta').nth(i).locator('.dv-borrador + .dv-guia').count() == 1 for i in range(3)), 'cada borrador va junto a su guía')
+    vis = pg.evaluate('''() => { const d = document.querySelector("dialog.dv-dialogo"), c = d.querySelector(".dv-cab").getBoundingClientRect().bottom,
+      h = d.querySelector(".dv-h").getBoundingClientRect(), s = d.querySelector(".dv-estado").getBoundingClientRect();
+      return {top: d.scrollTop, c: c, h: h.top, s: s.top, sb: s.bottom, foco: document.activeElement.className}; }''')
+    check(vis['h'] >= vis['c'] - 1 and vis['s'] >= vis['c'] - 1, 'el título y el estado quedan visibles bajo la cabecera fija', vis)
+    check('0 de 3 evaluadas' in pg.inner_text('dialog.dv-dialogo .dv-estado') and vis['foco'].startswith('dv-h'), 'el estado dice 0 de 3 y el foco está en el título')
+    ctx.close()
+
+    # 11.8 Botones de al menos 44 px de alto en pantallas angostas.
+    for ancho in (360, 320):
+        ctx = ctx_voz(ancho=ancho, alto=700)
+        pg = voz_p(ctx)
+        pg.evaluate("__S.cambiar([{name: 'Local', lang: 'es-ES', localService: true}])")
+        pg.locator('dialog.dv-dialogo textarea').fill('Algo')
+        pequenos = pg.evaluate('''() => [].filter.call(document.querySelectorAll("dialog.dv-dialogo button"), b => b.offsetParent && b.getBoundingClientRect().height < 43.5).map(b => b.textContent)''')
+        check(not pequenos, 'a %d px todos los botones visibles miden 44 px o más (voz, Cerrar, Otra pregunta, Volver)' % ancho, pequenos)
+        check(sin_desborde(pg), 'a %d px sigue sin desplazamiento horizontal' % ancho)
+        ctx.close()
+    ctx = ctx_voz(ancho=900, alto=700, has_touch=True, is_mobile=True)
+    pg = voz_p(ctx)
+    pequenos = pg.evaluate('''() => [].filter.call(document.querySelectorAll("dialog.dv-dialogo button"), b => b.offsetParent && b.getBoundingClientRect().height < 43.5).map(b => b.textContent)''')
+    check(not pequenos, 'con puntero táctil los botones del panel miden 44 px o más', pequenos)
+    ctx.close()
+
     browser.close()
 server.shutdown()
 print('\n%d comprobaciones del panel de defensa oral correctas' % count)

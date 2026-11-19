@@ -129,6 +129,7 @@ details.pregunta:not(.velada) .q-velo { display: none; }
 .dv-dialogo p { margin: 0; max-width: 45.4em; font-size: var(--t-sm); line-height: 1.55; overflow-wrap: anywhere; }
 .dv-h, .dv-enunciado { margin: 0; font-family: var(--f-display); font-weight: 700; font-size: 1.05rem; line-height: 1.35; color: var(--ink); overflow-wrap: anywhere; }
 h4.dv-enunciado { font-size: 1rem; }
+.dv-h, .dv-enunciado, .dv-guia h4, .dv-resultado { scroll-margin-top: calc(var(--dv-cab, 56px) + 8px); }
 .dv-h:focus, .dv-enunciado:focus, .dv-guia h4:focus { outline: 3px solid var(--foco); outline-offset: 2px; }
 .dv-dialogo .btn { white-space: normal; text-align: center; max-width: 100%; }
 .dv-dialogo .btn:focus-visible, .dv-dialogo textarea:focus-visible { outline: 3px solid var(--foco); outline-offset: 2px; }
@@ -166,6 +167,9 @@ h4.dv-enunciado { font-size: 1rem; }
 .dv-guia-texto { display: grid; gap: 10px; padding: 0; overflow-wrap: anywhere; }
 .dv-guia-texto .q-sigue { max-width: 100%; }
 .dv-guia-texto img, .dv-guia-texto table { max-width: 100%; }
+.dv-guia-texto span.ref { font-family: var(--f-data); font-size: .72em; line-height: 1; vertical-align: super; color: var(--acento); background: var(--acento-suave); border-radius: var(--r); padding: 1px 4px; margin-left: 1px; white-space: nowrap; }
+.dv-borrador { display: grid; gap: 8px; max-width: 100%; }
+.dv-borrador h4 { margin: 0; font-family: var(--f-data); font-weight: 400; font-size: .6875rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
 .dv-guia-texto .q-ver a { overflow-wrap: anywhere; }
 @media (max-width: 420px) {
   .dv-cuerpo { padding: 8px 12px 16px; }
@@ -187,4 +191,8 @@ h4.dv-enunciado { font-size: 1rem; }
 .dv-voz-aviso p { margin: 0; }
 @media (max-width: 480px) {
   .dv-voz .btn, .dv-voz-aviso .btn { flex: 1 1 100%; }
+}
+.dv-voz-nota { flex: 1 1 100%; color: var(--ink-2); }
+@media (max-width: 480px), (pointer: coarse) {
+  .dv-dialogo .btn, .dv-dialogo .btn.chico { min-height: 44px; }
 }
