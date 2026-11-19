@@ -821,6 +821,31 @@ with sync_playwright() as pw:
           'micrófono negado vuelve a texto sin recargar, conserva el borrador y no crea AudioContext')
     ctx.close()
 
+    # 10c4b. Una grabación muy corta no corta la descarga: el siguiente pulso reutiliza el mismo Worker.
+    ctx = ctx_voz()
+    pg = voz_p(ctx)
+    pg.locator('dialog.dv-dialogo textarea').fill('Borrador C')
+    pg.evaluate('__W.retener = true')
+    boton(pg, 'Dictar en este navegador').click()
+    esperar_grabando(pg)
+    boton(pg, 'Terminar dictado').click()
+    esperar_msg(pg, 'No se oyó nada')
+    check(pg.evaluate('__W.creados.length') == 1 and pg.evaluate('__W.terminados') == 0 and pg.evaluate('__G.pistasParadas') == 1 and pg.evaluate('__A.cerrados') == 1,
+          'una grabación de menos de 0,3 s suelta el micrófono pero no termina el Worker que carga', pg.evaluate('[__W.creados.length, __W.terminados]'))
+    check(boton(pg, 'Dictar en este navegador').is_enabled() and not cancelar_visible(pg) and ta_valor(pg) == 'Borrador C', 'tras la grabación corta vuelve a reposo con el borrador')
+    boton(pg, 'Dictar en este navegador').click()
+    esperar_grabando(pg)
+    check(pg.evaluate('__W.creados.length') == 1 and pg.evaluate('__W.mensajes.filter(m => m.tipo === "iniciar").length') == 1 and pg.evaluate('__G.llamadas') == 2,
+          'el siguiente pulso reutiliza el Worker que carga, sin cargar otra vez, y graba enseguida', pg.evaluate('__W.mensajes'))
+    hablar(pg)
+    boton(pg, 'Terminar dictado').click()
+    esperar_msg(pg, 'Preparando el dictado')
+    pg.evaluate('__W.ultimo.listo()')
+    pg.wait_for_function("document.querySelector('dialog.dv-dialogo textarea').value.includes('texto privado')")
+    check(ta_valor(pg) == 'Borrador C texto privado' and pg.evaluate('__W.creados.length') == 1 and pg.evaluate('__W.terminados') == 0,
+          'al llegar «listo» transcribe la segunda grabación con el mismo Worker', ta_valor(pg))
+    ctx.close()
+
     # 10c5. Carreras: modelo listo antes que el micrófono, y fallo con el micrófono pendiente.
     ctx = ctx_voz()
     pg = voz_p(ctx)
