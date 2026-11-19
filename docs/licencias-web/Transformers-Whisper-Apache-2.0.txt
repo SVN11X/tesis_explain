@@ -1,0 +1,6 @@
+Transformers.js 4.3.2
+Copyright Hugging Face. Licencia Apache 2.0, texto completo en voz/transformers/LICENSE.
+
+Whisper tiny multilingüe, pesos ONNX de onnx-community/whisper-tiny, revisión ff4177021cc41f7db950912b73ea4fdf7d01d8e7,
+convertidos de openai/whisper-tiny. Licencia Apache 2.0, el mismo texto de voz/transformers/LICENSE.
+Los archivos se sirven sin cambios. Sus huellas SHA-256 están en voz/manifiesto.json.
