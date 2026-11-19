@@ -32,7 +32,10 @@ export function crearWorkersAI(ai, modelo = MODELO_PRINCIPAL) {
         max_tokens: maxTokens,
         response_format: { type: "json_schema", json_schema: esquema },
       });
-      const r = respuesta?.response;
+      // Algunos modelos de Workers AI, como Granite 4.0, responden con el formato de OpenAI
+      // (choices[0].message.content) y no con `response`. Se aceptan los dos.
+      const r = respuesta?.response ?? respuesta?.choices?.[0]?.message?.content;
+      if (r === undefined || r === null) throw new Error("respuesta del modelo sin texto");
       return typeof r === "string" ? r : JSON.stringify(r);
     },
     async healthCheck() {
@@ -103,13 +106,15 @@ export function crearProveedor(env = {}) {
  * @param {AIProvider} proveedor
  * @param {{rubrica: object, pregunta: string, texto: string}} datos
  * @param {{temperaturas?: number[], plazoMs?: number}} [opciones]
- * @returns {Promise<{lecturas: Array<object|null>, tecnico: {fallos: number, vencidas: number, malformadas: number}}>}
+ * @returns {Promise<{lecturas: Array<object|null>, tecnico: {fallos: number, vencidas: number, malformadas: number}, detalle: string[]}>}
  */
 export async function evaluarConProveedor(proveedor, { rubrica, pregunta, texto }, { temperaturas = [0.1, 0.2, 0.3], plazoMs = 20000 } = {}) {
   const mensajes = construirMensajes({ rubrica, pregunta, texto });
   const tecnico = { fallos: 0, vencidas: 0, malformadas: 0 };
+  // Motivo de cada lectura, sin el texto del estudiante: alimenta el registro técnico de la ronda.
+  const detalle = temperaturas.map(() => "ok");
 
-  const una = async (temperatura) => {
+  const una = async (temperatura, i) => {
     const control = new AbortController();
     let temporizador;
     const vence = new Promise((_, rechazar) => {
@@ -125,8 +130,8 @@ export async function evaluarConProveedor(proveedor, { rubrica, pregunta, texto 
         vence,
       ]);
     } catch (e) {
-      if (e && e.vencida === true) tecnico.vencidas++;
-      else tecnico.fallos++;
+      if (e && e.vencida === true) { tecnico.vencidas++; detalle[i] = "vencida"; }
+      else { tecnico.fallos++; detalle[i] = "fallo: " + String((e && e.message) || e).slice(0, 160); }
       return null;
     } finally {
       clearTimeout(temporizador);
@@ -136,11 +141,16 @@ export async function evaluarConProveedor(proveedor, { rubrica, pregunta, texto 
       salida = JSON.parse(crudo);
     } catch {
       tecnico.malformadas++;
+      const s = String(crudo).trim();
+      // Solo la forma de la salida (largo y bordes), nunca su contenido.
+      detalle[i] = "malformada: " + s.length + " caracteres, empieza " + JSON.stringify(s.slice(0, 1)) + ", termina " + JSON.stringify(s.slice(-1));
       return null;
     }
-    return validarLectura(salida, rubrica, texto);
+    const lectura = validarLectura(salida, rubrica, texto);
+    if (!lectura.valida) detalle[i] = "invalida: " + lectura.motivo;
+    return lectura;
   };
 
   const lecturas = await Promise.all(temperaturas.map(una));
-  return { lecturas, tecnico };
+  return { lecturas, tecnico, detalle };
 }

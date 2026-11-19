@@ -88,6 +88,11 @@ test("workers_ai: modelo, parámetros y respuesta como texto u objeto", async ()
   assert.equal(await prov.evaluate({ mensajes, temperatura: 0.2, maxTokens: 500, esquema: ESQUEMA_SALIDA }), '{"a":1}');
   respuesta = { response: { a: 1 } };
   assert.equal(await prov.evaluate({ mensajes, temperatura: 0.2, maxTokens: 500, esquema: ESQUEMA_SALIDA }), '{"a":1}');
+  // Formato de OpenAI, el que usa Granite 4.0 en Workers AI.
+  respuesta = { choices: [{ message: { role: "assistant", content: '{"a":1}' } }] };
+  assert.equal(await prov.evaluate({ mensajes, temperatura: 0.2, maxTokens: 500, esquema: ESQUEMA_SALIDA }), '{"a":1}');
+  respuesta = {};
+  await assert.rejects(prov.evaluate({ mensajes, temperatura: 0.2, maxTokens: 500, esquema: ESQUEMA_SALIDA }), /sin texto/);
   const [modelo, p] = llamadas[0];
   assert.equal(modelo, "@cf/ibm-granite/granite-4.0-h-micro");
   assert.equal(p.temperature, 0.2);
