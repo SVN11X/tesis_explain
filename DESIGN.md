@@ -25,7 +25,15 @@ Keep the current palette, and review whether anything distracts or tires the eye
 
 ## Typography
 
-Keep the current fonts, under the same review: Archivo for titles, Atkinson Hyperlegible for text and IBM Plex Mono for labels. Three families need a written reason under the standard. The owner asked to decide it with evidence: the weight and use of each family are measured in an item of `docs/improvement-plan.md`, and this section is updated with the result.
+Keep the current fonts, under the same review: Archivo for titles, Atkinson Hyperlegible for text and IBM Plex Mono for labels. Three families need a written reason under the standard, and the measurement in `docs/medicion-fuentes.md` gives it.
+
+Decision (measured): keep the three families, each with one role.
+
+- Atkinson Hyperlegible carries the reading: most of the visible characters (76 % on the home page, 89 to 91 % on guide pages). It is the accessibility choice and it has `tnum`, so figures inside running text align without another family.
+- Archivo is the voice of titles, big figures and the footer title. It is the heaviest file (56,044 bytes, one variable file for every weight) for about 2,000 to 8,800 characters per page, so it is the first candidate if weight ever matters more than identity. Headings would fall back to Atkinson 700, which is already loaded, and nothing else changes.
+- IBM Plex Mono marks labels, units, numbered chips, code, formulas and `kbd`, 257 to 463 elements per page. It costs 14,708 bytes on the home page and 30,328 bytes on guide pages (two weights). Its role is the "this is a label or a measurement" signal, which no other family gives.
+
+First visit, cold cache, bytes of woff2 files: home 87,960 (Archivo 56,044, Atkinson 17,208, Plex 14,708) and guide pages 139,396 (Archivo 56,044, Atkinson 53,024, Plex 30,328). Removing a family would not break the `font-display: optional` rule or its metric-matched fallbacks on the guide pages, because each family has its own fallback block in `css/estilo.css`. It would only delete that block. The home page is the exception: `web/src/styles/experience.css` uses `font-display: swap` and no metric-matched fallbacks, which the README does not say. No CSS was changed.
 
 ## Motion
 
