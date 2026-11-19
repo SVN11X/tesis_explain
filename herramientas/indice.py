@@ -225,8 +225,8 @@ if __name__ == '__main__':
         print('\n'.join(errores))
         sys.exit(1)
     js = '/* Índice del buscador. Generado por herramientas/indice.py a partir de las páginas del sitio. No editar a mano. */\nwindow.INDICE = ' + json.dumps(out, ensure_ascii=False, separators=(',', ':')) + ';\n'
-    open(REPO + 'datos/indice.js', 'w', encoding='utf-8').write(js)
+    open(REPO + 'datos/indice.js', 'w', encoding='utf-8', newline='\n').write(js)
     print(len(out), 'entradas,', len(js) // 1024, 'KB')
     sec = secciones()
-    open(REPO + 'datos/secciones.js', 'w', encoding='utf-8').write(js_secciones(sec))
+    open(REPO + 'datos/secciones.js', 'w', encoding='utf-8', newline='\n').write(js_secciones(sec))
     print(sum(len(v) for v in sec.values()), 'secciones en', len(sec), 'partes')

@@ -14,11 +14,11 @@ def write(path, content):
         if not path.exists() or path.read_text(encoding='utf-8') != content:
             raise SystemExit('Desactualizado: ' + str(path.relative_to(ROOT)))
     else:
-        path.write_text(content, encoding='utf-8')
+        path.write_text(content, encoding='utf-8', newline='\n')
 
 
-academic = json.loads((ROOT / 'datos/academico.json').read_text())
-params = json.loads((ROOT / 'datos/parametros.json').read_text())
+academic = json.loads((ROOT / 'datos/academico.json').read_text(encoding='utf-8'))
+params = json.loads((ROOT / 'datos/parametros.json').read_text(encoding='utf-8'))
 def tablas(carpeta):
     out = {}
     for path in sorted((ROOT / carpeta).glob('*.csv')):

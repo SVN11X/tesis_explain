@@ -60,7 +60,7 @@ h1 span { color: #5f7a2a; }
 def main():
     tmp = ROOT / 'build' / 'social.html'
     tmp.parent.mkdir(exist_ok=True)
-    tmp.write_text(pagina(), encoding='utf-8')
+    tmp.write_text(pagina(), encoding='utf-8', newline='\n')
     with sync_playwright() as pw:
         nav = pw.chromium.launch()
         p = nav.new_page(viewport={'width': 1200, 'height': 630}, device_scale_factor=1)
