@@ -282,7 +282,7 @@
       decir("");
       si.focus();
     }
-    function descargar(m, g) {
+    function descargar(m, g, dispositivo) {
       if (g !== gen) return;
       estado = "descargando"; pintar();
       decir("Descargando el modelo de voz: 0 de " + megas(m.bytes_total));
@@ -305,11 +305,15 @@
           estado = "reposo"; pintar();
           decir(agregar(d.texto) ? "Texto agregado al final de tu respuesta. Revísalo y corrígelo antes de confirmar." : "No se entendió nada. Inténtalo otra vez o escribe.");
           ta.focus();
+        } else if (d.tipo === "reintentar") {
+          /* la biblioteca recuerda una carga fallida: el respaldo wasm va en un Worker nuevo */
+          terminarWorker();
+          descargar(m, g, d.dispositivo === "wasm" ? "wasm" : undefined);
         } else if (d.tipo === "error") {
           fallo();
         }
       };
-      w.postMessage({ tipo: "iniciar", total: m.bytes_total });
+      w.postMessage({ tipo: "iniciar", total: m.bytes_total, dispositivo: dispositivo });
     }
     function pedirMicro() {
       var g = ++gen;

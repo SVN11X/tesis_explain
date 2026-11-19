@@ -573,10 +573,11 @@ with sync_playwright() as pw:
             constructor(url, o) { this.url = String(url); W.creados.push({url: this.url, tipo: o && o.type}); W.ultimo = this; }
             listo() { if (!this.terminado && this.onmessage) this.onmessage({data: {tipo: 'listo', dispositivo: 'wasm'}}); }
             postMessage(m) {
-              W.mensajes.push({tipo: m.tipo, total: m.total, largo: m.audio ? m.audio.length : null, buffer: m.audio ? m.audio.constructor.name : null});
+              W.mensajes.push({tipo: m.tipo, total: m.total, dispositivo: m.dispositivo, largo: m.audio ? m.audio.length : null, buffer: m.audio ? m.audio.constructor.name : null});
               if (m.tipo === 'iniciar') {
                 this.onmessage && this.onmessage({data: {tipo: 'progreso', cargado: 10000000, total: m.total}});
-                if (!W.retener) setTimeout(() => this.listo(), 20);
+                if (W.reintentar && m.dispositivo !== 'wasm') setTimeout(() => this.onmessage && this.onmessage({data: {tipo: 'reintentar', dispositivo: 'wasm'}}), 20);
+                else if (!W.retener) setTimeout(() => this.listo(), 20);
               } else if (m.tipo === 'transcribir') {
                 setTimeout(() => { if (!this.terminado && this.onmessage) this.onmessage({data: {tipo: 'texto', texto: W.texto}}); }, 20);
               }
@@ -738,7 +739,8 @@ with sync_playwright() as pw:
     pg.wait_for_selector('dialog.dv-dialogo .dv-voz button:has-text("Terminar dictado")')
     boton(pg, 'Cerrar').click()
     pg.wait_for_selector('dialog.dv-dialogo:not([open])', state='attached')
-    check(pg.evaluate('__G.pistasParadas') == 2 and pg.evaluate('__A.cerrados') == 2 and pg.evaluate('__W.terminados') == 2, 'al cerrar durante la grabación suelta pistas, AudioContext y Worker')
+    pg.wait_for_function('__G.pistasParadas === 2 && __A.cerrados === 2 && __W.terminados === 2', timeout=3000) if pg.evaluate('__W.creados.length') == 2 else None
+    check(pg.evaluate('__G.pistasParadas') == 2 and pg.evaluate('__A.cerrados') == 2 and pg.evaluate('__W.terminados') == 2, 'al cerrar durante la grabación suelta pistas, AudioContext y Worker', pg.evaluate('[__G.pistasParadas, __A.cerrados, __W.terminados, __W.creados.length]'))
     ctx.close()
 
     # 10e. Copia del sitio sin voz/manifiesto.json.
@@ -750,6 +752,17 @@ with sync_playwright() as pw:
     escribir_y_enviar(pg, 'Sigue funcionando')
     pg.wait_for_selector('dialog.dv-dialogo .dv-guia')
     check(ta_valor(pg) == 'Sigue funcionando', 'el resto del panel sigue funcionando sin dictado privado')
+    ctx.close()
+
+    # 10e2. Si WebGPU falla, el respaldo wasm va en un Worker nuevo.
+    ctx = ctx_voz()
+    pg = voz_p(ctx)
+    pg.evaluate('__W.reintentar = true')
+    boton(pg, 'Dictar en este navegador').click(); boton(pg, 'Descargar y dictar').click()
+    pg.wait_for_selector('dialog.dv-dialogo .dv-voz button:has-text("Terminar dictado")')
+    check(pg.evaluate('__W.creados.length') == 2 and pg.evaluate('__W.terminados') == 1, 'ante «reintentar» termina el Worker y crea uno nuevo')
+    check(pg.evaluate('__W.mensajes.filter(m => m.tipo === "iniciar").map(m => m.dispositivo)') == [None, 'wasm'], 'el segundo Worker se inicia con dispositivo wasm', pg.evaluate('__W.mensajes'))
+    check(pg.evaluate('__G.llamadas') == 1, 'tras el respaldo wasm el flujo llega al micrófono')
     ctx.close()
 
     # 10f. 320 px y los dos temas con los controles de voz y el aviso abiertos.
