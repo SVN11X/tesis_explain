@@ -231,6 +231,18 @@ with sync_playwright() as pw:
     p.wait_for_selector('dialog.dv-dialogo:not([open])', state='attached')
     check(foco_llega(p, 'e.id === "q-defensa"'), 'Cerrar cierra y el foco vuelve a #q-defensa')
     check(p.evaluate('scrollY') == y0, 'el desplazamiento se conserva tras Cerrar')
+    # Reabrir en la misma tarea en que se cerró: el evento close atrasado no debe dejar el panel en «Cargando».
+    p.evaluate("document.getElementById('q-defensa').click()")
+    p.wait_for_selector('dialog.dv-dialogo[open] .dv-modos')
+    p.evaluate("""() => { document.querySelector('dialog.dv-dialogo').close(); document.getElementById('q-defensa').click(); }""")
+    try:
+        p.wait_for_selector('dialog.dv-dialogo[open] .dv-modos', timeout=5000)
+    except Exception:
+        pass
+    check(p.locator('dialog.dv-dialogo[open] .dv-modos').count() == 1, 'reabrir enseguida tras cerrar muestra el primer paso')
+    boton(p, 'Cerrar').click()
+    p.wait_for_selector('dialog.dv-dialogo:not([open])', state='attached')
+    foco_llega(p, 'e.id === "q-defensa"')
     p.evaluate("document.getElementById('q-defensa').click()")
     p.wait_for_selector('dialog.dv-dialogo[open] .dv-modos')
     check('11 preguntas' in p.locator('dialog.dv-dialogo .dv-cuerpo').inner_text(), 'cuenta las tarjetas visibles con guía', p.locator('dialog.dv-dialogo .dv-cuerpo').inner_text()[:120])
