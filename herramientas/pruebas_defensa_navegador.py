@@ -587,12 +587,14 @@ with sync_playwright() as pw:
           class SR { constructor() { R.instancias++; R.ultimo = this; } start() { R.starts++; } stop() { R.stops++; } }
           Object.defineProperty(window, 'SpeechRecognition', {value: %s ? SR : undefined, configurable: true});
           Object.defineProperty(window, 'webkitSpeechRecognition', {value: %s ? SR : undefined, configurable: true});
-          const G = {llamadas: 0, pistasParadas: 0, negar: false};
+          const G = {llamadas: 0, pistasParadas: 0, negar: false, retener: false};
           window.__G = G;
           Object.defineProperty(navigator, 'mediaDevices', {configurable: true, value: {getUserMedia: () => {
             G.llamadas++;
             if (G.negar) return Promise.reject(new DOMException('no', 'NotAllowedError'));
-            return Promise.resolve({getTracks: () => [{stop: () => { G.pistasParadas++; }}]});
+            const flujo = {getTracks: () => [{stop: () => { G.pistasParadas++; }}]};
+            if (G.retener) return new Promise(res => { G.resolver = () => res(flujo); });
+            return Promise.resolve(flujo);
           }}});
           const A = {creados: 0, cerrados: 0};
           window.__A = A;
@@ -601,11 +603,11 @@ with sync_playwright() as pw:
             createScriptProcessor() { const p = {connect() {}, disconnect() {}, onaudioprocess: null}; A.proc = p; return p; }
             close() { this.state = 'closed'; A.cerrados++; return Promise.resolve(); } resume() {} }
           window.AudioContext = AC; window.webkitAudioContext = AC;
-          const W = {creados: [], mensajes: [], terminados: 0, retener: false, texto: 'texto privado'};
+          const W = {creados: [], mensajes: [], terminados: 0, listos: 0, retener: false, texto: 'texto privado'};
           window.__W = W;
           window.Worker = class {
             constructor(url, o) { this.url = String(url); W.creados.push({url: this.url, tipo: o && o.type}); W.ultimo = this; }
-            listo() { if (!this.terminado && this.onmessage) this.onmessage({data: {tipo: 'listo', dispositivo: 'wasm'}}); }
+            listo() { if (!this.terminado && this.onmessage) W.listos++; if (!this.terminado && this.onmessage) this.onmessage({data: {tipo: 'listo', dispositivo: 'wasm'}}); }
             postMessage(m) {
               W.mensajes.push({tipo: m.tipo, total: m.total, dispositivo: m.dispositivo, largo: m.audio ? m.audio.length : null, buffer: m.audio ? m.audio.constructor.name : null});
               if (m.tipo === 'iniciar') {
@@ -704,45 +706,68 @@ with sync_playwright() as pw:
     check(not pg.errores, 'sin errores de JavaScript sin esas interfaces', pg.errores)
     ctx.close()
 
-    # 10c. Dictado privado: confirmación, cancelación, grabación, red y limpieza.
+    # 10c. Dictado privado sin pregunta previa: graba al pulsar y el modelo carga mientras se habla.
+    ESTADO = 'dialog.dv-dialogo .dv-voz-estado'
+    PREPARAR = 'No se pudo preparar el dictado. Tu borrador sigue aquí. Puedes escribir o usar el dictado externo.'
+
+    def esperar_msg(pg, texto):
+        pg.wait_for_function('t => document.querySelector("%s").textContent.includes(t)' % ESTADO, arg=texto)
+
+    def esperar_grabando(pg):
+        pg.wait_for_selector('dialog.dv-dialogo .dv-voz button:has-text("Terminar dictado")')
+
+    def hablar(pg):
+        pg.evaluate("() => { const e = {inputBuffer: {getChannelData: () => new Float32Array(16000).fill(0.1)}}; __A.proc.onaudioprocess(e); __A.proc.onaudioprocess(e); }")
+
+    def cancelar_visible(pg):
+        return boton(pg, 'Cancelar').is_visible()
+
     ctx = ctx_voz()
     todas = []
     ctx.on('request', lambda r: todas.append(r.url))
     pg = voz_p(ctx)
     pg.locator('dialog.dv-dialogo textarea').fill('Mi borrador')
-    pg.evaluate('window.__marca = 1')
+    pg.evaluate('window.__marca = 1; __W.retener = true')
     boton(pg, 'Dictar en este navegador').click()
-    pg.wait_for_selector('dialog.dv-dialogo .dv-voz-aviso:not([hidden])')
-    check('71,1 MB' in mensaje_voz(pg), 'muestra el tamaño de voz/manifiesto.json (71,1 MB) antes de descargar', mensaje_voz(pg))
-    voz_antes = [u for u in todas if '/voz/' in u and not u.endswith('manifiesto.json')]
-    check(not voz_antes and pg.evaluate('__W.creados.length') == 0 and pg.evaluate('__G.llamadas') == 0,
-          'sin confirmar no se pide nada más de voz/ ni se llama a getUserMedia', voz_antes)
-    boton(pg, 'Seguir escribiendo').click()
-    check(pg.evaluate('__W.creados.length') == 0 and ta_valor(pg) == 'Mi borrador', 'rechazar la descarga no crea el Worker y conserva el borrador')
-    pg.evaluate('__W.retener = true')
-    boton(pg, 'Dictar en este navegador').click()
-    boton(pg, 'Descargar y dictar').click()
-    pg.wait_for_function('__W.creados.length === 1')
+    esperar_grabando(pg)
+    check(boton(pg, 'Descargar y dictar').count() == 0 and boton(pg, 'Seguir escribiendo').count() == 0 and pg.locator('dialog.dv-dialogo .dv-voz-aviso').is_hidden(),
+          'sin pregunta de descarga: al pulsar no aparece ningún aviso ni botón de confirmar', mensaje_voz(pg))
     w = pg.evaluate('__W.creados[0]')
-    check(w['url'].endswith('/js/defensa-whisper-worker.js') and w['tipo'] == 'module', 'crea el Worker de módulo bajo /tesis_explain/', w)
-    check(pg.evaluate('__W.mensajes[0].tipo') == 'iniciar' and pg.evaluate('__G.llamadas') == 0, 'durante la descarga no pide el micrófono')
-    check('10,0 MB de 71,1 MB' in mensaje_voz(pg), 'muestra el progreso de la descarga', mensaje_voz(pg))
-    boton(pg, 'Cancelar').click()
-    check(pg.evaluate('__W.terminados') == 1 and 'Descarga cancelada' in mensaje_voz(pg) and pg.evaluate('__G.llamadas') == 0, 'cancelar termina el Worker y no toca el micrófono', mensaje_voz(pg))
-    check(ta_valor(pg) == 'Mi borrador' and pg.locator('dialog.dv-dialogo .dv-enunciado').is_visible() and pg.evaluate('window.__marca') == 1,
-          'cancelar durante la descarga mantiene la pregunta y el borrador sin recargar')
-    pg.evaluate('__W.retener = false')
-    boton(pg, 'Dictar en este navegador').click()
-    boton(pg, 'Descargar y dictar').click()
-    pg.wait_for_selector('dialog.dv-dialogo .dv-voz button:has-text("Terminar dictado")')
-    check(pg.evaluate('__G.llamadas') == 1 and pg.evaluate('__A.creados') == 1, 'solo al terminar la descarga pide el micrófono y abre el AudioContext')
-    pg.evaluate("() => { const e = {inputBuffer: {getChannelData: () => new Float32Array(16000).fill(0.1)}}; __A.proc.onaudioprocess(e); __A.proc.onaudioprocess(e); }")
+    check(pg.evaluate('__W.listos') == 0 and pg.evaluate('__G.llamadas') == 1 and pg.evaluate('__A.creados') == 1 and pg.evaluate('__W.creados.length') == 1,
+          'la grabación empieza antes de que el modelo esté listo y el Worker ya está cargando', w)
+    check(w['url'].endswith('/js/defensa-whisper-worker.js') and w['tipo'] == 'module' and pg.evaluate('__W.mensajes[0].tipo') == 'iniciar', 'crea el Worker de módulo bajo /tesis_explain/', w)
+    m = mensaje_voz(pg)
+    check('Grabando. Pulsa «Terminar dictado» cuando acabes.' in m and 'Mientras hablas, tu navegador prepara el dictado: 10,0 MB de 71,1 MB. Solo la primera vez.' in m,
+          'durante la grabación aparece el progreso del modelo', m)
+    pg.evaluate("__W.ultimo.onmessage({data: {tipo: 'progreso', cargado: 30000000, total: 71127843}})")
+    check('30,0 MB de 71,1 MB' in mensaje_voz(pg), 'el progreso se actualiza al cruzar un 10 %', mensaje_voz(pg))
+    pg.evaluate("__W.ultimo.onmessage({data: {tipo: 'progreso', cargado: 31000000, total: 71127843}})")
+    check('30,0 MB de 71,1 MB' in mensaje_voz(pg) and '31,0' not in mensaje_voz(pg), 'no se anuncia el progreso más de una vez por cada 10 %', mensaje_voz(pg))
+    hablar(pg)
     boton(pg, 'Terminar dictado').click()
     check(pg.evaluate('__G.pistasParadas') == 1 and pg.evaluate('__A.cerrados') == 1, 'al terminar detiene las pistas y cierra el AudioContext')
-    m = pg.evaluate('__W.mensajes[__W.mensajes.length - 1]')
-    check(m['tipo'] == 'transcribir' and m['buffer'] == 'Float32Array' and m['largo'] == 32000, 'envía al Worker un Float32Array de 16 kHz', m)
+    m = mensaje_voz(pg)
+    check('Preparando el dictado: 31,0 MB de 71,1 MB. Tu grabación espera aquí.' in m and cancelar_visible(pg), 'terminar antes de que el modelo esté listo espera, muestra el progreso y ofrece Cancelar', m)
+    check(pg.evaluate('__W.mensajes.filter(m => m.tipo === "transcribir").length') == 0, 'mientras el modelo no está listo no se envía el audio')
+    pg.evaluate('__W.ultimo.listo()')
     pg.wait_for_function("document.querySelector('dialog.dv-dialogo textarea').value.includes('texto privado')")
-    check(ta_valor(pg) == 'Mi borrador texto privado', 'el texto dictado se agrega al borrador', ta_valor(pg))
+    m = pg.evaluate('__W.mensajes[__W.mensajes.length - 1]')
+    check(m['tipo'] == 'transcribir' and m['buffer'] == 'Float32Array' and m['largo'] == 32000, 'al llegar «listo» envía al Worker la grabación de 16 kHz', m)
+    check(ta_valor(pg) == 'Mi borrador texto privado' and pg.evaluate('window.__marca') == 1, 'el texto dictado se agrega al borrador', ta_valor(pg))
+    # Un segundo dictado con el Worker listo no recarga el modelo.
+    boton(pg, 'Dictar en este navegador').click()
+    esperar_grabando(pg)
+    check(pg.evaluate('__W.creados.length') == 1 and pg.evaluate('__G.llamadas') == 2 and 'Mientras hablas' not in mensaje_voz(pg),
+          'el segundo dictado va directo al micrófono sin recargar el modelo', mensaje_voz(pg))
+    hablar(pg)
+    boton(pg, 'Terminar dictado').click()
+    check(pg.evaluate('__W.mensajes[__W.mensajes.length - 1].tipo') == 'transcribir', 'con el modelo listo, terminar transcribe enseguida')
+    pg.wait_for_function("document.querySelector('dialog.dv-dialogo textarea').value.endsWith('texto privado texto privado')")
+    # El dictado externo conserva su propio consentimiento.
+    boton(pg, 'Dictado externo').click()
+    check(boton(pg, 'Aceptar y dictar').count() == 1 and boton(pg, 'Seguir escribiendo').count() == 1 and pg.evaluate('__R.instancias') == 0,
+          'el dictado externo sigue pidiendo su consentimiento')
+    boton(pg, 'Seguir escribiendo').click()
     t0 = pg.evaluate('__W.terminados')
     cerrar(pg)
     check(pg.evaluate('__W.terminados') == t0 + 1, 'al cerrar el panel el Worker se termina')
@@ -751,26 +776,88 @@ with sync_playwright() as pw:
     check(not pg.errores, 'sin errores de JavaScript en el dictado privado', pg.errores)
     ctx.close()
 
-    # 10d. Micrófono negado y limpieza al cambiar de pregunta o cerrar durante la grabación.
+    # 10c2. Cancelar mientras la grabación espera al modelo.
+    ctx = ctx_voz()
+    pg = voz_p(ctx)
+    pg.locator('dialog.dv-dialogo textarea').fill('Mi borrador')
+    pg.evaluate('window.__marca = 1; __W.retener = true')
+    boton(pg, 'Dictar en este navegador').click()
+    esperar_grabando(pg)
+    hablar(pg)
+    boton(pg, 'Terminar dictado').click()
+    esperar_msg(pg, 'Preparando el dictado')
+    boton(pg, 'Cancelar').click()
+    check(pg.evaluate('__W.terminados') == 1 and 'Dictado cancelado' in mensaje_voz(pg), 'cancelar mientras espera termina el Worker', mensaje_voz(pg))
+    pg.evaluate('__W.ultimo.listo()')
+    pg.wait_for_timeout(100)
+    check(pg.evaluate('__W.mensajes.filter(m => m.tipo === "transcribir").length') == 0 and ta_valor(pg) == 'Mi borrador' and pg.evaluate('window.__marca') == 1
+          and pg.locator('dialog.dv-dialogo .dv-enunciado').is_visible(), 'cancelar descarta el audio y conserva el borrador sin recargar')
+    check(foco_llega(pg, 'e.textContent === "Dictar en este navegador"'), 'tras cancelar el foco vuelve al botón de dictado')
+    ctx.close()
+
+    # 10c3. Fallo de la carga en plena grabación.
+    ctx = ctx_voz()
+    pg = voz_p(ctx)
+    pg.locator('dialog.dv-dialogo textarea').fill('Borrador F')
+    pg.evaluate('__W.retener = true')
+    boton(pg, 'Dictar en este navegador').click()
+    esperar_grabando(pg)
+    hablar(pg)
+    pg.evaluate("__W.ultimo.onmessage({data: {tipo: 'error', mensaje: 'x'}})")
+    check(PREPARAR in mensaje_voz(pg), 'un fallo de carga durante la grabación da el mensaje de fallo', mensaje_voz(pg))
+    check(pg.evaluate('__G.pistasParadas') == 1 and pg.evaluate('__A.cerrados') == 1 and pg.evaluate('__W.terminados') == 1, 'el fallo suelta el micrófono y el Worker')
+    check(ta_valor(pg) == 'Borrador F' and boton(pg, 'Dictar en este navegador').is_enabled() and not cancelar_visible(pg), 'tras el fallo vuelve a texto con el borrador')
+    ctx.close()
+
+    # 10c4. Micrófono negado: termina también la carga del Worker.
     ctx = ctx_voz()
     pg = voz_p(ctx)
     pg.locator('dialog.dv-dialogo textarea').fill('Borrador B')
-    pg.evaluate('window.__marca = 1; __G.negar = true')
-    boton(pg, 'Dictar en este navegador').click(); boton(pg, 'Descargar y dictar').click()
-    pg.wait_for_function('__G.llamadas === 1')
-    pg.wait_for_function("document.querySelector('dialog.dv-dialogo .dv-voz-estado').textContent.includes('no está permitido')")
-    check(ta_valor(pg) == 'Borrador B' and boton(pg, 'Dictar en este navegador').is_enabled() and pg.evaluate('window.__marca') == 1,
-          'micrófono negado vuelve a texto sin recargar y conserva el borrador')
-    check(pg.evaluate('__A.creados') == 0, 'con el micrófono negado no se crea ningún AudioContext')
-    pg.evaluate('__G.negar = false')
+    pg.evaluate('window.__marca = 1; __G.negar = true; __W.retener = true')
     boton(pg, 'Dictar en este navegador').click()
-    pg.wait_for_selector('dialog.dv-dialogo .dv-voz button:has-text("Terminar dictado")')
-    check(pg.evaluate('__W.creados.length') == 1, 'con el Worker ya listo no vuelve a descargar ni a preguntar')
+    esperar_msg(pg, 'no está permitido')
+    check(pg.evaluate('__W.creados.length') == 1 and pg.evaluate('__W.terminados') == 1, 'negar el micrófono termina también la carga del Worker')
+    check(ta_valor(pg) == 'Borrador B' and boton(pg, 'Dictar en este navegador').is_enabled() and pg.evaluate('window.__marca') == 1 and pg.evaluate('__A.creados') == 0,
+          'micrófono negado vuelve a texto sin recargar, conserva el borrador y no crea AudioContext')
+    ctx.close()
+
+    # 10c5. Carreras: modelo listo antes que el micrófono, y fallo con el micrófono pendiente.
+    ctx = ctx_voz()
+    pg = voz_p(ctx)
+    pg.evaluate('__G.retener = true')
+    boton(pg, 'Dictar en este navegador').click()
+    pg.wait_for_function('__W.listos === 1 && __G.llamadas === 1')
+    check(boton(pg, 'Terminar dictado').count() == 0 and cancelar_visible(pg), 'con el modelo ya listo, mientras llega el permiso aún no graba')
+    pg.evaluate('__G.resolver()')
+    esperar_grabando(pg)
+    check('Mientras hablas' not in mensaje_voz(pg), 'si el modelo quedó listo antes que el micrófono, graba sin mensaje de preparación', mensaje_voz(pg))
+    hablar(pg)
+    boton(pg, 'Terminar dictado').click()
+    check(pg.evaluate('__W.mensajes[__W.mensajes.length - 1].tipo') == 'transcribir', 'y al terminar transcribe enseguida')
+    ctx.close()
+
+    ctx = ctx_voz()
+    pg = voz_p(ctx)
+    pg.evaluate('__G.retener = true; __W.retener = true')
+    boton(pg, 'Dictar en este navegador').click()
+    pg.wait_for_function('__G.llamadas === 1')
+    pg.evaluate("__W.ultimo.onmessage({data: {tipo: 'error', mensaje: 'x'}})")
+    pg.evaluate('__G.resolver()')
+    pg.wait_for_function('__G.pistasParadas === 1')
+    check(PREPARAR in mensaje_voz(pg) and pg.evaluate('__A.creados') == 0 and boton(pg, 'Dictar en este navegador').is_enabled() and boton(pg, 'Terminar dictado').count() == 0,
+          'un fallo de carga con el micrófono pendiente suelta el permiso que llega tarde', mensaje_voz(pg))
+    ctx.close()
+
+    # 10c6. Limpieza al cambiar de pregunta o cerrar durante la grabación.
+    ctx = ctx_voz()
+    pg = voz_p(ctx)
+    boton(pg, 'Dictar en este navegador').click()
+    esperar_grabando(pg)
     boton(pg, 'Otra pregunta').click()
     check(pg.evaluate('__G.pistasParadas') == 1 and pg.evaluate('__A.cerrados') == 1 and pg.evaluate('__W.terminados') == 1, 'al cambiar de pregunta suelta pistas, AudioContext y Worker')
     pg.wait_for_selector('dialog.dv-dialogo .dv-voz button', state='attached')
-    boton(pg, 'Dictar en este navegador').click(); boton(pg, 'Descargar y dictar').click()
-    pg.wait_for_selector('dialog.dv-dialogo .dv-voz button:has-text("Terminar dictado")')
+    boton(pg, 'Dictar en este navegador').click()
+    esperar_grabando(pg)
     cerrar_con(pg, lambda: boton(pg, 'Cerrar').click())
     pg.wait_for_function('__G.pistasParadas === 2 && __A.cerrados === 2 && __W.terminados === 2', timeout=3000) if pg.evaluate('__W.creados.length') == 2 else None
     check(pg.evaluate('__G.pistasParadas') == 2 and pg.evaluate('__A.cerrados') == 2 and pg.evaluate('__W.terminados') == 2, 'al cerrar durante la grabación suelta pistas, AudioContext y Worker', pg.evaluate('[__G.pistasParadas, __A.cerrados, __W.terminados, __W.creados.length]'))
@@ -787,15 +874,23 @@ with sync_playwright() as pw:
     check(ta_valor(pg) == 'Sigue funcionando', 'el resto del panel sigue funcionando sin dictado privado')
     ctx.close()
 
-    # 10e2. Si WebGPU falla, el respaldo wasm va en un Worker nuevo.
+    # 10e2. Si WebGPU falla, el respaldo wasm va en un Worker nuevo y la grabación pendiente sobrevive.
     ctx = ctx_voz()
     pg = voz_p(ctx)
-    pg.evaluate('__W.reintentar = true')
-    boton(pg, 'Dictar en este navegador').click(); boton(pg, 'Descargar y dictar').click()
-    pg.wait_for_selector('dialog.dv-dialogo .dv-voz button:has-text("Terminar dictado")')
+    pg.evaluate('__W.retener = true')
+    boton(pg, 'Dictar en este navegador').click()
+    esperar_grabando(pg)
+    hablar(pg)
+    boton(pg, 'Terminar dictado').click()
+    esperar_msg(pg, 'Preparando el dictado')
+    pg.evaluate("__W.ultimo.onmessage({data: {tipo: 'reintentar', dispositivo: 'wasm'}})")
     check(pg.evaluate('__W.creados.length') == 2 and pg.evaluate('__W.terminados') == 1, 'ante «reintentar» termina el Worker y crea uno nuevo')
     check(pg.evaluate('__W.mensajes.filter(m => m.tipo === "iniciar").map(m => m.dispositivo)') == [None, 'wasm'], 'el segundo Worker se inicia con dispositivo wasm', pg.evaluate('__W.mensajes'))
-    check(pg.evaluate('__G.llamadas') == 1, 'tras el respaldo wasm el flujo llega al micrófono')
+    check('Preparando el dictado' in mensaje_voz(pg) and cancelar_visible(pg), 'tras «reintentar» la grabación sigue esperando con Cancelar')
+    pg.evaluate('__W.ultimo.listo()')
+    pg.wait_for_function("document.querySelector('dialog.dv-dialogo textarea').value.includes('texto privado')")
+    m = pg.evaluate('__W.mensajes[__W.mensajes.length - 1]')
+    check(m['tipo'] == 'transcribir' and m['largo'] == 32000 and pg.evaluate('__G.llamadas') == 1, 'el camino «reintentar» conserva el audio pendiente y lo envía al Worker nuevo', m)
     ctx.close()
 
     # 10f. 320 px y los dos temas con los controles de voz y el aviso abiertos.
@@ -806,7 +901,7 @@ with sync_playwright() as pw:
         filtrar(pg, UNICA[0]); abrir(pg); boton(pg, 'Entrenar').click()
         pg.wait_for_selector('dialog.dv-dialogo .dv-voz button', state='attached')
         pg.evaluate("__S.cambiar([{name: 'Local', lang: 'es-ES', localService: true}])")
-        boton(pg, 'Dictar en este navegador').click()
+        boton(pg, 'Dictado externo').click()
         pg.wait_for_selector('dialog.dv-dialogo .dv-voz-aviso:not([hidden])')
         check(sin_desborde(pg), '320 px sin desplazamiento horizontal con la voz y el aviso (%s)' % tema)
         colores[tema + '-aviso'] = pg.evaluate('getComputedStyle(document.querySelector(".dv-voz-aviso")).backgroundColor')
