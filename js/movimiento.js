@@ -1,5 +1,7 @@
 /*
-  Capítulo 03: interactivos de calibración de la odometría, dibujados en SVG.
+  Capítulo 03: interactivos de movimiento. Los de calibración se dibujan en SVG y los dos primeros, en canvas.
+  cinematica   dos velocidades de rueda y la trayectoria que resulta
+  encoder      canales en cuadratura y conteo por cuatro
   calibracion  error de las cinco rectas del robot real (Tabla A6.2) antes y después de dividir
                por un factor, y repeticiones simuladas para ver qué corrige y qué no
   cuadrado     cuadrado recorrido en los dos sentidos según la propia odometría, como en el
@@ -9,6 +11,7 @@
 (function () {
   "use strict";
   var V = window.VISUALES = window.VISUALES || {}, U = window.U, M = window.MOVIMIENTO;
+  var rgba = U.rgba, paleta = U.paleta, lienzo = U.lienzo, alTema = U.alTema, bucle = U.bucle, alCambiarMovimiento = U.alCambiarMovimiento;
   var MENOS = "−";
   function fmt(v, d) { return U.fmt(v, d).replace("-", MENOS); }
   /* con signo explícito; un valor que se redondea a cero se escribe sin signo */
@@ -239,5 +242,214 @@
     dibujar();
     U.alAncho(el, dibujar);
     el.estadoCuadrado = function () { var r = M.bidireccional({ dif: st.dif, sep: st.sep }); return { dif: st.dif, sep: st.sep, horario: r.horario.error, antihorario: r.antihorario.error, mayor: r.mayor }; };
+  };
+
+  /* 2. Cinemática diferencial. Los cálculos están en js/movimiento-modelo.js. */
+  V.cinematica = function (el) {
+    var MV = window.MOVIMIENTO, r = MV.R, b = MV.B;
+    var st = { vl: 0.10, vr: 0.13 }, pose, rastro, P = paleta();
+    var PRE = [["Recto a 0,13 m/s", 0.13, 0.13], ["Curva suave", 0.10, 0.13], ["Giro sobre su eje", -0.0329, 0.0329], ["Curva cerrada", 0.02, 0.13], ["Retroceso", -0.08, -0.08]];
+    el.innerHTML =
+      '<div class="chips" role="group" aria-label="Casos de ejemplo">' + PRE.map(function (p, i) { return '<button type="button" class="chip" data-p="' + i + '" aria-pressed="' + (i === 1) + '">' + p[0] + '</button>'; }).join("") + '</div>' +
+      '<div class="deslizadores"><label for="ci-l">Rueda izquierda<b class="num" data-v="vl"></b><input id="ci-l" type="range" min="-0.15" max="0.15" step="0.001" data-k="vl"></label>' +
+      '<label for="ci-r">Rueda derecha<b class="num" data-v="vr"></b><input id="ci-r" type="range" min="-0.15" max="0.15" step="0.001" data-k="vr"></label></div>' +
+      '<div class="vctl"><button type="button" class="vbtn" data-a="mover" aria-pressed="false">Mover</button><button type="button" class="vbtn sec" data-a="reset">Volver a empezar</button></div>' +
+      '<div class="ci-l"></div>' +
+      '<div class="vley"><span><i class="lin azul"></i>recorrido del centro del robot</span><span><i class="lin-disc"></i>círculo que seguirá con estas velocidades</span><span><i class="pt" style="background:none;border:2px solid var(--ink)"></i>centro de giro</span></div>' +
+      '<div class="lecturas"><div><span>Velocidad del robot</span><b data-o="v"></b></div><div><span>Giro del robot</span><b data-o="w"></b></div><div><span>Radio de la curva</span><b data-o="R"></b></div><div><span>Círculo de cada rueda</span><b data-o="Rr"></b><small data-o="Rr-s"></small></div><div><span>Ticks por ciclo, izquierda</span><b data-o="tl"></b></div><div><span>Ticks por ciclo, derecha</span><b data-o="tr"></b></div></div>' +
+      '<p class="ci-formula" data-o="formula"></p>' +
+      '<p class="vestado" aria-live="polite" data-o="aviso"></p>' +
+      '<p class="vnota" id="ci-nota">El centro de giro es el punto alrededor del cual el robot gira en ese instante. Está sobre la línea que une las dos ruedas, del lado de la rueda más lenta. Cada rueda recorre su propio círculo alrededor de ese punto, y la de afuera va más rápido porque su círculo es más largo. Ticks por ciclo son los flancos de encoder que se cuentan en cada rueda durante 1/30 s, la unidad con que trabaja el control del capítulo 4. La animación avanza 1,5 veces más rápido que el robot real.</p>';
+    var cont = el.querySelector(".ci-l"), L = lienzo(cont, 16 / 10, function () { dibujar(); });
+    L.cv.setAttribute("role", "img"); L.cv.setAttribute("aria-describedby", "ci-nota");
+    alTema(function () { P = paleta(); dibujar(); });
+    var VIEW = 3.2, VIEW_H = VIEW / 1.6;  /* metros visibles de ancho y de alto */
+    /* Si el círculo cabe, el robot parte de modo que su centro de giro quede al centro del dibujo
+       y da vueltas sin salirse. Si no cabe o va recto, parte desde un costado. */
+    function reset() {
+      var k = MV.cinematica(st.vl, st.vr);
+      if (isFinite(k.R) && Math.abs(k.R) + b / 2 + 0.1 < VIEW_H / 2) pose = { x: 0, y: -k.R, th: 0 };
+      /* con el centro de giro a la izquierda la curva sube, avance o retroceda; se parte desde abajo */
+      else pose = { x: k.v >= 0 ? -VIEW / 2 + 0.2 : VIEW / 2 - 0.2, y: isFinite(k.R) ? (k.R > 0 ? -VIEW_H / 2 + 0.2 : VIEW_H / 2 - 0.2) : 0, th: 0 };
+      rastro = [[pose.x, pose.y]];
+    }
+    function centroGiro(k) {
+      if (!isFinite(k.R)) return null;
+      return { x: pose.x - k.R * Math.sin(pose.th), y: pose.y + k.R * Math.cos(pose.th) };
+    }
+    function calc() {
+      var k = MV.cinematica(st.vl, st.vr), v = k.v, w = k.w;
+      var tl = MV.ticksPorCiclo(st.vl), tr = MV.ticksPorCiclo(st.vr);
+      var o = function (n) { return el.querySelector('[data-o="' + n + '"]'); };
+      o("v").textContent = U.fmt(v, 3) + " m/s"; o("w").textContent = U.fmt(w, 2) + " rad/s";
+      var recta = Math.abs(w) < 1e-4, enSitio = !recta && Math.abs(v) < 1e-4;
+      o("R").textContent = recta ? "recta" : (enSitio ? "0 m, gira en su lugar" : U.fmt(Math.abs(k.R), 2) + " m");
+      var rr = MV.radiosRuedas(k.R);
+      o("Rr").textContent = recta ? "rectas" : U.fmt(Math.abs(rr.izq), 2) + " y " + U.fmt(Math.abs(rr.der), 2) + " m";
+      o("Rr-s").textContent = recta ? "las dos ruedas avanzan en línea recta" : "radio de la izquierda y de la derecha";
+      o("tl").textContent = U.fmt(tl, 1); o("tr").textContent = U.fmt(tr, 1);
+      o("formula").innerHTML = "v = (v<sub>der</sub> + v<sub>izq</sub>) / 2 = (" + U.fmt(st.vr, 3) + " + " + U.fmt(st.vl, 3) + ") / 2 = <b>" + U.fmt(v, 3) + " m/s</b><br>" +
+        "ω = (v<sub>der</sub> − v<sub>izq</sub>) / b = (" + U.fmt(st.vr, 3) + " − " + U.fmt(st.vl, 3) + ") / 0,188 = <b>" + U.fmt(w, 2) + " rad/s</b>" +
+        (recta || enSitio ? "" : "<br>R = v / ω = " + U.fmt(v, 3) + " / " + U.fmt(w, 2) + " = <b>" + U.fmt(k.R, 2) + " m</b>" + (k.R > 0 ? ", centro a la izquierda" : ", centro a la derecha"));
+      var av = [];
+      if (Math.abs(v) > MV.VMAX + 1e-9) av.push("la velocidad pasa de 0,13 m/s");
+      if (Math.abs(w) > MV.WMAX + 1e-9) av.push("el giro pasa de 0,35 rad/s");
+      o("aviso").textContent = av.length ? "En el robot real, el controlador diferencial recortaría esta orden porque " + av.join(" y ") + "." : "Dentro de los límites del controlador diferencial del robot real, 0,13 m/s y 0,35 rad/s.";
+      L.cv.setAttribute("aria-label", "Robot visto desde arriba. Rueda izquierda " + U.fmt(st.vl, 3) + " m/s, derecha " + U.fmt(st.vr, 3) + " m/s. " + (recta ? "Va en línea recta." : (enSitio ? "Gira en su lugar." : "Sigue un círculo de " + U.fmt(Math.abs(k.R), 2) + " m de radio, con el centro a la " + (k.R > 0 ? "izquierda." : "derecha."))));
+      el.querySelectorAll("[data-v]").forEach(function (x) { x.textContent = U.fmt(st[x.getAttribute("data-v")], 3) + " m/s"; });
+      el.querySelectorAll("input[data-k]").forEach(function (i) { if (document.activeElement !== i) i.value = st[i.getAttribute("data-k")]; });
+      return k;
+    }
+    function dibujar() {
+      if (!pose) return;
+      var ctx = L.ctx, W = L.w, H = L.h, esc = W / VIEW, cx = W / 2, cy = H / 2, k = MV.cinematica(st.vl, st.vr);
+      ctx.clearRect(0, 0, W, H); ctx.fillStyle = P.sup; ctx.fillRect(0, 0, W, H);
+      ctx.strokeStyle = P.linea; ctx.lineWidth = 1;
+      for (var g = -10; g <= 10; g++) { var gx = cx + g * 0.25 * esc, gy = cy + g * 0.25 * esc; ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke(); }
+      ctx.fillStyle = P.muted; ctx.font = "11px " + "IBM Plex Mono, monospace"; ctx.fillText("cuadrícula de 25 cm", 8, H - 8);
+      function X(x) { return cx + x * esc; } function Y(y) { return cy - y * esc; }
+      /* centro de giro y círculos que seguirán el robot y cada rueda */
+      var c = centroGiro(k);
+      if (c && Math.abs(k.R) < 6) {
+        var rr = MV.radiosRuedas(k.R);
+        ctx.lineWidth = 1; ctx.setLineDash([2, 4]);
+        [[rr.izq, P.s2], [rr.der, P.s3]].forEach(function (q) { ctx.strokeStyle = rgba(q[1], .55); ctx.beginPath(); ctx.arc(X(c.x), Y(c.y), Math.abs(q[0]) * esc, 0, Math.PI * 2); ctx.stroke(); });
+        ctx.strokeStyle = P.muted; ctx.lineWidth = 1.5; ctx.setLineDash([6, 5]);
+        ctx.beginPath(); ctx.arc(X(c.x), Y(c.y), Math.abs(k.R) * esc, 0, Math.PI * 2); ctx.stroke();
+        ctx.setLineDash([]);
+        /* radio del centro del robot al centro de giro */
+        ctx.strokeStyle = rgba(P.ink, .5); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(X(pose.x), Y(pose.y)); ctx.lineTo(X(c.x), Y(c.y)); ctx.stroke();
+        ctx.fillStyle = P.sup; ctx.strokeStyle = P.ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(X(c.x), Y(c.y), 5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        if (Math.abs(k.R) > 0.05) { ctx.fillStyle = P.ink; ctx.font = "12px Atkinson Hyperlegible, sans-serif"; ctx.fillText("centro de giro", X(c.x) + 9, Y(c.y) - 7); }
+      }
+      ctx.strokeStyle = P.azul; ctx.lineWidth = 2; ctx.beginPath();
+      rastro.forEach(function (p, i) { if (i) ctx.lineTo(X(p[0]), Y(p[1])); else ctx.moveTo(X(p[0]), Y(p[1])); }); ctx.stroke();
+      ctx.save(); ctx.translate(X(pose.x), Y(pose.y)); ctx.rotate(-pose.th);
+      var L1 = 0.20 * esc, L2 = 0.08 * esc, A = 0.13 * esc, rw = r * esc, bw = b / 2 * esc;
+      ctx.fillStyle = rgba(P.azul, .18); ctx.strokeStyle = P.azul; ctx.lineWidth = 1.5;
+      /* la planta en U del prototipo, con las medidas del CAD (U.robot en js/comun.js) */
+      if (U && U.robot) U.robot.canvas(ctx, 0, 0, 0, esc, "giro"); else { ctx.beginPath(); ctx.rect(-L2, -A, L1 + L2, 2 * A); }
+      ctx.fill(); ctx.stroke();
+      ctx.fillStyle = P.ink;
+      ctx.fillRect(-rw, -bw - 0.012 * esc, 2 * rw, 0.024 * esc); ctx.fillRect(-rw, bw - 0.012 * esc, 2 * rw, 0.024 * esc);
+      ctx.fillStyle = P.verde; ctx.beginPath(); ctx.moveTo(L1 + 6, 0); ctx.lineTo(L1 - 4, -6); ctx.lineTo(L1 - 4, 6); ctx.closePath(); ctx.fill();
+      /* flechas de velocidad de rueda */
+      function flecha(y, v, col) { var len = v / 0.15 * 0.22 * esc; ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(len, y); ctx.stroke(); if (Math.abs(len) > 6) { var sgn = len > 0 ? 1 : -1; ctx.beginPath(); ctx.moveTo(len + sgn * 7, y); ctx.lineTo(len - sgn * 2, y - 5); ctx.lineTo(len - sgn * 2, y + 5); ctx.closePath(); ctx.fill(); } }
+      flecha(-bw, st.vl, P.s2); flecha(bw, st.vr, P.s3);
+      ctx.restore();
+      ctx.font = "12px Atkinson Hyperlegible, sans-serif"; ctx.fillStyle = P.s2; ctx.fillText("● rueda izquierda", 8, 16); ctx.fillStyle = P.s3; ctx.fillText("● rueda derecha", 8, 32);
+    }
+    var kAct = null;
+    /* avance exacto sobre el arco; la orden solo cambia con los controles */
+    function paso(dt) {
+      pose = MV.avanzar(pose, kAct.v, kAct.w, dt);
+      var u = rastro[rastro.length - 1];
+      if (Math.hypot(u[0] - pose.x, u[1] - pose.y) > 0.01) rastro.push([pose.x, pose.y]);
+      if (rastro.length > 900) rastro.shift();
+      if (Math.abs(pose.x) > VIEW / 2 + .2 || Math.abs(pose.y) > VIEW_H / 2 + .2) reset();
+      dibujar();
+    }
+    kAct = calc(); reset(); dibujar();
+    var B = bucle(el, function (dt) { paso(dt * 1.5); }), bMover = el.querySelector('[data-a="mover"]'), pausadoUsuario = false;
+    function marcar() { bMover.textContent = B.activo ? "Pausar" : "Mover"; bMover.setAttribute("aria-pressed", String(B.activo)); }
+    /* sin movimiento reducido arranca sola; con movimiento reducido espera a que la persona lo pida */
+    if (!U.quieto()) B.play();
+    marcar();
+    alCambiarMovimiento(function (reducido) { if (!reducido && !pausadoUsuario) B.play(); marcar(); });
+    el.addEventListener("input", function (e) { var k = e.target.getAttribute("data-k"); if (!k) return; st[k] = parseFloat(e.target.value); U.marcar(el, "data-p", ""); kAct = calc(); dibujar(); });
+    el.addEventListener("click", function (e) {
+      var p = e.target.closest("[data-p]");
+      if (p) { var d = PRE[+p.getAttribute("data-p")]; st.vl = d[1]; st.vr = d[2]; U.marcar(el, "data-p", p.getAttribute("data-p")); kAct = calc(); reset(); dibujar(); }
+      var a = e.target.closest("[data-a]");
+      if (a && a.getAttribute("data-a") === "reset") { reset(); dibujar(); }
+      if (a && a.getAttribute("data-a") === "mover") { if (B.activo) { B.pausa(); pausadoUsuario = true; } else { B.play(); pausadoUsuario = false; } marcar(); }
+    });
+    el.estadoSim = function () { var c = centroGiro(kAct); return { activo: B.activo, vl: st.vl, vr: st.vr, v: kAct.v, w: kAct.w, R: kAct.R, pose: { x: pose.x, y: pose.y, th: pose.th }, centro: c }; };
+  };
+
+  /* 3. Encoder de cuadratura */
+  V.encoder = function (el) {
+    var P = paleta(), ang = 0, sentido = 1, VEL0 = 0.6, vel = VEL0, cuenta = 0, cuenta1 = 0, hist = [], prevA = null, prevB = null, polos = 6;
+    el.innerHTML = '<div class="vctl"><button type="button" class="vbtn" data-a="anim" aria-pressed="false">Reproducir</button><div class="segmento" role="group" aria-label="Sentido de giro"><button type="button" data-s="1" aria-pressed="true">Adelante</button><button type="button" data-s="-1" aria-pressed="false">Atrás</button></div>' +
+      '<label class="desl-linea" for="en-v">Velocidad de giro del disco<b class="num"><span data-o="vel"></span> rad/s</b><input id="en-v" type="range" min="0" max="1.5" step="0.05" value="' + VEL0 + '"></label><button type="button" class="vbtn sec" data-a="paso">Avanzar un paso</button><button type="button" class="vbtn sec" data-a="cero">Contador a cero</button></div>' +
+      '<div class="en-l"></div>' +
+      '<div class="lecturas"><div><span>Cuenta con los cuatro flancos de A y B</span><b data-o="c">0</b></div><div><span>Cuenta solo con las subidas de A</span><b data-o="c1">0</b></div><div><span>Orden de los flancos</span><b data-o="ord">A antes que B</b></div><div><span>Sentido detectado</span><b data-o="sen">adelante</b></div></div>' +
+      '<p class="vestado" aria-live="polite" data-o="estado"></p>' +
+      '<p class="vnota">Ilustración con un imán de 6 pares de polos y la rueda girando muy lento. Usa Avanzar un paso: la primera cuenta sube en cada flanco y la segunda solo en uno de cada cuatro. Esa es la multiplicación por cuatro. En el robot, contar los cuatro flancos da 1980 por vuelta de rueda, unos 0,11 mm de avance por flanco, porque el sensor está en el eje del motor, antes de la caja reductora. Contando solo las subidas de A serían 495 por vuelta, unos 0,43 mm cada una.</p>';
+    var cont = el.querySelector(".en-l"), L = lienzo(cont, 16 / 7, function () { dibujar(); });
+    L.cv.setAttribute("role", "img"); L.cv.setAttribute("aria-label", "Disco magnético del encoder y las señales de los canales A y B en el tiempo");
+    alTema(function () { P = paleta(); dibujar(); });
+    function canal(a, desfase) { return Math.sin(polos * a + desfase) >= 0 ? 1 : 0; }
+    function avanzarAng(da) {
+      ang += da;
+      var A = canal(ang, 0), Bv = canal(ang, -Math.PI / 2);
+      if (prevA !== null && (A !== prevA || Bv !== prevB)) {
+        /* decodificación por cuatro: cada cambio suma o resta según el otro canal */
+        var adelante = (A !== prevA) ? (A !== Bv) : (A === Bv);
+        cuenta += adelante ? 1 : -1;
+        /* decodificación por uno: solo la subida de A cuenta, y B dice el sentido */
+        if (A === 1 && prevA === 0) cuenta1 += Bv === 0 ? 1 : -1;
+        el.querySelector('[data-o="ord"]').textContent = adelante ? "A antes que B" : "B antes que A";
+        el.querySelector('[data-o="sen"]').textContent = adelante ? "adelante" : "atrás";
+      }
+      prevA = A; prevB = Bv;
+      hist.push([A, Bv]); if (hist.length > 360) hist.shift();
+      el.querySelector('[data-o="c"]').textContent = cuenta;
+      el.querySelector('[data-o="c1"]').textContent = cuenta1;
+    }
+    function paso(dt) { avanzarAng(sentido * vel * dt); dibujar(); }
+    function dibujar() {
+      var ctx = L.ctx, W = L.w, H = L.h; ctx.clearRect(0, 0, W, H); ctx.fillStyle = P.sup; ctx.fillRect(0, 0, W, H);
+      var R = Math.min(H * .36, W * .14), cx = R + 24, cy = H / 2;
+      for (var k = 0; k < polos * 2; k++) {
+        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, R, ang + k * Math.PI / polos, ang + (k + 1) * Math.PI / polos); ctx.closePath();
+        ctx.fillStyle = k % 2 ? rgba(P.rojo, .75) : rgba(P.azul, .75); ctx.fill();
+      }
+      ctx.fillStyle = P.sup; ctx.beginPath(); ctx.arc(cx, cy, R * .35, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = P.ink; ctx.font = "700 12px IBM Plex Mono, monospace"; ctx.textAlign = "center";
+      var sA = [cx + R + 12, cy], sB = [cx, cy - R - 12];
+      ctx.fillStyle = P.s1; ctx.fillRect(sA[0] - 6, sA[1] - 6, 12, 12); ctx.fillStyle = P.s2; ctx.fillRect(sB[0] - 6, sB[1] - 6, 12, 12);
+      ctx.fillStyle = P.ink; ctx.fillText("A", sA[0] + 14, sA[1] + 4); ctx.fillText("B", sB[0] + 14, sB[1] + 4); ctx.textAlign = "start";
+      var x0 = cx + R + 50, x1 = W - 14, w = x1 - x0, filas = [[P.s1, "A", 0], [P.s2, "B", 1]];
+      filas.forEach(function (f, j) {
+        var yb = H * (j ? .80 : .40), hh = H * .2;
+        ctx.strokeStyle = P.linea; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x0, yb); ctx.lineTo(x1, yb); ctx.stroke();
+        ctx.fillStyle = P.muted; ctx.font = "11px IBM Plex Mono, monospace"; ctx.fillText("canal " + f[1], x0, yb - hh - 6);
+        ctx.strokeStyle = f[0]; ctx.lineWidth = 2.2; ctx.beginPath();
+        hist.forEach(function (hv, i) { var x = x0 + i / 359 * w, y = yb - hv[f[2]] * hh; if (i) { var py = yb - hist[i - 1][f[2]] * hh; if (py !== y) ctx.lineTo(x, py); ctx.lineTo(x, y); } else ctx.moveTo(x, y); });
+        ctx.stroke();
+      });
+      /* marca de flancos */
+      ctx.fillStyle = rgba(P.verde, .9);
+      hist.forEach(function (hv, i) { if (i && (hv[0] !== hist[i - 1][0] || hv[1] !== hist[i - 1][1])) { var x = x0 + i / 359 * w; ctx.fillRect(x - 1, H * .45, 2, H * .08); } });
+      /* en un teléfono la nota no cabe junto al disco: baja al borde izquierdo y, si aún no cabe, se abrevia */
+      var nota = "cada marca verde es un flanco contado", xn = x0;
+      if (xn + ctx.measureText(nota).width > W - 8) xn = 14;
+      if (xn + ctx.measureText(nota).width > W - 8) nota = "marca verde: flanco contado";
+      ctx.fillStyle = P.muted; ctx.fillText(nota, xn, H * .95);
+    }
+    /* llena el historial para que las señales se vean completas desde el inicio */
+    (function () { for (var k = 0; k < 360; k++) { ang += VEL0 / 60; hist.push([canal(ang, 0), canal(ang, -Math.PI / 2)]); } prevA = hist[359][0]; prevB = hist[359][1]; dibujar(); })();
+    var B = bucle(el, paso), bAnim = el.querySelector('[data-a="anim"]'), pausadoUsuario = false;
+    function marcar() {
+      var on = B.activo;
+      bAnim.textContent = on ? "Pausar" : "Reproducir"; bAnim.setAttribute("aria-pressed", String(on));
+      el.querySelector('[data-o="estado"]').textContent = on ? "Animación en marcha." : (U.quieto() && !pausadoUsuario ? "Imagen fija porque el sistema pide reducir el movimiento. Usa Reproducir o Avanzar un paso." : "Animación en pausa.");
+    }
+    function velTxt() { el.querySelector('[data-o="vel"]').textContent = U.fmt(vel, 2); }
+    /* sin movimiento reducido arranca sola; con movimiento reducido queda fija hasta que la persona la inicie */
+    if (!U.quieto()) B.play();
+    velTxt(); marcar();
+    alCambiarMovimiento(function (reducido) { if (!reducido && !pausadoUsuario) B.play(); marcar(); });
+    el.addEventListener("click", function (e) {
+      var s = e.target.closest("[data-s]"); if (s) { sentido = +s.getAttribute("data-s"); U.marcar(el, "data-s", s.getAttribute("data-s")); }
+      var a = e.target.closest("[data-a]"); if (!a) return;
+      var k = a.getAttribute("data-a");
+      if (k === "cero") { cuenta = 0; cuenta1 = 0; el.querySelector('[data-o="c"]').textContent = 0; el.querySelector('[data-o="c1"]').textContent = 0; }
+      if (k === "anim") { if (B.activo) { B.pausa(); pausadoUsuario = true; } else { B.play(); pausadoUsuario = false; } marcar(); }
+      if (k === "paso") { if (B.activo) { B.pausa(); pausadoUsuario = true; marcar(); } avanzarAng(sentido * Math.PI / (2 * polos) * 1.0001); dibujar(); }
+    });
+    el.addEventListener("input", function (e) { if (e.target.id === "en-v") { vel = parseFloat(e.target.value); velTxt(); } });
+    el.estadoSim = function () { return { activo: B.activo, vel: vel, control: parseFloat(el.querySelector("#en-v").value), etiqueta: el.querySelector('[data-o="vel"]').textContent, ang: ang, cuenta: cuenta, cuenta1: cuenta1 }; };
   };
 })();

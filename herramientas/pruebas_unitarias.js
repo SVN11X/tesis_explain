@@ -24,7 +24,11 @@ var ctx = nuevoContexto();
 /* los archivos de interactivos usan el kit de js/comun.js (U.limitar), así que se carga primero */
 cargar(ctx, "js/comun.js");
 cargar(ctx, archivoDe("exploracion"));
-var G = ctx.window.SIMS_PRUEBAS;
+/* la geometría de la huella está en js/navegacion.js y el reloj de paso fijo en js/exploracion.js */
+var ctxN = nuevoContexto();
+cargar(ctxN, "js/comun.js");
+cargar(ctxN, archivoDe("inflacion"));
+var G = Object.assign({}, ctxN.window.NAVEGACION_PRUEBAS, { pasoFijo: ctx.window.EXPLORACION_PRUEBAS.pasoFijo });
 var fallos = 0, total = 0;
 function ok(cond, nombre, detalle) {
   total++;
@@ -113,7 +117,7 @@ console.log("A estrella y Dijkstra, paso a paso");
 var ctxA = { window: { VISUALES: {}, U: {} }, Math: Math };
 vm.createContext(ctxA);
 cargar(ctxA, archivoDe("astar"));
-var AS = ctxA.window.ASTAR_PRUEBAS, bA = AS.buscar(true), bD = AS.buscar(false);
+var AS = ctxA.window.NAVEGACION_PRUEBAS.astar, bA = AS.buscar(true), bD = AS.buscar(false);
 ok(bA.llego && bD.llego && bA.camino.length - 1 === 27 && bD.camino.length - 1 === 27, "las dos búsquedas llegan con una ruta de 27 pasos");
 ok(bA.pasos.length === 111 && bD.pasos.length === 291, "A estrella revisa 111 celdas y Dijkstra 291", bA.pasos.length + " " + bD.pasos.length);
 /* distancia real hasta la meta, rodeando el muro, para comprobar que h nunca la supera */
@@ -155,7 +159,7 @@ Object.keys(MODULOS).forEach(function (archivo) {
 
 console.log("Exploración por fronteras, sin DOM y con paso fijo");
 function exploracion(pasos) {
-  var S = ctx.window.SIMS_PRUEBAS.exploracion();
+  var S = ctx.window.EXPLORACION_PRUEBAS.exploracion();
   S.reiniciar();
   for (var i = 0; i < pasos; i++) S.avanzar(1 / 30);
   return S;
