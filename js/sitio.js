@@ -460,7 +460,7 @@
      al cargarse. Para agregar un interactivo, registra su nombre aquí. */
   var MODULOS = {
     "js/navegacion.js": "astar alcance inflacion dwb reto-navegacion",
-    "js/exploracion.js": "frontera metas listanegra exploracion",
+    "js/exploracion.js": "frontera metas listanegra exploracion reto-exploracion",
     "js/control.js": "pid enjambre estacionario tiempo leyes papeles cancelacion ciclo truncamiento acumulador windup zonas pso resolucion lazo-rueda fopdt protocolo reto-control",
     "js/robot.js": "camino arquitectura costo vistas esquema reto-robot",
     "js/gemelo.js": "gemelo",
