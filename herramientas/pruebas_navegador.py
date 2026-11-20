@@ -1030,6 +1030,46 @@ def probar_robot_resumen(nav):
     ok(cmp_.returncode == 0, 'ninguna cifra ni referencia a la tesis desapareció y los resúmenes no inventan cifras: ' + lineas[-1])
 
 
+ALTURA_NAV_ANTES = 22796  # alto de navegacion.html a 360 x 740 px antes de plegarlo, medido con el mismo recorrido
+PALABRAS_NAV_ANTES = 3401  # palabras visibles de navegacion.html antes de plegarlo
+
+
+def probar_navegacion_resumen(nav):
+    print('navegacion.html: resumen por sección con el detalle plegado')
+    ctx = contexto(nav, viewport={'width': 360, 'height': 740}, is_mobile=True, has_touch=True)
+    p = ctx.new_page()
+    p.goto(BASE + '/navegacion.html')
+    p.wait_for_timeout(800)
+    ok(p.locator('main p.resumen').count() >= 8, '360 px: cada sección larga tiene un resumen corto')
+    ok(p.evaluate("[...document.querySelectorAll('main details.detalle[id^=d-]')].every(d => !d.open)"), '360 px: el detalle de cada resumen parte plegado')
+    ok(p.evaluate("[...document.querySelectorAll('main [data-vis], main table, main video, main .vis-fallback')].every(v => !v.closest('details.detalle[id^=d-]'))"), '360 px: ningún interactivo, tabla, video ni respaldo quedó plegado')
+    alto = p.evaluate('document.documentElement.scrollHeight')
+    for y in range(0, alto, 600):
+        p.evaluate('window.scrollTo(0,%d)' % y)
+        p.wait_for_timeout(100)
+    p.evaluate('window.scrollTo(0,0)')
+    p.wait_for_timeout(400)
+    cerrada = p.evaluate('document.documentElement.scrollHeight')
+    palabras = p.evaluate(PALABRAS_ROBOT)
+    print('  altura a 360 px: plegada %d px (%.1f %% de antes, %d px), palabras visibles %d de %d' % (cerrada, 100.0 * cerrada / ALTURA_NAV_ANTES, ALTURA_NAV_ANTES, palabras, PALABRAS_NAV_ANTES))
+    ok(cerrada <= ALTURA_NAV_ANTES * 0.80, '360 px: plegada mide como mucho el 80 %% de antes (%d px contra %d px)' % (cerrada, ALTURA_NAV_ANTES))
+    ok(palabras <= PALABRAS_NAV_ANTES * 0.70, '360 px: plegada muestra como mucho el 70 %% de las palabras de antes (%d contra %d)' % (palabras, PALABRAS_NAV_ANTES))
+    for destino in ('arbol', 'por-que-no-subir', 'd-recuperacion'):
+        p.goto(BASE + '/navegacion.html#' + destino)
+        p.wait_for_timeout(700)
+        r = p.evaluate("""(id) => { const el = document.getElementById(id), rc = el.getBoundingClientRect(), d = el.closest('details.detalle');
+          return { abierto: !d || !!d.open, arriba: rc.top, alto: innerHeight }; }""", destino)
+        ok(r['abierto'] and r['arriba'] < r['alto'], '360 px: el ancla #%s abre el detalle plegado y lo deja a la vista' % destino)
+    p.goto(BASE + '/navegacion.html')
+    p.wait_for_timeout(300)
+    p.evaluate("location.hash = 'd-amcl'")
+    p.wait_for_timeout(500)
+    ok(p.evaluate("document.getElementById('d-amcl').open"), '360 px: cambiar el ancla abre el detalle')
+    ctx.close()
+    cmp_ = subprocess.run([sys.executable, os.path.join(REPO, 'herramientas', 'comparar_resumen.py'), 'navegacion'], capture_output=True, text=True, encoding='utf-8', env=dict(os.environ, PYTHONUTF8='1'))
+    ok(cmp_.returncode == 0, 'navegacion: ninguna cifra ni referencia desapareció y los resúmenes no inventan cifras: ' + cmp_.stdout.strip().splitlines()[-1])
+
+
 def probar_sugerencias(nav):
     print('Buscador: sugeridas y recientes')
     ctx = contexto(nav, viewport={'width': 1280, 'height': 900})
@@ -1521,6 +1561,7 @@ with sync_playwright() as pw:
     probar_iconos(nav)
     probar_sugerencias(nav)
     probar_robot_resumen(nav)
+    probar_navegacion_resumen(nav)
     probar_descarga(nav)
     probar_costos_y_plan(nav)
     probar_animaciones(nav)
