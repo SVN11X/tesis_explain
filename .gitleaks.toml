@@ -1,0 +1,14 @@
+title = "tesis_explain"
+
+[extend]
+useDefault = true
+
+# transformers.min.js is the Transformers.js runtime, a minified third-party
+# library. Its bundled tokens look like keys (GitHub push protection flagged it
+# as a Mistral key) but it holds no secret. Allowed only for this file, under
+# its current path and the one before the move to public/, and only for the
+# generic-api-key rule.
+[[allowlists]]
+description = "Third-party minified runtime, false positive"
+targetRules = ["generic-api-key"]
+paths = ['(^|/)voz/transformers/transformers\.min\.js$']
