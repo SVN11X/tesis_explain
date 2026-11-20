@@ -464,10 +464,11 @@
     "js/vis2.js": "estacionario tiempo leyes papeles cancelacion ciclo truncamiento acumulador windup zonas pso resolucion lazo-rueda fopdt protocolo camino",
     "js/vis3.js": "odometria iteracion2 giro arquitectura versiones gemelo costo fallaria vistas esquema",
     "js/control.js": "pid enjambre",
-    "js/mapeo.js": "lidar rejilla marcos-mapeo barridos lazo rviz-colores cobertura",
+    "js/mapeo.js": "lidar rejilla marcos-mapeo barridos lazo rviz-colores cobertura reto-mapeo",
     "js/movimiento.js": "calibracion cuadrado cinematica encoder",
     "js/evidencia.js": "estabilidad plano-mapa repeticiones",
-    "js/slam-proceso.js": "candidatos-slam cola-slam"
+    "js/slam-proceso.js": "candidatos-slam cola-slam",
+    "js/lecciones.js": "metas-abortadas"
   };
   var MODULO_DE = {};
   Object.keys(MODULOS).forEach(function (src) { MODULOS[src].split(" ").forEach(function (n) { MODULO_DE[n] = src; }); });

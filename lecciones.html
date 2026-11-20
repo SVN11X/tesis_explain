@@ -128,6 +128,13 @@
 <section>
   <h2 id="metricas">Qué significa una meta abortada</h2>
   <p>De 60 metas de navegación, 54 quedaron abortadas. Leído a la ligera, el robot fallaba casi siempre. Leído con cuidado, 53 de esos abortos coinciden en el tiempo con reemplazos hechos por el propio explorador, que cambia de destino cada 3,3 s, y <span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span> <mark>informa ese reemplazo con la misma palabra que una falla</mark> <a class="ref" href="#f4">4</a>. La lectura cuidadosa también tiene su límite, y conviene decirlo: un criterio temporal no descarta que alguna falla haya ocurrido al mismo tiempo.</p>
+  <div class="vis" data-vis="metas-abortadas"><div class="vis-fallback"><p>Las metas abortadas, en cinco pasos:</p><ol>
+    <li>El ensayo de navegación tuvo 60 metas.</li>
+    <li>54 de ellas quedaron abortadas. Leído a la ligera, el robot fallaba casi siempre.</li>
+    <li>Pero 53 de esos abortos coinciden en el tiempo con reemplazos del propio explorador, que cambia de destino cada 3,3 s.</li>
+    <li>Nav2 informa un reemplazo con la misma palabra que una falla: abortada.</li>
+    <li>El límite: un criterio temporal no descarta que alguna falla haya ocurrido al mismo tiempo.</li>
+  </ol></div></div>
   <p>El mismo episodio trae una segunda lección. Los contadores automáticos del ensayo contaban mensajes de estado y no metas únicas, y uno de ellos quedó en cero porque buscaba un texto que nunca se imprimía. Se pudo corregir porque los datos crudos se guardaron completos. De ahí dos prácticas que sirven en cualquier experimento. Registrar identificadores únicos de cada evento que se quiera contar, y guardar los datos crudos además de los resúmenes. Ver <a href="exploracion.html#abortadas">Explorar por fronteras</a>.</p>
   <p class="destacado">Antes de confiar en un contador, pregunta qué cuenta exactamente.</p>
 </section>
