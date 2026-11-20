@@ -13,7 +13,8 @@ datos/defensa/catalogo.json lo simula la prueba, porque lo genera otra unidad.
 import json
 import re
 from pathlib import Path
-from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
+from http.server import SimpleHTTPRequestHandler
+from servidor_pruebas import ServidorEstable
 from functools import partial
 from threading import Thread
 from bs4 import BeautifulSoup
@@ -39,9 +40,9 @@ class Quiet(SimpleHTTPRequestHandler):
             pass
 
 
-server = ThreadingHTTPServer(('127.0.0.1', 0), partial(Quiet, directory=str(ROOT.parent)))
+server = ServidorEstable(('127.0.0.1', 0), partial(Quiet, directory=str(ROOT.parent)))
 Thread(target=server.serve_forever, daemon=True).start()
-BASE = 'http://localhost:%d/%s' % (server.server_port, ROOT.name)
+BASE = 'http://127.0.0.1:%d/%s' % (server.server_port, ROOT.name)
 count = 0
 
 SOUP = BeautifulSoup((ROOT / 'preguntas.html').read_text(encoding='utf-8'), 'html.parser')
@@ -114,7 +115,7 @@ def no_evaluable(causa):
 
 def contexto(browser, api=None, catalogo=True, ancho=1280, alto=900, servicio=None, **kw):
     ctx = browser.new_context(viewport=dict(width=ancho, height=alto), **kw)
-    ctx.route(re.compile(r'^https?://(?!localhost)(?!api\.test)'), lambda r: r.fulfill(status=200, body=''))
+    ctx.route(re.compile(r'^https?://(?!localhost|127\.0\.0\.1)(?!api\.test)'), lambda r: r.fulfill(status=200, body=''))
     if api:
         ctx.route('**/js/defensa-config.js', lambda r: r.fulfill(status=200, content_type='text/javascript',
                   body='window.DEFENSA_CONFIG = {api: "%s", sondeoMs: 100, plazoMs: 700};' % api))
@@ -268,7 +269,7 @@ with sync_playwright() as pw:
     print('Sin servicio: Entrenar')
     ctx, _ = contexto(browser)
     externas = []
-    ctx.on('request', lambda r: externas.append(r.url) if not r.url.startswith('http://localhost') else None)
+    ctx.on('request', lambda r: externas.append(r.url) if not r.url.startswith(('http://localhost', 'http://127.0.0.1')) else None)
     voz = []
     ctx.add_init_script('window.DefensaVoz = {montar: function (o) { (window.__voz = window.__voz || []).push({ta: o.textarea.tagName, e: o.enunciado, c: o.contenedor.className, vacio: o.contenedor.childElementCount}); }};')
     p = pagina(ctx)
@@ -771,7 +772,7 @@ with sync_playwright() as pw:
     t0 = pg.evaluate('__W.terminados')
     cerrar(pg)
     check(pg.evaluate('__W.terminados') == t0 + 1, 'al cerrar el panel el Worker se termina')
-    ajenas = [u for u in todas if not u.startswith('http://localhost')]
+    ajenas = [u for u in todas if not u.startswith(('http://localhost', 'http://127.0.0.1'))]
     check(not ajenas, 'durante el dictado privado no sale ninguna petición a otro host', ajenas)
     check(not pg.errores, 'sin errores de JavaScript en el dictado privado', pg.errores)
     ctx.close()

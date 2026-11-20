@@ -2,7 +2,7 @@
 
 Uso, desde la raíz del repositorio:
     pip install playwright beautifulsoup4 && python3 -m playwright install chromium
-    python3 herramientas/pruebas_navegador.py [http://localhost:8765]
+    python3 herramientas/pruebas_navegador.py [http://127.0.0.1:8765]
 
 Sin argumento inicia un servidor local temporal.
 
@@ -18,7 +18,8 @@ páginas con el tema oscuro del sistema y prueba el botón de tema: sigue al sis
 antes de pintar, avisa a los simuladores y funciona en el menú del teléfono.
 """
 import os, re, sys, json, glob, subprocess
-from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
+from http.server import SimpleHTTPRequestHandler
+from servidor_pruebas import ServidorEstable
 from threading import Thread
 from functools import partial
 from urllib.parse import urlparse, unquote
@@ -46,9 +47,9 @@ else:
                 super().handle()
             except (BrokenPipeError, ConnectionResetError):
                 pass
-    server = ThreadingHTTPServer(('127.0.0.1', 0), partial(QuietHandler, directory=REPO))
+    server = ServidorEstable(('127.0.0.1', 0), partial(QuietHandler, directory=REPO))
     Thread(target=server.serve_forever, daemon=True).start()
-    BASE = 'http://localhost:%d' % server.server_port
+    BASE = 'http://127.0.0.1:%d' % server.server_port
 PAGINAS = sorted(os.path.basename(p) for p in glob.glob(os.path.join(REPO, '*.html')) if os.path.basename(p) not in ('index.html', 'laboratorios.html'))
 fallos, total = [], 0
 
@@ -136,7 +137,7 @@ RELOJ = """
 def externas(ctx):
     """El entorno de prueba no tiene salida a internet: las portadas de YouTube y cualquier otro
     recurso externo se responden vacíos para que no aparezcan como errores del sitio."""
-    ctx.route(re.compile(r'^https?://(?!localhost)'), lambda r: r.fulfill(status=200, body='', content_type='text/css' if 'css' in r.request.url else 'image/gif'))
+    ctx.route(re.compile(r'^https?://(?!localhost|127\.0\.0\.1)'), lambda r: r.fulfill(status=200, body='', content_type='text/css' if 'css' in r.request.url else 'image/gif'))
 
 
 def contexto(nav, **kw):
