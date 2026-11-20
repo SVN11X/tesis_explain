@@ -120,14 +120,14 @@ Comprobar con `GET <dirección>/v1/salud`.
 
 ## 6. Aprobar una rúbrica
 
-La IA solo evalúa una pregunta cuya rúbrica en `datos/defensa/rubricas.json` esté `aprobada`. La de `p-oe3-parcial` quedó aprobada el 19 de noviembre de 2026 por delegación del autor en Claude, sin una revisión humana criterio por criterio y antes de la validación del apartado 7. Para apagarla basta pasarla a `suspendida`, ejecutar `python herramientas/catalogo_defensa.py` y volver a desplegar el Worker.
+La IA solo evalúa una pregunta cuya rúbrica en `datos/defensa/rubricas.json` esté `aprobada`. La de `p-oe3-parcial` quedó aprobada el 19 de noviembre de 2026 por delegación del autor en Claude, sin una revisión humana criterio por criterio y antes de la validación del apartado 7. Para apagarla basta pasarla a `suspendida`, ejecutar `python scripts/catalogo_defensa.py` y volver a desplegar el Worker.
 
 1. Leer la rúbrica contra la tesis. Revisar criterios, alternativas válidas y contradicciones críticas, y editar lo que haga falta.
 2. En `datos/defensa/rubricas.json`, cambiar `estado` a `aprobada` y completar `aprobada_por` y `fecha_aprobacion`. Una pregunta con respaldo `pendiente` no puede aprobarse.
 3. Regenerar el catálogo, desde la raíz del repositorio:
 
 ```bash
-python herramientas/catalogo_defensa.py
+python scripts/catalogo_defensa.py
 ```
 
 4. Confirmar los dos archivos con un commit (`datos/defensa/rubricas.json` y `datos/defensa/catalogo.json`) y publicar. La versión del catálogo cambia, y los paneles abiertos con la versión anterior reciben `409` hasta que recarguen.
@@ -136,7 +136,7 @@ Antes de aprobar rúbricas para uso real, correr la validación del apartado 7.
 
 ## 7. Protocolo de validación
 
-Esta es la validación de la propuesta v4. La herramienta `herramientas/validacion_defensa.mjs` calcula las métricas, pero no genera los datos. Los archivos con etiquetas y salidas se guardan fuera del repositorio.
+Esta es la validación de la propuesta v4. La herramienta `scripts/validacion_defensa.mjs` calcula las métricas, pero no genera los datos. Los archivos con etiquetas y salidas se guardan fuera del repositorio.
 
 Conjuntos:
 
@@ -164,7 +164,7 @@ Umbrales de aceptación:
 Para calcular lo que sí es automático, desde la raíz del repositorio:
 
 ```bash
-node herramientas/validacion_defensa.mjs <etiquetas.jsonl> <salidas.jsonl>
+node scripts/validacion_defensa.mjs <etiquetas.jsonl> <salidas.jsonl>
 ```
 
 La herramienta imprime JSON con cada métrica, su umbral y si se cumple. Calcula acuerdo, aprobaciones falsas críticas, abstención en ambiguos, estabilidad, p95 y fallos técnicos, además de cobertura, abstención por `disagreement` y exactitud por pregunta, con la comparación contra una sola lectura a 0,2. Un fallo técnico no cuenta como estable, el p95 mide solo rondas completas y los fallos técnicos se miden sobre las solicitudes admitidas. No calcula el comentario fiel, las citas inventadas ni la opinión de los estudiantes, porque requieren lectura humana. No escribe ningún archivo.

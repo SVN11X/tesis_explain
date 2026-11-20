@@ -1,4 +1,4 @@
-/* Comportamiento del marco común (herramientas/plantillas/): el tema, el menú del teléfono y el buscador.
+/* Comportamiento del marco común (scripts/plantillas/): el tema, el menú del teléfono y el buscador.
    Lo cargan todas las páginas, también la portada y los laboratorios compilados con Astro. */
 (function () {
   "use strict";
@@ -11,7 +11,7 @@
   var RECIENTE = '<svg class="ph" viewBox="0 0 256 256" aria-hidden="true"><path d="M136,80v43.47l36.12,21.67a8,8,0,0,1-8.24,13.72l-40-24A8,8,0,0,1,120,128V80a8,8,0,0,1,16,0Zm-8-48A95.44,95.44,0,0,0,60.08,60.15C52.81,67.51,46.35,74.59,40,82V64a8,8,0,0,0-16,0v40a8,8,0,0,0,8,8H72a8,8,0,0,0,0-16H49c7.15-8.42,14.27-16.35,22.39-24.57a80,80,0,1,1,1.66,114.75,8,8,0,1,0-11,11.64A96,96,0,1,0,128,32Z"/></svg>';
 
   /* Tema claro u oscuro. Sin una elección guardada sigue al sistema. El script en línea del <head>
-     (herramientas/plantillas/tema.html) aplica la elección guardada antes de pintar, así la página no parpadea.
+     (scripts/plantillas/tema.html) aplica la elección guardada antes de pintar, así la página no parpadea.
      Cada cambio avisa con el evento temacambio para que los dibujos en canvas y las escenas 3D se repinten. */
   var COLOR_TEMA = { light: "#f1f1e9", dark: "#121a17" };
   function tema() {

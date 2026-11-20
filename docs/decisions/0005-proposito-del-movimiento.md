@@ -57,4 +57,4 @@ A single global pause button for the whole page. Rejected because each loop alre
 
 ## Consequences
 
-Reviewing motion is now a table to check instead of a search through the code. The browser check in `herramientas/pruebas_redisenio_navegador.py` fails if a CSS animation runs forever after the lab loads, if the spinner stays in the DOM, if the hero 3D robot cannot be paused, or if a looping video has no working pause. To undo it, mark this record superseded by a newer one.
+Reviewing motion is now a table to check instead of a search through the code. The browser check in `tests/navegador_redisenio.py` fails if a CSS animation runs forever after the lab loads, if the spinner stays in the DOM, if the hero 3D robot cannot be paused, or if a looping video has no working pause. To undo it, mark this record superseded by a newer one.

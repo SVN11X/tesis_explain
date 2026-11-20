@@ -40,4 +40,4 @@ Los textos se renderizan en HTML estático. No requieren JavaScript, un gesto so
 - `web/src/styles/experience.css`: presentación y adaptación a distintos anchos.
 - `web/src/layouts/Shell.astro`: navegación compartida y pie.
 
-Tras editar, ejecutar `npm run build`, regenerar `datos/indice.js` con `python herramientas/indice.py` y comprobar con `python herramientas/verificar_sitio.py`. El archivo `index.html` de la raíz es una salida generada.
+Tras editar, ejecutar `npm run build`, regenerar `datos/indice.js` con `python scripts/indice.py` y comprobar con `python scripts/verificar_sitio.py`. El archivo `index.html` de la raíz es una salida generada.

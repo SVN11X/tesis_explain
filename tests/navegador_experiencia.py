@@ -1,0 +1,527 @@
+"""Experiencia y rendimiento: comprueba en un navegador real lo agregado en la revisión de experiencia.
+
+Fuentes con respaldo ajustado que no mueven la página, interactivos que se piden al acercarse,
+videos diferidos, portada compacta en teléfono, simulación en azul noche, barrido del LiDAR breve y
+quieto con movimiento reducido, comparador de decisiones del tema 1, filtro del glosario, bibliografía
+filtrable en su propia página, con un resumen y un detalle en cinco bloques por referencia, botones para
+copiar la cita y su BibTeX y traslado de las anclas antiguas de Recursos, secciones de la página en el menú
+del teléfono y páginas sin estilos en línea.
+Uso: python3 tests/navegador_experiencia.py [http://127.0.0.1:8765]
+"""
+from pathlib import Path
+from http.server import SimpleHTTPRequestHandler
+from servidor import ServidorEstable
+from functools import partial
+from threading import Thread
+import os, re, sys, time
+from bs4 import BeautifulSoup
+from playwright.sync_api import sync_playwright
+
+ROOT = Path(__file__).resolve().parents[1]
+server = None
+if len(sys.argv) > 1:
+    BASE = sys.argv[1].rstrip('/')
+else:
+    class QuietHandler(SimpleHTTPRequestHandler):
+        def log_message(self, *args):
+            pass
+
+        def handle(self):
+            try:
+                super().handle()
+            except (BrokenPipeError, ConnectionResetError):
+                pass
+    server = ServidorEstable(('127.0.0.1', 0), partial(QuietHandler, directory=str(ROOT)))
+    Thread(target=server.serve_forever, daemon=True).start()
+    BASE = 'http://127.0.0.1:%d' % server.server_port
+count = 0
+EN_GITHUB = os.environ.get('GITHUB_ACTIONS') == 'true'
+
+
+def modulos_sitio():
+    """SITIO.MODULOS leído de js/sitio.js: {'js/navegacion.js': 'astar alcance'}"""
+    fuente = (ROOT / 'js' / 'sitio.js').read_text(encoding='utf-8')
+    bloque = re.search(r'var MODULOS = \{(.*?)\n  \};', fuente, re.S).group(1)
+    return dict(re.findall(r'"(js/[^"]+\.js)":\s*"([^"]+)"', bloque))
+
+
+def modulo_de(nombre):
+    """Archivo que registra el interactivo `nombre` según SITIO.MODULOS"""
+    return next(m for m, n in modulos_sitio().items() if nombre in n.split())
+
+
+PAGINAS = sorted(p.name for p in ROOT.glob('*.html') if p.name not in ('index.html', 'laboratorios.html'))
+MODULOS_VIS = [m.split('/')[-1] for m in modulos_sitio()]
+MOVIL = {'viewport': {'width': 390, 'height': 844}, 'is_mobile': True, 'has_touch': True, 'device_scale_factor': 2}
+ESCRITORIO = {'viewport': {'width': 1366, 'height': 900}}
+# Además del total guarda qué se movió, para que un fallo en CI diga qué elemento cambió de lugar.
+OBSERVADOR_CLS = """
+window.__cls = 0; window.__movidos = [];
+new PerformanceObserver(l => { for (const e of l.getEntries()) if (!e.hadRecentInput) {
+  window.__cls += e.value;
+  for (const f of e.sources || []) {
+    const n = f.node, el = n && (n.nodeType === 1 ? n : n.parentElement);
+    window.__movidos.push({ valor: +e.value.toFixed(4), t: Math.round(e.startTime),
+      nodo: el ? el.tagName.toLowerCase() + (el.id ? '#' + el.id : '') + (el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\\s+/).join('.') : '') : '?',
+      de: [Math.round(f.previousRect.x), Math.round(f.previousRect.y), Math.round(f.previousRect.height)],
+      a: [Math.round(f.currentRect.x), Math.round(f.currentRect.y), Math.round(f.currentRect.height)] });
+  }
+} }).observe({ type: 'layout-shift', buffered: true });
+"""
+
+
+def check(cond, text, detalle=''):
+    global count
+    count += 1
+    if not cond:
+        msg = text + ('  ' + str(detalle) if detalle != '' else '')
+        if EN_GITHUB:
+            # anotación visible en el resumen de la ejecución, sin abrir el registro
+            print('::error title=navegador_experiencia::' + msg.replace('\n', ' '), flush=True)
+        raise AssertionError(msg)
+    print('  ok   ' + text, flush=True)
+
+
+def omitir(text):
+    print('  --   ' + text, flush=True)
+    if EN_GITHUB:
+        print('::warning title=navegador_experiencia::' + text, flush=True)
+
+
+def contexto(nav, **kw):
+    ctx = nav.new_context(**kw)
+    # sin salida a internet: los recursos externos, como las portadas de YouTube, se responden vacíos
+    ctx.route(re.compile(r'^https?://(?!localhost|127\.0\.0\.1)'), lambda r: r.fulfill(status=200, body=''))
+    return ctx
+
+
+def estatico():
+    print('HTML de los capítulos originales; portada y laboratorio en navegador_redisenio.py')
+    sin_estilo, sin_precarga, con_modulo, videos_mal, titulos = [], [], [], [], []
+    for pag in PAGINAS:
+        html = (ROOT / pag).read_text(encoding='utf-8')
+        s = BeautifulSoup(html, 'html.parser')
+        if s.select('[style]'):
+            sin_estilo.append(pag)
+        precargas = {l.get('href') for l in s.select('link[rel=preload][as=font]')}
+        if not {'fuentes/archivo-latin-variable.woff2', 'fuentes/atkinson-hyperlegible-latin-400-normal.woff2'} <= precargas \
+                or not s.select_one('meta[name=color-scheme]') or not s.select_one('script[type=speculationrules]'):
+            sin_precarga.append(pag)
+        for sc in s.select('script[src]'):
+            if sc['src'].split('/')[-1] in MODULOS_VIS:
+                con_modulo.append(pag + ' ' + sc['src'])
+        for v in s.select('.bucle video'):
+            if v.has_attr('autoplay') or v.get('preload') != 'none' or not v.has_attr('controls'):
+                videos_mal.append(pag)
+        for art in s.select('article.decision'):
+            if art.find('h4'):
+                titulos.append(pag)
+    check(not sin_estilo, 'ninguna página usa estilos en línea', sin_estilo)
+    check(not sin_precarga, 'todas precargan Archivo y Atkinson, declaran color-scheme y precargan páginas al apuntar', sin_precarga)
+    check(not con_modulo, 'ninguna página carga los archivos de interactivos al abrirse', con_modulo)
+    check(not videos_mal, 'los videos en bucle no se descargan solos y tienen controles sin JavaScript', videos_mal)
+    check(not titulos, 'las tarjetas de decisión usan h3 bajo el h2 de su sección', titulos)
+    deslizar = BeautifulSoup((ROOT / 'control.html').read_text(encoding='utf-8'), 'html.parser').select('.deslizar img')
+    check(len(deslizar) == 2 and all(i.get('loading') == 'lazy' for i in deslizar), 'el comparador del PSO carga sus imágenes al acercarse')
+    # bibliografía de la tesis: página propia, con cada referencia en una línea de resumen que se abre con su detalle
+    bp = BeautifulSoup((ROOT / 'bibliografia.html').read_text(encoding='utf-8'), 'html.parser')
+    grupos = bp.select('section.bib-grupo')
+    refs = bp.select('.bib-grupo ol.bib > li > details.bib-ref[id^="r-"]')
+    nums = sorted(int(d.select_one('summary .bib-num').get_text().replace('Referencia', '').strip()) for d in refs)
+    check(len(grupos) == 11 and len(refs) == 72 and nums == list(range(1, 73)),
+          'la bibliografía tiene 72 referencias numeradas como en la tesis, en 11 grupos', (len(grupos), len(refs)))
+    ids = {t['id'] for t in bp.select('[id]')}
+
+    def resumida(d):
+        s = d.find('summary', recursive=False)
+        res = s and s.select_one('.bib-resumen')
+        return bool(s and s.select_one('.bib-autor') and s.select_one('.tipo-ref') and res
+                    and 10 < len(res.get_text(strip=True)) <= 80 and not s.select_one('.bib-detalle'))
+
+    bloques = ['Ficha', 'De qué trata', 'Relación con la tesis', 'Referencias relacionadas', 'Cita']
+    filas_fijas = ('Fecha', 'Idioma', 'Acceso', 'Revisión de pares', 'Partes que usa la tesis', 'De dónde sale este detalle')
+
+    def palabras(el):
+        return len(el.get_text(' ', strip=True).split()) if el else 0
+
+    def detallada(d):
+        det = d.select_one(':scope > .bib-detalle')
+        if not det:
+            return False
+        titulos = [h.get_text(strip=True) for h in det.select(':scope > .bib-bloque > h3')]
+        filas = [dt.get_text(strip=True) for dt in det.select('.bib-ficha dl.bib-dl > div > dt')]
+        rel = det.select('.bib-relacionadas li a[href^="#r-"]')
+        n = sum(palabras(det.select_one(c)) for c in ('.bib-trata', '.bib-relacion', '.bib-relacionadas'))
+        return bool(titulos == bloques and all(f in filas for f in filas_fijas)
+                    and ('Título original' in filas or 'Título' in filas) and ('Autoría' in filas or 'Edición a cargo de' in filas)
+                    and len(det.select('.bib-trata p')) >= 2 and len(det.select('.bib-trata > p')) <= 2
+                    and 'En la tesis:' in det.select_one('.bib-donde').get_text() and det.select_one('.bib-diferencia')
+                    and rel and all(a['href'][1:] in ids for a in rel)
+                    and det.select_one('.bib-cita-tesis[data-clave] .bib-cita-texto') and 300 <= n <= 700)
+    check(not [d['id'] for d in refs if not resumida(d)],
+          'cada referencia se resume en una línea con su autor, su tipo y de qué trata', [d['id'] for d in refs if not resumida(d)])
+    check(not [d['id'] for d in refs if not detallada(d)],
+          'al abrirla, cada referencia muestra los cinco bloques: ficha completa, de qué trata en varios párrafos, relación '
+          'con la tesis con dónde aparece y en qué se diferencia, referencias relacionadas y cita, con 300 a 700 palabras',
+          [d['id'] for d in refs if not detallada(d)])
+    check(all(g.find('h2', id=True) and len(g.select('.bib-desc > p:not(.bib-tema)')) >= 2 and g.select_one('details.detalle > summary')
+              for g in grupos),
+          'cada grupo tiene título con ancla, una explicación de al menos dos párrafos y la lista plegable')
+    textos = ' '.join(x.get_text(' ') for x in bp.select('.bib-desc, details.bib-ref'))
+    check(';' not in textos and not re.search(r'\s[-–—]\s|–|—', textos),
+          'las explicaciones, las fichas y las citas no usan punto y coma ni guiones como separadores')
+    bibtex = (ROOT / 'datos' / 'bibliografia.bib').read_text(encoding='utf-8')
+    claves = re.findall(r'^@[a-z]+\{([a-z0-9]+),', bibtex, re.M)
+    check(len(claves) == 72 and len(set(claves)) == 72
+          and all(d.select_one('.bib-cita-tesis')['data-clave'] in claves for d in refs)
+          and bp.select_one('a[href="datos/bibliografia.bib"][download]'),
+          'el archivo BibTeX tiene una entrada por referencia, con la clave que usa la página, y se descarga desde ella', len(claves))
+    rec_html = (ROOT / 'recursos.html').read_text(encoding='utf-8')
+    sec = BeautifulSoup(rec_html, 'html.parser').find('h2', id='bibliografia').find_parent('section')
+    mapa = [a['href'] for a in sec.select('a[href^="bibliografia.html#bib-"]')]
+    check(sec.select_one('a[href="bibliografia.html"]') and len(mapa) == 11 and all(h.split('#')[1] in ids for h in mapa)
+          and not sec.select('details.bib-ref') and 'TRASLADO BIBLIOGRAFIA' in rec_html,
+          'Recursos presenta la bibliografía con un enlace, el mapa de sus 11 grupos y el traslado de las anclas antiguas', mapa)
+
+
+def manifiesto(nav):
+    print('Interactivos bajo demanda')
+    ctx = contexto(nav, **ESCRITORIO)
+    p = ctx.new_page()
+    faltan = []
+    p.goto(BASE + '/problema.html')
+    modulos = p.evaluate('window.SITIO.MODULOS')
+    registrados = {n for lista in modulos.values() for n in lista.split()}
+    for pag in PAGINAS:
+        for n in re.findall(r'data-vis="([a-z0-9-]+)"', (ROOT / pag).read_text(encoding='utf-8')):
+            if n not in registrados:
+                faltan.append(pag + ' ' + n)
+    check(not faltan, 'cada data-vis de las páginas está registrado en SITIO.MODULOS', faltan)
+    # control.html: al terminar de cargar no se pidió ningún archivo de interactivos antes de DOMContentLoaded
+    pedidos = []
+    p.on('request', lambda r: pedidos.append(r.url))
+    p.goto(BASE + '/control.html', wait_until='load')
+    r = p.evaluate("""(re) => { const dcl = performance.getEntriesByType('navigation')[0].domContentLoadedEventEnd;
+      return performance.getEntriesByType('resource').filter(e => new RegExp('/js/(' + re + ')\\.js').test(e.name))
+        .map(e => ({ n: e.name.split('/').pop(), antes: e.startTime < dcl })); }""", '|'.join(m[:-3] for m in MODULOS_VIS))
+    check(not any(x['antes'] for x in r), 'control.html no pide archivos de interactivos antes de DOMContentLoaded', r)
+    p.locator('[data-vis="estabilidad"]').scroll_into_view_if_needed()
+    p.wait_for_selector('[data-vis="estabilidad"][data-montado="1"]', timeout=10000)
+    p.locator('[data-vis="windup"]').evaluate('el => { const d = el.closest("details"); if (d) d.open = true; }')
+    p.locator('[data-vis="windup"]').scroll_into_view_if_needed()
+    p.wait_for_selector('[data-vis="windup"][data-montado="1"]', timeout=10000)
+    arch = modulo_de('estacionario')
+    pedidos_archivo = [u for u in pedidos if u.endswith('/' + arch)]
+    check(len(pedidos_archivo) == 1, 'cada archivo de interactivos se pide una sola vez aunque lo usen varios', len(pedidos_archivo))
+    ctx.close()
+
+
+def fuentes_y_cls(nav):
+    print('Fuentes lentas sin desplazamientos')
+    for nombre, kw in [('teléfono', MOVIL), ('escritorio', ESCRITORIO)]:
+        for pag in ['problema.html', 'control.html', 'preguntas.html']:
+            ctx = contexto(nav, **kw)
+            ctx.add_init_script(OBSERVADOR_CLS)
+
+            def lenta(route):
+                time.sleep(1.2)
+                route.continue_()
+            ctx.route('**/*.woff2', lenta)
+            p = ctx.new_page()
+            p.goto(BASE + '/' + pag, wait_until='load')
+            p.wait_for_timeout(600)
+            cls = p.evaluate('window.__cls')
+            familia = p.evaluate("getComputedStyle(document.querySelector('h1')).fontFamily")
+            usados = p.evaluate("[...document.fonts].filter(f => f.family.includes('Respaldo') && f.status === 'loaded').map(f => f.family)")
+            if not usados:
+                # sin Arial ni equivalentes, Roboto o DejaVu Sans no hay respaldo que medir: el CLS dependería de la fuente
+                # que elija el sistema, no del sitio
+                omitir('%s, %s: el sistema no tiene ninguna fuente de respaldo compatible, se omite el CLS (%.4f)' % (pag, nombre, cls))
+                ctx.close()
+                continue
+            movidos = p.evaluate('window.__movidos.slice(0, 12)')
+            check(cls < 0.02, '%s, %s: con las fuentes 1,2 s tarde el CLS es %.4f (respaldo: %s)' % (pag, nombre, cls, ', '.join(sorted(set(f.strip('"') for f in usados)))), movidos)
+            check('Respaldo' in familia, '%s, %s: el título tiene una fuente de respaldo con métricas ajustadas' % (pag, nombre), familia)
+            ctx.close()
+
+
+def titulos(nav):
+    print('Títulos de los temas: desplazamiento al llegar tarde la fuente')
+    temas = [p for p in PAGINAS if p != 'index.html']
+    anchos = list(range(320, 481, 8))
+    # Lo que ve quien lee es el movimiento dentro de una misma carga: la altura del título y la posición del elemento
+    # que le sigue, con las fuentes retenidas (llegan después del periodo de bloqueo) y otra vez cuando ya llegaron.
+    # Con font-display optional el navegador no cambia de fuente en esa carga, así que no debe haber ningún movimiento.
+    MEDIR = """() => { const h = document.querySelector('h1'), s = h.nextElementSibling;
+      return [Math.round(h.getBoundingClientRect().height * 10) / 10, s ? Math.round((s.getBoundingClientRect().top + scrollY) * 10) / 10 : null]; }"""
+    TOLERANCIA = 1  # px: redondeo de subpíxeles. Una línea de título mide entre 38 y 70 px, el CLS permitido arriba es 0,02.
+
+    def medir(p):
+        fila = []
+        for w in anchos:
+            p.set_viewport_size({'width': w, 'height': 844})
+            p.wait_for_timeout(20)
+            fila.append(p.evaluate(MEDIR))
+        return fila
+
+    desplazados, medidos = [], 0
+    for pag in temas:
+        ctx = contexto(nav, viewport={'width': 390, 'height': 844}, is_mobile=True, device_scale_factor=2)
+        retenidas = []
+        ctx.route('**/*.woff2', lambda r: retenidas.append(r))
+        p = ctx.new_page()
+        p.goto(BASE + '/' + pag, wait_until='commit')
+        p.wait_for_selector('h1')
+        p.wait_for_timeout(500)
+        antes = medir(p)
+        for r in retenidas:
+            r.continue_()
+        p.wait_for_timeout(2500)
+        despues = medir(p)
+        for w, a, d in zip(anchos, antes, despues):
+            medidos += 1
+            if a[1] is None or d[1] is None or abs(a[0] - d[0]) > TOLERANCIA or abs(a[1] - d[1]) > TOLERANCIA:
+                desplazados.append('%s a %d px: título %s -> %s, siguiente %s -> %s' % (pag, w, a[0], d[0], a[1], d[1]))
+        ctx.close()
+    check(not desplazados, 'entre 320 y 480 px, al llegar tarde las fuentes el título y lo que le sigue no se mueven más de %d px en ninguno de %d casos'
+          % (TOLERANCIA, medidos), desplazados[:6])
+
+    # Solo informativo: cuántos títulos ocupan otras líneas con el respaldo que con Archivo. Mide el parecido visual del
+    # respaldo, no un movimiento: con font-display optional no hay cambio de fuente dentro de una carga.
+    def alturas(bloquear):
+        out, usados = {}, set()
+        for pag in temas:
+            ctx = contexto(nav, viewport={'width': 390, 'height': 844}, is_mobile=True, device_scale_factor=2)
+            if bloquear:
+                ctx.route('**/*.woff2', lambda r: r.abort())
+            p = ctx.new_page()
+            p.goto(BASE + '/' + pag, wait_until='load')
+            p.wait_for_timeout(200)
+            if bloquear:
+                usados |= set(p.evaluate("[...document.fonts].filter(f => f.family.includes('Archivo Respaldo') && f.status === 'loaded').map(f => f.family)"))
+            out[pag] = [h for h, _ in medir(p)]
+            ctx.close()
+        return out, usados
+    respaldo, usados = alturas(True)
+    if usados:
+        web, _ = alturas(False)
+        distintos = sum(1 for pag in temas for a, b in zip(respaldo[pag], web[pag]) if abs(a - b) > TOLERANCIA)
+        print('  info %d de %d títulos ocupan otras líneas con el respaldo (%s) que con Archivo, sin efecto con font-display optional'
+              % (distintos, len(temas) * len(anchos), ', '.join(sorted(f.strip('"') for f in usados))), flush=True)
+    # La garantía descansa en font-display optional en todas las hojas de la guía.
+    css = (ROOT / 'css/estilo.css').read_text(encoding='utf-8')
+    caras = re.findall(r'@font-face \{[^}]*url\([^}]*\}', css)
+    check(caras and all('font-display: optional' in c for c in caras), 'las %d fuentes web de css/estilo.css usan font-display optional: si no llegan a tiempo la página sigue con el respaldo y no se mueve' % len(caras))
+    caras_web = [c for f in sorted((ROOT / 'web/src/styles').glob('*.css')) for c in re.findall(r'@font-face\s*\{[^}]*url\([^}]*\}', f.read_text(encoding='utf-8'))]
+    check(caras_web and all(re.search(r'font-display:\s*optional', c) for c in caras_web), 'las %d fuentes web de la portada (web/src/styles) usan font-display optional' % len(caras_web))
+
+
+def decisiones(nav):
+    print('Comparador de decisiones')
+    for nombre, kw in [('escritorio', ESCRITORIO), ('teléfono', MOVIL)]:
+        ctx = contexto(nav, **kw)
+        p = ctx.new_page()
+        p.goto(BASE + '/problema.html#estado-del-arte', wait_until='load')
+        arts = p.locator('article.decision')
+        r = p.evaluate("""() => [...document.querySelectorAll('article.decision')].map(a => ({
+          botones: [...a.querySelectorAll('.d-botones button')].map(b => b.textContent), presionados: a.querySelectorAll('[aria-pressed=true]').length }))""")
+        check(len(r) == 6 and all(len(x['botones']) >= 3 and x['botones'][0].startswith('Por qué') and x['presionados'] == 0 for x in r),
+              '%s: seis decisiones con un botón por la elección y uno por alternativa, ninguno activo al cargar' % nombre, r)
+        slam = arts.nth(2)
+        b = slam.locator('button[data-alt="cartographer"]')
+        if nombre == 'teléfono':
+            b.tap()
+        else:
+            b.click()
+        e = slam.evaluate('a => a.estadoDecision()')
+        check(e['viendo'] == 'cartographer' and len(e['activas']) == 1 and 'Cartographer' in e['activas'][0], '%s: Cartographer resalta la frase que lo descarta' % nombre, e)
+        tenues = slam.evaluate("a => [...a.querySelectorAll('.razon-tenue')].map(r => getComputedStyle(r).color)")
+        check(len(tenues) >= 3, '%s: el resto de la explicación queda atenuado, no oculto' % nombre, tenues)
+        aviso = slam.locator('p[aria-live]').inner_text()
+        check(aviso.startswith('Frente a Cartographer:') and 'CPU' in aviso, '%s: un lector de pantalla oye la razón resaltada' % nombre, aviso)
+        b.focus()
+        p.keyboard.press('Enter')
+        e = slam.evaluate('a => a.estadoDecision()')
+        check(e['viendo'] is None and not e['activas'], '%s: Enter sobre el botón activo vuelve al texto completo' % nombre, e)
+        ros = arts.nth(0)
+        ros.locator('button[data-alt="elegida"]').click()
+        e = ros.evaluate('a => a.estadoDecision()')
+        check(e['viendo'] == 'elegida' and any('nodo maestro' in t for t in e['activas']), '%s: Por qué ROS 2 resalta las razones de la elección' % nombre, e)
+        ancho = p.evaluate('document.documentElement.scrollWidth - document.documentElement.clientWidth')
+        check(ancho <= 1, '%s: el comparador no desborda' % nombre, ancho)
+        ctx.close()
+    ctx = contexto(nav, java_script_enabled=False, **ESCRITORIO)
+    p = ctx.new_page()
+    p.goto(BASE + '/problema.html')
+    r = p.evaluate("""() => ({ botones: document.querySelectorAll('article.decision button').length,
+      texto: document.querySelector('article.decision p').innerText })""")
+    check(r['botones'] == 0 and 'YARP, Orocos y LCM' in r['texto'], 'sin JavaScript se leen las razones completas, sin botones inertes', r)
+    ctx.close()
+
+
+def glosario_y_menu(nav):
+    print('Glosario y menú del teléfono')
+    ctx = contexto(nav, **MOVIL)
+    p = ctx.new_page()
+    p.goto(BASE + '/recursos.html#glosario', wait_until='load')
+    total = p.locator('dl.glosario > div').count()
+    p.fill('#g-filtro', 'odometria')
+    p.wait_for_timeout(100)
+    vis = p.evaluate("[...document.querySelectorAll('dl.glosario > div')].filter(d => !d.hidden).map(d => d.querySelector('dt').textContent)")
+    check('Odometría' in vis and len(vis) < total, 'el filtro encuentra Odometría sin escribir la tilde (%d de %d)' % (len(vis), total), vis)
+    check('coinciden' in p.text_content('.filtro-estado'), 'el número de coincidencias se anuncia')
+    p.fill('#g-filtro', 'xyzw')
+    check('Ningún término' in p.text_content('.filtro-estado'), 'sin coincidencias sugiere el buscador del sitio')
+    p.fill('#g-filtro', '')
+    check(p.evaluate("[...document.querySelectorAll('dl.glosario > div')].every(d => !d.hidden)"), 'al borrar el filtro vuelven todos los términos')
+    alto = p.locator('#g-filtro').evaluate('el => el.closest(".campo-buscar").getBoundingClientRect().height')
+    check(alto >= 44, 'el campo del filtro mide al menos 44 px de alto (%d)' % alto)
+    p.goto(BASE + '/control.html', wait_until='load')
+    secciones = p.evaluate("document.querySelectorAll('.articulo > section > h2[id]').length")
+    p.evaluate('window.scrollTo(0, 5000)')
+    p.wait_for_timeout(300)
+    p.click('.mobile-menu > summary')
+    r = p.evaluate("""() => ({ enlaces: document.querySelectorAll('.menu-secciones a').length,
+      activo: !!document.querySelector('.menu-secciones a.activo[aria-current=location]'),
+      chicos: [...document.querySelectorAll('.menu-panel a')].filter(a => a.getBoundingClientRect().height < 43.5).length,
+      guia: [...document.querySelectorAll('.menu-guia .n')].map(n => n.textContent) })""")
+    check(r['enlaces'] == secciones and r['activo'], 'el menú del teléfono lista las %d secciones y marca la actual' % secciones, r)
+    check(r['guia'] == ['%02d' % i for i in range(1, 17)], 'el menú del teléfono numera las 16 partes de la guía', r['guia'])
+    check(r['chicos'] == 0, 'cada enlace del menú mide al menos 44 px de alto', r)
+    destino = p.locator('.menu-secciones a').nth(4)
+    ancla = destino.get_attribute('href')
+    destino.tap()
+    p.wait_for_timeout(400)
+    r = p.evaluate("""a => ({ hash: location.hash, abierto: document.querySelector('.mobile-menu').open,
+      arriba: document.querySelector(a).getBoundingClientRect().top, alto: innerHeight, inerte: !!document.getElementById('contenido').closest('[inert]') })""", ancla)
+    check(r['hash'] == ancla and not r['abierto'] and not r['inerte'] and 0 <= r['arriba'] < r['alto'], 'una sección del menú cierra el menú y lleva a su título', r)
+    ctx.close()
+
+
+def bibliografia(nav):
+    print('Bibliografía de la tesis')
+    ctx = contexto(nav, **MOVIL)
+    p = ctx.new_page()
+    # un enlace antiguo a Recursos llega a la referencia en la página nueva
+    p.goto(BASE + '/recursos.html#r-hess2016', wait_until='load')
+    p.wait_for_url('**/bibliografia.html#r-hess2016', timeout=5000)
+    p.wait_for_timeout(500)
+    r = p.evaluate("""() => { const d = document.getElementById('r-hess2016'), r = d.getBoundingClientRect();
+      return { ref: d.open, grupo: d.closest('details.detalle').open, arriba: r.top, alto: innerHeight,
+               cab: document.querySelector('.site-header').getBoundingClientRect().bottom,
+               cerrados: [...document.querySelectorAll('.bib-grupo > details.detalle')].filter(d => !d.open).length,
+               otras: [...document.querySelectorAll('details.bib-ref')].filter(d => d.open).length }; }""")
+    check(r['ref'] and r['grupo'] and r['cab'] - 1 <= r['arriba'] < r['alto'] and r['cerrados'] == 10 and r['otras'] == 1,
+          'un enlace antiguo a una referencia lleva a la página de la bibliografía, abre su grupo y su detalle, y la deja bajo la cabecera', r)
+    p.fill('#b-filtro', 'factor de constricción')
+    p.wait_for_timeout(100)
+    r = p.evaluate("""() => ({ visibles: [...document.querySelectorAll('ol.bib > li')].filter(li => !li.hidden).map(li => li.firstElementChild.id),
+      grupos: [...document.querySelectorAll('.bib-grupo')].filter(g => !g.hidden).map(g => [g.querySelector('h2').id, g.querySelector('details.detalle').open]),
+      estado: document.querySelector('#b-filtro').closest('.filtro-lista').querySelector('.filtro-estado').textContent })""")
+    check(sorted(r['visibles']) == ['r-clerc2002', 'r-gokce2021', 'r-shi1998'] and r['grupos'] == [['bib-pso', True]] and r['estado'] == '3 referencias coinciden.',
+          'el filtro deja las tres referencias del PSO, abre su grupo, oculta los demás y lo anuncia', r)
+    resumen = p.locator('#r-shi1998 > summary')
+    antes = p.evaluate("document.querySelector('#r-shi1998 .bib-trata').checkVisibility()")
+    alto_resumen = resumen.evaluate('el => el.getBoundingClientRect().height')
+    resumen.click()
+    p.wait_for_timeout(100)
+    despues = p.evaluate("""() => { const d = document.getElementById('r-shi1998'), c = d.querySelector('.bib-trata'), m = c.querySelector('details.bib-mas');
+      return { abierto: d.open, visible: c.checkVisibility(), texto: c.textContent, mas: !!m && !m.open,
+               ficha: d.querySelector('.bib-ficha').checkVisibility(), bloques: [...d.querySelectorAll('.bib-bloque > h3')].map(h => h.textContent) }; }""")
+    check(not antes and alto_resumen >= 44 and despues['abierto'] and despues['visible'] and despues['ficha'] and 'peso de inercia' in despues['texto']
+          and despues['bloques'] == ['Ficha', 'De qué trata', 'Relación con la tesis', 'Referencias relacionadas', 'Cita'],
+          'al presionar la línea de resumen se abre el detalle con sus cinco bloques (resumen de %d px)' % alto_resumen, despues)
+    # el resto de un bloque largo queda plegado dentro del detalle y se abre con su propio control
+    mas = p.locator('#r-shi1998 .bib-trata details.bib-mas > summary')
+    alto_mas = mas.evaluate('el => el.getBoundingClientRect().height')
+    mas.click()
+    p.wait_for_timeout(100)
+    r = p.evaluate("""() => { const m = document.querySelector('#r-shi1998 .bib-trata details.bib-mas'), ver = m.querySelector('.bib-mas-ver'), plegar = m.querySelector('.bib-mas-plegar');
+      return { abierto: m.open, parrafo: m.querySelector('p').checkVisibility(), ver: ver.checkVisibility(), plegar: plegar.checkVisibility() }; }""")
+    check(despues['mas'] and alto_mas >= 44 and r['abierto'] and r['parrafo'] and not r['ver'] and r['plegar'],
+          'un bloque largo se pliega dentro del detalle, su control mide al menos 44 px y al abrirlo ofrece plegarlo', (alto_mas, r))
+    resumen.focus()
+    p.keyboard.press('Enter')
+    p.wait_for_timeout(100)
+    check(not p.evaluate("document.getElementById('r-shi1998').open"), 'con el teclado, Enter vuelve a cerrar el detalle')
+    p.fill('#b-filtro', 'clopper')
+    p.wait_for_timeout(100)
+    r = p.evaluate("""() => ({ visibles: [...document.querySelectorAll('ol.bib > li')].filter(li => !li.hidden).map(li => li.firstElementChild.id),
+      abiertas: [...document.querySelectorAll('details.bib-ref')].filter(d => d.open).map(d => d.id) })""")
+    check(r['visibles'] == ['r-devore2021', 'r-vincent2024'] and r['abiertas'] == ['r-hess2016'],
+          'el filtro busca también en el detalle de cada referencia sin abrirlo', r)
+    p.fill('#b-filtro', 'xyzw')
+    check('Ninguna referencia' in p.evaluate("document.querySelector('#b-filtro').closest('.filtro-lista').querySelector('.filtro-estado').textContent"),
+          'sin coincidencias sugiere el buscador del sitio')
+    p.fill('#b-filtro', '')
+    p.wait_for_timeout(100)
+    r = p.evaluate("""() => ({ ocultos: document.querySelectorAll('ol.bib > li[hidden], .bib-grupo[hidden]').length,
+      abiertos: [...document.querySelectorAll('.bib-grupo > details.detalle')].filter(d => d.open).map(d => d.closest('.bib-grupo').querySelector('h2').id) })""")
+    check(r['ocultos'] == 0 and r['abiertos'] == ['bib-mapeo'], 'al borrar el filtro todo vuelve y cada grupo queda como estaba', r)
+    p.evaluate("""() => { const d = document.getElementById('r-astrom2009'); d.closest('details.detalle').open = true; d.open = true;
+      d.querySelectorAll('details.bib-mas').forEach(m => { m.open = true; }); }""")
+    p.wait_for_timeout(100)
+    alto = p.locator('#b-filtro').evaluate('el => el.closest(".campo-buscar").getBoundingClientRect().height')
+    r = p.evaluate("""() => { const d = document.getElementById('r-astrom2009'), f = d.querySelector('.bib-dl > div'), dt = f.querySelector('dt').getBoundingClientRect(),
+      dd = f.querySelector('dd').getBoundingClientRect();
+      return { ancho: document.documentElement.scrollWidth - document.documentElement.clientWidth, apilada: dd.top >= dt.bottom - 1 && Math.abs(dd.left - dt.left) < 2,
+               botones: [...d.querySelectorAll('.bib-copiar button')].map(b => Math.round(b.getBoundingClientRect().height)) }; }""")
+    check(alto >= 44 and r['ancho'] <= 1 and r['apilada'] and len(r['botones']) == 2 and min(r['botones']) >= 44,
+          'teléfono: el filtro y los botones para copiar miden al menos 44 px, la ficha va en una columna y un detalle abierto no desborda (%d)' % alto, r)
+    ctx.close()
+    # escritorio: la ficha en dos columnas y los botones para copiar
+    ctx = contexto(nav, **ESCRITORIO)
+    ctx.grant_permissions(['clipboard-read', 'clipboard-write'], origin=BASE)
+    p = ctx.new_page()
+    p.goto(BASE + '/bibliografia.html#r-shi1998', wait_until='load')
+    p.wait_for_timeout(400)
+    r = p.evaluate("""() => { const f = document.querySelector('#r-shi1998 .bib-dl > div'), dt = f.querySelector('dt').getBoundingClientRect(),
+      dd = f.querySelector('dd').getBoundingClientRect(); return { columnas: dd.left > dt.right - 1 && Math.abs(dd.top - dt.top) < 4 }; }""")
+    check(r['columnas'], 'escritorio: la ficha va en dos columnas, dato y valor en la misma fila', r)
+    p.click('#r-shi1998 .bib-copiar [data-copiar="cita"]')
+    p.wait_for_timeout(200)
+    cita = p.evaluate("navigator.clipboard.readText()")
+    estado = p.text_content('#r-shi1998 .bib-copia-estado')
+    check(cita.startswith('Shi, Y.') and 'https://doi.org/' in cita and estado == 'Cita copiada.',
+          'Copiar la cita deja en el portapapeles la cita de la tesis con su enlace completo y lo anuncia', (cita[:90], estado))
+    p.click('#r-shi1998 .bib-copiar [data-copiar="bibtex"]')
+    p.wait_for_function("document.querySelector('#r-shi1998 .bib-copia-estado').textContent.length > 0", timeout=5000)
+    bib = p.evaluate("navigator.clipboard.readText()")
+    check(bib.startswith('@inproceedings{shi1998,') and bib.rstrip().endswith('}') and bib.count('@') == 1,
+          'Copiar en BibTeX deja en el portapapeles solo la entrada de esa referencia', bib[:80])
+    ctx.close()
+    ctx = contexto(nav, java_script_enabled=False, **ESCRITORIO)
+    p = ctx.new_page()
+    p.goto(BASE + '/bibliografia.html#bib-mapeo')
+    r = p.evaluate("""() => ({ grupos: document.querySelectorAll('.bib-grupo > details.detalle').length,
+      refs: document.querySelectorAll('details.bib-ref > summary').length, filtro: !!document.getElementById('b-filtro'),
+      desc: [...document.querySelectorAll('.bib-desc')].every(d => d.getBoundingClientRect().height > 0),
+      descarga: !!document.querySelector('a[href="datos/bibliografia.bib"][download]') })""")
+    check(r['grupos'] == 11 and r['refs'] == 72 and not r['filtro'] and r['desc'] and r['descarga'],
+          'sin JavaScript se ven los grupos con su explicación, grupos y referencias se abren a mano y el BibTeX se descarga', r)
+    p.goto(BASE + '/recursos.html#bibliografia')
+    r = p.evaluate("""() => { const sec = document.getElementById('bibliografia').closest('section');
+      return { pagina: location.pathname.endsWith('/recursos.html'), enlace: !!sec.querySelector('a[href="bibliografia.html"]') }; }""")
+    check(r['pagina'] and r['enlace'], 'sin JavaScript, Recursos conserva su sección de bibliografía con el enlace a la página nueva', r)
+    ctx.close()
+    # al imprimir, todo queda abierto
+    ctx = contexto(nav, **ESCRITORIO)
+    p = ctx.new_page()
+    p.goto(BASE + '/bibliografia.html', wait_until='load')
+    p.wait_for_timeout(200)
+    p.evaluate("window.dispatchEvent(new Event('beforeprint'))")
+    r = p.evaluate("""() => ({ cerrados: [...document.querySelectorAll('details.detalle, details.bib-ref, details.bib-mas')].filter(d => !d.open).length,
+      total: document.querySelectorAll('details.bib-ref').length })""")
+    check(r['cerrados'] == 0 and r['total'] == 72, 'al imprimir se abren todos los grupos, las referencias y sus bloques plegados', r)
+    ctx.close()
+
+
+with sync_playwright() as pw:
+    estatico()
+    nav = pw.chromium.launch()
+    for prueba in (manifiesto, fuentes_y_cls, titulos, decisiones, glosario_y_menu, bibliografia):
+        prueba(nav)
+    nav.close()
+if server:
+    server.shutdown()
+print('\n%d comprobaciones de experiencia y rendimiento correctas' % count)

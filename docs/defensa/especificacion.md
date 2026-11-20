@@ -13,10 +13,10 @@ Decisiones del dueño del 18 de noviembre de 2026:
 
 | Archivo | Unidad | Qué es |
 |---|---|---|
-| `herramientas/catalogo_defensa.py` | Catálogo | Lee las tarjetas de `preguntas.html`, une las rúbricas y escribe el catálogo |
+| `scripts/catalogo_defensa.py` | Catálogo | Lee las tarjetas de `preguntas.html`, une las rúbricas y escribe el catálogo |
 | `datos/defensa/rubricas.json` | Catálogo | Rúbricas editoriales por ID de pregunta |
 | `datos/defensa/catalogo.json` | Catálogo | Salida generada, con versión |
-| `herramientas/catalogo_defensa.test.mjs` | Catálogo | Pruebas del catálogo con `node --test` |
+| `tests/catalogo_defensa.test.mjs` | Catálogo | Pruebas del catálogo con `node --test` |
 | `servicio/src/juez.mjs` | Juez | Validación de cada lectura y consenso de tres |
 | `servicio/src/cuotas.mjs` | Cuotas | `QuotaRepository` sobre D1 |
 | `servicio/migraciones/0001_inicial.sql` | Cuotas | Esquema D1 |
@@ -25,7 +25,7 @@ Decisiones del dueño del 18 de noviembre de 2026:
 | `servicio/tests/*.test.mjs`, `servicio/tests/sqlite-d1.mjs` | Todas las del servicio | Pruebas con `node --test` |
 | `js/defensa-oral.js`, `js/defensa-config.js` | Panel | Panel de práctica en `preguntas.html` |
 | `js/defensa-voz.js`, `js/defensa-whisper-worker.js` | Voz | Dictado privado, dictado externo y lectura en voz alta |
-| `herramientas/validacion_defensa.mjs` | Validación | Métricas del piloto a partir de etiquetas humanas guardadas fuera del repositorio |
+| `scripts/validacion_defensa.mjs` | Validación | Métricas del piloto a partir de etiquetas humanas guardadas fuera del repositorio |
 | `docs/defensa/migracion-proveedores.md`, `docs/defensa/README.md` | Documentación | Anexo de migración y guía de operación |
 
 `servicio/wrangler.toml` y el paso de CI que ejecuta `npm test` los agrega el dueño, porque son archivos de despliegue y de flujo de trabajo.
@@ -33,7 +33,7 @@ Decisiones del dueño del 18 de noviembre de 2026:
 Reglas comunes:
 
 - El servicio es JavaScript ESM puro (`.mjs`), sin dependencias de npm. Así `npm test` (`node --test --experimental-strip-types`) lo prueba sin instalar nada.
-- Toda prueba nueva se llama `*.test.mjs` y vive junto a lo que prueba (`servicio/tests/`, `herramientas/`).
+- Toda prueba nueva se llama `*.test.mjs` y vive junto a lo que prueba (`servicio/tests/`, `scripts/`).
 - Ningún archivo guarda claves, respuestas de estudiantes, audio ni etiquetas humanas.
 - El tiempo que tarda el estudiante nunca entra en la valoración.
 
@@ -41,7 +41,7 @@ Reglas comunes:
 
 ### 2.1 Lectura de las tarjetas
 
-`herramientas/catalogo_defensa.py` define `leer_tarjetas(soup)`, que recorre `details.pregunta` de `preguntas.html` **antes** de cualquier transformación y devuelve, en el orden de la página, una lista de diccionarios:
+`scripts/catalogo_defensa.py` define `leer_tarjetas(soup)`, que recorre `details.pregunta` de `preguntas.html` **antes** de cualquier transformación y devuelve, en el orden de la página, una lista de diccionarios:
 
 ```json
 {"id": "p-oe3-parcial", "tema": "objetivos", "enunciado": "El OE3 incluye navegación autónoma. ¿Por qué lo declara cumplido solo en parte?",
@@ -53,7 +53,7 @@ Reglas comunes:
 - `enunciado` es el texto de `.q-t`. `referencia` es el texto de `.q-respaldo` sin el rótulo en negrita. `enlace` es el `href` del primer enlace de `.q-ver`, o `null`.
 - `guia` es el texto plano de `.q-cuerpo` sin `.q-respaldo` ni `.q-ver`, con espacios normalizados.
 
-`herramientas/descarga_preguntas.py` debe reutilizar `leer_tarjetas` para obtener `id`, `titulo` (el enunciado) y `nivel` de cada tarjeta, y seguir usando su propio `absolutos()` solo para el HTML del cuerpo. El PDF no cambia: `python herramientas/descarga_preguntas.py --comprobar` sigue pasando sin regenerar nada.
+`scripts/descarga_preguntas.py` debe reutilizar `leer_tarjetas` para obtener `id`, `titulo` (el enunciado) y `nivel` de cada tarjeta, y seguir usando su propio `absolutos()` solo para el HTML del cuerpo. El PDF no cambia: `python scripts/descarga_preguntas.py --comprobar` sigue pasando sin regenerar nada.
 
 ### 2.2 Rúbricas
 
@@ -92,7 +92,7 @@ Reglas comunes:
 
 ### 2.3 Catálogo generado
 
-`python herramientas/catalogo_defensa.py` escribe `datos/defensa/catalogo.json`:
+`python scripts/catalogo_defensa.py` escribe `datos/defensa/catalogo.json`:
 
 ```json
 {"version": "a1b2c3d4e5f6", "total": 106, "pendientes": ["p-giro", "p-frontera-minima"],
@@ -321,7 +321,7 @@ Los controles se detienen por separado. El dictado agrega texto al `<textarea>`,
 
 ## 9. Validación del piloto
 
-`herramientas/validacion_defensa.mjs` lee dos archivos JSONL que viven **fuera** del repositorio (rutas por argumento): las etiquetas humanas (`{caso, question_id, clase, etiqueta}`, con `clase` entre `parafrasis`, `breve`, `omision`, `error_critico`, `contradiccion_critica` y `ambiguo`) y las salidas del servicio (`{caso, ronda, lecturas, resultado, ms}`). Calcula e imprime en JSON, con su umbral y si se cumple:
+`scripts/validacion_defensa.mjs` lee dos archivos JSONL que viven **fuera** del repositorio (rutas por argumento): las etiquetas humanas (`{caso, question_id, clase, etiqueta}`, con `clase` entre `parafrasis`, `breve`, `omision`, `error_critico`, `contradiccion_critica` y `ambiguo`) y las salidas del servicio (`{caso, ronda, lecturas, resultado, ms}`). Calcula e imprime en JSON, con su umbral y si se cumple:
 
 - acuerdo con la referencia humana (meta ≥ 102 de 120) y matriz por clase con abstención;
 - aprobaciones `correcta` en los 40 casos críticos (meta 0);

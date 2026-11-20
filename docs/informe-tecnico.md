@@ -15,7 +15,7 @@ Base: `c1def7a03ef3dce222bf8d6a2df21b093f020508` de `main`. Son tres commits sob
 
 ## Errores de GitHub Actions
 
-La ejecución sobre `c1def7a` corrió en Ubuntu 26.04 con Playwright 1.64.1 y Chrome for Testing 156.0.8078.4. Pasaron los datos, la compilación, los modelos numéricos y las suites de control, mapeo, movimiento, laboratorio, robustez, evidencia y la general, con sus 654 comprobaciones. Falló `pruebas_experiencia_navegador.py`, en la prueba de títulos con la fuente de respaldo:
+La ejecución sobre `c1def7a` corrió en Ubuntu 26.04 con Playwright 1.64.1 y Chrome for Testing 156.0.8078.4. Pasaron los datos, la compilación, los modelos numéricos y las suites de control, mapeo, movimiento, laboratorio, robustez, evidencia y la general, con sus 654 comprobaciones. Falló `navegador_experiencia.py`, en la prueba de títulos con la fuente de respaldo:
 
 > entre 320 y 480 px, el título de cada tema ocupa las mismas líneas con el respaldo (Archivo Respaldo) que con Archivo en 327 de 336 casos
 
@@ -46,7 +46,7 @@ Los avisos de Node sobre `punycode` y de Git sobre el nombre de la rama vienen d
 2. **Robot negro con franjas amarillas.** Había dos causas. En el CAD las cuatro franjas del frente son cuerpos dentro del compuesto de la carcasa, y la conversión pintaba todo ese compuesto de negro. Además, el mapeo de tonos ACES y la luz del entorno aclaraban el PLA negro hasta verse gris. `modelo_robot.py` suma un retoque que deja las franjas en su propio nodo, `cubierta__franjas`, con el amarillo de las fotos. La escena de la portada usa el mapeo de tonos neutro de Three.js, menos luz de entorno y una luz principal desde adelante y arriba, y en el tema oscuro sube la luz de contorno para separar el robot del fondo.
 3. **Panel de la cámara sin X.** La simplificación de la malla había unido las esquinas del panel con el fondo del avellanado del lente. La cara frontal quedó como un embudo de triángulos largos, y su sombreado dibujaba una X. El retoque devuelve esos vértices al plano del frente, a 0,195 m del eje, y el lente queda visible por el agujero. Después recalcula las normales de todo el modelo con grupos de suavizado de 35°, así también desaparecen las sombras en V que había al pie de la carcasa.
 4. **Tapa sin huecos.** Parte de la tapa superior tenía las caras hacia adentro y, con una sola cara, desde arriba se veía el interior. Los materiales del modelo se marcan como de dos caras.
-5. **Retoque reproducible.** El retoque corre sobre el modelo comprimido, así se puede aplicar sin el STEP con `python3 herramientas/modelo_robot.py --retoque` y da el mismo archivo que la conversión completa. Se ejecutó dos veces sobre el mismo archivo con resultado idéntico, byte a byte, y no se repite sobre un modelo ya retocado. El modelo pasa de 381 a 467 KB, por las normales separadas en las aristas vivas, y de 39 245 a 39 219 triángulos, porque se quitan 26 sin área.
+5. **Retoque reproducible.** El retoque corre sobre el modelo comprimido, así se puede aplicar sin el STEP con `python3 scripts/modelo_robot.py --retoque` y da el mismo archivo que la conversión completa. Se ejecutó dos veces sobre el mismo archivo con resultado idéntico, byte a byte, y no se repite sobre un modelo ya retocado. El modelo pasa de 381 a 467 KB, por las normales separadas en las aristas vivas, y de 39 245 a 39 219 triángulos, porque se quitan 26 sin área.
 6. **Acercamiento.** El visor acerca con los botones más y menos, con Ctrl y la rueda del ratón, que es también el pellizco de un panel táctil, con el gesto de Safari, con el pellizco en el teléfono y, con el foco en el modelo, con las teclas más y menos. Las flechas giran el modelo y cero vuelve a la vista completa, igual que el botón «Ver todo el robot». Acerca hacia el puntero y el centro de giro no se aleja más de 30 cm del robot. La rueda sola sigue desplazando la página y aparece un aviso que explica que el acercamiento va con Ctrl. La etiqueta de arriba dice cuántas veces está más cerca, de ×1,0 a ×5,1.
 7. **La pieza elegida.** Elegir una pieza en las pestañas o tocándola en el modelo acerca la cámara a ella, desde un ángulo pensado para esa pieza. La electrónica y los motores quedan dentro de la carcasa: al elegir la electrónica o las ruedas, la carcasa se vuelve transparente y deja ver dónde va cada pieza. El aro de la pieza tiene el color de su pestaña. Los botones de acercamiento quedan encima del modelo, y un toque en ellos ya no elige la pieza que está debajo.
 8. **La parte de abajo del visor.** El disco claro bajo el robot se cortaba contra el borde del lienzo y los botones quedaban encima. Ahora el piso son anillos de barrido que se desvanecen, con una sombra de contacto, y el lienzo se funde hacia abajo y hacia los lados, así nada se corta aunque se gire o se acerque. Despiece, punto de vista y pausa van en una sola barra. Las cuatro pestañas llevan el color de cada pieza, y la descripción suma dos datos de cada una, como «RPLidar A1» o «Radio de rueda 33,5 mm», que salen de la tesis, de `robot.html` y de las medidas del CAD.
@@ -58,12 +58,12 @@ Los avisos de Node sobre `punycode` y de Git sobre el nombre de la rama vienen d
 | Área | Archivos |
 |---|---|
 | CI | `css/estilo.css`, `web/src/styles/experience.css`, `astro.config.mjs` |
-| Modelo 3D | `herramientas/modelo_robot.py`, `modelos/robot.glb`, `modelos/README.md` |
+| Modelo 3D | `scripts/modelo_robot.py`, `modelos/robot.glb`, `modelos/README.md` |
 | Visor de la portada | `web/src/lib/robot-three.ts`, `web/src/lib/robot-cad.ts`, `web/src/components/RobotHero.svelte`, `web/src/styles/experience.css` |
 | Portada | `web/src/pages/index.astro`, `web/src/pages/laboratorios.astro`, `web/src/lib/home-content.ts` y las salidas compiladas en `index.html`, `laboratorios.html` y `_astro/` |
-| Color y resaltado | `css/marco.css`, `css/estilo.css`, `js/marco.js`, `js/sitio.js`, `herramientas/plantillas/tema.html`, `web/src/generado/marco.json` y las 16 páginas de la guía |
+| Color y resaltado | `css/marco.css`, `css/estilo.css`, `js/marco.js`, `js/sitio.js`, `scripts/plantillas/tema.html`, `web/src/generado/marco.json` y las 16 páginas de la guía |
 | Datos | `datos/academico.json`, `datos/proyecto.js`, `datos/indice.js` |
-| Verificación | `herramientas/verificar_sitio.py`, `herramientas/pruebas_redisenio_navegador.py` |
+| Verificación | `scripts/verificar_sitio.py`, `tests/navegador_redisenio.py` |
 | Documentación | `README.md`, `docs/decisiones.md`, este informe |
 
 ## Pruebas ejecutadas
@@ -74,24 +74,24 @@ Entorno: Node 22.23.4, Python 3.13, Playwright 1.63.0 con Chromium 153. Se ejecu
 |---|---:|---:|
 | `verificar_sitio.py` | 3 457 | 3 485 |
 | `npm run check`, prueba LiDAR y compilación | correctas | correctas, sin avisos |
-| `pruebas_compilacion.py` y `verificar_compilacion.py` | correctas | correctas |
+| `compilacion.py` y `verificar_compilacion.py` | correctas | correctas |
 | Ejemplos, figuras y PDF de preguntas al día | 5 de 5 | 5 de 5 |
 | Pruebas numéricas en Node, ocho archivos | 207 | 207 |
-| `pruebas_control_navegador.py` | 325 | 325 |
-| `pruebas_mapeo_navegador.py` | 289 | 289 |
-| `pruebas_movimiento_navegador.py` | 252 | 252 |
-| `pruebas_laboratorio_navegador.py` | 233 | 233 |
-| `pruebas_robustez_navegador.py` | 71 | 71 |
-| `pruebas_evidencia_navegador.py` | 131 | 131 |
-| `pruebas_navegador.py` | 654 | 654 |
-| `pruebas_experiencia_navegador.py` | 69 | 69 |
-| `pruebas_redisenio_navegador.py` | 44 | 57 |
+| `navegador_control.py` | 325 | 325 |
+| `navegador_mapeo.py` | 289 | 289 |
+| `navegador_movimiento.py` | 252 | 252 |
+| `navegador_laboratorio.py` | 233 | 233 |
+| `navegador_robustez.py` | 71 | 71 |
+| `navegador_evidencia.py` | 131 | 131 |
+| `navegador.py` | 654 | 654 |
+| `navegador_experiencia.py` | 69 | 69 |
+| `navegador_redisenio.py` | 44 | 57 |
 
 Lo nuevo que comprueban:
 
 - `verificar_sitio.py`: que la lista de la portada tenga las 16 partes con el orden y los títulos de `js/sitio.js`, cada una con su `data-pag`. Que el modelo tenga el nodo de las franjas en amarillo, la carcasa negra y todos sus materiales de dos caras. Que cada color de la paleta llegue a 4,5:1 sobre el papel y sobre su fondo, y la tinta sobre ese fondo, en los dos temas.
-- `pruebas_redisenio_navegador.py`: que «Acercar» acerque, que «Ver todo el robot» vuelva a ×1,0, que el acercamiento tenga un límite y el botón se apague al llegar, que con el foco en el modelo más acerque y cero vuelva, que la rueda sola desplace la página y avise sin acercar, que Ctrl con la rueda acerque, que la electrónica acerque la cámara y vuelva transparente la carcasa del CAD y que el LiDAR la devuelva. Que sin JavaScript se vean las 16 partes y los resaltados puestos. Que en la portada y en `movimiento.html` el resaltado empiece vacío y se dibuje al llegar a la pantalla, y que con movimiento reducido ya esté puesto.
-- `pruebas_experiencia_navegador.py`, sin cambios en la prueba: los títulos con el respaldo coinciden en 333 de 336 casos en Chrome 153, dentro del límite.
+- `navegador_redisenio.py`: que «Acercar» acerque, que «Ver todo el robot» vuelva a ×1,0, que el acercamiento tenga un límite y el botón se apague al llegar, que con el foco en el modelo más acerque y cero vuelva, que la rueda sola desplace la página y avise sin acercar, que Ctrl con la rueda acerque, que la electrónica acerque la cámara y vuelva transparente la carcasa del CAD y que el LiDAR la devuelva. Que sin JavaScript se vean las 16 partes y los resaltados puestos. Que en la portada y en `movimiento.html` el resaltado empiece vacío y se dibuje al llegar a la pantalla, y que con movimiento reducido ya esté puesto.
+- `navegador_experiencia.py`, sin cambios en la prueba: los títulos con el respaldo coinciden en 333 de 336 casos en Chrome 153, dentro del límite.
 
 Además, fuera del flujo:
 

@@ -10,19 +10,19 @@ Se ejecutaron todas las verificaciones documentadas antes de editar:
 
 | Verificación | Resultado en la base |
 |---|---:|
-| `node herramientas/pruebas_unitarias.js` | 40 correctas |
-| `node herramientas/pruebas_control.js` | 21 correctas |
-| `node herramientas/pruebas_mapeo.js` | 28 correctas |
-| `node herramientas/pruebas_slam_proceso.js` | 10 correctas |
-| `node herramientas/pruebas_movimiento.js` | 23 correctas |
-| `node herramientas/pruebas_analisis.js` | 57 correctas |
-| `python3 herramientas/verificar_sitio.py` | 1 489 correctas |
-| `python3 herramientas/pruebas_control_navegador.py` | 320 correctas |
-| `python3 herramientas/pruebas_mapeo_navegador.py` | 256 correctas |
-| `python3 herramientas/pruebas_movimiento_navegador.py` | 214 correctas |
-| `python3 herramientas/pruebas_laboratorio_navegador.py` | 195 correctas |
-| `python3 herramientas/pruebas_robustez_navegador.py` | 71 correctas |
-| `python3 herramientas/pruebas_navegador.py` | 479 correctas |
+| `node tests/pruebas_unitarias.js` | 40 correctas |
+| `node tests/pruebas_control.js` | 21 correctas |
+| `node tests/pruebas_mapeo.js` | 28 correctas |
+| `node tests/pruebas_slam_proceso.js` | 10 correctas |
+| `node tests/pruebas_movimiento.js` | 23 correctas |
+| `node tests/pruebas_analisis.js` | 57 correctas |
+| `python3 scripts/verificar_sitio.py` | 1 489 correctas |
+| `python3 tests/navegador_control.py` | 320 correctas |
+| `python3 tests/navegador_mapeo.py` | 256 correctas |
+| `python3 tests/navegador_movimiento.py` | 214 correctas |
+| `python3 tests/navegador_laboratorio.py` | 195 correctas |
+| `python3 tests/navegador_robustez.py` | 71 correctas |
+| `python3 tests/navegador.py` | 479 correctas |
 
 Todas pasan. Estas pruebas comprueban que el sitio funciona y que sus cifras coinciden con sus propias tablas, pero no pueden detectar un texto que quedó atrás frente a una versión nueva del documento. Para eso se leyó completa la versión de octubre y se contrastó con ella cada tema del sitio. Además se midió, en un teléfono de 390 px, el ancho con que se dibuja cada gráfico.
 

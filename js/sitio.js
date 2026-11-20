@@ -2,10 +2,10 @@
   Lectura de las páginas de la guía: índice lateral, secciones en el menú del teléfono, barra de progreso,
   citas con vista previa, términos con definición, comparadores, videos en bucle, video liviano,
   ampliación de imágenes, secuencia de etapas y carga diferida de los interactivos. La cabecera, el pie,
-  el menú y el buscador son el marco común: herramientas/plantillas/ y js/marco.js.
+  el menú y el buscador son el marco común: scripts/plantillas/ y js/marco.js.
 
   Para agregar o renombrar un tema basta con editar la lista CAPS.
-  El PDF autorizado y los metadatos se editan en datos/academico.json; regenera con herramientas/datos.py.
+  El PDF autorizado y los metadatos se editan en datos/academico.json; regenera con scripts/datos.py.
 */
 (function () {
   "use strict";

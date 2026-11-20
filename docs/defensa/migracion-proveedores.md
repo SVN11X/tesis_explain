@@ -57,7 +57,7 @@ Antes de cualquier cambio, desde la raíz del repositorio:
 
 ```bash
 npm test
-python herramientas/catalogo_defensa.py --comprobar
+python scripts/catalogo_defensa.py --comprobar
 ```
 
 Después de desplegar en preproducción:
@@ -65,7 +65,7 @@ Después de desplegar en preproducción:
 1. `GET /v1/salud` devuelve el proveedor y la admisión esperados.
 2. Se crea una sesión (`POST /v1/sesiones`) y se envía una evaluación con una pregunta no aprobada: debe responder `pending_guide` sin gastar cupo.
 3. Con una rúbrica aprobada en preproducción, se envía la misma evaluación dos veces con el mismo `request_id`: la segunda devuelve el mismo resultado y no suma cupo.
-4. Si cambió el modelo o la base, se corre la validación completa (`herramientas/validacion_defensa.mjs`) con etiquetas humanas guardadas fuera del repositorio.
+4. Si cambió el modelo o la base, se corre la validación completa (`scripts/validacion_defensa.mjs`) con etiquetas humanas guardadas fuera del repositorio.
 
 Solo después de que todo pase se despliega en producción y se repite la prueba de salud.
 

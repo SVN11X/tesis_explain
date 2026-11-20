@@ -30,7 +30,7 @@ resultados de CPU, latencia, cierres, localización o error absoluto del mapa.
 ## Archivos y verificaciones
 
 `js/slam-proceso.js` incorpora los nuevos modelos y controles;
-`js/mapeo.js` extiende el grafo. `herramientas/diagramas_mapeo.js` genera el
+`js/mapeo.js` extiende el grafo. `scripts/diagramas_mapeo.js` genera el
 respaldo `img/diagramas/candidatos-cierre.svg` desde el mismo modelo.
 Se regeneran metadatos e índice, y se amplían las pruebas de modelos y de
 navegador del capítulo 05. Las pruebas previas seleccionan el desplegable de

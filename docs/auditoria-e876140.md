@@ -8,17 +8,17 @@ Se ejecutaron todas las verificaciones documentadas antes de editar:
 
 | Verificación | Resultado en la base |
 |---|---:|
-| `node herramientas/pruebas_unitarias.js` | 40 correctas |
-| `node herramientas/pruebas_control.js` | 18 correctas |
-| `node herramientas/pruebas_mapeo.js` | 24 correctas |
-| `node herramientas/pruebas_movimiento.js` | 23 correctas |
-| `node herramientas/pruebas_analisis.js` | 43 correctas |
-| `python3 herramientas/verificar_sitio.py` | 1 432 correctas |
-| `python3 herramientas/pruebas_control_navegador.py` | 320 correctas |
-| `python3 herramientas/pruebas_mapeo_navegador.py` | 186 correctas |
-| `python3 herramientas/pruebas_movimiento_navegador.py` | 214 correctas |
-| `python3 herramientas/pruebas_laboratorio_navegador.py` | 155 correctas |
-| `python3 herramientas/pruebas_navegador.py` | 479 correctas |
+| `node tests/pruebas_unitarias.js` | 40 correctas |
+| `node tests/pruebas_control.js` | 18 correctas |
+| `node tests/pruebas_mapeo.js` | 24 correctas |
+| `node tests/pruebas_movimiento.js` | 23 correctas |
+| `node tests/pruebas_analisis.js` | 43 correctas |
+| `python3 scripts/verificar_sitio.py` | 1 432 correctas |
+| `python3 tests/navegador_control.py` | 320 correctas |
+| `python3 tests/navegador_mapeo.py` | 186 correctas |
+| `python3 tests/navegador_movimiento.py` | 214 correctas |
+| `python3 tests/navegador_laboratorio.py` | 155 correctas |
+| `python3 tests/navegador.py` | 479 correctas |
 
 Las pruebas existentes no cubrían un módulo de datos ausente, un navegador sin `MediaQueryList.addEventListener` ni la accesibilidad automática de todas las páginas. Para eso se ejecutaron fallos inducidos en Chromium y axe-core en las 16 páginas, con todos los interactivos montados, en escritorio claro, escritorio oscuro y teléfono de 390 px.
 
@@ -33,14 +33,14 @@ Las pruebas existentes no cubrían un módulo de datos ausente, un navegador sin
 | Deficiencia demostrable | `.tabla-env` en 11 páginas | axe `scrollable-region-focusable`, grave, 18 casos a 390 px: una tabla que no cabe no se puede desplazar con teclado | Media | Región enfocable con nombre solo mientras desborda, recalculada al cambiar el ancho |
 | Deficiencia demostrable | Aviso académico, todas las páginas | Mide 131 px de alto en un teléfono de 390 px y repite «en revisión por comité» | Baja | Una línea corrida en móvil, 71 px, y nota sin repetición |
 | Deficiencia demostrable | Siete interactivos | Su respaldo sin JavaScript decía solo «Necesita JavaScript»: PID, enjambre, ciclo del firmware, inflación, DWB y exploración en dos páginas | Media | Respaldo con la idea, las cifras y, en el PID, una figura generada con el mismo modelo |
-| Deficiencia demostrable | `recursos.html#estado-academico` | Fecha y pendientes escritos a mano, duplicando `datos/academico.json`; el historial no se veía | Baja | Bloque generado por `herramientas/datos.py`, con pendientes enlazados e historial |
+| Deficiencia demostrable | `recursos.html#estado-academico` | Fecha y pendientes escritos a mano, duplicando `datos/academico.json`; el historial no se veía | Baja | Bloque generado por `scripts/datos.py`, con pendientes enlazados e historial |
 | Información académica | `mapeo.html`, resumen | «El robot recorrió el mismo recinto en seis ejecuciones», pero según el Anexo 7 en la iteración 2 no se desplazó | Baja | Redacción corregida: seis ejecuciones en el mismo recinto, cinco con mapa válido |
 | Información académica | `exploracion.html`, tabla de metas | «Se excluyó porque el robot no se movió» simplifica el motivo del Anexo 7 | Baja | «El robot no se desplazó y su mapa no quedó guardado» |
 | Mejora recomendada | `control.html#sim-pid` | Las lecturas mostraban números sin explicar qué regla los interpreta | Media | Lecturas por regla con condición y cálculo, probadas en Node |
 | Mejora recomendada | `mapeo.html#sim-lazo` | El grafo mostraba poses, pero no cómo cambia el mapa al optimizar ni por qué un mapa coherente puede tener error métrico | Media | Mapa armado con las observaciones de cada pose, con tres lecturas comprobables |
 | Mejora recomendada | Laboratorio | No había formato para rejillas ni para estados por meta | Media | Lectura de PGM y YAML, comparación compatible, clasificación de metas según el Anexo 8.4 |
 | Mejora recomendada | Control, navegación y mapeo | Conceptos difíciles sin una progresión resumida | Baja | Fichas plegables de siete pasos en tres conceptos |
-| Mejora recomendada | `herramientas/pruebas_navegador.py` | El registro de pruebas mostraba trazas de `BrokenPipeError` del servidor local | Baja | El servidor de prueba ignora cortes de conexión del navegador |
+| Mejora recomendada | `tests/navegador.py` | El registro de pruebas mostraba trazas de `BrokenPipeError` del servidor local | Baja | El servidor de prueba ignora cortes de conexión del navegador |
 | Funcionalidad que conservar | Todo el sitio | 148 pruebas numéricas, 1 354 comprobaciones de navegador y 1 432 estáticas correctas | — | Conservar modelos, controles, textos, datos y pruebas |
 | Información académica pendiente | `datos/academico.json` | Versión del documento, fecha de datos, método angular, motivos de 0,13 m/s y de la frontera mínima, autorización de material | — | Sin completar; ahora enlazados desde Recursos |
 

@@ -12,21 +12,21 @@ Status: draft for the owner to confirm in the pull request. Written from the und
 
 - `web/`: Astro and Svelte source of the home page and `laboratorios.html`.
 - `servicio/`: the Cloudflare Worker for the oral-defense correction.
-- `herramientas/datos.py`: generates the shared frame.
-- `herramientas/indice.py`: generates the search index.
-- `herramientas/bibliografia.py`: generates the bibliography.
+- `scripts/datos.py`: generates the shared frame.
+- `scripts/indice.py`: generates the search index.
+- `scripts/bibliografia.py`: generates the bibliography.
 - `voz/`: model and runtime files for private Whisper dictation.
 - `.github/workflows/verificar.yml`: CI that runs Node and Playwright browser tests on every pull request.
 
 ## Where to start reading
 
-Open `web/` for the home page and the laboratories, and `herramientas/verificar_sitio.py` to see what the site must satisfy.
+Open `web/` for the home page and the laboratories, and `scripts/verificar_sitio.py` to see what the site must satisfy.
 
 ## Run it and check it
 
 - `npm run build` compiles the Astro site into the root.
 - `npm test` runs the tests.
-- `python herramientas/verificar_sitio.py` checks the built site.
+- `python scripts/verificar_sitio.py` checks the built site.
 
 GitHub Pages publishes from the root of `main` today.
 

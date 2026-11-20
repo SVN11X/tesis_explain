@@ -1,6 +1,6 @@
 # Ejemplos sintéticos del laboratorio
 
-Estos archivos **no son datos del robot ni de la tesis**. Se generan con `node herramientas/ejemplos_laboratorio.js` para probar los formatos del [Laboratorio de análisis](../../laboratorio.html) y sus reglas.
+Estos archivos **no son datos del robot ni de la tesis**. Se generan con `node scripts/ejemplos_laboratorio.js` para probar los formatos del [Laboratorio de análisis](../../laboratorio.html) y sus reglas.
 
 | Archivo | Qué representa |
 |---|---|
