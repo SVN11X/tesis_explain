@@ -51,8 +51,8 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 - [x] (green) Measure the contrast of the small gray uppercase labels on the home page at 360 px and fix anything under 4.5:1.
 - [x] (green) Home page fonts use font-display: swap without metric-matched fallbacks, unlike the guide pages. Align them with the guide pages (docs/medicion-fuentes.md).
 - [x] (green) Measure the weight and use of Archivo, Atkinson Hyperlegible and IBM Plex Mono, and record the font decision in DESIGN.md.
-- [ ] BLOCKED: Waits for PR #25 and the Pages switch. After part (b): list the current tokens (spacing, type sizes, radii, durations, easing) in DESIGN.md from the site's CSS.
-- [ ] BLOCKED: Waits for PR #25 and the Pages switch. After part (b): record the performance budget in docs/decisions/, measured on dist/, with each page's critical path against 170 KB compressed.
+- [x] (green) After part (b): list the current tokens (spacing, type sizes, radii, durations, easing) in DESIGN.md from the site's CSS.
+- [x] (green) After part (b): record the performance budget in docs/decisions/, measured on dist/, with each page's critical path against 170 KB compressed.
 - [ ] BLOCKED: control.html stays at 84 % of its height because 17 interactives must stay visible. Fold its sources list and the «Mundo real» section too?
 - [x] (yellow) Summaries and folded detail on problema, navegacion, exploracion and replicar (owner approved on 2026-11-20): PRs #61, #60, #59 and #65.
 - [ ] BLOCKED: Does the mapeo.html challenge spread to other chapters? One per chapter, or only where the owner chooses?
