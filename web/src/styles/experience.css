@@ -234,3 +234,13 @@ h2 em,h1 em{color:var(--tema)}
 
 /* En los paneles noche del laboratorio el resaltado es el amarillo de las franjas, en los dos temas */
 .lab-section{--tema-marca:rgba(232,220,79,.3)}
+
+/* Corrida real en la primera pantalla: el robot explora y el mapa crece (docs/decisions/0005, fila 24) */
+.hero-run{position:relative;margin:16px 0 0;width:min(100%,300px);aspect-ratio:720/404;background:#141414;border:1px solid var(--line);overflow:hidden}
+.hero-run video{display:block;width:100%;height:100%;object-fit:cover}
+.hero-run-tag{position:absolute;left:0;top:0;padding:4px 8px;background:rgba(20,28,24,.82);color:#f4f5ea;font-size:8px;letter-spacing:.08em;line-height:1.3}
+.hero-run-ctl{position:absolute;right:6px;bottom:6px;min-height:36px;padding:6px 12px;border:0;border-radius:999px;background:rgba(15,23,34,.85);color:#fff;font-size:12px;font-weight:700;cursor:pointer}
+.hero-run-ctl:hover{background:rgba(15,23,34,.96)}
+@media(min-width:1151px){.hero-run{position:absolute;right:0;bottom:120px;margin:0;width:200px}}
+@media print{.hero-run{display:none}}
+
