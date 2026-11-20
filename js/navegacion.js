@@ -572,4 +572,30 @@
   };
 
   window.NAVEGACION_PRUEBAS = { astar: AS, poligonoTocaRect: poligonoTocaRect, huellaEnMundo: huellaEnMundo, celdasTocadas: celdasTocadas, evaluarHuella: evaluarHuella };
+
+  /* Reto de la sección «A estrella». Las cifras son las de la página: 111 y 291 celdas revisadas para una ruta de 27 pasos.
+     Los datos viven aparte del DOM; la lógica de mostrar la respuesta es la de U.reto. */
+  var RETO = [{
+    pregunta: "En la grilla de ejemplo con un muro, ¿cuántas celdas revisa A estrella para encontrar la ruta de 27 pasos?",
+    opciones: [
+      { texto: "111, menos que las 291 de Dijkstra", ok: true, porque: "Dijkstra revisa 291 celdas y A estrella 111 para la misma ruta de 27 pasos." },
+      { texto: "291, las mismas que Dijkstra", ok: false, porque: "291 es lo que revisa Dijkstra. A estrella revisa solo 111 para la misma ruta." },
+      { texto: "27, solo las de la ruta", ok: false, porque: "Los 27 pasos son el largo de la ruta final. Para hallarla hay que revisar más celdas: 111 con A estrella y 291 con Dijkstra." }
+    ],
+    enlace: "#sim-astar", enlaceTexto: "A estrella frente a Dijkstra"
+  }, {
+    pregunta: "¿Por qué A estrella revisa menos celdas que Dijkstra?",
+    opciones: [
+      { texto: "Ordena por f = g + h y estima con h lo que falta hasta la meta", ok: true, porque: "Revisa primero la celda con menor f = g + h. Dijkstra no estima h y por eso se expande en todas direcciones." },
+      { texto: "Encuentra una ruta más corta que Dijkstra", ok: false, porque: "Las dos encuentran la misma ruta de 27 pasos. Cambia cuántas celdas revisan, no el resultado." },
+      { texto: "Ignora el muro y atraviesa las celdas ocupadas", ok: false, porque: "Ninguna atraviesa el muro. A estrella lo rodea igual, pero revisa primero las celdas que parecen más prometedoras." }
+    ],
+    enlace: "#astar", enlaceTexto: "A estrella: buscar la ruta"
+  }];
+  V["reto-navegacion"] = function (el) {
+    U.reto(el, RETO, "nv-reto-", function (i, j) {
+      var q = RETO[i], o = q && q.opciones[j];
+      return o ? { ok: o.ok, porque: o.porque, enlace: q.enlace, enlaceTexto: q.enlaceTexto } : null;
+    });
+  };
 })();
