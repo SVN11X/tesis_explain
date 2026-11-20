@@ -464,7 +464,7 @@
     "js/control.js": "pid enjambre estacionario tiempo leyes papeles cancelacion ciclo truncamiento acumulador windup zonas pso resolucion lazo-rueda fopdt protocolo",
     "js/robot.js": "camino arquitectura costo vistas esquema reto-robot",
     "js/gemelo.js": "gemelo",
-    "js/resultados.js": "fallaria",
+    "js/resultados.js": "fallaria reto-resultados",
     "js/mapeo.js": "lidar rejilla marcos-mapeo barridos lazo rviz-colores cobertura reto-mapeo",
     "js/movimiento.js": "calibracion cuadrado cinematica encoder odometria iteracion2 giro reto-movimiento",
     "js/evidencia.js": "estabilidad plano-mapa repeticiones",
