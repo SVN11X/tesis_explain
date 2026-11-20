@@ -528,6 +528,38 @@ def probar_dwb(nav):
     ctx.close()
 
 
+def probar_reto_exploracion(nav):
+    print('Reto de exploracion.html: respuestas, teclado y sin JavaScript')
+    ctx = contexto(nav, viewport={'width': 360, 'height': 740})
+    p = ctx.new_page()
+    p.goto(BASE + '/exploracion.html')
+    reto = '[data-vis=reto-exploracion]'
+    p.locator(reto).scroll_into_view_if_needed()
+    p.wait_for_selector(reto + '[data-montado="1"]')
+    ok(p.locator(reto + ' input[type=radio]').count() == 6 and p.locator(reto + ' [aria-live=polite]').count() == 3, 'reto exploracion: radios nativos y regiones aria-live')
+    p.locator(reto + ' input[name=ex-reto-0]').nth(1).check()
+    r0 = p.locator(reto + ' [data-reto-r="0"]')
+    ok(r0.get_attribute('data-ok') == 'false' and 'Todavía no' in r0.inner_text() and '53 de los 54' in r0.inner_text(), 'reto exploracion: la respuesta equivocada se corrige y explica por qué')
+    p.locator(reto + ' input[name=ex-reto-0]').nth(0).check()
+    ok(r0.get_attribute('data-ok') == 'true' and 'Correcto' in r0.inner_text() and r0.locator('a[href="#abortadas"]').count() == 1, 'reto exploracion: la respuesta correcta se confirma y enlaza a la sección')
+    p.locator(reto + ' input[name=ex-reto-1]').nth(2).check()
+    ok(p.locator(reto + ' [data-reto-r="1"]').get_attribute('data-ok') == 'false' and '1 de 2' in p.locator(reto + ' [data-reto-fin]').inner_text(), 'reto exploracion: una segunda respuesta equivocada da 1 de 2')
+    p.locator(reto + ' input[name=ex-reto-1]').nth(1).focus()
+    p.keyboard.press('ArrowUp')
+    ok(p.locator(reto + ' input[name=ex-reto-1]').nth(0).is_checked() and p.locator(reto + ' [data-reto-r="1"]').get_attribute('data-ok') == 'true' and '2 de 2 correctas' in p.locator(reto + ' [data-reto-fin]').inner_text(), 'reto exploracion: con las flechas se responde y el resumen dice 2 de 2')
+    ok(p.locator(reto + ' input[name=ex-reto-1]').nth(0).evaluate("el => el.matches(':focus-visible')"), 'reto exploracion: el foco del teclado es visible')
+    ok(p.locator('#reto-abortadas').evaluate("el => !el.closest('details')") and p.locator(reto).is_visible(), 'reto exploracion: está en la parte visible, no en un detalle plegado')
+    ok(p.evaluate("() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1"), 'reto exploracion: sin desborde horizontal a 360 px')
+    ctx.close()
+    sin = nav.new_context(java_script_enabled=False, viewport={'width': 320, 'height': 740})
+    q = sin.new_page()
+    q.goto(BASE + '/exploracion.html')
+    ok(q.locator(reto + ' .vis-fallback').is_visible() and not q.locator(reto + ' details p').is_visible(), 'reto exploracion sin JavaScript: se ven las preguntas y la respuesta queda plegada')
+    q.locator(reto + ' details > summary').click()
+    ok('3,3 s' in q.locator(reto + ' details p').inner_text() and q.locator(reto + ' details p').is_visible(), 'reto exploracion sin JavaScript: la respuesta se abre a mano')
+    sin.close()
+
+
 def probar_exploracion(nav):
     print('Simulador de exploración, reloj simulado')
     ctx = contexto(nav, viewport={'width': 1280, 'height': 900})
@@ -1550,6 +1582,7 @@ with sync_playwright() as pw:
     probar_metas_abortadas(nav)
     probar_casos_ciclo(nav)
     probar_exploracion(nav)
+    probar_reto_exploracion(nav)
     probar_encoder(nav)
     probar_movimiento_reducido_en_marcha(nav)
     probar_recursos(nav)

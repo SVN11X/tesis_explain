@@ -358,7 +358,33 @@
     }
     return { C: C, F: F, RADIO: RADIO, reiniciar: reiniciar, avanzar: avanzar, costos: costos, fronteras: fronteras, cobertura: cobertura, ver: ver };
   }
-  window.EXPLORACION_PRUEBAS = { exploracion: crearExploracion, pasoFijo: pasoFijo };
+  /* Reto de la sección «Metas abortadas asociadas a reemplazos». Las cifras son las de la página: 60 metas, 54 abortadas,
+     53 asociadas a un reemplazo, mediana de 3,3 s entre metas y 10 s de la lista negra. Sin DOM, para probarse con Node. */
+  function reto() {
+    return [{
+      pregunta: "De 60 metas, 54 quedaron abortadas y 53 de ellas coinciden con un reemplazo del explorador. ¿Qué dice el estado abortado?",
+      opciones: [
+        { texto: "No mide fallas de navegación: Nav2 también lo usa cuando el explorador reemplaza una meta en curso", ok: true, porque: "Al llegar una meta nueva mientras otra se ejecuta, Nav2 cierra la anterior como abortada. 53 de los 54 abortos coinciden con un reemplazo, aunque la coincidencia no descarta fallas de Nav2 ni las cuenta por separado." },
+        { texto: "Que 54 de 60 metas fallaron", ok: false, porque: "Ese estado mezcla los reemplazos del explorador con las fallas de Nav2, y 53 de los 54 abortos coinciden con un reemplazo. No se puede leer como 54 fallas." },
+        { texto: "Que el robot llegó a esas 54 metas", ok: false, porque: "Solo 1 de las 60 metas se completó. Abortada quiere decir que Nav2 cerró la meta antes de llegar, no que se alcanzó." }
+      ],
+      enlace: "#abortadas", enlaceTexto: "Metas abortadas asociadas a reemplazos"
+    }, {
+      pregunta: "El explorador vuelve a elegir destino cada 3,3 s. Si cada reevaluación reemplaza la meta en curso, ¿qué mediana se espera entre la aceptación de una meta y la de la siguiente?",
+      opciones: [
+        { texto: "3,3 s, como en las cinco corridas", ok: true, porque: "Es lo que se espera si cada reevaluación reemplaza la meta en curso, y es la mediana que se midió en las cinco corridas." },
+        { texto: "10 s, el tiempo de la lista negra", ok: false, porque: "Los 10 s son el tiempo sin progreso con que un punto entra a la lista negra. No son el período del explorador, que es de 3,3 s." },
+        { texto: "16,7 s, la espera de una meta completada", ok: false, porque: "16,7 s fue el máximo de la iteración 1, no la mediana. La mediana fue de 3,3 s en las cinco corridas." }
+      ],
+      enlace: "#como-se-separo", enlaceTexto: "Cómo se asoció cada aborto a un reemplazo"
+    }];
+  }
+  function evaluarReto(i, j) {
+    var q = reto()[i], o = q && q.opciones[j];
+    return o ? { ok: o.ok, porque: o.porque, enlace: q.enlace, enlaceTexto: q.enlaceTexto } : null;
+  }
+  V["reto-exploracion"] = function (el) { U.reto(el, reto(), "ex-reto-", evaluarReto); };
+  window.EXPLORACION_PRUEBAS = { exploracion: crearExploracion, pasoFijo: pasoFijo, reto: reto, evaluarReto: evaluarReto };
 
   /* 1. Exploración por fronteras: la interfaz y el dibujo. La simulación está en crearExploracion. */
   V.exploracion = function (el) {
