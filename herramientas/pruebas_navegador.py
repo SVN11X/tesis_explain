@@ -1048,6 +1048,90 @@ def probar_robot_resumen(nav):
     ok(cmp_.returncode == 0, 'ninguna cifra ni referencia a la tesis desapareció y los resúmenes no inventan cifras: ' + lineas[-1])
 
 
+ALTURA_PROBLEMA_ANTES = 21444  # alto de problema.html a 360 x 740 px antes de plegarlo, medido con el mismo recorrido
+PALABRAS_PROBLEMA_ANTES = 2946  # palabras visibles de problema.html antes de plegarlo
+
+
+def probar_problema_resumen(nav):
+    print('problema.html: resumen por sección con el detalle plegado')
+    ctx = contexto(nav, viewport={'width': 360, 'height': 740}, is_mobile=True, has_touch=True)
+    p = ctx.new_page()
+
+    def altura(pagina):
+        pagina.wait_for_timeout(800)
+        alto = pagina.evaluate('document.documentElement.scrollHeight')
+        for y in range(0, alto, 600):
+            pagina.evaluate('window.scrollTo(0,%d)' % y)
+            pagina.wait_for_timeout(100)
+        pagina.evaluate('window.scrollTo(0,0)')
+        pagina.wait_for_timeout(400)
+        return pagina.evaluate('document.documentElement.scrollHeight')
+
+    p.goto(BASE + '/problema.html')
+    ok(p.locator('main p.resumen').count() >= 7, '360 px: cada sección larga tiene un resumen corto')
+    ok(p.evaluate("[...document.querySelectorAll('main details.detalle[id^=d-]')].every(d => !d.open)"), '360 px: el detalle de cada resumen parte plegado')
+    ok(p.evaluate("[...document.querySelectorAll('main details.detalle[id^=d-]')].every(d => d.querySelector(':scope > summary').textContent.trim().startsWith('Ver el detalle:'))"), '360 px: cada detalle dice qué esconde')
+    ok(p.evaluate("[...document.querySelectorAll('main .vis, main .decisiones, main .tabla-env, main .casos')].every(v => !v.closest('details.detalle[id^=d-]'))"), '360 px: ni el diagrama, ni las decisiones, ni la carta Gantt, ni el caso real quedaron dentro de un detalle plegado')
+    ok(p.evaluate("document.getElementById('carta-gantt').getBoundingClientRect().height > 0 && !document.getElementById('carta-gantt').closest('details')"), '360 px: la carta Gantt generada sigue visible')
+    cerrada = altura(p)
+    palabras = p.evaluate(PALABRAS_ROBOT)
+    p.evaluate("document.querySelectorAll('main details.detalle').forEach(d => d.open = true)")
+    p.wait_for_timeout(300)
+    abierta = p.evaluate('document.documentElement.scrollHeight')
+    print('  altura a 360 px: plegada %d px (%.1f pantallas, %.1f %% de antes), con todo abierto %d px, antes %d px' % (cerrada, cerrada / 740, 100.0 * cerrada / ALTURA_PROBLEMA_ANTES, abierta, ALTURA_PROBLEMA_ANTES))
+    print('  palabras visibles plegada: %d, antes %d' % (palabras, PALABRAS_PROBLEMA_ANTES))
+    ok(cerrada < abierta, '360 px: plegada la página es más corta que con todo abierto')
+    ok(cerrada <= ALTURA_PROBLEMA_ANTES * 0.72, '360 px: plegada mide como mucho el 72 %% de antes (%d px contra %d px)' % (cerrada, ALTURA_PROBLEMA_ANTES))
+    ok(palabras <= PALABRAS_PROBLEMA_ANTES * 0.7, '360 px: plegada muestra como mucho el 70 %% de las palabras de antes (%d contra %d)' % (palabras, PALABRAS_PROBLEMA_ANTES))
+    # un ancla hacia contenido plegado lo abre y lo muestra
+    for destino in ('alcance', 'd-aporte', 'd-metodo'):
+        p.goto(BASE + '/problema.html#' + destino)
+        p.wait_for_timeout(700)
+        r = p.evaluate("""(id) => { const el = document.getElementById(id), rc = el.getBoundingClientRect(), d = el.closest('details.detalle');
+          return { abierto: !d || !!d.open, arriba: rc.top, alto: innerHeight }; }""", destino)
+        ok(r['abierto'] and r['arriba'] < r['alto'], '360 px: el ancla #%s abre el detalle plegado y lo deja a la vista' % destino)
+    # un enlace de la página abre el detalle
+    p.goto(BASE + '/problema.html')
+    p.wait_for_timeout(300)
+    p.evaluate("""() => { const a = document.createElement('a'); a.href = '#d-comprar'; a.id = 'prueba-enlace'; a.textContent = 'x'; document.querySelector('main').prepend(a); }""")
+    p.evaluate("document.getElementById('prueba-enlace').click()")
+    p.wait_for_timeout(500)
+    ok(p.evaluate("document.getElementById('d-comprar').open"), '360 px: un enlace de la página abre el detalle')
+    # el comparador de decisiones sigue a la vista y resalta las frases, que no están en un detalle plegado
+    p.goto(BASE + '/problema.html#estado-del-arte')
+    p.wait_for_timeout(700)
+    r = p.evaluate("""() => ({ frases: document.querySelectorAll('.decisiones [data-razon]').length,
+      plegadas: [...document.querySelectorAll('.decisiones [data-razon]')].filter(e => e.closest('details:not([open])')).length,
+      botones: document.querySelectorAll('.decisiones button[data-alt]').length })""")
+    ok(r['frases'] >= 18 and r['plegadas'] == 0 and r['botones'] >= 6, '360 px: las frases del comparador de decisiones siguen visibles (%s)' % r)
+    # un resultado del buscador cuyo texto está plegado abre el detalle de su sección
+    p.goto(BASE + '/problema.html')
+    p.wait_for_timeout(300)
+    ok(not p.evaluate("document.getElementById('d-comprar').open"), '360 px: sin búsqueda el detalle sigue plegado')
+    p.evaluate("document.querySelector('.search-trigger').click()")
+    p.wait_for_selector('dialog.search-dialog[open]')
+    p.fill('dialog.search-dialog input', 'sus precios son de catálogo, sin envío ni impuestos')
+    p.wait_for_timeout(600)
+    p.locator('.search-results a[href*="problema.html#"]').first.click()
+    p.wait_for_timeout(900)
+    r = p.evaluate("() => ({ hash: location.hash, abierto: !!document.querySelector('main details.detalle[open]') })")
+    ok(r['abierto'], '360 px: un resultado del buscador abre el texto plegado de su sección (%s)' % r['hash'])
+    ctx.close()
+    # sin JavaScript el detalle se abre a mano y el diagrama del ciclo sigue visible
+    sin = contexto(nav, viewport={'width': 360, 'height': 740}, java_script_enabled=False)
+    q = sin.new_page()
+    q.goto(BASE + '/problema.html')
+    q.locator('#d-aporte > summary').click()
+    ok(q.locator('#d-aporte').get_attribute('open') is not None, 'sin JavaScript: el detalle se abre a mano')
+    ok(q.locator('.decisiones').is_visible() and q.locator('#carta-gantt').is_visible(), 'sin JavaScript: las decisiones y la carta Gantt siguen visibles')
+    sin.close()
+    # las cifras y referencias de la tesis siguen en la página, y los resúmenes no inventan ninguna
+    cmp_ = subprocess.run([sys.executable, os.path.join(REPO, 'herramientas', 'comparar_resumen.py'), 'problema'], capture_output=True, text=True, encoding='utf-8', env=dict(os.environ, PYTHONUTF8='1'))
+    lineas = cmp_.stdout.strip().splitlines()
+    print('  ' + lineas[0])
+    ok(cmp_.returncode == 0, 'ninguna cifra ni referencia a la tesis desapareció y los resúmenes no inventan cifras: ' + lineas[-1])
+
+
 ALTURA_NAV_ANTES = 22796  # alto de navegacion.html a 360 x 740 px antes de plegarlo, medido con el mismo recorrido
 PALABRAS_NAV_ANTES = 3401  # palabras visibles de navegacion.html antes de plegarlo
 
@@ -1579,6 +1663,7 @@ with sync_playwright() as pw:
     probar_iconos(nav)
     probar_sugerencias(nav)
     probar_robot_resumen(nav)
+    probar_problema_resumen(nav)
     probar_navegacion_resumen(nav)
     probar_descarga(nav)
     probar_costos_y_plan(nav)
