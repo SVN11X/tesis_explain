@@ -17,7 +17,7 @@ difíciles: búsqueda, filtros, modo práctica, pregunta al azar y lectura sin J
 páginas con el tema oscuro del sistema y prueba el botón de tema: sigue al sistema, guarda la elección, se aplica
 antes de pintar, avisa a los simuladores y funciona en el menú del teléfono.
 """
-import os, re, sys, json, glob
+import os, re, sys, json, glob, subprocess
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 from threading import Thread
 from functools import partial
@@ -880,6 +880,86 @@ def probar_iconos(nav):
     ctx.close()
 
 
+ALTURA_ROBOT_ANTES = 22105  # alto de robot.html a 360 x 740 px antes de plegarlo, medido con el mismo recorrido
+PALABRAS_ROBOT_ANTES = 3175  # palabras visibles de robot.html antes de plegarlo
+PALABRAS_ROBOT = r"""() => { let n = 0; const it = document.createTreeWalker(document.querySelector('main'), NodeFilter.SHOW_TEXT);
+  while (it.nextNode()) { const e = it.currentNode.parentElement;
+    if (!e || ['SCRIPT', 'STYLE'].includes(e.tagName) || (e.closest('details:not([open])') && !e.closest('summary')) || e.getClientRects().length === 0) continue;
+    n += it.currentNode.textContent.trim().split(/\s+/).filter(Boolean).length; } return n; }"""
+
+
+
+def probar_robot_resumen(nav):
+    print('robot.html: resumen por sección con el detalle plegado')
+    ctx = contexto(nav, viewport={'width': 360, 'height': 740}, is_mobile=True, has_touch=True)
+    p = ctx.new_page()
+
+    def altura(pagina):
+        pagina.wait_for_timeout(800)
+        alto = pagina.evaluate('document.documentElement.scrollHeight')
+        for y in range(0, alto, 600):
+            pagina.evaluate('window.scrollTo(0,%d)' % y)
+            pagina.wait_for_timeout(100)
+        pagina.evaluate('window.scrollTo(0,0)')
+        pagina.wait_for_timeout(400)
+        return pagina.evaluate('document.documentElement.scrollHeight')
+
+    p.goto(BASE + '/robot.html')
+    ok(p.locator('main p.resumen').count() >= 10, '360 px: cada sección larga tiene un resumen corto')
+    ok(p.evaluate("[...document.querySelectorAll('main details.detalle[id^=d-]')].every(d => !d.open)"), '360 px: el detalle de cada resumen parte plegado')
+    ok(p.evaluate("[...document.querySelectorAll('main details.detalle[id^=d-]')].every(d => d.querySelector(':scope > summary').textContent.trim().startsWith('Ver el detalle:'))"), '360 px: cada detalle dice qué esconde')
+    ok(p.evaluate("[...document.querySelectorAll('main [data-vis], main table, main figure')].every(v => !v.closest('details.detalle[id^=d-]'))"), '360 px: ningún interactivo, tabla ni figura quedó dentro de un detalle de resumen')
+    cerrada = altura(p)
+    palabras = p.evaluate(PALABRAS_ROBOT)
+    p.evaluate("document.querySelectorAll('main details.detalle').forEach(d => d.open = true)")
+    p.wait_for_timeout(300)
+    abierta = p.evaluate('document.documentElement.scrollHeight')
+    print('  altura a 360 px: plegada %d px (%.1f pantallas, %.1f %% de antes), con todo abierto %d px, antes %d px' % (cerrada, cerrada / 740, 100.0 * cerrada / ALTURA_ROBOT_ANTES, abierta, ALTURA_ROBOT_ANTES))
+    print('  palabras visibles plegada: %d, antes %d' % (palabras, PALABRAS_ROBOT_ANTES))
+    ok(cerrada < abierta, '360 px: plegada la página es más corta que con todo abierto')
+    ok(cerrada <= ALTURA_ROBOT_ANTES * 0.85, '360 px: plegada mide como mucho el 85 %% de antes (%d px contra %d px)' % (cerrada, ALTURA_ROBOT_ANTES))
+    ok(palabras <= PALABRAS_ROBOT_ANTES * 0.75, '360 px: plegada muestra como mucho el 75 %% de las palabras de antes (%d contra %d)' % (palabras, PALABRAS_ROBOT_ANTES))
+    # un ancla hacia contenido plegado lo abre y lo muestra
+    for destino in ('d-lidar', 'd-protocolo', 'd-costo'):
+        p.goto(BASE + '/robot.html#' + destino)
+        p.wait_for_timeout(700)
+        r = p.evaluate("""(id) => { const el = document.getElementById(id), rc = el.getBoundingClientRect(), d = el.closest('details.detalle');
+          return { abierto: !d || !!d.open, arriba: rc.top, alto: innerHeight }; }""", destino)
+        ok(r['abierto'] and r['arriba'] < r['alto'], '360 px: el ancla #%s abre el detalle plegado y lo deja a la vista' % destino)
+    # un cambio de ancla en la misma página también lo abre
+    p.goto(BASE + '/robot.html')
+    p.wait_for_timeout(300)
+    p.evaluate("location.hash = 'd-energia'")
+    p.wait_for_timeout(500)
+    ok(p.evaluate("document.getElementById('d-energia').open"), '360 px: cambiar el ancla abre el detalle')
+    # un resultado del buscador cuyo texto está plegado abre el detalle de su sección
+    p.goto(BASE + '/robot.html')
+    p.wait_for_timeout(300)
+    ok(not p.evaluate("document.getElementById('d-lidar').open"), '360 px: sin búsqueda el detalle sigue plegado')
+    p.evaluate("document.querySelector('.search-trigger').click()")
+    p.wait_for_selector('dialog.search-dialog[open]')
+    p.fill('dialog.search-dialog input', 'Cada barrido lleva la hora en que se publicó')
+    p.wait_for_timeout(600)
+    p.locator('.search-results a[href*="robot.html#"]').first.click()
+    p.wait_for_timeout(900)
+    r = p.evaluate("() => ({ hash: location.hash, abierto: !!document.querySelector('main details.detalle[open]') })")
+    ok(r['abierto'], '360 px: un resultado del buscador abre el texto plegado de su sección (%s)' % r['hash'])
+    ctx.close()
+    # sin JavaScript el detalle se abre a mano y los interactivos siguen con su respaldo
+    sin = contexto(nav, viewport={'width': 360, 'height': 740}, java_script_enabled=False)
+    q = sin.new_page()
+    q.goto(BASE + '/robot.html')
+    q.locator('#d-lidar > summary').click()
+    ok(q.locator('#d-lidar').get_attribute('open') is not None, 'sin JavaScript: el detalle se abre a mano')
+    ok(q.locator('[data-vis=costo] .vis-fallback').is_visible(), 'sin JavaScript: el respaldo del gráfico de costo sigue visible')
+    sin.close()
+    # las cifras y referencias de la tesis siguen en la página, y los resúmenes no inventan ninguna
+    cmp_ = subprocess.run([sys.executable, os.path.join(REPO, 'herramientas', 'comparar_resumen.py'), 'robot'], capture_output=True, text=True, encoding='utf-8', env=dict(os.environ, PYTHONUTF8='1'))
+    lineas = cmp_.stdout.strip().splitlines()
+    print('  ' + lineas[0])
+    ok(cmp_.returncode == 0, 'ninguna cifra ni referencia a la tesis desapareció y los resúmenes no inventan cifras: ' + lineas[-1])
+
+
 def probar_sugerencias(nav):
     print('Buscador: sugeridas y recientes')
     ctx = contexto(nav, viewport={'width': 1280, 'height': 900})
@@ -1369,6 +1449,7 @@ with sync_playwright() as pw:
     probar_guia(nav)
     probar_iconos(nav)
     probar_sugerencias(nav)
+    probar_robot_resumen(nav)
     probar_descarga(nav)
     probar_costos_y_plan(nav)
     probar_animaciones(nav)
