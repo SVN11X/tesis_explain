@@ -35,7 +35,8 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 ## Learning and attention
 
 - [x] (yellow) control.html (8,287 words, 15 % folded): a short summary per section that keeps figures and thesis references visible, the rest folded. Search results and #anchors open the folded part, with a test.
-- [ ] (yellow) control.html: an interactive inside the first 4 screens at 360 px (first video now at screen 7.0, comparison slider at 33.4; revision-atencion 5).
+- [x] (yellow) control.html second pass: only key figures in each summary, the rest folded, page at most 60 % of its height at 360 px. Reached 84 % (49,612 to 41,620 px): the 17 interactives alone are about 25,000 px, so 60 % needs folding them or the source list.
+- [x] (yellow) control.html: an interactive inside the first 4 screens at 360 px (first video now at screen 7.0, comparison slider at 33.4; revision-atencion 5).
 - [x] (yellow) mapeo.html (7,116 words, 10 % folded): the same treatment and the same test, with an interactive inside the first 4 screens at 360 px.
 - [ ] (yellow) The same for robot, movimiento and resultados, one page per pull request (done: movimiento). Then the owner reviews before problema, navegacion, exploracion and replicar.
 - [ ] (yellow) A short challenge with instant feedback in one example chapter, using data the page already shows. The owner decides whether it spreads.
@@ -61,7 +62,7 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 - [x] (green) One reduced-motion path: U.quieto and one U.alCambiarMovimiento. bucle pauses pid, enjambre and exploracion when reduced motion turns on mid-run, as cinematica and encoder already do.
 - [x] (green) Remove dead code: the sims.js hero mode (no page uses data-modo="hero"), ICO stored in VISUALES (comun.js:92), stale notes (vis1.js:8, :323, sims.js:9, :711) and SITIO.quieto (sitio.js:853).
 - [x] (green) Tests before the split: list files from SITIO.MODULOS instead of hardcoded names, check that each file registers exactly its MODULOS names, and add a Node test for the exploration simulation.
-- [ ] (yellow) Split vis1, vis2, vis3 and sims.js by chapter: navegacion, exploracion, control, robot, plus mapeo (cobertura) and movimiento. Consider static HTML for versiones, gemelo and fallaria. (vis1.js done)
+- [ ] (yellow) Split vis1, vis2, vis3 and sims.js by chapter: navegacion, exploracion, control, robot, plus mapeo (cobertura) and movimiento. Consider static HTML for versiones, gemelo and fallaria. (vis1, sims done)
 - [ ] (green) After part (b): shorten README.md (364 lines) to what it is, for whom, use, status, layout and license. The audit reports go to docs/historial/ with every link fixed.
 
 ## Presentation

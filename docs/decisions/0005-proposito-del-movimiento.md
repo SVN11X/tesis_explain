@@ -34,8 +34,8 @@ Loop means it repeats without end. RM is what reduced motion does.
 | 10 | Hero 3D camera and exploded view (GSAP) | `robot-three.ts` | Zoom, view and explode buttons | Under 2 s, once | No | Explains how the parts fit | Shorter | Not needed |
 | 11 | LiDAR lab sweep and route | `LidarLab.svelte`, `lidar-three.ts` | User presses «Recorrer» | Until paused | Yes | Shows how the sensor builds the map | Stops on change to reduce | Yes, the same button reads «Pausar» |
 | 12 | LiDAR camera view change (GSAP) | `lidar-three.ts` | User picks a view | Under 2 s, once | No | Shows top and perspective views | None | Not needed |
-| 13 | Exploration simulation (`js/sims.js`, `U.bucle`) | Guide pages | Starts when in view | Continuous | Yes | Shows frontier exploration | Waits for the user | Yes, «Pausar» |
-| 14 | Motion simulation «Mover» (`js/sims.js`) | Motion pages | Starts when in view | Continuous | Yes | Shows pose from speed and turn rate | Waits for the user | Yes, «Pausar» |
+| 13 | Exploration simulation (`js/exploracion.js`, `U.bucle`) | Guide pages | Starts when in view | Continuous | Yes | Shows frontier exploration | Waits for the user | Yes, «Pausar» |
+| 14 | Motion simulation «Mover» (`js/movimiento.js`) | Motion pages | Starts when in view | Continuous | Yes | Shows pose from speed and turn rate | Waits for the user | Yes, «Pausar» |
 | 15 | Signals animation (`data-a="anim"`) | Control pages | Starts when in view | Continuous | Yes | Shows the phase of two signals | Still image, waits for the user | Yes, «Pausar» |
 | 16 | Search generations (`data-a="play"`) | Pages with the search simulation | User presses play | Until done | Ends by itself | Shows how a search converges | Waits for the user | Yes, «Pausar» |
 | 17 | Algorithm player (`js/vis1.js`) | Control chapter | User presses play | Until done | Ends by itself | Steps through the algorithm | Waits for the user | Yes, «Pausar» |
