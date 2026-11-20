@@ -25,6 +25,7 @@ else:
 count = 0
 ALTURA_ANTES = 57075  # alto de control.html a 360 x 740 px antes de plegarlo, medido con el mismo recorrido
 ALTURA_PRIMERA = 49612  # alto tras la primera pasada (resumen con todas las figuras a la vista)
+# El reto de «Ajusta un PID» sube la página plegada de 41620 a 42386 px (+766 px) a 360 px: sigue bajo el 88 % de ALTURA_PRIMERA (43659 px).
 
 
 def check(cond, text):
@@ -61,10 +62,30 @@ with sync_playwright() as pw:
         p.goto(BASE + '/control.html')
         p.locator('main details').evaluate_all('nodes => nodes.forEach(n => n.open=true)')
         visuales = ['lazo-rueda', 'estacionario', 'tiempo', 'leyes', 'papeles', 'cancelacion', 'acumulador', 'ciclo', 'truncamiento', 'windup', 'zonas', 'fopdt', 'pso', 'resolucion', 'estabilidad']
-        for v in visuales + ['pid', 'enjambre']:
+        for v in visuales + ['pid', 'enjambre', 'reto-control']:
             p.locator('[data-vis="%s"]' % v).scroll_into_view_if_needed()
             p.wait_for_selector('[data-vis="%s"][data-montado="1"]' % v)
-        check(not errors, name + ': los %d interactivos del capítulo montan sin errores' % (len(visuales) + 2))
+        check(not errors, name + ': los %d interactivos del capítulo montan sin errores' % (len(visuales) + 3))
+        # ── Reto de «Ajusta un PID»: respuesta inmediata, teclado y regiones aria-live ──
+        reto = '[data-vis=reto-control]'
+        check(p.locator(reto + ' input[type=radio]').count() == 6 and p.locator(reto + ' [aria-live=polite]').count() == 3, name + ': el reto usa radios nativos y regiones aria-live')
+        p.locator(reto + ' input[name=ct-reto-0]').nth(2).check()
+        r0 = p.locator(reto + ' [data-reto-r="0"]')
+        check(r0.get_attribute('data-ok') == 'false' and 'Todavía no' in r0.inner_text() and 'velocidad' in r0.inner_text(), name + ': confundir velocidad con error explica por qué')
+        check(r0.locator('a[href="#sim-pid"]').count() == 1, name + ': la respuesta enlaza a la sección')
+        p.locator(reto + ' input[name=ct-reto-0]').nth(0).check()
+        check(r0.get_attribute('data-ok') == 'true' and 'Correcto' in r0.inner_text() and '0,13 / (1 + 0,000913 · 1200)' in r0.inner_text(), name + ': la respuesta correcta muestra la fórmula de la página')
+        p.locator(reto + ' input[name=ct-reto-1]').nth(1).check()
+        check(p.locator(reto + ' [data-reto-r="1"]').get_attribute('data-ok') == 'false' and '1 de 2' in p.locator(reto + ' [data-reto-fin]').inner_text(), name + ': el resumen cuenta 1 de 2')
+        p.locator(reto + ' input[name=ct-reto-1]').nth(0).check()
+        check('2 de 2 correctas' in p.locator(reto + ' [data-reto-fin]').inner_text() and '0,27 s' in p.locator(reto + ' [data-reto-r="1"]').inner_text(), name + ': el reto resume 2 de 2 con las cifras de la página')
+        check(p.locator('#reto-pid').evaluate("el => !el.closest('details')"), name + ': el reto está en la parte visible, no en un detalle plegado')
+        check(p.evaluate("() => document.querySelector('#reto-pid').getBoundingClientRect().right <= document.documentElement.clientWidth + 1"), name + ': el reto cabe en el ancho')
+        if not options.get('has_touch'):
+            p.locator(reto + ' input[name=ct-reto-1]').nth(1).focus()
+            p.keyboard.press('ArrowUp')
+            check(p.locator(reto + ' input[name=ct-reto-1]').nth(0).is_checked() and p.locator(reto + ' [data-reto-r="1"]').get_attribute('data-ok') == 'true', name + ': con las flechas del teclado se responde y la respuesta queda escrita')
+            check(p.locator(reto + ' input[name=ct-reto-1]').nth(0).evaluate("el => el.matches(':focus-visible')"), name + ': el foco del teclado es visible en el reto')
         check(p.evaluate('document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1'), name + ': no hay desborde horizontal')
         check(p.locator('[data-vis][data-montado] .vis-fallback').count() == 0, name + ': no quedan errores de montaje o fallbacks visibles')
         ancho = p.locator('[data-vis="lazo-rueda"] .lr-dibujo').evaluate('el => el.clientWidth')
@@ -186,7 +207,8 @@ with sync_playwright() as pw:
     abierta = p.evaluate('document.documentElement.scrollHeight')
     print('  altura a 360 px: plegada %d px (%.1f pantallas), con todo abierto %d px' % (cerrada, cerrada / 740, abierta))
     check(cerrada < abierta, '360 px: plegada la página es más corta que con todo abierto')
-    check(cerrada < ALTURA_PRIMERA * 0.75, '360 px: tras la segunda pasada la página mide menos del 75 %% de la primera (%d px contra %d px)' % (cerrada, ALTURA_PRIMERA))
+    # el reto de control (#67) suma unos 800 px visibles a propósito, sobre el 74 % que dejó plegar las fuentes y «Mundo real»
+    check(cerrada < ALTURA_PRIMERA * 0.77, '360 px: tras la segunda pasada, con el reto, la página mide menos del 77 %% de la primera (%d px contra %d px)' % (cerrada, ALTURA_PRIMERA))
     # un ancla hacia el contenido plegado lo abre y lo muestra
     for destino in ('d-no-lineal', 'windup-tecnico', 'ciclo'):
         p.goto(BASE + '/control.html#' + destino)
@@ -234,6 +256,9 @@ with sync_playwright() as pw:
     q.goto(BASE + '/control.html')
     q.locator('#d-barrido > summary').click()
     check(q.locator('#d-barrido').get_attribute('open') is not None,'sin JavaScript: el detalle se abre a mano')
+    check(q.locator('[data-vis=reto-control] .vis-fallback').is_visible() and not q.locator('[data-vis=reto-control] details p').is_visible(), 'sin JavaScript: el reto muestra la pregunta y esconde la respuesta')
+    q.locator('[data-vis=reto-control] details > summary').click()
+    check('0,13 / (1 + 0,000913 · 1200)' in q.locator('[data-vis=reto-control] details p').inner_text(), 'sin JavaScript: la respuesta del reto se abre en un details')
     sin.close()
     # las cifras y referencias de la tesis siguen en la página, y los resúmenes no inventan ninguna
     cmp_ = subprocess.run([sys.executable, str(ROOT / 'herramientas' / 'comparar_resumen.py'), 'control'], capture_output=True, text=True, encoding='utf-8', env=dict(os.environ, PYTHONUTF8='1'))

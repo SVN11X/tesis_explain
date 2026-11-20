@@ -174,6 +174,36 @@
     if (m.tr === null) out.push({ id: "no-llega", texto: "La velocidad no alcanza el 90 % de la referencia, así que no hay tiempo de subida.", condicion: "nunca llega a 0,117 m/s", calculo: "Velocidad final " + f(m.fin, 3) + " m/s." });
     return out;
   };
+  function coma(v, d) { return v.toFixed(d).replace(".", ","); }
+  /* Reto de la sección «Ajusta un PID». Todas las cifras salen del respaldo de esa figura:
+     referencia 0,13 m/s, K = 0,000913 y los tres ejemplos del modelo ilustrativo. Sin DOM, para probarse con Node. */
+  C.reto = function () {
+    var S = C.PID_ILUSTRATIVO, teo = S.REF / (1 + S.K * 1200);
+    var med = function (c) { return C.medidasPID(C.simularPID(c)); };
+    var eq = med({ kp: 600, ki: 2600, kd: 0 }), ag = med({ kp: 1500, ki: 9000, kd: 0 });
+    return [{
+      pregunta: "Con solo P = 1200, la rueda se estabiliza en " + coma(S.REF - teo, 3) + " m/s. La referencia es " + coma(S.REF, 2) + " m/s. ¿Cuánto vale el error final?",
+      opciones: [
+        { id: "formula", texto: coma(teo, 3) + " m/s", ok: true, porque: "Es la referencia dividida entre (1 + K·P): " + coma(S.REF, 2) + " / (1 + " + String(S.K).replace(".", ",") + " · 1200) = " + coma(teo, 3) + " m/s. Con solo P la orden existe únicamente si queda error." },
+        { id: "cero", texto: "0 m/s", ok: false, porque: "El error desaparece con I, no con solo P. Sin memoria integral, el motor solo recibe orden mientras haya error." },
+        { id: "velocidad", texto: coma(S.REF - teo, 3) + " m/s", ok: false, porque: coma(S.REF - teo, 3) + " m/s es la velocidad que alcanza la rueda, no el error. El error es lo que le falta hasta " + coma(S.REF, 2) + " m/s." }
+      ],
+      enlace: "#sim-pid", enlaceTexto: "Ajusta un PID"
+    }, {
+      pregunta: "Frente al PI equilibrado (P = 600, I = 2600), el PI agresivo (P = 1500, I = 9000) ¿qué cambia?",
+      opciones: [
+        { id: "rapido", texto: "Sube en " + coma(ag.tr, 2) + " s, pero se pasa cerca de un " + coma(ag.os, 1) + " % de la referencia", ok: true, porque: "Más P e I aceleran la subida, de " + coma(eq.tr, 2) + " s a " + coma(ag.tr, 2) + " s, y la integral acumulada durante la subida se descarga pasándose de la referencia." },
+        { id: "igual", texto: "Sube igual de rápido y sin pasarse", ok: false, porque: "El equilibrado tarda " + coma(eq.tr, 2) + " s y no se pasa. El agresivo es más rápido y sí se pasa." },
+        { id: "lento", texto: "Sube en " + coma(eq.tr, 2) + " s y no se pasa de la referencia", ok: false, porque: "Esa es la descripción del PI equilibrado, no la del agresivo. Con más ganancia la rueda sube más rápido." }
+      ],
+      enlace: "#sim-pid", enlaceTexto: "Ajusta un PID"
+    }];
+  };
+  /* Respuesta a la opción j de la pregunta i, o null si no existe. */
+  C.evaluarReto = function (i, j) {
+    var q = C.reto()[i], o = q && q.opciones[j];
+    return o ? { ok: o.ok, porque: o.porque, enlace: q.enlace, enlaceTexto: q.enlaceTexto } : null;
+  };
   C.registro = function (velocidad) { return Math.round((velocidad + 1e-10) * 100) / 100; };
   C.promedio = function (muestras) { return muestras.reduce(function (a, b) { return a + b; }, 0) / muestras.length; };
   if (typeof module !== "undefined" && module.exports) module.exports = C;
