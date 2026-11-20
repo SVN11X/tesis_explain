@@ -570,4 +570,6 @@
       '</div>' +
       '<div class="comparar"><div><b>Lo que justifica el protocolo</b><span>Conservar el firmware y sus comandos m y e, que diffdrive_arduino ya sabe usar.</span></div><div><b>Lo que no justifica</b><span>La fórmula de doPID. Ningún comando depende de ella.</span></div></div>';
   };
+  /* Reto de la sección «Ajusta un PID»: la lógica vive en control-modelo.js y el componente en comun.js */
+  V["reto-control"] = function (el) { U.reto(el, window.CONTROL.reto(), "ct-reto-", window.CONTROL.evaluarReto); };
 })();

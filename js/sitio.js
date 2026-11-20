@@ -461,7 +461,7 @@
   var MODULOS = {
     "js/navegacion.js": "astar alcance inflacion dwb",
     "js/exploracion.js": "frontera metas listanegra exploracion",
-    "js/control.js": "pid enjambre estacionario tiempo leyes papeles cancelacion ciclo truncamiento acumulador windup zonas pso resolucion lazo-rueda fopdt protocolo",
+    "js/control.js": "pid enjambre estacionario tiempo leyes papeles cancelacion ciclo truncamiento acumulador windup zonas pso resolucion lazo-rueda fopdt protocolo reto-control",
     "js/robot.js": "camino arquitectura costo vistas esquema",
     "js/gemelo.js": "gemelo",
     "js/resultados.js": "fallaria",

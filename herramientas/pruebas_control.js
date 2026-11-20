@@ -153,4 +153,18 @@ comprobar("El respaldo sin JavaScript de «Ajusta un PID» repite las cifras del
   assert.ok(c[1].err < 1e-4 && c[2].err < 1e-4 && c[0].tr === null);
   assert.equal(fs.readFileSync(path.join(__dirname, "../img/diagramas/pid-respaldo.svg"), "utf8"), D.pidRespaldo() + "\n", "regenera con node herramientas/diagramas_control.js");
 });
+comprobar("el reto de «Ajusta un PID» usa las cifras de la página y corrige cada respuesta", function () {
+  var fs = require("fs"), path = require("path"), qs = C.reto(), html = fs.readFileSync(path.join(__dirname, "..", "control.html"), "utf8");
+  assert.equal(qs.length, 2);
+  assert.ok(qs[0].opciones[0].ok && !qs[0].opciones[1].ok && !qs[0].opciones[2].ok);
+  assert.ok(qs[1].opciones[0].ok && !qs[1].opciones[1].ok && !qs[1].opciones[2].ok);
+  assert.ok(C.evaluarReto(0, 0).ok && !C.evaluarReto(0, 2).ok && C.evaluarReto(1, 0).ok && !C.evaluarReto(1, 1).ok);
+  assert.equal(C.evaluarReto(2, 0), null);
+  assert.equal(C.evaluarReto(0, 9), null);
+  qs.forEach(function (q, i) { q.opciones.forEach(function (o, j) { assert.ok(C.evaluarReto(i, j).porque.length > 10 && /^#/.test(C.evaluarReto(i, j).enlace)); }); });
+  assert.ok(Math.abs(C.PID_ILUSTRATIVO.REF / (1 + C.PID_ILUSTRATIVO.K * 1200) - .062) < 5e-4);
+  ["0,13 / (1 + 0,000913 · 1200)", "0,068 m/s", "0,062 m/s", "0,83 s", "0,27 s", "6,5 %"].forEach(function (c) { assert.ok(html.indexOf(c) >= 0, "falta en la página " + c); });
+  assert.ok(qs[1].opciones[0].texto.indexOf("0,27 s") >= 0 && qs[1].opciones[0].texto.indexOf("6,5 %") > 0 && qs[1].opciones[2].texto.indexOf("0,83 s") >= 0);
+  assert.ok(html.split('data-vis="reto-control"')[1].split("</div>")[0].indexOf("<details>") >= 0);
+});
 console.log("\n" + total + " pruebas de control correctas");
