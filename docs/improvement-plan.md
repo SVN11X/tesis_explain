@@ -40,14 +40,14 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 - [ ] (yellow) The same for robot, movimiento and resultados, one page per pull request. Then the owner reviews before problema, navegacion, exploracion and replicar (robot done)
 - [ ] (yellow) A short challenge with instant feedback in one example chapter, using data the page already shows. The owner decides whether it spreads.
 - [ ] (yellow) A step-by-step diagram or interactive for lecciones, then mundo-real, which have none today. One page per pull request.
-- [ ] (yellow) Playful states: one drawn SVG robot for search without results, as the example, with its reason recorded for a decorative illustration. Each state says what happened and the next action.
+- [x] (yellow) Playful states: one drawn SVG robot for search without results, as the example, with its reason recorded for a decorative illustration. Each state says what happened and the next action.
 - [x] (green) Motion rich: record the purpose of each animation in docs/decisions/, and give a pause control to anything that moves for more than 5 s.
 - [x] (green) Review palette and motion for what distracts or tires people with attention difficulties, and check the home page's first screen at 360 and 1280 px. Report with screenshots, change nothing.
 - [x] (yellow) Home first screen: primary button «Empieza la guía» to the guide and secondary «Juega con el robot 3D» to the viewer, with the 3D robot fully visible at 360 px (docs/revision-atencion.md 1 and 2).
 - [ ] (yellow) Home first screen shows the robot exploring and the map growing, reusing img/mapa-crece.mp4 or the existing LiDAR scene, so a first visit sees what the robot does (revision-atencion 3).
-- [ ] (green) Home 3D viewer: only the active tab keeps its topic color, the others stay neutral (revision-atencion 8). Confirm that the .scan-loader spinner hides after loading.
-- [ ] (green) Measure the contrast of the small gray uppercase labels on the home page at 360 px and fix anything under 4.5:1.
-- [ ] (green) Home page fonts use font-display: swap without metric-matched fallbacks, unlike the guide pages. Align them with the guide pages (docs/medicion-fuentes.md).
+- [x] (green) Home 3D viewer: only the active tab keeps its topic color, the others stay neutral (revision-atencion 8). Confirm that the .scan-loader spinner hides after loading (the spinner belongs to another pull request, not touched here).
+- [x] (green) Measure the contrast of the small gray uppercase labels on the home page at 360 px and fix anything under 4.5:1.
+- [x] (green) Home page fonts use font-display: swap without metric-matched fallbacks, unlike the guide pages. Align them with the guide pages (docs/medicion-fuentes.md).
 - [x] (green) Measure the weight and use of Archivo, Atkinson Hyperlegible and IBM Plex Mono, and record the font decision in DESIGN.md.
 - [ ] (green) After part (b): list the current tokens (spacing, type sizes, radii, durations, easing) in DESIGN.md from the site's CSS.
 - [ ] (green) After part (b): record the performance budget in docs/decisions/, measured on dist/, with each page's critical path against 170 KB compressed.
