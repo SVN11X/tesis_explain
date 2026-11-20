@@ -6,6 +6,9 @@
                por un factor, y repeticiones simuladas para ver qué corrige y qué no
   cuadrado     cuadrado recorrido en los dos sentidos según la propia odometría, como en el
                método de Borenstein y Feng. Ilustrativo: el robot no se ensayó así
+  odometria    distancias de la recta de 2 metros: ordenada, de los encoders y medida con cinta
+  iteracion2   resultados de la iteración 2
+  giro         giros medidos frente al ordenado
   Los cálculos están en js/movimiento-modelo.js y se prueban en herramientas/pruebas_movimiento.js.
 */
 (function () {
@@ -451,5 +454,93 @@
     });
     el.addEventListener("input", function (e) { if (e.target.id === "en-v") { vel = parseFloat(e.target.value); velTxt(); } });
     el.estadoSim = function () { return { activo: B.activo, vel: vel, control: parseFloat(el.querySelector("#en-v").value), etiqueta: el.querySelector('[data-o="vel"]').textContent, ang: ang, cuenta: cuenta, cuenta1: cuenta1 }; };
+  };
+
+  /* Recta de 2 metros */
+  V.odometria = function (el) {
+    el.innerHTML =
+      '<div class="tres-datos"><div><b class="num">2,000 m</b><span>lo ordenado, 0,13 m/s durante 15,4 s</span></div><div class="az"><b class="num">1,924 m</b><span>lo que estiman los encoders</span></div><div class="ink"><b class="num">1,856 m</b><span>lo que avanzó de verdad, con cinta</span></div></div>' +
+      '<div class="od-g"></div><p class="vnota">Promedio de 5 repeticiones en el robot real. Eje recortado para ver la diferencia.</p>';
+    var cont = el.querySelector(".od-g");
+    function dibujar() {
+      var W = Math.max(300, cont.clientWidth || 600), H = 160, a = 1.83, b = 2.02, l = 16, r = 16, yL = 78;
+      var x = function (v) { return l + (v - a) / (b - a) * (W - l - r); };
+      var s = '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Distancias de la recta de 2 metros">';
+      s += '<line class="k-linea" stroke-width="2" x1="' + l + '" x2="' + (W - r) + '" y1="' + yL + '" y2="' + yL + '"/>';
+      [1.85, 1.9, 1.95, 2.0].forEach(function (t) { s += '<line class="k-linea" x1="' + x(t) + '" x2="' + x(t) + '" y1="' + (yL - 4) + '" y2="' + (yL + 4) + '"/><text class="t-s" x="' + x(t) + '" y="' + (H - 4) + '" text-anchor="middle">' + U.fmt(t, 2) + ' m</text>'; });
+      s += '<path class="k-rojo" fill="none" stroke-width="1.8" d="M' + x(1.856) + ' ' + (yL - 12) + ' V' + (yL - 30) + ' H' + x(2.0) + ' V' + (yL - 12) + '"/>';
+      var chico = W < 520;
+      s += '<text class="t-m t-b" style="fill:var(--rojo)" x="' + ((x(1.856) + x(2.0)) / 2) + '" y="' + (yL - 36) + '" text-anchor="middle">' + (chico ? '7,18 % seguimiento' : '7,18 % seguimiento, cinta frente a lo ordenado') + '</text>';
+      s += '<path class="k-verde" fill="none" stroke-width="1.8" d="M' + x(1.856) + ' ' + (yL + 12) + ' V' + (yL + 28) + ' H' + x(1.924) + ' V' + (yL + 12) + '"/>';
+      s += chico ? '<text class="t-m t-b" style="fill:var(--verde-texto)" x="' + ((x(1.856) + x(1.924)) / 2) + '" y="' + (yL + 44) + '" text-anchor="middle">3,63 % odometría</text>' : '<text class="t-m t-b" style="fill:var(--verde-texto)" x="' + (x(1.924) + 8) + '" y="' + (yL + 30) + '">3,63 % odometría, encoders frente a cinta</text>';
+      s += '<circle class="f-ink" cx="' + x(1.856) + '" cy="' + yL + '" r="6"/><circle class="f-azul" cx="' + x(1.924) + '" cy="' + yL + '" r="6"/><circle class="f-sup k-ink" stroke-width="2" cx="' + x(2.0) + '" cy="' + yL + '" r="6"/>';
+      cont.innerHTML = s + '</svg>';
+    }
+    dibujar();
+    U.alAncho(cont, dibujar);
+  };
+
+  /* Iteración 2 */
+  V.iteracion2 = function (el) {
+    el.innerHTML =
+      '<h4 class="vsub">Las señales de esa corrida</h4>' +
+      '<div class="senales"><div class="sen az"><span class="eyebrow">Encoders</span><b class="num">3,851 m</b><span>la odometría sumó distancia</span></div>' +
+      '<div class="sen ok"><span class="eyebrow">Láser y mapa</span><b>el mapa no creció</b><span>la señal estaba, pero el ensayo no la usa para detenerse</span></div>' +
+      '<div class="sen ink"><span class="eyebrow">Posición real</span><b class="num">0 m</b><span>el robot no se movió de su posición inicial</span></div></div>' +
+      '<h4 class="vsub">Por qué la red no lo explica</h4>' +
+      '<div class="flujo"><div class="caja"><b>Encoder</b><small>pulsos de giro de la rueda</small></div><div class="flecha-d"></div>' +
+      '<div class="caja"><b>Arduino</b><small>cuenta los pulsos</small></div><div class="flecha-d"></div>' +
+      '<div class="caja azul"><b>Raspberry</b><small>calcula la odometría con sus propios conteos</small></div><div class="flecha-d punteada"><span>Wi-Fi</span></div>' +
+      '<div class="caja"><b>Computador</b><small>la red queda después de la odometría</small></div></div>' +
+      '<h4 class="vsub">El verificador de progreso tuvo tiempo de actuar</h4><div class="vp-g"></div>' +
+      '<p class="vnota">14 metas en 5,09 minutos dan cerca de 22 s por meta. El verificador pide 5 cm cada 6 s. Si actuó o no, no está registrado y se puede revisar en el rosbag.</p>';
+    var cont = el.querySelector(".vp-g");
+    function dibujar() {
+      var W = Math.max(300, cont.clientWidth || 600), H = 96, l = 12, r = 12, T = 22;
+      var x = function (t) { return l + t / T * (W - l - r); };
+      var s = '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Una meta de 22 segundos frente a ventanas de 6 segundos">';
+      s += '<rect class="f-azul-s" x="' + x(0) + '" y="16" width="' + (x(T) - x(0)) + '" height="20" rx="4"/><text class="t-m" x="' + (x(0) + 8) + '" y="30">una meta, unos 22 s en promedio</text>';
+      for (var k = 0; k * 6 < T; k++) {
+        var a = x(k * 6), b = x(Math.min(T, (k + 1) * 6));
+        s += '<rect class="f-ambar-s k-ambar" x="' + (a + 1) + '" y="46" width="' + (b - a - 2) + '" height="20" rx="4"/>';
+        if (b - a > 60) s += '<text class="t-s" x="' + ((a + b) / 2) + '" y="60" text-anchor="middle">6 s, 5 cm</text>';
+      }
+      [0, 6, 12, 18, 22].forEach(function (t) { s += '<text class="t-s" x="' + x(t) + '" y="' + (H - 6) + '" text-anchor="middle">' + t + ' s</text>'; });
+      cont.innerHTML = s + '</svg>';
+    }
+    dibujar();
+    U.alAncho(cont, dibujar);
+  };
+
+  /* Giro */
+  V.giro = function (el) {
+    el.innerHTML =
+      '<div class="flujo"><div class="caja"><b>El script pide</b><small>0,4 rad/s durante 15,7 s, una vuelta a esa velocidad</small></div><div class="flecha-d"></div>' +
+      '<div class="caja ambar"><b>El controlador limita</b><small>a 0,35 rad/s</small></div><div class="flecha-d"></div>' +
+      '<div class="caja"><b>Máximo ideal</b><small>0,35 por 15,7 s da 5,5 rad, unos 315°</small></div></div>' +
+      '<div class="gi-g"></div>' +
+      '<div class="vley"><span><i class="lin ambar"></i>315°, límite ideal</span><span><i class="lin-disc"></i>360°, nominal</span><span><i class="pt azul"></i>cinco giros medidos en el robot</span></div>' +
+      '<p class="vnota">Todos los giros superaron los 315°. La causa no se determinó. Los rosbag tienen /odom para revisarlo sin repetir el ensayo.</p>';
+    var cont = el.querySelector(".gi-g"), med = [355.7, 340, 380, 370, 356];
+    function dibujar() {
+      var W = Math.max(300, cont.clientWidth || 600), H = 150, a = 300, b = 390, l = 16, r = 16, yL = 76;
+      var x = function (v) { return l + (v - a) / (b - a) * (W - l - r); };
+      var s = '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Ángulos medidos de 340, 355,7, 356, 370 y 380 grados, frente a 315 y 360 grados">';
+      s += '<rect class="f-ambar-s" x="' + x(300) + '" y="' + (yL - 22) + '" width="' + (x(315) - x(300)) + '" height="44"/>';
+      s += '<line class="k-linea" stroke-width="2" x1="' + l + '" x2="' + (W - r) + '" y1="' + yL + '" y2="' + yL + '"/>';
+      for (var t = 300; t <= 390; t += 15) s += '<text class="t-s" x="' + x(t) + '" y="' + (H - 6) + '" text-anchor="middle">' + t + '°</text>';
+      s += '<line class="k-ambar" stroke-width="2.5" x1="' + x(315) + '" x2="' + x(315) + '" y1="' + (yL - 20) + '" y2="' + (yL + 28) + '"/>';
+      s += '<line class="k-muted" stroke-width="2" stroke-dasharray="4 4" x1="' + x(360) + '" x2="' + x(360) + '" y1="' + (yL - 20) + '" y2="' + (yL + 28) + '"/>';
+      /* cada valor queda escrito junto a su punto, alternando arriba y abajo en orden creciente */
+      med.slice().sort(function (p, q) { return p - q; }).forEach(function (m, i) {
+        var arriba = i % 2 === 0, cy = yL + (arriba ? -10 : 10);
+        s += '<circle class="f-azul" cx="' + x(m) + '" cy="' + cy + '" r="6"/>';
+        s += '<text class="t-s" style="fill:var(--azul)" x="' + x(m) + '" y="' + (arriba ? cy - 12 : cy + 20) + '" text-anchor="middle">' + U.fmt(m, m % 1 ? 1 : 0) + '°</text>';
+      });
+      s += '<text class="t-s" x="' + (x(315) - 5) + '" y="' + (yL + 40) + '" text-anchor="end">315°</text><text class="t-s" x="' + (x(360) + 5) + '" y="' + (yL + 40) + '">360°</text>';
+      cont.innerHTML = s + '</svg>';
+    }
+    dibujar();
+    U.alAncho(cont, dibujar);
   };
 })();

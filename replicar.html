@@ -207,7 +207,15 @@
   </div>
   <div class="widget">
     <div class="widget-cab"><h3 id="congelado">Por qué se congelaron</h3><span class="tipo datos">Datos de la tesis</span></div>
-    <div class="vis" data-vis="versiones"><p class="vis-fallback">Ubuntu 20.04, ROS 2 Foxy, Gazebo Classic y los paquetes base se congelaron al inicio para asegurar la compatibilidad.</p></div>
+    <div class="vis">
+      <div class="pila"><span class="eyebrow">Congelado al inicio del proyecto</span>
+        <div class="capa">Paquetes base adaptados<small>articubot_one, diffdrive_arduino, explore_lite</small></div>
+        <div class="capa">Gazebo Classic y gazebo_ros2_control<small>los complementos disponibles para esta base</small></div>
+        <div class="capa az">ROS 2 Foxy y Nav2</div>
+        <div class="capa">Ubuntu 20.04</div></div>
+      <div class="comparar"><div><b>Sí fue criterio</b><span>Arquitectura distribuida sin maestro central y el ecosistema de Nav2.</span></div><div><b>No fue criterio</b><span>El fin de soporte de ROS 1, porque Foxy también está fuera de soporte.</span></div></div>
+      <div class="mejora"><b>Cómo se resuelve.</b> Migrar a mitad del proyecto obligaba a rehacer y volver a probar todo. El fin de vida es una limitación declarada y la migración es el trabajo futuro 3.</div>
+    </div>
   </div>
   <p>Si empiezas hoy, ten en cuenta que ROS 2 Foxy dejó de tener soporte en junio de 2023 y <span class="term" data-def="Simulador 3D de robots, aquí en su versión 11, que llegó al fin de soporte en enero de 2025.">Gazebo Classic</span> en enero de 2025. Las distribuciones de ROS 2 que salen en años pares tienen cinco años de soporte. Jazzy Jalisco, de mayo de 2024, tiene soporte hasta mayo de 2029 <a class="ref" href="#f3">3</a>. Usa una distribución vigente con la versión de Gazebo que recomiende su documentación, y espera tener que ajustar los paquetes base, que fueron escritos para Foxy.</p>
 </section>
