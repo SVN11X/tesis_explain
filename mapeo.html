@@ -190,6 +190,10 @@
     <div class="widget-cab"><h3 id="sim-barridos">La misma esquina, antes y después de avanzar</h3><span class="tipo inter">Interactivo · ilustrativo</span><p>Arriba ves los dos barridos en sus marcos locales. Abajo, superpón B sobre A: mueve el control o pide el ajuste. La curva final muestra el desacuerdo para cada traslación probada. El ajuste elige su mínimo.</p></div>
     <div class="vis" data-vis="barridos"><p class="vis-fallback">A observa una esquina. Tras avanzar 30 cm, B ve la misma esquina 30 cm más cerca. Las ruedas estiman 40 cm: con esa traslación cada punto queda a 10 cm de su par y el desacuerdo total es 700 cm². Con 30 cm los puntos coinciden y el desacuerdo es cero. Ejemplo sin giro. Necesita JavaScript.</p></div>
   </div>
+  <div class="widget" id="reto-barridos">
+    <div class="widget-cab"><h3 id="reto">Reto: ¿cuánto avanzó el robot?</h3><span class="tipo inter">Reto</span><p>Dos preguntas con los números de la curva de arriba. Elige una respuesta y verás al instante si acertaste y por qué.</p></div>
+    <div class="vis" data-vis="reto-mapeo"><p class="vis-fallback">1. Si B se traslada 40 cm, lo que dicen las ruedas, ¿cuánto vale el desacuerdo total: 0 cm², 100 cm² o 700 cm²? 2. ¿Qué traslación elige el ajuste: 40 cm o 30 cm? Necesita JavaScript para responder con respuesta inmediata.</p><details><summary>Ver las respuestas</summary><p>1. 700 cm²: siete puntos × (10 cm)². 2. 30 cm, el mínimo de la curva, donde los puntos coinciden y el desacuerdo es cero. El robot avanzó 30 cm, no 40 cm.</p></details></div>
+  </div>
   <details class="detalle" id="d-barridos"><summary>Ver el detalle: qué es un barrido</summary>
   <p>Son <b>dos conjuntos de medidas tomados en momentos distintos por el mismo LiDAR</b>, no dos sensores. El barrido A puede tomarse antes de avanzar y el B después. La misma pared aparece en coordenadas distintas respecto del sensor. El <b>ajuste de barridos</b> busca la traslación y el giro que hacen coincidir sus partes comunes. Así estima cuánto se movió el robot <a class="ref" href="#f1">1</a> <a class="ref" href="#f18">18</a>.</p>
   </details>
