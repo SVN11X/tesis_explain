@@ -688,6 +688,28 @@ def probar_plegados(nav):
     p.wait_for_timeout(300)
     r = p.evaluate("""() => { const d = document.getElementById('r-yamauchi1997'); return { ref: d.open, grupo: d.closest('details.detalle').open }; }""")
     ok(r['ref'] and r['grupo'], 'en Recursos, un cambio de ancla a una referencia trasladada la abre en la página de la bibliografía', r)
+    # resultados.html: el resumen corto deja la página mucho más baja, y un ancla o un enlace abre lo plegado
+    p.goto(BASE + '/resultados.html')
+    p.wait_for_timeout(300)
+    ok(p.evaluate("[...document.querySelectorAll('details.detalle')].every(d => !d.open)") and p.locator('main p.resumen').count() >= 8, 'resultados: sin ancla parte con un resumen por sección y todo el detalle plegado')
+    ok(p.locator('main table.tabla').count() == 2 and p.locator('main ul.oes > li').count() == 4 and p.locator('main [data-vis="repeticiones"]').is_visible(), 'resultados: las tablas, los cuatro objetivos y el interactivo siguen visibles')
+    r = p.evaluate("""() => { const h0 = document.documentElement.scrollHeight, ds = [...document.querySelectorAll('details.detalle')];
+      ds.forEach(d => d.open = true); const h1 = document.documentElement.scrollHeight; ds.forEach(d => d.open = false); return { plegada: h0, abierta: h1 }; }""")
+    ok(r['plegada'] < r['abierta'] * 0.85, 'resultados: plegada, la página es bastante más baja que con todo abierto', r)
+    for ancla, det in [('cuantas-repeticiones', 'd-binomial'), ('prueba-binomial', 'd-binomial')]:
+        p.goto(BASE + '/resultados.html#' + ancla)
+        p.wait_for_timeout(500)
+        r = p.evaluate("(id) => { const d = document.getElementById(id), a = document.getElementById(location.hash.slice(1)); return { abierto: d.open, visible: a.checkVisibility() }; }", det)
+        ok(r['abierto'] and r['visible'], 'resultados: el ancla #' + ancla + ' abre ' + det + ' y muestra el destino', r)
+    p.goto(BASE + '/resultados.html')
+    p.wait_for_timeout(200)
+    p.evaluate("document.querySelector('.search-trigger').click()")
+    p.wait_for_selector('dialog.search-dialog[open]')
+    p.fill('dialog.search-dialog input', 'Una prueba que lo deja claro')
+    p.wait_for_timeout(500)
+    p.keyboard.press('Enter')
+    p.wait_for_timeout(600)
+    ok(p.evaluate("(() => { const a = document.getElementById(location.hash.slice(1)); return location.pathname.endsWith('resultados.html') && !!a && a.checkVisibility() && !!a.closest('details.detalle'); })()"), 'resultados: un resultado del buscador abre el detalle plegado de destino')
     s = p.locator('details.detalle > summary').first
     s.focus()
     ok(p.evaluate("document.activeElement.tagName === 'SUMMARY'"), 'el control para desplegar se alcanza con teclado')
