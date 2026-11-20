@@ -158,6 +158,9 @@ with sync_playwright() as pw:
     for pagina in ['control.html', 'navegacion.html', 'mapeo.html']:
         p.goto(BASE + '/' + pagina)
         ficha = p.locator('details.ficha-concepto')
+        plegado = ficha.locator('xpath=ancestor::details[contains(@class, "detalle")]/summary')
+        if plegado.count():
+            plegado.first.click()
         ficha.locator('summary').click()
         etiquetas = ficha.locator('dt').all_inner_texts()
         check(etiquetas == ['Qué es', 'Para qué sirve', 'Cómo funciona', 'Dónde verlo', 'Ejemplo numérico', 'En este robot', 'Límites'], 'Sin JS: ' + pagina + ' ofrece su ficha del concepto en siete pasos', etiquetas)
