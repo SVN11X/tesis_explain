@@ -103,14 +103,14 @@ Las cifras y figuras del robot salen de la tesis y se citan con su sección, tab
 ├── js/sitio.js          índice lateral, secciones en el menú, citas, glosario, imágenes, videos
 │                        y carga bajo demanda de los interactivos
 ├── js/decisiones.js     comparador de decisiones del tema 1
-├── js/sims.js           simulaciones en canvas
 ├── js/vis2.js, vis3.js  interactivos de cada tema
-├── js/navegacion.js     A estrella y alcance de la navegación
-├── js/exploracion.js    frontera, metas y lista negra
+├── js/navegacion.js     A estrella, alcance, inflación con la huella y ventana dinámica
+├── js/exploracion.js    simulación del plano, frontera, metas y lista negra
 ├── js/comun.js          utilidades compartidas
+├── js/control.js        PID de una rueda y enjambre de partículas
 ├── js/control-modelo.js cálculos verificables del capítulo de control
 ├── js/movimiento-modelo.js cálculos verificables del capítulo 3
-├── js/movimiento.js     calibración de la recta y cuadrado en dos sentidos, en SVG
+├── js/movimiento.js     cinemática, encoder, calibración de la recta y cuadrado en dos sentidos
 ├── css/movimiento.css   estilos exclusivos del capítulo 3
 ├── js/mapeo.js          modelos y visualizaciones del capítulo 05
 ├── js/slam-proceso.js   candidatos de cierre y colas de procesamiento ilustrativas

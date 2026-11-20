@@ -100,6 +100,9 @@ with sync_playwright() as pw:
         check(alto <= 80, pagina + ': aviso académico discreto en teléfono (%d px)' % alto)
     p.goto(BASE + '/control.html'); recorrer(p)
     env = p.locator('.tabla-env[data-desplazable]').first
+    plegado = env.locator('xpath=ancestor::details[contains(@class, "detalle")]/summary')
+    if plegado.count():
+        plegado.first.click()
     env.scroll_into_view_if_needed(); env.focus(); p.keyboard.press('ArrowRight'); p.keyboard.press('ArrowRight'); p.wait_for_timeout(200)
     check(env.evaluate('e => e.scrollLeft') > 0, 'Con el foco en una tabla ancha, las flechas la desplazan')
     p.set_viewport_size(dict(width=1366, height=900)); p.wait_for_timeout(400)
