@@ -23,6 +23,7 @@ else:
     BASE = 'http://localhost:%d' % server.server_port
 count = 0
 ALTURA_ANTES = 51628  # alto de mapeo.html a 360 x 740 px antes de plegarlo, medido con el mismo recorrido
+ALTURA_RETO = 650  # alto del reto de los barridos a 360 px, contenido visible a propósito que se suma al presupuesto
 
 
 def check(cond, text, detalle=None):
@@ -53,7 +54,7 @@ with sync_playwright() as pw:
         ('movimiento reducido', {'viewport': {'width': 1280, 'height': 900}, 'reduced_motion': 'reduce'}),
         ('oscuro', {'viewport': {'width': 1366, 'height': 900}, 'color_scheme': 'dark'})
     ]
-    visuales = ['lidar', 'rejilla', 'marcos-mapeo', 'barridos', 'lazo', 'rviz-colores', 'cobertura', 'plano-mapa', 'candidatos-slam', 'cola-slam']
+    visuales = ['lidar', 'rejilla', 'marcos-mapeo', 'barridos', 'lazo', 'rviz-colores', 'cobertura', 'plano-mapa', 'candidatos-slam', 'cola-slam', 'reto-mapeo']
     for name, options in configurations:
         ctx = browser.new_context(**options)
         ctx.route(re.compile(r'^https?://(?!localhost)'), lambda r: r.fulfill(status=200, body=''))
@@ -65,10 +66,33 @@ with sync_playwright() as pw:
         for v in visuales:
             p.locator('[data-vis="%s"]' % v).scroll_into_view_if_needed()
             p.wait_for_selector('[data-vis="%s"][data-montado="1"]' % v)
-        check(not errors, name + ': los diez interactivos del capítulo montan sin errores')
+        check(not errors, name + ': los once interactivos del capítulo montan sin errores', errors)
         check(p.evaluate('document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1'), name + ': no hay desborde horizontal')
         check(p.locator('[data-vis][data-montado] .vis-fallback').count() == 0, name + ': no quedan fallbacks visibles')
         check(p.locator('.vis svg style').count() == 0, name + ': los SVG en línea no traen estilos que afecten al resto de la página')
+
+        # Reto de los barridos: respuesta inmediata, teclado, región aria-live y sin animación
+        reto = '[data-vis=reto-mapeo]'
+        check(p.locator(reto + ' input[type=radio]').count() == 5 and p.locator(reto + ' [aria-live=polite]').count() == 3, name + ': el reto usa radios nativos y regiones aria-live')
+        p.locator(reto + ' input[name=mp-reto-0]').nth(0).check()
+        r0 = p.locator(reto + ' [data-reto-r="0"]')
+        check(r0.get_attribute('data-ok') == 'false' and 'Todavía no' in r0.inner_text() and 'solo ocurre en el mínimo' in r0.inner_text(), name + ': una respuesta incorrecta explica por qué')
+        check(r0.locator('a[href="#sim-barridos"]').count() == 1, name + ': la respuesta enlaza con la sección que lo explica')
+        p.locator(reto + ' input[name=mp-reto-0]').nth(2).check()
+        check(r0.get_attribute('data-ok') == 'true' and 'Correcto' in r0.inner_text() and '700 cm²' in r0.inner_text(), name + ': la respuesta correcta da 700 cm² al instante')
+        p.locator(reto + ' input[name=mp-reto-1]').nth(1).check()
+        check('2 de 2 correctas' in p.locator(reto + ' [data-reto-fin]').inner_text(), name + ': el reto resume 2 de 2')
+        p.locator(reto + ' input[name=mp-reto-1]').nth(0).check()
+        check('1 de 2' in p.locator(reto + ' [data-reto-fin]').inner_text() and p.locator(reto + ' [data-reto-r="1"]').get_attribute('data-ok') == 'false', name + ': cambiar a la respuesta de las ruedas da 1 de 2')
+        check(p.locator('#reto-barridos').evaluate("el => !el.closest('details')"), name + ': el reto está en la parte visible, no en un detalle plegado')
+        check(p.evaluate("() => document.querySelector('#reto-barridos').getBoundingClientRect().right <= document.documentElement.clientWidth + 1"), name + ': el reto cabe en el ancho')
+        if name == 'escritorio':
+            p.locator(reto + ' input[name=mp-reto-1]').nth(0).focus()
+            p.keyboard.press('ArrowDown')
+            check(p.locator(reto + ' input[name=mp-reto-1]').nth(1).is_checked() and p.locator(reto + ' [data-reto-r="1"]').get_attribute('data-ok') == 'true', name + ': con las flechas del teclado se responde y la respuesta queda escrita')
+            check(p.locator(reto + ' input[name=mp-reto-1]').nth(1).evaluate("el => el.matches(':focus-visible')"), name + ': el foco del teclado es visible en el reto')
+        if name == 'movimiento reducido':
+            check(p.evaluate("() => [...document.querySelectorAll('[data-vis=reto-mapeo] *')].every(e => { const c = getComputedStyle(e); return c.animationName === 'none' && parseFloat(c.transitionDuration) === 0; })"), name + ': el reto no anima')
 
         # LiDAR: leyenda, teclado, casos y obstáculo que el láser no ve
         check(p.locator('[data-vis=lidar] .mp-legend').count() == 1 and 'punto medido' in text_of(p, 'lidar'), name + ': el LiDAR explica qué es cada punto y trazo')
@@ -239,7 +263,7 @@ with sync_playwright() as pw:
     abierta = p.evaluate('document.documentElement.scrollHeight')
     print('  altura a 360 px: plegada %d px (%.1f pantallas), con todo abierto %d px, antes %d px' % (cerrada, cerrada / 740, abierta, ALTURA_ANTES))
     check(cerrada < abierta, '360 px: plegada la página es más corta que con todo abierto')
-    check(cerrada <= ALTURA_ANTES * 0.6, '360 px: la página mide como mucho el 60 %% de antes (%d px contra %d px, %.1f %%)' % (cerrada, ALTURA_ANTES, 100.0 * cerrada / ALTURA_ANTES))
+    check(cerrada <= ALTURA_ANTES * 0.6 + ALTURA_RETO, '360 px: la página mide como mucho el 60 %% de antes más el reto (%d px contra %d px, %.1f %%)' % (cerrada, ALTURA_ANTES, 100.0 * cerrada / ALTURA_ANTES))
     # un ancla hacia el contenido plegado lo abre y lo muestra
     for destino in ('trejos', 'd-ceres', 'sim-rviz'):
         p.goto(BASE + '/mapeo.html#' + destino)
@@ -279,6 +303,9 @@ with sync_playwright() as pw:
     q.locator('#d-roscon > summary').click()
     check(q.locator('#d-roscon').get_attribute('open') is not None, 'sin JavaScript: el detalle se abre a mano')
     check(q.locator('[data-vis=lidar] img').first.is_visible(), 'sin JavaScript: la imagen del primer interactivo sigue visible')
+    check(q.locator('[data-vis=reto-mapeo] .vis-fallback').is_visible() and not q.locator('[data-vis=reto-mapeo] details p').is_visible(), 'sin JavaScript: el reto muestra la pregunta y esconde la respuesta')
+    q.locator('[data-vis=reto-mapeo] details > summary').click()
+    check('700 cm²' in q.locator('[data-vis=reto-mapeo] details p').inner_text() and q.locator('[data-vis=reto-mapeo] details p').is_visible(), 'sin JavaScript: la respuesta del reto se abre en un details')
     sin.close()
     # las cifras y referencias de la tesis siguen en la página, y los resúmenes no inventan ninguna
     cmp_ = subprocess.run([sys.executable, str(ROOT / 'herramientas' / 'comparar_resumen.py'), 'mapeo'], capture_output=True, text=True, encoding='utf-8', env=dict(os.environ, PYTHONUTF8='1'))

@@ -44,6 +44,9 @@ Loop means it repeats without end. RM is what reduced motion does.
 | 20 | Home video `img/mapa-crece.mp4` | `web/src/pages/index.astro` | User presses play | Clip length | No autoplay | Shows the map growing | Not autoplayed | Native controls |
 | 21 | `img/mapa-crece.gif` | `README.md` only | Opened on GitHub | Loops | Yes | Preview for the repository page | Not on the site | Not on the site |
 | 22 | Robot in search without results (`.robot-busca`) | `js/marco.js`, `css/marco.css` | A search finds nothing | 1.3 s, 3 times (3.9 s) | No | Shows that the robot looked and found nothing (see 0006) | Still image | Not needed |
+| 23 | Step change in «metas-abortadas» (`js/lecciones.js`, `.mq-p` in `css/estilo.css`) | `lecciones.html` | User presses «Anterior» or «Siguiente» | var(--dur-1), once per step | No | Shows which points change meaning in each step | transition none | Not needed |
+
+Row 23 does not exist on purpose: the feedback of the challenge in `mapeo.html` (`reto-mapeo`) is text, a colored edge and a status message that appear at once. It has no animation or transition, so there is nothing to pause or to switch off with reduced motion.
 
 Rows 9, 11 to 15, 18 and 19 run longer than 5 s. All of them already had a pause, so this record adds none to the code.
 
