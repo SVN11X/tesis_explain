@@ -459,7 +459,7 @@
      (control-modelo.js, movimiento-modelo.js y otros) siguen en el HTML porque estos archivos los leen
      al cargarse. Para agregar un interactivo, registra su nombre aquí. */
   var MODULOS = {
-    "js/navegacion.js": "astar alcance inflacion dwb",
+    "js/navegacion.js": "astar alcance inflacion dwb reto-navegacion",
     "js/exploracion.js": "frontera metas listanegra exploracion",
     "js/control.js": "pid enjambre estacionario tiempo leyes papeles cancelacion ciclo truncamiento acumulador windup zonas pso resolucion lazo-rueda fopdt protocolo",
     "js/robot.js": "camino arquitectura costo vistas esquema reto-robot",
