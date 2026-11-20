@@ -186,7 +186,7 @@ with sync_playwright() as pw:
     abierta = p.evaluate('document.documentElement.scrollHeight')
     print('  altura a 360 px: plegada %d px (%.1f pantallas), con todo abierto %d px' % (cerrada, cerrada / 740, abierta))
     check(cerrada < abierta, '360 px: plegada la página es más corta que con todo abierto')
-    check(cerrada < ALTURA_PRIMERA * 0.88, '360 px: tras la segunda pasada la página mide menos del 88 %% de la primera (%d px contra %d px)' % (cerrada, ALTURA_PRIMERA))
+    check(cerrada < ALTURA_PRIMERA * 0.75, '360 px: tras la segunda pasada la página mide menos del 75 %% de la primera (%d px contra %d px)' % (cerrada, ALTURA_PRIMERA))
     # un ancla hacia el contenido plegado lo abre y lo muestra
     for destino in ('d-no-lineal', 'windup-tecnico', 'ciclo'):
         p.goto(BASE + '/control.html#' + destino)
@@ -194,6 +194,15 @@ with sync_playwright() as pw:
         r = p.evaluate("""(id) => { const el = document.getElementById(id), rc = el.getBoundingClientRect();
           return { abierto: !!el.closest('details').open, arriba: rc.top, alto: innerHeight }; }""", destino)
         check(r['abierto'] and r['arriba'] < r['alto'], '360 px: el ancla #%s abre el detalle plegado y lo deja a la vista' % destino)
+    # una cita #fN abre la lista de fuentes plegada y deja la entrada a la vista
+    p.goto(BASE + '/control.html')
+    p.wait_for_timeout(300)
+    check(not p.evaluate("document.getElementById('lista-fuentes').open"), '360 px: la lista de fuentes parte plegada')
+    p.evaluate("document.querySelector('a.ref[href=\"#f8\"]').click()")
+    p.wait_for_timeout(700)
+    r = p.evaluate("""() => { const el = document.getElementById('f8'), rc = el.getBoundingClientRect();
+      return { abierto: document.getElementById('lista-fuentes').open, visible: rc.height > 0 && rc.top < innerHeight && rc.bottom > 0 }; }""")
+    check(r['abierto'] and r['visible'], '360 px: una cita #f8 abre la lista de fuentes plegada y muestra la entrada')
     # otro cambio de ancla y un enlace de la página también lo abren
     p.goto(BASE + '/control.html')
     p.wait_for_timeout(300)

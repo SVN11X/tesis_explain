@@ -144,4 +144,17 @@ comprobar("los textos de respaldo sin JavaScript repiten las cifras que calcula 
   var r = M.bidireccional({ dif: 0.0059, sep: 0.02 });
   assert.ok(Math.round(r.horario.error * 100) === 18 && r.antihorario.error < 0.005 && respaldo("cuadrado").indexOf("unos 18 cm") > 0);
 });
+comprobar("el reto de la calibración usa las cifras de la página y corrige cada respuesta", function () {
+  var qs = M.reto(), html = fs.readFileSync(path.join(__dirname, "..", "movimiento.html"), "utf8");
+  assert.equal(qs.length, 2);
+  assert.ok(qs[0].opciones[0].ok && !qs[0].opciones[1].ok && !qs[0].opciones[2].ok);
+  assert.ok(qs[1].opciones[0].ok && !qs[1].opciones[1].ok);
+  assert.ok(M.evaluarReto(0, 0).ok && !M.evaluarReto(0, 2).ok && M.evaluarReto(1, 0).ok && !M.evaluarReto(1, 1).ok);
+  assert.equal(M.evaluarReto(2, 0), null);
+  assert.equal(M.evaluarReto(0, 9), null);
+  qs.forEach(function (q, i) { q.opciones.forEach(function (o, j) { assert.ok(M.evaluarReto(i, j).porque.length > 10 && /^#/.test(M.evaluarReto(i, j).enlace)); }); });
+  ["1,0363", "3,63 %", "0,44 %", "−0,72", "0,37"].forEach(function (c) { assert.ok(html.indexOf(c) >= 0, "falta en la página " + c); });
+  assert.ok(qs[1].opciones[0].texto.indexOf("−0,72 %") > 0 && qs[1].opciones[0].texto.indexOf("0,37 %") > 0);
+  assert.ok(html.split('data-vis="reto-movimiento"')[1].split("</div>")[0].indexOf("<details>") >= 0);
+});
 console.log("\n" + total + " pruebas del capítulo 3 correctas");
