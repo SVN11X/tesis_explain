@@ -178,4 +178,17 @@ test("el respaldo sin JavaScript del grafo repite las cifras del mapa calculado"
   function f(v, n) { return (Math.round(v * Math.pow(10, n) + 1e-9) / Math.pow(10, n)).toFixed(n).replace(".", ","); }
   [f(antes.inicioRegreso * 100, 1) + " cm", f(despues.ancho, 2) + " m", f(despues.anchoReal, 2) + " m"].forEach(function (c) { assert(texto.indexOf(c) >= 0, "falta " + c); });
 });
+test("el reto de los barridos usa las cifras de la página y corrige cada respuesta", function () {
+  var qs = M.reto(), html = fs.readFileSync(path.join(__dirname, "..", "mapeo.html"), "utf8");
+  assert.strictEqual(qs.length, 2);
+  assert(qs[0].opciones[2].ok && !qs[0].opciones[0].ok && !qs[0].opciones[1].ok);
+  assert.strictEqual(qs[0].opciones[2].texto, "700 cm²");
+  assert(qs[1].opciones[1].ok && !qs[1].opciones[0].ok);
+  assert(M.evaluarReto(0, 2).ok && !M.evaluarReto(0, 0).ok && !M.evaluarReto(1, 0).ok && M.evaluarReto(1, 1).ok);
+  assert.strictEqual(M.evaluarReto(2, 0), null);
+  assert.strictEqual(M.evaluarReto(0, 9), null);
+  qs.forEach(function (q, i) { q.opciones.forEach(function (o, j) { assert(M.evaluarReto(i, j).porque.length > 10 && /^#sim-/.test(M.evaluarReto(i, j).enlace)); }); });
+  ["700 cm²", "30 cm", "40 cm", "10 cm"].forEach(function (c) { assert(html.indexOf(c) >= 0, "falta en la página " + c); });
+  assert(html.split('data-vis="reto-mapeo"')[1].split("</div>")[0].indexOf("<details>") >= 0, "el respaldo sin JavaScript lleva la respuesta en un details");
+});
 console.log("\n" + total + " pruebas de mapeo correctas");

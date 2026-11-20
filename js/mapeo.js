@@ -987,4 +987,54 @@
     el.addEventListener("input", function (e) { if (e.target.id !== "cob-margen") return; margen = +e.target.value; pintar(); });
     pintar();
   };
+
+  /* Reto de la sección «¿Qué significa alinear dos barridos?». Todas las cifras salen del modelo de los barridos:
+     700 cm² con la traslación de las ruedas, 0 en el mínimo, 10 cm de desajuste por punto y 30 cm contra 40 cm.
+     La lógica no toca el DOM para poder probarse con Node. */
+  M.reto = function () {
+    var odom = M.ODOM_BARRIDOS, minimo = M.barridos(odom).ajuste, error = M.barridos(odom).error * 100;
+    var costoOdom = Math.round(M.costoBarridos(odom) * 1e4), cm = function (v) { return fmt(v, 0) + " cm"; };
+    return [{
+      pregunta: "Si el barrido B se traslada " + cm(odom * 100) + ", lo que dicen las ruedas, ¿cuánto vale el desacuerdo total?",
+      opciones: [
+        { id: "cero", texto: "0 cm²", ok: false, porque: "Cero solo ocurre en el mínimo de la curva, a " + cm(minimo * 100) + ". Con " + cm(odom * 100) + " los puntos no coinciden." },
+        { id: "uno", texto: fmt(error * error, 0) + " cm²", ok: false, porque: "Eso es un solo punto: (" + cm(error) + ")². El desacuerdo suma los siete puntos comunes." },
+        { id: "siete", texto: fmt(costoOdom, 0) + " cm²", ok: true, porque: "Siete puntos × (" + cm(error) + ")² = " + fmt(costoOdom, 0) + " cm²." }
+      ],
+      enlace: "#sim-barridos", enlaceTexto: "La misma esquina, antes y después de avanzar"
+    }, {
+      pregunta: "¿Qué traslación elige el ajuste de barridos?",
+      opciones: [
+        { id: "ruedas", texto: cm(odom * 100) + ", lo que estiman las ruedas", ok: false, porque: "Las ruedas estiman " + cm(odom * 100) + ", pero ahí el desacuerdo es " + fmt(costoOdom, 0) + " cm². El ajuste no copia la odometría." },
+        { id: "minimo", texto: cm(minimo * 100) + ", el mínimo de la curva", ok: true, porque: "El ajuste elige el mínimo de la curva: a " + cm(minimo * 100) + " los puntos coinciden y el desacuerdo es cero. El robot avanzó " + cm(minimo * 100) + ", no " + cm(odom * 100) + "." }
+      ],
+      enlace: "#sim-barridos", enlaceTexto: "La misma esquina, antes y después de avanzar"
+    }];
+  };
+  /* Respuesta a la opción j de la pregunta i, o null si no existe. */
+  M.evaluarReto = function (i, j) {
+    var q = M.reto()[i], o = q && q.opciones[j];
+    return o ? { ok: o.ok, porque: o.porque, enlace: q.enlace, enlaceTexto: q.enlaceTexto } : null;
+  };
+  V["reto-mapeo"] = function (el) {
+    var qs = M.reto(), hechas = {};
+    el.innerHTML = '<div class="mp-reto">' + qs.map(function (q, i) {
+      return '<fieldset class="mp-reto-q"><legend>' + 'Pregunta ' + (i + 1) + '. ' + esc(q.pregunta) + '</legend>' +
+        q.opciones.map(function (o, j) { return '<label><input type="radio" name="mp-reto-' + i + '" value="' + j + '"><span>' + esc(o.texto) + '</span></label>'; }).join("") +
+        '<p class="mp-reto-r mp-status" data-reto-r="' + i + '" role="status" aria-live="polite"></p></fieldset>';
+    }).join("") + '<p class="mp-reto-fin mp-status" data-reto-fin role="status" aria-live="polite"></p></div>';
+    el.addEventListener("change", function (e) {
+      var t = e.target;
+      if (!t.matches || !t.matches('input[type="radio"]')) return;
+      var i = +t.name.replace("mp-reto-", ""), r = M.evaluarReto(i, +t.value);
+      if (!r) return;
+      var box = el.querySelector('[data-reto-r="' + i + '"]');
+      box.setAttribute("data-ok", String(r.ok));
+      box.innerHTML = '<b>' + (r.ok ? "Correcto." : "Todavía no.") + '</b> ' + esc(r.porque) + ' <a href="' + r.enlace + '">' + esc(r.enlaceTexto) + '</a>';
+      hechas[i] = r.ok;
+      var fin = el.querySelector("[data-reto-fin]"), bien = qs.filter(function (_, k) { return hechas[k]; }).length;
+      fin.textContent = Object.keys(hechas).length === qs.length ? "Reto: " + bien + " de " + qs.length + " correctas. Puedes cambiar una respuesta." : "";
+    });
+    el.estadoSim = function () { return { respondidas: hechas }; };
+  };
 })();
