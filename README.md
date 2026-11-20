@@ -32,6 +32,8 @@ npm run dev
 
 Abre `http://localhost:4321/tesis_explain/`.
 
+Los tres archivos de voz de más de 5 MB no están en git: la publicación los descarga y verifica sus huellas. Para probar el dictado en local, obtenlos con `python scripts/descargar_voz.py`.
+
 Para compilar y probar:
 
 ```bash

@@ -24,6 +24,8 @@ jobs:
         run: |
           python -m pip install -r scripts/requisitos.txt
           python -m playwright install --with-deps chromium
+      # Sin descargar los 65 MB de voz: ninguna comprobación los lee. El test de defensa simula
+      # voz/manifiesto.json y verificar_sitio.py no abre voz/. La publicación sí los descarga y verifica.
       - name: Instalar y compilar
         run: |
           npm ci

@@ -21,3 +21,8 @@ dist/
 .cache/
 coverage/
 .vite/
+
+# Archivos de voz de más de 5 MB: no van en git, la publicación los descarga con scripts/descargar_voz.py
+/public/voz/ort/ort-wasm-simd-threaded.asyncify.wasm
+/public/voz/whisper-tiny/onnx/decoder_model_merged_quantized.onnx
+/public/voz/whisper-tiny/onnx/encoder_model_quantized.onnx

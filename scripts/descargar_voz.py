@@ -9,7 +9,7 @@ Las versiones quedan fijadas aquí: la biblioteca Transformers.js, el motor ONNX
 exacta de los pesos de Whisper tiny multilingüe. El navegador nunca pide estos archivos a terceros.
 """
 from pathlib import Path
-import hashlib, io, json, sys, tarfile, urllib.request
+import hashlib, io, json, sys, tarfile, time, urllib.error, urllib.request
 
 ROOT = Path(__file__).resolve().parents[1]
 VOZ = ROOT / 'public/voz'
@@ -37,8 +37,16 @@ HF = f'https://huggingface.co/{WHISPER}/resolve/{REVISION}/' + '{f}'
 
 
 def bajar(url):
-    with urllib.request.urlopen(urllib.request.Request(url, headers={'User-Agent': 'descargar-voz'}), timeout=120) as r:
-        return r.read()
+    """Descarga con un reintento si falla la red."""
+    for intento in (1, 2):
+        try:
+            with urllib.request.urlopen(urllib.request.Request(url, headers={'User-Agent': 'descargar-voz'}), timeout=120) as r:
+                return r.read()
+        except (urllib.error.URLError, OSError, TimeoutError) as e:
+            if intento == 2:
+                raise
+            print(f'Error de red ({e}), reintento una vez:', url)
+            time.sleep(3)
 
 
 def huella(datos):
@@ -93,13 +101,22 @@ def main(args):
     origen = {ruta: leer for ruta, _, leer in fuentes()}
     for ruta in comprobar(m):
         a = next(x for x in m['archivos'] if x['ruta'] == ruta)
-        datos = origen[ruta]()
+        try:
+            datos = origen[ruta]()
+        except Exception as e:  # descarga fallida tras el reintento: no se publica a medias
+            print(f'Falló la descarga de {ruta}: {e}')
+            return 1
         if huella(datos) != a['sha256']:
             print('La descarga no coincide con la huella fijada:', ruta)
             return 1
         (VOZ / ruta).parent.mkdir(parents=True, exist_ok=True)
         (VOZ / ruta).write_bytes(datos)
         print('Descargado', ruta)
+    malos = comprobar(m)
+    for r in malos:
+        print('Falta o cambió:', r)
+    if malos:
+        return 1
     print('Voz al día.')
     return 0
 

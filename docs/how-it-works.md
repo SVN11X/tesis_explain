@@ -17,7 +17,7 @@ Status: draft for the owner to confirm in the pull request. Written from the und
 - `scripts/datos.py`: generates the shared frame.
 - `scripts/indice.py`: reads the built pages in `dist/` and writes `dist/datos/indice.js` and `dist/datos/secciones.js`.
 - `scripts/bibliografia.py`: generates the bibliography.
-- `public/voz/`: model and runtime files for private Whisper dictation.
+- `public/voz/`: model and runtime files for private Whisper dictation. The three files over 5 MB are not in git: the Pages build downloads them with `scripts/descargar_voz.py` (cached by the manifest hash) and fails on a hash mismatch. Locally, run `python scripts/descargar_voz.py`.
 - `.github/workflows/verificar.yml`: CI that runs Node and Playwright browser tests on every pull request.
 
 ## Where to start reading
