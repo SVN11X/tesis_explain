@@ -149,4 +149,43 @@
     if (window.SITIO && window.SITIO.ampliable) window.SITIO.ampliable(el.querySelector("img"));
     el.estadoEsquema = function () { var a = el.querySelector('.punto[aria-pressed="true"]'); return { activo: a ? +a.getAttribute("data-k") : -1, texto: info.textContent }; };
   };
+  /* Reto del reparto del trabajo. Las respuestas salen del texto de la sección «Quién hace qué, y por qué»
+     y de la figura del reparto: nada se inventa aquí. */
+  var RETO = [{
+    pregunta: "¿Qué equipo lee los encoders y corrige la velocidad de las ruedas?",
+    opciones: [
+      { texto: "El Arduino Nano", ok: true, porque: "Lo que debe ocurrir decenas de veces por segundo sin fallar va en un microcontrolador dedicado. El Arduino lee los encoders y corrige cada motor." },
+      { texto: "La Raspberry Pi 4", ok: false, porque: "La Raspberry Pi ejecuta ros2_control, la odometría y el láser. Los encoders y el control de ruedas son del Arduino." },
+      { texto: "El computador", ok: false, porque: "El computador hace SLAM, Nav2 y la exploración. Lo rápido no va allí: viaja por la red y no se puede garantizar el ritmo." }
+    ],
+    enlace: "#reparto-vis", enlaceTexto: "El reparto del trabajo"
+  }, {
+    pregunta: "¿Dónde se optimiza el mapa y se planifica la ruta?",
+    opciones: [
+      { texto: "En el Arduino Nano", ok: false, porque: "El Arduino se dedica a los encoders y al control de las ruedas. No tiene la memoria ni el procesador para un mapa." },
+      { texto: "En la Raspberry Pi 4", ok: false, porque: "La Raspberry Pi hace ros2_control, odometría y láser. El mapa y la ruta se calculan en el computador." },
+      { texto: "En el computador", ok: true, porque: "Optimizar un mapa o planificar una ruta necesita memoria y procesador. Por eso SLAM, Nav2 y la exploración corren en el computador." }
+    ],
+    enlace: "#d-reparto", enlaceTexto: "El argumento del reparto"
+  }];
+  V["reto-robot"] = function (el) {
+    var hechas = {};
+    el.innerHTML = '<div class="rr-reto">' + RETO.map(function (q, i) {
+      return '<fieldset class="rr-q"><legend>Pregunta ' + (i + 1) + '. ' + U.esc(q.pregunta) + '</legend>' +
+        q.opciones.map(function (o, j) { return '<label><input type="radio" name="rr-reto-' + i + '" value="' + j + '"><span>' + U.esc(o.texto) + '</span></label>'; }).join("") +
+        '<p class="rr-r" data-reto-r="' + i + '" role="status" aria-live="polite"></p></fieldset>';
+    }).join("") + '<p class="rr-fin" data-reto-fin role="status" aria-live="polite"></p></div>';
+    el.addEventListener("change", function (e) {
+      var t = e.target;
+      if (!t.matches || !t.matches('input[type="radio"]')) return;
+      var i = +t.name.replace("rr-reto-", ""), q = RETO[i], o = q && q.opciones[+t.value];
+      if (!o) return;
+      var box = el.querySelector('[data-reto-r="' + i + '"]');
+      box.setAttribute("data-ok", String(o.ok));
+      box.innerHTML = '<b>' + (o.ok ? "Correcto." : "Todavía no.") + '</b> ' + U.esc(o.porque) + ' <a href="' + q.enlace + '">' + U.esc(q.enlaceTexto) + '</a>';
+      hechas[i] = o.ok;
+      var bien = RETO.filter(function (_, k) { return hechas[k]; }).length;
+      el.querySelector("[data-reto-fin]").textContent = Object.keys(hechas).length === RETO.length ? "Reto: " + bien + " de " + RETO.length + " correctas. Puedes cambiar una respuesta." : "";
+    });
+  };
 })();

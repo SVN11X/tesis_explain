@@ -1012,6 +1012,42 @@ def probar_robot_resumen(nav):
     ok(cmp_.returncode == 0, 'ninguna cifra ni referencia a la tesis desapareció y los resúmenes no inventan cifras: ' + lineas[-1])
 
 
+def probar_reto_robot(nav):
+    print('robot.html: reto del reparto del trabajo')
+    for nombre, ancho, tema in (('360 px claro', 360, 'light'), ('escritorio oscuro', 1280, 'dark')):
+        ctx = contexto(nav, viewport={'width': ancho, 'height': 800}, color_scheme=tema)
+        p = ctx.new_page()
+        errores = []
+        p.on('pageerror', lambda e: errores.append(str(e)))
+        sel = montar(p, 'robot.html', 'reto-robot')
+        ok(not errores, nombre + ': el reto monta sin errores', errores)
+        ok(p.locator(sel + ' input[type=radio]').count() == 6 and p.locator(sel + ' [aria-live=polite]').count() == 3, nombre + ': el reto usa radios nativos y regiones aria-live')
+        ok(p.locator('#reto-robot').evaluate("el => !el.closest('details')"), nombre + ': el reto no está en un detalle plegado')
+        ok(p.evaluate("() => document.querySelector('#reto-robot').getBoundingClientRect().right <= document.documentElement.clientWidth + 1 && document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1"), nombre + ': el reto cabe en el ancho')
+        p.locator(sel + ' input[name=rr-reto-0]').nth(1).check()
+        r0 = p.locator(sel + ' [data-reto-r="0"]')
+        ok(r0.get_attribute('data-ok') == 'false' and 'Todavía no' in r0.inner_text() and 'ros2_control' in r0.inner_text(), nombre + ': una respuesta incorrecta explica por qué')
+        ok(r0.locator('a[href="#reparto-vis"]').count() == 1, nombre + ': la respuesta enlaza con la sección')
+        p.locator(sel + ' input[name=rr-reto-0]').nth(0).check()
+        ok(r0.get_attribute('data-ok') == 'true' and 'Correcto' in r0.inner_text(), nombre + ': la respuesta correcta se confirma al instante')
+        p.locator(sel + ' input[name=rr-reto-1]').nth(2).check()
+        ok('2 de 2 correctas' in p.locator(sel + ' [data-reto-fin]').inner_text(), nombre + ': el reto resume 2 de 2')
+        p.locator(sel + ' input[name=rr-reto-1]').nth(0).check()
+        ok('1 de 2' in p.locator(sel + ' [data-reto-fin]').inner_text(), nombre + ': cambiar una respuesta actualiza el resumen')
+        p.locator(sel + ' input[name=rr-reto-1]').nth(1).focus()
+        p.keyboard.press('ArrowDown')
+        ok(p.locator(sel + ' input[name=rr-reto-1]').nth(2).is_checked() and p.locator(sel + ' [data-reto-r="1"]').get_attribute('data-ok') == 'true', nombre + ': con las flechas del teclado se responde')
+        ok(p.locator(sel + ' input[name=rr-reto-1]').nth(2).evaluate("el => el.matches(':focus-visible')"), nombre + ': el foco del teclado es visible')
+        ctx.close()
+    sin = nav.new_context(viewport={'width': 360, 'height': 740}, java_script_enabled=False)
+    q = sin.new_page()
+    q.goto(BASE + '/robot.html')
+    ok(q.locator('[data-vis=reto-robot] .vis-fallback').is_visible() and not q.locator('[data-vis=reto-robot] details p').is_visible(), 'sin JavaScript: el reto muestra las preguntas y esconde las respuestas')
+    q.locator('[data-vis=reto-robot] details > summary').click()
+    ok('El computador' in q.locator('[data-vis=reto-robot] details p').inner_text(), 'sin JavaScript: las respuestas del reto se abren en un details')
+    sin.close()
+
+
 def probar_sugerencias(nav):
     print('Buscador: sugeridas y recientes')
     ctx = contexto(nav, viewport={'width': 1280, 'height': 900})
@@ -1503,6 +1539,7 @@ with sync_playwright() as pw:
     probar_iconos(nav)
     probar_sugerencias(nav)
     probar_robot_resumen(nav)
+    probar_reto_robot(nav)
     probar_descarga(nav)
     probar_costos_y_plan(nav)
     probar_animaciones(nav)
