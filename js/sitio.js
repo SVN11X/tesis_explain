@@ -462,7 +462,7 @@
     "js/navegacion.js": "astar alcance inflacion dwb",
     "js/exploracion.js": "frontera metas listanegra exploracion",
     "js/control.js": "pid enjambre estacionario tiempo leyes papeles cancelacion ciclo truncamiento acumulador windup zonas pso resolucion lazo-rueda fopdt protocolo",
-    "js/robot.js": "camino arquitectura costo vistas esquema",
+    "js/robot.js": "camino arquitectura costo vistas esquema reto-robot",
     "js/gemelo.js": "gemelo",
     "js/resultados.js": "fallaria reto-resultados",
     "js/mapeo.js": "lidar rejilla marcos-mapeo barridos lazo rviz-colores cobertura reto-mapeo",
