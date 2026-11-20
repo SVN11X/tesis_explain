@@ -124,7 +124,7 @@
   <p class="resumen"><mark>La plataforma tiene dos dominios eléctricos</mark> <a class="ref" href="#f1">1</a>: 12 V para los motores y un riel de 5 V para la electrónica.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="esquema">Esquema de conexiones</h3><span class="tipo datos">Datos de la tesis</span><p>Cada punto marca un componente rotulado en la figura. Tócalo o llega a él con la tecla Tab para ver qué hace.</p></div>
-    <!-- PENDIENTE AUTOR: confirmar que cada punto quedó sobre su componente. Las posiciones están en js/vis3.js, en V.esquema, como porcentaje del ancho y el alto de la imagen. -->
+    <!-- PENDIENTE AUTOR: confirmar que cada punto quedó sobre su componente. Las posiciones están en js/robot.js, en V.esquema, como porcentaje del ancho y el alto de la imagen. -->
     <div class="vis" data-vis="esquema"><p class="vis-fallback">Esquema de conexiones eléctricas y de datos, Fig. 4.5 de la tesis. La batería de 12 V pasa por un fusible y un interruptor hacia los bloques de distribución de 12 V, que alimentan el driver L298N y el regulador de tensión. El regulador genera el riel de 5 V para la Raspberry Pi, el Arduino Nano y el LiDAR. El Arduino lee los encoders de los dos motores y envía el PWM al L298N.</p></div>
   </div>
   <details class="detalle" id="d-energia"><summary>Ver el detalle: por qué se separan y cómo viajan las señales</summary>
