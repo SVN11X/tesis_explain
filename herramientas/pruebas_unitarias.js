@@ -177,5 +177,14 @@ ok(exF.ver().terminado && cerca(exF.cobertura(), 100, 0.01), "a los 300 s termin
 var rf = ex0.fronteras();
 ok(rf.grupos.length > 0 && rf.grupos.every(function (g) { return g.length > 0; }), "hay fronteras al empezar");
 
+console.log("\nReto de exploracion.html");
+var RE = ctx.window.EXPLORACION_PRUEBAS, htmlE = fs.readFileSync(path.join(RAIZ, "exploracion.html"), "utf8"), qsE = RE.reto();
+function anclaEnPagina(a) { return htmlE.indexOf('id="' + a.slice(1) + '"') >= 0; }
+ok(qsE.length === 2 && qsE[0].opciones[0].ok && !qsE[0].opciones[1].ok && !qsE[0].opciones[2].ok && qsE[1].opciones[0].ok && !qsE[1].opciones[1].ok && !qsE[1].opciones[2].ok, "el reto tiene una respuesta correcta por pregunta");
+ok(RE.evaluarReto(0, 0).ok && !RE.evaluarReto(0, 1).ok && RE.evaluarReto(1, 0).ok && RE.evaluarReto(2, 0) === null && RE.evaluarReto(0, 9) === null, "evaluarReto corrige cada opción y rechaza las que no existen");
+ok(qsE.every(function (q, i) { return q.opciones.every(function (o, j) { return RE.evaluarReto(i, j).porque.length > 10 && anclaEnPagina(RE.evaluarReto(i, j).enlace); }); }), "cada respuesta explica por qué y enlaza a un ancla de la página");
+ok(["54 quedaron abortadas", "53", "3,3 s", "16,7 s", "10 s"].every(function (c) { return htmlE.indexOf(c) >= 0; }), "las cifras del reto están en la página");
+ok(htmlE.split('data-vis="reto-exploracion"')[1].split("</div>")[0].indexOf("<details>") >= 0, "el reto trae su respaldo sin JavaScript");
+
 console.log("\n" + (total - fallos) + " de " + total + " pruebas correctas");
 process.exit(fallos ? 1 : 0);

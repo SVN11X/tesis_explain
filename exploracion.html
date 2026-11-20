@@ -210,6 +210,10 @@
   <details class="detalle" id="d-metas-completada"><summary>Ver el detalle: las metas sin estado final y qué significa una meta completada</summary>
   <p>Las cinco metas sin estado final son la última de cada corrida. Al no encontrar fronteras, el explorador pidió cancelarlas, y el registro se cerró antes de que la cancelación terminara. Entonces, ¿qué significa una meta completada de 60? Indica cuántas veces el robot llegó a menos de 10 cm del punto de una frontera antes de que el explorador cambiara de destino. No es una tasa de éxito de la navegación ni de la exploración. Lo que muestra que el robot va hacia donde se le manda es que el mapa creció en cada corrida hasta que no quedaron fronteras. En las cinco corridas válidas, Nav2 condujo al robot durante 12,7 min y 21,9 m de recorrido odométrico, sin intervención manual <a class="ref" href="#f1">1</a>.</p>
   </details>
+  <div class="widget" id="reto-abortadas">
+    <div class="widget-cab"><h3 id="reto">Reto: ¿abortada es lo mismo que fallida?</h3><span class="tipo inter">Reto</span><p>Dos preguntas con los números de la sección. Elige una respuesta y verás al instante si acertaste y por qué. Los cinco pasos están en <a href="lecciones.html#metricas">Qué significa una meta abortada</a>.</p></div>
+    <div class="vis" data-vis="reto-exploracion"><p class="vis-fallback">1. De 60 metas, 54 quedaron abortadas y 53 coinciden con un reemplazo. ¿Esos abortos son 54 fallas de navegación? 2. Si el explorador reelige cada 3,3 s, ¿qué mediana se espera entre una meta y la siguiente? Necesita JavaScript para responder con respuesta inmediata.</p><details><summary>Ver las respuestas</summary><p>1. No: Nav2 también cierra como abortada la meta que el explorador reemplaza, y 53 de los 54 abortos coinciden con un reemplazo. 2. 3,3 s, la mediana de las cinco corridas, igual al período del explorador.</p></details></div>
+  </div>
 </section>
 
 <section>
