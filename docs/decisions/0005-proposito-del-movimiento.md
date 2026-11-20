@@ -44,10 +44,11 @@ Loop means it repeats without end. RM is what reduced motion does.
 | 20 | Home video `img/mapa-crece.mp4` | `web/src/pages/index.astro` | User presses play | Clip length | No autoplay | Shows the map growing | Not autoplayed | Native controls |
 | 21 | `img/mapa-crece.gif` | `README.md` only | Opened on GitHub | Loops | Yes | Preview for the repository page | Not on the site | Not on the site |
 | 22 | Robot in search without results (`.robot-busca`) | `js/marco.js`, `css/marco.css` | A search finds nothing | 1.3 s, 3 times (3.9 s) | No | Shows that the robot looked and found nothing (see 0006) | Still image | Not needed |
+| 24 | Home hero real run (`.hero-run`, `img/mapa-crece.mp4`) | `web/src/pages/index.astro`, `web/src/styles/experience.css` | Starts by itself after the page loads and goes idle | 7.3 s clip | Yes | Shows the robot exploring and the map growing on the first screen, as a real run | Poster only, waits for the user | Yes, visible button «Pausar» over the video. Checked in the browser |
 
-Row 23 does not exist on purpose: the feedback of the challenge in `mapeo.html` (`reto-mapeo`) is text, a colored edge and a status message that appear at once. It has no animation or transition, so there is nothing to pause or to switch off with reduced motion.
+Row 23 does not exist on purpose (the home real run is row 24): the feedback of the challenge in `mapeo.html` (`reto-mapeo`) is text, a colored edge and a status message that appear at once. It has no animation or transition, so there is nothing to pause or to switch off with reduced motion.
 
-Rows 9, 11 to 15, 18 and 19 run longer than 5 s. All of them already had a pause, so this record adds none to the code.
+Rows 9, 11 to 15, 18, 19 and 24 run longer than 5 s. All of them already had a pause, so this record adds none to the code.
 
 ## Alternatives considered
 
