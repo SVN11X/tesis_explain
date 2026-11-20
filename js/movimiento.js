@@ -543,4 +543,5 @@
     dibujar();
     U.alAncho(cont, dibujar);
   };
+  V["reto-movimiento"] = function (el) { U.reto(el, M.reto(), "mv-reto-", M.evaluarReto); };
 })();
