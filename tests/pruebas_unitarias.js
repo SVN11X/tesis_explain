@@ -6,7 +6,7 @@
 */
 "use strict";
 var path = require("path"), fs = require("fs"), vm = require("vm");
-var RAIZ = path.join(__dirname, "..");
+var RAIZ = path.join(__dirname, "..", "public");
 /* SITIO.MODULOS, leído de js/sitio.js: archivo -> nombres de interactivo que registra */
 var MODULOS = {};
 (function () {

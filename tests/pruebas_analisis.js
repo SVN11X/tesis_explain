@@ -2,8 +2,8 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const A = require('../js/analisis-modelo.js');
-const root = path.resolve(__dirname, '..');
+const A = require('../public/js/analisis-modelo.js');
+const root = path.resolve(__dirname, '..', 'public');
 let total = 0;
 function test(name, f) { f(); total++; console.log('  ok   ' + name); }
 function close(a, b, tolerance = 1e-9) { assert.ok(Math.abs(a - b) <= tolerance, `${a} ≠ ${b}`); }
@@ -142,7 +142,7 @@ test('Estados de metas: rechaza estados desconocidos, filas repetidas y aceptaci
   assert.throws(() => metas('0,a,9,0\n'), /código de estado/);
 });
 /* ── Mapas PGM ── */
-const M = require('../js/analisis-mapa.js');
+const M = require('../public/js/analisis-mapa.js');
 function pgm(ancho, alto, valores, texto) {
   if (texto) return new Uint8Array(Buffer.from('P2\n# comentario\n' + ancho + ' ' + alto + '\n255\n' + valores.join(' ') + '\n'));
   return new Uint8Array(Buffer.concat([Buffer.from('P5\n' + ancho + ' ' + alto + '\n255\n'), Buffer.from(valores)]));

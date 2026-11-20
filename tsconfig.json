@@ -7,6 +7,6 @@
     "allowImportingTsExtensions": true,
     "noEmit": true
   },
-  "include": ["web/src/**/*", ".astro/types.d.ts"],
-  "exclude": ["node_modules", "build", "web/public", "js", "scripts"]
+  "include": ["src/**/*", ".astro/types.d.ts"],
+  "exclude": ["node_modules", "dist", "public", "scripts"]
 }

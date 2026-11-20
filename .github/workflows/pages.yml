@@ -20,13 +20,20 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: actions/configure-pages@v5
-      - name: Copiar solo los archivos servidos
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Dependencias
         run: |
-          mkdir _site
-          cp ./*.html _site/
-          cp -r css js img fuentes datos descargas modelos voz _astro _site/
+          pip install beautifulsoup4
+          npm ci
+      - name: Compilar el sitio en dist/
+        run: npm run build
       - uses: actions/upload-pages-artifact@v4
         with:
-          path: _site
+          path: dist
       - id: deployment
         uses: actions/deploy-pages@v4

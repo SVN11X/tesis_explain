@@ -7,10 +7,10 @@
     "node": ">=22.16.0"
   },
   "scripts": {
-    "dev": "node scripts/preparar-web.mjs && astro dev --host 0.0.0.0",
-    "build": "node scripts/preparar-web.mjs && astro build && node scripts/publicar-web.mjs",
-    "check": "svelte-check --workspace web --tsconfig ../tsconfig.json",
-    "test:lidar": "node --experimental-strip-types --test web/tests/lidar.test.mjs",
+    "dev": "astro dev --host 0.0.0.0",
+    "build": "astro build && python scripts/indice.py",
+    "check": "svelte-check --workspace src --tsconfig ../tsconfig.json",
+    "test:lidar": "node --experimental-strip-types --test tests/lidar.test.mjs",
     "test": "node --test --experimental-strip-types"
   },
   "dependencies": {

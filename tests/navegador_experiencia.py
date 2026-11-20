@@ -10,7 +10,7 @@ Uso: python3 tests/navegador_experiencia.py [http://127.0.0.1:8765]
 """
 from pathlib import Path
 from http.server import SimpleHTTPRequestHandler
-from servidor import ServidorEstable
+from servidor import iniciar, DIST
 from functools import partial
 from threading import Thread
 import os, re, sys, time
@@ -22,25 +22,14 @@ server = None
 if len(sys.argv) > 1:
     BASE = sys.argv[1].rstrip('/')
 else:
-    class QuietHandler(SimpleHTTPRequestHandler):
-        def log_message(self, *args):
-            pass
-
-        def handle(self):
-            try:
-                super().handle()
-            except (BrokenPipeError, ConnectionResetError):
-                pass
-    server = ServidorEstable(('127.0.0.1', 0), partial(QuietHandler, directory=str(ROOT)))
-    Thread(target=server.serve_forever, daemon=True).start()
-    BASE = 'http://127.0.0.1:%d' % server.server_port
+    server, BASE = iniciar()
 count = 0
 EN_GITHUB = os.environ.get('GITHUB_ACTIONS') == 'true'
 
 
 def modulos_sitio():
     """SITIO.MODULOS leído de js/sitio.js: {'js/navegacion.js': 'astar alcance'}"""
-    fuente = (ROOT / 'js' / 'sitio.js').read_text(encoding='utf-8')
+    fuente = (DIST / 'js' / 'sitio.js').read_text(encoding='utf-8')
     bloque = re.search(r'var MODULOS = \{(.*?)\n  \};', fuente, re.S).group(1)
     return dict(re.findall(r'"(js/[^"]+\.js)":\s*"([^"]+)"', bloque))
 
@@ -50,7 +39,7 @@ def modulo_de(nombre):
     return next(m for m, n in modulos_sitio().items() if nombre in n.split())
 
 
-PAGINAS = sorted(p.name for p in ROOT.glob('*.html') if p.name not in ('index.html', 'laboratorios.html'))
+PAGINAS = sorted(p.name for p in DIST.glob('*.html') if p.name not in ('index.html', 'laboratorios.html'))
 MODULOS_VIS = [m.split('/')[-1] for m in modulos_sitio()]
 MOVIL = {'viewport': {'width': 390, 'height': 844}, 'is_mobile': True, 'has_touch': True, 'device_scale_factor': 2}
 ESCRITORIO = {'viewport': {'width': 1366, 'height': 900}}
@@ -99,7 +88,7 @@ def estatico():
     print('HTML de los capítulos originales; portada y laboratorio en navegador_redisenio.py')
     sin_estilo, sin_precarga, con_modulo, videos_mal, titulos = [], [], [], [], []
     for pag in PAGINAS:
-        html = (ROOT / pag).read_text(encoding='utf-8')
+        html = (DIST / pag).read_text(encoding='utf-8')
         s = BeautifulSoup(html, 'html.parser')
         if s.select('[style]'):
             sin_estilo.append(pag)
@@ -121,10 +110,10 @@ def estatico():
     check(not con_modulo, 'ninguna página carga los archivos de interactivos al abrirse', con_modulo)
     check(not videos_mal, 'los videos en bucle no se descargan solos y tienen controles sin JavaScript', videos_mal)
     check(not titulos, 'las tarjetas de decisión usan h3 bajo el h2 de su sección', titulos)
-    deslizar = BeautifulSoup((ROOT / 'control.html').read_text(encoding='utf-8'), 'html.parser').select('.deslizar img')
+    deslizar = BeautifulSoup((DIST / 'control.html').read_text(encoding='utf-8'), 'html.parser').select('.deslizar img')
     check(len(deslizar) == 2 and all(i.get('loading') == 'lazy' for i in deslizar), 'el comparador del PSO carga sus imágenes al acercarse')
     # bibliografía de la tesis: página propia, con cada referencia en una línea de resumen que se abre con su detalle
-    bp = BeautifulSoup((ROOT / 'bibliografia.html').read_text(encoding='utf-8'), 'html.parser')
+    bp = BeautifulSoup((DIST / 'bibliografia.html').read_text(encoding='utf-8'), 'html.parser')
     grupos = bp.select('section.bib-grupo')
     refs = bp.select('.bib-grupo ol.bib > li > details.bib-ref[id^="r-"]')
     nums = sorted(int(d.select_one('summary .bib-num').get_text().replace('Referencia', '').strip()) for d in refs)
@@ -170,13 +159,13 @@ def estatico():
     textos = ' '.join(x.get_text(' ') for x in bp.select('.bib-desc, details.bib-ref'))
     check(';' not in textos and not re.search(r'\s[-–—]\s|–|—', textos),
           'las explicaciones, las fichas y las citas no usan punto y coma ni guiones como separadores')
-    bibtex = (ROOT / 'datos' / 'bibliografia.bib').read_text(encoding='utf-8')
+    bibtex = (DIST / 'datos' / 'bibliografia.bib').read_text(encoding='utf-8')
     claves = re.findall(r'^@[a-z]+\{([a-z0-9]+),', bibtex, re.M)
     check(len(claves) == 72 and len(set(claves)) == 72
           and all(d.select_one('.bib-cita-tesis')['data-clave'] in claves for d in refs)
           and bp.select_one('a[href="datos/bibliografia.bib"][download]'),
           'el archivo BibTeX tiene una entrada por referencia, con la clave que usa la página, y se descarga desde ella', len(claves))
-    rec_html = (ROOT / 'recursos.html').read_text(encoding='utf-8')
+    rec_html = (DIST / 'recursos.html').read_text(encoding='utf-8')
     sec = BeautifulSoup(rec_html, 'html.parser').find('h2', id='bibliografia').find_parent('section')
     mapa = [a['href'] for a in sec.select('a[href^="bibliografia.html#bib-"]')]
     check(sec.select_one('a[href="bibliografia.html"]') and len(mapa) == 11 and all(h.split('#')[1] in ids for h in mapa)
@@ -193,7 +182,7 @@ def manifiesto(nav):
     modulos = p.evaluate('window.SITIO.MODULOS')
     registrados = {n for lista in modulos.values() for n in lista.split()}
     for pag in PAGINAS:
-        for n in re.findall(r'data-vis="([a-z0-9-]+)"', (ROOT / pag).read_text(encoding='utf-8')):
+        for n in re.findall(r'data-vis="([a-z0-9-]+)"', (DIST / pag).read_text(encoding='utf-8')):
             if n not in registrados:
                 faltan.append(pag + ' ' + n)
     check(not faltan, 'cada data-vis de las páginas está registrado en SITIO.MODULOS', faltan)
@@ -309,11 +298,11 @@ def titulos(nav):
         print('  info %d de %d títulos ocupan otras líneas con el respaldo (%s) que con Archivo, sin efecto con font-display optional'
               % (distintos, len(temas) * len(anchos), ', '.join(sorted(f.strip('"') for f in usados))), flush=True)
     # La garantía descansa en font-display optional en todas las hojas de la guía.
-    css = (ROOT / 'css/estilo.css').read_text(encoding='utf-8')
+    css = (DIST / 'css/estilo.css').read_text(encoding='utf-8')
     caras = re.findall(r'@font-face \{[^}]*url\([^}]*\}', css)
     check(caras and all('font-display: optional' in c for c in caras), 'las %d fuentes web de css/estilo.css usan font-display optional: si no llegan a tiempo la página sigue con el respaldo y no se mueve' % len(caras))
-    caras_web = [c for f in sorted((ROOT / 'web/src/styles').glob('*.css')) for c in re.findall(r'@font-face\s*\{[^}]*url\([^}]*\}', f.read_text(encoding='utf-8'))]
-    check(caras_web and all(re.search(r'font-display:\s*optional', c) for c in caras_web), 'las %d fuentes web de la portada (web/src/styles) usan font-display optional' % len(caras_web))
+    caras_web = [c for f in sorted((ROOT / 'src/styles').glob('*.css')) for c in re.findall(r'@font-face\s*\{[^}]*url\([^}]*\}', f.read_text(encoding='utf-8'))]
+    check(caras_web and all(re.search(r'font-display:\s*optional', c) for c in caras_web), 'las %d fuentes web de la portada (src/styles) usan font-display optional' % len(caras_web))
 
 
 def decisiones(nav):

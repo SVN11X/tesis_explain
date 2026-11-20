@@ -7,7 +7,7 @@
 var assert = require("assert"), fs = require("fs"), path = require("path"), vm = require("vm");
 var ctx = { window: {}, Math: Math };
 vm.createContext(ctx);
-vm.runInContext(fs.readFileSync(path.join(__dirname, "..", "js/mapeo.js"), "utf8"), ctx);
+vm.runInContext(fs.readFileSync(path.join(__dirname, "..", "public", "js/mapeo.js"), "utf8"), ctx);
 var M = ctx.window.MAPEO, total = 0;
 function test(name, fn) { fn(); total++; console.log("  ok   " + name); }
 function near(a, b, tol) { assert(Math.abs(a - b) < (tol || 1e-8), a + " ≠ " + b); }
@@ -171,7 +171,7 @@ test("mapa del grafo: optimizar junta la pared vista al inicio y al regreso, per
   near(me.inicioRegreso, 0, 1e-6); assert(me.ancho - me.anchoReal > .04);
 });
 test("el respaldo sin JavaScript del grafo repite las cifras del mapa calculado", function () {
-  var html = fs.readFileSync(path.join(__dirname, "..", "mapeo.html"), "utf8");
+  var html = fs.readFileSync(path.join(__dirname, "..", "public", "mapeo.html"), "utf8");
   var texto = html.split('data-vis="lazo"><p class="vis-fallback">')[1].split("</p>")[0];
   var par = M.paredesGrafo(), g = M.grafoEjemplo(), obs = M.observacionesGrafo(g.real, par), opt = M.optimizarGrafo(g.odom, g.edges.concat([g.cierre]));
   var antes = M.metricasMapa(M.mapaDesdePoses(g.odom, obs), par, 12), despues = M.metricasMapa(M.mapaDesdePoses(opt.poses, obs), par, 12);
@@ -179,7 +179,7 @@ test("el respaldo sin JavaScript del grafo repite las cifras del mapa calculado"
   [f(antes.inicioRegreso * 100, 1) + " cm", f(despues.ancho, 2) + " m", f(despues.anchoReal, 2) + " m"].forEach(function (c) { assert(texto.indexOf(c) >= 0, "falta " + c); });
 });
 test("el reto de los barridos usa las cifras de la página y corrige cada respuesta", function () {
-  var qs = M.reto(), html = fs.readFileSync(path.join(__dirname, "..", "mapeo.html"), "utf8");
+  var qs = M.reto(), html = fs.readFileSync(path.join(__dirname, "..", "public", "mapeo.html"), "utf8");
   assert.strictEqual(qs.length, 2);
   assert(qs[0].opciones[2].ok && !qs[0].opciones[0].ok && !qs[0].opciones[1].ok);
   assert.strictEqual(qs[0].opciones[2].texto, "700 cm²");

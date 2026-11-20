@@ -12,7 +12,7 @@ from pathlib import Path
 import hashlib, io, json, sys, tarfile, urllib.request
 
 ROOT = Path(__file__).resolve().parents[1]
-VOZ = ROOT / 'voz'
+VOZ = ROOT / 'public/voz'
 MANIFIESTO = VOZ / 'manifiesto.json'
 
 TRANSFORMERS = '4.3.2'

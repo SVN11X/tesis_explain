@@ -19,37 +19,19 @@ antes de pintar, avisa a los simuladores y funciona en el menú del teléfono.
 """
 import os, re, sys, json, glob, subprocess
 from http.server import SimpleHTTPRequestHandler
-from servidor import ServidorEstable
+from servidor import iniciar, DIST
 from threading import Thread
 from functools import partial
 from urllib.parse import urlparse, unquote
 from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright, expect
 
-REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
+REPO = str(DIST)
 server = None
 if len(sys.argv) > 1:
     BASE = sys.argv[1].rstrip('/')
 else:
-    class QuietHandler(SimpleHTTPRequestHandler):
-        def log_message(self, *args):
-            pass
-
-        # la portada y los laboratorios, compilados con Astro, piden sus recursos con el prefijo de GitHub Pages
-        def translate_path(self, path):
-            if path.startswith('/tesis_explain/'):
-                path = path[len('/tesis_explain'):]
-            return super().translate_path(path)
-
-        def handle(self):
-            # El navegador corta descargas al cambiar de página; no es un fallo del sitio.
-            try:
-                super().handle()
-            except (BrokenPipeError, ConnectionResetError):
-                pass
-    server = ServidorEstable(('127.0.0.1', 0), partial(QuietHandler, directory=REPO))
-    Thread(target=server.serve_forever, daemon=True).start()
-    BASE = 'http://127.0.0.1:%d' % server.server_port
+    server, BASE = iniciar()
 PAGINAS = sorted(os.path.basename(p) for p in glob.glob(os.path.join(REPO, '*.html')) if os.path.basename(p) not in ('index.html', 'laboratorios.html'))
 fallos, total = [], 0
 
@@ -1074,7 +1056,7 @@ def probar_robot_resumen(nav):
     ok(q.locator('[data-vis=costo] .vis-fallback').is_visible(), 'sin JavaScript: el respaldo del gráfico de costo sigue visible')
     sin.close()
     # las cifras y referencias de la tesis siguen en la página, y los resúmenes no inventan ninguna
-    cmp_ = subprocess.run([sys.executable, os.path.join(REPO, 'scripts', 'comparar_resumen.py'), 'robot'], capture_output=True, text=True, encoding='utf-8', env=dict(os.environ, PYTHONUTF8='1'))
+    cmp_ = subprocess.run([sys.executable, os.path.join(REPO, '..', 'scripts', 'comparar_resumen.py'), 'robot'], capture_output=True, text=True, encoding='utf-8', env=dict(os.environ, PYTHONUTF8='1'))
     lineas = cmp_.stdout.strip().splitlines()
     print('  ' + lineas[0])
     ok(cmp_.returncode == 0, 'ninguna cifra ni referencia a la tesis desapareció y los resúmenes no inventan cifras: ' + lineas[-1])
@@ -1194,7 +1176,7 @@ def probar_problema_resumen(nav):
     ok(q.locator('.decisiones').is_visible() and q.locator('#carta-gantt').is_visible(), 'sin JavaScript: las decisiones y la carta Gantt siguen visibles')
     sin.close()
     # las cifras y referencias de la tesis siguen en la página, y los resúmenes no inventan ninguna
-    cmp_ = subprocess.run([sys.executable, os.path.join(REPO, 'scripts', 'comparar_resumen.py'), 'problema'], capture_output=True, text=True, encoding='utf-8', env=dict(os.environ, PYTHONUTF8='1'))
+    cmp_ = subprocess.run([sys.executable, os.path.join(REPO, '..', 'scripts', 'comparar_resumen.py'), 'problema'], capture_output=True, text=True, encoding='utf-8', env=dict(os.environ, PYTHONUTF8='1'))
     lineas = cmp_.stdout.strip().splitlines()
     print('  ' + lineas[0])
     ok(cmp_.returncode == 0, 'ninguna cifra ni referencia a la tesis desapareció y los resúmenes no inventan cifras: ' + lineas[-1])
@@ -1236,7 +1218,7 @@ def probar_navegacion_resumen(nav):
     p.wait_for_timeout(500)
     ok(p.evaluate("document.getElementById('d-amcl').open"), '360 px: cambiar el ancla abre el detalle')
     ctx.close()
-    cmp_ = subprocess.run([sys.executable, os.path.join(REPO, 'scripts', 'comparar_resumen.py'), 'navegacion'], capture_output=True, text=True, encoding='utf-8', env=dict(os.environ, PYTHONUTF8='1'))
+    cmp_ = subprocess.run([sys.executable, os.path.join(REPO, '..', 'scripts', 'comparar_resumen.py'), 'navegacion'], capture_output=True, text=True, encoding='utf-8', env=dict(os.environ, PYTHONUTF8='1'))
     ok(cmp_.returncode == 0, 'navegacion: ninguna cifra ni referencia desapareció y los resúmenes no inventan cifras: ' + cmp_.stdout.strip().splitlines()[-1])
 
 
@@ -1511,8 +1493,8 @@ def probar_tema(nav):
     print('Tema claro y oscuro')
     claro, oscuro = 'rgb(241, 241, 233)', 'rgb(18, 26, 23)'
     # los dos bloques oscuros de cada hoja, el del sistema y el del botón, llevan los mismos valores
-    for hoja in ('css/marco.css', 'css/estilo.css', 'web/src/styles/experience.css'):
-        css = open(os.path.join(REPO, hoja), encoding='utf-8').read()
+    for hoja in ('css/marco.css', 'css/estilo.css', 'src/styles/experience.css'):
+        css = open(os.path.join(os.path.join(REPO, '..') if hoja.startswith('src/') else REPO, hoja), encoding='utf-8').read()
         m1 = re.search(r'@media \(prefers-color-scheme: dark\) \{\s*:root:not\(\[data-theme="light"\]\) \{(.*?)\}\s*\}', css, re.S)
         m2 = re.search(r':root\[data-theme="dark"\] \{(.*?)\}', css, re.S)
         norm = lambda t: sorted(re.sub(r'\s+', ' ', x).strip() for x in t.split(';') if x.strip())

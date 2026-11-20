@@ -1,4 +1,5 @@
-"""Verificación estática de archivos, anclas, IDs, estado académico e índice.
+"""Verificación estática de archivos, anclas, IDs, estado académico e índice sobre el sitio compilado.
+Se ejecuta después de npm run build, porque revisa dist/, que es lo que se publica.
 Requiere BeautifulSoup solo durante desarrollo; no hace peticiones externas.
 """
 from pathlib import Path
@@ -7,7 +8,10 @@ from urllib.parse import unquote, urlsplit
 import json, subprocess, sys
 
 ROOT = Path(__file__).resolve().parents[1]
-pages = {p.name: BeautifulSoup(p.read_text(encoding='utf-8'), 'html.parser') for p in ROOT.glob('*.html')}
+DIST = ROOT / 'dist'
+if not (DIST / 'index.html').exists():
+    raise SystemExit('Falta dist/index.html. Ejecuta antes npm run build.')
+pages = {p.name: BeautifulSoup(p.read_text(encoding='utf-8'), 'html.parser') for p in DIST.glob('*.html')}
 failures, checks = [], 0
 
 
@@ -35,30 +39,22 @@ for name, soup in pages.items():
                 target = target[len('/tesis_explain/'):] or 'index.html'
             elif target == '/tesis_explain':
                 target = 'index.html'
-            check((ROOT/target).exists(), name + ': recurso inexistente ' + raw)
+            check((DIST/target).exists(), name + ': recurso inexistente ' + raw)
             if u.fragment and target in pages:
                 check(pages[target].find(id=unquote(u.fragment)) is not None, name + ': ancla inexistente ' + raw)
-for step in ['datos.py', 'indice.py']:
-    if step == 'datos.py':
-        subprocess.run([sys.executable, str(ROOT/'scripts'/step), '--comprobar'], check=True)
-    else:
-        sys.path.insert(0, str(ROOT/'scripts'))
-        import indice
-        expected = indice.generar()
-        check(not indice.comprobar_anclas(expected), 'índice: anclas inválidas')
-        current = (ROOT/'datos/indice.js').read_text(encoding='utf-8')
-        check(json.loads(current.split('window.INDICE = ',1)[1].rsplit(';',1)[0]) == expected, 'índice desactualizado')
-        check((ROOT/'datos/secciones.js').exists() and (ROOT/'datos/secciones.js').read_text(encoding='utf-8') == indice.js_secciones(indice.secciones()), 'secciones del índice lateral desactualizadas')
+# Los generadores deben dejar public/ y dist/ al día
+for step in ('datos.py', 'indice.py'):
+    subprocess.run([sys.executable, str(ROOT/'scripts'/step), '--comprobar'], check=True)
 # La lista de temas de la portada tiene las 16 partes de la guía, en el orden y con los títulos de js/sitio.js
 import re, struct
-sitio = (ROOT/'js/sitio.js').read_text(encoding='utf-8')
+sitio = (DIST/'js/sitio.js').read_text(encoding='utf-8')
 secuencia = re.findall(r'\{ id: "([^"]+)", t: "([^"]+)"', sitio[sitio.index('var CAPS'):sitio.index('var SECUENCIA')])
 filas = [(a['href'].rsplit('/', 1)[-1].replace('.html', ''), a.h4.get_text(strip=True)) for a in pages['index.html'].select('.chapter-row')]
 check(len(secuencia) == 16 and filas == secuencia, 'portada: la lista de temas no coincide con las 16 partes de js/sitio.js %s' % filas)
 check(all(a.get('data-pag') == a['href'].rsplit('/', 1)[-1].replace('.html', '') for a in pages['index.html'].select('.chapter-row')), 'portada: cada tema lleva su data-pag')
 
 # Modelo del CAD: franjas amarillas en su propio nodo y materiales de dos caras (scripts/modelo_robot.py)
-glb = (ROOT/'modelos/robot.glb').read_bytes()
+glb = (DIST/'modelos/robot.glb').read_bytes()
 largo = struct.unpack_from('<I', glb, 12)[0]
 gltf = json.loads(glb[20:20 + largo])
 nodos = {n.get('name'): n for n in gltf['nodes']}
@@ -84,7 +80,7 @@ def contraste(a, b):
     return (la + .05) / (lb + .05)
 
 
-marco_css = (ROOT/'css/marco.css').read_text(encoding='utf-8')
+marco_css = (DIST/'css/marco.css').read_text(encoding='utf-8')
 claro = marco_css[marco_css.index(':root {'):marco_css.index('@media (prefers-color-scheme: dark)')]
 oscuro = marco_css[marco_css.index(':root[data-theme="dark"] {'):]
 oscuro = oscuro[:oscuro.index('}')]

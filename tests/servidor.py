@@ -11,9 +11,18 @@ Se escucha solo en 127.0.0.1 con puerto 0 (lo asigna el sistema), así que dos p
 no chocan. Las pruebas deben abrir http://127.0.0.1:<puerto> y no localhost, que en Windows puede
 resolverse primero a ::1, donde este servidor no escucha. El socket ya escucha al terminar el
 constructor, de modo que no hace falta esperar a que arranque.
+
+iniciar() sirve dist/ bajo /tesis_explain/, igual que GitHub Pages: lo de fuera del prefijo da 404. Hay que
+compilar antes con npm run build.
 """
 import sys
-from http.server import ThreadingHTTPServer
+from functools import partial
+from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
+from threading import Thread
+
+DIST = Path(__file__).resolve().parents[1] / 'dist'
+PREFIJO = '/tesis_explain'
 
 
 class ServidorEstable(ThreadingHTTPServer):
@@ -24,3 +33,30 @@ class ServidorEstable(ThreadingHTTPServer):
         if isinstance(sys.exc_info()[1], (ConnectionError, TimeoutError)):
             return
         super().handle_error(request, client_address)
+
+
+class ManejadorDist(SimpleHTTPRequestHandler):
+    def log_message(self, *args):
+        pass
+
+    def translate_path(self, path):
+        base = path.split('?', 1)[0].split('#', 1)[0]
+        if base != PREFIJO and not base.startswith(PREFIJO + '/'):
+            return str(DIST / '__fuera_del_prefijo__')   # no existe: 404, como en GitHub Pages
+        return super().translate_path(path[len(PREFIJO):] or '/')
+
+    def handle(self):
+        # El navegador corta descargas al cambiar de página; no es un fallo del sitio.
+        try:
+            super().handle()
+        except (BrokenPipeError, ConnectionResetError):
+            pass
+
+
+def iniciar():
+    """Arranca el servidor de dist/ en un hilo y devuelve (servidor, URL base sin barra final)."""
+    if not (DIST / 'index.html').exists():
+        raise SystemExit('Falta dist/index.html. Ejecuta antes npm run build.')
+    servidor = ServidorEstable(('127.0.0.1', 0), partial(ManejadorDist, directory=str(DIST)))
+    Thread(target=servidor.serve_forever, daemon=True).start()
+    return servidor, 'http://127.0.0.1:%d%s' % (servidor.server_port, PREFIJO)

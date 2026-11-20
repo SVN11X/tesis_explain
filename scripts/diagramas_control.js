@@ -7,8 +7,8 @@
 */
 "use strict";
 var fs = require("fs"), path = require("path");
-var C = require("../js/control-modelo.js");
-var raiz = path.resolve(__dirname, ".."), destino = path.join(raiz, "img/diagramas");
+var C = require("../public/js/control-modelo.js");
+var raiz = path.resolve(__dirname, "..", "public"), destino = path.join(raiz, "img/diagramas");
 
 /* Los tres ejemplos que el texto de respaldo describe, con los valores de los botones del simulador. */
 var CASOS = [

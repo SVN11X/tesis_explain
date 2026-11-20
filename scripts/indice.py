@@ -1,8 +1,12 @@
-"""Genera datos/indice.js, el índice del buscador, a partir de las páginas HTML del sitio.
+"""Genera dist/datos/indice.js y dist/datos/secciones.js a partir de las páginas compiladas del sitio.
+
+Se ejecuta después de npm run build, porque la portada y los laboratorios solo existen compilados en dist/.
+Ninguno de los dos archivos se versiona: forman parte de la salida.
 
 Uso, desde la raíz del repositorio:
     pip install beautifulsoup4
-    python3 scripts/indice.py
+    python3 scripts/indice.py [--comprobar]
+--comprobar no escribe nada: falla si dist/datos no coincide con las páginas de dist/.
 
 Qué indexa:
   * Una entrada por cada sección con encabezado h2 con id, con todo su texto, incluidas tablas,
@@ -24,7 +28,8 @@ visible se hace en js/sitio.js, no aquí.
 import json, os, re, sys
 from bs4 import BeautifulSoup
 
-REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..') + os.sep
+RAIZ = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+REPO = os.path.join(RAIZ, 'dist') + os.sep
 ORDEN = ['index', 'laboratorios', 'problema', 'robot', 'movimiento', 'control', 'mapeo', 'navegacion', 'exploracion',
          'gemelo', 'resultados', 'replicar', 'mundo-real', 'lecciones', 'preguntas', 'laboratorio', 'recursos',
          'bibliografia']
@@ -218,15 +223,33 @@ def comprobar_anclas(out):
     return errores
 
 
+def js_indice(out):
+    return ('/* Índice del buscador. Generado por scripts/indice.py a partir de las páginas del sitio. No editar a mano. */\n'
+            'window.INDICE = ' + json.dumps(out, ensure_ascii=False, separators=(',', ':')) + ';\n')
+
+
+def escribir(nombre, contenido, comprobar):
+    ruta = REPO + 'datos/' + nombre
+    if comprobar:
+        if not os.path.exists(ruta) or open(ruta, encoding='utf-8', newline='').read() != contenido:
+            sys.exit('Desactualizado: dist/datos/' + nombre + '. Ejecuta npm run build.')
+    else:
+        os.makedirs(os.path.dirname(ruta), exist_ok=True)
+        open(ruta, 'w', encoding='utf-8', newline='\n').write(contenido)
+
+
 if __name__ == '__main__':
+    if not os.path.exists(REPO + 'index.html'):
+        sys.exit('Falta dist/index.html. Ejecuta antes npm run build.')
+    comprobar = '--comprobar' in sys.argv
     out = generar()
     errores = comprobar_anclas(out)
     if errores:
         print('\n'.join(errores))
         sys.exit(1)
-    js = '/* Índice del buscador. Generado por scripts/indice.py a partir de las páginas del sitio. No editar a mano. */\nwindow.INDICE = ' + json.dumps(out, ensure_ascii=False, separators=(',', ':')) + ';\n'
-    open(REPO + 'datos/indice.js', 'w', encoding='utf-8', newline='\n').write(js)
+    js = js_indice(out)
+    escribir('indice.js', js, comprobar)
     print(len(out), 'entradas,', len(js) // 1024, 'KB')
     sec = secciones()
-    open(REPO + 'datos/secciones.js', 'w', encoding='utf-8', newline='\n').write(js_secciones(sec))
+    escribir('secciones.js', js_secciones(sec), comprobar)
     print(sum(len(v) for v in sec.values()), 'secciones en', len(sec), 'partes')

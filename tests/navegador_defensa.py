@@ -14,7 +14,7 @@ import json
 import re
 from pathlib import Path
 from http.server import SimpleHTTPRequestHandler
-from servidor import ServidorEstable
+from servidor import iniciar, DIST
 from functools import partial
 from threading import Thread
 from bs4 import BeautifulSoup
@@ -29,23 +29,10 @@ CORS = {'access-control-allow-origin': '*', 'access-control-allow-headers': 'con
         'access-control-allow-methods': 'GET, POST', 'access-control-expose-headers': 'Retry-After'}
 
 
-class Quiet(SimpleHTTPRequestHandler):
-    def log_message(self, *args):
-        pass
-
-    def handle(self):
-        try:
-            super().handle()
-        except (BrokenPipeError, ConnectionResetError):
-            pass
-
-
-server = ServidorEstable(('127.0.0.1', 0), partial(Quiet, directory=str(ROOT.parent)))
-Thread(target=server.serve_forever, daemon=True).start()
-BASE = 'http://127.0.0.1:%d/%s' % (server.server_port, ROOT.name)
+server, BASE = iniciar()
 count = 0
 
-SOUP = BeautifulSoup((ROOT / 'preguntas.html').read_text(encoding='utf-8'), 'html.parser')
+SOUP = BeautifulSoup((DIST / 'preguntas.html').read_text(encoding='utf-8'), 'html.parser')
 TARJETAS = SOUP.select('details.pregunta')
 CATALOGO = {'version': VERSION, 'total': len(TARJETAS), 'pendientes': [],
             'preguntas': [{'id': d['id'], 'evaluable': d['data-respuesta'] == 'guia' and d['id'] != NO_EVALUABLE[1]} for d in TARJETAS]}

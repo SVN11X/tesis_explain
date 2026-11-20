@@ -1,12 +1,12 @@
 """Imagen para compartir enlaces del sitio (og:image), con el diseño común: img/social.png, de 1200 por 630.
 
-Uso: python3 scripts/imagen_social.py
+Uso: python3 scripts/imagen_social.py [--comprobar]
+--comprobar no genera nada: verifica que public/img/social.png existe y mide 1200 por 630.
 Requiere playwright. Las fuentes, el logo y las fotos son los del sitio, así que la imagen se rehace igual
 cada vez que cambia el marco o la marca.
 """
 from pathlib import Path
-import re
-from playwright.sync_api import sync_playwright
+import re, struct, sys, tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -17,8 +17,8 @@ def logo():
 
 
 def pagina():
-    f = (ROOT / 'fuentes').as_uri()
-    img = (ROOT / 'img/fotos').as_uri()
+    f = (ROOT / 'public/fuentes').as_uri()
+    img = (ROOT / 'public/img/fotos').as_uri()
     return '''<!doctype html><html lang="es"><head><meta charset="utf-8"><style>
 @font-face { font-family: Archivo; src: url('%(f)s/archivo-latin-variable.woff2'); font-weight: 500 800; }
 @font-face { font-family: Atkinson; src: url('%(f)s/atkinson-hyperlegible-latin-400-normal.woff2'); font-weight: 400; }
@@ -57,20 +57,35 @@ h1 span { color: #5f7a2a; }
 </body></html>''' % {'f': f, 'img': img, 'logo': logo()}
 
 
+SALIDA = ROOT / 'public/img/social.png'
+
+
+def comprobar():
+    if not SALIDA.exists():
+        raise SystemExit('Falta public/img/social.png. Ejecuta: python3 scripts/imagen_social.py')
+    d = SALIDA.read_bytes()
+    ancho, alto = struct.unpack('>II', d[16:24])
+    if d[:4] != b'\x89PNG' or (ancho, alto) != (1200, 630):
+        raise SystemExit('public/img/social.png no mide 1200 por 630')
+    print('Imagen social al día: 1200 por 630')
+
+
 def main():
-    tmp = ROOT / 'build' / 'social.html'
-    tmp.parent.mkdir(exist_ok=True)
-    tmp.write_text(pagina(), encoding='utf-8', newline='\n')
-    with sync_playwright() as pw:
-        nav = pw.chromium.launch()
-        p = nav.new_page(viewport={'width': 1200, 'height': 630}, device_scale_factor=1)
-        p.goto(tmp.as_uri(), wait_until='load')
-        p.evaluate('document.fonts.ready')
-        p.wait_for_timeout(300)
-        p.screenshot(path=str(ROOT / 'img/social.png'))
-        nav.close()
-    tmp.unlink()
-    print('img/social.png, 1200 por 630')
+    if '--comprobar' in sys.argv:
+        return comprobar()
+    from playwright.sync_api import sync_playwright
+    with tempfile.TemporaryDirectory() as carpeta:
+        tmp = Path(carpeta) / 'social.html'
+        tmp.write_text(pagina(), encoding='utf-8', newline='\n')
+        with sync_playwright() as pw:
+            nav = pw.chromium.launch()
+            p = nav.new_page(viewport={'width': 1200, 'height': 630}, device_scale_factor=1)
+            p.goto(tmp.as_uri(), wait_until='load')
+            p.evaluate('document.fonts.ready')
+            p.wait_for_timeout(300)
+            p.screenshot(path=str(SALIDA))
+            nav.close()
+    print('public/img/social.png, 1200 por 630')
 
 
 if __name__ == '__main__':

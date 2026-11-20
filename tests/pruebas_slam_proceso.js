@@ -2,7 +2,7 @@
 "use strict";
 var assert = require('assert'), fs = require('fs'), path = require('path'), vm = require('vm');
 var ctx = { window: {}, Math: Math }; vm.createContext(ctx);
-['mapeo.js', 'slam-proceso.js'].forEach(function (name) { vm.runInContext(fs.readFileSync(path.join(__dirname, '../js', name), 'utf8'), ctx); });
+['mapeo.js', 'slam-proceso.js'].forEach(function (name) { vm.runInContext(fs.readFileSync(path.join(__dirname, '../public/js', name), 'utf8'), ctx); });
 var S = ctx.window.SLAM_PROCESO, M = ctx.window.MAPEO, total = 0;
 function test(name, f) { f(); total++; console.log('  ok   ' + name); }
 test('la cercanía no acepta por sí sola una coincidencia geométrica falsa', function () {
@@ -20,7 +20,7 @@ test('las llamadas no comparten observaciones mutables', function () {
 });
 test('el respaldo del candidato usa el mismo dibujo y mantiene los estilos fuera del SVG en línea', function () {
   var expected = S.candidatosSVG(0, true) + '\n';
-  assert.strictEqual(fs.readFileSync(path.join(__dirname, '../img/diagramas/candidatos-cierre.svg'), 'utf8'), expected);
+  assert.strictEqual(fs.readFileSync(path.join(__dirname, '../public/img/diagramas/candidatos-cierre.svg'), 'utf8'), expected);
   assert(!S.candidatosSVG(0, false).includes('<style>'));
 });
 test('los seis barridos a 500 ms reproducen los conteos explicados sin JavaScript', function () {

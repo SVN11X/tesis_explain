@@ -1,6 +1,6 @@
 # scripts
 
-Generators, checks and build helpers. Run them from the repository root.
+Generators, checks and build helpers. Run them from the repository root. Page and data paths below are inside `public/`, except `indice.py` and `verificar_sitio.py`, which read the built site in `dist/` (run `npm run build` first).
 
 - `bibliografia.py`: validates `datos/bibliografia.json` and builds the bibliography blocks and `.bib`.
 - `catalogo_defensa.py`: builds `datos/defensa/catalogo.json` from `preguntas.html` (`--comprobar` checks it).
@@ -11,13 +11,11 @@ Generators, checks and build helpers. Run them from the repository root.
 - `descargar_voz.py`: downloads and checks the voice assets (`--comprobar`, `--manifiesto`).
 - `diagramas_control.js`, `diagramas_mapeo.js`, `diagramas_plano.js`: regenerate the fallback SVG diagrams (`--comprobar`).
 - `ejemplos_laboratorio.js`: regenerates the synthetic laboratory examples (`--comprobar`).
-- `imagen_social.py`: renders the social preview image.
-- `indice.py`: builds `datos/indice.js` and `datos/secciones.js`.
+- `imagen_social.py`: renders the social preview image `public/img/social.png` (`--comprobar` checks its size).
+- `indice.py`: builds `dist/datos/indice.js` and `dist/datos/secciones.js` from the built pages (`--comprobar`). `npm run build` runs it.
 - `marco.py`: applies the shared header, footer and theme templates to the pages.
 - `modelo_robot.py`: prepares the robot CAD model from a STEP file.
 - `planificacion.py`: builds the costs and Gantt blocks, used by `datos.py`.
 - `plantillas/`: HTML templates (`cabecera.html`, `pie.html`, `tema.html`) used by `marco.py`.
-- `preparar-web.mjs`, `publicar-web.mjs`: steps around `astro build` (see `package.json`).
 - `validacion_defensa.mjs`: computes metrics from labelled defense runs (JSONL).
-- `verificar_compilacion.py`: compares the build output with the committed files.
-- `verificar_sitio.py`: checks data, index, links and anchors.
+- `verificar_sitio.py`: checks data, index, links and anchors of the built site in `dist/`.

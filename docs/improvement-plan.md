@@ -15,13 +15,13 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 
 - [x] (green) Standard documents: goals.md, DESIGN.md, this plan, decisions 0001 and 0002, CHANGELOG.md, issue and pull request templates, .editorconfig.
 - [x] (green) In the same pull request: a draft docs/how-it-works.md from the confirmed understanding, for the owner to confirm.
-- [ ] BLOCKED: Owner merges PR #25 (workflow). pages.yml uploads today's committed site from an explicit file list, without a build. docs/, scripts/, servicio/ and README.md stop being served.
-- [ ] BLOCKED: Merge pages.yml and switch Settings, Pages, Source to GitHub Actions in the same minute (owner). Every later structure item waits for this.
+- [x] (done) Owner merged PR #25 (workflow). pages.yml uploads today's committed site from an explicit file list, without a build. docs/, scripts/, servicio/ and README.md stop being served.
+- [x] (done 2026-11-20) Merge pages.yml and switch Settings, Pages, Source to GitHub Actions in the same minute (owner). Every later structure item waits for this.
 - [x] (yellow) Part (a): herramientas/ moved to scripts/, its 19 pruebas_* and 2 *.test.mjs plus the shared test server moved to tests/ (browser tests are now tests/navegador*.py). Imports, CI, package.json and README.md fixed, generated headers regenerated.
-- [ ] BLOCKED: Waits for PR #25 and the Pages switch. Part (b), one pull request: guide pages, css, js, img, fuentes, datos, descargas, modelos and voz to public/ with the same paths, and web/src to src/ with Astro defaults and dist/.
-- [ ] BLOCKED: Waits for PR #25 and the Pages switch. Same pull request as part (b): datos.py, descarga_preguntas.py, imagen_social.py, indice.py and verificar_sitio.py follow the pages, read or write dist/ after the build, and pass --comprobar.
-- [ ] BLOCKED: Waits for PR #25 and the Pages switch. Same pull request as part (b): remove preparar-web.mjs, publicar-web.mjs, verificar_compilacion.py, compilacion.py and all committed build output. datos/indice.js is built into dist/.
-- [ ] BLOCKED: Waits for PR #25 and the Pages switch. Same pull request as part (b): browser tests serve dist/ under /tesis_explain/, and pages.yml builds and uploads dist/.
+- [x] (yellow) Part (b), one pull request: guide pages, css, js, img, fuentes, datos, descargas, modelos and voz to public/ with the same paths, and web/src to src/ with Astro defaults and dist/.
+- [x] (yellow) Same pull request as part (b): datos.py, descarga_preguntas.py, imagen_social.py, indice.py and verificar_sitio.py follow the pages, read or write dist/ after the build, and pass --comprobar.
+- [x] (yellow) Same pull request as part (b): remove preparar-web.mjs, publicar-web.mjs, verificar_compilacion.py, compilacion.py and all committed build output. datos/indice.js is built into dist/.
+- [x] (yellow) Same pull request as part (b): browser tests serve dist/ under /tesis_explain/, and pages.yml builds and uploads dist/.
 - [ ] BLOCKED: Waits for PR #25 and the Pages switch. Declare servicio/ in extra_folders with its reason. Every other folder has a place after part (b).
 - [ ] BLOCKED: Waits for PR #25 and the Pages switch. Take the three voice files over 5 MB out of git: the Pages build downloads them with descargar_voz.py and checks their hashes.
 - [ ] BLOCKED: Waits for PR #25 and the Pages switch. Once the check can pass: .standard.yml (three_d core, github.description), AGENTS.md, CLAUDE.md and standard.yml with gitleaks. The commit guard blocks .standard.yml before that.

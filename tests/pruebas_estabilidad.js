@@ -3,7 +3,7 @@
    cifras del texto. Uso: node tests/pruebas_estabilidad.js */
 "use strict";
 var assert = require("node:assert/strict");
-var E = require("../js/estabilidad-modelo.js"), D = require("../datos/proyecto.js");
+var E = require("../public/js/estabilidad-modelo.js"), D = require("../public/datos/proyecto.js");
 var total = 0;
 function comprobar(nombre, prueba) { prueba(); total++; console.log("  ok   " + nombre); }
 function cerca(a, b, tol, que) { assert.ok(Math.abs(a - b) <= tol, (que || "") + " " + a + " ≠ " + b + " ± " + tol); }
