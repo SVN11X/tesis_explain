@@ -169,23 +169,9 @@
     enlace: "#d-reparto", enlaceTexto: "El argumento del reparto"
   }];
   V["reto-robot"] = function (el) {
-    var hechas = {};
-    el.innerHTML = '<div class="rr-reto">' + RETO.map(function (q, i) {
-      return '<fieldset class="rr-q"><legend>Pregunta ' + (i + 1) + '. ' + U.esc(q.pregunta) + '</legend>' +
-        q.opciones.map(function (o, j) { return '<label><input type="radio" name="rr-reto-' + i + '" value="' + j + '"><span>' + U.esc(o.texto) + '</span></label>'; }).join("") +
-        '<p class="rr-r" data-reto-r="' + i + '" role="status" aria-live="polite"></p></fieldset>';
-    }).join("") + '<p class="rr-fin" data-reto-fin role="status" aria-live="polite"></p></div>';
-    el.addEventListener("change", function (e) {
-      var t = e.target;
-      if (!t.matches || !t.matches('input[type="radio"]')) return;
-      var i = +t.name.replace("rr-reto-", ""), q = RETO[i], o = q && q.opciones[+t.value];
-      if (!o) return;
-      var box = el.querySelector('[data-reto-r="' + i + '"]');
-      box.setAttribute("data-ok", String(o.ok));
-      box.innerHTML = '<b>' + (o.ok ? "Correcto." : "Todavía no.") + '</b> ' + U.esc(o.porque) + ' <a href="' + q.enlace + '">' + U.esc(q.enlaceTexto) + '</a>';
-      hechas[i] = o.ok;
-      var bien = RETO.filter(function (_, k) { return hechas[k]; }).length;
-      el.querySelector("[data-reto-fin]").textContent = Object.keys(hechas).length === RETO.length ? "Reto: " + bien + " de " + RETO.length + " correctas. Puedes cambiar una respuesta." : "";
+    U.reto(el, RETO, "rr-reto-", function (i, j) {
+      var q = RETO[i], o = q && q.opciones[j];
+      return o ? { ok: o.ok, porque: o.porque, enlace: q.enlace, enlaceTexto: q.enlaceTexto } : null;
     });
   };
 })();
