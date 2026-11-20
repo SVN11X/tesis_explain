@@ -38,7 +38,7 @@ EN_GITHUB = os.environ.get('GITHUB_ACTIONS') == 'true'
 
 
 def modulos_sitio():
-    """SITIO.MODULOS leído de js/sitio.js: {'js/vis1.js': 'astar frontera ...'}"""
+    """SITIO.MODULOS leído de js/sitio.js: {'js/navegacion.js': 'astar alcance'}"""
     fuente = (ROOT / 'js' / 'sitio.js').read_text(encoding='utf-8')
     bloque = re.search(r'var MODULOS = \{(.*?)\n  \};', fuente, re.S).group(1)
     return dict(re.findall(r'"(js/[^"]+\.js)":\s*"([^"]+)"', bloque))

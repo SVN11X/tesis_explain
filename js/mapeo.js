@@ -941,4 +941,50 @@
     el.addEventListener("click", function (e) { var b = e.target.closest("[data-color], [data-todas]"); if (!b) return; selected = b.hasAttribute("data-todas") ? null : b.getAttribute("data-color"); draw(); });
     el.estadoSim = function () { return { navegacion: nav, seleccion: selected }; }; draw();
   };
+
+  /* Cobertura. Arriba, un ejemplo ilustrativo con el mismo mapa en una imagen que se agranda;
+     abajo, los valores de la Tabla 5.4. */
+  V.cobertura = function (el) {
+    var LIBRES = 24, margen = 3;
+    function grilla(cols, filas, libre, ocup, etiqueta) {
+      var T = 20, s = '<svg class="vsvg mini-grid" style="max-width:' + cols * 26 + 'px" viewBox="0 0 ' + cols * T + ' ' + filas * T + '" role="img" aria-label="' + U.esc(etiqueta) + '">';
+      for (var y = 0; y < filas; y++) for (var x = 0; x < cols; x++) {
+        var c = libre(x, y) ? 'f-verde-s' : (ocup(x, y) ? 'f-obst' : 'f-desc');
+        s += '<rect x="' + (x * T + .5) + '" y="' + (y * T + .5) + '" width="' + (T - 1) + '" height="' + (T - 1) + '" rx="2" class="' + c + '"/>';
+      }
+      return s + '</svg>';
+    }
+    /* El mismo contenido en ambas imágenes: 24 celdas libres y una ocupada. Solo cambia el margen desconocido. */
+    var libre = function (x, y) { return x < 6 && y < 4; }, ocupada = function (x, y) { return y === 4 && x === 5; };
+    function conteo(cols) { var total = cols * 5, desc = total - LIBRES - 1; return { desc: desc, indice: LIBRES / (LIBRES + desc) }; }
+    var base = conteo(6);
+    var it = window.PROYECTO.ensayos.mapeo.filter(function (r) { return r.valida === "si"; }).map(function (r) { return [String(r.iteracion), r.cobertura_libre_pct, r.area_libre_m2]; });
+    function barras(idx, max, fmt, unidad) {
+      return '<div class="hbars">' + it.map(function (r) {
+        return '<div class="hb"><span>It. ' + r[0] + '</span><i style="--w:' + (r[idx] / max * 100).toFixed(1) + '%"></i><b class="num">' + fmt(r[idx]) + unidad + '</b></div>';
+      }).join("") + '</div>';
+    }
+    el.innerHTML =
+      '<div class="formula"><span>índice</span><span class="eq">=</span><span class="frac"><span>libres</span><span>libres + desconocidas</span></span><small>Las celdas ocupadas no cuentan. Ec. 5.4.</small></div>' +
+      '<h4 class="vsub">Ejemplo ilustrativo: el mismo mapa en dos imágenes</h4>' +
+      '<div class="dos-pan"><figure><figcaption><b>Imagen ajustada al mapa</b><span>24 libres, 1 ocupada y ' + base.desc + ' desconocidas</span></figcaption>' + grilla(6, 5, libre, ocupada, "24 libres, 1 ocupada y " + base.desc + " desconocidas") + '<p class="vnota big num">' + U.fmt(base.indice * 100, 1) + ' %</p></figure>' +
+      '<figure><figcaption><b>Imagen con margen</b><span data-o="desc-txt"></span></figcaption><div data-o="grilla"></div><p class="vnota big num" data-o="indice"></p></figure></div>' +
+      '<label class="desl-linea" for="cob-margen">Columnas desconocidas agregadas a la imagen <b class="num" data-o="margen"></b><input id="cob-margen" type="range" min="0" max="6" step="1" value="3"></label>' +
+      '<div class="vley"><span><i class="cu verde-s"></i>libre</span><span><i class="cu desc"></i>desconocida</span><span><i class="cu obst"></i>ocupada</span></div>' +
+      '<p class="control-conclusion" data-o="cob-txt" aria-live="polite"></p>' +
+      '<h4 class="vsub">Las cinco corridas válidas, Tabla 5.4 de la tesis</h4>' +
+      '<div class="dos-pan"><div><span class="eyebrow">Índice de cobertura libre</span>' + barras(1, 100, function (v) { return U.fmt(v, 1); }, " %") + '</div>' +
+      '<div><span class="eyebrow">Área libre mapeada</span>' + barras(2, 4, function (v) { return U.fmt(v, 2); }, " m²") + '</div></div>' +
+      '<p class="vnota">El índice salta de 53 a 83 %, pero el área libre queda casi fija. La iteración 2 no tiene mapa. Las barras de cada columna parten de cero.</p>';
+    function pintar() {
+      var cols = 6 + margen, c = conteo(cols);
+      el.querySelector('[data-o="grilla"]').innerHTML = grilla(cols, 5, libre, ocupada, "24 libres, 1 ocupada y " + c.desc + " desconocidas");
+      el.querySelector('[data-o="desc-txt"]').textContent = "las mismas 24 libres y 1 ocupada, con " + c.desc + " desconocidas";
+      el.querySelector('[data-o="indice"]').textContent = U.fmt(c.indice * 100, 1) + " %";
+      el.querySelector('[data-o="margen"]').textContent = margen + (margen === 1 ? " columna" : " columnas");
+      el.querySelector('[data-o="cob-txt"]').textContent = "Índice = 24 / (24 + " + c.desc + ") = " + U.fmt(c.indice * 100, 1) + " %. Área libre = 24 × 0,0025 m² = 0,06 m² en ambas imágenes: agrandar la imagen cambia el índice, no el espacio libre.";
+    }
+    el.addEventListener("input", function (e) { if (e.target.id !== "cob-margen") return; margen = +e.target.value; pintar(); });
+    pintar();
+  };
 })();
