@@ -61,7 +61,7 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 - [x] (green) One reduced-motion path: U.quieto and one U.alCambiarMovimiento. bucle pauses pid, enjambre and exploracion when reduced motion turns on mid-run, as cinematica and encoder already do.
 - [x] (green) Remove dead code: the sims.js hero mode (no page uses data-modo="hero"), ICO stored in VISUALES (comun.js:92), stale notes (vis1.js:8, :323, sims.js:9, :711) and SITIO.quieto (sitio.js:853).
 - [x] (green) Tests before the split: list files from SITIO.MODULOS instead of hardcoded names, check that each file registers exactly its MODULOS names, and add a Node test for the exploration simulation.
-- [ ] (yellow) Split vis1, vis2, vis3 and sims.js by chapter: navegacion, exploracion, control, robot, plus mapeo (cobertura) and movimiento. Consider static HTML for versiones, gemelo and fallaria. (vis1.js done)
+- [ ] (yellow) Split vis1, vis2, vis3 and sims.js by chapter: navegacion, exploracion, control, robot, plus mapeo (cobertura) and movimiento. Consider static HTML for versiones, gemelo and fallaria. (vis1, sims done)
 - [ ] (green) After part (b): shorten README.md (364 lines) to what it is, for whom, use, status, layout and license. The audit reports go to docs/historial/ with every link fixed.
 
 ## Presentation

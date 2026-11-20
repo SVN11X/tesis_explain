@@ -112,7 +112,7 @@
       return '<svg class="ley-robot' + (clase ? " " + clase : "") + '" viewBox="-6 1 26 24" aria-hidden="true"><path d="' + g.cuerpo + '"/><circle cx="' + g.lidar[0].toFixed(1) + '" cy="' + g.lidar[1].toFixed(1) + '" r="' + g.lidarR.toFixed(1) + '"/></svg>';
     }
   };
-  /* Kit de lienzo compartido por las simulaciones (js/sims.js y los demás módulos interactivos). Vive aquí porque
+  /* Kit de lienzo compartido por las simulaciones (todos los módulos interactivos). Vive aquí porque
      cada página carga solo los módulos que usa, y así no se copia en cada uno. */
   /* utilidades de color y lienzo */
   function css(nombre, el) { return getComputedStyle(el || document.documentElement).getPropertyValue(nombre).trim() || "#888"; }
