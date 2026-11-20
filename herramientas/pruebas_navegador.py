@@ -775,6 +775,24 @@ def probar_plegados(nav):
     p.keyboard.press('Enter')
     p.wait_for_timeout(600)
     ok(p.evaluate("(() => { const a = document.getElementById(location.hash.slice(1)); return location.pathname.endsWith('resultados.html') && !!a && a.checkVisibility() && !!a.closest('details.detalle'); })()"), 'resultados: un resultado del buscador abre el detalle plegado de destino')
+    # exploracion.html: resumen corto por sección, interactivos visibles y un ancla abre lo plegado
+    p.goto(BASE + '/exploracion.html')
+    p.wait_for_timeout(300)
+    ok(p.evaluate("[...document.querySelectorAll('details.detalle')].every(d => !d.open)") and p.locator('main p.resumen').count() >= 8, 'exploracion: sin ancla parte con un resumen por sección y todo el detalle plegado')
+    ok(p.locator('main table.tabla').count() == 2 and all(p.locator('main [data-vis="%s"]' % v).is_visible() for v in ['exploracion', 'frontera', 'metas', 'listanegra']) and p.locator('main .resumen', has_text='53 de las 54').count() >= 1, 'exploracion: las tablas y los interactivos siguen visibles y el resumen dice 53 de 54')
+    r = p.evaluate("""() => { const h0 = document.documentElement.scrollHeight, ds = [...document.querySelectorAll('details.detalle')];
+      ds.forEach(d => d.open = true); const h1 = document.documentElement.scrollHeight; ds.forEach(d => d.open = false); return { plegada: h0, abierta: h1 }; }""")
+    ok(r['plegada'] < r['abierta'] * 0.85, 'exploracion: plegada, la página es bastante más baja que con todo abierto', r)
+    for ancla in ['d-medir-bien', 'd-abortadas']:
+        p.goto(BASE + '/exploracion.html#' + ancla)
+        p.wait_for_timeout(500)
+        r = p.evaluate("(id) => { const d = document.getElementById(id); return { abierto: d.open, visible: d.querySelector('p').checkVisibility() }; }", ancla)
+        ok(r['abierto'] and r['visible'], 'exploracion: el ancla #' + ancla + ' abre el detalle y muestra su texto', r)
+    p.goto(BASE + '/exploracion.html')
+    p.wait_for_timeout(300)
+    p.evaluate("(() => { const a = document.createElement('a'); a.href = '#d-lista-negra'; a.textContent = 'x'; document.body.append(a); a.click(); })()")
+    p.wait_for_timeout(400)
+    ok(p.evaluate("document.getElementById('d-lista-negra').open"), 'exploracion: un enlace a un detalle plegado lo abre')
     s = p.locator('details.detalle > summary').first
     s.focus()
     ok(p.evaluate("document.activeElement.tagName === 'SUMMARY'"), 'el control para desplegar se alcanza con teclado')
