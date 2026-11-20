@@ -47,6 +47,7 @@ Para compilar y verificar, en este orden (`npm run build` y las comprobaciones n
 
 ```bash
 npm ci
+python -m pip install -r scripts/requisitos.txt
 npm run build
 python scripts/datos.py --comprobar
 python scripts/catalogo_defensa.py --comprobar
@@ -58,6 +59,8 @@ npm run check
 npm run test:lidar
 npm test
 ```
+
+Para las herramientas que se ejecutan a mano (`modelo_robot.py`), instala también `scripts/requisitos-opcionales.txt`.
 
 `npm run build` ejecuta `astro build`, que escribe la portada y los laboratorios en `dist/` y copia `public/`, y después `python scripts/indice.py`, que lee las páginas compiladas y escribe `dist/datos/indice.js` y `dist/datos/secciones.js`. Las pruebas de navegador (`python tests/navegador*.py`) sirven `dist/` bajo `/tesis_explain/`, igual que GitHub Pages, así que hay que compilar antes. Los generadores que escriben en las páginas (`datos.py`, `descarga_preguntas.py`, `imagen_social.py`, `bibliografia.py`) escriben en `public/`.
 

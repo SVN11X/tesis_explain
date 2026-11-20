@@ -19,3 +19,5 @@ Generators, checks and build helpers. Run them from the repository root. Page an
 - `plantillas/`: HTML templates (`cabecera.html`, `pie.html`, `tema.html`) used by `marco.py`.
 - `validacion_defensa.mjs`: computes metrics from labelled defense runs (JSONL).
 - `verificar_sitio.py`: checks data, index, links and anchors of the built site in `dist/`.
+- `requisitos.txt`: pinned Python dependencies that CI installs.
+- `requisitos-opcionales.txt`: dependencies of the tools run by hand, such as `modelo_robot.py`.

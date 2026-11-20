@@ -1,0 +1,5 @@
+# Dependencias de Python que instala la CI (versiones exactas).
+# beautifulsoup4: verificar_sitio.py, indice.py y otros leen el HTML.
+beautifulsoup4==4.15.0
+# playwright: las pruebas de navegador abren Chromium.
+playwright==1.65.2

@@ -28,7 +28,7 @@ jobs:
           python-version: '3.12'
       - name: Dependencias
         run: |
-          pip install beautifulsoup4
+          python -m pip install -r scripts/requisitos.txt
           npm ci
       - name: Compilar el sitio en dist/
         run: npm run build

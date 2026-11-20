@@ -1,0 +1,7 @@
+# Solo para herramientas que se ejecutan a mano, la CI no las instala.
+# modelo_robot.py: lee y procesa el modelo 3D.
+trimesh==5.2.1
+# modelo_robot.py: cálculo numérico sobre la malla.
+numpy==2.4.6
+# modelo_robot.py: convierte archivos STEP a malla.
+cascadio==0.1.1
