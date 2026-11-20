@@ -145,6 +145,10 @@
   <p><mark>El robot solo no explora.</mark> Es una arquitectura distribuida en la que cada equipo hace lo que mejor le calza a su ritmo y a su capacidad de cálculo <a class="ref" href="#f1">1</a>. El argumento es simple. Lo que debe ocurrir decenas de veces por segundo sin fallar, como leer un encoder y corregir un motor, va en un microcontrolador dedicado. Lo que necesita memoria y procesador, como optimizar un mapa o planificar una ruta, va en el computador.</p>
   <p>Muchos robots usan este mismo reparto. El TurtleBot 3 combina una Raspberry Pi con una placa OpenCR que controla sus motores <a class="ref" href="#f3">3</a>, y los drones que usan PX4 separan el controlador de vuelo de un computador acompañante que ejecuta tareas pesadas como la visión <a class="ref" href="#f4">4</a>.</p>
   </details>
+  <div class="widget" id="reto-robot">
+    <div class="widget-cab"><h3 id="reto">Reto: ¿quién hace cada tarea?</h3><span class="tipo inter">Reto</span><p>Dos preguntas con el reparto de arriba. Elige una respuesta y verás al instante si acertaste y por qué.</p></div>
+    <div class="vis" data-vis="reto-robot"><p class="vis-fallback">1. ¿Qué equipo lee los encoders y corrige la velocidad de las ruedas: el Arduino, la Raspberry Pi o el computador? 2. ¿Dónde se optimiza el mapa y se planifica la ruta: en el Arduino, en la Raspberry Pi o en el computador? Necesita JavaScript para responder con respuesta inmediata.</p><details><summary>Ver las respuestas</summary><p>1. El Arduino: lee los encoders y corrige cada motor decenas de veces por segundo. 2. El computador: optimizar un mapa o planificar una ruta necesita memoria y procesador.</p></details></div>
+  </div>
 </section>
 
 <section>
