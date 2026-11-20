@@ -225,7 +225,7 @@ with sync_playwright() as pw:
     check(q.locator('#d-barrido').get_attribute('open') is not None,'sin JavaScript: el detalle se abre a mano')
     sin.close()
     # las cifras y referencias de la tesis siguen en la página, y los resúmenes no inventan ninguna
-    cmp_ = subprocess.run([sys.executable, str(ROOT / 'herramientas' / 'comparar_resumen_control.py')], capture_output=True, text=True, encoding='utf-8', env=dict(os.environ, PYTHONUTF8='1'))
+    cmp_ = subprocess.run([sys.executable, str(ROOT / 'herramientas' / 'comparar_resumen.py'), 'control'], capture_output=True, text=True, encoding='utf-8', env=dict(os.environ, PYTHONUTF8='1'))
     lineas = cmp_.stdout.strip().splitlines()
     print('  ' + lineas[0])
     check(cmp_.returncode == 0, 'ninguna cifra ni referencia a la tesis desapareció y los resúmenes no inventan cifras: ' + lineas[-1])

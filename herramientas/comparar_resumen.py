@@ -1,11 +1,11 @@
-"""Comprueba que el resumen por sección de control.html no perdió ninguna cifra ni referencia a la tesis.
+"""Comprueba que el resumen por sección de una página larga no perdió ninguna cifra ni referencia a la tesis.
 
 Uso:
-  python herramientas/comparar_resumen_control.py            compara control.html con la lista guardada
-  python herramientas/comparar_resumen_control.py --guardar ARCHIVO.html
+  python herramientas/comparar_resumen.py PAGINA            compara PAGINA.html con la lista guardada
+  python herramientas/comparar_resumen.py PAGINA --guardar ARCHIVO.html
                                                             guarda las cifras y referencias de ese HTML
 
-La lista guardada (herramientas/cifras_control_antes.json) sale de control.html antes de plegarlo.
+La lista guardada (herramientas/cifras_PAGINA_antes.json) sale de la página antes de plegarla.
 Se comprueban dos cosas:
   1. Todo número y toda referencia (sección, tabla, figura, anexo) del texto de antes sigue en la página,
      ya sea en un resumen o en un detalle plegado, porque el texto original se movió completo.
@@ -20,7 +20,6 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 
 RAIZ = Path(__file__).resolve().parents[1]
-FIJO = Path(__file__).resolve().with_name('cifras_control_antes.json')
 NUM = re.compile(r'\d+(?:[.,]\d+)*')
 REF = re.compile(r'(secci[oó]n|secciones|tablas?|figuras?|figs?\.|anexos?)\s+([A-Za-z]?\d[\d.]*)', re.I)
 
@@ -53,13 +52,19 @@ def extraer(html, quitar_resumenes=False, solo_resumenes=False):
 
 
 def main():
-    if len(sys.argv) == 3 and sys.argv[1] == '--guardar':
-        nums, refs = extraer(Path(sys.argv[2]).read_text(encoding='utf-8'))
-        FIJO.write_text(json.dumps({'numeros': sorted(nums), 'referencias': sorted(refs)}, ensure_ascii=False, indent=1) + '\n', encoding='utf-8')
+    args = sys.argv[1:]
+    if not args or args[0].startswith('-'):
+        print('uso: comparar_resumen.py PAGINA [--guardar ARCHIVO.html]')
+        return 2
+    pagina = args[0].removesuffix('.html')
+    fijo = Path(__file__).resolve().with_name('cifras_%s_antes.json' % pagina)
+    if len(args) == 3 and args[1] == '--guardar':
+        nums, refs = extraer(Path(args[2]).read_text(encoding='utf-8'))
+        fijo.write_text(json.dumps({'numeros': sorted(nums), 'referencias': sorted(refs)}, ensure_ascii=False, indent=1) + '\n', encoding='utf-8')
         print('guardado: %d números y %d referencias' % (len(nums), len(refs)))
         return 0
-    antes = json.loads(FIJO.read_text(encoding='utf-8'))
-    html = (RAIZ / 'control.html').read_text(encoding='utf-8')
+    antes = json.loads(fijo.read_text(encoding='utf-8'))
+    html = (RAIZ / (pagina + '.html')).read_text(encoding='utf-8')
     nums, refs = extraer(html)
     fallas = []
     for n in antes['numeros']:
@@ -76,7 +81,7 @@ def main():
         fallas.append('referencia del resumen que no está en el texto: ' + r)
     resumenes = len(BeautifulSoup(html, 'html.parser').select('p.resumen'))
     if not resumenes:
-        fallas.append('no hay resúmenes en control.html')
+        fallas.append('no hay resúmenes en %s.html' % pagina)
     print('%d números y %d referencias de antes, %d resúmenes con %d números y %d referencias' % (len(antes['numeros']), len(antes['referencias']), resumenes, len(res_n), len(res_r)))
     for f in fallas:
         print('FALLA ' + f)
