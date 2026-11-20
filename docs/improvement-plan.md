@@ -53,9 +53,10 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 - [x] (green) Measure the weight and use of Archivo, Atkinson Hyperlegible and IBM Plex Mono, and record the font decision in DESIGN.md.
 - [ ] BLOCKED: Waits for PR #25 and the Pages switch. After part (b): list the current tokens (spacing, type sizes, radii, durations, easing) in DESIGN.md from the site's CSS.
 - [ ] BLOCKED: Waits for PR #25 and the Pages switch. After part (b): record the performance budget in docs/decisions/, measured on dist/, with each page's critical path against 170 KB compressed.
-- [ ] BLOCKED: control.html stays at 84 % of its height because 17 interactives must stay visible. Fold its sources list and the «Mundo real» section too?
+- [x] (yellow) control.html: the source list and «Mundo real» folded too (owner, 2026-11-20). Height at 360 px: 74 % of the first-pass height.
 - [ ] BLOCKED: The owner reviews the summarized control, mapeo, robot, movimiento and resultados pages before problema, navegacion, exploracion and replicar.
-- [ ] BLOCKED: Does the mapeo.html challenge spread to other chapters? One per chapter, or only where the owner chooses?
+- [x] (yellow) The owner decided on 2026-11-20 that the challenge spreads: one per chapter with its own figures.
+- [ ] (yellow) One short challenge per chapter with its own figures (owner, 2026-11-20): control, movimiento, robot, resultados, navegacion, exploracion. One page per pull request.
 
 ## Documentation and code
 
