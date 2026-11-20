@@ -107,7 +107,8 @@
 mark, .resalta { color: inherit; background-color: transparent; background-image: linear-gradient(var(--tema-marca), var(--tema-marca)); background-repeat: no-repeat; background-position: 0 88%; background-size: 100% 58%; padding-inline: .06em; }
 .resaltado-animado .resaltado-listo { transition: background-size var(--resalta-dur, .9s) cubic-bezier(.55, .1, .35, 1) var(--resalta-retraso, 0s); }
 .resaltado-animado .resaltable:not(.resaltado-listo) { background-size: 0% 58%; }
-@media (prefers-reduced-motion: reduce) { .resaltado-animado .resaltado-listo { transition: none; } .resaltado-animado .resaltable:not(.resaltado-listo) { background-size: 100% 58%; } }
+@media (prefers-reduced-motion: reduce) {
+  .robot-busca .rb-arco { animation: none; } .resaltado-animado .resaltado-listo { transition: none; } .resaltado-animado .resaltable:not(.resaltado-listo) { background-size: 100% 58%; } }
 @media print { .resaltado-animado .resaltable:not(.resaltado-listo) { background-size: 100% 58%; } }
 
 html, body { background: var(--paper); }
@@ -205,6 +206,11 @@ svg.ph { fill: currentColor; stroke: none; }
 .search-dialog > input { width: 100%; background: var(--marco-campo); border: 1px solid var(--marco-borde); border-radius: 0; padding: 16px; margin-top: 12px; font: inherit; font-size: 19px; color: var(--ink); }
 .search-dialog > input:focus-visible { outline: 3px solid var(--foco); outline-offset: 2px; }
 .search-status { font-size: 12px; color: var(--marco-estado); padding: 14px 0; margin: 0; }
+.search-status:has(.robot-busca) { display: flex; align-items: center; gap: 14px; font-size: 14px; }
+.robot-busca { flex: none; width: 56px; height: 56px; fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.robot-busca .rb-arco { transform-origin: 16px 17px; animation: rb-barrer 1.3s ease-in-out 3; }
+.robot-busca .rb-arco path { stroke: var(--marco-estado); }
+@keyframes rb-barrer { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-38deg); } 75% { transform: rotate(38deg); } }
 .search-results { padding: 0; margin: 0; list-style: none; }
 .search-results li { border-top: 1px solid var(--line); }
 .search-results a { display: block; padding: 15px 8px; outline-offset: -3px; }
