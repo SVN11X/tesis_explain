@@ -311,10 +311,8 @@ def titulos(nav):
     css = (ROOT / 'css/estilo.css').read_text(encoding='utf-8')
     caras = re.findall(r'@font-face \{[^}]*url\([^}]*\}', css)
     check(caras and all('font-display: optional' in c for c in caras), 'las %d fuentes web de css/estilo.css usan font-display optional: si no llegan a tiempo la página sigue con el respaldo y no se mueve' % len(caras))
-    caras_web = [c for f in sorted((ROOT / 'web/src/styles').glob('*.css')) for c in re.findall(r'@font-face\s*\{[^}]*\}', f.read_text(encoding='utf-8'))]
-    en_swap = [c for c in caras_web if not re.search(r'font-display:\s*optional', c)]
-    if en_swap:
-        omitir('web/src/styles: %d de %d fuentes de la portada no usan font-display optional (swap); cambiarlo exige recompilar la portada' % (len(en_swap), len(caras_web)))
+    caras_web = [c for f in sorted((ROOT / 'web/src/styles').glob('*.css')) for c in re.findall(r'@font-face\s*\{[^}]*url\([^}]*\}', f.read_text(encoding='utf-8'))]
+    check(caras_web and all(re.search(r'font-display:\s*optional', c) for c in caras_web), 'las %d fuentes web de la portada (web/src/styles) usan font-display optional' % len(caras_web))
 
 
 def decisiones(nav):
