@@ -181,11 +181,25 @@ with sync_playwright() as pw:
         p = ctx.new_page()
         p.goto(BASE + pagina)
         p.wait_for_function('window.__resaltado === true')  # marco.js ya marcó los resaltados pendientes
-        antes = p.evaluate(tam, selector)
-        p.locator(selector).last.scroll_into_view_if_needed()
-        p.wait_for_function("(a) => getComputedStyle(document.querySelectorAll(a[0])[document.querySelectorAll(a[0]).length - 1]).backgroundSize.startsWith('100%')", arg=[selector], timeout=10000)
-        check(p.locator('html.resaltado-animado').count() == 1 and antes.startswith('0%') and p.evaluate(tam, selector).startswith('100%'),
+        # el último resaltado que no está dentro de un detalle plegado, porque uno plegado nunca se ve
+        p.evaluate("""(s) => { const m = [...document.querySelectorAll(s)].filter(e => !e.closest('details:not([open])')); m[m.length - 1].setAttribute('data-prueba-resaltado', '1'); }""", selector)
+        visible = '[data-prueba-resaltado]'
+        fondo = "(s) => getComputedStyle(document.querySelector(s)).backgroundSize"
+        antes = p.evaluate(fondo, visible)
+        p.locator(visible).scroll_into_view_if_needed()
+        p.wait_for_function("(s) => getComputedStyle(document.querySelector(s)).backgroundSize.startsWith('100%')", arg=visible, timeout=10000)
+        check(p.locator('html.resaltado-animado').count() == 1 and antes.startswith('0%') and p.evaluate(fondo, visible).startswith('100%'),
               '%s: el resaltado se dibuja al llegar a la pantalla' % pagina)
+        if pagina == 'movimiento.html':
+            # un resaltado dentro de un detalle plegado se dibuja cuando el detalle se abre
+            p.evaluate("""() => { const d = [...document.querySelectorAll('details.detalle')].filter(x => x.querySelector('mark')).pop();
+              d.querySelector('mark').setAttribute('data-prueba-plegado', '1'); d.setAttribute('data-prueba-detalle', '1'); }""")
+            plegado = '[data-prueba-plegado]'
+            check(p.evaluate(fondo, plegado).startswith('0%') and not p.evaluate("document.querySelector('[data-prueba-detalle]').open"), '%s: el resaltado de un detalle plegado parte sin dibujar' % pagina)
+            p.locator('[data-prueba-detalle] > summary').click()
+            p.locator(plegado).scroll_into_view_if_needed()
+            p.wait_for_function("(s) => getComputedStyle(document.querySelector(s)).backgroundSize.startsWith('100%')", arg=plegado, timeout=10000)
+            check(True, '%s: al abrir el detalle plegado su resaltado se dibuja' % pagina)
         ctx.close()
         ctx = browser.new_context(viewport={'width': 1366, 'height': 900}, reduced_motion='reduce')
         p = ctx.new_page()
