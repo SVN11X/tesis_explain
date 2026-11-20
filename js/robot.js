@@ -149,4 +149,29 @@
     if (window.SITIO && window.SITIO.ampliable) window.SITIO.ampliable(el.querySelector("img"));
     el.estadoEsquema = function () { var a = el.querySelector('.punto[aria-pressed="true"]'); return { activo: a ? +a.getAttribute("data-k") : -1, texto: info.textContent }; };
   };
+  /* Reto del reparto del trabajo. Las respuestas salen del texto de la sección «Quién hace qué, y por qué»
+     y de la figura del reparto: nada se inventa aquí. */
+  var RETO = [{
+    pregunta: "¿Qué equipo lee los encoders y corrige la velocidad de las ruedas?",
+    opciones: [
+      { texto: "El Arduino Nano", ok: true, porque: "Lo que debe ocurrir decenas de veces por segundo sin fallar va en un microcontrolador dedicado. El Arduino lee los encoders y corrige cada motor." },
+      { texto: "La Raspberry Pi 4", ok: false, porque: "La Raspberry Pi ejecuta ros2_control, la odometría y el láser. Los encoders y el control de ruedas son del Arduino." },
+      { texto: "El computador", ok: false, porque: "El computador hace SLAM, Nav2 y la exploración. Lo rápido no va allí: viaja por la red y no se puede garantizar el ritmo." }
+    ],
+    enlace: "#reparto-vis", enlaceTexto: "El reparto del trabajo"
+  }, {
+    pregunta: "¿Dónde se optimiza el mapa y se planifica la ruta?",
+    opciones: [
+      { texto: "En el Arduino Nano", ok: false, porque: "El Arduino se dedica a los encoders y al control de las ruedas. No tiene la memoria ni el procesador para un mapa." },
+      { texto: "En la Raspberry Pi 4", ok: false, porque: "La Raspberry Pi hace ros2_control, odometría y láser. El mapa y la ruta se calculan en el computador." },
+      { texto: "En el computador", ok: true, porque: "Optimizar un mapa o planificar una ruta necesita memoria y procesador. Por eso SLAM, Nav2 y la exploración corren en el computador." }
+    ],
+    enlace: "#d-reparto", enlaceTexto: "El argumento del reparto"
+  }];
+  V["reto-robot"] = function (el) {
+    U.reto(el, RETO, "rr-reto-", function (i, j) {
+      var q = RETO[i], o = q && q.opciones[j];
+      return o ? { ok: o.ok, porque: o.porque, enlace: q.enlace, enlaceTexto: q.enlaceTexto } : null;
+    });
+  };
 })();

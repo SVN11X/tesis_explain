@@ -92,29 +92,41 @@
 
 <section class="en-breve" aria-labelledby="t-breve">
   <h2 id="t-breve">Una ruta global y velocidades que no chocan</h2>
-  <p><span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span> recibe una meta, calcula una ruta completa con <span class="term" data-def="Algoritmo que busca la ruta de menor costo en una rejilla sumando lo recorrido y una estimación de lo que falta.">A estrella</span> sobre un <span class="term" data-t="Mapa de costos" data-def="Rejilla en la que cada celda tiene un costo según su cercanía a obstáculos.">mapa de costos</span>, y un controlador local la sigue eligiendo velocidades que no choquen. Alrededor de cada obstáculo se infla una zona de costo para mantener distancia. <mark>En este robot esa zona es más angosta que la esquina del propio robot</mark>, y eso enseña algo sobre cómo se configura un sistema para un espacio pequeño. <mark>La navegación funcionó de punta a punta, aunque todavía no tiene un indicador propio.</mark></p>
+  <p class="resumen">Nav2 calcula una ruta completa con A estrella sobre un mapa de costos, y un controlador local la sigue. <mark>La zona de inflación, de 0,15 m, es más angosta que la esquina del robot, a 0,24 m.</mark></p>
   <div class="cifras-mini">
     <div><b>59</b><span>metas del explorador que Nav2 llegó a ejecutar en el robot real</span></div>
     <div><b>0,15 <small>m</small></b><span>radio de inflación en el robot real, frente a 0,24 m de su esquina</span></div>
     <div><b>8 <small>Hz</small></b><span>frecuencia con que el controlador local elige velocidades</span></div>
     <div><b>0,10 <small>m</small></b><span>distancia a la que una meta se da por alcanzada</span></div>
   </div>
+  <details class="detalle" id="d-breve"><summary>Ver el detalle: qué es cada pieza y qué se aprende</summary>
+  <p><span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span> recibe una meta, calcula una ruta completa con <span class="term" data-def="Algoritmo que busca la ruta de menor costo en una rejilla sumando lo recorrido y una estimación de lo que falta.">A estrella</span> sobre un <span class="term" data-t="Mapa de costos" data-def="Rejilla en la que cada celda tiene un costo según su cercanía a obstáculos.">mapa de costos</span>, y un controlador local la sigue eligiendo velocidades que no choquen. Alrededor de cada obstáculo se infla una zona de costo para mantener distancia. <mark>En este robot esa zona es más angosta que la esquina del propio robot</mark>, y eso enseña algo sobre cómo se configura un sistema para un espacio pequeño. <mark>La navegación funcionó de punta a punta, aunque todavía no tiene un indicador propio.</mark></p>
+  </details>
 </section>
 
 <section>
   <h2 id="nav2">Las piezas de Nav2</h2>
-  <p>Nav2 es el marco de navegación de referencia en <span class="term" data-def="Conjunto de bibliotecas y herramientas de código abierto para construir sistemas robóticos modulares y distribuidos.">ROS 2</span> <a class="ref" href="#f2">2</a>. Recibe una meta, calcula una ruta global y genera órdenes de velocidad para recorrerla evitando obstáculos <a class="ref" href="#f1">1</a>. En este robot sus piezas principales son dos mapas de costos, uno global para planificar y uno local que se actualiza alrededor del robot, un planificador global llamado NavFn con A estrella activado, un controlador local llamado <span class="term" data-def="Controlador local que prueba velocidades alcanzables, simula su trayectoria y elige la de mejor puntaje.">DWB</span> y un navegador que coordina todo con un árbol de comportamiento.</p>
+  <p class="resumen">Nav2 usa dos mapas de costos, el planificador NavFn con A estrella y el controlador DWB, y un árbol de comportamiento que replanifica y se recupera en dos niveles <a class="ref" href="#f1">1</a>.</p>
   <figure class="fig oscura">
     <picture><source srcset="img/tesis/nav2-arquitectura-med.webp" type="image/webp"><img src="img/tesis/nav2-arquitectura-med.png" data-grande="img/tesis/nav2-arquitectura.png" width="1200" height="827" loading="lazy" decoding="async" alt="Diagrama sobre fondo negro con tres zonas. Arriba, el operador con joystick y RViz2, y el robot físico con el RPLidar. Al centro, los componentes ROS 2 en la estación: slam_toolbox, costmaps, bt_navigator, planner_server, controller_server, recoveries_server, explore_server y twist_mux. Abajo, el robot físico: ros2_control, Arduino Nano, driver L298N, motores DC y encoders, con los tópicos que los unen."></picture>
     <figcaption>Cómo se conectan los componentes de la navegación, desde el láser hasta los motores. <small>Fig. 4.6 de la tesis.</small></figcaption>
   </figure>
+  <details class="detalle" id="d-nav2"><summary>Ver el detalle: las piezas, twist_mux y el árbol de comportamiento</summary>
+  <p>Nav2 es el marco de navegación de referencia en <span class="term" data-def="Conjunto de bibliotecas y herramientas de código abierto para construir sistemas robóticos modulares y distribuidos.">ROS 2</span> <a class="ref" href="#f2">2</a>. Recibe una meta, calcula una ruta global y genera órdenes de velocidad para recorrerla evitando obstáculos <a class="ref" href="#f1">1</a>. En este robot sus piezas principales son dos mapas de costos, uno global para planificar y uno local que se actualiza alrededor del robot, un planificador global llamado NavFn con A estrella activado, un controlador local llamado <span class="term" data-def="Controlador local que prueba velocidades alcanzables, simula su trayectoria y elige la de mejor puntaje.">DWB</span> y un navegador que coordina todo con un árbol de comportamiento.</p>
   <p>Las órdenes que salen de Nav2 pasan por twist_mux, que da prioridad al mando manual, antes de llegar al controlador diferencial. Así una persona siempre puede retomar el control, una decisión de seguridad descrita en <a href="robot.html#seguridad">Anatomía del robot</a>.</p>
   <h3 id="arbol">Un árbol de comportamiento en vez de un programa rígido</h3>
   <p>Un <span class="term" data-def="Una forma de organizar la lógica de un robot como un árbol de tareas pequeñas. Cada rama dice qué intentar y qué hacer si falla, y se puede cambiar sin reescribir el resto.">árbol de comportamiento</span> encadena tareas como planificar, seguir la ruta y recuperarse de fallas, sin reescribir la lógica completa cada vez <a class="ref" href="#f3">3</a>. Nació en los videojuegos para dar comportamiento a personajes y pasó a la robótica por la misma razón. Es modular y fácil de leer. En este robot, el árbol replanifica la ruta de forma periódica y aplica recuperaciones en dos niveles <a class="ref" href="#f1">1</a>.</p>
+  </details>
 </section>
 
 <section>
   <h2 id="costos">Mapas de costos e inflación</h2>
+  <p class="resumen">El costo de una celda es 254 en el obstáculo y 253 a menos del radio inscrito de 0,08 m, y decae hasta el radio de inflación <a class="ref" href="#f4">4</a>. En el robot real ese radio es de 0,15 m y la esquina llega a 0,24 m <a class="ref" href="#f1">1</a>.</p>
+  <div class="widget">
+    <div class="widget-cab"><h3 id="sim-inflacion">El radio de inflación y la esquina del robot</h3><span class="tipo inter">Interactivo</span><p>Cambia el radio, gira el robot o muévelo. Se distinguen tres cosas: si la huella toca un obstáculo real, si entra en el margen inflado, que es solo una zona de seguridad, y el costo de la celda bajo el centro.</p></div>
+    <div class="vis" data-vis="inflacion"><p class="vis-fallback">En un pasillo de ejemplo con celdas de 5 cm, la celda del obstáculo vale 254, las celdas a menos del radio inscrito de 0,08 m valen 253 y después el costo baja con la distancia hasta el radio de inflación. Con 0,15 m, el valor del robot real, la esquina delantera de la huella, a 0,24 m del centro, puede alcanzar celdas de costo 0 cerca de una pared. El simulador compara 0,15 m, 0,24 m y 0,55 m, el valor por defecto de Nav2, y separa el contacto físico de la huella con el margen inflado, que es una zona de seguridad del mapa y no un obstáculo.</p></div>
+  </div>
+  <details class="detalle" id="d-costos"><summary>Ver el detalle: la huella del robot y por qué no subir el radio</summary>
   <p>Un mapa de costos toma la rejilla de ocupación y le agrega un costo a cada celda según qué tan cerca está de un obstáculo. Las celdas del obstáculo tienen el costo máximo, que en Nav2 es 254. Las que están a menos del radio inscrito del robot, la distancia de su centro a su borde más cercano, reciben 253, porque el centro ahí ya implicaría choque. Más allá, el costo decae de forma exponencial hasta el radio de <span class="term" data-t="Inflación" data-def="Zona de costo que se agrega alrededor de los obstáculos para que el robot mantenga distancia.">inflación</span>, y después vale cero <a class="ref" href="#f4">4</a>.</p>
   <div class="galeria g3">
     <figure class="fig oscura">
@@ -130,36 +142,39 @@
       <figcaption>Cobertura avanzada del recinto. <small>Fig. 4.7 c.</small></figcaption>
     </figure>
   </div>
-  <div class="widget">
-    <div class="widget-cab"><h3 id="sim-inflacion">El radio de inflación y la esquina del robot</h3><span class="tipo inter">Interactivo</span><p>Cambia el radio, gira el robot o muévelo. Se distinguen tres cosas: si la huella toca un obstáculo real, si entra en el margen inflado, que es solo una zona de seguridad, y el costo de la celda bajo el centro.</p></div>
-    <div class="vis" data-vis="inflacion"><p class="vis-fallback">En un pasillo de ejemplo con celdas de 5 cm, la celda del obstáculo vale 254, las celdas a menos del radio inscrito de 0,08 m valen 253 y después el costo baja con la distancia hasta el radio de inflación. Con 0,15 m, el valor del robot real, la esquina delantera de la huella, a 0,24 m del centro, puede alcanzar celdas de costo 0 cerca de una pared. El simulador compara 0,15 m, 0,24 m y 0,55 m, el valor por defecto de Nav2, y separa el contacto físico de la huella con el margen inflado, que es una zona de seguridad del mapa y no un obstáculo.</p></div>
-  </div>
   <p>En el robot real la huella configurada es un rectángulo que va de 8 cm detrás del centro a 20 cm por delante, con 13 cm a cada lado. Su radio inscrito es de unos 0,08 m y su esquina delantera queda a unos 0,24 m del centro. Con un radio de inflación de 0,15 m, menor que el valor de simulación, las celdas entre 0,15 y 0,24 m de una pared tienen costo cero aunque la esquina del robot pueda llegar a ellas <a class="ref" href="#f1">1</a>.</p>
   <p>El problema aparece porque el planificador global trata al robot como un punto, y el crítico de obstáculos de DWB revisa solo la celda bajo su centro. Ninguno revisa el contorno completo, así que la configuración no garantiza espacio para la huella girada en pasos estrechos. Su efecto en los ensayos no se cuantificó, y evaluarlo con una configuración acorde al espacio queda como trabajo futuro.</p>
   <h3 id="por-que-no-subir">¿Por qué no simplemente subir el radio?</h3>
   <p>El valor por defecto de Nav2 es de 0,55 m. En un recinto pequeño, con pasillos angostos, un radio grande marca casi todo como costoso o bloqueado, y el robot deja de encontrar rutas. Elegir el radio es un compromiso entre seguridad y espacio útil, y se ajusta junto con el factor de decaimiento del costo. La guía de ajuste de Nav2 dedica una sección completa a ese par de parámetros <a class="ref" href="#f5">5</a>.</p>
+  </details>
 </section>
 
 <section>
   <h2 id="astar">A estrella: buscar la ruta</h2>
-  <p>Sobre la rejilla, el planificador busca un camino desde la posición del robot hasta la meta. <mark>A estrella revisa las celdas en un orden inteligente.</mark> A cada celda candidata le asigna la suma de dos cosas, lo que ya cuesta llegar desde el origen, que se llama g, y una estimación de lo que falta hasta la meta, que se llama h. Siempre avanza primero por la celda con la menor suma, f = g + h <a class="ref" href="#f6">6</a>. Las celdas que esperan su turno forman una cola de pendientes, el borde de la búsqueda.</p>
+  <p class="resumen">A estrella revisa primero la celda con menor f = g + h <a class="ref" href="#f6">6</a>. En la grilla de ejemplo con un muro, Dijkstra revisa 291 celdas y A estrella 111 para la misma ruta de 27 pasos.</p>
   <details class="ficha-concepto"><summary>Ficha del concepto: A estrella</summary><dl><dt>Qué es</dt><dd>Un algoritmo que busca el camino de menor costo en una rejilla y revisa primero las celdas que parecen más prometedoras.</dd><dt>Para qué sirve</dt><dd>Que el planificador global de Nav2 encuentre una ruta desde el robot hasta la meta sobre el mapa de costos.</dd><dt>Cómo funciona</dt><dd>Ordena las celdas pendientes por f = g + h. g es el costo ya recorrido desde el origen y h una estimación de lo que falta hasta la meta.</dd><dt>Dónde verlo</dt><dd><a href="#sim-astar">A estrella frente a Dijkstra</a>, paso a paso.</dd><dt>Ejemplo numérico</dt><dd>En la grilla de ejemplo con un muro, Dijkstra revisa 291 celdas y A estrella 111 para encontrar la misma ruta de 27 pasos.</dd><dt>En este robot</dt><dd>NavFn con A estrella activado, espacio desconocido permitido y tolerancia de 0,5 m.</dd><dt>Límites</dt><dd>Nav2 suma los costos de su propia representación, cuyo escalamiento no se reconstruyó. Por eso la optimalidad de la ruta no se usa como criterio de validación, sino que el controlador local pueda seguirla.</dd></dl></details>
   <div class="widget">
     <div class="widget-cab"><h3 id="sim-astar">A estrella frente a Dijkstra</h3><span class="tipo inter">Interactivo</span><p>Avanza de a un paso o reproduce cada búsqueda. En cada paso se ve la celda que se revisa, el camino que la alcanzó, g, y la estimación de lo que falta, h. Compara cuántas celdas revisa cada una para encontrar la misma ruta.</p></div>
     <div class="vis" data-vis="astar"><p class="vis-fallback">En una grilla de ejemplo con un muro entre el robot y la meta, Dijkstra revisa 291 celdas y A estrella 111 para encontrar la misma ruta de 27 pasos. Necesita JavaScript para avanzar paso a paso.</p></div>
   </div>
+  <details class="detalle" id="d-astar"><summary>Ver el detalle: g, h, Dijkstra y cómo se validó la ruta</summary>
+  <p>Sobre la rejilla, el planificador busca un camino desde la posición del robot hasta la meta. <mark>A estrella revisa las celdas en un orden inteligente.</mark> A cada celda candidata le asigna la suma de dos cosas, lo que ya cuesta llegar desde el origen, que se llama g, y una estimación de lo que falta hasta la meta, que se llama h. Siempre avanza primero por la celda con la menor suma, f = g + h <a class="ref" href="#f6">6</a>. Las celdas que esperan su turno forman una cola de pendientes, el borde de la búsqueda.</p>
   <p>Dijkstra hace lo mismo pero sin la estimación, por eso se expande en todas direcciones <a class="ref" href="#f7">7</a>. Si la estimación nunca supera lo que realmente falta, se dice que es admisible, y con ella A estrella garantiza la ruta de menor costo. En Nav2, el planificador NavFn tiene A estrella activado, permite planificar a través de espacio desconocido y acepta llegar hasta 0,5 m de la meta <a class="ref" href="#f1">1</a>.</p>
   <p>No usé la optimalidad de la ruta como criterio de validación, porque Nav2 suma los costos de su propio mapa con un escalamiento interno que no reconstruí. Lo que verifiqué es que la ruta global pudiera ser seguida por el controlador local. Para profundizar, la explicación interactiva de Red Blob Games es una de las mejores introducciones a A estrella que existen <a class="ref" href="#f8">8</a>.</p>
+  </details>
+  <div class="widget" id="reto-astar">
+    <div class="widget-cab"><h3 id="reto">Reto: ¿cuántas celdas revisa A estrella?</h3><span class="tipo inter">Reto</span><p>Dos preguntas con los números de la sección. Elige una respuesta y verás al instante si acertaste y por qué.</p></div>
+    <div class="vis" data-vis="reto-navegacion"><p class="vis-fallback">1. En la grilla de ejemplo con un muro, ¿A estrella revisa 111 celdas, 291 o 27 para la ruta de 27 pasos? 2. ¿Por qué revisa menos que Dijkstra? Necesita JavaScript para responder con respuesta inmediata.</p><details><summary>Ver las respuestas</summary><p>1. 111, menos que las 291 de Dijkstra, para la misma ruta de 27 pasos. 2. Ordena las celdas por f = g + h y estima con h lo que falta hasta la meta. Dijkstra no estima y se expande en todas direcciones.</p></details></div>
+  </div>
 </section>
 
 <section>
   <h2 id="dwb">La ventana dinámica: seguir la ruta sin chocar</h2>
-  <p>La ruta global es una línea sobre el mapa. El robot, en cambio, solo puede cambiar su velocidad un poco en cada instante. El enfoque de ventana dinámica <mark>considera solo las velocidades alcanzables desde el estado actual</mark>, simula hacia adelante la trayectoria de cada candidata y le pone un puntaje con varios criterios <a class="ref" href="#f9">9</a>. Se elige la de menor puntaje <a class="ref" href="#f1">1</a>.</p>
+  <p class="resumen">La ventana dinámica prueba solo velocidades alcanzables, simula cada trayectoria y elige la de menor puntaje <a class="ref" href="#f9">9</a>. En el robot real el controlador corre a 8 Hz, con 0,15 m/s y 0,35 rad/s como límites <a class="ref" href="#f1">1</a>.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="sim-dwb">Trayectorias candidatas y su puntaje</h3><span class="tipo inter">Interactivo</span><p>Cambia cuánto pesa cada criterio y mueve el obstáculo. La tabla muestra de qué se compone el puntaje de la trayectoria elegida.</p></div>
     <div class="vis" data-vis="dwb"><p class="vis-fallback">La ventana dinámica prueba combinaciones de velocidad lineal y de giro alcanzables, proyecta cada trayectoria hacia adelante, descarta las que chocan y puntúa el resto con varios criterios, como seguir la ruta global, acercarse a la meta y alejarse de obstáculos. Elige la de menor puntaje. El simulador prueba 7 velocidades entre 0 y 0,15 m/s y 15 giros entre −0,35 y 0,35 rad/s, los límites de DWB en el robot real. Sus pesos son de demostración.</p></div>
   </div>
-  <p>En el robot, DWB usa criterios de obstáculos, oscilación, alineación y distancia respecto de la ruta y de la meta. Algunos valores del robot real ayudan a entender su comportamiento.</p>
   <div class="tabla-env">
     <table class="tabla">
       <thead><tr><th>Parámetro</th><th class="n">Robot real</th><th>Qué significa</th></tr></thead>
@@ -174,10 +189,16 @@
       <caption>Tabla A5.1 de la tesis.</caption>
     </table>
   </div>
+  <details class="detalle" id="d-dwb"><summary>Ver el detalle: los criterios de puntaje y el sentido de la ventana</summary>
+  <p>La ruta global es una línea sobre el mapa. El robot, en cambio, solo puede cambiar su velocidad un poco en cada instante. El enfoque de ventana dinámica <mark>considera solo las velocidades alcanzables desde el estado actual</mark>, simula hacia adelante la trayectoria de cada candidata y le pone un puntaje con varios criterios <a class="ref" href="#f9">9</a>. Se elige la de menor puntaje <a class="ref" href="#f1">1</a>.</p>
+  <p>En el robot, DWB usa criterios de obstáculos, oscilación, alineación y distancia respecto de la ruta y de la meta. Algunos valores del robot real ayudan a entender su comportamiento.</p>
+  </details>
 </section>
 
 <section>
   <h2 id="recuperacion">Cuando algo falla: recuperaciones</h2>
+  <p class="resumen">Si falla la navegación, el árbol limpia los mapas de costos y luego retrocede 0,15 m, gira 0,8 rad y espera 2 s antes de reintentar <a class="ref" href="#f1">1</a>.</p>
+  <details class="detalle" id="d-recuperacion"><summary>Ver el detalle: la secuencia completa de recuperaciones</summary>
   <p>Si falla la planificación o el seguimiento, el árbol de comportamiento actúa primero sobre el mapa de costos correspondiente, porque <mark>muchas veces el problema es un obstáculo fantasma que ya no está</mark>. Si falla la navegación completa, ejecuta una secuencia de acciones cada vez más insistentes <a class="ref" href="#f1">1</a>.</p>
   <ol class="linea">
     <li><b>Limpiar global</b>Borra el mapa de costos en 1,5 m.</li>
@@ -187,24 +208,31 @@
     <li><b>Esperar</b>2 s antes de reintentar.</li>
     <li><b>Reintentar</b>Vuelve a planificar la ruta.</li>
   </ol>
+  </details>
 </section>
 
 <section>
   <h2 id="amcl">Ubicarse en un mapa ya hecho</h2>
+  <p class="resumen">Durante la exploración, slam_toolbox resuelve la posición. AMCL, que ubica al robot en un mapa guardado con un filtro de partículas, quedó fuera del alcance y no se ajustó <a class="ref" href="#f10">10</a> <a class="ref" href="#f1">1</a>.</p>
+  <details class="detalle" id="d-amcl"><summary>Ver el detalle: cómo funciona AMCL y por qué no se usó</summary>
   <p>Durante la exploración, la posición la resuelve slam_toolbox mientras construye el mapa. Otra situación distinta es tener un mapa guardado y ubicarse dentro de él. Para eso Nav2 trae <span class="term" data-def="Localización de Monte Carlo adaptativa, que ubica al robot en un mapa ya guardado con un filtro de partículas.">AMCL</span>, la localización de Monte Carlo adaptativa, un <span class="term" data-def="Un método que representa la incertidumbre con muchas hipótesis, llamadas partículas. Las que calzan mejor con lo que mide el sensor sobreviven y se multiplican.">filtro de partículas</span> <a class="ref" href="#f10">10</a>. Cada partícula es una hipótesis de dónde está el robot. Las hipótesis se mueven con la <span class="term" data-t="Odometría" data-def="Estimación de la posición sumando el giro medido de las ruedas.">odometría</span>, se ponderan según cuánto calzan los barridos del láser con el mapa, y el remuestreo concentra las partículas donde es más probable que esté el robot.</p>
   <p>En este trabajo AMCL quedó fuera del alcance. Está en la pila de navegación con sus valores por defecto, pero no lo ajusté ni lo ejecuté en los ensayos <a class="ref" href="#f1">1</a>. Los robots de reparto en hospitales también pueden trabajar sobre mapas y rutas definidos de antemano. SLAM Toolbox ofrece otra forma de localizarse sobre un grafo guardado, con una ventana de observaciones recientes. Es una <a href="mapeo.html#mapeo-localizacion">capacidad de la herramienta</a> que no se ensayó aquí.</p>
+  </details>
 </section>
 
 <section>
   <h2 id="evaluacion">Qué se evaluó de la navegación</h2>
-  <p>La navegación se evaluó sobre los destinos que genera el explorador, que es lo comprometido en el objetivo general. Nav2 llevó al robot hacia las metas del explorador en las cinco ejecuciones válidas, durante 12,7 min y 21,9 m de recorrido, <mark>sin intervención manual</mark>, y 59 metas llegaron a ejecutarse. De los 54 abortos, 53 cumplen el criterio temporal de asociación a reemplazos, pero el registro no permite contar por separado las fallas propias de Nav2 <a class="ref" href="#f1">1</a>. Por eso el resultado de esas metas no sirve como tasa de éxito, por una razón que se explica en <a href="exploracion.html#abortadas">Explorar por fronteras</a>.</p>
+  <p class="resumen">Nav2 llevó al robot a las metas del explorador en las cinco ejecuciones válidas, durante 12,7 min y 21,9 m, <mark>sin intervención manual</mark>, y 59 metas llegaron a ejecutarse <a class="ref" href="#f1">1</a>. Con 54 abortos no se puede calcular una tasa de éxito.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="alcance-nav">Lo evaluado y lo que exigiría medir con metas fijas</h3><span class="tipo datos">Datos de la tesis</span></div>
     <div class="vis" data-vis="alcance"><p class="vis-fallback">Se evaluó la navegación hacia metas del explorador. Medir metas fijas exigiría metas definidas, referencias físicas medidas, una localización coherente en el marco del mapa, que puede venir de SLAM o de AMCL, y un registro independiente de la pose final.</p></div>
   </div>
+  <details class="detalle" id="d-evaluacion"><summary>Ver el detalle: el protocolo con metas fijas y cuántas repeticiones bastarían</summary>
+  <p>La navegación se evaluó sobre los destinos que genera el explorador, que es lo comprometido en el objetivo general. Nav2 llevó al robot hacia las metas del explorador en las cinco ejecuciones válidas, durante 12,7 min y 21,9 m de recorrido, <mark>sin intervención manual</mark>, y 59 metas llegaron a ejecutarse. De los 54 abortos, 53 cumplen el criterio temporal de asociación a reemplazos, pero el registro no permite contar por separado las fallas propias de Nav2 <a class="ref" href="#f1">1</a>. Por eso el resultado de esas metas no sirve como tasa de éxito, por una razón que se explica en <a href="exploracion.html#abortadas">Explorar por fronteras</a>.</p>
   <p>Un protocolo con metas fijas necesita objetivos definidos, referencias físicas medidas y una localización coherente en el marco del mapa. Esa localización puede venir de SLAM durante el mapeo o de AMCL sobre un mapa guardado, porque Nav2 acepta metas mientras SLAM publica el mapa y la transformación map → odom, y su lanzador para Foxy permite elegir entre ambos modos <a class="ref" href="#f13">13</a>. Por cada meta y repetición debería registrar el resultado de la acción, el error de posición final respecto de la marca, el tiempo hasta la meta y la longitud recorrida, como las métricas que usan Ngoc y otros y que describen Francis y otros <a class="ref" href="#f14">14</a> <a class="ref" href="#f15">15</a>.</p>
   <p>El script para ese ensayo quedó preparado, pero no aporta mediciones. No tiene registros de salida. Define tres escenarios con cinco repeticiones y clasifica cada una por el resultado de la acción y su duración, sin medir el error de posición final. Sus tres poses objetivo solo existen en coordenadas del mundo simulado, y la tolerancia que imprime para el modo real, 0,22 m, no coincide con los 0,10 m configurados en Nav2, aunque no interviene en la clasificación <a class="ref" href="#f1">1</a>.</p>
   <p>¿Cuántas repeticiones bastarían? Con esas tres metas y cinco repeticiones, 15 éxitos en 15 intentos permitirían afirmar con 95 % de confianza que la tasa de éxito supera el 78 %, según el intervalo de Clopper y Pearson <a class="ref" href="#f16">16</a>. Ejecutarlo en un espacio mayor es el primer punto del trabajo futuro. Dicho de forma simple, la navegación funciona de punta a punta, y lo que falta es medirla.</p>
+  </details>
 </section>
 
 <section>

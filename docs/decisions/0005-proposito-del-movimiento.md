@@ -45,10 +45,11 @@ Loop means it repeats without end. RM is what reduced motion does.
 | 21 | `img/mapa-crece.gif` | `README.md` only | Opened on GitHub | Loops | Yes | Preview for the repository page | Not on the site | Not on the site |
 | 22 | Robot in search without results (`.robot-busca`) | `js/marco.js`, `css/marco.css` | A search finds nothing | 1.3 s, 3 times (3.9 s) | No | Shows that the robot looked and found nothing (see 0006) | Still image | Not needed |
 | 23 | Step change in «metas-abortadas» (`js/lecciones.js`, `.mq-p` in `css/estilo.css`) | `lecciones.html` | User presses «Anterior» or «Siguiente» | var(--dur-1), once per step | No | Shows which points change meaning in each step | transition none | Not needed |
+| 24 | Home hero real run (`.hero-run`, `img/mapa-crece.mp4`) | `web/src/pages/index.astro`, `web/src/styles/experience.css` | Starts by itself after the page loads and goes idle | 7.3 s clip | Yes | Shows the robot exploring and the map growing on the first screen, as a real run | Poster only, waits for the user | Yes, visible button «Pausar» over the video. Checked in the browser |
 
 Row 23 does not exist on purpose: the feedback of the challenge in `mapeo.html` (`reto-mapeo`) is text, a colored edge and a status message that appear at once. It has no animation or transition, so there is nothing to pause or to switch off with reduced motion.
 
-Rows 9, 11 to 15, 18 and 19 run longer than 5 s. All of them already had a pause, so this record adds none to the code.
+Rows 9, 11 to 15, 18, 19 and 24 run longer than 5 s. All of them already had a pause, so this record adds none to the code.
 
 ## Alternatives considered
 

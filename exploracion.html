@@ -92,25 +92,34 @@
 
 <section class="en-breve" aria-labelledby="t-breve">
   <h2 id="t-breve">Explorar hasta que no queden fronteras</h2>
-  <p>Una <span class="term" data-t="Frontera" data-def="Borde entre el espacio libre conocido y lo desconocido en un mapa.">frontera</span> es el borde entre el espacio libre conocido y lo desconocido. <mark>Ir hacia las fronteras hasta que no quede ninguna es una forma simple y efectiva de explorar</mark>, y cinco de seis exploraciones del robot real terminaron solas por ese criterio. El explorador vuelve a elegir destino cada 3,3 s y <mark>manda la nueva meta sin cancelar la anterior</mark>, que <span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span> cierra como abortada. Por eso 53 de las 54 metas abortadas cumplen un criterio temporal de asociación a reemplazos. <mark>El criterio es compatible con ese mecanismo, pero no descarta fallas de Nav2 al mismo tiempo.</mark></p>
+  <p class="resumen">Ir hacia las <span class="term" data-t="Frontera" data-def="Borde entre el espacio libre conocido y lo desconocido en un mapa.">fronteras</span> hasta que no quede ninguna es una forma simple de explorar: cinco de seis exploraciones del robot real terminaron solas. <mark>53 de las 54 metas abortadas coinciden con un reemplazo hecho por el propio explorador</mark>, un criterio compatible con ese mecanismo que no descarta fallas de Nav2.</p>
   <div class="cifras-mini">
     <div><b>5 <small>de 6</small></b><span>exploraciones terminaron solas, sin intervención del operador</span></div>
     <div><b>53 <small>de 54</small></b><span>metas abortadas coinciden en el tiempo con un reemplazo del propio explorador</span></div>
     <div><b>3,3 <small>s</small></b><span>período con que el explorador vuelve a elegir destino</span></div>
     <div><b>17</b><span>veces que el explorador vació su lista negra en las corridas válidas</span></div>
   </div>
+  <details class="detalle" id="d-breve"><summary>Ver el detalle: qué es una frontera y cómo se produce el reemplazo</summary>
+  <p>Una <span class="term" data-t="Frontera" data-def="Borde entre el espacio libre conocido y lo desconocido en un mapa.">frontera</span> es el borde entre el espacio libre conocido y lo desconocido. <mark>Ir hacia las fronteras hasta que no quede ninguna es una forma simple y efectiva de explorar</mark>, y cinco de seis exploraciones del robot real terminaron solas por ese criterio. El explorador vuelve a elegir destino cada 3,3 s y <mark>manda la nueva meta sin cancelar la anterior</mark>, que <span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span> cierra como abortada. Por eso 53 de las 54 metas abortadas cumplen un criterio temporal de asociación a reemplazos. <mark>El criterio es compatible con ese mecanismo, pero no descarta fallas de Nav2 al mismo tiempo.</mark></p>
+  </details>
 </section>
 
 <section>
   <h2 id="fronteras">La idea de frontera</h2>
+  <p class="resumen">Yamauchi propuso en 1997 ir hacia las regiones que separan lo visto de lo no visto <a class="ref" href="#f2">2</a>. Necesita solo un mapa de ocupación y navegación, justo lo que este robot ya tenía.</p>
+  <details class="detalle" id="d-fronteras"><summary>Ver el detalle: la propuesta de Yamauchi y los enfoques actuales</summary>
   <p>En 1997, Brian Yamauchi propuso una idea que sigue vigente. Para explorar un lugar desconocido, <mark>un robot debería ir hacia las regiones que separan lo que ya vio de lo que todavía no ha visto</mark>. Al llegar, observa, actualiza su mapa y vuelve a buscar <a class="ref" href="#f2">2</a>. En su propuesta, el robot elige la frontera accesible más cercana, hace un barrido de 360° al llegar, y si no logra avanzar en cierto tiempo marca esa frontera como inaccesible.</p>
   <p>La idea se mantiene en trabajos recientes que mejoran cómo se puntúa cada frontera <a class="ref" href="#f3">3</a>, y convive con enfoques más complejos, como los que estiman la ganancia de información de cada destino o el active <span class="term" data-def="Localización y mapeo simultáneos, es decir, construir el mapa y estimar la posición al mismo tiempo.">SLAM</span>, que también considera la incertidumbre del mapa <a class="ref" href="#f4">4</a>. Su ventaja es que necesita muy poco. Un mapa de ocupación y un sistema de navegación, justo lo que este robot ya tenía.</p>
   <p class="destacado">Explorar es repetir una pregunta simple: ¿dónde termina lo que conozco?</p>
+  </details>
 </section>
 
 <section>
   <h2 id="simulador">Pruébalo: un robot explorando por fronteras</h2>
+  <p class="resumen">Un robot simulado repite el ciclo del explorador real y reelige destino cada 3,3 s.</p>
+  <details class="detalle" id="d-simulador"><summary>Ver el detalle: qué hace el simulador en cada ciclo</summary>
   <p>Este simulador hace el mismo ciclo que el robot real. Mide con un láser, actualiza el mapa, busca fronteras, elige la de mejor puntaje con una mezcla de cercanía y tamaño, planifica con <span class="term" data-def="Algoritmo que busca la ruta de menor costo en una rejilla sumando lo recorrido y una estimación de lo que falta.">A estrella</span> y se mueve. Igual que el explorador del robot, vuelve a elegir cada 3,3 s, y cuenta las metas que cambia antes de llegar.</p>
+  </details>
   <div class="widget sim-grande">
     <div class="widget-cab"><h3 id="sim-exploracion">Exploración por fronteras</h3><span class="tipo inter">Interactivo</span><p>Presiona Explorar. Activa el mapa de costos o el plano real para comparar lo que el robot sabe con lo que hay.</p></div>
     <div class="vis" data-vis="exploracion"><p class="vis-fallback">El simulador repite el ciclo del robot real en un plano de ejemplo. Mide con un láser, marca celdas libres, ocupadas y desconocidas, busca fronteras entre lo libre y lo desconocido, elige la de mejor puntaje entre cercanía y tamaño, planifica con A estrella y avanza. Vuelve a elegir cada 3,3 s, como explore_lite, y cuenta las metas que cambia antes de llegar. Termina cuando no quedan fronteras alcanzables.</p></div>
@@ -120,6 +129,8 @@
 
 <section>
   <h2 id="explore-lite">Cómo decide explore_lite en este robot</h2>
+  <p class="resumen">explore_lite <a class="ref" href="#f5">5</a> busca fronteras en el mapa de costos y manda metas a Nav2 <a class="ref" href="#f1">1</a> en un ciclo de seis pasos, a 0,3 Hz.</p>
+  <details class="detalle" id="d-explore-lite"><summary>Ver el detalle: los seis pasos del ciclo</summary>
   <p>El robot usa <span class="term" data-def="Paquete de ROS que busca fronteras en el mapa y las envía como metas a la navegación.">explore_lite</span> en su versión para <span class="term" data-def="Conjunto de bibliotecas y herramientas de código abierto para construir sistemas robóticos modulares y distribuidos.">ROS 2</span> <a class="ref" href="#f5">5</a>, derivada del proyecto original para ROS 1. Busca fronteras sobre el <span class="term" data-t="Mapa de costos" data-def="Rejilla en la que cada celda tiene un costo según su cercanía a obstáculos.">mapa de costos</span> global y envía metas de navegación a Nav2 <a class="ref" href="#f1">1</a>. Su ciclo tiene seis pasos.</p>
   <ol class="linea">
     <li><b>Detecta</b>Una celda desconocida que toca una libre es frontera.</li>
@@ -129,6 +140,7 @@
     <li><b>Envía</b>Si el punto cambió 1 cm o más, manda una meta nueva.</li>
     <li><b>Repite</b>Cada 3333 ms, a 0,3 Hz.</li>
   </ol>
+  </details>
   <div class="widget">
     <div class="widget-cab"><h3 id="dos-fronteras">La frontera según Yamauchi y según este robot</h3><span class="tipo ilus">Ilustrativo</span><p>Un mismo mapa de ejemplo, con las dos definiciones. La celda suelta del medio representa una lectura de ruido del láser.</p></div>
     <div class="vis" data-vis="frontera"><p class="vis-fallback">Yamauchi acepta solo regiones de tamaño parecido al robot. Con un mínimo de 0,05 m se acepta incluso una celda suelta.</p></div>
@@ -145,18 +157,23 @@
       <caption>Comparación basada en Yamauchi (1997), secciones 2.2 y 2.3, y en la Tabla A5.4 y el Anexo 5.6 de la tesis.</caption>
     </table>
   </div>
+  <details class="detalle" id="d-explore-lite-limites"><summary>Ver el detalle: el tamaño mínimo de una celda y dos detalles del código</summary>
   <p>Un tamaño mínimo de una sola celda permite elegir fronteras muy pequeñas, que pueden venir del ruido del láser o de rincones donde el robot no cabe, y eso puede alargar la exploración. No lo cuantifiqué. También documenté dos detalles del código tal como se ejecutó. El punto que se envía como centro de la frontera difiere de su centroide geométrico, y el puntaje mezcla unidades distintas, así que funciona como heurística y no como medida física <a class="ref" href="#f1">1</a>.</p>
+  </details>
 </section>
 
 <section>
   <h2 id="abortadas">Metas abortadas asociadas a reemplazos</h2>
+  <p class="resumen">En las cinco corridas válidas hubo 60 metas y 54 quedaron abortadas. <mark>53 de esas 54 coinciden con un reemplazo hecho por el propio explorador</mark>, así que el estado abortado no mide fallas de navegación <a class="ref" href="#f1">1</a>.</p>
+  <details class="detalle" id="d-abortadas"><summary>Ver el detalle: por qué 54 abortos no significan 54 fallas</summary>
   <p>En las cinco exploraciones válidas se generaron 60 metas. A primera vista el resultado es alarmante. 54 quedaron abortadas, una se completó y cinco no alcanzaron a registrar su estado final <a class="ref" href="#f1">1</a>. <mark>¿Falló la navegación casi siempre?</mark></p>
+  <p>No se puede leer así. En la versión de Nav2 usada, cuando llega una meta nueva mientras otra está en ejecución, la anterior se termina con estado abortado <a class="ref" href="#f6">6</a>. Y el explorador vuelve a elegir destino cada 3,3 s y manda una meta nueva cada vez que el punto elegido cambia en 1 cm o más, sin cancelar la anterior. El mismo estado registra entonces dos cosas muy distintas, los reemplazos que hace el explorador y las fallas propias de Nav2.</p>
+  </details>
   <aside class="nota-autor" hidden>
     <p class="nota-autor-rotulo">Nota del autor</p>
     <p>De las 60 metas de las cinco corridas válidas, 54 quedaron registradas como abortadas.</p>
     <!-- PENDIENTE AUTOR: completar esta nota en primera persona y quitar el atributo hidden. Pregunta: ¿Qué pensaste al ver 54 abortos y cómo llegaste a la explicación? -->
   </aside>
-  <p>No se puede leer así. En la versión de Nav2 usada, cuando llega una meta nueva mientras otra está en ejecución, la anterior se termina con estado abortado <a class="ref" href="#f6">6</a>. Y el explorador vuelve a elegir destino cada 3,3 s y manda una meta nueva cada vez que el punto elegido cambia en 1 cm o más, sin cancelar la anterior. El mismo estado registra entonces dos cosas muy distintas, los reemplazos que hace el explorador y las fallas propias de Nav2.</p>
   <div class="widget">
     <div class="widget-cab"><h3 id="reemplazo">Cómo se ve un reemplazo en el tiempo</h3><span class="tipo inter">Interactivo</span><p>Reproduce 20 segundos con el período del explorador. Abajo, el resultado real de las 60 metas.</p></div>
     <div class="vis" data-vis="metas"><p class="vis-fallback">Cada 3,3 s se envía una meta nueva y la anterior queda abortada. De 60 metas, 53 quedaron abortadas en coincidencia con un reemplazo, 1 abortada sin clasificar, 1 completada y 5 sin estado terminal.</p></div>
@@ -167,8 +184,10 @@
     <figcaption>Una meta reemplazada. El explorador envía un destino nuevo cada 3,3 s y Nav2 cierra la meta anterior como abortada. <small>Video del autor, en bucle.</small></figcaption>
   </figure>
   <h3 id="como-se-separo">Cómo se asoció cada aborto a un reemplazo</h3>
+  <details class="detalle" id="d-como-se-separo"><summary>Ver el detalle: identificadores, tiempos y verificación en Nav2</summary>
   <p>Cada meta de navegación tiene un identificador único de 16 bytes. Reconstruí el historial de cada una a partir del flujo de estados de la acción de navegación, que quedó registrado completo en cada sesión. Una meta abortada cumple el criterio cuando hay un mensaje en que la meta siguiente ya figura, en cualquier estado, mientras la abortada sigue aceptada o en ejecución <a class="ref" href="#f1">1</a>.</p>
   <p>No usé la hora escrita en cada línea del registro, porque tiene resolución de un segundo y marca cuándo se escribió la línea, no cuándo se publicó el mensaje. Los tiempos salen del sello de aceptación que trae cada meta. El procedimiento quedó en un script propio, y el comportamiento de Nav2 ante una meta nueva se verificó en su código fuente para Foxy <a class="ref" href="#f6">6</a>.</p>
+  </details>
   <div class="tabla-env">
     <table class="tabla">
       <thead><tr><th>Iteración</th><th class="n">Generadas</th><th class="n">Abortadas</th><th class="n">Abortos asociados a reemplazos</th><th class="n">Exitosas</th><th class="n">Sin estado final</th><th class="n">Mediana entre metas</th></tr></thead>
@@ -188,34 +207,51 @@
     <div><span class="a-et">Lo que lo hace compatible</span><p>La mediana entre la aceptación de una meta y la de la siguiente fue 3,3 s en las cinco corridas, igual al período con que el explorador reevalúa. Es lo que se espera si cada reevaluación reemplaza la meta en curso.</p></div>
     <div><span class="a-et">Lo que no se puede afirmar</span><p>La coexistencia no identifica por sí sola la causa de cada aborto ni descarta fallas de Nav2 al mismo tiempo, y el registro no permite contarlas por separado. Tampoco se sabe si las metas reemplazadas habrían llegado a completarse.</p></div>
   </div>
+  <details class="detalle" id="d-metas-completada"><summary>Ver el detalle: las metas sin estado final y qué significa una meta completada</summary>
   <p>Las cinco metas sin estado final son la última de cada corrida. Al no encontrar fronteras, el explorador pidió cancelarlas, y el registro se cerró antes de que la cancelación terminara. Entonces, ¿qué significa una meta completada de 60? Indica cuántas veces el robot llegó a menos de 10 cm del punto de una frontera antes de que el explorador cambiara de destino. No es una tasa de éxito de la navegación ni de la exploración. Lo que muestra que el robot va hacia donde se le manda es que el mapa creció en cada corrida hasta que no quedaron fronteras. En las cinco corridas válidas, Nav2 condujo al robot durante 12,7 min y 21,9 m de recorrido odométrico, sin intervención manual <a class="ref" href="#f1">1</a>.</p>
+  </details>
+  <div class="widget" id="reto-abortadas">
+    <div class="widget-cab"><h3 id="reto">Reto: ¿abortada es lo mismo que fallida?</h3><span class="tipo inter">Reto</span><p>Dos preguntas con los números de la sección. Elige una respuesta y verás al instante si acertaste y por qué. Los cinco pasos están en <a href="lecciones.html#metricas">Qué significa una meta abortada</a>.</p></div>
+    <div class="vis" data-vis="reto-exploracion"><p class="vis-fallback">1. De 60 metas, 54 quedaron abortadas y 53 coinciden con un reemplazo. ¿Esos abortos son 54 fallas de navegación? 2. Si el explorador reelige cada 3,3 s, ¿qué mediana se espera entre una meta y la siguiente? Necesita JavaScript para responder con respuesta inmediata.</p><details><summary>Ver las respuestas</summary><p>1. No: Nav2 también cierra como abortada la meta que el explorador reemplaza, y 53 de los 54 abortos coinciden con un reemplazo. 2. 3,3 s, la mediana de las cinco corridas, igual al período del explorador.</p></details></div>
+  </div>
 </section>
 
 <section>
   <h2 id="lista-negra">El efecto secundario: la lista negra</h2>
+  <p class="resumen">Un punto entra a la lista negra tras 10 s sin acercarse o si su meta queda abortada, <mark>y como los reemplazos también abortan, el explorador tacha fronteras que no fallaron</mark>. La vació 17 veces en las cinco corridas, 11 en la iteración 1 <a class="ref" href="#f1">1</a>.</p>
+  <details class="detalle" id="d-lista-negra"><summary>Ver el detalle: cómo funciona la lista negra</summary>
   <p>La lista negra existe para que el robot no insista para siempre en una frontera inalcanzable, la misma idea de Yamauchi. Un punto entra a la lista si pasan 10 s sin acercarse a él o si Nav2 responde que su meta quedó abortada. Como las metas reemplazadas también quedan abortadas, <mark>el explorador tacha fronteras que no fallaron</mark>.</p>
+  </details>
   <div class="widget">
     <div class="widget-cab"><h3 id="flujo-lista">Cómo entra un punto a la lista negra</h3><span class="tipo datos">Datos de la tesis</span></div>
     <div class="vis" data-vis="listanegra"><p class="vis-fallback">Un punto entra a la lista por falta de progreso en 10 s o por una respuesta de meta abortada, incluso si fue reemplazada.</p></div>
   </div>
+  <details class="detalle" id="d-lista-negra-mejora"><summary>Ver el detalle: el vaciado de la lista y la mejora propuesta</summary>
   <p>Cuando todas las candidatas quedan tachadas, el explorador vacía la lista y vuelve a intentar. Ocurrió 17 veces en las cinco corridas válidas, 11 de ellas en la iteración 1. Este efecto no impidió terminar la exploración, pero su efecto sobre la duración del recorrido no se cuantificó <a class="ref" href="#f1">1</a>.</p>
   <p>La mejora propuesta es cancelar la meta en curso antes de enviar la siguiente. Así los reemplazos quedarían registrados como cancelados, que el explorador no anota, y la lista negra recibiría solo fallas reales. Otra opción es conservar el registro del navegador de Nav2. Lo planteo como trabajo futuro, junto con evaluar cómo influye la frecuencia del explorador en la duración de la exploración.</p>
+  </details>
 </section>
 
 <section>
   <h2 id="medir-bien">Qué se aprende de estas metas</h2>
+  <p class="resumen">Los contadores del script no medían lo que parecían, y se corrigió porque guardé los datos crudos <a class="ref" href="#f1">1</a>. De ahí salen dos prácticas, en <a href="lecciones.html#metricas">Lecciones de ingeniería</a>.</p>
+  <details class="detalle" id="d-medir-bien"><summary>Ver el detalle: qué falló en los contadores y las dos prácticas</summary>
   <p>La explicación apareció después de los ensayos, porque <mark>los contadores automáticos del script no medían lo que parecían medir</mark>. El contador de metas generadas quedó en cero, porque el mensaje que buscaba estaba en un nivel de registro que no se imprimía. Y los contadores de éxito y fallo sumaban una vez por cada mensaje de estado, no por cada meta <a class="ref" href="#f1">1</a>.</p>
   <p>Lo pude corregir porque guardé completos los datos crudos. De aquí salen dos prácticas que sirven en cualquier proyecto. Registrar siempre identificadores únicos de cada evento que se quiera contar, y guardar los datos crudos además de los resúmenes, para reconstruir lo que pasó cuando un número no cuadra. El tema se amplía en <a href="lecciones.html#metricas">Lecciones de ingeniería</a>.</p>
+  </details>
 </section>
 
 <section>
   <h2 id="fin">Cuándo termina la exploración</h2>
+  <p class="resumen">Las cinco corridas válidas terminaron solas cuando el explorador informó que no quedaban fronteras <a class="ref" href="#f1">1</a>. Eso significa que el espacio alcanzable quedó mapeado, no que se cubrió todo el recinto.</p>
+  <details class="detalle" id="d-fin"><summary>Ver el detalle: cómo se detecta el fin y la captura de un cierre real</summary>
   <p>Las cinco ejecuciones válidas terminaron de forma automática. En cada una, el explorador informó que no quedaban fronteras en el mapa de costos, detuvo la exploración y pidió cancelar la meta en curso. El script del ensayo detecta ese aviso, guarda el mapa y cierra el registro, sin intervención del operador <a class="ref" href="#f1">1</a>.</p>
   <p>Que no queden fronteras significa que el espacio alcanzable quedó mapeado. No prueba por sí solo que se cubrió todo el recinto, porque su superficie no se midió aparte del mapa. La evidencia de que las cinco corridas llegaron al mismo espacio es que el área libre fue casi idéntica en todas, como se ve en <a href="mapeo.html#resultados">Ver y mapear</a>.</p>
   <figure class="fig">
     <picture><source srcset="img/tesis/prueba-real-4.webp" type="image/webp"><img src="img/tesis/prueba-real-4.png" width="1595" height="857" loading="lazy" decoding="async" alt="Captura doble: a la izquierda la cámara cenital con el robot dentro del recinto de paneles rojos y negros, a la derecha RViz con el mapa de costos casi completo y la ruta verde hacia el último rincón."></picture>
     <figcaption>El cierre de una exploración real. A la izquierda la cámara cenital y a la derecha el mapa en RViz, con la ruta verde hacia la última frontera. <small>Fig. A7.1 d de la tesis.</small></figcaption>
   </figure>
+  </details>
 </section>
 
 <section>

@@ -34,4 +34,7 @@
       '<div class="chips-no"><span>' + NO + 'vidrio y superficies muy reflectantes</span><span>' + NO + 'superficies muy absorbentes</span><span>' + NO + 'obstáculos rápidos</span><span>' + NO + 'suelos irregulares</span><span>' + NO + 'recorridos largos sin IMU</span></div>' +
       '<p class="vnota">Dibujos ilustrativos, no a escala exacta. El centro queda fuera de la zona de inflación, así que su costo es nulo, pero la esquina puede llegar a la pared. Su efecto no se cuantificó y es el trabajo futuro 4.</p>';
   };
+
+  /* Reto de la sección de las repeticiones; la lógica vive en estadistica-modelo.js */
+  V["reto-resultados"] = function (el) { U.reto(el, window.ESTADISTICA.reto(), "rs-reto-", window.ESTADISTICA.evaluarReto); };
 })();

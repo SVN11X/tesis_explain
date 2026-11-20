@@ -23,6 +23,7 @@ else:
     server = ServidorEstable(('127.0.0.1', 0), partial(QuietHandler, directory=str(ROOT)))
     Thread(target=server.serve_forever, daemon=True).start()
     BASE = 'http://127.0.0.1:%d' % server.server_port
+ALTURA_RETO = 650  # alto del reto de la calibración a 360 px, contenido visible a propósito que se suma al presupuesto
 ALTURA_ANTES = 25831  # alto de movimiento.html a 360 x 740 px antes de plegarlo, medido con el mismo recorrido
 count = 0
 
@@ -55,7 +56,7 @@ def contenidos(page, visuales):
     return None
 
 
-VIS_MOV = ['cinematica', 'encoder', 'odometria', 'calibracion', 'giro', 'iteracion2', 'cuadrado']
+VIS_MOV = ['cinematica', 'encoder', 'odometria', 'calibracion', 'giro', 'iteracion2', 'cuadrado', 'reto-movimiento']
 
 with sync_playwright() as pw:
     browser = pw.chromium.launch()
@@ -80,7 +81,7 @@ with sync_playwright() as pw:
         for v in VIS_MOV:
             p.locator('[data-vis="%s"]' % v).scroll_into_view_if_needed()
             p.wait_for_selector('[data-vis="%s"][data-montado="1"]' % v)
-        check(not errors, name + ': los siete interactivos del capítulo 3 montan sin errores', errors[:3])
+        check(not errors, name + ': los interactivos del capítulo 3 montan sin errores', errors[:3])
         check(p.locator('[data-vis][data-montado] .vis-fallback').count() == 0, name + ': no quedan textos de respaldo visibles')
         check(p.evaluate('document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1'), name + ': no hay desborde horizontal')
 
@@ -174,10 +175,58 @@ with sync_playwright() as pw:
         check('gira el robot' in p.locator('#burbuja').inner_text(), name + ': centro de giro tiene definición accesible con teclado')
         p.keyboard.press('Escape')
 
+        # ── Reto de la calibración: respuesta inmediata, teclado y región aria-live ──
+        reto = '[data-vis=reto-movimiento]'
+        p.locator(reto).scroll_into_view_if_needed()
+        p.wait_for_selector(reto + '[data-montado="1"]')
+        check(p.locator(reto + ' input[type=radio]').count() == 5 and p.locator(reto + ' [aria-live=polite]').count() == 3, name + ': el reto usa radios nativos y regiones aria-live')
+        p.locator(reto + ' input[name=mv-reto-0]').nth(1).check()
+        r0 = p.locator(reto + ' [data-reto-r="0"]')
+        check(r0.get_attribute('data-ok') == 'false' and 'Todavía no' in r0.inner_text() and '3,63 %' in r0.inner_text(), name + ': una respuesta errónea explica por qué')
+        check(r0.locator('a[href="#sim-calibracion"]').count() == 1, name + ': la respuesta enlaza a la sección')
+        p.locator(reto + ' input[name=mv-reto-0]').nth(0).check()
+        check(r0.get_attribute('data-ok') == 'true' and 'Correcto' in r0.inner_text() and '0 %' in r0.inner_text(), name + ': la respuesta correcta se confirma')
+        p.locator(reto + ' input[name=mv-reto-1]').nth(1).check()
+        check(p.locator(reto + ' [data-reto-r="1"]').get_attribute('data-ok') == 'false' and '1 de 2' in p.locator(reto + ' [data-reto-fin]').inner_text(), name + ': decir que las cinco quedan en 0 % es incorrecto')
+        p.locator(reto + ' input[name=mv-reto-1]').nth(0).check()
+        check('2 de 2 correctas' in p.locator(reto + ' [data-reto-fin]').inner_text() and '−0,72 %' in p.locator(reto + ' [data-reto-r="1"]').inner_text(), name + ': el reto resume 2 de 2 con las cifras de la página')
+        check(p.locator('#reto-calibracion').evaluate("el => !el.closest('details')"), name + ': el reto está en la parte visible, no en un detalle plegado')
+        check(p.evaluate("() => document.querySelector('#reto-calibracion').getBoundingClientRect().right <= document.documentElement.clientWidth + 1"), name + ': el reto cabe en el ancho')
+        if not options.get('has_touch'):
+            p.locator(reto + ' input[name=mv-reto-1]').nth(1).focus()
+            p.keyboard.press('ArrowUp')
+            check(p.locator(reto + ' input[name=mv-reto-1]').nth(0).is_checked() and p.locator(reto + ' [data-reto-r="1"]').get_attribute('data-ok') == 'true', name + ': con las flechas del teclado se responde y la respuesta queda escrita')
+            check(p.locator(reto + ' input[name=mv-reto-1]').nth(0).evaluate("el => el.matches(':focus-visible')"), name + ': el foco del teclado es visible en el reto')
+        if reducido:
+            check(p.evaluate("() => [...document.querySelectorAll('[data-vis=reto-movimiento] *')].every(e => { const c = getComputedStyle(e); return c.animationName === 'none' && parseFloat(c.transitionDuration) === 0; })"), name + ': el reto no anima')
+
         # ── A estrella en el capítulo 6 ──
         p.goto(BASE + '/navegacion.html')
         p.locator('[data-vis=astar]').scroll_into_view_if_needed()
         p.wait_for_selector('[data-vis=astar][data-montado="1"]')
+        # ── Reto de A estrella: respuesta inmediata, teclado y región aria-live ──
+        rn = '[data-vis=reto-navegacion]'
+        p.locator(rn).scroll_into_view_if_needed()
+        p.wait_for_selector(rn + '[data-montado="1"]')
+        check(p.locator(rn + ' input[type=radio]').count() == 6 and p.locator(rn + ' [aria-live=polite]').count() == 3, name + ': el reto de navegación usa radios nativos y regiones aria-live')
+        p.locator(rn + ' input[name=nv-reto-0]').nth(1).check()
+        n0 = p.locator(rn + ' [data-reto-r="0"]')
+        check(n0.get_attribute('data-ok') == 'false' and 'Todavía no' in n0.inner_text() and '111' in n0.inner_text() and n0.locator('a[href="#sim-astar"]').count() == 1, name + ': una respuesta errónea explica por qué y enlaza a la sección')
+        p.locator(rn + ' input[name=nv-reto-0]').nth(0).check()
+        check(n0.get_attribute('data-ok') == 'true' and 'Correcto' in n0.inner_text() and '291' in n0.inner_text(), name + ': la respuesta correcta se confirma con las cifras de la página')
+        p.locator(rn + ' input[name=nv-reto-1]').nth(1).check()
+        check(p.locator(rn + ' [data-reto-r="1"]').get_attribute('data-ok') == 'false' and '1 de 2' in p.locator(rn + ' [data-reto-fin]').inner_text(), name + ': decir que A estrella halla una ruta más corta es incorrecto')
+        p.locator(rn + ' input[name=nv-reto-1]').nth(0).check()
+        check('2 de 2 correctas' in p.locator(rn + ' [data-reto-fin]').inner_text(), name + ': el reto de navegación resume 2 de 2')
+        check(p.locator('#reto-astar').evaluate("el => !el.closest('details')"), name + ': el reto de navegación está visible, no en un detalle plegado')
+        check(p.evaluate("() => document.querySelector('#reto-astar').getBoundingClientRect().right <= document.documentElement.clientWidth + 1"), name + ': el reto de navegación cabe en el ancho')
+        if not options.get('has_touch'):
+            p.locator(rn + ' input[name=nv-reto-1]').nth(0).focus()
+            p.keyboard.press('ArrowDown')
+            check(p.locator(rn + ' input[name=nv-reto-1]').nth(1).is_checked() and p.locator(rn + ' [data-reto-r="1"]').get_attribute('data-ok') == 'false', name + ': con las flechas del teclado se responde en el reto de navegación')
+        if reducido:
+            check(p.evaluate("() => [...document.querySelectorAll('[data-vis=reto-navegacion] *')].every(e => { const c = getComputedStyle(e); return c.animationName === 'none' && parseFloat(c.transitionDuration) === 0; })"), name + ': el reto de navegación no anima')
+
         t = text_of(p, 'astar')
         e = estado(p, 'astar', 'estadoAstar')
         check(e['alg'] == 'a' and e['k'] == 30 and e['f'] == e['g'] + e['h'] and '30 de 111' in t, name + ': A estrella parte a mitad de búsqueda, con f = g + h', e)
@@ -290,7 +339,7 @@ with sync_playwright() as pw:
     abierta = p.evaluate('document.documentElement.scrollHeight')
     print('  altura a 360 px: plegada %d px (%.1f pantallas), con todo abierto %d px, antes %d px (%.1f %%)' % (cerrada, cerrada / 740, abierta, ALTURA_ANTES, 100.0 * cerrada / ALTURA_ANTES))
     check(cerrada < abierta, '360 px: plegada la página es más corta que con todo abierto')
-    check(cerrada <= ALTURA_ANTES * 0.7, '360 px: la página mide como mucho el 70 %% de antes (%d px contra %d px)' % (cerrada, ALTURA_ANTES))
+    check(cerrada <= ALTURA_ANTES * 0.7 + ALTURA_RETO, '360 px: la página mide como mucho el 70 %% de antes (%d px contra %d px)' % (cerrada, ALTURA_ANTES))
     # un ancla hacia el contenido plegado lo abre y lo muestra
     for destino in ('sesgo-dispersion', 'd-mejorar', 'd-recta'):
         p.goto(BASE + '/movimiento.html#' + destino)
@@ -324,6 +373,13 @@ with sync_playwright() as pw:
     q.locator('#d-giro > summary').click()
     check(q.locator('#d-giro').get_attribute('open') is not None, 'sin JavaScript: el detalle se abre a mano')
     check(q.locator('[data-vis=cinematica] .vis-fallback').is_visible(), 'sin JavaScript: el texto de respaldo del primer interactivo sigue visible')
+    check(q.locator('[data-vis=reto-movimiento] .vis-fallback').is_visible() and not q.locator('[data-vis=reto-movimiento] details p').is_visible(), 'sin JavaScript: el reto muestra la pregunta y esconde la respuesta')
+    q.locator('[data-vis=reto-movimiento] details > summary').click()
+    check('Calibrar quita el sesgo' in q.locator('[data-vis=reto-movimiento] details p').inner_text() and q.locator('[data-vis=reto-movimiento] details p').is_visible(), 'sin JavaScript: la respuesta del reto se abre en un details')
+    q.goto(BASE + '/navegacion.html')
+    check(q.locator('[data-vis=reto-navegacion] .vis-fallback').is_visible() and not q.locator('[data-vis=reto-navegacion] details p').is_visible(), 'sin JavaScript: el reto de navegación muestra la pregunta y esconde la respuesta')
+    q.locator('[data-vis=reto-navegacion] details > summary').click()
+    check('291' in q.locator('[data-vis=reto-navegacion] details p').inner_text() and q.locator('[data-vis=reto-navegacion] details p').is_visible(), 'sin JavaScript: la respuesta del reto de navegación se abre en un details')
     sin.close()
     # las cifras y referencias de la tesis siguen en la página, y los resúmenes no inventan ninguna
     cmp_ = subprocess.run([sys.executable, str(ROOT / 'herramientas' / 'comparar_resumen.py'), 'movimiento'], capture_output=True, text=True, encoding='utf-8', env=dict(os.environ, PYTHONUTF8='1'))

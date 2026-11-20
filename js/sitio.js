@@ -459,14 +459,14 @@
      (control-modelo.js, movimiento-modelo.js y otros) siguen en el HTML porque estos archivos los leen
      al cargarse. Para agregar un interactivo, registra su nombre aquí. */
   var MODULOS = {
-    "js/navegacion.js": "astar alcance inflacion dwb",
-    "js/exploracion.js": "frontera metas listanegra exploracion",
-    "js/control.js": "pid enjambre estacionario tiempo leyes papeles cancelacion ciclo truncamiento acumulador windup zonas pso resolucion lazo-rueda fopdt protocolo",
-    "js/robot.js": "camino arquitectura costo vistas esquema",
+    "js/navegacion.js": "astar alcance inflacion dwb reto-navegacion",
+    "js/exploracion.js": "frontera metas listanegra exploracion reto-exploracion",
+    "js/control.js": "pid enjambre estacionario tiempo leyes papeles cancelacion ciclo truncamiento acumulador windup zonas pso resolucion lazo-rueda fopdt protocolo reto-control",
+    "js/robot.js": "camino arquitectura costo vistas esquema reto-robot",
     "js/gemelo.js": "gemelo",
-    "js/resultados.js": "fallaria",
+    "js/resultados.js": "fallaria reto-resultados",
     "js/mapeo.js": "lidar rejilla marcos-mapeo barridos lazo rviz-colores cobertura reto-mapeo",
-    "js/movimiento.js": "calibracion cuadrado cinematica encoder odometria iteracion2 giro",
+    "js/movimiento.js": "calibracion cuadrado cinematica encoder odometria iteracion2 giro reto-movimiento",
     "js/evidencia.js": "estabilidad plano-mapa repeticiones",
     "js/slam-proceso.js": "candidatos-slam cola-slam",
     "js/lecciones.js": "metas-abortadas",

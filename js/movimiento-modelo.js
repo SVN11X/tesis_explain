@@ -152,6 +152,36 @@
     return { horario: h, antihorario: a, mayor: Math.max(h.error, a.error) };
   };
 
+  function fmt(v, d) { return (v < 0 ? "−" : "") + Math.abs(v).toFixed(d).replace(".", ","); }
+  /* Reto de la sección «Sesgo y dispersión». Todas las cifras salen de las cinco rectas de la Tabla A6.2:
+     error medio 3,63 %, desviación 0,44 % y factor 1,0363. Vive en el modelo, sin DOM, para probarse con Node. */
+  M.reto = function () {
+    var antes = M.RECTA.map(function (r) { return r.error; }), f = M.factor(antes), despues = M.corregir(antes, f);
+    var ea = M.estadistica(antes), ed = M.estadistica(despues);
+    var min = Math.min.apply(null, despues), max = Math.max.apply(null, despues), pct = function (v) { return fmt(v, 2) + " %"; };
+    return [{
+      pregunta: "Se divide la odometría por " + fmt(f, 4) + ". ¿Qué pasa con el error medio de " + pct(ea.media) + " en las cinco rectas?",
+      opciones: [
+        { id: "cero", texto: "Pasa a 0 %", ok: true, porque: "El factor sale de ese mismo error medio, así que en esas cinco pruebas lo deja en 0 %." },
+        { id: "igual", texto: "Se queda en " + pct(ea.media), ok: false, porque: "Dividir por " + fmt(f, 4) + " corre todos los puntos la misma distancia hacia abajo, justo " + pct(ea.media) + " en promedio." },
+        { id: "desv", texto: "Baja hasta " + pct(ea.desv), ok: false, porque: pct(ea.desv) + " es la desviación estándar, la dispersión. No es el error medio, y tampoco es a lo que baja." }
+      ],
+      enlace: "#sim-calibracion", enlaceTexto: "Calibrar quita el sesgo, no la dispersión"
+    }, {
+      pregunta: "Después de calibrar, ¿las cinco rectas dan el mismo error?",
+      opciones: [
+        { id: "no", texto: "No: siguen separadas, de " + pct(min) + " a " + pct(max), ok: true, porque: "Calibrar quita el sesgo, no la dispersión. Las pruebas quedan entre " + pct(min) + " y " + pct(max) + " porque la dispersión cambia de una prueba a otra." },
+        { id: "si", texto: "Sí: las cinco quedan en 0 %", ok: false, porque: "Solo el promedio queda en 0 %. Cada prueba conserva su desvío respecto de la media, de " + pct(min) + " a " + pct(max) + "." }
+      ],
+      enlace: "#sesgo-dispersion", enlaceTexto: "Sesgo y dispersión: qué corrige una calibración"
+    }];
+  };
+  /* Respuesta a la opción j de la pregunta i, o null si no existe. */
+  M.evaluarReto = function (i, j) {
+    var q = M.reto()[i], o = q && q.opciones[j];
+    return o ? { ok: o.ok, porque: o.porque, enlace: q.enlace, enlaceTexto: q.enlaceTexto } : null;
+  };
+
   if (typeof module !== "undefined" && module.exports) module.exports = M;
   else window.MOVIMIENTO = M;
 })();
