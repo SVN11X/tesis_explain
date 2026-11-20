@@ -19,7 +19,7 @@ Base: `166d70e3f4d2b8e61daea9b1999fad859c28169b` de `main`. Rama local: `mejora/
 | Laboratorio | laboratorio.html; js/analisis-modelo.js; js/laboratorio.js; css/laboratorio.css | Siete esquemas CSV existentes y un esquema temporal opcional; validación estricta, métricas, reglas, gráficos, tabla, procedencia y exportación JSON local |
 | Índice y portada | index.html; datos/indice.js; herramientas/indice.py | Entrada al laboratorio y navegación como quinto complemento; 356 entradas de búsqueda regeneradas |
 | Calidad | herramientas/pruebas_analisis.js; pruebas_laboratorio_navegador.py; verificar_sitio.py; pruebas_mapeo.js; pruebas_navegador.py; .github/workflows/verificar.yml; .gitignore | Nuevas pruebas, servidor temporal de navegador, recorrido determinista de widgets, verificaciones en PR y exclusión de cachés |
-| Fuera del código | README.md; docs/auditoria-inicial.md; decisiones.md; laboratorio.md; informe-academico.md; trazabilidad.csv; observaciones-comite.csv; inventario-publicacion.csv | Fuentes, decisiones y límites documentados; plantilla de observaciones vacía y permisos de publicación pendientes |
+| Fuera del código | README.md; docs/historial/auditoria-inicial.md; decisiones.md; laboratorio.md; informe-academico.md; trazabilidad.csv; observaciones-comite.csv; inventario-publicacion.csv | Fuentes, decisiones y límites documentados; plantilla de observaciones vacía y permisos de publicación pendientes |
 
 El listado completo de archivos cambiados acompaña el ZIP de evidencia y también figura en el encabezado del parche Git. Los cambios forman una evolución incremental: no se incorporó framework, compilador, servicio de pago, modelo de IA ni dependencia para visitantes.
 

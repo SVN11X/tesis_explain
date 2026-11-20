@@ -22,9 +22,9 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 - [x] (yellow) Same pull request as part (b): datos.py, descarga_preguntas.py, imagen_social.py, indice.py and verificar_sitio.py follow the pages, read or write dist/ after the build, and pass --comprobar.
 - [x] (yellow) Same pull request as part (b): remove preparar-web.mjs, publicar-web.mjs, verificar_compilacion.py, compilacion.py and all committed build output. datos/indice.js is built into dist/.
 - [x] (yellow) Same pull request as part (b): browser tests serve dist/ under /tesis_explain/, and pages.yml builds and uploads dist/.
-- [ ] BLOCKED: Waits for PR #25 and the Pages switch. Declare servicio/ in extra_folders with its reason. Every other folder has a place after part (b).
-- [ ] BLOCKED: Waits for PR #25 and the Pages switch. Take the three voice files over 5 MB out of git: the Pages build downloads them with descargar_voz.py and checks their hashes.
-- [ ] BLOCKED: Waits for PR #25 and the Pages switch. Once the check can pass: .standard.yml (three_d core, github.description), AGENTS.md, CLAUDE.md and standard.yml with gitleaks. The commit guard blocks .standard.yml before that.
+- [ ] (yellow, workflow) Declare servicio/ in extra_folders with its reason. Every other folder has a place after part (b).
+- [ ] (yellow, workflow) Take the three voice files over 5 MB out of git: the Pages build downloads them with descargar_voz.py and checks their hashes.
+- [ ] (yellow, workflow) Once the check can pass: .standard.yml (three_d core, github.description), AGENTS.md, CLAUDE.md and standard.yml with gitleaks. The commit guard blocks .standard.yml before that.
 
 ## Thesis content
 
@@ -53,11 +53,11 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 - [x] (green) Measure the weight and use of Archivo, Atkinson Hyperlegible and IBM Plex Mono, and record the font decision in DESIGN.md.
 - [ ] BLOCKED: Waits for PR #25 and the Pages switch. After part (b): list the current tokens (spacing, type sizes, radii, durations, easing) in DESIGN.md from the site's CSS.
 - [ ] BLOCKED: Waits for PR #25 and the Pages switch. After part (b): record the performance budget in docs/decisions/, measured on dist/, with each page's critical path against 170 KB compressed.
-- [ ] BLOCKED: control.html stays at 84 % of its height because 17 interactives must stay visible. Fold its sources list and the «Mundo real» section too?
+- [x] (yellow) control.html: the source list and «Mundo real» folded too (owner, 2026-11-20), PR #64.
 - [x] (yellow) Summaries and folded detail on problema, navegacion, exploracion and replicar (owner approved on 2026-11-20): PRs #61, #60, #59 and #65.
-- [ ] BLOCKED: Does the mapeo.html challenge spread to other chapters? One per chapter, or only where the owner chooses?
+- [x] (yellow) The owner decided on 2026-11-20 that the challenge spreads: one per chapter with its own figures.
 - [x] (yellow) control.html: the source list and «Mundo real» folded too (owner, 2026-11-20). Height at 360 px: 74 % of the first-pass height.
-- [ ] BLOCKED: The owner reviews the summarized control, mapeo, robot, movimiento and resultados pages before problema, navegacion, exploracion and replicar.
+- [x] (yellow) The owner approved on 2026-11-20 continuing the summaries to problema, navegacion, exploracion and replicar.
 - [x] (yellow) The owner decided on 2026-11-20 that the challenge spreads: one per chapter with its own figures.
 - [x] (yellow) One short challenge per chapter on the shared U.reto (owner, 2026-11-20): mapeo, movimiento, control, robot, resultados, navegacion and exploracion.
 
@@ -71,7 +71,7 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 - [x] (green) Remove dead code: the sims.js hero mode (no page uses data-modo="hero"), ICO stored in VISUALES (comun.js:92), stale notes (vis1.js:8, :323, sims.js:9, :711) and SITIO.quieto (sitio.js:853).
 - [x] (green) Tests before the split: list files from SITIO.MODULOS instead of hardcoded names, check that each file registers exactly its MODULOS names, and add a Node test for the exploration simulation.
 - [x] (yellow) Split vis1, vis2, vis3 and sims.js by chapter: navegacion, exploracion, control, robot, plus mapeo (cobertura) and movimiento. Consider static HTML for versiones, gemelo and fallaria. (vis1, sims, vis2 done)
-- [ ] BLOCKED: Waits for PR #25 and the Pages switch. After part (b): shorten README.md (364 lines) to what it is, for whom, use, status, layout and license. The audit reports go to docs/historial/ with every link fixed.
+- [x] (green) Shorten README.md to what it is, for whom, use, status, layout and license. Long sections in docs/guia-de-edicion.md and docs/historial/.
 
 ## Presentation
 
