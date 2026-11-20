@@ -459,11 +459,12 @@
      (control-modelo.js, movimiento-modelo.js y otros) siguen en el HTML porque estos archivos los leen
      al cargarse. Para agregar un interactivo, registra su nombre aquí. */
   var MODULOS = {
-    "js/vis1.js": "astar frontera metas listanegra cobertura alcance",
+    "js/navegacion.js": "astar alcance",
+    "js/exploracion.js": "frontera metas listanegra",
     "js/vis2.js": "estacionario tiempo leyes papeles cancelacion ciclo truncamiento acumulador windup zonas pso resolucion lazo-rueda fopdt protocolo camino",
     "js/vis3.js": "odometria iteracion2 giro arquitectura versiones gemelo costo fallaria vistas esquema",
     "js/sims.js": "exploracion cinematica encoder pid enjambre inflacion dwb",
-    "js/mapeo.js": "lidar rejilla marcos-mapeo barridos lazo rviz-colores",
+    "js/mapeo.js": "lidar rejilla marcos-mapeo barridos lazo rviz-colores cobertura",
     "js/movimiento.js": "calibracion cuadrado",
     "js/evidencia.js": "estabilidad plano-mapa repeticiones",
     "js/slam-proceso.js": "candidatos-slam cola-slam"

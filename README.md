@@ -104,7 +104,9 @@ Las cifras y figuras del robot salen de la tesis y se citan con su sección, tab
 │                        y carga bajo demanda de los interactivos
 ├── js/decisiones.js     comparador de decisiones del tema 1
 ├── js/sims.js           simulaciones en canvas
-├── js/vis1.js … vis3.js interactivos de cada tema
+├── js/vis2.js, vis3.js  interactivos de cada tema
+├── js/navegacion.js     A estrella y alcance de la navegación
+├── js/exploracion.js    frontera, metas y lista negra
 ├── js/comun.js          utilidades compartidas
 ├── js/control-modelo.js cálculos verificables del capítulo de control
 ├── js/movimiento-modelo.js cálculos verificables del capítulo 3
