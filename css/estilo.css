@@ -1325,3 +1325,25 @@ figure.esquema .b-ampliar { position: static; margin-top: 10px; }
 .lateral .gl-secciones a.activo { border-left-color: var(--tema); box-shadow: inset 1px 0 0 var(--tema); }
 .gl-pos { color: var(--tema); }
 @media print { .tema-hero::before { display: none; } }
+/* Lecciones: la meta abortada paso a paso (js/lecciones.js). La forma y el borde dicen el estado igual que el color. */
+.vis .mq-ctl { align-items: center; }
+.mq-n { font-size: var(--t-sm); color: var(--muted); margin-left: auto; }
+.mq-svg { display: block; width: 100%; max-width: 380px; height: auto; margin: 0 auto; }
+.mq-txt { margin: 0; font-size: var(--t-base); min-height: 3.2em; }
+.mq-ley { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: var(--t-sm); }
+.mq-ley li { display: flex; gap: 8px; align-items: center; margin: 0; }
+.mq-ley li::marker { content: none; }
+.mq-mini { width: 22px; height: 22px; flex: none; }
+.mq-p circle, .mq-p rect { stroke-width: 2; }
+.mq-p.s-meta rect, .mq-p.s-abortada rect { display: none; }
+.mq-p.s-reemplazo circle, .mq-p.s-nav2 circle, .mq-p.s-duda circle { display: none; }
+.mq-p.s-meta circle { fill: none; stroke: var(--muted); }
+.mq-p.s-abortada circle { fill: var(--c-frambuesa); stroke: var(--c-frambuesa); }
+.mq-p.s-reemplazo rect { fill: var(--c-naranja); stroke: var(--c-naranja); }
+.mq-p.s-nav2 rect { fill: var(--c-naranja); stroke: var(--c-frambuesa); stroke-width: 4; }
+.mq-p.s-duda rect { fill: var(--c-naranja); fill-opacity: .35; stroke: var(--c-naranja); stroke-dasharray: 4 3; }
+.mq-p.mq-tenue { opacity: .4; }
+@media (prefers-reduced-motion: no-preference) {
+  .mq-p circle, .mq-p rect { transition: fill var(--dur-1), stroke var(--dur-1), fill-opacity var(--dur-1); }
+  .mq-p { transition: opacity var(--dur-1); }
+}
