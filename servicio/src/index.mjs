@@ -1,5 +1,5 @@
 // Entrada del Worker (especificación, apartado 6). Arma las dependencias desde `env`.
-import catalogo from "../../datos/defensa/catalogo.json" with { type: "json" };
+import catalogo from "../../public/datos/defensa/catalogo.json" with { type: "json" };
 import { crearApi } from "./api.mjs";
 import { crearRepositorioD1 } from "./cuotas.mjs";
 import { crearProveedor } from "./proveedores.mjs";

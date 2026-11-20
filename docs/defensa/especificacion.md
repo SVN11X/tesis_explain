@@ -14,8 +14,8 @@ Decisiones del dueño del 18 de noviembre de 2026:
 | Archivo | Unidad | Qué es |
 |---|---|---|
 | `scripts/catalogo_defensa.py` | Catálogo | Lee las tarjetas de `preguntas.html`, une las rúbricas y escribe el catálogo |
-| `datos/defensa/rubricas.json` | Catálogo | Rúbricas editoriales por ID de pregunta |
-| `datos/defensa/catalogo.json` | Catálogo | Salida generada, con versión |
+| `public/datos/defensa/rubricas.json` | Catálogo | Rúbricas editoriales por ID de pregunta |
+| `public/datos/defensa/catalogo.json` | Catálogo | Salida generada, con versión |
 | `tests/catalogo_defensa.test.mjs` | Catálogo | Pruebas del catálogo con `node --test` |
 | `servicio/src/juez.mjs` | Juez | Validación de cada lectura y consenso de tres |
 | `servicio/src/cuotas.mjs` | Cuotas | `QuotaRepository` sobre D1 |
@@ -57,7 +57,7 @@ Reglas comunes:
 
 ### 2.2 Rúbricas
 
-`datos/defensa/rubricas.json`:
+`public/datos/defensa/rubricas.json`:
 
 ```json
 {
@@ -92,7 +92,7 @@ Reglas comunes:
 
 ### 2.3 Catálogo generado
 
-`python scripts/catalogo_defensa.py` escribe `datos/defensa/catalogo.json`:
+`python scripts/catalogo_defensa.py` escribe `public/datos/defensa/catalogo.json`:
 
 ```json
 {"version": "a1b2c3d4e5f6", "total": 106, "pendientes": ["p-giro", "p-frontera-minima"],
@@ -275,7 +275,7 @@ Toda respuesta JSON lleva `request_id`, `question_id`, `version_catalogo` y, si 
 - Un botón `#q-defensa`, «Practicar defensa oral», va en la fila de acciones de `#q-herramientas`, fuera del bloque entre los comentarios `DESCARGA PREGUNTAS` y fuera de las tarjetas.
 - `js/defensa-config.js` es la única configuración pública: `window.DEFENSA_CONFIG = {api: ""}`. Con `api` vacía, el panel trabaja solo con la guía. Nunca guarda claves.
 - `js/preguntas.js` carga `js/defensa-oral.js` la primera vez que se pulsa el botón (un `<script>` creado al vuelo) y llama `window.DefensaOral.abrir({preguntas, origen})`, donde `preguntas` son las tarjetas visibles con los filtros actuales. Los filtros, la búsqueda, la descarga, los enlaces `#p-…` y el modo práctica siguen igual.
-- `js/defensa-oral.js` resuelve sus recursos relativos a la página, así funciona bajo `/tesis_explain/`. Lee `datos/defensa/catalogo.json` solo al abrir, para la versión y la lista de evaluables.
+- `js/defensa-oral.js` resuelve sus recursos relativos a la página, así funciona bajo `/tesis_explain/`. Lee `public/datos/defensa/catalogo.json` solo al abrir, para la versión y la lista de evaluables.
 
 ### 7.2 Panel
 
