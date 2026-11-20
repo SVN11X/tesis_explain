@@ -192,6 +192,29 @@
     var g = U.robot.svg(cx, cy, 0, T * 1.15 / (2 * U.robot.medidas.r), "centro");
     return '<g class="robot-planta verde"><path class="cuerpo" d="' + g.cuerpo + '"/><circle class="lidar" cx="' + g.lidar[0].toFixed(2) + '" cy="' + g.lidar[1].toFixed(2) + '" r="' + g.lidarR.toFixed(2) + '"/></g>';
   };
+  /* Reto de elegir una respuesta con radios nativos y respuesta inmediata. preguntas: [{pregunta, opciones:[{texto}]}],
+     evaluar(i, j) devuelve { ok, porque, enlace, enlaceTexto } o null. La lógica de cada reto vive en su módulo. */
+  U.reto = function (el, preguntas, prefijo, evaluar) {
+    var hechas = {};
+    el.innerHTML = '<div class="mp-reto">' + preguntas.map(function (q, i) {
+      return '<fieldset class="mp-reto-q"><legend>Pregunta ' + (i + 1) + '. ' + U.esc(q.pregunta) + '</legend>' +
+        q.opciones.map(function (o, j) { return '<label><input type="radio" name="' + prefijo + i + '" value="' + j + '"><span>' + U.esc(o.texto) + '</span></label>'; }).join("") +
+        '<p class="mp-reto-r" data-reto-r="' + i + '" role="status" aria-live="polite"></p></fieldset>';
+    }).join("") + '<p class="mp-reto-fin" data-reto-fin role="status" aria-live="polite"></p></div>';
+    el.addEventListener("change", function (e) {
+      var t = e.target;
+      if (!t.matches || !t.matches('input[type="radio"]')) return;
+      var i = +t.name.slice(prefijo.length), r = evaluar(i, +t.value);
+      if (!r) return;
+      var box = el.querySelector('[data-reto-r="' + i + '"]');
+      box.setAttribute("data-ok", String(r.ok));
+      box.innerHTML = '<b>' + (r.ok ? "Correcto." : "Todavía no.") + '</b> ' + U.esc(r.porque) + ' <a href="' + r.enlace + '">' + U.esc(r.enlaceTexto) + '</a>';
+      hechas[i] = r.ok;
+      var bien = preguntas.filter(function (_, k) { return hechas[k]; }).length;
+      el.querySelector("[data-reto-fin]").textContent = Object.keys(hechas).length === preguntas.length ? "Reto: " + bien + " de " + preguntas.length + " correctas. Puedes cambiar una respuesta." : "";
+    });
+    el.estadoSim = function () { return { respondidas: hechas }; };
+  };
   window.U = U;
   window.VISUALES = window.VISUALES || {};
 })();

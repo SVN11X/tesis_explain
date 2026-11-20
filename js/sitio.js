@@ -466,7 +466,7 @@
     "js/gemelo.js": "gemelo",
     "js/resultados.js": "fallaria",
     "js/mapeo.js": "lidar rejilla marcos-mapeo barridos lazo rviz-colores cobertura reto-mapeo",
-    "js/movimiento.js": "calibracion cuadrado cinematica encoder odometria iteracion2 giro",
+    "js/movimiento.js": "calibracion cuadrado cinematica encoder odometria iteracion2 giro reto-movimiento",
     "js/evidencia.js": "estabilidad plano-mapa repeticiones",
     "js/slam-proceso.js": "candidatos-slam cola-slam",
     "js/lecciones.js": "metas-abortadas",
