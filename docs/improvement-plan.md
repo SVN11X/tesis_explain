@@ -54,7 +54,7 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 - [ ] BLOCKED: Waits for PR #25 and the Pages switch. After part (b): list the current tokens (spacing, type sizes, radii, durations, easing) in DESIGN.md from the site's CSS.
 - [ ] BLOCKED: Waits for PR #25 and the Pages switch. After part (b): record the performance budget in docs/decisions/, measured on dist/, with each page's critical path against 170 KB compressed.
 - [ ] BLOCKED: control.html stays at 84 % of its height because 17 interactives must stay visible. Fold its sources list and the «Mundo real» section too?
-- [ ] BLOCKED: The owner reviews the summarized control, mapeo, robot, movimiento and resultados pages before problema, navegacion, exploracion and replicar.
+- [ ] (yellow) Summaries and folded detail on problema, navegacion, exploracion and replicar, one page per pull request (owner approved on 2026-11-20). Done: navegacion
 - [ ] BLOCKED: Does the mapeo.html challenge spread to other chapters? One per chapter, or only where the owner chooses?
 
 ## Documentation and code
