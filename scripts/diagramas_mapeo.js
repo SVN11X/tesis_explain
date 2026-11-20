@@ -6,7 +6,7 @@
 */
 "use strict";
 var fs = require("fs"), path = require("path"), vm = require("vm");
-var raiz = path.resolve(__dirname, ".."), ctx = { window: {}, Math: Math };
+var raiz = path.resolve(__dirname, "..", "public"), ctx = { window: {}, Math: Math };
 vm.createContext(ctx);
 vm.runInContext(fs.readFileSync(path.join(raiz, "js/mapeo.js"), "utf8"), ctx);
 vm.runInContext(fs.readFileSync(path.join(raiz, "js/slam-proceso.js"), "utf8"), ctx);

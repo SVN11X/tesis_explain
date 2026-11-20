@@ -10,7 +10,7 @@ estado académico generados sin JavaScript.
 """
 from pathlib import Path
 from http.server import SimpleHTTPRequestHandler
-from servidor import ServidorEstable
+from servidor import iniciar, DIST
 from functools import partial
 from threading import Thread
 from playwright.sync_api import sync_playwright
@@ -19,20 +19,7 @@ import re
 ROOT = Path(__file__).resolve().parents[1]
 
 
-class Quiet(SimpleHTTPRequestHandler):
-    def log_message(self, *args):
-        pass
-
-    def handle(self):
-        try:
-            super().handle()
-        except (BrokenPipeError, ConnectionResetError):
-            pass
-
-
-server = ServidorEstable(('127.0.0.1', 0), partial(Quiet, directory=str(ROOT.parent)))
-Thread(target=server.serve_forever, daemon=True).start()
-BASE = 'http://127.0.0.1:%d/%s' % (server.server_port, ROOT.name)
+server, BASE = iniciar()
 EXTERNO = re.compile(r'^https?://(?!localhost|127\.0\.0\.1)')
 count = 0
 

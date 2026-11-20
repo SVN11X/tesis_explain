@@ -120,17 +120,17 @@ Comprobar con `GET <dirección>/v1/salud`.
 
 ## 6. Aprobar una rúbrica
 
-La IA solo evalúa una pregunta cuya rúbrica en `datos/defensa/rubricas.json` esté `aprobada`. La de `p-oe3-parcial` quedó aprobada el 19 de noviembre de 2026 por delegación del autor en Claude, sin una revisión humana criterio por criterio y antes de la validación del apartado 7. Para apagarla basta pasarla a `suspendida`, ejecutar `python scripts/catalogo_defensa.py` y volver a desplegar el Worker.
+La IA solo evalúa una pregunta cuya rúbrica en `public/datos/defensa/rubricas.json` esté `aprobada`. La de `p-oe3-parcial` quedó aprobada el 19 de noviembre de 2026 por delegación del autor en Claude, sin una revisión humana criterio por criterio y antes de la validación del apartado 7. Para apagarla basta pasarla a `suspendida`, ejecutar `python scripts/catalogo_defensa.py` y volver a desplegar el Worker.
 
 1. Leer la rúbrica contra la tesis. Revisar criterios, alternativas válidas y contradicciones críticas, y editar lo que haga falta.
-2. En `datos/defensa/rubricas.json`, cambiar `estado` a `aprobada` y completar `aprobada_por` y `fecha_aprobacion`. Una pregunta con respaldo `pendiente` no puede aprobarse.
+2. En `public/datos/defensa/rubricas.json`, cambiar `estado` a `aprobada` y completar `aprobada_por` y `fecha_aprobacion`. Una pregunta con respaldo `pendiente` no puede aprobarse.
 3. Regenerar el catálogo, desde la raíz del repositorio:
 
 ```bash
 python scripts/catalogo_defensa.py
 ```
 
-4. Confirmar los dos archivos con un commit (`datos/defensa/rubricas.json` y `datos/defensa/catalogo.json`) y publicar. La versión del catálogo cambia, y los paneles abiertos con la versión anterior reciben `409` hasta que recarguen.
+4. Confirmar los dos archivos con un commit (`public/datos/defensa/rubricas.json` y `public/datos/defensa/catalogo.json`) y publicar. La versión del catálogo cambia, y los paneles abiertos con la versión anterior reciben `409` hasta que recarguen.
 
 Antes de aprobar rúbricas para uso real, correr la validación del apartado 7.
 

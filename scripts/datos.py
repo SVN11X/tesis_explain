@@ -7,6 +7,8 @@ import csv, html, json, re, sys
 
 ROOT = Path(__file__).resolve().parents[1]
 CHECK = '--comprobar' in sys.argv
+# Las páginas de la guía y los datos viven en public/, que Astro copia tal cual a dist/.
+PUB = ROOT / 'public'
 
 
 def write(path, content):
@@ -17,11 +19,11 @@ def write(path, content):
         path.write_text(content, encoding='utf-8', newline='\n')
 
 
-academic = json.loads((ROOT / 'datos/academico.json').read_text(encoding='utf-8'))
-params = json.loads((ROOT / 'datos/parametros.json').read_text(encoding='utf-8'))
+academic = json.loads((PUB / 'datos/academico.json').read_text(encoding='utf-8'))
+params = json.loads((PUB / 'datos/parametros.json').read_text(encoding='utf-8'))
 def tablas(carpeta):
     out = {}
-    for path in sorted((ROOT / carpeta).glob('*.csv')):
+    for path in sorted((PUB / carpeta).glob('*.csv')):
         rows = []
         for row in csv.DictReader(path.open(encoding='utf-8', newline='')):
             rows.append({k: (None if v == '' else float(v) if re.fullmatch(r'-?\d+(?:\.\d+)?', v) else v) for k, v in row.items()})
@@ -37,7 +39,7 @@ module = ('/* Generado por scripts/datos.py desde JSON y CSV; no editar a mano. 
           '(function(r){"use strict";var d=' + payload + ';'
           'if(typeof module!=="undefined"&&module.exports)module.exports=d;else r.PROYECTO=d;'
           '})(typeof globalThis!=="undefined"?globalThis:this);\n')
-write(ROOT / 'datos/proyecto.js', module)
+write(PUB / 'datos/proyecto.js', module)
 
 MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
 
@@ -80,7 +82,7 @@ detalle = ('<!-- ESTADO DETALLE: generado por scripts/datos.py desde datos/acade
            '<!-- FIN ESTADO DETALLE -->')
 
 # Bibliografía de la tesis. scripts/bibliografia.py valida datos/bibliografia.json y genera el
-# contenido de bibliografia.html, la introducción de recursos.html y datos/bibliografia.bib. Los grupos
+# contenido de public/bibliografia.html, la introducción de recursos.html y datos/bibliografia.bib. Los grupos
 # siguen los temas de la guía, y cada referencia enlaza las secciones de la guía donde se explica.
 sys.path.insert(0, str(ROOT / 'scripts'))
 from bibliografia import Bibliografia, fecha_texto  # noqa: E402
@@ -97,7 +99,7 @@ def destino(href):
     if nombre not in TEMAS and nombre not in EXTRAS:
         raise SystemExit('bibliografia.json: página no admitida ' + href)
     if pag not in titulos_h2:
-        texto = (ROOT / pag).read_text(encoding='utf-8')
+        texto = (PUB / pag).read_text(encoding='utf-8')
         titulos_h2[pag] = {m.group(1): html.unescape(re.sub(r'<[^>]+>', '', m.group(2))).strip()
                            for m in re.finditer(r'<h2 id="([^"]+)"[^>]*>(.*?)</h2>', texto, re.S)}
     if ancla not in titulos_h2[pag]:
@@ -108,17 +110,17 @@ def destino(href):
 
 from planificacion import bloque_costos, bloque_gantt  # noqa: E402
 frame = marco.plantillas(academic)
-write(ROOT / 'web/src/generado/marco.json', marco.json_astro(academic))
+write(ROOT / 'src/generado/marco.json', marco.json_astro(academic))
 costos = bloque_costos()
 gantt = bloque_gantt()
-bib = Bibliografia(json.loads((ROOT / 'datos/bibliografia.json').read_text(encoding='utf-8')), destino)
+bib = Bibliografia(json.loads((PUB / 'datos/bibliografia.json').read_text(encoding='utf-8')), destino)
 bibliografia = bib.pagina()
 bibliografia_mapa = bib.mapa_pagina()
 bibliografia_resumen = bib.resumen()
 bibliografia_traslado = bib.traslado()
-write(ROOT / 'datos/bibliografia.bib', bib.bibtex(fecha_texto(academic['ultima_actualizacion_sitio'])))
+write(PUB / 'datos/bibliografia.bib', bib.bibtex(fecha_texto(academic['ultima_actualizacion_sitio'])))
 
-for path in sorted(ROOT.glob('*.html')):
+for path in sorted(PUB.glob('*.html')):
     original = path.read_text(encoding='utf-8')
     text = original
     if 'BIBLIOGRAFIA:' in text:

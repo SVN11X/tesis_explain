@@ -20,7 +20,7 @@ En las páginas de la guía llevan el color del tema los términos con definici�
 
 Todo el sitio tiene tema claro y oscuro, también la portada y sus escenas 3D. Sin elección, sigue al sistema. El botón de la cabecera, con una luna o un sol, cambia el tema. En el teléfono está en el menú, como una fila con interruptor. La elección se guarda en el navegador de quien la hace, con la clave `tema`, y si coincide con el sistema se borra, así el sitio vuelve a seguirlo.
 
-Un script en línea al inicio del `<head>` aplica la elección guardada antes de cargar los estilos, así la página no parpadea. Sale de `scripts/plantillas/tema.html` y `datos.py` lo pone en las 18 páginas, junto con `color-scheme` y el color de la barra del navegador. Los colores son variables: `css/marco.css` define la paleta común, `css/estilo.css` las superficies y los colores de los datos de la guía y `web/src/styles/experience.css` los de la portada. Cada hoja tiene dos bloques oscuros con los mismos valores, uno para el sistema y otro para el botón, y `navegador.py` comprueba que coincidan.
+Un script en línea al inicio del `<head>` aplica la elección guardada antes de cargar los estilos, así la página no parpadea. Sale de `scripts/plantillas/tema.html` y `datos.py` lo pone en las 18 páginas, junto con `color-scheme` y el color de la barra del navegador. Los colores son variables: `css/marco.css` define la paleta común, `css/estilo.css` las superficies y los colores de los datos de la guía y `src/styles/experience.css` los de la portada. Cada hoja tiene dos bloques oscuros con los mismos valores, uno para el sistema y otro para el botón, y `navegador.py` comprueba que coincidan.
 
 Cada cambio de tema avisa con el evento `temacambio`. Los simuladores dibujados en canvas y las escenas 3D lo escuchan y se vuelven a dibujar. Los colores de los datos conservan su tono en el tema oscuro, para que «la curva azul» siga siendo azul, y las rejillas de ocupación conservan los grises de un mapa PGM, porque el texto los nombra: blanco libre, negro ocupado y gris desconocido. Las fotos del robot se funden con el papel en el tema claro y se muestran tal cual en el oscuro.
 
@@ -28,11 +28,11 @@ Cada cambio de tema avisa con el evento `temacambio`. Los simuladores dibujados 
 
 Las figuras de la guía dibujan el robot con su planta real, una U con la parte curva adelante y el LiDAR en la curva, con las medidas del CAD del prototipo. La función está en `js/comun.js` (`U.robot`) y la usan el LiDAR del capítulo 5, A estrella y las fronteras, el simulador de exploración y la cinemática. Donde importa la huella rectangular que usa Nav2, como en la inflación y la ventana dinámica, se dibuja esa huella. El logo y el ícono del sitio muestran la misma planta, con la curva hacia adelante.
 
-La portada muestra el modelo 3D del prototipo, convertido de su CAD por `scripts/modelo_robot.py` y guardado en `modelos/robot.glb`: carcasa negra con las cuatro franjas amarillas del frente y el panel plano de la cámara. El despiece separa la tracción, la electrónica, la cubierta y el LiDAR, cuyo cabezal gira. El visor se acerca con los botones más y menos, con Ctrl y la rueda del ratón, con el pellizco en pantallas táctiles y, con el foco en el modelo, con las teclas más y menos. Las flechas lo giran y cero vuelve a la vista completa. La rueda sola sigue desplazando la página y avisa que el acercamiento va con Ctrl. Al elegir una pieza, la cámara se acerca a ella, y con la electrónica o las ruedas la carcasa se vuelve transparente para mostrarlas. El piso son anillos de barrido que se desvanecen, sin un disco que se corte en el borde. El cargador del modelo está en `web/src/lib/robot-cad.ts` y solo lo pide la portada. Sin WebGL, el visor dibuja en SVG un robot ilustrativo más liviano. El laboratorio 3D de `laboratorios.html` conserva por ahora su robot ilustrativo. Véase [el detalle del modelo](modelos/README.md).
+La portada muestra el modelo 3D del prototipo, convertido de su CAD por `scripts/modelo_robot.py` y guardado en `modelos/robot.glb`: carcasa negra con las cuatro franjas amarillas del frente y el panel plano de la cámara. El despiece separa la tracción, la electrónica, la cubierta y el LiDAR, cuyo cabezal gira. El visor se acerca con los botones más y menos, con Ctrl y la rueda del ratón, con el pellizco en pantallas táctiles y, con el foco en el modelo, con las teclas más y menos. Las flechas lo giran y cero vuelve a la vista completa. La rueda sola sigue desplazando la página y avisa que el acercamiento va con Ctrl. Al elegir una pieza, la cámara se acerca a ella, y con la electrónica o las ruedas la carcasa se vuelve transparente para mostrarlas. El piso son anillos de barrido que se desvanecen, sin un disco que se corte en el borde. El cargador del modelo está en `src/lib/robot-cad.ts` y solo lo pide la portada. Sin WebGL, el visor dibuja en SVG un robot ilustrativo más liviano. El laboratorio 3D de `laboratorios.html` conserva por ahora su robot ilustrativo. Véase [el detalle del modelo](modelos/README.md).
 
-El marco de cada página es el mismo en todas: la cabecera con la marca del robot, la navegación y el buscador, el menú del teléfono, el aviso académico, el pie y la ventana de búsqueda. Su marcado vive en `scripts/plantillas/`, sus estilos en `css/marco.css` y su comportamiento en `js/marco.js`. `python3 scripts/datos.py` lo inserta en las páginas de la guía y escribe `web/src/generado/marco.json`, que la portada y los laboratorios usan al compilarse. Para cambiar el marco se edita la plantilla, se ejecuta `datos.py` y después `npm run build`. `navegador.py` compara el marcado y los estilos del marco entre la portada y las páginas de la guía.
+El marco de cada página es el mismo en todas: la cabecera con la marca del robot, la navegación y el buscador, el menú del teléfono, el aviso académico, el pie y la ventana de búsqueda. Su marcado vive en `scripts/plantillas/`, sus estilos en `css/marco.css` y su comportamiento en `js/marco.js`. `python3 scripts/datos.py` lo inserta en las páginas de la guía y escribe `src/generado/marco.json`, que la portada y los laboratorios usan al compilarse. Para cambiar el marco se edita la plantilla, se ejecuta `datos.py` y después `npm run build`. `navegador.py` compara el marcado y los estilos del marco entre la portada y las páginas de la guía.
 
-La portada y `laboratorios.html` usan Astro, Svelte, TypeScript, Three.js y GSAP, con un robot tridimensional con giro y despiece y un laboratorio de LiDAR con escenas 3D y mapa 2D sincronizados. El robot y los recintos son ilustrativos. Las mediciones publicadas de la tesis siguen en sus capítulos y archivos originales. No requiere servicios externos de pago ni claves. Los archivos compilados se incluyen en la raíz para seguir publicando con GitHub Pages desde `main` y `/ (root)`. No hay que subir `node_modules` ni cambiar el destino de publicación.
+La portada y `laboratorios.html` usan Astro, Svelte, TypeScript, Three.js y GSAP, con un robot tridimensional con giro y despiece y un laboratorio de LiDAR con escenas 3D y mapa 2D sincronizados. El robot y los recintos son ilustrativos. Las mediciones publicadas de la tesis siguen en sus capítulos y archivos originales. No requiere servicios externos de pago ni claves. El sitio se publica con un flujo de GitHub Actions (`.github/workflows/pages.yml`) que compila con `npm run build` y sube `dist/`. La salida compilada no se versiona y no hay que subir `node_modules`.
 
 Para desarrollar, con Node.js 24:
 
@@ -41,55 +41,28 @@ npm ci
 npm run dev
 ```
 
-Abre `http://localhost:4321/tesis_explain/`. Edita las páginas en `web/src/pages`, los componentes en `web/src/components` y los estilos en `web/src/styles`. `index.html`, `laboratorios.html` y `_astro/` son salidas generadas: no se editan a mano.
+Abre `http://localhost:4321/tesis_explain/`. Edita las páginas en `src/pages`, los componentes en `src/components` y los estilos en `src/styles`. Todo lo de `dist/` es salida generada y no se versiona. Las páginas de la guía, `css/`, `js/`, `img/`, `fuentes/`, `datos/`, `descargas/`, `modelos/` y `voz/` viven en `public/`, que Astro copia sin tocar a `dist/` con las mismas rutas.
 
-Para compilar y verificar:
+Para compilar y verificar, en este orden (`npm run build` y las comprobaciones necesitan `beautifulsoup4`, y las pruebas de navegador, `playwright`):
 
 ```bash
+npm ci
+python -m pip install -r scripts/requisitos.txt
+npm run build
+python scripts/datos.py --comprobar
+python scripts/catalogo_defensa.py --comprobar
+python scripts/descarga_preguntas.py --comprobar
+python scripts/imagen_social.py --comprobar
+python scripts/indice.py --comprobar
+python scripts/verificar_sitio.py
 npm run check
 npm run test:lidar
-npm run build
-python -m pip install -r scripts/requisitos.txt
-python scripts/indice.py
-python scripts/verificar_sitio.py
-python tests/compilacion.py
-python scripts/verificar_compilacion.py
+npm test
 ```
 
 Para las herramientas que se ejecutan a mano (`modelo_robot.py`), instala también `scripts/requisitos-opcionales.txt`.
 
-La verificación de compilación compara las salidas con Git y admite únicamente los identificadores internos `uid` de Astro que dependen de la ruta de trabajo. Los textos, atributos funcionales, scripts, estilos, índice y conjunto de recursos deben coincidir. Véase [la corrección de CI](docs/correccion-ci-astro.md).
-
-El criterio editorial es conservar explicaciones, fuentes, unidades y límites al cambiar su presentación. Consulta [la trazabilidad del contenido de portada](docs/contenido-portada.md), [la guía de la portada Astro](docs/experiencia-v1.md) y [el informe del diseño común](docs/historial/informe-tecnico-b018ab8.md).
-
-![Una corrida real: a la izquierda la cámara cenital, a la derecha el mapa que construye el robot en RViz](img/mapa-crece.gif)
-
-## Qué es
-
-Un robot de bajo costo, con ROS 2, que entra a un recinto que no conoce, lo recorre solo y dibuja su plano. La guía explica cada parte del trabajo con la idea, la evidencia medida, los límites y casos del mundo real. Cada afirmación lleva su fuente numerada.
-
-## Contenido
-
-| Página | Tema |
-|---|---|
-| `index.html` | Nueva experiencia visual, robot 3D desmontable y con acercamiento, ciclo, laboratorio de percepción, video real, evidencia y acceso a las 16 partes de la guía |
-| `laboratorios.html` | LiDAR en 3D y mapa 2D, tres escenarios sintéticos, inspección de rayos, historial, enlace reproducible y exportación JSON |
-| `problema.html` | Autonomía en interiores, estado del arte y un comparador que resalta por qué se descartó cada alternativa |
-| `robot.html` | Piezas, energía, red, reparto entre Arduino, Raspberry Pi y computador, ROS 2 y costo |
-| `movimiento.html` | Tracción diferencial y centro de giro, encoders, odometría, ensayos de recta y giro, qué corrige una calibración y el cuadrado en dos sentidos |
-| `control.html` | El lazo de una rueda con sus unidades, PID en tiempo discreto, la ley heredada que opera como PI, windup, el modelo FOPDT, PSO y la estabilidad del lazo discreto con sus márgenes |
-| `mapeo.html` | LiDAR 2D, rejilla de ocupación con área e índice, REP 103/105 y TF, ajuste de barridos con su curva de desacuerdo, grafo de poses, Ceres, capas de RViz, resultados de mapeo y comparación con el plano medido del recinto |
-| `navegacion.html` | Mapas de costos, inflación, A estrella paso a paso, DWB y recuperaciones |
-| `exploracion.html` | Exploración por fronteras y por qué 53 de 54 metas abortadas se asocian a reemplazos del propio explorador |
-| `gemelo.html` | El modelo en Gazebo Classic y qué se compara con qué |
-| `resultados.html` | Niveles de evidencia, los cuatro objetivos, intervalos de confianza y repeticiones, limitaciones y trabajo futuro |
-| `replicar.html` | Materiales, conexiones, versiones, repositorios base y videos para aprender |
-| `mundo-real.html` | Casos reales, de una aspiradora a la mina El Teniente y a Marte |
-| `lecciones.html` | Lecciones de ingeniería que la tesis deja implícitas |
-| `preguntas.html` | 106 preguntas difíciles en 15 temas y 3 niveles, con respuesta, repregunta probable, respaldo en la tesis y enlace al tema |
-| `laboratorio.html` | Análisis local de CSV, de mapas de ocupación PGM y de registros de estados de metas, con métricas con fórmula, reglas transparentes, validación, procedencia y exportación JSON sin LLM |
-| `recursos.html` | Glosario con filtro, presentación de la bibliografía con sus grupos, fuentes externas, materiales, cómo citar y créditos |
-| `bibliografia.html` | Las 72 referencias de la tesis en 11 grupos, cada una con ficha, de qué trata, relación con la tesis, referencias relacionadas y cita para copiar, con filtro y descarga en BibTeX |
+`npm run build` ejecuta `astro build`, que escribe la portada y los laboratorios en `dist/` y copia `public/`, y después `python scripts/indice.py`, que lee las páginas compiladas y escribe `dist/datos/indice.js` y `dist/datos/secciones.js`. Las pruebas de navegador (`python tests/navegador*.py`) sirven `dist/` bajo `/tesis_explain/`, igual que GitHub Pages, así que hay que compilar antes. Los generadores que escriben en las páginas (`datos.py`, `descarga_preguntas.py`, `imagen_social.py`, `bibliografia.py`) escriben en `public/`.
 
 ## Criterios del contenido
 
@@ -97,8 +70,10 @@ Las cifras y figuras del robot salen de la tesis y se citan con su sección, tab
 
 ## Estructura de archivos
 
+Las rutas de la lista que siguen, salvo `docs/`, `scripts/`, `servicio/`, `src/` y `tests/`, están dentro de `public/`: se publican con ese mismo camino relativo.
+
 ```
-├── *.html               páginas del sitio
+├── *.html               páginas de la guía (la portada y los laboratorios salen de src/pages)
 ├── css/marco.css        marco común: cabecera, menú del teléfono, aviso académico, pie y buscador
 ├── js/marco.js          menú del teléfono y buscador, en todas las páginas
 ├── css/estilo.css       diseño de las páginas de la guía, movimiento, impresión
@@ -129,7 +104,7 @@ Las cifras y figuras del robot salen de la tesis y se citan con su sección, tab
 ├── css/laboratorio.css  estilos exclusivos del laboratorio
 ├── js/preguntas.js      búsqueda, filtros, modo práctica y pregunta al azar de Preguntas difíciles
 ├── css/preguntas.css    estilos exclusivos de Preguntas difíciles
-├── datos/indice.js      índice del buscador, generado
+├── datos/indice.js      índice del buscador: se genera en dist/datos, no se versiona
 ├── datos/academico.json estado académico, pendientes del autor e historial de cambios del sitio
 ├── datos/bibliografia.json referencias de la tesis: ficha, contenido, relación con la tesis, diferencias,
 │                        código, referencias relacionadas, cita textual y dónde se citan
@@ -142,13 +117,14 @@ Las cifras y figuras del robot salen de la tesis y se citan con su sección, tab
 ├── docs/                auditorías, informes, decisiones, trazabilidad y plantillas de revisión
 ├── scripts/        generadores, índice del buscador y pruebas
 ├── scripts/plantillas/ marcado del marco común, que datos.py inserta en cada página
-├── web/src/             portada y laboratorios en Astro y Svelte
+├── src/                 portada y laboratorios en Astro y Svelte
+├── dist/                salida de npm run build, lo que se publica (no se versiona)
 ├── modelos/             modelo 3D del prototipo para la portada, generado desde el CAD
 ├── fuentes/             tipografías locales con su licencia OFL
 └── img/                 fotos, figuras de la tesis, animaciones y miniaturas
 ```
 
-Las páginas de la guía no tienen paso de compilación: son HTML estático. Solo la portada y los laboratorios se compilan con `npm run build`.
+Las páginas de la guía no se compilan: son HTML estático en `public/`. Solo la portada y los laboratorios se compilan con `npm run build`.
 
 ## Capítulo 3: centro de giro, sesgo y calibración
 
@@ -224,8 +200,8 @@ La página pesa 111 KB comprimida. Lighthouse en teléfono, con un servidor loca
 
 ## Cómo editar
 
-1. **Temas.** La lista vive en `CAPS`, al inicio de `js/sitio.js`. Las páginas complementarias están en `EXTRAS` y se numeran a continuación, del 11 al 16. El lateral de cada página muestra las 16 partes y despliega las secciones de cualquiera: las de la página actual salen de su HTML y las demás de `datos/secciones.js`, que `python3 scripts/indice.py` regenera junto con el índice del buscador.
-2. **Texto.** Cada página es HTML estático. Después de cambiar texto, regenera el buscador con `python3 scripts/indice.py` (requiere `beautifulsoup4`) y sube `datos/indice.js` junto con las páginas.
+1. **Temas.** La lista vive en `CAPS`, al inicio de `js/sitio.js`. Las páginas complementarias están en `EXTRAS` y se numeran a continuación, del 11 al 16. El lateral de cada página muestra las 16 partes y despliega las secciones de cualquiera: las de la página actual salen de su HTML y las demás de `datos/secciones.js`, que `scripts/indice.py` genera en `dist/` junto con el índice del buscador.
+2. **Texto.** Cada página es HTML estático. Después de cambiar texto, compila con `npm run build`: `scripts/indice.py` regenera el buscador en `dist/datos/` (requiere `beautifulsoup4`). El índice no se versiona.
 3. **Citas.** `<a class="ref" href="#f3">3</a>` apunta a `<li id="f3">` en la lista de fuentes de la misma página.
 4. **Glosario.** `<span class="term" data-def="Definición corta.">término</span>` muestra la definición al pasar el cursor, al enfocarlo o al tocarlo.
 5. **Imágenes.** En `.webp` con respaldo `.jpg` o `.png`. Los gráficos van en WebP sin pérdida, que pesa menos que el PNG y conserva las líneas nítidas. Las fotos de cabecera tienen además una versión de 800 o 900 px en `srcset`. La versión grande va en `data-grande` y se abre con el botón Ampliar.
@@ -233,8 +209,8 @@ La página pesa 111 KB comprimida. Lighthouse en teléfono, con un servidor loca
 7. **Contenido pendiente.** Los bloques ocultos con `hidden` llevan un comentario `PENDIENTE AUTOR` que dice qué falta.
    Los videos preparados usan `data-src` y `data-poster`. Basta con agregar los archivos y quitar `hidden`.
 8. **PDF de la tesis.** Solo cuando esté autorizado y disponible, registra una URL verificada en `tesis_pdf` de `datos/academico.json`.
-9. **Estado y parámetros.** Edita `datos/academico.json`, `datos/parametros.json` y los CSV autorizados. Ejecuta `python3 scripts/datos.py` y después `python3 scripts/indice.py`. Actualiza el HTML relacionado. Los respaldos estáticos no se sustituyen por datos dinámicos. Consulta `datos/README.md` y `docs/trazabilidad.csv`.
-10. **Bibliografía.** Cada referencia de la tesis vive en `datos/bibliografia.json`. Se ven sin abrirla su número en la tesis, su tipo, su autor y su línea de resumen, de hasta 80 caracteres. Al abrirla se leen su `ficha` (título original y en español, autores o editores escritos «Apellido, Nombre» o «=Institución», fecha, medio, volumen, número, páginas, edición, identificadores, enlaces, idioma, acceso, revisión de pares, versión consultada, palabras clave y de dónde sale el detalle), las `partes` que usa la tesis, de qué trata el documento (`contenido`, en párrafos), qué toma la tesis y para qué (`relacion`), en qué se diferencia el trabajo (`diferencia`), dónde se aplica en el código (`codigo`, opcional), las tablas o figuras donde aparece (`elementos`), las referencias relacionadas y una cita textual opcional de hasta 30 palabras con su página y su traducción. En los párrafos, `{r-id}` enlaza otra referencia. El campo `nota` del JSON describe el esquema completo. Después de editarla, ejecuta `python3 scripts/datos.py` y luego `python3 scripts/indice.py`. `scripts/bibliografia.py` valida el archivo y escribe `bibliografia.html`, la presentación de la bibliografía en `recursos.html` y `datos/bibliografia.bib`. Se detiene si una referencia queda en dos grupos o en ninguno, si los números no van de 1 al total, si falta un dato obligatorio de la ficha, si una sección de la guía o una referencia enlazada no existe, si la explicación de una referencia no tiene entre 300 y 600 palabras, si un resumen pasa de 80 caracteres o si un texto usa punto y coma o guiones como separadores.
+9. **Estado y parámetros.** Edita `datos/academico.json`, `datos/parametros.json` y los CSV autorizados. Ejecuta `python3 scripts/datos.py` y después `npm run build`. Actualiza el HTML relacionado. Los respaldos estáticos no se sustituyen por datos dinámicos. Consulta `datos/README.md` y `docs/trazabilidad.csv`.
+10. **Bibliografía.** Cada referencia de la tesis vive en `datos/bibliografia.json`. Se ven sin abrirla su número en la tesis, su tipo, su autor y su línea de resumen, de hasta 80 caracteres. Al abrirla se leen su `ficha` (título original y en español, autores o editores escritos «Apellido, Nombre» o «=Institución», fecha, medio, volumen, número, páginas, edición, identificadores, enlaces, idioma, acceso, revisión de pares, versión consultada, palabras clave y de dónde sale el detalle), las `partes` que usa la tesis, de qué trata el documento (`contenido`, en párrafos), qué toma la tesis y para qué (`relacion`), en qué se diferencia el trabajo (`diferencia`), dónde se aplica en el código (`codigo`, opcional), las tablas o figuras donde aparece (`elementos`), las referencias relacionadas y una cita textual opcional de hasta 30 palabras con su página y su traducción. En los párrafos, `{r-id}` enlaza otra referencia. El campo `nota` del JSON describe el esquema completo. Después de editarla, ejecuta `python3 scripts/datos.py` y luego `npm run build`. `scripts/bibliografia.py` valida el archivo y escribe `bibliografia.html`, la presentación de la bibliografía en `recursos.html` y `datos/bibliografia.bib`. Se detiene si una referencia queda en dos grupos o en ninguno, si los números no van de 1 al total, si falta un dato obligatorio de la ficha, si una sección de la guía o una referencia enlazada no existe, si la explicación de una referencia no tiene entre 300 y 600 palabras, si un resumen pasa de 80 caracteres o si un texto usa punto y coma o guiones como separadores.
 11. **Pendientes e historial.** Los pendientes del autor y el historial de cambios viven en `datos/academico.json`. `scripts/datos.py` los escribe como HTML estático en `recursos.html#estado-academico`, entre los comentarios `ESTADO DETALLE`. Cada pendiente puede llevar un enlace a la pregunta o sección donde se nota.
 12. **Tipografía.** Las fuentes de las páginas de la guía usan `font-display: optional`: si no llegan en el primer instante, la página sigue con el respaldo y nunca cambia de letra después de dibujarse, así el texto no se mueve. La página siguiente ya las trae de la caché. Los anchos de lectura van en `em` y no en `ch`, porque el cero de Atkinson Hyperlegible es mucho más ancho que el de las fuentes del sistema. Las familias `Archivo Respaldo` y `Atkinson Respaldo` de `css/estilo.css` usan una fuente del sistema escalada para ocupar el mismo ancho mientras llegan las fuentes: Arial o sus equivalentes de igual ancho en Windows, macOS, iOS, ChromeOS y Linux, y las variantes `Roboto` y `DejaVu` en Android y en Linux sin Arial. El `size-adjust` de `Archivo Respaldo` está ajustado al Chrome de GitHub Actions, que dibuja Liberation Sans cerca de un 1 % más ancha que Chrome 153: el comentario de `css/estilo.css` explica la medición. Si cambias una fuente o el navegador de CI, recalcula su `size-adjust` y revisa la prueba de títulos de `navegador_experiencia.py`.
 13. **Figuras y ejemplos generados.** `node scripts/diagramas_control.js` regenera la figura de respaldo del PID, `node scripts/diagramas_mapeo.js` las del capítulo 05, `node scripts/diagramas_plano.js` el esquema del plano del recinto y `node scripts/ejemplos_laboratorio.js` los archivos sintéticos del laboratorio. Con `--comprobar` no escriben nada y fallan si un archivo guardado quedó atrás de su modelo, que es como los ejecuta GitHub Actions. Si cambias un texto que también va en una figura, como la etiqueta de los candidatos de cierre, vuelve a generarla.
@@ -307,10 +283,9 @@ Los dibujos de respaldo del capítulo 05 se regeneran con `node scripts/diagrama
 
 ## Publicar en GitHub Pages
 
-En Settings, Pages, elige "Deploy from a branch", rama `main` y carpeta `/ (root)`. Cada commit en `main` se publica en uno o dos minutos.
+En Settings, Pages, Source, elige "GitHub Actions". Cada commit en `main` ejecuta `.github/workflows/pages.yml`, que compila el sitio y publica `dist/` en uno o dos minutos.
 
 ```bash
-python3 scripts/indice.py
 git add -A
 git commit -m "Describe el cambio"
 git push origin main

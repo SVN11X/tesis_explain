@@ -1,7 +1,7 @@
 """Marco común del sitio: metadatos y script del tema, cabecera, aviso académico, pie y buscador, desde
 scripts/plantillas/.
 
-datos.py lo inserta en cada página de la guía y escribe web/src/generado/marco.json para que la portada
+datos.py lo inserta en cada página de la guía y escribe src/generado/marco.json para que la portada
 y los laboratorios, compilados con Astro, usen exactamente el mismo marcado.
 """
 from pathlib import Path

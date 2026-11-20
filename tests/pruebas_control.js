@@ -1,7 +1,7 @@
 /* Pruebas de propiedades y casos numéricos del capítulo 4.
    Uso: node tests/pruebas_control.js */
 "use strict";
-var assert = require("node:assert/strict"), C = require("../js/control-modelo.js");
+var assert = require("node:assert/strict"), C = require("../public/js/control-modelo.js");
 var total = 0;
 function comprobar(nombre, prueba) { prueba(); total++; console.log("  ok   " + nombre); }
 function cerca(a, b) { assert.ok(Math.abs(a - b) < 1e-9, a + " ≠ " + b); }
@@ -143,7 +143,7 @@ comprobar("Lecturas por regla: cada ejemplo activa reglas con condición y cálc
 });
 comprobar("El respaldo sin JavaScript de «Ajusta un PID» repite las cifras del modelo y su figura está al día", function () {
   var fs = require("fs"), path = require("path"), D = require("../scripts/diagramas_control.js");
-  var html = fs.readFileSync(path.join(__dirname, "../control.html"), "utf8");
+  var html = fs.readFileSync(path.join(__dirname, "../public/control.html"), "utf8");
   var texto = html.split("data-respaldo-pid>")[1].split("</p>")[0];
   function f(v, n) { return (Math.round(v * Math.pow(10, n) + 1e-9) / Math.pow(10, n)).toFixed(n).replace(".", ","); }
   var c = D.cifras();
@@ -151,10 +151,10 @@ comprobar("El respaldo sin JavaScript de «Ajusta un PID» repite las cifras del
     assert.ok(texto.indexOf(cifra) >= 0, "falta " + cifra + " en el respaldo");
   });
   assert.ok(c[1].err < 1e-4 && c[2].err < 1e-4 && c[0].tr === null);
-  assert.equal(fs.readFileSync(path.join(__dirname, "../img/diagramas/pid-respaldo.svg"), "utf8"), D.pidRespaldo() + "\n", "regenera con node scripts/diagramas_control.js");
+  assert.equal(fs.readFileSync(path.join(__dirname, "../public/img/diagramas/pid-respaldo.svg"), "utf8"), D.pidRespaldo() + "\n", "regenera con node scripts/diagramas_control.js");
 });
 comprobar("el reto de «Ajusta un PID» usa las cifras de la página y corrige cada respuesta", function () {
-  var fs = require("fs"), path = require("path"), qs = C.reto(), html = fs.readFileSync(path.join(__dirname, "..", "control.html"), "utf8");
+  var fs = require("fs"), path = require("path"), qs = C.reto(), html = fs.readFileSync(path.join(__dirname, "..", "public", "control.html"), "utf8");
   assert.equal(qs.length, 2);
   assert.ok(qs[0].opciones[0].ok && !qs[0].opciones[1].ok && !qs[0].opciones[2].ok);
   assert.ok(qs[1].opciones[0].ok && !qs[1].opciones[1].ok && !qs[1].opciones[2].ok);

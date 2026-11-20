@@ -52,7 +52,7 @@ def fecha_corta(iso):
 
 
 def leer_costos():
-    filas = list(csv.DictReader((ROOT / 'datos/costos.csv').open(encoding='utf-8', newline='')))
+    filas = list(csv.DictReader((ROOT / 'public/datos/costos.csv').open(encoding='utf-8', newline='')))
     for f in filas:
         f['cantidad'] = int(f['cantidad']); f['precio_unitario_clp'] = int(f['precio_unitario_clp']); f['total_clp'] = int(f['total_clp'])
         if f['cantidad'] * f['precio_unitario_clp'] != f['total_clp']:
@@ -140,7 +140,7 @@ def bloque_costos():
 
 
 def bloque_gantt():
-    plan = json.loads((ROOT / 'datos/planificacion.json').read_text(encoding='utf-8'))
+    plan = json.loads((ROOT / 'public/datos/planificacion.json').read_text(encoding='utf-8'))
     spm, meses = plan['semanas_por_mes'], plan['meses']
     n = spm * len(meses)
     hitos = {h['semana']: h for h in plan.get('hitos', [])}

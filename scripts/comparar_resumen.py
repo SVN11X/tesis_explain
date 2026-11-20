@@ -64,7 +64,7 @@ def main():
         print('guardado: %d números y %d referencias' % (len(nums), len(refs)))
         return 0
     antes = json.loads(fijo.read_text(encoding='utf-8'))
-    html = (RAIZ / (pagina + '.html')).read_text(encoding='utf-8')
+    html = (RAIZ / 'public' / (pagina + '.html')).read_text(encoding='utf-8')
     nums, refs = extraer(html)
     fallas = []
     for n in antes['numeros']:

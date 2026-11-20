@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SCRIPT = join(RAIZ, 'scripts', 'catalogo_defensa.py');
-const CATALOGO = join(RAIZ, 'datos', 'defensa', 'catalogo.json');
+const CATALOGO = join(RAIZ, 'public', 'datos', 'defensa', 'catalogo.json');
 
 function python(args) {
   const r = spawnSync('python', ['-I', SCRIPT, ...args], { encoding: 'utf8', env: { ...process.env, PYTHONIOENCODING: 'utf-8' } });

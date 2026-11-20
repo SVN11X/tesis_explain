@@ -8,7 +8,7 @@ import { firmarToken } from "../src/sesion.mjs";
 import construirApiDefecto, { construirApi } from "../src/index.mjs";
 import { crearD1 } from "./sqlite-d1.mjs";
 
-const catalogoReal = JSON.parse(readFileSync(new URL("../../datos/defensa/catalogo.json", import.meta.url), "utf8"));
+const catalogoReal = JSON.parse(readFileSync(new URL("../../public/datos/defensa/catalogo.json", import.meta.url), "utf8"));
 
 const T0 = Date.UTC(2026, 10, 18, 10, 0, 0);
 const CLAVES = { hmac: "clave-hmac-de-prueba", sesion: "clave-sesion-de-prueba" };

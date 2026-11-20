@@ -7,7 +7,7 @@ Uso: python3 tests/navegador_evidencia.py [http://127.0.0.1:8765]
 """
 from pathlib import Path
 from http.server import SimpleHTTPRequestHandler
-from servidor import ServidorEstable
+from servidor import iniciar, DIST
 from functools import partial
 from threading import Thread
 import re, sys
@@ -18,18 +18,7 @@ server = None
 if len(sys.argv) > 1:
     BASE = sys.argv[1].rstrip('/')
 else:
-    class QuietHandler(SimpleHTTPRequestHandler):
-        def log_message(self, *args):
-            pass
-
-        def handle(self):
-            try:
-                super().handle()
-            except (BrokenPipeError, ConnectionResetError):
-                pass
-    server = ServidorEstable(('127.0.0.1', 0), partial(QuietHandler, directory=str(ROOT)))
-    Thread(target=server.serve_forever, daemon=True).start()
-    BASE = 'http://127.0.0.1:%d' % server.server_port
+    server, BASE = iniciar()
 count = 0
 
 

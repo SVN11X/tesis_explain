@@ -15,8 +15,8 @@ from bs4 import BeautifulSoup
 from catalogo_defensa import leer_tarjetas
 
 ROOT = Path(__file__).resolve().parents[1]
-PDF = ROOT / 'descargas/preguntas-dificiles.pdf'
-MANIFIESTO = ROOT / 'descargas/preguntas-dificiles.json'
+PDF = ROOT / 'public/descargas/preguntas-dificiles.pdf'
+MANIFIESTO = ROOT / 'public/descargas/preguntas-dificiles.json'
 SITIO = 'https://svn11x.github.io/tesis_explain/'
 VERSION_PLANTILLA = '3'
 NIVELES = {'general': 'Para todo público', 'tecnica': 'Técnica', 'exigente': 'Exigente'}
@@ -37,7 +37,7 @@ def absolutos(nodo):
 
 
 def contenido():
-    s = BeautifulSoup((ROOT / 'preguntas.html').read_text(encoding='utf-8'), 'html.parser')
+    s = BeautifulSoup((ROOT / 'public/preguntas.html').read_text(encoding='utf-8'), 'html.parser')
     tarjetas = {c['id']: c for c in leer_tarjetas(s)}
     temas = []
     for h in s.select('.articulo section > h2[id]'):
@@ -55,7 +55,7 @@ def contenido():
     metodo = absolutos(s.find('h2', id='como-responder').find_parent('section'))
     metodo.find('h2').decompose()
     fuentes = absolutos(s.find('h2', id='fuentes').find_parent('section').select_one('ol.refs-lista'))
-    academico = json.loads((ROOT / 'datos/academico.json').read_text(encoding='utf-8'))
+    academico = json.loads((ROOT / 'public/datos/academico.json').read_text(encoding='utf-8'))
     return temas, metodo.decode_contents().strip(), str(fuentes), academico
 
 
@@ -129,7 +129,7 @@ dd { margin: 0; }
 
 
 def fuentes_css():
-    f = (ROOT / 'fuentes').as_uri()
+    f = (ROOT / 'public/fuentes').as_uri()
     return ("@font-face { font-family: 'Atkinson Hyperlegible'; src: url('%s/atkinson-hyperlegible-latin-400-normal.woff2'); font-weight: 400; }\n"
             "@font-face { font-family: 'Atkinson Hyperlegible'; src: url('%s/atkinson-hyperlegible-latin-700-normal.woff2'); font-weight: 700; }\n"
             "@font-face { font-family: 'Atkinson Hyperlegible'; src: url('%s/atkinson-hyperlegible-latin-400-italic.woff2'); font-weight: 400; font-style: italic; }\n"
@@ -150,7 +150,7 @@ def boton(m):
 
 
 def escribir_boton(m, comprobar):
-    p = ROOT / 'preguntas.html'
+    p = ROOT / 'public/preguntas.html'
     t = p.read_text(encoding='utf-8')
     nuevo = re.sub(r'<!-- DESCARGA PREGUNTAS:.*?<!-- FIN DESCARGA PREGUNTAS -->', lambda _: boton(m), t, flags=re.S)
     if comprobar:

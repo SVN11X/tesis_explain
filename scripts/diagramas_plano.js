@@ -8,8 +8,8 @@
 */
 "use strict";
 var fs = require("fs"), path = require("path");
-var D = require("../datos/proyecto.js");
-var raiz = path.resolve(__dirname, ".."), destino = path.join(raiz, "img/diagramas/plano-recinto.svg");
+var D = require("../public/datos/proyecto.js");
+var raiz = path.resolve(__dirname, "..", "public"), destino = path.join(raiz, "img/diagramas/plano-recinto.svg");
 var G = D.parametros.mapeo.plano_recinto, filas = D.analisis.plano;
 /* rótulos que van al otro lado de su cota para no quedar sobre un muro */
 var LADO = { "alto": "izquierda", "tabique-superior-largo": "abajo" };

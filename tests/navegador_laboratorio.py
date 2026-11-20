@@ -5,7 +5,7 @@ EVIDENCIA_DIR opcional guarda capturas solicitadas de escritorio y móvil.
 """
 from pathlib import Path
 from http.server import SimpleHTTPRequestHandler
-from servidor import ServidorEstable
+from servidor import iniciar, DIST
 from functools import partial
 from threading import Thread
 from playwright.sync_api import sync_playwright, expect
@@ -16,19 +16,12 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def modulo_de(nombre):
     """Archivo de js/ que registra el interactivo `nombre` según SITIO.MODULOS en js/sitio.js"""
-    fuente = (ROOT / 'js' / 'sitio.js').read_text(encoding='utf-8')
+    fuente = (DIST / 'js' / 'sitio.js').read_text(encoding='utf-8')
     bloque = re.search(r'var MODULOS = \{(.*?)\n  \};', fuente, re.S).group(1)
     return next(m for m, n in re.findall(r'"(js/[^"]+\.js)":\s*"([^"]+)"', bloque) if nombre in n.split())
 
 
-class Quiet(SimpleHTTPRequestHandler):
-    def log_message(self, *args):
-        pass
-
-
-server = ServidorEstable(('127.0.0.1', 0), partial(Quiet, directory=str(ROOT.parent)))
-Thread(target=server.serve_forever, daemon=True).start()
-BASE = 'http://127.0.0.1:%d/%s' % (server.server_port, ROOT.name)
+server, BASE = iniciar()
 count = 0
 
 
@@ -71,7 +64,7 @@ with sync_playwright() as pw:
             p.click('#lab-exportar')
         download = info.value
         data = json.loads(Path(download.path()).read_text(encoding='utf-8'))
-        text = (ROOT / 'datos/ensayos/metas.csv').read_bytes()
+        text = (DIST / 'datos/ensayos/metas.csv').read_bytes()
         check(data['procedencia']['sha256_texto_utf8'] == hashlib.sha256(text).hexdigest(), name + ': exporta una huella verificable')
         check(data['estado_academico'] == 'en_proceso_defensa' and len(data['filas']) == 5, name + ': exporta origen, estado y filas completas')
         own = 'tiempo_s,referencia_m_s,velocidad_m_s,pwm\n0,1,0,255\n1,1,0.5,255\n2,1,1.1,100\n3,1,1.01,100\n4,1,1,100\n5,1,1,100'
@@ -85,7 +78,7 @@ with sync_playwright() as pw:
         p.wait_for_selector('#lab-error:not([hidden])')
         check(p.locator('#lab-resultados').is_hidden() and p.locator('#lab-exportar').is_disabled(), name + ': dato inválido no deja resultado antiguo exportable')
         # Texto hostil no se inserta como HTML al presentar nombre ni dato cualitativo.
-        p.set_input_files('#lab-archivo', dict(name='<img onerror=alert(1)>.csv', mimeType='text/csv', buffer=(ROOT/'datos/ensayos/escalon.csv').read_bytes()))
+        p.set_input_files('#lab-archivo', dict(name='<img onerror=alert(1)>.csv', mimeType='text/csv', buffer=(DIST/'datos/ensayos/escalon.csv').read_bytes()))
         expect(p.locator('#lab-estado')).to_contain_text('formato escalon')
         check(p.locator('#lab-procedencia img').count() == 0, name + ': nombre de archivo se muestra como texto')
         evidence = os.environ.get('EVIDENCIA_DIR')
@@ -110,7 +103,7 @@ with sync_playwright() as pw:
         with p.expect_download() as info:
             p.click('#lab-exportar')
         data = json.loads(Path(info.value.path()).read_text(encoding='utf-8'))
-        check('clasesA' not in data and 'diferencias' not in data and data['procedencia']['sha256_pgm_a'] == hashlib.sha256((ROOT/'datos/ejemplos/mapa-sintetico-a.pgm').read_bytes()).hexdigest(), name + ': la exportación del mapa lleva huellas y no las celdas')
+        check('clasesA' not in data and 'diferencias' not in data and data['procedencia']['sha256_pgm_a'] == hashlib.sha256((DIST/'datos/ejemplos/mapa-sintetico-a.pgm').read_bytes()).hexdigest(), name + ': la exportación del mapa lleva huellas y no las celdas')
         # Un mapa propio sin YAML: resolución escrita a mano; los umbrales del YAML exigen el YAML.
         own_pgm = b'P5\n4 2\n255\n' + bytes([254, 254, 0, 205, 254, 254, 0, 205])
         p.set_input_files('#lab-pgm-a', dict(name='propio.pgm', mimeType='image/x-portable-graymap', buffer=own_pgm))
@@ -192,7 +185,7 @@ with sync_playwright() as pw:
     ctx.route('**/' + ARCH, lambda route: route.fulfill(status=200, body=''))
     p = ctx.new_page(); p.goto(BASE + '/control.html#sim-estacionario'); p.locator('[data-vis=estacionario]').scroll_into_view_if_needed()
     check('error estacionario de 0,002' in p.locator('[data-vis=estacionario]').inner_text(), 'Módulo ausente conserva explicación original')
-    p.add_script_tag(content=(ROOT / ARCH).read_text(encoding='utf-8'))
+    p.add_script_tag(content=(DIST / ARCH).read_text(encoding='utf-8'))
     p.locator('[data-vis=estacionario] .vis-error button').click()
     check(p.locator('[data-vis=estacionario][data-montado="1"]').count() == 1, 'Reintento monta el módulo recuperado')
     ctx.close()

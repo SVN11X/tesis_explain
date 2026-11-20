@@ -6,7 +6,7 @@ La suite clásica sigue cubriendo los capítulos que todavía no han migrado.
 """
 from pathlib import Path
 from http.server import SimpleHTTPRequestHandler
-from servidor import ServidorEstable
+from servidor import iniciar, DIST
 from functools import partial
 from threading import Thread
 from playwright.sync_api import sync_playwright, expect
@@ -14,19 +14,8 @@ from playwright.sync_api import sync_playwright, expect
 ROOT = Path(__file__).resolve().parents[1]
 
 
-class Handler(SimpleHTTPRequestHandler):
-    def log_message(self, *args):
-        pass
-
-    def translate_path(self, path):
-        if path.startswith('/tesis_explain/'):
-            path = path[len('/tesis_explain'):]
-        return super().translate_path(path)
-
-
-server = ServidorEstable(('127.0.0.1', 0), partial(Handler, directory=str(ROOT)))
-Thread(target=server.serve_forever, daemon=True).start()
-BASE = 'http://127.0.0.1:%d/tesis_explain/' % server.server_port
+server, BASE = iniciar()
+BASE += '/'
 count = 0
 
 

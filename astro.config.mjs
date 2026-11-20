@@ -1,12 +1,10 @@
 import { defineConfig } from 'astro/config';
 import svelte from '@astrojs/svelte';
 
+// Astro usa sus carpetas por defecto: src/ (páginas y componentes), public/ (se copia tal cual a dist/) y dist/.
 export default defineConfig({
   site: 'https://svn11x.github.io',
   base: '/tesis_explain',
-  srcDir: './web/src',
-  publicDir: './web/public',
-  outDir: './build',
   output: 'static',
   build: { format: 'file', assets: '_astro' },
   integrations: [svelte()],

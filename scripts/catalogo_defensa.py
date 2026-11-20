@@ -12,9 +12,9 @@ import argparse, copy, hashlib, json, re, sys
 from bs4 import BeautifulSoup
 
 ROOT = Path(__file__).resolve().parents[1]
-PREGUNTAS = ROOT / 'preguntas.html'
-RUBRICAS = ROOT / 'datos/defensa/rubricas.json'
-SALIDA = ROOT / 'datos/defensa/catalogo.json'
+PREGUNTAS = ROOT / 'public/preguntas.html'
+RUBRICAS = ROOT / 'public/datos/defensa/rubricas.json'
+SALIDA = ROOT / 'public/datos/defensa/catalogo.json'
 TOTAL_ESPERADO = 106
 ESTADOS = ('candidata', 'aprobada', 'suspendida')
 
@@ -109,7 +109,7 @@ def main(argv=None):
     ap.add_argument('--preguntas', type=Path, default=PREGUNTAS)
     ap.add_argument('--rubricas', type=Path, default=RUBRICAS)
     ap.add_argument('--salida', type=Path, default=SALIDA)
-    ap.add_argument('--raiz', type=Path, default=ROOT, help='carpeta donde se buscan los archivos de las fuentes')
+    ap.add_argument('--raiz', type=Path, default=ROOT / 'public', help='carpeta donde se buscan los archivos de las fuentes')
     ap.add_argument('--total', type=int, default=TOTAL_ESPERADO)
     a = ap.parse_args(argv)
     tarjetas = leer_tarjetas(BeautifulSoup(a.preguntas.read_text(encoding='utf-8'), 'html.parser'))

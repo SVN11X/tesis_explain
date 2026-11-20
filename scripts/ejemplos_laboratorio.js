@@ -6,7 +6,7 @@
 */
 "use strict";
 var fs = require("fs"), path = require("path");
-var raiz = path.resolve(__dirname, ".."), destino = path.join(raiz, "datos/ejemplos"), comprobar = process.argv.indexOf("--comprobar") >= 0;
+var raiz = path.resolve(__dirname, "..", "public"), destino = path.join(raiz, "datos/ejemplos"), comprobar = process.argv.indexOf("--comprobar") >= 0;
 var LIBRE = 254, OCUPADO = 0, DESCONOCIDO = 205;   // grises que escribe map_saver en modo trinario
 
 /* Recinto rectangular de 4 × 3 m con un tabique. B explora más que A y una caja cambió de lugar. */

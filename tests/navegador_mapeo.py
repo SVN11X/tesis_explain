@@ -5,7 +5,7 @@ Requiere Playwright/Chromium solo para las pruebas, no para el sitio.
 """
 from pathlib import Path
 from http.server import SimpleHTTPRequestHandler
-from servidor import ServidorEstable
+from servidor import iniciar, DIST
 from functools import partial
 from threading import Thread
 import os, re, subprocess, sys
@@ -16,12 +16,7 @@ server = None
 if len(sys.argv) > 1:
     BASE = sys.argv[1].rstrip('/')
 else:
-    class QuietHandler(SimpleHTTPRequestHandler):
-        def log_message(self, *args):
-            pass
-    server = ServidorEstable(('127.0.0.1', 0), partial(QuietHandler, directory=str(ROOT)))
-    Thread(target=server.serve_forever, daemon=True).start()
-    BASE = 'http://127.0.0.1:%d' % server.server_port
+    server, BASE = iniciar()
 count = 0
 ALTURA_ANTES = 51628  # alto de mapeo.html a 360 x 740 px antes de plegarlo, medido con el mismo recorrido
 ALTURA_RETO = 650  # alto del reto de los barridos a 360 px, contenido visible a propósito que se suma al presupuesto

@@ -6,7 +6,7 @@
 */
 "use strict";
 var assert = require("node:assert/strict"), fs = require("fs"), path = require("path");
-var M = require("../js/movimiento-modelo.js"), C = require("../js/control-modelo.js");
+var M = require("../public/js/movimiento-modelo.js"), C = require("../public/js/control-modelo.js");
 var total = 0;
 function comprobar(nombre, prueba) { prueba(); total++; console.log("  ok   " + nombre); }
 function cerca(a, b, tol) { assert.ok(Math.abs(a - b) < (tol || 1e-9), a + " ≠ " + b); }
@@ -59,7 +59,7 @@ comprobar("cada error de la tabla es (odometría − cinta) / cinta, salvo el re
   M.RECTA.forEach(function (r) { assert.ok(Math.abs(M.errorPct(r.odo, r.cinta) - r.error) < 0.03, "prueba " + r.prueba); });
 });
 comprobar("el modelo usa los mismos valores que datos/ensayos/recta-2m-real.csv", function () {
-  var filas = fs.readFileSync(path.join(__dirname, "..", "datos/ensayos/recta-2m-real.csv"), "utf8").trim().split("\n").slice(1);
+  var filas = fs.readFileSync(path.join(__dirname, "..", "public", "datos/ensayos/recta-2m-real.csv"), "utf8").trim().split("\n").slice(1);
   assert.equal(filas.length, M.RECTA.length);
   filas.forEach(function (f, i) {
     var c = f.split(",").map(Number), r = M.RECTA[i];
@@ -134,7 +134,7 @@ comprobar("con las ruedas distintas, girar en el lugar también desplaza un poco
   cerca(Math.hypot(p.x, p.y), arco * (fd - fi) / 2 * Math.sin(Math.PI / 4) / (Math.PI / 4), 1e-12);
 });
 comprobar("los textos de respaldo sin JavaScript repiten las cifras que calcula el modelo", function () {
-  var html = fs.readFileSync(path.join(__dirname, "..", "movimiento.html"), "utf8");
+  var html = fs.readFileSync(path.join(__dirname, "..", "public", "movimiento.html"), "utf8");
   function respaldo(v) { var m = html.match(new RegExp('data-vis="' + v + '"><p class="vis-fallback">([^<]*)<')); assert.ok(m, v); return m[1]; }
   function f(v, d) { var t = Math.abs(v).toFixed(d).replace(".", ","); return (v < 0 && +t.replace(",", ".") !== 0 ? "−" : "") + t; }
   var e = M.RECTA.map(function (r) { return r.error; }), c = M.corregir(e, M.factor(e));
@@ -145,7 +145,7 @@ comprobar("los textos de respaldo sin JavaScript repiten las cifras que calcula 
   assert.ok(Math.round(r.horario.error * 100) === 18 && r.antihorario.error < 0.005 && respaldo("cuadrado").indexOf("unos 18 cm") > 0);
 });
 comprobar("el reto de la calibración usa las cifras de la página y corrige cada respuesta", function () {
-  var qs = M.reto(), html = fs.readFileSync(path.join(__dirname, "..", "movimiento.html"), "utf8");
+  var qs = M.reto(), html = fs.readFileSync(path.join(__dirname, "..", "public", "movimiento.html"), "utf8");
   assert.equal(qs.length, 2);
   assert.ok(qs[0].opciones[0].ok && !qs[0].opciones[1].ok && !qs[0].opciones[2].ok);
   assert.ok(qs[1].opciones[0].ok && !qs[1].opciones[1].ok);

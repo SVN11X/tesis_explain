@@ -19,7 +19,7 @@ import numpy as np
 import trimesh
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SALIDA = os.path.join(RAIZ, 'modelos', 'robot.glb')
+SALIDA = os.path.join(RAIZ, 'public', 'modelos', 'robot.glb')
 GLTF = ['npx', '--yes', '@gltf-transform/cli@4.1.1']
 # Tolerancia de cada grupo al simplificar, como fracción del tamaño de la malla. La carcasa se ve de cerca;
 # las placas solo en el despiece.
