@@ -97,6 +97,17 @@
     <div><b>5</b><span>etapas del ciclo del robot que ordenan los casos</span></div>
     <div><b>1</b><span>caso chileno destacado, en la minería subterránea</span></div>
   </div>
+  <p>Para comparar, elige un caso y mira qué dice esta página de él en cuatro etapas del ciclo del robot, junto a lo que usa el robot explorador.</p>
+  <div class="vis" data-vis="casos-ciclo"><div class="vis-fallback"><p>Cada caso sobre las cuatro etapas del ciclo, junto al robot explorador:</p><ul>
+    <li><b>Robot explorador</b><ul><li>Percibir: Un LiDAR 2D que gira.</li><li>Estimar: Encoders y SLAM, sin unidad inercial, con un mapa en rejilla de ocupación.</li><li>Decidir: Elige el próximo destino sin un plano previo, explorando por fronteras.</li><li>Moverse: Nav2 planifica sobre un mapa de costos y reacciona a los obstáculos, con un controlador local.</li></ul></li>
+    <li><b>Aspiradoras robot con LiDAR</b> (Hogares)<ul><li>Percibir: Un LiDAR 2D: una torre con un láser giratorio mide la casa.</li><li>Estimar: Guarda el plano en una rejilla de ocupación y lo reutiliza en cada limpieza.</li><li>Decidir: La página no dice nada de esta etapa.</li><li>Moverse: La página no dice nada de esta etapa.</li></ul></li>
+    <li><b>Elios 3 en la mina El Teniente</b> (Minería · Chile · 2026)<ul><li>Percibir: Un dron con LiDAR, en espacios confinados y sin GPS.</li><li>Estimar: Genera mapas 3D del interior.</li><li>Decidir: La página no dice nada de esta etapa.</li><li>Moverse: La página no dice nada de esta etapa.</li></ul></li>
+    <li><b>El vehículo lunar de Apollo</b> (La Luna · 1971 y 1972)<ul><li>Percibir: Un giroscopio para la dirección y odómetros en las ruedas para la distancia.</li><li>Estimar: Un computador calcula el rumbo y la distancia de regreso al módulo lunar.</li><li>Decidir: La página no dice nada de esta etapa.</li><li>Moverse: La página no dice nada de esta etapa.</li></ul></li>
+    <li><b>Robots de reparto como TUG</b> (Hospitales)<ul><li>Percibir: Cámaras y láser.</li><li>Estimar: Se ubica en un mapa que ya conoce.</li><li>Decidir: Sigue rutas definidas digitalmente.</li><li>Moverse: Lleva insumos por los pasillos.</li></ul></li>
+    <li><b>CERBERUS en el desafío de DARPA</b> (Subterráneo · Estados Unidos · 2021)<ul><li>Percibir: La página no dice nada de esta etapa.</li><li>Estimar: Mapea por su cuenta túneles y cuevas, sin GPS y con comunicación limitada.</li><li>Decidir: Explora por su cuenta hasta agotar lo desconocido.</li><li>Moverse: Robots con patas y aéreos navegan túneles, redes urbanas subterráneas y cuevas.</li></ul></li>
+    <li><b>Proteus, de Amazon</b> (Bodegas · Estados Unidos · 2022)<ul><li>Percibir: Varios sensores, entre ellos un LiDAR de alta precisión.</li><li>Estimar: La página no dice nada de esta etapa.</li><li>Decidir: Reacciona a los obstáculos.</li><li>Moverse: Planifica sobre un mapa de costos y circula entre trabajadores.</li></ul></li>
+    <li><b>AutoNav, de Perseverance</b> (Marte · 2021)<ul><li>Percibir: La página no dice nada de esta etapa.</li><li>Estimar: Mantiene un mapa del terreno a su alrededor.</li><li>Decidir: Elige su camino.</li><li>Moverse: Replanifica para esquivar rocas. En el sol 200 recorrió por su cuenta 167 de 175 metros.</li></ul></li>
+  </ul></div></div>
 </section>
 
 <section>
@@ -322,7 +333,7 @@
     <p>Guía del trabajo de titulación <em>Navegación y exploración autónoma de interiores utilizando un robot móvil de tracción diferencial</em>, Universidad Tecnológica Metropolitana, 2026.</p>
     <p><b>En proceso de defensa.</b> El estado académico es distinto de la verificación de funcionamiento de un subsistema.</p>
     <p>Código bajo licencia <a href="https://github.com/SVN11X/tesis_explain/blob/main/LICENSE">MIT</a> y contenido bajo <a href="https://creativecommons.org/licenses/by/4.0/deed.es">CC BY 4.0</a>, salvo las excepciones indicadas en <a href="recursos.html#creditos">Créditos</a>.</p>
-    <p>Última actualización de la plataforma: <time datetime="2026-11-19">19 de noviembre de 2026</time>. Versión del documento de referencia: octubre de 2026, 152 páginas.</p>
+    <p>Última actualización de la plataforma: <time datetime="2026-11-19">19 de noviembre de 2026</time>. Versión del documento de referencia: versión final, 169 páginas (152 numeradas). <a href="https://github.com/SVN11X/tesis_explain/releases/download/tesis-final/trabajo-de-titulacion-valderas-2026.pdf">Descargar la tesis en PDF</a>.</p>
   </div>
   <div class="footer-bottom"><p>Trabajo de titulación · Ingeniería Civil Electrónica · UTEM</p><p>Sebastián Valderas Neculqueo · <a href="recursos.html#autor">Sobre el autor</a><br><span>Profesor guía: Patricio Galarce Acevedo</span></p><a href="#contenido">Volver arriba ↑</a></div>
 </footer>

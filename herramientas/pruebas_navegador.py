@@ -421,6 +421,35 @@ def probar_inflacion(nav):
     ctx.close()
 
 
+def probar_casos_ciclo(nav):
+    print('En el mundo real: los casos sobre el ciclo del robot')
+    ctx = contexto(nav, viewport={'width': 320, 'height': 740})
+    p = ctx.new_page()
+    sel = montar(p, 'mundo-real.html', 'casos-ciclo')
+    txt = lambda: p.text_content(sel + ' [data-o="txt"]')
+    ok(p.get_attribute(sel + ' [data-o="txt"]', 'aria-live') == 'polite', 'el resumen del caso está en una región aria-live')
+    ok(p.locator(sel + ' input[type=radio]').count() == 7 and p.locator(sel + ' fieldset legend').count() == 1, 'siete casos en un grupo de opciones con leyenda')
+    ok(txt().startswith('Aspiradoras robot con LiDAR') and 'dice algo en 2 de las 4' in txt(), 'parte con las aspiradoras y 2 de 4 etapas', txt())
+    ok(p.locator(sel + ' .mr-e').count() == 4 and p.locator(sel + ' .mr-sin').count() == 2, 'cuatro etapas y dos sin dato en la página')
+    p.click(sel + ' input[value="6"]')
+    ok(txt().startswith('AutoNav, de Perseverance') and 'dice algo en 3 de las 4' in txt(), 'con el ratón cambia a Perseverance', txt())
+    ok('167 de 175' in p.text_content(sel + ' [data-o="et"]'), 'la etapa Moverse cita 167 de 175 metros')
+    p.focus(sel + ' input:checked')
+    p.keyboard.press('ArrowLeft')
+    ok(txt().startswith('Proteus') and 'dice algo en 3 de las 4' in txt(), 'con la flecha izquierda pasa a Proteus', txt())
+    p.keyboard.press('ArrowLeft')
+    p.keyboard.press('ArrowLeft')
+    ok(txt().startswith('Robots de reparto como TUG') and 'dice algo en 4 de las 4' in txt(), 'con el teclado llega a TUG, con las 4 etapas', txt())
+    ok(p.locator(sel + ' .mr-sin').count() == 0, 'TUG no deja etapas sin dato')
+    ok(p.evaluate("() => document.documentElement.scrollWidth <= window.innerWidth"), 'a 320 px no hay desplazamiento horizontal')
+    ctx.close()
+    sin = nav.new_context(java_script_enabled=False, viewport={'width': 320, 'height': 740})
+    q = sin.new_page()
+    q.goto(BASE + '/mundo-real.html')
+    ok(q.locator('[data-vis="casos-ciclo"] > .vis-fallback > ul > li').count() == 8 and q.locator('[data-vis="casos-ciclo"] .vis-fallback').is_visible(), 'sin JavaScript se ve la lista con el robot y los siete casos')
+    ok('Percibir: Un LiDAR 2D que gira.' in q.text_content('[data-vis="casos-ciclo"]'), 'la lista sin JavaScript trae el contenido del robot')
+
+
 def probar_metas_abortadas(nav):
     print('Lecciones: las metas abortadas paso a paso')
     ctx = contexto(nav, viewport={'width': 360, 'height': 740})
@@ -661,7 +690,7 @@ def probar_recursos(nav):
         if nombre == 'escritorio':
             e = p.evaluate("""() => { const pie = document.querySelector('.pie'), ab = document.getElementById('abstract').closest('section');
               return { mit: !!pie.querySelector('a[href$="/LICENSE"]'), cc: !!pie.querySelector('a[href*="licenses/by/4.0"]'), rev: (pie.querySelector('time') || {}).textContent || '',
-                       autor: !!pie.querySelector('a[href="recursos.html#autor"]'), version: [...pie.querySelectorAll('p:not([hidden])')].some(x => x.textContent.includes('Versión del documento de referencia: octubre de 2026')),
+                       autor: !!pie.querySelector('a[href="recursos.html#autor"]'), version: [...pie.querySelectorAll('p:not([hidden])')].some(x => x.textContent.includes('Versión del documento de referencia: versión final, 169 páginas')),
                        lang: ab.getAttribute('lang'), abstract: ab.textContent.includes('Keywords'), ocultos: document.querySelectorAll('#autor ~ * [hidden], #autor ~ [hidden]').length }; }""")
             ok(e['mit'] and e['cc'] and e['rev'] and e['autor'] and e['version'], 'el pie muestra la licencia, la fecha de revisión, el enlace al autor y la versión de la tesis de referencia', e)
             ok(e['lang'] == 'en' and e['abstract'] and e['ocultos'] >= 3, 'el abstract va en inglés y los datos pendientes del autor quedan ocultos', e)
@@ -1461,6 +1490,7 @@ with sync_playwright() as pw:
     probar_inflacion(nav)
     probar_dwb(nav)
     probar_metas_abortadas(nav)
+    probar_casos_ciclo(nav)
     probar_exploracion(nav)
     probar_encoder(nav)
     probar_movimiento_reducido_en_marcha(nav)

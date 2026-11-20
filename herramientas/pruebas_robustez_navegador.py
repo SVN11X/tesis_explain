@@ -171,7 +171,7 @@ with sync_playwright() as pw:
     p.goto(BASE + '/recursos.html#estado-academico')
     lista = p.locator('.estado-pendientes li')
     check(lista.count() >= 3 and p.locator('.estado-pendientes a[href="preguntas.html#p-giro"]').count() == 1, 'Sin JS: pendientes del autor enlazados a su pregunta')
-    check(p.locator('.estado-historial li').count() >= 2 and p.locator('.estado-dl dd').first.inner_text().startswith('octubre de 2026'), 'Sin JS: historial y versión del documento visibles')
+    check(p.locator('.estado-historial li').count() >= 2 and p.locator('.estado-dl dd').first.inner_text().startswith('versión final, 169 páginas'), 'Sin JS: historial y versión del documento visibles')
     ctx.close()
 
     # 7. Búsqueda sin resultados: el robot busca, dice qué pasó y ofrece el siguiente paso sin sacar el foco del diálogo.

@@ -211,8 +211,8 @@ def manifiesto(nav):
     p.locator('[data-vis="windup"]').scroll_into_view_if_needed()
     p.wait_for_selector('[data-vis="windup"][data-montado="1"]', timeout=10000)
     arch = modulo_de('estacionario')
-    vis2 = [u for u in pedidos if u.endswith('/' + arch)]
-    check(len(vis2) == 1, 'cada archivo de interactivos se pide una sola vez aunque lo usen varios', len(vis2))
+    pedidos_archivo = [u for u in pedidos if u.endswith('/' + arch)]
+    check(len(pedidos_archivo) == 1, 'cada archivo de interactivos se pide una sola vez aunque lo usen varios', len(pedidos_archivo))
     ctx.close()
 
 

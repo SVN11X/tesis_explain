@@ -474,7 +474,7 @@ table.tabla.compacta { min-width: 0; }
 .flecha-d span { position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); font-size: 10px; color: var(--muted); white-space: nowrap; }
 .flecha-b { width: 2px; height: 18px; background: var(--muted); margin: 0 auto; position: relative; }
 .flecha-b::after { content: ""; position: absolute; bottom: -2px; left: -4px; border: 5px solid transparent; border-top: 7px solid var(--muted); border-bottom: 0; }
-.dos-pan { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 14px; }
+.dos-pan { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 14px; }
 .dos-pan figure { margin: 0; display: grid; gap: 8px; align-content: start; }
 .dos-pan figcaption { display: grid; gap: 1px; font-size: var(--t-xs); color: var(--muted); }
 .dos-pan figcaption b { font-family: var(--f-display); font-size: var(--t-sm); color: var(--ink); }
@@ -1325,6 +1325,25 @@ figure.esquema .b-ampliar { position: static; margin-top: 10px; }
 .lateral .gl-secciones a.activo { border-left-color: var(--tema); box-shadow: inset 1px 0 0 var(--tema); }
 .gl-pos { color: var(--tema); }
 @media print { .tema-hero::before { display: none; } }
+/* En el mundo real: los casos sobre las cuatro etapas del ciclo (js/mundo-real.js). Sin animación. */
+.mr-sel { border: 0; margin: 0; padding: 0; min-width: 0; }
+.mr-sel legend { font-size: var(--t-sm); color: var(--muted); padding: 0; margin-bottom: 6px; }
+.mr-ops { display: flex; flex-wrap: wrap; gap: 6px; }
+.mr-op { position: relative; display: inline-flex; max-width: 100%; }
+.mr-op input { position: absolute; opacity: 0; inset: 0; margin: 0; width: 100%; height: 100%; cursor: pointer; }
+.mr-op span { display: inline-flex; align-items: center; border: 1px solid var(--line-2); border-radius: 999px; padding: 6px 12px; min-height: 38px; font-size: var(--t-sm); background: transparent; }
+.mr-op:hover span { border-color: var(--ink); background: var(--surface-2); }
+.mr-op input:checked + span { border-color: var(--ink); background: var(--acid); color: var(--sobre-acid); font-weight: 700; }
+.mr-op input:focus-visible + span { outline: 3px solid var(--ink); outline-offset: 2px; }
+.mr-txt { margin: 0; font-size: var(--t-base); }
+.mr-et { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); }
+.mr-e { border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); padding: 10px 12px; min-width: 0; }
+.mr-e h4 { margin: 0 0 6px; font-size: var(--t-base); }
+.mr-e p { margin: 0 0 6px; font-size: var(--t-sm); overflow-wrap: anywhere; }
+.mr-e p:last-child { margin-bottom: 0; }
+.mr-e .mr-q { display: block; font-size: var(--t-xs); color: var(--muted); font-weight: 700; }
+.mr-e .mr-sin { color: var(--muted); font-style: italic; }
+.mr-nom { font-weight: 700; }
 /* Lecciones: la meta abortada paso a paso (js/lecciones.js). La forma y el borde dicen el estado igual que el color. */
 .vis .mq-ctl { align-items: center; }
 .mq-n { font-size: var(--t-sm); color: var(--muted); margin-left: auto; }
