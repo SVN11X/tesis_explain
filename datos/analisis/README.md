@@ -12,8 +12,8 @@ Valores transcritos de las tablas que la tesis calcula sobre los ensayos, en la 
 Notas para leerlas.
 
 1. `estabilidad.csv` describe el modelo lineal del Anexo 4.12: el modelo de primer orden con retardo de cada rueda, discretizado a 33 ms, sin saturación, banda del error, zona muerta ni truncamientos enteros. No es una medición del robot. El escenario de 0,1 s es de sensibilidad y no una cota medida del retardo.
-2. `herramientas/pruebas_estabilidad.js` comprueba que `js/estabilidad-modelo.js` reproduce cada fila de `estabilidad.csv` con el redondeo de la tesis.
-3. `herramientas/pruebas_estadistica.js` recalcula cada intervalo de `intervalos.csv` con los valores por repetición de `datos/ensayos/` y de `plano-iteraciones.csv`.
+2. `tests/pruebas_estabilidad.js` comprueba que `js/estabilidad-modelo.js` reproduce cada fila de `estabilidad.csv` con el redondeo de la tesis.
+3. `tests/pruebas_estadistica.js` recalcula cada intervalo de `intervalos.csv` con los valores por repetición de `datos/ensayos/` y de `plano-iteraciones.csv`.
 4. En `plano.csv`, `diferencia_media_cm` es la media de los mapas menos el plano, con el redondeo de la tesis. La incertidumbre de la huincha y la del alineamiento no están incluidas.
 5. `intervalos.csv` usa el método `t_student` para las medias y `clopper_pearson` para la proporción de exploraciones válidas.
 

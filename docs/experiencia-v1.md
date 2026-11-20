@@ -75,10 +75,10 @@ El rediseño con explicaciones y la corrección de compilación ya fueron subido
 | `web/src/lib/lidar-three.ts` | Recinto 3D y mapa vinculados al modelo |
 | `web/src/styles/experience.css` | Sistema visual y adaptación a pantallas pequeñas |
 | `web/tests/` | Pruebas del modelo LiDAR |
-| `herramientas/pruebas_redisenio_navegador.py` | Regresiones de interacción para CI |
+| `tests/navegador_redisenio.py` | Regresiones de interacción para CI |
 | `index.html`, `laboratorios.html`, `_astro/` | Publicación estática generada |
 
-`npm run build` prepara los recursos, compila las dos páginas y actualiza solamente sus salidas en la raíz. Después de editar textos, regenera `datos/indice.js` con `python herramientas/indice.py`. El resto de los HTML sigue siendo la fuente editable de sus capítulos. Las rutas públicas conservan el prefijo `/tesis_explain/`.
+`npm run build` prepara los recursos, compila las dos páginas y actualiza solamente sus salidas en la raíz. Después de editar textos, regenera `datos/indice.js` con `python scripts/indice.py`. El resto de los HTML sigue siendo la fuente editable de sus capítulos. Las rutas públicas conservan el prefijo `/tesis_explain/`.
 
 Las dependencias están fijadas con `package-lock.json`. Las fuentes se sirven localmente. Three.js y GSAP se solicitan como módulos separados; el laboratorio de portada se hidrata al acercarse a la pantalla. El trabajo de dibujo se pausa fuera de la vista y al ocultar la pestaña. Se respeta la preferencia de movimiento reducido y no se sustituye el desplazamiento nativo del navegador.
 
@@ -130,7 +130,7 @@ La entrega incluye el repositorio completo y un parche `git am`, generado con í
 
 Esta es la primera sección funcional de la reconstrucción: portada, objeto 3D y laboratorio de percepción. Los diez capítulos, el laboratorio de datos, las preguntas y la bibliografía siguen accesibles con su diseño previo. Aún no se ha convertido todo el sitio al nuevo sistema visual.
 
-Actualización del 2 de noviembre de 2026: los diez capítulos y los seis complementos ya usan el sistema visual de la portada, con la misma cabecera, aviso, pie, menú y buscador, que salen de `herramientas/plantillas/`. El detalle está en [historial/informe-tecnico-b018ab8.md](historial/informe-tecnico-b018ab8.md).
+Actualización del 2 de noviembre de 2026: los diez capítulos y los seis complementos ya usan el sistema visual de la portada, con la misma cabecera, aviso, pie, menú y buscador, que salen de `scripts/plantillas/`. El detalle está en [historial/informe-tecnico-b018ab8.md](historial/informe-tecnico-b018ab8.md).
 
 Los próximos módulos pueden usar este patrón para movimiento diferencial, control de las ruedas y navegación. El CAD/URDF real, registros de ensayo y precisiones del autor permitirán sustituir las aproximaciones identificadas sin rehacer la interfaz. No se han creado mediciones, credenciales, servicios de pago ni afirmaciones de aprobación académica.
 

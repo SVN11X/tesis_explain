@@ -1,6 +1,6 @@
 /* Marco común de todas las páginas: cabecera, menú del teléfono, aviso académico, pie y buscador.
    Lo cargan la portada y los laboratorios, compilados con Astro, y las páginas de la guía. El marcado
-   sale de herramientas/plantillas/, así que el marco se ve y se comporta igual en todo el sitio. */
+   sale de scripts/plantillas/, así que el marco se ve y se comporta igual en todo el sitio. */
 
 :root {
   --paper: #f1f1e9;
@@ -52,7 +52,7 @@
   color-scheme: light;
 }
 /* Tema oscuro. Sin elección guardada sigue al sistema. El botón de la cabecera fija data-theme en <html>.
-   Los dos bloques llevan los mismos valores y herramientas/pruebas_navegador.py comprueba que coincidan. */
+   Los dos bloques llevan los mismos valores y tests/navegador.py comprueba que coincidan. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --paper: #121a17; --ink: #e6e9de; --muted: #9ea99a; --line: #2b3632; --night: #0a100f; --oliva: #9dbc57; --foco: #b6d65f;

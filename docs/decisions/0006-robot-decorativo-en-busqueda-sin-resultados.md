@@ -22,4 +22,4 @@ Text only, as before. Not enough: it said what happened but gave no next action 
 
 ## Consequences
 
-The empty state is friendlier and points to the next step. `herramientas/pruebas_robustez_navegador.py` checks the robot, the message, the still state with reduced motion and the focus. The inventory in record 0005 has a new row. To undo it, remove `sinResultados` in `js/marco.js` and the `.robot-busca` rules in `css/marco.css`.
+The empty state is friendlier and points to the next step. `tests/navegador_robustez.py` checks the robot, the message, the still state with reduced motion and the focus. The inventory in record 0005 has a new row. To undo it, remove `sinResultados` in `js/marco.js` and the `.robot-busca` rules in `css/marco.css`.

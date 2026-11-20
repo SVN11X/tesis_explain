@@ -13,8 +13,8 @@ Son 71,1 MB. El panel graba al pulsar y descarga el modelo mientras el estudiant
 `voz/manifiesto.json` guarda el origen, el tamaño y la huella SHA-256 de cada archivo. Las huellas de los dos pesos coinciden con las que publica Hugging Face para esa revisión.
 
 ```bash
-python herramientas/descargar_voz.py --comprobar   # sin red, revisa que nada cambió
-python herramientas/descargar_voz.py               # repone lo que falte
+python scripts/descargar_voz.py --comprobar   # sin red, revisa que nada cambió
+python scripts/descargar_voz.py               # repone lo que falte
 ```
 
-Para cambiar de versión, edita las constantes de `herramientas/descargar_voz.py`, ejecuta `python herramientas/descargar_voz.py --manifiesto` y prueba el dictado en Edge, Chrome, Android y Safari antes de publicar. Los avisos de licencia están en `docs/licencias-web/`.
+Para cambiar de versión, edita las constantes de `scripts/descargar_voz.py`, ejecuta `python scripts/descargar_voz.py --manifiesto` y prueba el dictado en Edge, Chrome, Android y Safari antes de publicar. Los avisos de licencia están en `docs/licencias-web/`.

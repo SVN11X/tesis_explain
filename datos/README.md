@@ -4,22 +4,22 @@
 
 `parametros.json` centraliza valores **ya presentes en la revisión base** de la guía. Incluye su referencia y unidades; no son nuevas mediciones ni una validación del firmware. Las constantes de escenarios ilustrativos permanecen junto a sus modelos.
 
-`analisis/*.csv` son tablas que la tesis calcula sobre esos ensayos: la estabilidad del lazo de velocidad, los intervalos de confianza y la comparación de los mapas con el plano medido. `herramientas/datos.py` las publica como `PROYECTO.analisis`. Su detalle está en `analisis/README.md`.
+`analisis/*.csv` son tablas que la tesis calcula sobre esos ensayos: la estabilidad del lazo de velocidad, los intervalos de confianza y la comparación de los mapas con el plano medido. `scripts/datos.py` las publica como `PROYECTO.analisis`. Su detalle está en `analisis/README.md`.
 
 `ensayos/*.csv` son las tablas resumidas originales. No se modificaron ni se sustituyeron por series inventadas. Cada cálculo del laboratorio separa los valores declarados de los recalculados desde cifras redondeadas.
 
-`proyecto.js` se genera desde los dos JSON y los CSV con `python3 herramientas/datos.py`. Es un módulo local sin descargas externas, importable en Node para pruebas; evita peticiones asíncronas antes de montar diagramas. El mismo comando actualiza el aviso **HTML estático**, legible sin JavaScript. Ejecuta luego `python3 herramientas/indice.py`.
+`proyecto.js` se genera desde los dos JSON y los CSV con `python3 scripts/datos.py`. Es un módulo local sin descargas externas, importable en Node para pruebas; evita peticiones asíncronas antes de montar diagramas. El mismo comando actualiza el aviso **HTML estático**, legible sin JavaScript. Ejecuta luego `python3 scripts/indice.py`.
 
 No muevas indiscriminadamente los textos HTML aquí. Si el comité cambia un parámetro, confirma su nueva fuente, actualiza el JSON, las explicaciones y respaldos HTML que lo citan, regenera ambos módulos y revisa las pruebas numéricas. Un nuevo dato no autoriza publicar su registro original.
 
 `parametros.json` también reúne los umbrales de intensidad con que la tesis clasifica la imagen PGM del mapa (Anexo 8.1), la geometría del plano del recinto de la Fig. A8.1, las ganancias originales del firmware y el Kd que evaluó el costo del PSO (Anexos 4.5 y 4.10), y los parámetros del explorador de la Tabla A5.4. El laboratorio los usa como valores por defecto y los muestra con su fuente.
 
-`academico.json` guarda los pendientes como objetos `{texto, enlace}` y un `historial` de cambios del sitio. `herramientas/datos.py` los escribe como HTML estático en `recursos.html#estado-academico`. Un cambio de plataforma se registra con `tipo: plataforma` y uno de contenido académico, autorizado por el autor, con `tipo: contenido`.
+`academico.json` guarda los pendientes como objetos `{texto, enlace}` y un `historial` de cambios del sitio. `scripts/datos.py` los escribe como HTML estático en `recursos.html#estado-academico`. Un cambio de plataforma se registra con `tipo: plataforma` y uno de contenido académico, autorizado por el autor, con `tipo: contenido`.
 
-`ejemplos/` contiene archivos **sintéticos** para probar el laboratorio. Se generan con `node herramientas/ejemplos_laboratorio.js` y no son datos del robot ni de la tesis.
+`ejemplos/` contiene archivos **sintéticos** para probar el laboratorio. Se generan con `node scripts/ejemplos_laboratorio.js` y no son datos del robot ni de la tesis.
 
-`costos.csv` es el registro de compras del autor (`costos_materiales.xlsx`, hoja DETALLE), con cada compra asignada a su partida de la Tabla A1.1. Los nombres se tradujeron y unificaron sin cambiar montos, cantidades ni fechas. Las tres baterías de una misma compra van en dos filas: una montada en el robot y dos de repuesto, como en la tesis. Las sumas de cada partida coinciden con la Tabla A1.1, y `herramientas/planificacion.py` lo comprueba. No incluye los enlaces de compra.
+`costos.csv` es el registro de compras del autor (`costos_materiales.xlsx`, hoja DETALLE), con cada compra asignada a su partida de la Tabla A1.1. Los nombres se tradujeron y unificaron sin cambiar montos, cantidades ni fechas. Las tres baterías de una misma compra van en dos filas: una montada en el robot y dos de repuesto, como en la tesis. Las sumas de cada partida coinciden con la Tabla A1.1, y `scripts/planificacion.py` lo comprueba. No incluye los enlaces de compra.
 
 `planificacion.json` es la carta Gantt del autor (`carta_gantt.xlsx`), de marzo a agosto de 2026, con cuatro semanas por mes. Las etapas llevan el nombre que les da la Metodología de la tesis. Es un plan: la única fecha real que agrega es la sesión de exploración y mapeo del 22 de junio de 2026, del Anexo 7.
 
-`secciones.js` lista las secciones de cada parte de la guía para el índice lateral. Lo genera `herramientas/indice.py`.
+`secciones.js` lista las secciones de cada parte de la guía para el índice lateral. Lo genera `scripts/indice.py`.

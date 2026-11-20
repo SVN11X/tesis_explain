@@ -1,5 +1,5 @@
 // Explicaciones de la portada original (fcb47bd), conservadas en el nuevo diseño. La lista de temas lleva las 16 partes
-// de la guía en el orden de js/sitio.js, y herramientas/pruebas_redisenio_navegador.py comprueba que coincidan.
+// de la guía en el orden de js/sitio.js, y tests/navegador_redisenio.py comprueba que coincidan.
 // Los datos de ensayo pertenecen a la tesis. El robot de la portada sale del CAD y el del laboratorio LiDAR es ilustrativo.
 export const chapters = [
   ['01', 'Autonomía en interiores', 'Qué significa ser autónomo, qué alternativas existían y por qué se eligió cada pieza.', 'problema', 'básico'],
