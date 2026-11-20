@@ -5,7 +5,8 @@ Ejecutar en CI o local con Playwright instalado:
 La suite clásica sigue cubriendo los capítulos que todavía no han migrado.
 """
 from pathlib import Path
-from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
+from http.server import SimpleHTTPRequestHandler
+from servidor_pruebas import ServidorEstable
 from functools import partial
 from threading import Thread
 from playwright.sync_api import sync_playwright, expect
@@ -23,9 +24,9 @@ class Handler(SimpleHTTPRequestHandler):
         return super().translate_path(path)
 
 
-server = ThreadingHTTPServer(('127.0.0.1', 0), partial(Handler, directory=str(ROOT)))
+server = ServidorEstable(('127.0.0.1', 0), partial(Handler, directory=str(ROOT)))
 Thread(target=server.serve_forever, daemon=True).start()
-BASE = 'http://localhost:%d/tesis_explain/' % server.server_port
+BASE = 'http://127.0.0.1:%d/tesis_explain/' % server.server_port
 count = 0
 
 

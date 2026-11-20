@@ -4,7 +4,8 @@ Solo desarrollo: Playwright + Chromium. Sin dependencias de visitantes.
 EVIDENCIA_DIR opcional guarda capturas solicitadas de escritorio y móvil.
 """
 from pathlib import Path
-from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
+from http.server import SimpleHTTPRequestHandler
+from servidor_pruebas import ServidorEstable
 from functools import partial
 from threading import Thread
 from playwright.sync_api import sync_playwright, expect
@@ -25,9 +26,9 @@ class Quiet(SimpleHTTPRequestHandler):
         pass
 
 
-server = ThreadingHTTPServer(('127.0.0.1', 0), partial(Quiet, directory=str(ROOT.parent)))
+server = ServidorEstable(('127.0.0.1', 0), partial(Quiet, directory=str(ROOT.parent)))
 Thread(target=server.serve_forever, daemon=True).start()
-BASE = 'http://localhost:%d/%s' % (server.server_port, ROOT.name)
+BASE = 'http://127.0.0.1:%d/%s' % (server.server_port, ROOT.name)
 count = 0
 
 
@@ -130,7 +131,7 @@ with sync_playwright() as pw:
     # Probar también el foco evita aceptar un atributo que no bloquee el fondo.
     for width in (320, 390, 640):
         ctx = browser.new_context(viewport=dict(width=width, height=844))
-        ctx.route(re.compile(r'^https?://(?!localhost)'), lambda r: r.fulfill(status=200, body=''))
+        ctx.route(re.compile(r'^https?://(?!localhost|127\.0\.0\.1)'), lambda r: r.fulfill(status=200, body=''))
         for page in ('problema.html', 'laboratorio.html'):
             label = '%s a %d px: ' % (page, width)
             p = ctx.new_page(); p.goto(BASE + '/' + page)
@@ -160,7 +161,7 @@ with sync_playwright() as pw:
         ctx.close()
 
     ctx = browser.new_context(viewport=dict(width=1366, height=900), reduced_motion='reduce')
-    ctx.route(re.compile(r'^https?://(?!localhost)'), lambda r: r.fulfill(status=200, body=''))
+    ctx.route(re.compile(r'^https?://(?!localhost|127\.0\.0\.1)'), lambda r: r.fulfill(status=200, body=''))
     p = ctx.new_page()
     p.goto(BASE + '/control.html'); box = p.locator('[data-vis=papeles]'); box.scroll_into_view_if_needed(); p.wait_for_selector('[data-vis=papeles][data-montado]')
     box.locator('[data-termino=Ki]').click(); box.locator('[data-rueda=izq]').click(); box.locator('[data-a=restablecer]').click()
@@ -186,7 +187,7 @@ with sync_playwright() as pw:
 
     # Fallo inducido: conserva la explicación original y reintenta tras recuperar módulo.
     ctx = browser.new_context()
-    ctx.route(re.compile(r'^https?://(?!localhost)'), lambda r: r.fulfill(status=200, body=''))
+    ctx.route(re.compile(r'^https?://(?!localhost|127\.0\.0\.1)'), lambda r: r.fulfill(status=200, body=''))
     ARCH = modulo_de('estacionario')
     ctx.route('**/' + ARCH, lambda route: route.fulfill(status=200, body=''))
     p = ctx.new_page(); p.goto(BASE + '/control.html#sim-estacionario'); p.locator('[data-vis=estacionario]').scroll_into_view_if_needed()

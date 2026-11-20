@@ -2,7 +2,7 @@
 
 Uso, desde la raíz del repositorio:
     pip install playwright beautifulsoup4 && python3 -m playwright install chromium
-    python3 herramientas/pruebas_navegador.py [http://localhost:8765]
+    python3 herramientas/pruebas_navegador.py [http://127.0.0.1:8765]
 
 Sin argumento inicia un servidor local temporal.
 
@@ -18,7 +18,8 @@ páginas con el tema oscuro del sistema y prueba el botón de tema: sigue al sis
 antes de pintar, avisa a los simuladores y funciona en el menú del teléfono.
 """
 import os, re, sys, json, glob, subprocess
-from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
+from http.server import SimpleHTTPRequestHandler
+from servidor_pruebas import ServidorEstable
 from threading import Thread
 from functools import partial
 from urllib.parse import urlparse, unquote
@@ -46,9 +47,9 @@ else:
                 super().handle()
             except (BrokenPipeError, ConnectionResetError):
                 pass
-    server = ThreadingHTTPServer(('127.0.0.1', 0), partial(QuietHandler, directory=REPO))
+    server = ServidorEstable(('127.0.0.1', 0), partial(QuietHandler, directory=REPO))
     Thread(target=server.serve_forever, daemon=True).start()
-    BASE = 'http://localhost:%d' % server.server_port
+    BASE = 'http://127.0.0.1:%d' % server.server_port
 PAGINAS = sorted(os.path.basename(p) for p in glob.glob(os.path.join(REPO, '*.html')) if os.path.basename(p) not in ('index.html', 'laboratorios.html'))
 fallos, total = [], 0
 
@@ -136,7 +137,7 @@ RELOJ = """
 def externas(ctx):
     """El entorno de prueba no tiene salida a internet: las portadas de YouTube y cualquier otro
     recurso externo se responden vacíos para que no aparezcan como errores del sitio."""
-    ctx.route(re.compile(r'^https?://(?!localhost)'), lambda r: r.fulfill(status=200, body='', content_type='text/css' if 'css' in r.request.url else 'image/gif'))
+    ctx.route(re.compile(r'^https?://(?!localhost|127\.0\.0\.1)'), lambda r: r.fulfill(status=200, body='', content_type='text/css' if 'css' in r.request.url else 'image/gif'))
 
 
 def contexto(nav, **kw):
@@ -420,6 +421,70 @@ def probar_inflacion(nav):
     ctx.close()
 
 
+def probar_casos_ciclo(nav):
+    print('En el mundo real: los casos sobre el ciclo del robot')
+    ctx = contexto(nav, viewport={'width': 320, 'height': 740})
+    p = ctx.new_page()
+    sel = montar(p, 'mundo-real.html', 'casos-ciclo')
+    txt = lambda: p.text_content(sel + ' [data-o="txt"]')
+    ok(p.get_attribute(sel + ' [data-o="txt"]', 'aria-live') == 'polite', 'el resumen del caso está en una región aria-live')
+    ok(p.locator(sel + ' input[type=radio]').count() == 7 and p.locator(sel + ' fieldset legend').count() == 1, 'siete casos en un grupo de opciones con leyenda')
+    ok(txt().startswith('Aspiradoras robot con LiDAR') and 'dice algo en 2 de las 4' in txt(), 'parte con las aspiradoras y 2 de 4 etapas', txt())
+    ok(p.locator(sel + ' .mr-e').count() == 4 and p.locator(sel + ' .mr-sin').count() == 2, 'cuatro etapas y dos sin dato en la página')
+    p.click(sel + ' input[value="6"]')
+    ok(txt().startswith('AutoNav, de Perseverance') and 'dice algo en 3 de las 4' in txt(), 'con el ratón cambia a Perseverance', txt())
+    ok('167 de 175' in p.text_content(sel + ' [data-o="et"]'), 'la etapa Moverse cita 167 de 175 metros')
+    p.focus(sel + ' input:checked')
+    p.keyboard.press('ArrowLeft')
+    ok(txt().startswith('Proteus') and 'dice algo en 3 de las 4' in txt(), 'con la flecha izquierda pasa a Proteus', txt())
+    p.keyboard.press('ArrowLeft')
+    p.keyboard.press('ArrowLeft')
+    ok(txt().startswith('Robots de reparto como TUG') and 'dice algo en 4 de las 4' in txt(), 'con el teclado llega a TUG, con las 4 etapas', txt())
+    ok(p.locator(sel + ' .mr-sin').count() == 0, 'TUG no deja etapas sin dato')
+    ok(p.evaluate("() => document.documentElement.scrollWidth <= window.innerWidth"), 'a 320 px no hay desplazamiento horizontal')
+    ctx.close()
+    sin = nav.new_context(java_script_enabled=False, viewport={'width': 320, 'height': 740})
+    q = sin.new_page()
+    q.goto(BASE + '/mundo-real.html')
+    ok(q.locator('[data-vis="casos-ciclo"] > .vis-fallback > ul > li').count() == 8 and q.locator('[data-vis="casos-ciclo"] .vis-fallback').is_visible(), 'sin JavaScript se ve la lista con el robot y los siete casos')
+    ok('Percibir: Un LiDAR 2D que gira.' in q.text_content('[data-vis="casos-ciclo"]'), 'la lista sin JavaScript trae el contenido del robot')
+
+
+def probar_metas_abortadas(nav):
+    print('Lecciones: las metas abortadas paso a paso')
+    ctx = contexto(nav, viewport={'width': 360, 'height': 740})
+    p = ctx.new_page()
+    sel = montar(p, 'lecciones.html', 'metas-abortadas')
+    txt = lambda: p.text_content(sel + ' [data-o="txt"]')
+    ok(p.get_attribute(sel + ' [data-o="txt"]', 'aria-live') == 'polite', 'el texto del paso está en una región aria-live')
+    ok(txt().startswith('El ensayo de navegación tuvo 60 metas'), 'parte en el paso 1', txt())
+    ok(p.is_disabled(sel + ' [data-a="atras"]'), 'en el paso 1 «Anterior» está desactivado')
+    p.click(sel + ' [data-a="sig"]')
+    ok(txt().startswith('54 de ellas'), 'con el botón «Siguiente» pasa al paso 2', txt())
+    ok(p.locator(sel + ' .s-abortada[data-i]').count() == 54, 'el paso 2 marca 54 metas abortadas')
+    p.click(sel + ' [data-a="sig"]')
+    ok(p.locator(sel + ' .s-reemplazo[data-i]').count() == 53 and '3,3 s' in txt(), 'el paso 3 marca 53 reemplazos y dice 3,3 s', txt())
+    p.click(sel + ' [data-a="atras"]')
+    ok(txt().startswith('54 de ellas'), 'con «Anterior» vuelve al paso 2', txt())
+    p.focus(sel + ' [data-a="sig"]')
+    for _ in range(3):
+        p.keyboard.press('Enter')
+    ok(txt().startswith('El límite'), 'con Enter en «Siguiente» llega al paso 5', txt())
+    ok(p.is_disabled(sel + ' [data-a="sig"]') and p.evaluate("s => document.activeElement === document.querySelector(s + ' [data-a=atras]')", sel), 'en el último paso el foco pasa a «Anterior»')
+    p.keyboard.press('ArrowLeft')
+    ok(txt().startswith('Nav2 informa'), 'la flecha izquierda retrocede un paso', txt())
+    p.keyboard.press('ArrowRight')
+    ok(txt().startswith('El límite'), 'la flecha derecha avanza un paso', txt())
+    ok(p.evaluate("() => document.documentElement.scrollWidth <= window.innerWidth"), 'a 360 px no hay desplazamiento horizontal')
+    ctx.close()
+    sin = nav.new_context(java_script_enabled=False, viewport={'width': 360, 'height': 740})
+    q = sin.new_page()
+    q.goto(BASE + '/lecciones.html')
+    lis = q.locator('[data-vis="metas-abortadas"] ol > li')
+    ok(lis.count() == 5 and q.locator('[data-vis="metas-abortadas"] ol').is_visible(), 'sin JavaScript se ven los cinco pasos en una lista ordenada')
+    sin.close()
+
+
 def probar_dwb(nav):
     print('Simulador DWB')
     ctx = contexto(nav, viewport={'width': 1280, 'height': 900})
@@ -625,7 +690,7 @@ def probar_recursos(nav):
         if nombre == 'escritorio':
             e = p.evaluate("""() => { const pie = document.querySelector('.pie'), ab = document.getElementById('abstract').closest('section');
               return { mit: !!pie.querySelector('a[href$="/LICENSE"]'), cc: !!pie.querySelector('a[href*="licenses/by/4.0"]'), rev: (pie.querySelector('time') || {}).textContent || '',
-                       autor: !!pie.querySelector('a[href="recursos.html#autor"]'), version: [...pie.querySelectorAll('p:not([hidden])')].some(x => x.textContent.includes('Versión del documento de referencia: octubre de 2026')),
+                       autor: !!pie.querySelector('a[href="recursos.html#autor"]'), version: [...pie.querySelectorAll('p:not([hidden])')].some(x => x.textContent.includes('Versión del documento de referencia: versión final, 169 páginas')),
                        lang: ab.getAttribute('lang'), abstract: ab.textContent.includes('Keywords'), ocultos: document.querySelectorAll('#autor ~ * [hidden], #autor ~ [hidden]').length }; }""")
             ok(e['mit'] and e['cc'] and e['rev'] and e['autor'] and e['version'], 'el pie muestra la licencia, la fecha de revisión, el enlace al autor y la versión de la tesis de referencia', e)
             ok(e['lang'] == 'en' and e['abstract'] and e['ocultos'] >= 3, 'el abstract va en inglés y los datos pendientes del autor quedan ocultos', e)
@@ -688,6 +753,28 @@ def probar_plegados(nav):
     p.wait_for_timeout(300)
     r = p.evaluate("""() => { const d = document.getElementById('r-yamauchi1997'); return { ref: d.open, grupo: d.closest('details.detalle').open }; }""")
     ok(r['ref'] and r['grupo'], 'en Recursos, un cambio de ancla a una referencia trasladada la abre en la página de la bibliografía', r)
+    # resultados.html: el resumen corto deja la página mucho más baja, y un ancla o un enlace abre lo plegado
+    p.goto(BASE + '/resultados.html')
+    p.wait_for_timeout(300)
+    ok(p.evaluate("[...document.querySelectorAll('details.detalle')].every(d => !d.open)") and p.locator('main p.resumen').count() >= 8, 'resultados: sin ancla parte con un resumen por sección y todo el detalle plegado')
+    ok(p.locator('main table.tabla').count() == 2 and p.locator('main ul.oes > li').count() == 4 and p.locator('main [data-vis="repeticiones"]').is_visible(), 'resultados: las tablas, los cuatro objetivos y el interactivo siguen visibles')
+    r = p.evaluate("""() => { const h0 = document.documentElement.scrollHeight, ds = [...document.querySelectorAll('details.detalle')];
+      ds.forEach(d => d.open = true); const h1 = document.documentElement.scrollHeight; ds.forEach(d => d.open = false); return { plegada: h0, abierta: h1 }; }""")
+    ok(r['plegada'] < r['abierta'] * 0.85, 'resultados: plegada, la página es bastante más baja que con todo abierto', r)
+    for ancla, det in [('cuantas-repeticiones', 'd-binomial'), ('prueba-binomial', 'd-binomial')]:
+        p.goto(BASE + '/resultados.html#' + ancla)
+        p.wait_for_timeout(500)
+        r = p.evaluate("(id) => { const d = document.getElementById(id), a = document.getElementById(location.hash.slice(1)); return { abierto: d.open, visible: a.checkVisibility() }; }", det)
+        ok(r['abierto'] and r['visible'], 'resultados: el ancla #' + ancla + ' abre ' + det + ' y muestra el destino', r)
+    p.goto(BASE + '/resultados.html')
+    p.wait_for_timeout(200)
+    p.evaluate("document.querySelector('.search-trigger').click()")
+    p.wait_for_selector('dialog.search-dialog[open]')
+    p.fill('dialog.search-dialog input', 'Una prueba que lo deja claro')
+    p.wait_for_timeout(500)
+    p.keyboard.press('Enter')
+    p.wait_for_timeout(600)
+    ok(p.evaluate("(() => { const a = document.getElementById(location.hash.slice(1)); return location.pathname.endsWith('resultados.html') && !!a && a.checkVisibility() && !!a.closest('details.detalle'); })()"), 'resultados: un resultado del buscador abre el detalle plegado de destino')
     s = p.locator('details.detalle > summary').first
     s.focus()
     ok(p.evaluate("document.activeElement.tagName === 'SUMMARY'"), 'el control para desplegar se alcanza con teclado')
@@ -1402,6 +1489,8 @@ with sync_playwright() as pw:
     probar_terminos(nav)
     probar_inflacion(nav)
     probar_dwb(nav)
+    probar_metas_abortadas(nav)
+    probar_casos_ciclo(nav)
     probar_exploracion(nav)
     probar_encoder(nav)
     probar_movimiento_reducido_en_marcha(nav)

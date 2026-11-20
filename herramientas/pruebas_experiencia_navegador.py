@@ -6,10 +6,11 @@ quieto con movimiento reducido, comparador de decisiones del tema 1, filtro del 
 filtrable en su propia página, con un resumen y un detalle en cinco bloques por referencia, botones para
 copiar la cita y su BibTeX y traslado de las anclas antiguas de Recursos, secciones de la página en el menú
 del teléfono y páginas sin estilos en línea.
-Uso: python3 herramientas/pruebas_experiencia_navegador.py [http://localhost:8765]
+Uso: python3 herramientas/pruebas_experiencia_navegador.py [http://127.0.0.1:8765]
 """
 from pathlib import Path
-from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
+from http.server import SimpleHTTPRequestHandler
+from servidor_pruebas import ServidorEstable
 from functools import partial
 from threading import Thread
 import os, re, sys, time
@@ -30,9 +31,9 @@ else:
                 super().handle()
             except (BrokenPipeError, ConnectionResetError):
                 pass
-    server = ThreadingHTTPServer(('127.0.0.1', 0), partial(QuietHandler, directory=str(ROOT)))
+    server = ServidorEstable(('127.0.0.1', 0), partial(QuietHandler, directory=str(ROOT)))
     Thread(target=server.serve_forever, daemon=True).start()
-    BASE = 'http://localhost:%d' % server.server_port
+    BASE = 'http://127.0.0.1:%d' % server.server_port
 count = 0
 EN_GITHUB = os.environ.get('GITHUB_ACTIONS') == 'true'
 
@@ -210,8 +211,8 @@ def manifiesto(nav):
     p.locator('[data-vis="windup"]').scroll_into_view_if_needed()
     p.wait_for_selector('[data-vis="windup"][data-montado="1"]', timeout=10000)
     arch = modulo_de('estacionario')
-    vis2 = [u for u in pedidos if u.endswith('/' + arch)]
-    check(len(vis2) == 1, 'cada archivo de interactivos se pide una sola vez aunque lo usen varios', len(vis2))
+    pedidos_archivo = [u for u in pedidos if u.endswith('/' + arch)]
+    check(len(pedidos_archivo) == 1, 'cada archivo de interactivos se pide una sola vez aunque lo usen varios', len(pedidos_archivo))
     ctx.close()
 
 

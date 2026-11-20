@@ -3,10 +3,11 @@ Comprueba en un navegador real que los tres interactivos nuevos muestran las cif
 Tablas A4.5, A8.2, A8.3 y A8.4, reaccionan a sus controles, caben en un teléfono, funcionan en
 tema oscuro y dejan una explicación legible sin JavaScript. También comprueba que los gráficos
 que miden su contenedor al montarse usan el ancho real del teléfono.
-Uso: python3 herramientas/pruebas_evidencia_navegador.py [http://localhost:8765]
+Uso: python3 herramientas/pruebas_evidencia_navegador.py [http://127.0.0.1:8765]
 """
 from pathlib import Path
-from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
+from http.server import SimpleHTTPRequestHandler
+from servidor_pruebas import ServidorEstable
 from functools import partial
 from threading import Thread
 import re, sys
@@ -26,9 +27,9 @@ else:
                 super().handle()
             except (BrokenPipeError, ConnectionResetError):
                 pass
-    server = ThreadingHTTPServer(('127.0.0.1', 0), partial(QuietHandler, directory=str(ROOT)))
+    server = ServidorEstable(('127.0.0.1', 0), partial(QuietHandler, directory=str(ROOT)))
     Thread(target=server.serve_forever, daemon=True).start()
-    BASE = 'http://localhost:%d' % server.server_port
+    BASE = 'http://127.0.0.1:%d' % server.server_port
 count = 0
 
 
@@ -66,7 +67,7 @@ with sync_playwright() as pw:
     for nombre, opciones in CONFIG:
         print(nombre)
         ctx = nav.new_context(**opciones)
-        ctx.route(re.compile(r'^https?://(?!localhost)'), lambda r: r.fulfill(status=200, body=''))
+        ctx.route(re.compile(r'^https?://(?!localhost|127\.0\.0\.1)'), lambda r: r.fulfill(status=200, body=''))
         p = ctx.new_page()
         errores = []
         p.on('pageerror', lambda e: errores.append(str(e)))
