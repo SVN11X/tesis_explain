@@ -30,6 +30,16 @@ jobs:
         run: |
           python -m pip install -r scripts/requisitos.txt
           npm ci
+      # Los tres archivos de voz de más de 5 MB no están en git: se restauran de la caché o se descargan
+      - name: Restaurar los archivos de voz
+        uses: actions/cache@v4
+        with:
+          path: public/voz
+          key: voz-${{ hashFiles('public/voz/manifiesto.json') }}
+      - name: Descargar los archivos de voz que falten
+        run: python scripts/descargar_voz.py
+      - name: Comprobar las huellas de voz (si no coinciden, no se publica)
+        run: python scripts/descargar_voz.py --comprobar
       - name: Compilar el sitio en dist/
         run: npm run build
       - uses: actions/upload-pages-artifact@v4

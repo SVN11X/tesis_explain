@@ -23,7 +23,7 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 - [x] (yellow) Same pull request as part (b): remove preparar-web.mjs, publicar-web.mjs, verificar_compilacion.py, compilacion.py and all committed build output. datos/indice.js is built into dist/.
 - [x] (yellow) Same pull request as part (b): browser tests serve dist/ under /tesis_explain/, and pages.yml builds and uploads dist/.
 - [ ] BLOCKED: Waits for PR #25 and the Pages switch. Declare servicio/ in extra_folders with its reason. Every other folder has a place after part (b).
-- [ ] BLOCKED: Waits for PR #25 and the Pages switch. Take the three voice files over 5 MB out of git: the Pages build downloads them with descargar_voz.py and checks their hashes.
+- [x] (yellow) Take the three voice files over 5 MB out of git: the Pages build downloads them with descargar_voz.py and checks their hashes.
 - [ ] BLOCKED: Waits for PR #25 and the Pages switch. Once the check can pass: .standard.yml (three_d core, github.description), AGENTS.md, CLAUDE.md and standard.yml with gitleaks. The commit guard blocks .standard.yml before that.
 
 ## Thesis content

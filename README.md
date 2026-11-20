@@ -41,7 +41,7 @@ npm ci
 npm run dev
 ```
 
-Abre `http://localhost:4321/tesis_explain/`. Edita las páginas en `src/pages`, los componentes en `src/components` y los estilos en `src/styles`. Todo lo de `dist/` es salida generada y no se versiona. Las páginas de la guía, `css/`, `js/`, `img/`, `fuentes/`, `datos/`, `descargas/`, `modelos/` y `voz/` viven en `public/`, que Astro copia sin tocar a `dist/` con las mismas rutas.
+Abre `http://localhost:4321/tesis_explain/`. Edita las páginas en `src/pages`, los componentes en `src/components` y los estilos en `src/styles`. Todo lo de `dist/` es salida generada y no se versiona. Las páginas de la guía, `css/`, `js/`, `img/`, `fuentes/`, `datos/`, `descargas/`, `modelos/` y `voz/` viven en `public/`, que Astro copia sin tocar a `dist/` con las mismas rutas. Los tres archivos de `voz/` de más de 5 MB no están en git: la publicación los descarga y verifica sus huellas, y en local se obtienen con `python scripts/descargar_voz.py`.
 
 Para compilar y verificar, en este orden (`npm run build` y las comprobaciones necesitan `beautifulsoup4`, y las pruebas de navegador, `playwright`):
 
