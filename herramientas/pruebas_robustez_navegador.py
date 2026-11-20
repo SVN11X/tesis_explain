@@ -9,7 +9,8 @@ por regla del simulador PID; el mapa armado desde las poses del grafo; y los res
 estado académico generados sin JavaScript.
 """
 from pathlib import Path
-from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
+from http.server import SimpleHTTPRequestHandler
+from servidor_pruebas import ServidorEstable
 from functools import partial
 from threading import Thread
 from playwright.sync_api import sync_playwright
@@ -29,10 +30,10 @@ class Quiet(SimpleHTTPRequestHandler):
             pass
 
 
-server = ThreadingHTTPServer(('127.0.0.1', 0), partial(Quiet, directory=str(ROOT.parent)))
+server = ServidorEstable(('127.0.0.1', 0), partial(Quiet, directory=str(ROOT.parent)))
 Thread(target=server.serve_forever, daemon=True).start()
-BASE = 'http://localhost:%d/%s' % (server.server_port, ROOT.name)
-EXTERNO = re.compile(r'^https?://(?!localhost)')
+BASE = 'http://127.0.0.1:%d/%s' % (server.server_port, ROOT.name)
+EXTERNO = re.compile(r'^https?://(?!localhost|127\.0\.0\.1)')
 count = 0
 
 

@@ -4,7 +4,8 @@ Sin argumento inicia su propio servidor local; con argumento usa esa URL base.
 Requiere Playwright/Chromium solo para las pruebas, no para el sitio.
 """
 from pathlib import Path
-from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
+from http.server import SimpleHTTPRequestHandler
+from servidor_pruebas import ServidorEstable
 from functools import partial
 from threading import Thread
 import os, re, subprocess, sys
@@ -18,9 +19,9 @@ else:
     class QuietHandler(SimpleHTTPRequestHandler):
         def log_message(self, *args):
             pass
-    server = ThreadingHTTPServer(('127.0.0.1', 0), partial(QuietHandler, directory=str(ROOT)))
+    server = ServidorEstable(('127.0.0.1', 0), partial(QuietHandler, directory=str(ROOT)))
     Thread(target=server.serve_forever, daemon=True).start()
-    BASE = 'http://localhost:%d' % server.server_port
+    BASE = 'http://127.0.0.1:%d' % server.server_port
 count = 0
 ALTURA_ANTES = 51628  # alto de mapeo.html a 360 x 740 px antes de plegarlo, medido con el mismo recorrido
 ALTURA_RETO = 650  # alto del reto de los barridos a 360 px, contenido visible a propósito que se suma al presupuesto
@@ -57,7 +58,7 @@ with sync_playwright() as pw:
     visuales = ['lidar', 'rejilla', 'marcos-mapeo', 'barridos', 'lazo', 'rviz-colores', 'cobertura', 'plano-mapa', 'candidatos-slam', 'cola-slam', 'reto-mapeo']
     for name, options in configurations:
         ctx = browser.new_context(**options)
-        ctx.route(re.compile(r'^https?://(?!localhost)'), lambda r: r.fulfill(status=200, body=''))
+        ctx.route(re.compile(r'^https?://(?!localhost|127\.0\.0\.1)'), lambda r: r.fulfill(status=200, body=''))
         p = ctx.new_page()
         errors = []
         p.on('pageerror', lambda e: errors.append(str(e)))
@@ -237,7 +238,7 @@ with sync_playwright() as pw:
         ctx.close()
     # Resumen por sección con el detalle plegado, a 360 px de ancho
     ctx = browser.new_context(viewport={'width': 360, 'height': 740}, is_mobile=True, has_touch=True)
-    ctx.route(re.compile(r'^https?://(?!localhost)'), lambda r: r.fulfill(status=200, body=''))
+    ctx.route(re.compile(r'^https?://(?!localhost|127\.0\.0\.1)'), lambda r: r.fulfill(status=200, body=''))
     p = ctx.new_page()
 
     def altura(pagina):
