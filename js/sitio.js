@@ -468,7 +468,8 @@
     "js/movimiento.js": "calibracion cuadrado cinematica encoder",
     "js/evidencia.js": "estabilidad plano-mapa repeticiones",
     "js/slam-proceso.js": "candidatos-slam cola-slam",
-    "js/lecciones.js": "metas-abortadas"
+    "js/lecciones.js": "metas-abortadas",
+    "js/mundo-real.js": "casos-ciclo"
   };
   var MODULO_DE = {};
   Object.keys(MODULOS).forEach(function (src) { MODULOS[src].split(" ").forEach(function (n) { MODULO_DE[n] = src; }); });
