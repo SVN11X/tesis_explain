@@ -43,6 +43,7 @@ Loop means it repeats without end. RM is what reduced motion does.
 | 19 | Looping videos (`.bucle video`) | exploracion, gemelo, mapeo, movimiento, navegacion | Enter the viewport | Clip length, loops | Yes | Shows a real run that text cannot | Poster only, no autoplay | Yes, `.b-ctl` button. Checked in the browser |
 | 20 | Home video `img/mapa-crece.mp4` | `web/src/pages/index.astro` | User presses play | Clip length | No autoplay | Shows the map growing | Not autoplayed | Native controls |
 | 21 | `img/mapa-crece.gif` | `README.md` only | Opened on GitHub | Loops | Yes | Preview for the repository page | Not on the site | Not on the site |
+| 22 | Robot in search without results (`.robot-busca`) | `js/marco.js`, `css/marco.css` | A search finds nothing | 1.3 s, 3 times (3.9 s) | No | Shows that the robot looked and found nothing (see 0006) | Still image | Not needed |
 
 Rows 9, 11 to 15, 18 and 19 run longer than 5 s. All of them already had a pause, so this record adds none to the code.
 

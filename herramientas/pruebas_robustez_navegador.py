@@ -167,6 +167,27 @@ with sync_playwright() as pw:
     check(p.locator('.estado-historial li').count() >= 2 and p.locator('.estado-dl dd').first.inner_text().startswith('octubre de 2026'), 'Sin JS: historial y versión del documento visibles')
     ctx.close()
 
+    # 7. Búsqueda sin resultados: el robot busca, dice qué pasó y ofrece el siguiente paso sin sacar el foco del diálogo.
+    for reducido in ('no-preference', 'reduce'):
+        ctx = browser.new_context(viewport=dict(width=900, height=800), reduced_motion=reducido)
+        p = ctx.new_page(); p.goto(BASE + '/recursos.html')
+        p.locator('[data-search-open]').first.click()
+        p.fill('#guide-search', 'zzqxwv')
+        p.wait_for_selector('.search-status .robot-busca')
+        estado = p.locator('.search-status')
+        nombre = 'Búsqueda vacía (' + reducido + ')'
+        check('No encontré nada con «zzqxwv»' in estado.inner_text() and estado.locator('a[href="index.html#temas"]').count() == 1, nombre + ': dice qué pasó y enlaza al índice')
+        check(estado.locator('.robot-busca').get_attribute('aria-hidden') == 'true' and estado.get_attribute('role') == 'status', nombre + ': el robot es decorativo y el mensaje está en la región viva')
+        check(p.locator('.search-suggest .chip').count() > 0, nombre + ': ofrece búsquedas sugeridas')
+        anim = p.evaluate("getComputedStyle(document.querySelector('.robot-busca .rb-arco')).animationName")
+        check((anim == 'none') == (reducido == 'reduce'), nombre + ': animación ' + ('quieta' if reducido == 'reduce' else 'activa'), anim)
+        if reducido == 'no-preference':
+            dur = p.evaluate("(() => { const s = getComputedStyle(document.querySelector('.robot-busca .rb-arco')); return parseFloat(s.animationDuration) * parseFloat(s.animationIterationCount); })()")
+            check(dur < 5, nombre + ': dura menos de 5 s', dur)
+        p.keyboard.press('Tab'); p.keyboard.press('Tab')
+        check(p.evaluate("!!document.activeElement.closest('.search-dialog')"), nombre + ': el foco sigue en el diálogo de búsqueda')
+        ctx.close()
+
     browser.close()
 server.shutdown()
 print('\n%d comprobaciones de robustez y objetos nuevos correctas' % count)

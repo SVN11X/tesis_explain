@@ -224,6 +224,15 @@
       sug.hidden = false;
       estado.textContent = "Escribe al menos dos caracteres o elige una búsqueda.";
     }
+    /* El robot visto desde arriba, con la planta en U y el LiDAR de img/icono.svg. Barre un arco tres veces y se queda
+       quieto: muestra que miró y no encontró nada. Con movimiento reducido no se mueve (css/marco.css). */
+    var ROBOT_BUSCA = '<svg class="robot-busca" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><g class="rb-arco"><path d="M9.7 8a11 11 0 0 1 12.6 0"/></g><path d="M7.4 26h17.2v-7a8.6 8.6 0 0 0-17.2 0Z"/><rect x="4.4" y="18.6" width="3" height="7.6" rx="1.2"/><rect x="24.6" y="18.6" width="3" height="7.6" rx="1.2"/><circle cx="16" cy="17" r="2.8"/></svg>';
+    function sinResultados(q) {
+      lista.innerHTML = "";
+      estado.innerHTML = ROBOT_BUSCA + '<span>No encontré nada con «' + esc(q) + '». Prueba un término más general, elige una búsqueda sugerida o recorre el <a href="index.html#temas">índice de la guía</a>.</span>';
+      sug.innerHTML = '<section><h2><span>Búsquedas sugeridas</span></h2>' + chips(SUGERIDAS, false) + '</section>';
+      sug.hidden = false;
+    }
     function cargar(cb) {
       if (indice) { cb(); return; }
       if (window.INDICE) { indice = window.INDICE; cb(); return; }
@@ -242,7 +251,7 @@
       if (q.length < 2) { vacio(); return; }
       sug.hidden = true;
       var ps = BUS.tokens(q), res = BUS.buscar(indice, q, 14);
-      if (!res.length) { lista.innerHTML = ""; estado.innerHTML = 'Sin resultados para «' + esc(q) + '». Prueba con un término más general o revisa el <a href="recursos.html#glosario">glosario</a>.'; return; }
+      if (!res.length) { sinResultados(q); return; }
       estado.textContent = res.length + (res.length === 1 ? " sección encontrada." : " secciones encontradas.");
       lista.innerHTML = res.map(function (r, i) {
         var e = r.e, ex = BUS.extracto(e.x, ps, 170);
