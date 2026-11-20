@@ -2,12 +2,12 @@
   "estado": "en_proceso_defensa",
   "estado_texto": "En proceso de defensa",
   "nota": "Aún sin aprobar. Los resultados pueden cambiar tras la defensa.",
-  "version_documento": "octubre de 2026, 152 páginas",
+  "version_documento": "versión final, 169 páginas (152 numeradas)",
   "fecha_datos": "Exploración y mapeo, 22 de junio de 2026 (Anexo 7). La tesis no fecha los demás ensayos.",
   "revision_datos": null,
   "ultima_actualizacion_sitio": "2026-11-19",
   "revision_base": "c1def7a03ef3dce222bf8d6a2df21b093f020508",
-  "tesis_pdf": null,
+  "tesis_pdf": "https://github.com/SVN11X/tesis_explain/releases/download/tesis-final/trabajo-de-titulacion-valderas-2026.pdf",
   "pendientes": [
     {
       "texto": "Método de medida del ángulo físico del giro",
@@ -87,6 +87,11 @@
       "fecha": "2026-11-19",
       "tipo": "contenido",
       "cambio": "El aviso académico dice que la tesis está en proceso de defensa y que aún no está aprobada, en vez de en revisión por comité. La guía sigue la versión de octubre de 2026 y no anticipa las conclusiones del comité. Las tablas experimentales no cambian."
+    },
+    {
+      "fecha": "2026-11-20",
+      "tipo": "contenido",
+      "cambio": "El pie y Recursos enlazan el PDF final de la tesis, publicado con autorización del autor como archivo de una Release de GitHub. Tiene 169 páginas, 17 preliminares y 152 numeradas. Una comparación no halló cifras distintas de la versión de octubre que sigue la guía. Las tablas experimentales no cambian."
     }
   ]
 }

@@ -625,7 +625,7 @@ def probar_recursos(nav):
         if nombre == 'escritorio':
             e = p.evaluate("""() => { const pie = document.querySelector('.pie'), ab = document.getElementById('abstract').closest('section');
               return { mit: !!pie.querySelector('a[href$="/LICENSE"]'), cc: !!pie.querySelector('a[href*="licenses/by/4.0"]'), rev: (pie.querySelector('time') || {}).textContent || '',
-                       autor: !!pie.querySelector('a[href="recursos.html#autor"]'), version: [...pie.querySelectorAll('p:not([hidden])')].some(x => x.textContent.includes('Versión del documento de referencia: octubre de 2026')),
+                       autor: !!pie.querySelector('a[href="recursos.html#autor"]'), version: [...pie.querySelectorAll('p:not([hidden])')].some(x => x.textContent.includes('Versión del documento de referencia: versión final, 169 páginas')),
                        lang: ab.getAttribute('lang'), abstract: ab.textContent.includes('Keywords'), ocultos: document.querySelectorAll('#autor ~ * [hidden], #autor ~ [hidden]').length }; }""")
             ok(e['mit'] and e['cc'] and e['rev'] and e['autor'] and e['version'], 'el pie muestra la licencia, la fecha de revisión, el enlace al autor y la versión de la tesis de referencia', e)
             ok(e['lang'] == 'en' and e['abstract'] and e['ocultos'] >= 3, 'el abstract va en inglés y los datos pendientes del autor quedan ocultos', e)
