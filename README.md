@@ -49,12 +49,14 @@ Para compilar y verificar:
 npm run check
 npm run test:lidar
 npm run build
-python -m pip install beautifulsoup4
+python -m pip install -r scripts/requisitos.txt
 python scripts/indice.py
 python scripts/verificar_sitio.py
 python tests/compilacion.py
 python scripts/verificar_compilacion.py
 ```
+
+Para las herramientas que se ejecutan a mano (`modelo_robot.py`), instala también `scripts/requisitos-opcionales.txt`.
 
 La verificación de compilación compara las salidas con Git y admite únicamente los identificadores internos `uid` de Astro que dependen de la ruta de trabajo. Los textos, atributos funcionales, scripts, estilos, índice y conjunto de recursos deben coincidir. Véase [la corrección de CI](docs/correccion-ci-astro.md).
 

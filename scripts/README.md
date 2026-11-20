@@ -21,3 +21,5 @@ Generators, checks and build helpers. Run them from the repository root.
 - `validacion_defensa.mjs`: computes metrics from labelled defense runs (JSONL).
 - `verificar_compilacion.py`: compares the build output with the committed files.
 - `verificar_sitio.py`: checks data, index, links and anchors.
+- `requisitos.txt`: pinned Python dependencies that CI installs.
+- `requisitos-opcionales.txt`: dependencies of the tools run by hand, such as `modelo_robot.py`.

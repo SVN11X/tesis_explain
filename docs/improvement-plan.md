@@ -7,7 +7,7 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 - [x] (green) Line endings: add `* text=auto eol=lf` to .gitattributes, keep `voz/** -text`, renormalize. The laboratory hash test fails on Windows because core.autocrlf turns datos/ensayos/*.csv into CRLF.
 - [x] (green) Private dictation: a recording under 0.3 s ends the model download (js/defensa-voz.js:381 calls volverATexto, line 348 ends the worker). Keep the download going, with a browser test.
 - [x] (green) Update astro 7.4.4 to 7.4.13 (moderate npm audit advisory) and commit the rebuilt _astro/, index.html and laboratorios.html so verificar_compilacion.py passes.
-- [ ] BLOCKED: Owner merges PR #57 (workflow). Pinned requirements file for CI (beautifulsoup4, playwright) and an optional one for modelo_robot.py (trimesh, numpy, cascadio). CI installs it with pip -r. README.md points to both.
+- [x] (red, workflow) Pinned requirements file for CI (beautifulsoup4, playwright) and an optional one for modelo_robot.py (trimesh, numpy, cascadio). CI installs it with pip -r. README.md points to both. (PR #57)
 - [x] (green) Python tools and tests read and write files as UTF-8 explicitly. On Windows without PYTHONUTF8=1, the laboratory test and verificar_sitio.py fail reading with cp1252.
 - [x] (green) Local browser tests failed now and then on Windows: the test server had a backlog of 5 and tests used localhost. Fixed in tests/servidor.py (backlog 1024, 127.0.0.1).
 
