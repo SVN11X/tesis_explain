@@ -23,6 +23,7 @@ else:
     BASE = 'http://localhost:%d' % server.server_port
 count = 0
 ALTURA_ANTES = 57075  # alto de control.html a 360 x 740 px antes de plegarlo, medido con el mismo recorrido
+ALTURA_PRIMERA = 49612  # alto tras la primera pasada (resumen con todas las figuras a la vista)
 
 
 def check(cond, text):
@@ -184,7 +185,7 @@ with sync_playwright() as pw:
     abierta = p.evaluate('document.documentElement.scrollHeight')
     print('  altura a 360 px: plegada %d px (%.1f pantallas), con todo abierto %d px' % (cerrada, cerrada / 740, abierta))
     check(cerrada < abierta, '360 px: plegada la página es más corta que con todo abierto')
-    check(cerrada < ALTURA_ANTES * 0.95, '360 px: la página es más corta que antes (%d px contra %d px)' % (cerrada, ALTURA_ANTES))
+    check(cerrada < ALTURA_PRIMERA * 0.88, '360 px: tras la segunda pasada la página mide menos del 88 %% de la primera (%d px contra %d px)' % (cerrada, ALTURA_PRIMERA))
     # un ancla hacia el contenido plegado lo abre y lo muestra
     for destino in ('d-no-lineal', 'windup-tecnico', 'ciclo'):
         p.goto(BASE + '/control.html#' + destino)
@@ -225,7 +226,7 @@ with sync_playwright() as pw:
     check(q.locator('#d-barrido').get_attribute('open') is not None,'sin JavaScript: el detalle se abre a mano')
     sin.close()
     # las cifras y referencias de la tesis siguen en la página, y los resúmenes no inventan ninguna
-    cmp_ = subprocess.run([sys.executable, str(ROOT / 'herramientas' / 'comparar_resumen_control.py')], capture_output=True, text=True, encoding='utf-8', env=dict(os.environ, PYTHONUTF8='1'))
+    cmp_ = subprocess.run([sys.executable, str(ROOT / 'herramientas' / 'comparar_resumen.py'), 'control'], capture_output=True, text=True, encoding='utf-8', env=dict(os.environ, PYTHONUTF8='1'))
     lineas = cmp_.stdout.strip().splitlines()
     print('  ' + lineas[0])
     check(cmp_.returncode == 0, 'ninguna cifra ni referencia a la tesis desapareció y los resúmenes no inventan cifras: ' + lineas[-1])

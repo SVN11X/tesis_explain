@@ -100,6 +100,9 @@ with sync_playwright() as pw:
         check(alto <= 80, pagina + ': aviso académico discreto en teléfono (%d px)' % alto)
     p.goto(BASE + '/control.html'); recorrer(p)
     env = p.locator('.tabla-env[data-desplazable]').first
+    plegado = env.locator('xpath=ancestor::details[contains(@class, "detalle")]/summary')
+    if plegado.count():
+        plegado.first.click()
     env.scroll_into_view_if_needed(); env.focus(); p.keyboard.press('ArrowRight'); p.keyboard.press('ArrowRight'); p.wait_for_timeout(200)
     check(env.evaluate('e => e.scrollLeft') > 0, 'Con el foco en una tabla ancha, las flechas la desplazan')
     p.set_viewport_size(dict(width=1366, height=900)); p.wait_for_timeout(400)
@@ -158,6 +161,9 @@ with sync_playwright() as pw:
     for pagina in ['control.html', 'navegacion.html', 'mapeo.html']:
         p.goto(BASE + '/' + pagina)
         ficha = p.locator('details.ficha-concepto')
+        plegado = ficha.locator('xpath=ancestor::details[contains(@class, "detalle")]/summary')
+        if plegado.count():
+            plegado.first.click()
         ficha.locator('summary').click()
         etiquetas = ficha.locator('dt').all_inner_texts()
         check(etiquetas == ['Qué es', 'Para qué sirve', 'Cómo funciona', 'Dónde verlo', 'Ejemplo numérico', 'En este robot', 'Límites'], 'Sin JS: ' + pagina + ' ofrece su ficha del concepto en siete pasos', etiquetas)

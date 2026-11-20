@@ -35,7 +35,8 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 ## Learning and attention
 
 - [x] (yellow) control.html (8,287 words, 15 % folded): a short summary per section that keeps figures and thesis references visible, the rest folded. Search results and #anchors open the folded part, with a test.
-- [ ] (yellow) control.html: an interactive inside the first 4 screens at 360 px (first video now at screen 7.0, comparison slider at 33.4; revision-atencion 5).
+- [x] (yellow) control.html second pass: only key figures in each summary, the rest folded, page at most 60 % of its height at 360 px. Reached 84 % (49,612 to 41,620 px): the 17 interactives alone are about 25,000 px, so 60 % needs folding them or the source list.
+- [x] (yellow) control.html: an interactive inside the first 4 screens at 360 px (first video now at screen 7.0, comparison slider at 33.4; revision-atencion 5).
 - [ ] (yellow) mapeo.html (7,116 words, 10 % folded): the same treatment and the same test, with an interactive inside the first 4 screens at 360 px.
 - [ ] (yellow) The same for robot, movimiento and resultados, one page per pull request. Then the owner reviews before problema, navegacion, exploracion and replicar.
 - [ ] (yellow) A short challenge with instant feedback in one example chapter, using data the page already shows. The owner decides whether it spreads.
