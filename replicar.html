@@ -92,13 +92,16 @@
 
 <section class="en-breve" aria-labelledby="t-breve">
   <h2 id="t-breve">Lo necesario para repetir este robot</h2>
-  <p>Los materiales montados en el robot costaron 444 643 pesos, y 582 447 con los accesorios de operación. <mark>Falta sumar un computador para el mapeo y la navegación.</mark> El software parte de proyectos abiertos, todos citados aquí, con una serie de videos que explica casi cada paso. <mark>Si empiezas hoy, usa una distribución vigente</mark> de <span class="term" data-def="Conjunto de bibliotecas y herramientas de código abierto para construir sistemas robóticos modulares y distribuidos.">ROS 2</span> y no Foxy. <mark>Lo que más me sirvió fue aprender a medir, a registrar y a leer código ajeno.</mark></p>
+  <p class="resumen">Los materiales montados en el robot costaron 444 643 pesos, y 582 447 con los accesorios de operación, sin el computador. Todo el software parte de proyectos abiertos y casi cada paso tiene un video.</p>
   <div class="cifras-mini">
     <div><b>582 447 <small>CLP</small></b><span>costo total del proyecto, sin el computador</span></div>
     <div><b>127 234 <small>CLP</small></b><span>en tornillería y kits, el gasto más fácil de reducir</span></div>
     <div><b>1 <small>kg</small></b><span>de filamento PLA+ para el chasis y las cubiertas</span></div>
     <div><b>8</b><span>pasos en una ruta recomendada, con lo que hice en cada uno</span></div>
   </div>
+  <details class="detalle" id="d-breve"><summary>Ver el detalle: qué falta sumar y qué versión usar</summary>
+  <p>Los materiales montados en el robot costaron 444 643 pesos, y 582 447 con los accesorios de operación. <mark>Falta sumar un computador para el mapeo y la navegación.</mark> El software parte de proyectos abiertos, todos citados aquí, con una serie de videos que explica casi cada paso. <mark>Si empiezas hoy, usa una distribución vigente</mark> de <span class="term" data-def="Conjunto de bibliotecas y herramientas de código abierto para construir sistemas robóticos modulares y distribuidos.">ROS 2</span> y no Foxy. <mark>Lo que más me sirvió fue aprender a medir, a registrar y a leer código ajeno.</mark></p>
+  </details>
 </section>
 
 <section>
@@ -134,17 +137,20 @@
       <caption>Tabla A1.1 de la tesis. Pesos chilenos pagados entre abril de 2024 y julio de 2026. Los kits se cuentan completos aunque se usó solo una parte, y ningún monto incluye el computador.</caption>
     </table>
   </div>
+  <p class="resumen">La tornillería y los kits suman 127 234 pesos, el gasto más fácil de reducir si compras solo lo que necesitas.</p>
+  <details class="detalle" id="d-materiales"><summary>Ver el detalle: las 51 compras y por qué pesan tanto los kits</summary>
   <p>El precio y la fecha de cada una de las 51 compras, con el peso de cada partida en el costo total, están en <a href="robot.html#gasto">Anatomía del robot</a>.</p>
   <p>La tornillería, los separadores y las tuercas de inserción suman 127 234 pesos, más que la Raspberry Pi o que el láser por separado, porque se compraron kits completos. Si construyes uno, comprar solo las piezas que necesitas baja bastante el costo del montaje <a class="ref" href="#f1">1</a>.</p>
+  </details>
 </section>
 
 <section>
   <h2 id="impresion">Chasis impreso en 3D</h2>
+  <p class="resumen">PLA+ con capa de 0,2 mm y tolerancia de ensamblaje de 0,2 a 0,4 mm, que importa más que el acabado. El diseño parte de un robot aspiradora abierto <a class="ref" href="#f2">2</a>.</p>
+  <details class="detalle" id="d-impresion"><summary>Ver el detalle: la tabla de parámetros de impresión y de dónde sale el diseño</summary>
+  <p>El chasis y las cubiertas toman como referencia un diseño abierto de robot aspiradora publicado en Thingiverse <a class="ref" href="#f2">2</a>. La forma baja y redondeada deja el láser libre arriba y permite girar en pasillos estrechos.</p>
+  <p>Los parámetros generales de impresión son los de una impresora doméstica. La tolerancia de ensamblaje importa más que la calidad superficial, porque las piezas se atornillan con tuercas de inserción térmica <a class="ref" href="#f1">1</a>.</p>
   <div class="grid-2">
-    <div>
-      <p>El chasis y las cubiertas toman como referencia un diseño abierto de robot aspiradora publicado en Thingiverse <a class="ref" href="#f2">2</a>. La forma baja y redondeada deja el láser libre arriba y permite girar en pasillos estrechos.</p>
-      <p>Los parámetros generales de impresión son los de una impresora doméstica. La tolerancia de ensamblaje importa más que la calidad superficial, porque las piezas se atornillan con tuercas de inserción térmica <a class="ref" href="#f1">1</a>.</p>
-    </div>
     <div class="tabla-env">
       <table class="tabla compacta">
         <tbody>
@@ -161,6 +167,7 @@
       </table>
     </div>
   </div>
+  </details>
 </section>
 
 <section>
@@ -185,12 +192,15 @@
       <caption>Tabla A3.4 de la tesis.</caption>
     </table>
   </div>
+  <p class="resumen">El Arduino y el láser tienen nombres fijos en el sistema, <code>/dev/motor_controller</code> y <code>/dev/rplidar</code> <a class="ref" href="#f1">1</a>.</p>
+  <details class="detalle" id="d-conexiones"><summary>Ver el detalle: las reglas udev y las dos formas de conectar el láser</summary>
   <p>Para que los puertos no cambien de nombre al reconectar, se usan reglas udev. El Arduino queda como <code>/dev/motor_controller</code> y el láser como <code>/dev/rplidar</code> o <code>/dev/rlidar_gpio</code>, según si va por USB o por los pines de la Raspberry Pi <a class="ref" href="#f1">1</a>.</p>
+  </details>
 </section>
 
 <section>
   <h2 id="versiones">Versiones de software</h2>
-  <p>Estas son las versiones exactas con que obtuve los resultados <a class="ref" href="#f1">1</a>. <mark>Sirven para reproducirlos, no como recomendación para un proyecto nuevo.</mark></p>
+  <p class="resumen">Ubuntu 20.04 con ROS 2 Foxy: las versiones exactas con que obtuve los resultados <a class="ref" href="#f1">1</a>. <mark>Sirven para reproducirlos, no para un proyecto nuevo.</mark></p>
   <div class="tabla-env angosta">
     <table class="tabla compacta">
       <tbody>
@@ -205,6 +215,8 @@
       </tbody>
     </table>
   </div>
+  <details class="detalle" id="d-versiones"><summary>Ver el detalle: por qué se congelaron y qué usar hoy</summary>
+  <p>Estas son las versiones exactas con que obtuve los resultados <a class="ref" href="#f1">1</a>. <mark>Sirven para reproducirlos, no como recomendación para un proyecto nuevo.</mark></p>
   <div class="widget">
     <div class="widget-cab"><h3 id="congelado">Por qué se congelaron</h3><span class="tipo datos">Datos de la tesis</span></div>
     <div class="vis">
@@ -218,10 +230,13 @@
     </div>
   </div>
   <p>Si empiezas hoy, ten en cuenta que ROS 2 Foxy dejó de tener soporte en junio de 2023 y <span class="term" data-def="Simulador 3D de robots, aquí en su versión 11, que llegó al fin de soporte en enero de 2025.">Gazebo Classic</span> en enero de 2025. Las distribuciones de ROS 2 que salen en años pares tienen cinco años de soporte. Jazzy Jalisco, de mayo de 2024, tiene soporte hasta mayo de 2029 <a class="ref" href="#f3">3</a>. Usa una distribución vigente con la versión de Gazebo que recomiende su documentación, y espera tener que ajustar los paquetes base, que fueron escritos para Foxy.</p>
+  </details>
 </section>
 
 <section>
   <h2 id="aprender">Una ruta de videos para aprender</h2>
+  <p class="resumen">Cuatro videos de Articulated Robotics recorren el mismo camino, en este orden: simular, mover, mapear y navegar <a class="ref" href="#f4">4</a>.</p>
+  <details class="detalle" id="d-aprender"><summary>Ver el detalle: los cuatro videos y de dónde vienen los paquetes</summary>
   <p>Los paquetes adaptados en esta tesis vienen de Articulated Robotics, el proyecto de Josh Newans, que documentó en video la construcción de un robot móvil muy parecido. Seguirlos en este orden es una forma ordenada de recorrer el mismo camino <a class="ref" href="#f4">4</a>.</p>
   <div class="videos-grid">
     <div class="vid-card">
@@ -241,26 +256,36 @@
       <p><b>4. Navegar.</b> Configurar <span class="term" data-def="Marco de navegación de ROS 2 que planifica rutas, las sigue y se recupera de fallas.">Nav2</span> sobre el mapa. <small>Relacionado con <a href="navegacion.html">Planificar y seguir rutas</a>.</small></p>
     </div>
   </div>
+  </details>
 </section>
 
 <section>
   <h2 id="repositorios">Repositorios y documentación de base</h2>
+  <p class="resumen">Proyectos públicos de los que partió el robot. Mis versiones adaptadas y los registros de los ensayos todavía no están publicados.</p>
+  <details class="detalle" id="d-repositorios"><summary>Ver el detalle: qué está disponible y qué falta</summary>
   <p>Son los proyectos públicos de los que partió el robot, no los archivos que usé. Las versiones adaptadas, las configuraciones y los registros de los ensayos todavía no están publicados. El detalle de qué está disponible y qué falta está en <a href="recursos.html#materiales">Materiales originales</a>.</p>
+  </details>
   <div class="aprender">
     <a href="https://github.com/joshnewans/articubot_one"><b>articubot_one</b><span>Paquete de descripción, control, SLAM y navegación del que partió el robot.</span><small>github.com/joshnewans</small></a>
     <a href="https://github.com/joshnewans/diffdrive_arduino"><b>diffdrive_arduino</b><span>Interfaz de ros2_control para robots diferenciales con Arduino.</span><small>github.com/joshnewans</small></a>
     <a href="https://github.com/joshnewans/ros_arduino_bridge"><b>ros_arduino_bridge</b><span>Firmware de encoders, motores y control, bifurcación del proyecto del Home Brew Robotics Club.</span><small>github.com/joshnewans</small></a>
     <a href="https://github.com/robo-friends/m-explore-ros2"><b>m-explore-ros2</b><span>explore_lite para ROS 2, la exploración por fronteras.</span><small>github.com/robo-friends</small></a>
     <a href="https://github.com/SteveMacenski/slam_toolbox"><b>slam_toolbox</b><span>SLAM 2D por grafos de poses para ROS 2.</span><small>github.com/SteveMacenski</small></a>
+  </div>
+  <details class="detalle" id="d-repositorios-mas"><summary>Ver más: Nav2, Articulated Robotics, el diseño del chasis y Lidarbot</summary>
+  <div class="aprender">
     <a href="https://docs.nav2.org/"><b>Documentación de Nav2</b><span>Conceptos, configuración y guía de ajuste de la navegación.</span><small>docs.nav2.org</small></a>
     <a href="https://articulatedrobotics.xyz/"><b>Articulated Robotics</b><span>Tutoriales escritos y en video para construir un robot móvil con ROS 2.</span><small>articulatedrobotics.xyz</small></a>
     <a href="https://www.thingiverse.com/thing:4459513"><b>Vacuum Robot en Thingiverse</b><span>El diseño abierto que sirvió de referencia para el chasis.</span><small>thingiverse.com</small></a>
     <a href="https://github.com/TheNoobInventor/lidarbot"><b>Lidarbot</b><span>Otro robot diferencial de bajo costo con ros2_control, documentado por Amadi y otros en 2024.</span><small>github.com/TheNoobInventor</small></a>
   </div>
+  </details>
 </section>
 
 <section>
   <h2 id="orden">Una ruta recomendada para replicarlo</h2>
+  <p class="resumen">Ocho pasos de abajo hacia arriba: modela, construye, mide los encoders, sintoniza, valida la odometría, mapea, navega a metas fijas y explora. <mark>Simula antes de construir.</mark> El paso 7 quedó pendiente y es el aporte más directo que puedes hacer.</p>
+  <details class="detalle" id="d-orden"><summary>Ver el detalle: la tabla de los ocho pasos y lo que hice en cada uno</summary>
   <p>Es un orden sugerido para quien empieza: <mark>simular antes de construir y avanzar de abajo hacia arriba</mark>, sin pasar a la capa siguiente hasta medir la anterior. El orden no sigue la cronología de mi trabajo. La última columna dice qué hice en cada paso, para distinguir lo medido de lo que queda pendiente <a class="ref" href="#f1">1</a>.</p>
   <div class="tabla-env">
     <table class="tabla ruta-replica">
@@ -279,10 +304,13 @@
     </table>
   </div>
   <p>Si replicas el trabajo, el paso 7 es el aporte más directo que puedes hacer, porque es lo que falta para tener un indicador cuantitativo de la navegación. Está descrito como trabajo futuro en <a href="resultados.html">La evidencia</a>. Y en cualquier paso, repite cada ensayo al menos de 6 a 10 veces: con 15 éxitos en 15 intentos se puede afirmar una tasa sobre el 78 %, y con 5 de 6 solo sobre el 35,9 %. Ver <a href="resultados.html#confianza">Cuánto dicen cinco repeticiones</a>.</p>
+  </details>
 </section>
 
 <section>
   <h2 id="lecciones">Lo que aprendí en el taller</h2>
+  <p class="resumen">Doce lecciones, cada una de un episodio concreto del trabajo. La primera: mide contra algo independiente. La última: cita y respeta el código que adaptas.</p>
+  <details class="detalle" id="d-lecciones"><summary>Ver el detalle: las doce lecciones con su explicación</summary>
   <p>Cada una sale de un episodio concreto del trabajo, enlazado a su explicación. Varias se desarrollan como ensayo en <a href="lecciones.html">Lecciones de ingeniería</a>.</p>
   <ol>
     <li><b>Mide contra algo independiente.</b> La <span class="term" data-t="Odometría" data-def="Estimación de la posición sumando el giro medido de las ruedas.">odometría</span> se comparó con una cinta, y el movimiento real se probó con el crecimiento del mapa, no con los <span class="term" data-t="Encoder" data-def="Sensor que produce dos señales desfasadas al girar un eje, para contar el giro y saber su sentido.">encoders</span>. <a href="movimiento.html#iteracion-2">Ver la corrida sin avance</a>.</li>
@@ -298,6 +326,7 @@
     <li><b>Congela las versiones para avanzar, pero planifica la migración.</b> Lo que hoy da estabilidad mañana queda sin soporte. <a href="#versiones">Ver versiones</a>.</li>
     <li><b>Cita y respeta el código que adaptas.</b> Decir qué es propio y qué es adaptado fortalece el trabajo. <a href="robot.html#adaptado">Ver el origen de cada paquete</a>.</li>
   </ol>
+  </details>
 </section>
 
 <section class="fuentes-tema">
