@@ -9,7 +9,7 @@
   odometria    distancias de la recta de 2 metros: ordenada, de los encoders y medida con cinta
   iteracion2   resultados de la iteración 2
   giro         giros medidos frente al ordenado
-  Los cálculos están en js/movimiento-modelo.js y se prueban en herramientas/pruebas_movimiento.js.
+  Los cálculos están en js/movimiento-modelo.js y se prueban en tests/pruebas_movimiento.js.
 */
 (function () {
   "use strict";

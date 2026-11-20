@@ -801,7 +801,7 @@ text.lr-on { fill: var(--azul); }
 .refs li:target { border-color: var(--acento); box-shadow: 0 0 0 3px var(--acento-suave); }
 .refs li .tag { font-size: var(--t-xs); color: var(--muted); display: block; margin-top: 4px; }
 .refs li .tag b { color: var(--violeta); font-weight: 700; }
-/* Bibliografía de la tesis, en bibliografia.html y generada por herramientas/datos.py. Cada grupo es una sección con
+/* Bibliografía de la tesis, en bibliografia.html y generada por scripts/datos.py. Cada grupo es una sección con
    su explicación y la lista plegable de sus referencias. El prefijo .articulo gana a las listas genéricas del
    artículo sin recurrir a !important. */
 .articulo .bib-mapa { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; max-width: 59.6em; }

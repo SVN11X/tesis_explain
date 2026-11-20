@@ -22,47 +22,47 @@ jobs:
           python-version: '3.12'
       - name: Dependencias solo de desarrollo
         run: |
-          python -m pip install -r herramientas/requisitos.txt
+          python -m pip install -r scripts/requisitos.txt
           python -m playwright install --with-deps chromium
       - name: Datos, índice y enlaces
-        run: python herramientas/verificar_sitio.py
+        run: python scripts/verificar_sitio.py
       - name: Nueva experiencia Astro y Svelte
         run: |
           npm ci
           npm run check
           npm run test:lidar
           npm run build
-          python herramientas/indice.py
-          python herramientas/pruebas_compilacion.py
-          python herramientas/verificar_compilacion.py
+          python scripts/indice.py
+          python tests/compilacion.py
+          python scripts/verificar_compilacion.py
       - name: Pruebas del servicio, el catálogo y la validación
         run: npm test
       - name: Ejemplos sintéticos y figuras de respaldo al día
         run: |
-          node herramientas/ejemplos_laboratorio.js --comprobar
-          node herramientas/diagramas_plano.js --comprobar
-          node herramientas/diagramas_mapeo.js --comprobar
-          node herramientas/diagramas_control.js --comprobar
-          python herramientas/descarga_preguntas.py --comprobar
+          node scripts/ejemplos_laboratorio.js --comprobar
+          node scripts/diagramas_plano.js --comprobar
+          node scripts/diagramas_mapeo.js --comprobar
+          node scripts/diagramas_control.js --comprobar
+          python scripts/descarga_preguntas.py --comprobar
       - name: Modelos numéricos
         run: |
-          node herramientas/pruebas_unitarias.js
-          node herramientas/pruebas_control.js
-          node herramientas/pruebas_mapeo.js
-          node herramientas/pruebas_slam_proceso.js
-          node herramientas/pruebas_movimiento.js
-          node herramientas/pruebas_analisis.js
-          node herramientas/pruebas_estabilidad.js
-          node herramientas/pruebas_estadistica.js
+          node tests/pruebas_unitarias.js
+          node tests/pruebas_control.js
+          node tests/pruebas_mapeo.js
+          node tests/pruebas_slam_proceso.js
+          node tests/pruebas_movimiento.js
+          node tests/pruebas_analisis.js
+          node tests/pruebas_estabilidad.js
+          node tests/pruebas_estadistica.js
       - name: Navegador
         run: |
-          python herramientas/pruebas_control_navegador.py
-          python herramientas/pruebas_mapeo_navegador.py
-          python herramientas/pruebas_movimiento_navegador.py
-          python herramientas/pruebas_laboratorio_navegador.py
-          python herramientas/pruebas_robustez_navegador.py
-          python herramientas/pruebas_evidencia_navegador.py
-          python herramientas/pruebas_navegador.py
-          python herramientas/pruebas_experiencia_navegador.py
-          python herramientas/pruebas_redisenio_navegador.py
-          python herramientas/pruebas_defensa_navegador.py
+          python tests/navegador_control.py
+          python tests/navegador_mapeo.py
+          python tests/navegador_movimiento.py
+          python tests/navegador_laboratorio.py
+          python tests/navegador_robustez.py
+          python tests/navegador_evidencia.py
+          python tests/navegador.py
+          python tests/navegador_experiencia.py
+          python tests/navegador_redisenio.py
+          python tests/navegador_defensa.py

@@ -10,7 +10,7 @@ En la versión fijada de Astro, `dist/runtime/server/render/component.js` calcul
 
 ## Solución
 
-El flujo llama ahora a `herramientas/verificar_compilacion.py` después de construir las páginas y regenerar el índice. El comprobador lee la versión de los archivos registrada en `HEAD` y compara las salidas actuales.
+El flujo llama ahora a `scripts/verificar_compilacion.py` después de construir las páginas y regenerar el índice. El comprobador lee la versión de los archivos registrada en `HEAD` y compara las salidas actuales.
 
 Solo al comparar los dos HTML se normaliza el valor de `uid` cuando aparece como primer atributo en una etiqueta real `astro-island`, conforme al formato generado por Astro. Se usa un analizador HTML para evitar alterar coincidencias dentro de scripts, comentarios o texto escapado. Se conserva exactamente todo lo demás, incluidos espacios y saltos de línea. No se escriben ni se modifican archivos al verificar.
 
@@ -36,9 +36,9 @@ El flujo adjunto se interrumpió antes de los pasos siguientes. Las pruebas de n
 
 ```bash
 npm run build
-python herramientas/indice.py
-python herramientas/pruebas_compilacion.py
-python herramientas/verificar_compilacion.py
+python scripts/indice.py
+python tests/compilacion.py
+python scripts/verificar_compilacion.py
 ```
 
 Si aparece «Salida desactualizada», revisar el cambio y versionar sus salidas junto con sus fuentes. No cambiar el comprobador para ocultar una diferencia de contenido.

@@ -2,7 +2,7 @@
 
 El registro `logs_112104990237 (1).zip`, correspondiente al commit
 `f70a2aba290a3df3975554399db35b00dcf195e7`, falla en
-`herramientas/pruebas_laboratorio_navegador.py` con:
+`tests/navegador_laboratorio.py` con:
 
 ```text
 AssertionError: Menú móvil aísla el contenido de fondo

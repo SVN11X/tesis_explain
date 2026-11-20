@@ -9,18 +9,18 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 - [x] (green) Update astro 7.4.4 to 7.4.13 (moderate npm audit advisory) and commit the rebuilt _astro/, index.html and laboratorios.html so verificar_compilacion.py passes.
 - [x] (red, workflow) Pinned requirements file for CI (beautifulsoup4, playwright) and an optional one for modelo_robot.py (trimesh, numpy, cascadio). CI installs it with pip -r. README.md points to both. (PR #57)
 - [x] (green) Python tools and tests read and write files as UTF-8 explicitly. On Windows without PYTHONUTF8=1, the laboratory test and verificar_sitio.py fail reading with cp1252.
-- [x] (green) Local browser tests failed now and then on Windows: the test server had a backlog of 5 and tests used localhost. Fixed in herramientas/servidor_pruebas.py (backlog 1024, 127.0.0.1).
+- [x] (green) Local browser tests failed now and then on Windows: the test server had a backlog of 5 and tests used localhost. Fixed in tests/servidor.py (backlog 1024, 127.0.0.1).
 
 ## Structure
 
 - [x] (green) Standard documents: goals.md, DESIGN.md, this plan, decisions 0001 and 0002, CHANGELOG.md, issue and pull request templates, .editorconfig.
 - [x] (green) In the same pull request: a draft docs/how-it-works.md from the confirmed understanding, for the owner to confirm.
-- [ ] BLOCKED: Owner merges PR #25 (workflow). pages.yml uploads today's committed site from an explicit file list, without a build. docs/, herramientas/, servicio/ and README.md stop being served.
+- [ ] BLOCKED: Owner merges PR #25 (workflow). pages.yml uploads today's committed site from an explicit file list, without a build. docs/, scripts/, servicio/ and README.md stop being served.
 - [ ] BLOCKED: Merge pages.yml and switch Settings, Pages, Source to GitHub Actions in the same minute (owner). Every later structure item waits for this.
-- [ ] BLOCKED: Waits for PR #25 and the Pages switch. Regenerate the move plan with build npm, then part (a): herramientas/ to scripts/, its 19 pruebas_* and 2 *.test.mjs to tests/ with clearer names. Fix imports, CI and README.md.
+- [x] (yellow) Part (a): herramientas/ moved to scripts/, its 19 pruebas_* and 2 *.test.mjs plus the shared test server moved to tests/ (browser tests are now tests/navegador*.py). Imports, CI, package.json and README.md fixed, generated headers regenerated.
 - [ ] BLOCKED: Waits for PR #25 and the Pages switch. Part (b), one pull request: guide pages, css, js, img, fuentes, datos, descargas, modelos and voz to public/ with the same paths, and web/src to src/ with Astro defaults and dist/.
 - [ ] BLOCKED: Waits for PR #25 and the Pages switch. Same pull request as part (b): datos.py, descarga_preguntas.py, imagen_social.py, indice.py and verificar_sitio.py follow the pages, read or write dist/ after the build, and pass --comprobar.
-- [ ] BLOCKED: Waits for PR #25 and the Pages switch. Same pull request as part (b): remove preparar-web.mjs, publicar-web.mjs, verificar_compilacion.py, pruebas_compilacion.py and all committed build output. datos/indice.js is built into dist/.
+- [ ] BLOCKED: Waits for PR #25 and the Pages switch. Same pull request as part (b): remove preparar-web.mjs, publicar-web.mjs, verificar_compilacion.py, compilacion.py and all committed build output. datos/indice.js is built into dist/.
 - [ ] BLOCKED: Waits for PR #25 and the Pages switch. Same pull request as part (b): browser tests serve dist/ under /tesis_explain/, and pages.yml builds and uploads dist/.
 - [ ] BLOCKED: Waits for PR #25 and the Pages switch. Declare servicio/ in extra_folders with its reason. Every other folder has a place after part (b).
 - [ ] BLOCKED: Waits for PR #25 and the Pages switch. Take the three voice files over 5 MB out of git: the Pages build downloads them with descargar_voz.py and checks their hashes.

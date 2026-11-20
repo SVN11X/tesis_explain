@@ -15,7 +15,7 @@ Texto de la licencia: https://creativecommons.org/licenses/by/4.0/deed.es
 
 ## Qué no cubre
 
-1. El código del sitio, es decir `js/`, `css/`, `herramientas/` y la estructura de las páginas HTML. Se rige por la licencia MIT del archivo `LICENSE`.
+1. El código del sitio, es decir `js/`, `css/`, `scripts/` y la estructura de las páginas HTML. Se rige por la licencia MIT del archivo `LICENSE`.
 2. Las imágenes de productos de terceros, que pertenecen a sus fabricantes y se usan solo para identificar los equipos: `img/fotos/rplidar-a1.*` (Slamtec), `img/fotos/router-glinet.*` (GL.iNet), `img/fotos/husky-a300.*` (Clearpath Robotics) y `img/fotos/locobot.*` (Trossen Robotics).
 3. Las fuentes tipográficas de la carpeta `fuentes/`, que se rigen por la SIL Open Font License 1.1 incluida junto a cada una.
 4. Los videos externos de YouTube y Vimeo, que se muestran desde sus plataformas y pertenecen a sus autores.

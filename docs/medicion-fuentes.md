@@ -81,7 +81,7 @@ El README dice que las fuentes de las páginas de la guía usan `font-display: o
 Dos hallazgos:
 
 - `web/src/styles/experience.css` (portada) declara las tres con `font-display: swap`, sin respaldo ajustado. El README no lo dice.
-- Quitar una familia no cambia la regla `optional`. Solo se borraría su `@font-face` y su bloque de respaldo. Quitar Archivo pasaría los títulos a Atkinson 700, que ya está cargada, y habría que revisar el CLS con `pruebas_experiencia_navegador.py`.
+- Quitar una familia no cambia la regla `optional`. Solo se borraría su `@font-face` y su bloque de respaldo. Quitar Archivo pasaría los títulos a Atkinson 700, que ya está cargada, y habría que revisar el CLS con `navegador_experiencia.py`.
 
 ## Decisión
 

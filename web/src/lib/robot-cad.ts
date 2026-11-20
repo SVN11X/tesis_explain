@@ -3,7 +3,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { PARTS, type PartId, type Robot } from './robot-three';
 
-/** El prototipo desde su CAD: modelos/robot.glb, que genera herramientas/modelo_robot.py. Cada nodo trae su grupo en el
+/** El prototipo desde su CAD: modelos/robot.glb, que genera scripts/modelo_robot.py. Cada nodo trae su grupo en el
     nombre, y el cabezal del LiDAR queda en un pivote propio para girar sobre su eje. Los materiales del archivo son
     de dos caras: las piezas del CAD no traen todas sus caras orientadas hacia afuera. */
 export async function loadRobot(url:string):Promise<Robot>{

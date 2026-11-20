@@ -1,10 +1,10 @@
 # Modelo 3D del prototipo
 
-`robot.glb` es el robot de la portada. Sale del ensamblaje del prototipo en Autodesk Fusion, exportado a STEP (`tesis_v2.stp`), y lo genera `herramientas/modelo_robot.py`:
+`robot.glb` es el robot de la portada. Sale del ensamblaje del prototipo en Autodesk Fusion, exportado a STEP (`tesis_v2.stp`), y lo genera `scripts/modelo_robot.py`:
 
 ```bash
 pip install cascadio==0.1.1 trimesh==5.2.0 numpy==2.5.3
-python3 herramientas/modelo_robot.py RUTA/tesis_v2.stp
+python3 scripts/modelo_robot.py RUTA/tesis_v2.stp
 ```
 
 El STEP pesa unos 45 MB y no va en el repositorio. El archivo web pesa unos 470 KB y tiene 39 219 triángulos. Con el mismo STEP y estas versiones, la conversión da el mismo archivo, byte a byte.
@@ -13,7 +13,7 @@ Sin el STEP se puede aplicar solo el último paso, el retoque, al `robot.glb` qu
 
 ```bash
 pip install trimesh==5.2.0 numpy==2.5.3
-python3 herramientas/modelo_robot.py --retoque
+python3 scripts/modelo_robot.py --retoque
 ```
 
 El retoque corre sobre el modelo ya comprimido, así que las dos rutas dan el mismo archivo. Un modelo ya retocado lo reconoce por su nodo `cubierta__franjas` y no lo vuelve a retocar.
@@ -38,4 +38,4 @@ La cubierta mide 0,23 m de ancho, 0,25 m de largo y 0,136 m de alto sobre el pis
 
 ## Modelos de terceros
 
-El ensamblaje incluye modelos de componentes comerciales: el RPLidar A1, el Arduino Nano V3, el adaptador de bornes para Nano de Deek-Robot, el controlador L298N y la cámara V2.1. El autor confirmó que sus licencias permiten publicarlos. Si más adelante se agrega un modelo que no se pueda publicar, se pone su nombre en `EXCLUIR`, en `herramientas/modelo_robot.py`, y se vuelve a generar el modelo, que queda sin esa pieza.
+El ensamblaje incluye modelos de componentes comerciales: el RPLidar A1, el Arduino Nano V3, el adaptador de bornes para Nano de Deek-Robot, el controlador L298N y la cámara V2.1. El autor confirmó que sus licencias permiten publicarlos. Si más adelante se agrega un modelo que no se pueda publicar, se pone su nombre en `EXCLUIR`, en `scripts/modelo_robot.py`, y se vuelve a generar el modelo, que queda sin esa pieza.
