@@ -22,7 +22,7 @@ jobs:
           python-version: '3.12'
       - name: Dependencias solo de desarrollo
         run: |
-          pip install beautifulsoup4 playwright
+          python -m pip install -r herramientas/requisitos.txt
           python -m playwright install --with-deps chromium
       - name: Datos, índice y enlaces
         run: python herramientas/verificar_sitio.py
