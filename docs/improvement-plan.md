@@ -56,6 +56,9 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 - [ ] BLOCKED: Waits for PR #25 and the Pages switch. After part (b): list the current tokens (spacing, type sizes, radii, durations, easing) in DESIGN.md from the site's CSS.
 - [ ] BLOCKED: Waits for PR #25 and the Pages switch. After part (b): record the performance budget in docs/decisions/, measured on dist/, with each page's critical path against 170 KB compressed.
 - [x] (yellow) control.html: the source list and «Mundo real» folded too (owner, 2026-11-20), PR #64.
+- [x] (green) After part (b): list the current tokens (spacing, type sizes, radii, durations, easing) in DESIGN.md from the site's CSS.
+- [x] (green) After part (b): record the performance budget in docs/decisions/, measured on dist/, with each page's critical path against 170 KB compressed.
+- [ ] BLOCKED: control.html stays at 84 % of its height because 17 interactives must stay visible. Fold its sources list and the «Mundo real» section too?
 - [x] (yellow) Summaries and folded detail on problema, navegacion, exploracion and replicar (owner approved on 2026-11-20): PRs #61, #60, #59 and #65.
 - [x] (yellow) The owner decided on 2026-11-20 that the challenge spreads: one per chapter with its own figures.
 - [x] (yellow) control.html: the source list and «Mundo real» folded too (owner, 2026-11-20). Height at 360 px: 74 % of the first-pass height.

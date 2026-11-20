@@ -41,7 +41,69 @@ Expressive. Today the site draws the highlight like a marker, shows the 3D robot
 
 ## Tokens
 
-The current values live in `css/marco.css`, `css/estilo.css` and `web/src/styles/experience.css`. Listing them here is an item of `docs/improvement-plan.md`.
+Read from the site's CSS on 2026-11-20 (`public/css/marco.css`, `public/css/estilo.css`, `src/styles/experience.css`, and the page files `evidencia.css`, `laboratorio.css`, `mapeo.css`, `movimiento.css` and `preguntas.css`, which declare no custom properties). `marco.css` loads first on every page, so its tokens are the shared base. Counts are uses of `var(--token)` across all CSS files.
+
+### Spacing
+
+- `--marco-gutter`: `clamp(22px, 4.6vw, 80px)`, side margin of the frame. It is 22px under 900px wide and 17px under 480px (`:root` overrides in `marco.css`). `estilo.css` aliases it as `--gutter`.
+- `--lectura`: `45.4em`, reading column width (7 uses).
+- There is no spacing scale. Margins, paddings and gaps are literal pixels (see the candidates below).
+
+### Type sizes
+
+`estilo.css` defines the scale. Body is `--t-base` with `line-height: 1.65`, headings use `line-height: 1.12`.
+
+| Token | Value | Uses |
+| --- | --- | --- |
+| `--t-xs` | `.8rem` | 99 |
+| `--t-sm` | `.9rem` | 107 |
+| `--t-base` | `1.0625rem` | 9 |
+| `--t-md` | `1.15rem` | 10 |
+| `--t-lg` | `1.4rem` | 6 |
+| `--t-xl` | `1.85rem` | 1 |
+| `--t-2xl` | `clamp(2.1rem, 5.2vw, 3.4rem)` | 0 |
+
+Families: `--f-display` (Archivo with its fallbacks, aliased `--f-titular` and `--f-tema`), `--f-body` (Atkinson Hyperlegible with its fallbacks), `--f-data` (IBM Plex Mono) and, in `marco.css`, `--marco-titulo` and `--marco-mono`.
+
+### Radii
+
+`--r: 2px` (138 uses), `--r-lg: 2px` (1 use) and `--r-xl: 2px` (0 uses), all in `estilo.css`. The site is square-cornered on purpose, so the three are the same value today.
+
+### Durations
+
+In `marco.css`: `--dur-1: .16s` (43 uses), `--dur-2: .28s` (31 uses) and `--dur-3: .55s` (3 uses). The home page reads them too.
+
+### Easing
+
+One token: `--curva: cubic-bezier(.2, .65, .25, 1)` in `marco.css` (36 uses).
+
+### Color
+
+By reference, not copied:
+
+- `marco.css`: the frame palette (`--paper`, `--ink`, `--muted`, `--line`, `--acid`, `--night`, `--oliva`, `--foco`, the `--marco-*` family and `--pie-fondo`), the seven part colors with their backgrounds (`--c-verde`, `--c-amarillo`, `--c-naranja`, `--c-azul`, `--c-turquesa`, `--c-violeta`, `--c-frambuesa` and `--c-*-fondo`), `--c-robot`, and the page theme pair `--tema` and `--tema-fondo`. The dark theme overrides all of them under `prefers-color-scheme: dark` and `:root[data-theme="dark"]`.
+- `estilo.css`: the guide palette (`--bg`, `--surface`, `--surface-2`, `--line-2`, `--ink-2`, `--acento*`, `--azul*`, `--verde*`, `--rojo*`, `--ambar*`, `--violeta*`, the map colors `--vacio`, `--desc`, `--obst`, `--ruta`, the plan colors `--plano*` and the series colors `--s1` to `--s4`), and the shadows `--sombra` and `--sombra-alta`.
+- `src/styles/experience.css`: about 40 home page colors named `--h-*`, many of them near duplicates of the `marco.css` and `estilo.css` colors (for example `--h-linea-2: #b4bdab` equals `--line-2`, `--h-resalte: #e0e6c9` equals `--marco-resalte`, `--h-boton-hover: #35483c` equals `--acento-hover`).
+
+### Values used often without a token
+
+Counted with a throwaway script over the 7,911 declarations in the CSS above (comments removed, each length in a shorthand counted once). It changes no CSS.
+
+| Group | Top literal values (uses) | Closest token |
+| --- | --- | --- |
+| Spacing (`margin`, `padding`, `gap`) | `10px` (158), `12px` (136), `8px` (133), `6px` (91), `14px` (81), `20px` (61), `16px` (59), `18px` (54), `4px` (53), `22px` (44), `2px` (43), `25px` (41) | none |
+| Font size | `11px` (39), `12px` (33), `13px` (33), `10px` (30), `15px` (29), `9px` (28), `.6875rem` (24), `8px` (21), `14px` (19), `16px` (16) | `--t-xs` (99) and `--t-sm` (107) exist, but sizes below them are literal |
+| Radius | `999px` (21, pills), `50%` (20, circles), `2px` (9, same as `--r`) | `--r` |
+| Duration | `.7s` (3), `.9s` (3), `1.8s` (2), `0s` (3), `160ms` (1), `260ms` (1) | `--dur-1` is `.16s`, so `160ms` repeats it |
+| Easing | `ease` (27), `linear` (2), `ease-out`, `ease-in`, `ease-in-out` and `cubic-bezier(.55, .1, .35, 1)` (1 each) | `--curva` (36) |
+
+Candidates to tokenize, in order of gain, if the owner wants them:
+
+1. A spacing scale around the six values that cover most uses: `4px`, `6px`, `8px`, `10px`, `12px`, `16px`, plus `14px`, `18px` and `20px` as the next tier. The odd steps (`10px`, `14px`, `18px`, `22px`, `25px`) show there is no scale yet.
+2. A small type step below `--t-xs`: `.6875rem` (11px) is used 24 times and the pixel sizes `9px` to `13px` about 150 times.
+3. Radius `--r-pill: 999px` and `--r-round: 50%`.
+4. `ease` in 27 places, to be replaced with `--curva` if the owner accepts the small change in feel.
+5. Home page colors `--h-*` that duplicate another token.
 
 ## First visit
 
