@@ -103,15 +103,16 @@ Las cifras y figuras del robot salen de la tesis y se citan con su sección, tab
 ├── js/sitio.js          índice lateral, secciones en el menú, citas, glosario, imágenes, videos
 │                        y carga bajo demanda de los interactivos
 ├── js/decisiones.js     comparador de decisiones del tema 1
-├── js/vis3.js           interactivos del robot y de las versiones
+├── js/gemelo.js         criterios del gemelo digital y lo que Gazebo no reproduce
+├── js/resultados.js     plano del láser y pasos estrechos
 ├── js/navegacion.js     A estrella, alcance, inflación con la huella y ventana dinámica
 ├── js/exploracion.js    simulación del plano, frontera, metas y lista negra
 ├── js/comun.js          utilidades compartidas
 ├── js/control.js        interactivos del control: PID, ley heredada, lazo, FOPDT, enjambre
-├── js/robot.js          camino de una orden hasta el motor
+├── js/robot.js          camino de una orden, arquitectura, costo, fotos y esquema de conexiones
 ├── js/control-modelo.js cálculos verificables del capítulo de control
 ├── js/movimiento-modelo.js cálculos verificables del capítulo 3
-├── js/movimiento.js     cinemática, encoder, calibración de la recta y cuadrado en dos sentidos
+├── js/movimiento.js     cinemática, encoder, calibración de la recta, cuadrado, odometría, iteración 2 y giro
 ├── css/movimiento.css   estilos exclusivos del capítulo 3
 ├── js/mapeo.js          modelos y visualizaciones del capítulo 05
 ├── js/slam-proceso.js   candidatos de cierre y colas de procesamiento ilustrativas
