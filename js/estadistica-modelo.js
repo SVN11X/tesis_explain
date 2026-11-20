@@ -92,6 +92,35 @@
     return Infinity;
   };
 
+  /* Reto de la sección «Cuánto dicen cinco repeticiones». Las cifras salen de 5 éxitos en 6 intentos (Tabla A8.4) y del
+     límite de 0,80. Vive en el modelo, sin DOM, para probarse con Node. */
+  function coma(v, d) { return v.toFixed(d).replace(".", ","); }
+  S.reto = function () {
+    var cp = S.clopperPearson(5, 6), p = S.binomialCola(5, 6, 0.5), inf = coma(cp.inf * 100, 1) + " %", sup = coma(cp.sup * 100, 1) + " %", n80 = S.exitosSinFallas(0.8);
+    return [{
+      pregunta: "Cinco de seis exploraciones fueron válidas, un 83,3 %. ¿Qué se puede afirmar de la tasa de éxito?",
+      opciones: [
+        { id: "limite", texto: "Que supera el " + inf, ok: true, porque: "El intervalo exacto al 95 % va de " + inf + " a " + sup + ", y su límite inferior es lo único que se puede afirmar con seis intentos." },
+        { id: "exacta", texto: "Que es 83,3 %", ok: false, porque: "83,3 % es lo observado en estos seis intentos. El intervalo al 95 % va de " + inf + " a " + sup + ", así que la tasa verdadera puede ser mucho menor." },
+        { id: "mitad", texto: "Que supera el 50 %", ok: false, porque: "La prueba binomial da p = " + coma(p, 6) + ", mayor que 0,05, y no basta para descartar una tasa de 50 %. El límite inferior, " + inf + ", queda bajo el 50 %." }
+      ],
+      enlace: "#sim-repeticiones", enlaceTexto: "Intervalos de confianza con los datos de la tesis"
+    }, {
+      pregunta: "¿Cuántas ejecuciones seguidas sin fallas harían falta para afirmar que la tasa supera el 80 %?",
+      opciones: [
+        { id: "seis", texto: "6", ok: false, porque: "Con seis de seis el límite inferior es " + coma(S.clopperPearson(6, 6).inf * 100, 1) + " %, lejos del 80 %. Seis de seis solo bastaría para descartar una moneda, con p = 1/64." },
+        { id: "diez", texto: "10", ok: false, porque: "Diez es el objetivo de repeticiones por condición, pero diez de diez dan un límite inferior de " + coma(S.clopperPearson(10, 10).inf * 100, 1) + " %, todavía bajo el 80 %." },
+        { id: "diecisiete", texto: String(n80), ok: true, porque: "Con " + (n80 - 1) + " éxitos seguidos el límite inferior es " + coma(S.clopperPearson(n80 - 1, n80 - 1).inf * 100, 1) + " %, y con " + n80 + " pasa a " + coma(S.clopperPearson(n80, n80).inf * 100, 1) + " %, ya sobre el 80 %." }
+      ],
+      enlace: "#cuantas-repeticiones", enlaceTexto: "¿Cuántas repeticiones harían falta?"
+    }];
+  };
+  /* Respuesta a la opción j de la pregunta i, o null si no existe. */
+  S.evaluarReto = function (i, j) {
+    var q = S.reto()[i], o = q && q.opciones[j];
+    return o ? { ok: o.ok, porque: o.porque, enlace: q.enlace, enlaceTexto: q.enlaceTexto } : null;
+  };
+
   if (typeof module !== "undefined" && module.exports) module.exports = S;
   else window.ESTADISTICA = S;
 })();
