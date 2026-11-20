@@ -1366,3 +1366,15 @@ figure.esquema .b-ampliar { position: static; margin-top: 10px; }
   .mq-p circle, .mq-p rect { transition: fill var(--dur-1), stroke var(--dur-1), fill-opacity var(--dur-1); }
   .mq-p { transition: opacity var(--dur-1); }
 }
+
+/* Retos de elegir una respuesta (U.reto, usado en mapeo y movimiento): opciones nativas, respuesta con texto y borde, sin animación */
+.mp-reto { display: grid; gap: 14px; }
+.mp-reto-q { border: 1px solid var(--line-2); border-radius: var(--r); padding: 12px; margin: 0; display: grid; gap: 8px; min-width: 0; }
+.mp-reto-q legend { font-weight: 700; font-size: var(--t-sm); padding-inline: 4px; }
+.mp-reto-q label { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 6px 10px; border: 1px solid var(--line-2); border-radius: var(--r); background: var(--surface); font-size: var(--t-sm); }
+.mp-reto-q label:has(input:checked) { border-color: var(--acento); background: var(--acento-suave); }
+.mp-reto-q input { accent-color: var(--acento); width: 20px; height: 20px; flex: none; margin: 0; }
+.mp-reto-r:empty, .mp-reto-fin:empty { display: none; }
+.mp-reto-r[data-ok="true"] { border-inline-start: 4px solid var(--verde-texto); }
+.mp-reto-r[data-ok="false"] { border-inline-start: 4px solid var(--ambar); }
+.mp-reto-r, .mp-reto-fin { background: var(--surface); border: 1px solid var(--line); padding: 12px; border-radius: var(--r); margin: 0; font-size: var(--t-sm); line-height: 1.5; }

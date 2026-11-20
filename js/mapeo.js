@@ -1016,25 +1016,5 @@
     var q = M.reto()[i], o = q && q.opciones[j];
     return o ? { ok: o.ok, porque: o.porque, enlace: q.enlace, enlaceTexto: q.enlaceTexto } : null;
   };
-  V["reto-mapeo"] = function (el) {
-    var qs = M.reto(), hechas = {};
-    el.innerHTML = '<div class="mp-reto">' + qs.map(function (q, i) {
-      return '<fieldset class="mp-reto-q"><legend>' + 'Pregunta ' + (i + 1) + '. ' + esc(q.pregunta) + '</legend>' +
-        q.opciones.map(function (o, j) { return '<label><input type="radio" name="mp-reto-' + i + '" value="' + j + '"><span>' + esc(o.texto) + '</span></label>'; }).join("") +
-        '<p class="mp-reto-r mp-status" data-reto-r="' + i + '" role="status" aria-live="polite"></p></fieldset>';
-    }).join("") + '<p class="mp-reto-fin mp-status" data-reto-fin role="status" aria-live="polite"></p></div>';
-    el.addEventListener("change", function (e) {
-      var t = e.target;
-      if (!t.matches || !t.matches('input[type="radio"]')) return;
-      var i = +t.name.replace("mp-reto-", ""), r = M.evaluarReto(i, +t.value);
-      if (!r) return;
-      var box = el.querySelector('[data-reto-r="' + i + '"]');
-      box.setAttribute("data-ok", String(r.ok));
-      box.innerHTML = '<b>' + (r.ok ? "Correcto." : "Todavía no.") + '</b> ' + esc(r.porque) + ' <a href="' + r.enlace + '">' + esc(r.enlaceTexto) + '</a>';
-      hechas[i] = r.ok;
-      var fin = el.querySelector("[data-reto-fin]"), bien = qs.filter(function (_, k) { return hechas[k]; }).length;
-      fin.textContent = Object.keys(hechas).length === qs.length ? "Reto: " + bien + " de " + qs.length + " correctas. Puedes cambiar una respuesta." : "";
-    });
-    el.estadoSim = function () { return { respondidas: hechas }; };
-  };
+  V["reto-mapeo"] = function (el) { U.reto(el, M.reto(), "mp-reto-", M.evaluarReto); };
 })();

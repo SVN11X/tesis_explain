@@ -219,6 +219,10 @@
   <p>Un sesgo se corrige calibrando. Si la odometría marca en promedio 3,63 % de más, basta dividir lo que mide por 1,0363, lo que en la práctica se hace ajustando el radio de rueda o los flancos por vuelta que usa el software. La dispersión no se quita así, porque cambia de una vez a otra.</p>
   <p>La tesis no aplicó esta corrección, y hay una razón para tomarla con cuidado. El factor sale de las mismas cinco pruebas con que se evalúa, así que en ellas siempre deja el error medio en cero. Para saber si sirve hay que medir repeticiones nuevas con el factor ya puesto, que es lo que muestra la simulación. Y como la causa del sesgo no se determinó, convendría comprobarlo también en recorridos distintos de una recta.</p>
   </details>
+  <div class="widget" id="reto-calibracion">
+    <div class="widget-cab"><h3 id="reto">Reto: ¿qué corrige la calibración?</h3><span class="tipo inter">Reto</span><p>Dos preguntas con los números de la sección. Elige una respuesta y verás al instante si acertaste y por qué.</p></div>
+    <div class="vis" data-vis="reto-movimiento"><p class="vis-fallback">1. Al dividir por 1,0363, el error medio de 3,63 %, ¿pasa a 0 %, se queda en 3,63 % o baja hasta 0,44 %? 2. Después de calibrar, ¿las cinco rectas dan el mismo error? Necesita JavaScript para responder con respuesta inmediata.</p><details><summary>Ver las respuestas</summary><p>1. Pasa a 0 %: el factor sale de ese mismo error medio. 2. No: siguen separadas, de −0,72 a 0,37 %. Calibrar quita el sesgo, no la dispersión.</p></details></div>
+  </div>
 </section>
 
 <section>
