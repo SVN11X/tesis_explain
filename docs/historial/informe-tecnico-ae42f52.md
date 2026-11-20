@@ -25,7 +25,7 @@ Base: `ae42f525771c23e8581ddda6d968489a9fba44c4` de `main`. Rama local: `revisio
 | Enlaces a documentos | `recursos.html`, `laboratorio.html`, `datos/academico.json` |
 | Estado académico | `datos/academico.json`, `datos/proyecto.js`, `recursos.html` |
 | Verificación | `.github/workflows/verificar.yml`, `herramientas/pruebas_experiencia_navegador.py`, `herramientas/pruebas_navegador.py` |
-| Documentación | `README.md`, `docs/decisiones.md`, `docs/informe-academico.md`, `docs/auditoria-ae42f52.md` |
+| Documentación | `README.md`, `docs/decisiones.md`, `docs/informe-academico.md`, `docs/historial/auditoria-ae42f52.md` |
 
 ## Pruebas ejecutadas
 

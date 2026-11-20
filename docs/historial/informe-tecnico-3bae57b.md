@@ -29,7 +29,7 @@ Base: `3bae57b72f8bd1c7b85a2f48e26038b6993cf7ac` de `main`. Los commits están e
 | Redacción | `control.html`, `mapeo.html`, `laboratorio.html`, `movimiento.html`, `navegacion.html`, `problema.html`, `recursos.html` |
 | Generados | `datos/indice.js`, `datos/proyecto.js`, `datos/bibliografia.bib`, `recursos.html`, `img/diagramas/candidatos-cierre.svg` |
 | Verificación | las ocho suites de navegador, `diagramas_mapeo.js`, `diagramas_control.js`, `.github/workflows/verificar.yml` |
-| Documentación | `README.md`, `docs/decisiones.md`, `docs/auditoria-3bae57b.md`, este informe, `datos/academico.json` |
+| Documentación | `README.md`, `docs/decisiones.md`, `docs/historial/auditoria-3bae57b.md`, este informe, `datos/academico.json` |
 
 ## Pruebas ejecutadas
 
