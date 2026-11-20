@@ -39,7 +39,7 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 - [x] (yellow) control.html: an interactive inside the first 4 screens at 360 px (first video now at screen 7.0, comparison slider at 33.4; revision-atencion 5).
 - [x] (yellow) mapeo.html (7,116 words, 10 % folded): the same treatment and the same test, with an interactive inside the first 4 screens at 360 px.
 - [ ] (yellow) The same for robot, movimiento and resultados, one page per pull request. Then the owner reviews before problema, navegacion, exploracion and replicar (done: robot, movimiento)
-- [ ] (yellow) A short challenge with instant feedback in one example chapter, using data the page already shows. The owner decides whether it spreads.
+- [x] (yellow) A short challenge with instant feedback in one example chapter, using data the page already shows. The owner decides whether it spreads. (Done in mapeo.html, «Reto: ¿cuánto avanzó el robot?», after the two-scans section. It does not spread to other chapters until the owner decides.)
 - [ ] (yellow) A step-by-step diagram or interactive for lecciones, then mundo-real, which have none today. One page per pull request.
 - [x] (yellow) Playful states: one drawn SVG robot for search without results, as the example, with its reason recorded for a decorative illustration. Each state says what happened and the next action.
 - [x] (green) Motion rich: record the purpose of each animation in docs/decisions/, and give a pause control to anything that moves for more than 5 s.
