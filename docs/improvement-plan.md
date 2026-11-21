@@ -17,16 +17,14 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 - [x] (green) In the same pull request: a draft docs/how-it-works.md from the confirmed understanding, for the owner to confirm.
 - [x] (done) Owner merged PR #25 (workflow). pages.yml uploads today's committed site from an explicit file list, without a build. docs/, scripts/, servicio/ and README.md stop being served.
 - [x] (done 2026-11-20) Merge pages.yml and switch Settings, Pages, Source to GitHub Actions in the same minute (owner). Every later structure item waits for this.
-- [x] (yellow) Part (a): herramientas/ moved to scripts/, its 19 pruebas_* and 2 *.test.mjs plus the shared test server moved to tests/ (browser tests are now tests/navegador*.py). Imports, CI, package.json and README.md fixed, generated headers regenerated.
+- [x] (yellow) Part (a): herramientas/ moved to scripts/, its 19 pruebas_* and 2 *.test.mjs plus the shared test server moved to tests/ (browser tests are now tests/navegador*.py). Imports, CI, package.json and README.md fixed.
 - [x] (yellow) Part (b), one pull request: guide pages, css, js, img, fuentes, datos, descargas, modelos and voz to public/ with the same paths, and web/src to src/ with Astro defaults and dist/.
 - [x] (yellow) Same pull request as part (b): datos.py, descarga_preguntas.py, imagen_social.py, indice.py and verificar_sitio.py follow the pages, read or write dist/ after the build, and pass --comprobar.
 - [x] (yellow) Same pull request as part (b): remove preparar-web.mjs, publicar-web.mjs, verificar_compilacion.py, compilacion.py and all committed build output. datos/indice.js is built into dist/.
 - [x] (yellow) Same pull request as part (b): browser tests serve dist/ under /tesis_explain/, and pages.yml builds and uploads dist/.
-- [ ] (yellow, workflow) Declare servicio/ in extra_folders with its reason. Every other folder has a place after part (b).
-- [ ] (yellow, workflow) Once the check can pass: .standard.yml (three_d core, github.description), AGENTS.md, CLAUDE.md and standard.yml with gitleaks. The commit guard blocks .standard.yml before that.
-- [ ] BLOCKED: Waits for PR #25 and the Pages switch. Declare servicio/ in extra_folders with its reason. Every other folder has a place after part (b).
+- [x] (yellow, workflow) Declare servicio/ in extra_folders with its reason. Every other folder has a place after part (b).
+- [x] (yellow, workflow) Once the check can pass: .standard.yml (three_d core, github.description), AGENTS.md, CLAUDE.md and standard.yml with gitleaks. The commit guard blocks .standard.yml before that.
 - [x] (yellow) Take the three voice files over 5 MB out of git: the Pages build downloads them with descargar_voz.py and checks their hashes.
-- [ ] BLOCKED: Waits for PR #25 and the Pages switch. Once the check can pass: .standard.yml (three_d core, github.description), AGENTS.md, CLAUDE.md and standard.yml with gitleaks. The commit guard blocks .standard.yml before that.
 
 ## Thesis content
 
@@ -49,7 +47,7 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 - [x] (green) Review palette and motion for what distracts or tires people with attention difficulties, and check the home page's first screen at 360 and 1280 px. Report with screenshots, change nothing.
 - [x] (yellow) Home first screen: primary button «Empieza la guía» to the guide and secondary «Juega con el robot 3D» to the viewer, with the 3D robot fully visible at 360 px (docs/revision-atencion.md 1 and 2).
 - [x] (yellow) Home first screen shows the robot exploring and the map growing, reusing img/mapa-crece.mp4 or the existing LiDAR scene, so a first visit sees what the robot does (revision-atencion 3).
-- [x] (green) Home 3D viewer: only the active tab keeps its topic color, the others stay neutral (revision-atencion 8). Confirm that the .scan-loader spinner hides after loading (the spinner belongs to another pull request, not touched here).
+- [x] (green) Home 3D viewer: only the active tab keeps its topic color, the others stay neutral (revision-atencion 8). Confirm that the .scan-loader spinner hides after loading (spinner left to another pull request).
 - [x] (green) Measure the contrast of the small gray uppercase labels on the home page at 360 px and fix anything under 4.5:1.
 - [x] (green) Home page fonts use font-display: swap without metric-matched fallbacks, unlike the guide pages. Align them with the guide pages (docs/medicion-fuentes.md).
 - [x] (green) Measure the weight and use of Archivo, Atkinson Hyperlegible and IBM Plex Mono, and record the font decision in DESIGN.md.
@@ -60,9 +58,6 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 - [x] (green) After part (b): record the performance budget in docs/decisions/, measured on dist/, with each page's critical path against 170 KB compressed.
 - [ ] BLOCKED: control.html stays at 84 % of its height because 17 interactives must stay visible. Fold its sources list and the «Mundo real» section too?
 - [x] (yellow) Summaries and folded detail on problema, navegacion, exploracion and replicar (owner approved on 2026-11-20): PRs #61, #60, #59 and #65.
-- [x] (yellow) The owner decided on 2026-11-20 that the challenge spreads: one per chapter with its own figures.
-- [x] (yellow) control.html: the source list and «Mundo real» folded too (owner, 2026-11-20). Height at 360 px: 74 % of the first-pass height.
-- [x] (yellow) The owner approved on 2026-11-20 continuing the summaries to problema, navegacion, exploracion and replicar.
 - [x] (yellow) The owner decided on 2026-11-20 that the challenge spreads: one per chapter with its own figures.
 - [x] (yellow) One short challenge per chapter on the shared U.reto (owner, 2026-11-20): mapeo, movimiento, control, robot, resultados, navegacion and exploracion.
 
