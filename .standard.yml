@@ -1,0 +1,38 @@
+# Identity of this repository for the standard.
+# After editing, run: python .standards/scripts/standard.py agents .
+standard: SVN11X/standards@v1
+owner: SVN11X
+name: tesis_explain
+profile: web
+setup: done
+license: MIT
+content_language: es
+github:
+  description: Guía abierta e interactiva de una tesis sobre un robot móvil que explora interiores y dibuja su plano con ROS
+    2.
+  homepage: https://svn11x.github.io/tesis_explain/
+  topics:
+  - web
+  - github-pages
+options:
+  experience: interactive-data
+  hosting: github-pages
+  build: npm
+  motion: rich
+  three_d: core
+  flows: single
+  theme: both
+parts: {}
+part_options: {}
+extra_folders:
+  servicio: Cloudflare Worker for the oral-defense AI correction, deployed apart from the site.
+skills:
+- repo-improve
+- code-review
+- tool-radar
+- web-improve
+- antislop
+- antislop-ui
+- antislop-human
+- antislop-layoutmobile
+- antislop-copywriting
