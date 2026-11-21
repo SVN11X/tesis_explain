@@ -238,12 +238,12 @@ def probar_buscador(nav):
       const B = SITIO.busqueda, por = {};
       INDICE.forEach(e => { const k = e.u.split('#')[0]; por[k] = (por[k] || '') + ' ' + B.norm(e.t) + ' ' + B.norm(e.x); });
       const out = [];
-      for (const pg of paginas) {
-        const html = await (await fetch(pg)).text();
+      for (const pg of paginas) for (const url of (pg === 'bibliografia.html' ? [pg, 'datos/bibliografia-referencias.html'] : [pg])) {
+        const html = await (await fetch(url)).text();
         const d = new DOMParser().parseFromString(html, 'text/html');
         d.querySelectorAll('script, style, .fuentes-tema, nav, .lateral, .skip-link, .site-header, .academic-note, .site-footer, .search-dialog, [hidden]').forEach(x => x.remove());
         // de la ficha de una referencia el índice solo lleva los datos clave, que se comprueban aparte
-        d.querySelectorAll('.bib-ficha').forEach(x => x.remove());
+        d.querySelectorAll('.bib-ficha, .bib-lite').forEach(x => x.remove());
         d.querySelectorAll('main p, main li, main td, main th, main figcaption, main dd').forEach(x => {
           const t = B.norm(x.textContent).replace(/necesita javascript\\.?/g, '').replace(/\\s+/g, '');
           if (t.length < 20) return;

@@ -82,6 +82,12 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 
 - [x] (yellow) GitHub settings: About description, website and topics, wiki and projects off, delete branches on merge, squash only, Dependabot security updates. The owner applies them with standard.py github . --apply.
 
+## Performance
+
+- [x] (green) bibliografia.html: render-blocking critical path under 170 KB compressed (238 KB in 0007).
+- [ ] (yellow) Pages over 170 KB before load (preguntas, control, mapeo, lecciones and others): defer what is not needed above the fold.
+- [ ] (yellow) Slow 3G: LCP 5.8 to 7.4 s on every page. Find the shared cause (fonts, the frame, the search index) and fix it once.
+
 ## Owner
 
 - [ ] BLOCKED: Human validation of the oral-defense correction: 120 answers labeled by two reviewers and 5 students, as docs/defensa/README.md describes.

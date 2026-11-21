@@ -120,6 +120,14 @@ def estatico():
     check(len(grupos) == 11 and len(refs) == 72 and nums == list(range(1, 73)),
           'la bibliografía tiene 72 referencias numeradas como en la tesis, en 11 grupos', (len(grupos), len(refs)))
     ids = {t['id'] for t in bp.select('[id]')}
+    # el detalle de las referencias va en un archivo aparte que la página pide al abrirlas; la página lleva el enlace
+    cp = BeautifulSoup((DIST / 'datos' / 'bibliografia-referencias.html').read_text(encoding='utf-8'), 'html.parser')
+    refs_pag = refs
+    refs = cp.select('.bib-grupo ol.bib > li > details.bib-ref[id^="r-"]')
+    check(len(refs) == 72 and [d['id'] for d in refs] == [d['id'] for d in refs_pag]
+          and all(d.select_one('.bib-detalle[data-ligero] a[href="datos/bibliografia-referencias.html#%s"]' % d['id']) for d in refs_pag),
+          'la página lleva las 72 referencias en una línea con un enlace a su detalle, que está en datos/bibliografia-referencias.html', len(refs))
+    check(len(bp.select('.bib-ficha')) == 0 and len(bp.select('.bib-cita-tesis')) == 0, 'la página no repite el detalle de las referencias')
 
     def resumida(d):
         s = d.find('summary', recursive=False)
@@ -139,13 +147,13 @@ def estatico():
             return False
         titulos = [h.get_text(strip=True) for h in det.select(':scope > .bib-bloque > h3')]
         filas = [dt.get_text(strip=True) for dt in det.select('.bib-ficha dl.bib-dl > div > dt')]
-        rel = det.select('.bib-relacionadas li a[href^="#r-"]')
+        rel = det.select('.bib-relacionadas li a[href^="bibliografia.html#r-"]')
         n = sum(palabras(det.select_one(c)) for c in ('.bib-trata', '.bib-relacion', '.bib-relacionadas'))
         return bool(titulos == bloques and all(f in filas for f in filas_fijas)
                     and ('Título original' in filas or 'Título' in filas) and ('Autoría' in filas or 'Edición a cargo de' in filas)
                     and len(det.select('.bib-trata p')) >= 2 and len(det.select('.bib-trata > p')) <= 2
                     and 'En la tesis:' in det.select_one('.bib-donde').get_text() and det.select_one('.bib-diferencia')
-                    and rel and all(a['href'][1:] in ids for a in rel)
+                    and rel and all(a['href'].split('#')[1] in ids for a in rel)
                     and det.select_one('.bib-cita-tesis[data-clave] .bib-cita-texto') and 300 <= n <= 700)
     check(not [d['id'] for d in refs if not resumida(d)],
           'cada referencia se resume en una línea con su autor, su tipo y de qué trata', [d['id'] for d in refs if not resumida(d)])
@@ -156,7 +164,7 @@ def estatico():
     check(all(g.find('h2', id=True) and len(g.select('.bib-desc > p:not(.bib-tema)')) >= 2 and g.select_one('details.detalle > summary')
               for g in grupos),
           'cada grupo tiene título con ancla, una explicación de al menos dos párrafos y la lista plegable')
-    textos = ' '.join(x.get_text(' ') for x in bp.select('.bib-desc, details.bib-ref'))
+    textos = ' '.join(x.get_text(' ') for x in bp.select('.bib-desc') + cp.select('details.bib-ref'))
     check(';' not in textos and not re.search(r'\s[-–—]\s|–|—', textos),
           'las explicaciones, las fichas y las citas no usan punto y coma ni guiones como separadores')
     bibtex = (DIST / 'datos' / 'bibliografia.bib').read_text(encoding='utf-8')
@@ -394,6 +402,8 @@ def bibliografia(nav):
     # un enlace antiguo a Recursos llega a la referencia en la página nueva
     p.goto(BASE + '/recursos.html#r-hess2016', wait_until='load')
     p.wait_for_url('**/bibliografia.html#r-hess2016', timeout=5000)
+    # al abrir la referencia, la página pide el detalle de todas y lo pone en su lugar
+    p.wait_for_function("!document.querySelector('.bib-detalle[data-ligero]') && document.querySelector('#r-hess2016 .bib-ficha')", timeout=5000)
     p.wait_for_timeout(500)
     r = p.evaluate("""() => { const d = document.getElementById('r-hess2016'), r = d.getBoundingClientRect();
       return { ref: d.open, grupo: d.closest('details.detalle').open, arriba: r.top, alto: innerHeight,
@@ -463,6 +473,7 @@ def bibliografia(nav):
     ctx.grant_permissions(['clipboard-read', 'clipboard-write'], origin=BASE)
     p = ctx.new_page()
     p.goto(BASE + '/bibliografia.html#r-shi1998', wait_until='load')
+    p.wait_for_function("!document.querySelector('.bib-detalle[data-ligero]')", timeout=5000)
     p.wait_for_timeout(400)
     r = p.evaluate("""() => { const f = document.querySelector('#r-shi1998 .bib-dl > div'), dt = f.querySelector('dt').getBoundingClientRect(),
       dd = f.querySelector('dd').getBoundingClientRect(); return { columnas: dd.left > dt.right - 1 && Math.abs(dd.top - dt.top) < 4 }; }""")
