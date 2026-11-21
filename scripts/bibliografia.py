@@ -31,6 +31,10 @@ FICHA_OBLIGATORIOS = ('titulo', 'autores', 'fecha', 'medio', 'idioma', 'acceso',
 MIN_PALABRAS, MAX_PALABRAS = 300, 600
 # Solo durante la redacción: BIB_TRANSICION=1 admite entradas marcadas «borrador» con el formato anterior.
 TRANSICION = os.environ.get('BIB_TRANSICION') == '1'
+PAGINA = 'bibliografia.html'
+# El detalle de las 72 referencias pesa 112 KB comprimidos y no se ve al abrir la página. Va aparte, en este archivo, y
+# la página lo pide al abrir una referencia, al filtrar o en un rato libre. Sin JavaScript, cada referencia enlaza a él.
+COMPLETO = 'datos/bibliografia-referencias.html'
 ENTIDAD = '='   # un autor que empieza con = es una institución: «=Open Robotics»
 
 
@@ -185,7 +189,7 @@ class Bibliografia:
         for m in re.finditer(r'\{(r-[a-z0-9-]+)(?:\|([^}]*))?\}', texto):
             partes.append(esc(texto[pos:m.start()]))
             etiqueta = m.group(2) if m.group(2) else self.refs[m.group(1)]['autor']
-            partes.append('<a href="#%s">%s</a>' % (m.group(1), esc(etiqueta)))
+            partes.append('<a href="%s#%s">%s</a>' % (PAGINA, m.group(1), esc(etiqueta)))
             pos = m.end()
         partes.append(esc(texto[pos:]))
         return ''.join(partes)
@@ -313,8 +317,8 @@ class Bibliografia:
         items = []
         for x in r['relacionadas']:
             o = self.refs[x['id']]
-            items.append('<li><a href="#%s"><span class="bib-rel-n">%d</span>%s</a>. %s</li>'
-                         % (x['id'], o['n'], esc(o['autor']), self.enlazar(x['texto'])))
+            items.append('<li><a href="%s#%s"><span class="bib-rel-n">%d</span>%s</a>. %s</li>'
+                         % (PAGINA, x['id'], o['n'], esc(o['autor']), self.enlazar(x['texto'])))
         return '<ul class="bib-rel">' + ''.join(items) + '</ul>'
 
     def cita_html(self, rid, r):
@@ -336,18 +340,23 @@ class Bibliografia:
                 self.bloque('bib-cita', 'Cita', '<p class="bib-cita-tesis" data-clave="%s"><b>Cómo la cita la tesis.</b> '
                             '<span class="bib-cita-texto">%s</span></p>' % (esc(self.clave(rid)), r['cita'])))
 
-    def ref_html(self, rid):
+    def ref_html(self, rid, ligera=False):
+        """ligera: solo la línea de resumen y un enlace al detalle, que está en COMPLETO."""
         r = self.refs[rid]
-        cuerpo = self.borrador_html(rid, r) if r.get('borrador') else (
-            self.bloque('bib-ficha', 'Ficha', self.ficha_html(r)) +
-            self.bloque('bib-trata', 'De qué trata', self.trata_html(r)) +
-            self.bloque('bib-relacion', 'Relación con la tesis', self.relacion_html(r)) +
-            self.bloque('bib-relacionadas', 'Referencias relacionadas', self.relacionadas_html(r)) +
-            self.bloque('bib-cita', 'Cita', self.cita_html(rid, r)))
+        if ligera:
+            cuerpo = ('<p class="bib-lite"><a href="%s#%s">Leer el detalle de esta referencia</a>. '
+                      'Con JavaScript se abre aquí mismo.</p>' % (COMPLETO, rid))
+        else:
+            cuerpo = self.borrador_html(rid, r) if r.get('borrador') else (
+                self.bloque('bib-ficha', 'Ficha', self.ficha_html(r)) +
+                self.bloque('bib-trata', 'De qué trata', self.trata_html(r)) +
+                self.bloque('bib-relacion', 'Relación con la tesis', self.relacion_html(r)) +
+                self.bloque('bib-relacionadas', 'Referencias relacionadas', self.relacionadas_html(r)) +
+                self.bloque('bib-cita', 'Cita', self.cita_html(rid, r)))
         return ('<li><details class="bib-ref" id="%s"><summary><span class="bib-num"><span class="sr">Referencia </span>%d</span>'
                 '<span class="bib-linea"><span class="bib-autor">%s</span> <span class="tipo-ref">%s</span> '
-                '<span class="bib-resumen">%s</span></span></summary>\n<div class="bib-detalle">'
-                % (rid, r['n'], esc(r['autor']), esc(r['tipo']), esc(r['resumen'])) + cuerpo +
+                '<span class="bib-resumen">%s</span></span></summary>\n<div class="bib-detalle"%s>'
+                % (rid, r['n'], esc(r['autor']), esc(r['tipo']), esc(r['resumen']), ' data-ligero' if ligera else '') + cuerpo +
                 '</div></details></li>')
 
     def mapa_html(self, prefijo=''):
@@ -368,9 +377,24 @@ class Bibliografia:
                 '<details class="detalle"><summary>Ver %s</summary>\n<ol class="bib">\n%s\n</ol>\n</details></section>'
                 % (g['id'], g['id'], esc(g['titulo']), desc, self.destino(g['tema']),
                    'la referencia' if n == 1 else 'las %d referencias' % n,
-                   '\n'.join(self.ref_html(r) for r in g['referencias'])))
+                   '\n'.join(self.ref_html(r, True) for r in g['referencias'])))
         return ('<!-- BIBLIOGRAFIA: generado por scripts/datos.py desde datos/bibliografia.json -->\n' +
                 '\n'.join(secciones) + '\n<!-- FIN BIBLIOGRAFIA -->')
+
+    def completo(self):
+        """Documento COMPLETO: el detalle de cada referencia, sin la explicación de los grupos. Lo lee la página
+        con JavaScript, el buscador al construir su índice y, sin JavaScript, el lector que sigue el enlace de una referencia."""
+        secciones = ['<section class="bib-grupo"><h2 id="%s">%s</h2>\n<ol class="bib">\n%s\n</ol></section>'
+                     % (g['id'], esc(g['titulo']), '\n'.join(self.ref_html(r) for r in g['referencias'])) for g in self.grupos]
+        return ('<!doctype html>\n<html lang="es">\n<head>\n<meta charset="utf-8">\n'
+                '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+                '<title>Bibliografía de la tesis, detalle de las referencias</title>\n'
+                '<meta name="robots" content="noindex">\n<meta name="color-scheme" content="light dark">\n'
+                '<base href="../">\n<link rel="stylesheet" href="css/marco.css">\n<link rel="stylesheet" href="css/estilo.css">\n'
+                '</head>\n<body>\n<main id="contenido">\n<h1>Bibliografía de la tesis, detalle de las referencias</h1>\n'
+                '<p class="bib-lite">Este archivo reúne el detalle de las %d referencias. La <a href="%s">página de la bibliografía</a> '
+                'lo muestra con su filtro y sus botones para copiar.</p>\n%s\n</main>\n</body>\n</html>\n'
+                % (len(self.refs), PAGINA, '\n'.join(secciones)))
 
     def mapa_pagina(self):
         return ('<!-- BIBLIOGRAFIA MAPA: generado por scripts/datos.py desde datos/bibliografia.json -->\n' +

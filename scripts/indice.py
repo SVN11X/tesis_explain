@@ -121,7 +121,9 @@ def generar():
                 if dt and dd:
                     ent.append(dict(u=url + '#' + g['id'], t=limpio(dt.get_text(' ')), p='Glosario', x=limpio(dd.get_text(' '))))
         if pid == 'bibliografia':
-            for d in s.select('details.bib-ref[id]'):
+            # el detalle de las referencias está en un archivo aparte, que la página pide al abrirlas
+            completo = BeautifulSoup(open(REPO + 'datos/bibliografia-referencias.html', encoding='utf-8').read(), 'html.parser')
+            for d in completo.select('details.bib-ref[id]'):
                 # una entrada por referencia, para que la búsqueda lleve a ella abierta
                 autor = d.select_one('.bib-autor')
                 if autor:

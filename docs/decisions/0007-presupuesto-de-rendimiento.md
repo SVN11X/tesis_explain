@@ -34,7 +34,7 @@ Bytes are from the Fast 3G run. Columns: render-blocking KB, critical path KB, o
 | Page | Blocking | Critical | Over 170 | After load | Total | LCP | CLS | Load | Slow LCP | Slow load |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `index` | 125.9 | 139.1 | no | 224.4 | 619.0 | 1864 | 0 | 2807 | 5860 | 7870 |
-| `bibliografia` | 237.8 | 312.2 | yes | 0.0 | 312.2 | 2244 | 0 | 2559 | 7060 | 9707 |
+| `bibliografia` | 135.2 | 210.0 | yes | 0.0 | 210.0 | 2248 | – | 2604 | – | – |
 | `control` | 150.9 | 251.4 | yes | 0.0 | 272.9 | 2308 | 0 | 3042 | 6800 | 10471 |
 | `exploracion` | 133.6 | 223.7 | yes | 0.0 | 251.6 | 2380 | 0 | 2784 | 6944 | 9878 |
 | `gemelo` | 131.4 | 205.7 | yes | 0.0 | 406.6 | 2296 | 0 | 2772 | 7144 | 16113 |
@@ -51,6 +51,8 @@ Bytes are from the Fast 3G run. Columns: render-blocking KB, critical path KB, o
 | `replicar` | 133.6 | 223.7 | yes | 0.0 | 256.4 | 2276 | 0.0036 | 3586 | 7048 | 14080 |
 | `resultados` | 137.1 | 230.5 | yes | 0.0 | 272.5 | 2176 | 0 | 3014 | 6656 | 10779 |
 | `robot` | 137.7 | 227.8 | yes | 0.0 | 247.2 | 2428 | 0 | 3065 | 7096 | 11041 |
+
+Update 2026-11-20 (row `bibliografia`): the detail of the 72 references moved out of `bibliografia.html` into `datos/bibliografia-referencias.html`, which the page requests when a reference is opened, when the filter is used and, on a fast connection, when the browser is idle after `load`. The page went from 117.2 to 14.7 KB compressed. Same method, one Fast 3G run. The old row was 237.8 blocking, 312.2 critical, LCP 2244 and load 2559. The dashes mean CLS and Slow 3G were not measured again. The page now meets the render-blocking count but not yet the critical path count (210.0 KB), because of the fonts (124.6 KB, five files) and the shared scripts.
 
 ### Pages over budget
 

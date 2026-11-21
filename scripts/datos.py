@@ -85,7 +85,7 @@ detalle = ('<!-- ESTADO DETALLE: generado por scripts/datos.py desde datos/acade
 # contenido de public/bibliografia.html, la introducción de recursos.html y datos/bibliografia.bib. Los grupos
 # siguen los temas de la guía, y cada referencia enlaza las secciones de la guía donde se explica.
 sys.path.insert(0, str(ROOT / 'scripts'))
-from bibliografia import Bibliografia, fecha_texto  # noqa: E402
+from bibliografia import Bibliografia, COMPLETO, fecha_texto  # noqa: E402
 import marco  # noqa: E402
 TEMAS = ['problema', 'robot', 'movimiento', 'control', 'mapeo', 'navegacion', 'exploracion', 'gemelo', 'resultados', 'replicar']
 EXTRAS = {'mundo-real': 'En el mundo real', 'lecciones': 'Lecciones de ingeniería'}
@@ -118,6 +118,7 @@ bibliografia = bib.pagina()
 bibliografia_mapa = bib.mapa_pagina()
 bibliografia_resumen = bib.resumen()
 bibliografia_traslado = bib.traslado()
+write(PUB / COMPLETO, bib.completo())
 write(PUB / 'datos/bibliografia.bib', bib.bibtex(fecha_texto(academic['ultima_actualizacion_sitio'])))
 
 for path in sorted(PUB.glob('*.html')):

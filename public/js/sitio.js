@@ -670,8 +670,19 @@
     /* la normalización es la del buscador, que js/marco.js deja en SITIO.busqueda */
     var B = SITIO.busqueda;
     function preparar() { if (!textos) textos = o.items.map(function (d) { return B.norm(d.textContent); }); }
-    input.addEventListener("focus", preparar);
+    /* o.cargar trae, la primera vez, el texto que la lista no lleva en la página. El filtro espera a tenerlo. */
+    var listo = !o.cargar;
+    function traer() {
+      if (listo) return Promise.resolve();
+      return o.cargar().then(function () { listo = true; textos = null; });
+    }
+    input.addEventListener("focus", function () { traer().then(preparar, function () {}); });
     input.addEventListener("input", function () {
+      if (listo) return filtrar();
+      estado.textContent = "Cargando el texto de las referencias…";
+      traer().then(filtrar, function () { estado.textContent = "No se pudo cargar el texto de las referencias. Prueba con el buscador del sitio."; });
+    });
+    function filtrar() {
       preparar();
       var ps = B.tokens(input.value), n = 0;
       o.items.forEach(function (d, i) {
@@ -680,7 +691,7 @@
       });
       if (o.alFiltrar) o.alFiltrar(ps.length > 0);
       estado.textContent = !ps.length ? "" : (n ? n + " " + (n === 1 ? o.uno : o.varios) : o.ninguno);
-    });
+    }
   }
   function glosario() {
     var dl = document.querySelector("dl.glosario");
@@ -695,7 +706,50 @@
     var grupos = [].slice.call(document.querySelectorAll(".bib-grupo"));
     if (!grupos.length) return;
     var antes = null;
-    filtroLista({ antes: grupos[0], id: "b-filtro", etiqueta: "Filtrar la bibliografía", ejemplo: "Por ejemplo: Nav2, PSO o estadística",
+    var cargado = null;
+    /* Cada referencia llega con su línea de resumen. Su detalle está en datos/bibliografia-referencias.html y se
+       pide una sola vez: al abrir una referencia, al usar el filtro o, en una conexión buena, en un rato libre
+       (así también se imprime completa). Cambia solo el contenido de cada detalle: la referencia, su estado
+       abierto o cerrado y su ancla siguen siendo los mismos. */
+    var puesto = false;
+    function poner(t) {
+      if (puesto) return;
+      puesto = true;
+      var doc = new DOMParser().parseFromString(t, "text/html");
+      document.querySelectorAll("details.bib-ref").forEach(function (d) {
+        var ligero = d.querySelector(".bib-detalle[data-ligero]"), full = doc.getElementById(d.id);
+        if (!ligero || !full) return;
+        ligero.replaceWith(document.importNode(full.querySelector(".bib-detalle"), true));
+      });
+      copiarCitas();
+    }
+    function cargarDetalle() {
+      if (cargado) return cargado;
+      cargado = fetch("datos/bibliografia-referencias.html").then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.text(); })
+        .then(poner, function (e) { cargado = null; throw e; });
+      return cargado;
+    }
+    document.addEventListener("toggle", function (e) {
+      var d = e.target;
+      if (d.open && d.matches && d.matches("details.bib-ref") && d.querySelector(".bib-detalle[data-ligero]")) cargarDetalle().catch(function () {});
+    }, true);
+    var con = navigator.connection || {};
+    if (!con.saveData && (!con.effectiveType || con.effectiveType === "4g")) {
+      var libre = window.requestIdleCallback || function (f) { return setTimeout(f, 2500); };
+      window.addEventListener("load", function () { libre(function () { cargarDetalle().catch(function () {}); }); }, { once: true });
+    }
+    /* Al imprimir no se puede esperar una respuesta: si el detalle aún no llegó, se pide en forma síncrona, solo aquí,
+       para que la hoja salga completa. Este oyente va antes que el que abre todos los plegables. */
+    window.addEventListener("beforeprint", function () {
+      if (puesto) return;
+      try {
+        var x = new XMLHttpRequest();
+        x.open("GET", "datos/bibliografia-referencias.html", false);
+        x.send();
+        if (x.status === 200) poner(x.responseText);
+      } catch (e) {}
+    });
+    filtroLista({ antes: grupos[0], id: "b-filtro", cargar: cargarDetalle, etiqueta: "Filtrar la bibliografía", ejemplo: "Por ejemplo: Nav2, PSO o estadística",
       items: [].slice.call(document.querySelectorAll(".bib-grupo ol.bib > li")),
       uno: "referencia coincide.", varios: "referencias coinciden.", ninguno: "Ninguna referencia coincide. Prueba con el buscador del sitio.",
       alFiltrar: function (activo) {
@@ -714,7 +768,9 @@
      una sola vez, al presionar el primer botón, y de él se toma solo la entrada de esa referencia. Sin
      JavaScript la cita se puede seleccionar a mano y el archivo se descarga desde «Descargar y citar». */
   function copiarCitas() {
-    var citas = [].slice.call(document.querySelectorAll(".bib-cita-tesis[data-clave]"));
+    var citas = [].slice.call(document.querySelectorAll(".bib-cita-tesis[data-clave]")).filter(function (p) {
+      return !(p.nextElementSibling && p.nextElementSibling.classList.contains("bib-copiar"));
+    });
     if (!citas.length) return;
     var bib = null, pedido = null;
     function pedirBib() {
