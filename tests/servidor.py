@@ -12,7 +12,7 @@ no chocan. Las pruebas deben abrir http://127.0.0.1:<puerto> y no localhost, que
 resolverse primero a ::1, donde este servidor no escucha. El socket ya escucha al terminar el
 constructor, de modo que no hace falta esperar a que arranque.
 
-iniciar() sirve dist/ bajo /tesis_explain/, igual que GitHub Pages: lo de fuera del prefijo da 404. Hay que
+Importarlo parchea Page.goto (ver _esperar_scripts). iniciar() sirve dist/ bajo /tesis_explain/, igual que GitHub Pages: lo de fuera del prefijo da 404. Hay que
 compilar antes con npm run build.
 """
 import sys
@@ -60,3 +60,27 @@ def iniciar():
     servidor = ServidorEstable(('127.0.0.1', 0), partial(ManejadorDist, directory=str(DIST)))
     Thread(target=servidor.serve_forever, daemon=True).start()
     return servidor, 'http://127.0.0.1:%d%s' % (servidor.server_port, PREFIJO)
+
+
+def _esperar_scripts():
+    """Las páginas de la guía cargan sus scripts después del evento load (scripts/css_critico.py). Playwright
+    devuelve goto() en ese evento, así que cada prueba esperaba scripts que aún no estaban. Este parche hace que
+    goto() espere además a que el último script corra, que es lo que una persona espera antes de usar la página."""
+    try:
+        from playwright.sync_api import Error, Page
+    except ImportError:
+        return
+    goto = Page.goto
+
+    def goto_con_scripts(self, url, **kw):
+        respuesta = goto(self, url, **kw)
+        if kw.get('wait_until', 'load') in ('load', 'networkidle'):
+            try:
+                self.wait_for_function('!window.__guiaPendiente', timeout=20000)
+            except Error:
+                pass
+        return respuesta
+    Page.goto = goto_con_scripts
+
+
+_esperar_scripts()

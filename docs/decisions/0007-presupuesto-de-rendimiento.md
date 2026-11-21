@@ -161,3 +161,47 @@ The "before" render-blocking and critical path columns are the numbers of the fi
 - Slow 3G LCP under 5 s: not met. It went from 5.8 to 7.4 s to 4.9 to 6.3 s, and only `laboratorios` (4.87 s) is under 5 s. The floor of this structure is the HTML at 2.6 s plus one round trip of 2 s for the stylesheets plus 0.7 s to transfer 36 KB, about 5.3 s before the 4x CPU paint. Getting below 5 s means taking the stylesheet round trip out (inline critical CSS) or shrinking `css/estilo.css`, which is a design change of its own and was not done here.
 
 CLS stayed at or below 0.0126 on Slow 3G (`tests/navegador_experiencia.py`, with fonts delayed 1.2 s, passes, and so do the other checks listed in the pull request).
+
+## Follow-up 2026-11-21 (2): scripts after `load` and critical CSS inline
+
+Same method, one run per page and profile, `dist/` built from this branch. "Before" was measured again on `main` after the font change (#78), so both columns are comparable.
+
+### Changes
+
+1. `scripts/css_critico.py`, called by `scripts/datos.py`, rewrites the head of the 16 guide pages. The shared and page stylesheets are no longer `<link rel="stylesheet">` that block painting. The head carries a `<style>` with the rules of the first screen (header, academic notice, topic hero and the first section, 24 to 27 KB raw and about 6 KB compressed) and the full sheets as `media="print"` with `onload` to switch to `all`, plus a `<noscript>` with the normal links. `@font-face` rules are not repeated in the inline CSS, because the same rule in the full sheet created a second font and moved the layout (CLS 0.029 on `preguntas`).
+2. The six or seven `defer` scripts are one small loader that inserts them in order after the `load` event. `js/sitio.js` waits for the event `guia:scripts` before it mounts the interactive parts. The theme script stays first in `<head>`, before any style.
+3. `tests/servidor.py` makes `Page.goto` also wait for the last script, since the tests used to assume the scripts ran at `load`. `tests/navegador_experiencia.py` now checks the new head (inline style, sheets without blocking, same list in `<noscript>`, no script in `<head>`) and that no page loads interactive modules.
+
+### Results
+
+Critical path KB (everything finished before `load`) before to after, KB after `load`, Slow 3G LCP in ms before to after, Slow 3G load in ms after, and the largest CLS seen in the two profiles after the change.
+
+| Page | Critical KB | After load KB | Slow LCP | Slow load | CLS |
+| --- | --- | --- | --- | --- | --- |
+| `bibliografia` | 154.6 to 52.6 | 108.1 | 6124 to 2544 | 4874 | 0.0 |
+| `control` | 212.4 to 89.8 | 128.8 | 6216 to 2520 | 5466 | 0.0239 |
+| `exploracion` | 191.2 to 79.1 | 118.5 | 6284 to 2516 | 9040 | 0.0032 |
+| `gemelo` | 186.4 to 318.7 | 39.1 | 6324 to 2500 | 12464 | 0.0018 |
+| `index` | 140.4 to 140.4 | 432.5 | 5368 to 5368 | 9249 | 0 |
+| `laboratorio` | 175.0 to 47.9 | 133.0 | 5724 to 2452 | 4896 | 0 |
+| `laboratorios` | 78.5 to 86.9 | 207.6 | 4880 to 4900 | 7841 | 0 |
+| `lecciones` | 151.2 to 62.3 | 95.2 | 6028 to 2456 | 5168 | 0.0 |
+| `mapeo` | 198.2 to 83.1 | 121.7 | 5984 to 2504 | 5328 | 0.0032 |
+| `movimiento` | 240.7 to 203.8 | 43.4 | 6148 to 2364 | 9098 | 0.0032 |
+| `mundo-real` | 153.0 to 51.1 | 110.3 | 6188 to 2352 | 4898 | 0.0042 |
+| `navegacion` | 175.2 to 235.4 | 39.1 | 6292 to 5516 | 9190 | 0.0032 |
+| `preguntas` | 203.3 to 86.4 | 123.0 | 6012 to 2424 | 4965 | 0.0127 |
+| `problema` | 192.1 to 78.1 | 120.1 | 6392 to 5320 | 5349 | 0.0018 |
+| `recursos` | 215.1 to 182.3 | 81.0 | 5984 to 5948 | 8832 | 0 |
+| `replicar` | 195.9 to 163.3 | 39.1 | 6400 to 2592 | 9394 | 0.0032 |
+| `resultados` | 170.0 to 54.8 | 163.7 | 5940 to 2528 | 4972 | 0.0018 |
+| `robot` | 186.8 to 74.7 | 118.5 | 6276 to 5300 | 5429 | 0.0018 |
+
+The render-blocking path (HTML only, as stylesheets and scripts no longer block) is 27.6 to 86.4 KB on all 18 pages.
+
+### Verdict
+
+- Over 170 KB before load: 14 of 18 pages are under it now (12 were over). Four are still over: `gemelo` (318.7 KB), `navegacion` (235.4), `movimiento` (203.8) and `recursos` (182.3). Their excess is not code. Without the blocking CSS the browser lays the page out before the full sheet arrives and starts the lazy images that are near the first screen, so images (114 to 303 KB) finish before `load`. Not met.
+- Slow 3G LCP under 5 s: 13 of 18 pages are under 5 s, 12 of them under 2.6 s (before: only `laboratorios`). Not met on five: `index` (5.37 s, unchanged, the home page was not touched), `navegacion` (5.5), `problema` (5.3), `recursos` (5.9) and `robot` (5.3). On `navegacion`, `problema`, `recursos` and `robot` the LCP element is now the first image, which arrives at 5 s because it shares 50 KB/s with the fonts and the other images. What remains: give the first image of those pages `fetchpriority="high"` and a smaller file, and defer their other images until after `load`. The home page needs its own item (its LCP is the `h1` behind a blocking stylesheet).
+- CLS is at most 0.0239 (`control`, Slow 3G), under 0.1.
+- Not measured: a real device and repeated runs. Differences below a few hundred milliseconds are noise.

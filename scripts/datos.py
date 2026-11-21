@@ -87,6 +87,7 @@ detalle = ('<!-- ESTADO DETALLE: generado por scripts/datos.py desde datos/acade
 sys.path.insert(0, str(ROOT / 'scripts'))
 from bibliografia import Bibliografia, COMPLETO, fecha_texto  # noqa: E402
 import marco  # noqa: E402
+import css_critico  # noqa: E402
 TEMAS = ['problema', 'robot', 'movimiento', 'control', 'mapeo', 'navegacion', 'exploracion', 'gemelo', 'resultados', 'replicar']
 EXTRAS = {'mundo-real': 'En el mundo real', 'lecciones': 'Lecciones de ingeniería'}
 titulos_h2 = {}
@@ -144,7 +145,6 @@ for path in sorted(PUB.glob('*.html')):
         text = re.sub(r'(<!-- CABECERA:[^>]*-->\n).*?(<!-- FIN CABECERA -->)', lambda m: m.group(1) + marco.marcar(frame['cabecera'], path.stem) + '\n' + m.group(2), text, flags=re.S)
     if 'PIE:' in text:
         text = re.sub(r'(<!-- PIE:[^>]*-->\n).*?(<!-- FIN PIE -->)', lambda m: m.group(1) + frame['pie'] + '\n' + m.group(2), text, flags=re.S)
-    if '<script src="datos/proyecto.js" defer></script>' not in text:
-        text = text.replace('<script src="js/comun.js" defer></script>', '<script src="datos/proyecto.js" defer></script>\n<script src="js/comun.js" defer></script>')
+    text = css_critico.aplicar(text, PUB)
     write(path, text)
 print('Metadatos, CSV y HTML sincronizados' + (' (comprobación)' if CHECK else ''))
