@@ -93,8 +93,9 @@ def estatico():
         if s.select('[style]'):
             sin_estilo.append(pag)
         precargas = {l.get('href') for l in s.select('link[rel=preload][as=font]')}
-        if not {'fuentes/archivo-latin-variable.woff2', 'fuentes/atkinson-hyperlegible-latin-400-normal.woff2'} <= precargas \
-                or not s.select_one('meta[name=color-scheme]') or not s.select_one('script[type=speculationrules]'):
+        # las fuentes no se precargan: con font-display: optional compiten por el ancho de banda con el CSS que bloquea el
+        # primer pintado (docs/decisions/0007), y el respaldo de métricas ajustadas ya evita el salto de diseño
+        if precargas or not s.select_one('meta[name=color-scheme]') or not s.select_one('script[type=speculationrules]'):
             sin_precarga.append(pag)
         for sc in s.select('script[src]'):
             if sc['src'].split('/')[-1] in MODULOS_VIS:
@@ -106,7 +107,7 @@ def estatico():
             if art.find('h4'):
                 titulos.append(pag)
     check(not sin_estilo, 'ninguna página usa estilos en línea', sin_estilo)
-    check(not sin_precarga, 'todas precargan Archivo y Atkinson, declaran color-scheme y precargan páginas al apuntar', sin_precarga)
+    check(not sin_precarga, 'ninguna precarga fuentes, todas declaran color-scheme y precargan páginas al apuntar', sin_precarga)
     check(not con_modulo, 'ninguna página carga los archivos de interactivos al abrirse', con_modulo)
     check(not videos_mal, 'los videos en bucle no se descargan solos y tienen controles sin JavaScript', videos_mal)
     check(not titulos, 'las tarjetas de decisión usan h3 bajo el h2 de su sección', titulos)

@@ -5,3 +5,7 @@ trimesh==5.2.1
 numpy==2.4.6
 # modelo_robot.py: convierte archivos STEP a malla.
 cascadio==0.1.1
+
+# subconjunto_fuentes.py: recorta las fuentes woff2 a los caracteres que usa el sitio.
+fonttools==4.61.1
+brotli==1.2.1

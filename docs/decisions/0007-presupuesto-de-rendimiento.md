@@ -88,3 +88,76 @@ Count only the render-blocking resources. Simpler, and only `bibliografia` fails
 ## Consequences
 
 The site has a number to defend and a method to repeat. Sixteen pages break the critical path budget as measured, so the budget is a target with a known gap and not yet a passing check. Candidate fixes, each its own item and none done here: render the bibliography list on demand, drop the Plex preload (14.7 KB) or the Archivo preload as `DESIGN.md` already suggests, split `js/sitio.js` and the page scripts so that only what is above the fold is critical, and measure again. To undo this record, delete this file. Nothing else depends on it.
+
+## Follow-up 2026-11-21: shared cause and first fixes
+
+Same method as above, one run per page and profile, on `dist/` built from this branch. The "before" numbers of the four pages below were measured again with the same script before any change, so they are comparable with the table after.
+
+### What every page shares
+
+Request waterfall on Slow 3G with 4x CPU, `control.html` before the change (times in s since navigation start):
+
+- The HTML arrives at 2.6 s (28.6 KB, the 2 s round trip plus 0.6 s of transfer). The browser reads its head while it downloads, so everything else is requested at about 2.1 s.
+- At 2.1 s eleven requests start together: three stylesheets (33.6 KB), six `defer` scripts (48.4 KB), the hero image (21.4 KB) and the three preloaded fonts (56.2 + 17.3 + 14.8 KB). The link is 400 kbit/s, so about 50 KB/s, and every byte shares it. That is about 190 KB that need about 3.8 s.
+- `css/estilo.css` (25.6 KB, the biggest file that blocks painting) finished at 6.0 s. The first paint and the LCP (the lead paragraph, text) came right after, at 6.6 s.
+- `preguntas.html`, `mapeo.html` and `index.html` have the same shape. The LCP element is text on the pages whose element was recorded (`P.lead` on `control` and `preguntas`, `H1` on `index`), so the images and fonts are not what is waited for. What is waited for is the stylesheets, queued behind their neighbours on a link of 50 KB/s.
+
+Bytes requested before `load` by type (KB), before the change:
+
+| Page | HTML | CSS | Scripts | Fonts | Images |
+| --- | --- | --- | --- | --- | --- |
+| `control` | 28.7 | 33.7 | 48.4 | 140.2 | 21.4 |
+| `mapeo` | 27.1 | 36.4 | 41.3 | 140.2 | 14.5 |
+| `preguntas` | 44.6 | 36.0 | 42.5 | 140.2 | 0 |
+| `index` | 18.6 | 18.7 | 8.2 | 88.4 | 47.3 |
+
+Fonts are more than half of what the guide pages download before `load`. Nothing else in the first load is data: `datos/indice.js` (850 KB, the search index) and `datos/secciones.js` are requested only when the visitor opens the search, and the interactive modules are not in any page head (both were checked in the waterfalls, none appears).
+
+### Changes
+
+1. The three font preloads are gone from the 16 guide pages and the home layout. With `font-display: optional` a font that is not ready at first paint is not used on that visit, so preloading 88 KB only made the stylesheet wait for it. The fonts are still requested as soon as the CSS uses them and stay cached for the next page. `tests/navegador_experiencia.py` now asserts that no page preloads a font.
+2. The six woff2 files are subset by `scripts/subconjunto_fuentes.py` from the originals in `scripts/fuentes-origen/`: only the characters the site uses, kerning, ligatures and mark features, hinting kept, and Archivo without its width axis (no style asks for another width, so `font-stretch` in `css/estilo.css` is now `100%`). Family names and the license files are unchanged. A guide page downloads 78.6 KB of fonts instead of 139.4 KB (Archivo 56.0 to 20.3 KB). Outlines and advance widths of Archivo match the original in 586 of 588 glyph and weight pairs (147 glyphs at four weights) and the two that differ are `Å` at two weights, by one font unit. Atkinson 400 and Plex 600 match in every glyph.
+3. Left as it was: the `defer` scripts, the lazy images and the search index. Loading the `defer` scripts after the first paint measured about 0.5 s better LCP on Slow 3G, but `js/sitio.js` mounts the interactive parts on `DOMContentLoaded` and assumes the deferred scripts ran before it, so the change needs its own item and its own tests.
+
+### Results after the change
+
+Columns: render-blocking KB (HTML and stylesheets, no font is preloaded now), critical path KB (everything finished before `load`), over 170 KB, KB after `load`, then the critical path by type (fonts, scripts, CSS, images, KB), Fast 3G LCP in ms and CLS, and Slow 3G LCP and load in ms. The sizes are from the Fast 3G run.
+
+| Page | Blocking | Critical | Over 170 (critical) | After load | Fonts | Scripts | CSS | Images | Fast LCP | CLS | Slow LCP | Slow load |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `bibliografia` | 46.7 | 154.6 | no | 0.0 | 69.0 | 38.9 | 32.0 | 0.0 | 2380 | 0 | 6312 | 9137 |
+| `control` | 62.3 | 212.4 | yes | 0.0 | 79.4 | 49.3 | 33.6 | 21.4 | 2384 | 0 | 6284 | 9996 |
+| `exploracion` | 44.9 | 191.2 | yes | 0.0 | 79.4 | 38.9 | 32.0 | 27.9 | 2436 | 0 | 6240 | 9516 |
+| `gemelo` | 42.7 | 186.4 | yes | 165.2 | 69.0 | 38.9 | 32.0 | 35.7 | 2308 | 0 | 6256 | 9188 |
+| `index` | 37.2 | 140.4 | no | 432.5 | 42.7 | 13.1 | 18.7 | 47.3 | 1768 | 0 | 5352 | 9254 |
+| `laboratorio` | 42.1 | 175.0 | yes | 0.0 | 69.0 | 63.8 | 33.3 | 0.0 | 2032 | 0 | 5656 | 9726 |
+| `laboratorios` | 27.6 | 78.5 | no | 216.0 | 42.7 | 8.2 | 18.7 | 0.0 | 1656 | 0 | 4872 | 7837 |
+| `lecciones` | 42.5 | 151.2 | no | 0.0 | 56.1 | 38.9 | 32.0 | 13.6 | 2192 | 0 | 6036 | 8731 |
+| `mapeo` | 63.4 | 198.2 | yes | 0.0 | 79.4 | 42.2 | 36.4 | 13.2 | 2252 | 0 | 5884 | 9938 |
+| `movimiento` | 48.1 | 240.7 | yes | 0.0 | 79.4 | 43.2 | 33.0 | 69.9 | 2352 | 0 | 6076 | 9457 |
+| `mundo-real` | 45.0 | 153.0 | no | 22.6 | 69.0 | 38.9 | 32.0 | 0.0 | 2368 | 0 | 6108 | 11253 |
+| `navegacion` | 46.3 | 175.2 | yes | 92.9 | 69.0 | 38.9 | 32.0 | 20.9 | 2260 | 0 | 6232 | 9129 |
+| `preguntas` | 80.4 | 203.3 | yes | 0.0 | 79.4 | 43.4 | 36.0 | 0.0 | 2288 | 0 | 5888 | 9520 |
+| `problema` | 48.2 | 192.1 | yes | 0.0 | 79.4 | 40.6 | 32.0 | 23.9 | 2368 | 0 | 6288 | 9390 |
+| `recursos` | 53.7 | 215.1 | yes | 42.0 | 69.0 | 38.9 | 32.0 | 53.4 | 2284 | 0 | 5564 | 10542 |
+| `replicar` | 45.0 | 195.9 | yes | 0.0 | 79.4 | 38.9 | 32.0 | 32.6 | 2180 | 0 | 6168 | 9361 |
+| `resultados` | 48.4 | 170.0 | no | 42.0 | 79.4 | 42.2 | 33.6 | 0.0 | 2144 | 0 | 5824 | 9246 |
+| `robot` | 49.0 | 186.8 | yes | 0.0 | 79.4 | 38.9 | 32.0 | 19.4 | 2224 | 0 | 6224 | 9339 |
+
+Before and after for the four pages (Slow 3G, 4x CPU):
+
+| Page | Render-blocking KB | Critical path KB | Slow LCP ms |
+| --- | --- | --- | --- |
+| `control` | 150.9 to 62.3 | 251.4 to 212.4 | 6556 to 6284 |
+| `mapeo` | 152.1 to 63.4 | 245.5 to 198.2 | 7436 to 5884 |
+| `preguntas` | 169.1 to 80.4 | 263.8 to 203.3 | 6584 to 5888 |
+| `index` | 125.9 to 37.2 | 139.1 to 140.4 | 5768 to 5352 |
+
+The "before" render-blocking and critical path columns are the numbers of the first table (they count the preloaded fonts as blocking). The slow LCP "before" was measured again.
+
+### Verdict on the two plan items
+
+- Over 170 KB before load: the render-blocking path is under 170 KB on all 18 pages (largest `preguntas`, 80.4 KB, then `mapeo`, 63.4 KB, `control`, 62.3 KB; `bibliografia` went from 237.8 to 46.7 KB with the previous item, #77). The full critical path is still over 170 KB on 12 of 18 pages. Those pages need their `defer` scripts (38 to 64 KB) and their first-screen images to work, and the fonts (69 to 79 KB) are optional and arrive after the first paint, so they cannot delay it. The target is met by the render-blocking reading with this reason. The item stays open for the critical path: the next step is the deferred scripts.
+- Slow 3G LCP under 5 s: not met. It went from 5.8 to 7.4 s to 4.9 to 6.3 s, and only `laboratorios` (4.87 s) is under 5 s. The floor of this structure is the HTML at 2.6 s plus one round trip of 2 s for the stylesheets plus 0.7 s to transfer 36 KB, about 5.3 s before the 4x CPU paint. Getting below 5 s means taking the stylesheet round trip out (inline critical CSS) or shrinking `css/estilo.css`, which is a design change of its own and was not done here.
+
+CLS stayed at or below 0.0126 on Slow 3G (`tests/navegador_experiencia.py`, with fonts delayed 1.2 s, passes, and so do the other checks listed in the pull request).
