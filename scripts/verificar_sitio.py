@@ -12,6 +12,10 @@ DIST = ROOT / 'dist'
 if not (DIST / 'index.html').exists():
     raise SystemExit('Falta dist/index.html. Ejecuta antes npm run build.')
 pages = {p.name: BeautifulSoup(p.read_text(encoding='utf-8'), 'html.parser') for p in DIST.glob('*.html')}
+# El detalle de las referencias de la bibliografía va en un archivo aparte, con <base href="../">: sus enlaces
+# se resuelven desde la raíz del sitio, así que se revisa como una página más.
+DETALLE = 'datos/bibliografia-referencias.html'
+detalle = BeautifulSoup((DIST / DETALLE).read_text(encoding='utf-8'), 'html.parser')
 failures, checks = [], 0
 
 
@@ -22,26 +26,29 @@ def check(condition, message):
         failures.append(message)
 
 
-for name, soup in pages.items():
+documentos = dict(pages)
+documentos[DETALLE] = detalle
+for name, soup in documentos.items():
     ids = [t['id'] for t in soup.select('[id]')]
     check(len(set(ids)) == len(ids), name + ': ID duplicado')
-    check(soup.select_one('.aviso-academico') is not None, name + ': falta aviso estático')
-    check(soup.select_one('.nav-estatica') is not None, name + ': falta navegación sin JS')
+    if name in pages:
+        check(soup.select_one('.aviso-academico') is not None, name + ': falta aviso estático')
+        check(soup.select_one('.nav-estatica') is not None, name + ': falta navegación sin JS')
     for t in soup.select('a[href], script[src], link[href], img[src], source[srcset], source[src]'):
         value = t.get('href') or t.get('src') or t.get('srcset')
         for raw in (value.split(',') if t.has_attr('srcset') else [value]):
             u = urlsplit(raw.strip().split(' ')[0])
             if u.scheme or u.netloc:
                 continue
-            target = unquote(u.path) or name
+            target = unquote(u.path) or (name if name in pages else DETALLE)
             # Astro publica bajo el prefijo de proyecto de GitHub Pages.
             if target.startswith('/tesis_explain/'):
                 target = target[len('/tesis_explain/'):] or 'index.html'
             elif target == '/tesis_explain':
                 target = 'index.html'
             check((DIST/target).exists(), name + ': recurso inexistente ' + raw)
-            if u.fragment and target in pages:
-                check(pages[target].find(id=unquote(u.fragment)) is not None, name + ': ancla inexistente ' + raw)
+            if u.fragment and target in documentos:
+                check(documentos[target].find(id=unquote(u.fragment)) is not None, name + ': ancla inexistente ' + raw)
 # Los generadores deben dejar public/ y dist/ al día
 for step in ('datos.py', 'indice.py'):
     subprocess.run([sys.executable, str(ROOT/'scripts'/step), '--comprobar'], check=True)

@@ -711,18 +711,22 @@
        pide una sola vez: al abrir una referencia, al usar el filtro o, en una conexión buena, en un rato libre
        (así también se imprime completa). Cambia solo el contenido de cada detalle: la referencia, su estado
        abierto o cerrado y su ancla siguen siendo los mismos. */
+    var puesto = false;
+    function poner(t) {
+      if (puesto) return;
+      puesto = true;
+      var doc = new DOMParser().parseFromString(t, "text/html");
+      document.querySelectorAll("details.bib-ref").forEach(function (d) {
+        var ligero = d.querySelector(".bib-detalle[data-ligero]"), full = doc.getElementById(d.id);
+        if (!ligero || !full) return;
+        ligero.replaceWith(document.importNode(full.querySelector(".bib-detalle"), true));
+      });
+      copiarCitas();
+    }
     function cargarDetalle() {
       if (cargado) return cargado;
       cargado = fetch("datos/bibliografia-referencias.html").then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.text(); })
-        .then(function (t) {
-          var doc = new DOMParser().parseFromString(t, "text/html");
-          document.querySelectorAll("details.bib-ref").forEach(function (d) {
-            var ligero = d.querySelector(".bib-detalle[data-ligero]"), full = doc.getElementById(d.id);
-            if (!ligero || !full) return;
-            ligero.replaceWith(document.importNode(full.querySelector(".bib-detalle"), true));
-          });
-          copiarCitas();
-        }, function (e) { cargado = null; throw e; });
+        .then(poner, function (e) { cargado = null; throw e; });
       return cargado;
     }
     document.addEventListener("toggle", function (e) {
@@ -734,7 +738,17 @@
       var libre = window.requestIdleCallback || function (f) { return setTimeout(f, 2500); };
       window.addEventListener("load", function () { libre(function () { cargarDetalle().catch(function () {}); }); }, { once: true });
     }
-    window.addEventListener("beforeprint", function () { cargarDetalle().catch(function () {}); });
+    /* Al imprimir no se puede esperar una respuesta: si el detalle aún no llegó, se pide en forma síncrona, solo aquí,
+       para que la hoja salga completa. Este oyente va antes que el que abre todos los plegables. */
+    window.addEventListener("beforeprint", function () {
+      if (puesto) return;
+      try {
+        var x = new XMLHttpRequest();
+        x.open("GET", "datos/bibliografia-referencias.html", false);
+        x.send();
+        if (x.status === 200) poner(x.responseText);
+      } catch (e) {}
+    });
     filtroLista({ antes: grupos[0], id: "b-filtro", cargar: cargarDetalle, etiqueta: "Filtrar la bibliografía", ejemplo: "Por ejemplo: Nav2, PSO o estadística",
       items: [].slice.call(document.querySelectorAll(".bib-grupo ol.bib > li")),
       uno: "referencia coincide.", varios: "referencias coinciden.", ninguno: "Ninguna referencia coincide. Prueba con el buscador del sitio.",

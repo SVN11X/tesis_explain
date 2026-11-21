@@ -507,9 +507,15 @@ def bibliografia(nav):
     # al imprimir, todo queda abierto
     ctx = contexto(nav, **ESCRITORIO)
     p = ctx.new_page()
+    # conexión lenta: el detalle no se pide en un rato libre y al imprimir debe llegar de todos modos
+    p.add_init_script("Object.defineProperty(navigator, 'connection', { value: { effectiveType: '3g' } })")
     p.goto(BASE + '/bibliografia.html', wait_until='load')
     p.wait_for_timeout(200)
+    sin_detalle = p.evaluate("document.querySelectorAll('.bib-detalle[data-ligero]').length")
     p.evaluate("window.dispatchEvent(new Event('beforeprint'))")
+    check(sin_detalle == 72 and p.evaluate("document.querySelectorAll('.bib-detalle[data-ligero]').length") == 0
+          and p.evaluate("document.querySelectorAll('.bib-ficha').length") == 72,
+          'al imprimir con conexión lenta, el detalle de las 72 referencias se carga antes de imprimir', sin_detalle)
     r = p.evaluate("""() => ({ cerrados: [...document.querySelectorAll('details.detalle, details.bib-ref, details.bib-mas')].filter(d => !d.open).length,
       total: document.querySelectorAll('details.bib-ref').length })""")
     check(r['cerrados'] == 0 and r['total'] == 72, 'al imprimir se abren todos los grupos, las referencias y sus bloques plegados', r)
