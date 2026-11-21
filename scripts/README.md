@@ -19,5 +19,7 @@ Generators, checks and build helpers. Run them from the repository root. Page an
 - `plantillas/`: HTML templates (`cabecera.html`, `pie.html`, `tema.html`) used by `marco.py`.
 - `validacion_defensa.mjs`: computes metrics from labelled defense runs (JSONL).
 - `verificar_sitio.py`: checks data, index, links and anchors of the built site in `dist/`.
+- `subconjunto_fuentes.py`: rebuilds `public/fuentes/*.woff2` from the originals in `fuentes-origen/`, keeping only the characters the site uses and the normal width of Archivo (`--comprobar` fails if a used character is missing). Needs `fonttools` and `brotli`. Run it again when a page uses a character that is not in the fonts.
+- `fuentes-origen/`: the original, unsubsetted woff2 files and their source.
 - `requisitos.txt`: pinned Python dependencies that CI installs.
 - `requisitos-opcionales.txt`: dependencies of the tools run by hand, such as `modelo_robot.py`.

@@ -80,8 +80,8 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 ## Performance
 
 - [x] (green) bibliografia.html: render-blocking critical path under 170 KB compressed (238 KB in 0007).
-- [ ] (yellow) Pages over 170 KB before load (preguntas, control, mapeo, lecciones and others): defer what is not needed above the fold.
-- [ ] (yellow) Slow 3G: LCP 5.8 to 7.4 s on every page. Find the shared cause (fonts, the frame, the search index) and fix it once.
+- [ ] (yellow) Pages over 170 KB before load (preguntas, control, mapeo, lecciones and others): defer what is not needed above the fold. 2026-11-21: render-blocking is now under 170 KB on all 18 pages (largest 80.4 KB), but the full critical path is still over 170 KB on 12 pages. Left: defer the `defer` scripts after the first paint (see docs/decisions/0007).
+- [ ] (yellow) Slow 3G: LCP 5.8 to 7.4 s on every page. Find the shared cause (fonts, the frame, the search index) and fix it once. 2026-11-21: shared cause found (fonts, scripts and CSS share 50 KB/s, so estilo.css arrives late) and fonts no longer preloaded and subset. LCP is now 4.9 to 6.3 s. Left: the stylesheet round trip (inline critical CSS or a smaller estilo.css) and the deferred scripts (docs/decisions/0007).
 
 ## Owner
 

@@ -86,3 +86,7 @@ Dos hallazgos:
 ## Decisión
 
 Mantener las tres familias. La razón escrita está en la sección Tipografía de `DESIGN.md`. No se cambió ningún CSS. No se midió CLS con las fuentes quitadas.
+
+## Nota del 2026-11-21: fuentes recortadas
+
+Las cifras de arriba son de los archivos originales. `scripts/subconjunto_fuentes.py` los recorta a los caracteres que usa el sitio (originales en `scripts/fuentes-origen/`) y quita el eje de ancho de Archivo, que ningún estilo usa. Ahora pesan: Archivo 20.312, Atkinson 400 12.584, 700 12.756 y cursiva 13.252, Plex Mono 400 9.412 y 600 10.288 bytes. Una página de la guía descarga 78.604 bytes de fuentes en la primera visita y la portada 42.308. Las páginas tampoco precargan ya las fuentes. La medición de la ruta crítica está en `docs/decisions/0007-presupuesto-de-rendimiento.md`.
