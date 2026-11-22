@@ -100,7 +100,7 @@ export function stage(host:HTMLElement, options:{ hero?:boolean; onFrame?:(dt:nu
   light.shadow.camera.top=4;light.shadow.camera.bottom=-4;light.shadow.normalBias=.01;scene.add(light);
   const rim=new THREE.DirectionalLight(0xe6e987,gpu?2.3:.35);rim.position.set(2,2,-3);scene.add(rim);
   // En la portada la luz principal viene de adelante y de arriba: la sombra cae detrás del robot y no llega al borde.
-  if(options.hero&&gpu){light.position.set(1.6,6,3.2);light.shadow.camera.left=light.shadow.camera.bottom=-.4;light.shadow.camera.right=light.shadow.camera.top=.4;light.shadow.mapSize.set(2048,2048);light.shadow.radius=4;rim.color.setHex(0xe4ecff);rim.position.set(-2.4,2.2,-3);}
+  if(options.hero&&gpu){light.position.set(1.6,6,3.2);light.shadow.camera.left=light.shadow.camera.bottom=-.4;light.shadow.camera.right=light.shadow.camera.top=.4;light.shadow.mapSize.set(2048,2048);light.shadow.radius=4;rim.color.setHex(0xf0f2ff);rim.position.set(-2.4,2.2,-3);}
   let dirty=true,visible=true,dead=false,raf=0,last=0,lastPaint=0;
   const invalidate=()=>{dirty=true;};controls.addEventListener('change',invalidate);
   const resize=new ResizeObserver(()=>{const w=host.clientWidth,h=host.clientHeight;if(w&&h){renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();invalidate();}});resize.observe(host);
@@ -144,7 +144,7 @@ function texturaPiso(oscuro:boolean){
 function texturaSombra(){
   const n=256,c=document.createElement('canvas');c.width=c.height=n;const g=c.getContext('2d');
   if(!g)return undefined;
-  const r=g.createRadialGradient(n/2,n/2,0,n/2,n/2,n/2);r.addColorStop(0,'rgba(0,0,0,.42)');r.addColorStop(.55,'rgba(0,0,0,.18)');r.addColorStop(1,'rgba(0,0,0,0)');
+  const r=g.createRadialGradient(n/2,n/2,0,n/2,n/2,n/2);r.addColorStop(0,'rgba(0,0,0,.62)');r.addColorStop(.5,'rgba(0,0,0,.3)');r.addColorStop(1,'rgba(0,0,0,0)');
   g.fillStyle=r;g.fillRect(0,0,n,n);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;
 }
 
@@ -170,41 +170,47 @@ export async function heroScene(host:HTMLElement,onSelect:(id:PartId)=>void,onLo
   let pisoMapa=texturaPiso(temaOscuro());const sombraMapa=texturaSombra();
   const pisoMat=new THREE.MeshBasicMaterial({map:pisoMapa,transparent:true,depthWrite:false,toneMapped:false});
   const piso=new THREE.Mesh(new THREE.CircleGeometry(.25,96),pisoMat);piso.rotation.x=-Math.PI/2;piso.position.y=-.0006;piso.renderOrder=-2;s.scene.add(piso);
-  const contacto=new THREE.Mesh(new THREE.CircleGeometry(.18,64),new THREE.MeshBasicMaterial({map:sombraMapa,transparent:true,depthWrite:false,toneMapped:false}));
+  const contacto=new THREE.Mesh(new THREE.CircleGeometry(.17,64),new THREE.MeshBasicMaterial({map:sombraMapa,transparent:true,depthWrite:false,toneMapped:false}));
   contacto.rotation.x=-Math.PI/2;contacto.position.y=-.0003;contacto.renderOrder=-1;s.scene.add(contacto);
   const sombraMat=new THREE.ShadowMaterial({opacity:.3});
   if(!s.lightweight){const floor=new THREE.Mesh(new THREE.CircleGeometry(.4,64),sombraMat);floor.rotation.x=-Math.PI/2;floor.position.y=-.0001;floor.receiveShadow=true;s.scene.add(floor);}
-  // Aro de la pieza elegida, con el color de su pestaña
-  robot.root.updateMatrixWorld(true);
-  const anillos=Object.fromEntries((Object.keys(robot.parts) as PartId[]).map(id=>{const part=robot.parts[id],b=new THREE.Box3().setFromObject(part),size=b.getSize(new THREE.Vector3()),c=part.worldToLocal(b.getCenter(new THREE.Vector3()));
-    return [id,{r:Math.max(size.x,size.z)/2*1.04,x:c.x,y:part.worldToLocal(b.max.clone()).y+.003,z:c.z}];})) as Record<PartId,{r:number;x:number;y:number;z:number}>;
-  const highlightMat=new THREE.MeshBasicMaterial({color:COLOR_PIEZA.laser[0],transparent:true,opacity:.9,depthTest:false,toneMapped:false});
-  const highlight=new THREE.Mesh(new THREE.TorusGeometry(.049,.0009,6,72),highlightMat);highlight.rotation.x=Math.PI/2;highlight.renderOrder=20;robot.parts.laser.add(highlight);highlight.position.y=.045;
-  // Con el CAD, la carcasa se vuelve transparente cuando la pieza elegida queda dentro de ella
-  const carcasa:THREE.MeshStandardMaterial[]=[],mallasCarcasa:THREE.Mesh[]=[];
-  if(robot.cad)robot.parts.cubierta.traverse(o=>{const m=o as THREE.Mesh;if(m.isMesh&&m!==highlight){mallasCarcasa.push(m);for(const mat of Array.isArray(m.material)?m.material:[m.material])if(!carcasa.includes(mat as THREE.MeshStandardMaterial))carcasa.push(mat as THREE.MeshStandardMaterial);}});
-  let transparente=false;host.dataset.carcasa='opaca';
-  function rayosX(){const valor=!!robot.cad&&!exploded&&(seleccion==='electronica'||seleccion==='traccion');if(valor===transparente)return;transparente=valor;
-    for(const m of carcasa){gsap.killTweensOf(m);m.transparent=true;m.depthWrite=!valor;m.needsUpdate=true;gsap.to(m,{opacity:valor?.16:1,duration:duration()*.75,ease:'power2.out',onUpdate:s.invalidate,onComplete:()=>{if(!valor){m.transparent=false;m.depthWrite=true;m.needsUpdate=true;}s.invalidate();}});}
-    for(const m of mallasCarcasa)m.castShadow=!valor;host.dataset.carcasa=valor?'transparente':'opaca';s.invalidate();}
+  // Cada pieza lleva sus propios materiales, así una pieza puede volverse fantasma sin tocar a las demás.
+  const propios=new Map<string,THREE.MeshStandardMaterial>(),materiales={} as Record<PartId,THREE.MeshStandardMaterial[]>,mallas={} as Record<PartId,THREE.Mesh[]>;
+  for(const id of PARTS){materiales[id]=[];mallas[id]=[];robot.parts[id].traverse(o=>{const m=o as THREE.Mesh;if(!m.isMesh)return;const base=m.material as THREE.MeshStandardMaterial,k=id+base.uuid;
+    let mat=propios.get(k);if(!mat){mat=base.clone();propios.set(k,mat);materiales[id].push(mat);}m.material=mat;mallas[id].push(m);});}
+  // PLA negro con brillo suave y metal más pulido: separan la forma del fondo. Los colores siguen siendo los del prototipo.
+  if(robot.cad)for(const id of PARTS)for(const m of mallas[id]){const mat=m.material as THREE.MeshStandardMaterial,g=m.name.split('__')[0];
+    if(g==='cubierta'&&m.name!=='cubierta__franjas'){mat.color.lerp(new THREE.Color(.026,.03,.034),.6);mat.roughness=.6;mat.metalness=.06;}
+    else if(g==='laser_base'||g==='laser_cabezal'){mat.color.lerp(new THREE.Color(.045,.048,.052),.6);mat.roughness=.5;}
+    else if(mat.metalness>.5)mat.roughness=Math.max(.2,mat.roughness*.8);}
+  // La pieza elegida nunca queda tapada: las que pueden taparla pasan a fantasma. El LiDAR y el chasis quedan a la vista.
+  const TAPAN:Record<PartId,PartId[]>={laser:[],cubierta:[],electronica:['cubierta','laser'],traccion:['cubierta','electronica','laser']};
+  const fantasma=new Set<PartId>();host.dataset.carcasa='opaca';
+  function fantasmas(){const quiero=new Set<PartId>(s.lightweight||!enfocada?[]:TAPAN[seleccion]);
+    for(const id of PARTS){const valor=quiero.has(id);if(valor===fantasma.has(id))continue;valor?fantasma.add(id):fantasma.delete(id);
+      for(const m of materiales[id]){gsap.killTweensOf(m);m.transparent=true;m.depthWrite=!valor;m.needsUpdate=true;gsap.to(m,{opacity:valor?.14:1,duration:duration()*.75,ease:'power2.out',onUpdate:s.invalidate,onComplete:()=>{if(!valor){m.transparent=false;m.depthWrite=true;m.needsUpdate=true;}s.invalidate();}});}
+      for(const m of mallas[id])m.castShadow=!valor;}
+    host.dataset.carcasa=fantasma.has('cubierta')?'transparente':'opaca';resaltar();}
+  // La pieza elegida se tiñe con el color de su pestaña, en sus propias mallas y sin anillos aparte.
+  function resaltar(){const color=new THREE.Color(COLOR_PIEZA[seleccion][temaOscuro()?1:0]);
+    for(const id of PARTS)for(const m of materiales[id]){if(!m.emissive)continue;const on=!!enfocada&&id===seleccion;m.emissive.copy(on?color:new THREE.Color(0));m.emissiveIntensity=on?.4:1;}s.invalidate();}
   // En el tema oscuro el robot negro se perdería sobre el fondo: suben la luz de contorno y el entorno.
   const L=s.lights;
   function tema(){const oscuro=temaOscuro();
-    s.scene.environmentIntensity=oscuro?.85:.55;L.hemi.intensity=oscuro?1:.75;L.key.intensity=s.lightweight?1.1:oscuro?2.8:2.6;L.rim.intensity=s.lightweight?.35:oscuro?3.4:1.3;
+    s.scene.environmentIntensity=oscuro?.65:.55;L.hemi.intensity=oscuro?.7:.75;L.key.intensity=s.lightweight?1.1:oscuro?1.5:2.2;L.rim.intensity=s.lightweight?.35:oscuro?4.4:2.4;
     sombraMat.opacity=oscuro?.5:.22;const viejo=pisoMapa;pisoMapa=texturaPiso(oscuro);pisoMat.map=pisoMapa??null;pisoMat.needsUpdate=true;viejo?.dispose();
-    highlightMat.color.setHex(COLOR_PIEZA[seleccion][oscuro?1:0]);
+    resaltar();
     if(s.renderer instanceof SVGRenderer)s.renderer.setClearColor(new THREE.Color(oscuro?0x121a17:0xf1f1e9),1);s.invalidate();}
   // js/marco.js avisa con temacambio tanto el botón como un cambio del sistema
   tema();document.addEventListener('temacambio',tema);
-  function select(id:PartId){seleccion=id;robot.parts[id].add(highlight);highlightMat.color.setHex(COLOR_PIEZA[id][temaOscuro()?1:0]);
-    if(robot.cad){const a=anillos[id];highlight.scale.setScalar(a.r/.049);highlight.position.set(a.x,a.y,a.z);}
-    else{const radius=id==='laser'?.049:id==='electronica'?.078:.121;highlight.scale.setScalar(radius/.049);highlight.position.set(0,id==='laser'?.045:id==='electronica'?.015:id==='cubierta'?.026:.055,0);}
-    rayosX();s.invalidate();}
+  function select(id:PartId){seleccion=id;fantasmas();s.invalidate();}
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
   const duration=()=>reduced.matches?0:.8;
   // Cámara: un encuadre por vista y estado del despiece, acercamiento y foco en una pieza
   const V=(a:number[])=>new THREE.Vector3(a[0],a[1],a[2]);
-  function encuadre(){return {target:new THREE.Vector3(0,C.target[exploded?1:0],0),position:V(C.vistas[vista][exploded?1:0])};}
+  // En un visor casi cuadrado (el celular) el robot ocuparía todo el ancho: la cámara se aleja un poco.
+  function encuadre(){const target=new THREE.Vector3(0,C.target[exploded?1:0],0),a=s.camera.aspect,k=a<1.4?1+(1.4-a)*.45:1;
+    return {target,position:target.clone().add(V(C.vistas[vista][exploded?1:0]).sub(target).multiplyScalar(k))};}
   const distanciaBase=()=>{const e=encuadre();return e.position.distanceTo(e.target);};
   function avisar(){const d=s.camera.position.distanceTo(s.controls.target);onView?.({zoom:distanciaBase()/d,cerca:d<=s.controls.minDistance*1.02,lejos:d>=s.controls.maxDistance*.98,enfocada});}
   s.controls.addEventListener('change',avisar);
@@ -217,17 +223,19 @@ export async function heroScene(host:HTMLElement,onSelect:(id:PartId)=>void,onLo
   }
   function zoom(factor:number){const t=s.controls.target.clone(),off=s.camera.position.clone().sub(t);
     off.setLength(THREE.MathUtils.clamp(off.length()*factor,s.controls.minDistance,s.controls.maxDistance));ir(t,t.clone().add(off),reduced.matches?0:.35);}
-  function reset(){enfocada=null;const e=encuadre();ir(e.target,e.position);}
-  // Dirección desde la que se mira cada pieza al enfocarla, y cuánto se acerca
-  const FOCO:Record<PartId,{dir:number[];k:number}>={laser:{dir:[.55,.62,.56],k:1.35},cubierta:{dir:[.37,.3,.43],k:1},electronica:{dir:[.42,.82,.42],k:1.05},traccion:{dir:[.88,.32,.36],k:.95}};
+  function reset(){enfocada=null;fantasmas();const e=encuadre();ir(e.target,e.position);}
+  // Dirección desde la que se mira cada pieza al enfocarla. La cámara se aleja hasta que la pieza entera cabe en el
+  // ancho y en el alto del visor, con la posición que tendrá al terminar el despiece.
+  const FOCO:Record<PartId,number[]>={laser:[.55,.62,.56],cubierta:[.37,.3,.43],electronica:[.42,.82,.42],traccion:[.88,.32,.36]};
   function focus(id:PartId){
-    if(id==='cubierta'){reset();return;}
-    enfocada=id;robot.root.updateMatrixWorld(true);const caja=new THREE.Box3();
-    robot.parts[id].traverse(o=>{if((o as THREE.Mesh).isMesh&&o!==highlight)caja.expandByObject(o);});
+    enfocada=id;fantasmas();const parte=robot.parts[id],y0=parte.position.y;parte.position.y=robot.original[id]+(exploded?C.offsets[id]:0);robot.root.updateMatrixWorld(true);
+    const caja=new THREE.Box3();parte.traverse(o=>{if((o as THREE.Mesh).isMesh)caja.expandByObject(o);});
+    parte.position.y=y0;robot.root.updateMatrixWorld(true);
     if(caja.isEmpty()){reset();return;}
     const centro=caja.getCenter(new THREE.Vector3()),radio=caja.getSize(new THREE.Vector3()).length()/2;
-    const d=THREE.MathUtils.clamp(radio/Math.sin(THREE.MathUtils.degToRad(s.camera.fov/2))*FOCO[id].k,s.controls.minDistance*1.3,s.controls.maxDistance);
-    ir(centro,centro.clone().add(V(FOCO[id].dir).normalize().multiplyScalar(d)));
+    const vf=THREE.MathUtils.degToRad(s.camera.fov/2),f=Math.min(vf,Math.atan(Math.tan(vf)*s.camera.aspect));
+    const d=THREE.MathUtils.clamp(radio/Math.sin(f)*1.3,s.controls.minDistance*1.3,s.controls.maxDistance);
+    ir(centro,centro.clone().add(V(FOCO[id]).normalize().multiplyScalar(d)));
   }
   function orbit(azimut:number,polar:number){if(azimut)s.controls.rotateLeft(azimut);if(polar)s.controls.rotateUp(polar);s.invalidate();}
   const raycaster=new THREE.Raycaster();let down={x:0,y:0};
@@ -235,7 +243,7 @@ export async function heroScene(host:HTMLElement,onSelect:(id:PartId)=>void,onLo
   const sobreLienzo=(e:PointerEvent)=>e.target instanceof Node&&s.renderer.domElement.contains(e.target);
   const onDown=(e:PointerEvent)=>{down={x:e.clientX,y:e.clientY};};
   const onUp=(e:PointerEvent)=>{if(!sobreLienzo(e)||Math.hypot(e.clientX-down.x,e.clientY-down.y)>7)return;const r=host.getBoundingClientRect();raycaster.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),s.camera);
-    const visibles=raycaster.intersectObject(robot.root,true).filter(h=>{const m=h.object as THREE.Mesh;const mat=m.material as THREE.Material|undefined;return m!==highlight&&!(transparente&&mat&&carcasa.includes(mat as THREE.MeshStandardMaterial));});
+    const visibles=raycaster.intersectObject(robot.root,true).filter(h=>{const m=h.object as THREE.Mesh;const mat=m.material as THREE.MeshStandardMaterial|undefined;return !(mat&&mat.transparent&&mat.opacity<.5);});
     let obj:THREE.Object3D|undefined=visibles[0]?.object;while(obj&&!obj.userData.part)obj=obj.parent??undefined;if(obj?.userData.part)onSelect(obj.userData.part);
   };host.addEventListener('pointerdown',onDown);host.addEventListener('pointerup',onUp);
   // La rueda sola desplaza la página, como en cualquier parte del sitio. Con Ctrl (o el pellizco del panel táctil, que
@@ -250,13 +258,13 @@ export async function heroScene(host:HTMLElement,onSelect:(id:PartId)=>void,onLo
   host.addEventListener('gesturestart',onGestureStart);host.addEventListener('gesturechange',onGestureChange);
   function explode(value:boolean){exploded=value;enfocada=null;const offsets=C.offsets;
     for(const id of Object.keys(robot.parts) as PartId[]){gsap.killTweensOf(robot.parts[id].position);gsap.to(robot.parts[id].position,{y:robot.original[id]+(value?offsets[id]:0),duration:duration(),ease:'power3.inOut',onUpdate:s.invalidate});}
-    rayosX();const e=encuadre();ir(e.target,e.position);
+    fantasmas();const e=encuadre();ir(e.target,e.position);
   }
   function view(preset:Vista){vista=preset;reset();}
   const mq=()=>{if(reduced.matches)motion=false;};if(reduced.addEventListener)reduced.addEventListener('change',mq);else reduced.addListener(mq);
   avisar();
   return {explode,view,select,focus,zoom,reset,orbit,alAvisoRueda:(f:()=>void)=>{onAvisoRueda.add(f);},lightweight:s.lightweight,cad:!!robot.cad,setMotion:(v:boolean)=>{motion=v;},
-    dispose:()=>{for(const p of Object.values(robot.parts))gsap.killTweensOf(p.position);for(const m of carcasa)gsap.killTweensOf(m);gsap.killTweensOf(s.camera.position);gsap.killTweensOf(s.controls.target);
+    dispose:()=>{for(const p of Object.values(robot.parts))gsap.killTweensOf(p.position);for(const id of PARTS)for(const m of materiales[id])gsap.killTweensOf(m);gsap.killTweensOf(s.camera.position);gsap.killTweensOf(s.controls.target);
       host.removeEventListener('pointerdown',onDown);host.removeEventListener('pointerup',onUp);host.removeEventListener('wheel',onWheel,{capture:true});host.removeEventListener('gesturestart',onGestureStart);host.removeEventListener('gesturechange',onGestureChange);
       if(reduced.removeEventListener)reduced.removeEventListener('change',mq);else reduced.removeListener(mq);
       document.removeEventListener('temacambio',tema);onAvisoRueda.clear();s.dispose();}};
