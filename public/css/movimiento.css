@@ -2,7 +2,7 @@
 .ci-formula { font-family: var(--f-data); font-size: var(--t-xs); line-height: 1.7; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 8px 12px; margin: 0; overflow-wrap: anywhere; }
 .ci-formula b { color: var(--acento); font-weight: 600; }
 .ci-formula sub { font-size: .8em; }
-.cal-origen { font-family: var(--f-data); font-weight: 400; font-size: .6875rem; letter-spacing: .1em; text-transform: uppercase; padding: 3px 8px; border-radius: var(--r); }
+.cal-origen { font-family: var(--f-data); font-weight: 400; font-size: var(--t-2xs); letter-spacing: .1em; text-transform: uppercase; padding: 3px 8px; border-radius: var(--r); }
 .cal-origen.datos { background: var(--verde-suave); color: var(--verde-texto); }
 .cal-origen.ilus { background: var(--surface-2); color: var(--muted); }
 .cal-g svg, .cu-pan svg { display: block; max-width: 100%; height: auto; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); }

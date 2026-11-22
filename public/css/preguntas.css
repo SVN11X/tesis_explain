@@ -5,7 +5,7 @@
 
 /* Leyenda de niveles en la presentación */
 .q-hero-niveles { background: var(--bg); border: 1px solid var(--line); border-radius: var(--r); padding: clamp(16px, 2.4vw, 22px); display: grid; gap: 12px; align-content: start; }
-.q-hero-niveles h2 { font-family: var(--f-data); font-weight: 400; font-size: .6875rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.q-hero-niveles h2 { font-family: var(--f-data); font-weight: 400; font-size: var(--t-2xs); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
 .q-hero-niveles dl { margin: 0; display: grid; gap: 10px; }
 .q-hero-niveles dl > div { display: grid; gap: 4px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
 .q-hero-niveles dl > div:last-child { border-bottom: 0; padding-bottom: 0; }
@@ -30,7 +30,7 @@
 .q-interruptor input:checked::after { transform: translateX(18px); }
 .q-interruptor input:focus-visible { outline: 3px solid var(--foco); outline-offset: 2px; }
 .q-herramientas .chips .chip { min-height: 36px; }
-.q-herramientas .chip .c-n { font-family: var(--f-data); font-size: .72rem; color: var(--muted); margin-left: 4px; }
+.q-herramientas .chip .c-n { font-family: var(--f-data); font-size: var(--t-2xs); color: var(--muted); margin-left: 4px; }
 .q-herramientas .chip[aria-pressed="true"] .c-n { color: var(--sobre-acid); }
 .q-estado-fila { justify-content: space-between; border-top: 1px solid var(--line); padding-top: 10px; }
 .q-conteo { font-size: var(--t-sm); color: var(--ink-2); }
@@ -60,7 +60,7 @@ details.pregunta > summary .etiqueta { margin-top: 2px; }
 .articulo .q-cuerpo p { max-width: 45.4em; }
 .articulo .q-cuerpo p + p { margin-top: 0; }
 .q-sigue { border-left: 3px solid var(--ambar); background: var(--ambar-suave); border-radius: 0; padding: 10px 14px; display: grid; gap: 4px; max-width: 45.4em; }
-.q-sigue .q-rot { font-family: var(--f-data); font-weight: 400; font-size: .6875rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ambar); }
+.q-sigue .q-rot { font-family: var(--f-data); font-weight: 400; font-size: var(--t-2xs); letter-spacing: .1em; text-transform: uppercase; color: var(--ambar); }
 .q-respaldo { font-size: var(--t-sm); color: var(--ink-2); }
 .q-respaldo b { color: var(--ink); }
 .q-ver { font-size: var(--t-sm); }
@@ -79,7 +79,7 @@ details.pregunta > summary .etiqueta { margin-top: 2px; }
 details.pregunta.velada .q-cuerpo > :not(.q-velo) { display: none; }
 details.pregunta:not(.velada) .q-velo { display: none; }
 .q-tu-respuesta { font-size: var(--t-sm); border: 1px solid var(--line); border-radius: var(--r); padding: 10px 14px; background: var(--bg); max-width: 45.4em; white-space: pre-wrap; }
-.q-tu-respuesta b { font-family: var(--f-data); font-weight: 400; font-size: .6875rem; letter-spacing: .1em; display: block; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; white-space: normal; }
+.q-tu-respuesta b { font-family: var(--f-data); font-weight: 400; font-size: var(--t-2xs); letter-spacing: .1em; display: block; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; white-space: normal; }
 
 /* Fórmulas para responder */
 .q-formulas { margin-top: 18px; }
@@ -138,7 +138,7 @@ h4.dv-enunciado { font-size: 1rem; }
 .dv-modo { display: grid; gap: 8px; align-content: start; padding: 14px; border: 1px solid var(--line); border-radius: var(--r); background: var(--bg); }
 .dv-modo .btn { justify-self: start; }
 .dv-nota { border-left: 3px solid var(--ambar); background: var(--ambar-suave); padding: 8px 12px; }
-.dv-paso { font-family: var(--f-data); font-size: .6875rem !important; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.dv-paso { font-family: var(--f-data); font-size: var(--t-2xs) !important; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
 .dv-pregunta, .dv-bloques { display: grid; gap: 12px; min-width: 0; }
 .dv-pregunta label { font-size: var(--t-xs); font-weight: 700; color: var(--ink-2); }
 .dv-pregunta textarea { width: 100%; max-width: 100%; min-height: 120px; resize: vertical; border: 1px solid var(--line-2); border-radius: var(--r); background: var(--bg); color: var(--ink); font: inherit; font-size: var(--t-sm); padding: 10px 12px; }
@@ -157,19 +157,19 @@ h4.dv-enunciado { font-size: 1rem; }
 .dv-v-correcta .dv-veredicto { color: var(--verde-texto); }
 .dv-v-parcial .dv-veredicto, .dv-v-indeterminada .dv-veredicto, .dv-v-aviso .dv-veredicto { color: var(--ambar); }
 .dv-v-incorrecta .dv-veredicto { color: var(--rojo); }
-.dv-intento { font-family: var(--f-data); font-size: .6875rem !important; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+.dv-intento { font-family: var(--f-data); font-size: var(--t-2xs) !important; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
 .dv-fuentes { margin: 0; padding-left: 1.2em; font-size: var(--t-sm); overflow-wrap: anywhere; }
 .dv-resultado:empty, .dv-guia-lugar:empty { display: none; }
 .dv-resultado { display: grid; gap: 10px; justify-items: start; }
 .dv-resultado > * { max-width: 100%; }
 .dv-guia { display: grid; gap: 8px; padding: 12px 14px; border: 1px solid var(--line-2); border-radius: var(--r); background: var(--surface-2); }
-.dv-guia h4 { margin: 0; font-family: var(--f-data); font-weight: 400; font-size: .6875rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.dv-guia h4 { margin: 0; font-family: var(--f-data); font-weight: 400; font-size: var(--t-2xs); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
 .dv-guia-texto { display: grid; gap: 10px; padding: 0; overflow-wrap: anywhere; }
 .dv-guia-texto .q-sigue { max-width: 100%; }
 .dv-guia-texto img, .dv-guia-texto table { max-width: 100%; }
 .dv-guia-texto span.ref { font-family: var(--f-data); font-size: .72em; line-height: 1; vertical-align: super; color: var(--acento); background: var(--acento-suave); border-radius: var(--r); padding: 1px 4px; margin-left: 1px; white-space: nowrap; }
 .dv-borrador { display: grid; gap: 8px; max-width: 100%; }
-.dv-borrador h4 { margin: 0; font-family: var(--f-data); font-weight: 400; font-size: .6875rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.dv-borrador h4 { margin: 0; font-family: var(--f-data); font-weight: 400; font-size: var(--t-2xs); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
 .dv-guia-texto .q-ver a { overflow-wrap: anywhere; }
 @media (max-width: 420px) {
   .dv-cuerpo { padding: 8px 12px 16px; }

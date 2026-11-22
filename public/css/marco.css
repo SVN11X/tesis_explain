@@ -47,6 +47,7 @@
   --marca-amarilla: #efe36bc4;
   /* Intensidad del resaltado de las palabras clave */
   --marca-mezcla: 34%;
+  --t-2xs: .75rem;
   --marco-mono: "IBM Plex Mono", Plex, ui-monospace, monospace;
   --marco-titulo: Archivo, "Archivo Respaldo", Arial, sans-serif;
   color-scheme: light;
@@ -131,7 +132,7 @@ svg.ph { fill: currentColor; stroke: none; }
 .desktop-nav a::after { position: absolute; content: ""; bottom: 7px; left: 0; width: 100%; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: left; transition: transform var(--dur-2) var(--curva); }
 .desktop-nav a:hover::after, .desktop-nav a[aria-current]::after { transform: scaleX(1); }
 .header-actions { display: flex; align-items: center; gap: 22px; }
-.search-trigger { background: none; border: 0; display: flex; align-items: center; gap: 8px; padding: 10px 0; font: inherit; font-family: var(--marco-mono); font-size: 11px; color: var(--muted); cursor: pointer; }
+.search-trigger { background: none; border: 0; display: flex; align-items: center; gap: 8px; padding: 10px 0; font: inherit; font-family: var(--marco-mono); font-size: var(--t-2xs); color: var(--muted); cursor: pointer; }
 /* Sin JavaScript el buscador no funciona: el botón conserva su lugar pero no se muestra hasta que js/marco.js lo activa. */
 .search-trigger:not(.listo) { visibility: hidden; }
 .search-trigger svg { height: 18px; width: 18px; fill: var(--ink); }
@@ -167,8 +168,8 @@ svg.ph { fill: currentColor; stroke: none; }
 .menu-panel a { display: flex; align-items: center; gap: 14px; min-height: 44px; padding: 10px 12px; border-bottom: 1px solid var(--line); }
 .menu-panel a[aria-current] { background: var(--marco-resalte); }
 .menu-panel a:hover { background: var(--marco-hover); }
-.menu-panel .menu-grupo { font-family: var(--marco-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 22px 0 6px; }
-.menu-panel .n { font-family: var(--marco-mono); font-size: 11px; color: var(--muted); min-width: 1.6em; }
+.menu-panel .menu-grupo { font-family: var(--marco-mono); font-size: var(--t-2xs); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 22px 0 6px; }
+.menu-panel .n { font-family: var(--marco-mono); font-size: var(--t-2xs); color: var(--muted); min-width: 1.6em; }
 .menu-panel .menu-secciones a { padding-left: 24px; }
 .menu-panel .menu-secciones a.activo { box-shadow: inset 2px 0 0 var(--oliva); }
 
@@ -216,18 +217,18 @@ svg.ph { fill: currentColor; stroke: none; }
 .search-results a { display: block; padding: 15px 8px; outline-offset: -3px; }
 .search-results a:hover, .search-results a.sel { background: var(--marco-sel); }
 .search-results a:focus-visible { background: var(--marco-sel); outline: 3px solid var(--foco); }
-.search-results span { display: block; font-family: var(--marco-mono); font-size: 11px; color: var(--muted); }
+.search-results span { display: block; font-family: var(--marco-mono); font-size: var(--t-2xs); color: var(--muted); }
 .search-results strong { display: block; font-family: var(--marco-titulo); font-size: 16px; font-weight: 550; margin-block: 5px; }
 .search-results p { font-size: 13px; color: var(--marco-texto-2); margin: 0; }
 .search-results mark { background: var(--acid); color: var(--sobre-acid); }
 .search-suggest { display: grid; gap: 18px; padding-bottom: 6px; }
-.search-suggest h2 { line-height: 1.4; display: flex; align-items: center; justify-content: space-between; gap: 12px; font-family: var(--marco-mono); font-size: 11px; font-weight: 400; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+.search-suggest h2 { line-height: 1.4; display: flex; align-items: center; justify-content: space-between; gap: 12px; font-family: var(--marco-mono); font-size: var(--t-2xs); font-weight: 400; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
 .search-suggest h2 svg { width: 14px; height: 14px; fill: currentColor; vertical-align: -2px; margin-right: 6px; }
 .search-suggest ul { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 0; padding: 0; }
 .search-suggest .chip { background: none; border: 1px solid var(--marco-borde); color: var(--ink); font: inherit; font-size: 13px; padding: 8px 12px; min-height: 36px; cursor: pointer; }
 .search-suggest .chip:hover, .search-suggest .chip:focus-visible { background: var(--acid); border-color: var(--ink); color: var(--sobre-acid); }
 .search-suggest .borrar { background: none; border: 0; padding: 6px 0; font: inherit; font-size: 12px; letter-spacing: 0; text-transform: none; text-decoration: underline; text-underline-offset: 3px; color: var(--ink); cursor: pointer; }
-.search-help { font-family: var(--marco-mono); font-size: 11px; color: var(--muted); padding-top: 20px; margin: 0; }
+.search-help { font-family: var(--marco-mono); font-size: var(--t-2xs); color: var(--muted); padding-top: 20px; margin: 0; }
 
 .site-header :focus-visible, .academic-note :focus-visible, .site-footer :focus-visible, .search-dialog button:focus-visible, .mobile-menu :focus-visible { outline: 3px solid var(--foco); outline-offset: 4px; }
 .site-footer :focus-visible { outline-color: var(--acid); }
@@ -248,7 +249,7 @@ svg.ph { fill: currentColor; stroke: none; }
 @media (max-width: 640px) {
   :root { --marco-gutter: 22px; }
   .site-header { height: 77px; gap: 15px; }
-  .brand { font-size: 11px; gap: 9px; }
+  .brand { font-size: var(--t-2xs); gap: 9px; }
   .brand svg { width: 29px; height: 29px; }
   .desktop-nav { display: none; }
   .header-actions { gap: 18px; }
