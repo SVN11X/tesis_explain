@@ -82,6 +82,7 @@
       '<p class="vestado" aria-live="polite" data-o="msg"></p>' +
       '<div class="as-cuenta"><div><span>Dijkstra revisa</span><b class="num" data-o="cmp-d"></b><small data-o="cmp-d-s"></small></div><div><span>A estrella revisa</span><b class="num" data-o="cmp-a"></b><small data-o="cmp-a-s"></small></div><div><span>Largo de la ruta</span><b class="num" data-o="cmp-l"></b><small data-o="cmp-l-s"></small></div></div>' +
       '<p class="vnota">Grilla de ejemplo con 4 vecinos y cada paso de costo 1. La h cuenta las cuadras hasta la meta como si no hubiera obstáculos, por eso la línea discontinua puede cruzar el muro. Así nunca estima más de lo que falta, una h admisible, y A estrella encuentra la ruta más corta. Si dos celdas empatan en f, se revisa primero la de menor h.</p>';
+    U.escena(el, { dibujo: ".as-rejilla", lecturas: ".as-cuenta", plegar: [{ sel: ".vley", en: "dib", titulo: "Leyenda" }, { sel: ".as-edicion", titulo: "Editar la rejilla" }] });
     var svg = el.querySelector(".as-rejilla"), rects = {}; el.querySelectorAll("rect[data-c]").forEach(function (r) { rects[r.getAttribute("data-c")] = r; });
     var pg = el.querySelector(".as-g"), ph = el.querySelector(".as-h"), pc = el.querySelector(".as-camino"), rango = el.querySelector("input[data-k]"), estado = el.querySelector('[data-o="msg"]');
     var gRobot = el.querySelector(".as-robot"), rMeta = el.querySelector(".as-meta"), rCur = el.querySelector(".as-cursor"), bEjemplo = el.querySelector('[data-a="ejemplo"]');
@@ -319,7 +320,7 @@
     var uid = "in" + Math.random().toString(36).slice(2, 7);
     el.innerHTML = '<div class="deslizadores">' +
       '<label for="' + uid + '-r">Radio de inflación<b class="num" data-v="infl"></b><input id="' + uid + '-r" type="range" min="0.05" max="0.55" step="0.01" data-k="infl"></label>' +
-      '<label for="' + uid + '-a">Ángulo del robot<b class="num" data-v="ang"></b><input id="' + uid + '-a" type="range" min="0" max="90" step="1" data-k="ang"></label>' +
+      '<label for="' + uid + '-a">Ángulo del robot<b class="num" data-v="ang"></b><input id="' + uid + '-a" type="range" min="0" max="90" step="1" data-k="ang"></label></div><div class="deslizadores des-pos">' +
       '<label for="' + uid + '-x">Posición a lo largo del pasillo, x<b class="num" data-v="x"></b><input id="' + uid + '-x" type="range" min="' + LIM.x[0] + '" max="' + LIM.x[1] + '" step="0.01" data-k="x"></label>' +
       '<label for="' + uid + '-y">Posición a lo ancho del pasillo, y<b class="num" data-v="y"></b><input id="' + uid + '-y" type="range" min="' + LIM.y[0] + '" max="' + LIM.y[1] + '" step="0.01" data-k="y"></label></div>' +
       '<div class="chips" role="group" aria-label="Valores del radio de inflación"><button type="button" class="chip" data-r="0.15" aria-pressed="true">0,15 m, el robot real</button><button type="button" class="chip" data-r="0.24" aria-pressed="false">0,24 m, alcance de la esquina</button><button type="button" class="chip" data-r="0.55" aria-pressed="false">0,55 m, valor por defecto de Nav2</button></div>' +
@@ -328,6 +329,7 @@
       '<div class="vley"><span><i class="cu" style="background:var(--ink)"></i>obstáculo real, costo 254</span><span><i class="cu" style="background:var(--violeta)"></i>radio inscrito, 253</span><span><i class="cu" style="background:var(--violeta);opacity:.35"></i>inflación, el costo decae con la distancia</span><span><i class="cu sup"></i>costo 0</span><span><i class="cu" style="background:none;border:2px solid var(--rojo)"></i>celda ocupada que la huella toca</span></div>' +
       '<p class="vestado" aria-live="polite" data-o="msg"></p>' +
       '<p class="vnota" id="' + uid + '-ayuda">Celdas de 5 cm y factor de decaimiento 5,0, como en el robot. La huella es el rectángulo configurado en Nav2. El contacto físico se calcula entre el contorno de la huella y el área completa de cada celda ocupada, incluidos bordes y esquinas. El margen inflado es una zona de seguridad del mapa de costos, no un obstáculo. Mueve el robot con los deslizadores, arrastrándolo, o con las flechas del teclado cuando el dibujo tiene el foco. Con Mayúsculas y las flechas izquierda y derecha cambia el ángulo.</p>';
+    U.escena(el, { dibujo: ".in-l", lecturas: ".lecturas, .vestado", plegar: [{ sel: ".vley", en: "dib", titulo: "Leyenda" }, { sel: ".des-pos", titulo: "Posición exacta" }] });
     var cont = el.querySelector(".in-l"), L = lienzo(cont, Wm / Hm, function () { dibujar(); });
     L.cv.classList.add("arrastrable"); L.cv.tabIndex = 0; L.cv.setAttribute("role", "img");
     L.cv.setAttribute("aria-describedby", uid + "-ayuda");
@@ -430,7 +432,7 @@
       '<div class="deslizadores">' +
       '<label for="' + uid + '-r">Peso de seguir la ruta<b class="num" data-v="ruta"></b><input id="' + uid + '-r" type="range" min="0" max="64" step="1" data-k="ruta"></label>' +
       '<label for="' + uid + '-m">Peso de acercarse a la meta<b class="num" data-v="meta"></b><input id="' + uid + '-m" type="range" min="0" max="64" step="1" data-k="meta"></label>' +
-      '<label for="' + uid + '-o">Peso de alejarse de obstáculos<b class="num" data-v="obst"></b><input id="' + uid + '-o" type="range" min="0" max="64" step="1" data-k="obst"></label>' +
+      '<label for="' + uid + '-o">Peso de alejarse de obstáculos<b class="num" data-v="obst"></b><input id="' + uid + '-o" type="range" min="0" max="64" step="1" data-k="obst"></label></div><div class="deslizadores des-obst">' +
       '<label for="' + uid + '-ox">Obstáculo, posición x<b class="num" data-v="ox"></b><input id="' + uid + '-ox" type="range" min="0.1" max="' + (Wm - 0.1) + '" step="0.01" data-o-k="x"></label>' +
       '<label for="' + uid + '-oy">Obstáculo, posición y<b class="num" data-v="oy"></b><input id="' + uid + '-oy" type="range" min="0.1" max="' + (Hm - 0.1) + '" step="0.01" data-o-k="y"></label></div>' +
       '<div class="dw-l"></div><div class="dw-z"></div>' +
@@ -438,6 +440,7 @@
       '<div class="tabla-env"><table class="tabla dw-tabla"><caption>Puntaje de la trayectoria elegida, menor es mejor. Cada término es peso por medida.</caption><thead><tr><th>Criterio</th><th class="n">Medida</th><th class="n">Peso</th><th class="n">Aporte</th></tr></thead><tbody data-o="tabla"></tbody></table></div>' +
       '<p class="vestado" aria-live="polite" data-o="msg"></p>' +
       '<p class="vnota" id="' + uid + '-ayuda">Ilustrativo. Se prueban 7 velocidades lineales entre 0 y 0,15 m/s y 15 de giro entre ±0,35 rad/s, los límites que DWB tiene configurados en el robot real. Aquí cada candidata se proyecta 1,7 s hacia adelante para que el dibujo se lea, la configuración del robot real usa 3,5 s. Los pesos, la zona de 0,35 m donde el obstáculo penaliza y el margen de choque de 0,12 m son propios de esta demostración y no equivalen a las escalas de los críticos del robot real. El obstáculo aparece después de planificar la ruta global, por eso la ruta lo atraviesa. Muévelo con los deslizadores, arrastrándolo o con las flechas del teclado cuando el dibujo tiene el foco.</p>';
+    U.escena(el, { dibujo: ".dw-l", lecturas: ".tabla-env, .vestado", plegar: [{ sel: ".des-obst, .dw-z, .vley", titulo: "Obstáculo, vista ampliada y leyenda" }] });
     var cont = el.querySelector(".dw-l"), L = lienzo(cont, Wm / Hm, function () { dibujar(); });
     L.cv.classList.add("arrastrable"); L.cv.tabIndex = 0; L.cv.setAttribute("role", "img"); L.cv.setAttribute("aria-describedby", uid + "-ayuda");
     /* Las candidatas ocupan unos 26 cm y en la escena completa se ven diminutas en un teléfono: una segunda vista

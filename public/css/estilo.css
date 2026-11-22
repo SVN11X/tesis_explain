@@ -317,15 +317,15 @@ table.tabla { border-collapse: collapse; width: 100%; font-size: var(--t-sm); mi
 /* Carta Gantt: una tabla con una columna por semana y la barra como celda que abarca sus semanas. */
 .gantt-env { max-width: none; }
 table.gantt { min-width: 800px; font-size: var(--t-xs); table-layout: fixed; }
-.gantt th, .gantt td { padding: 6px 4px; border-bottom: 1px solid var(--line); }
+.gantt th, .gantt td { padding: 3px 4px; border-bottom: 1px solid var(--line); }
 .gantt thead th { text-align: center; color: var(--muted); font-weight: 700; }
 .gantt thead tr:first-child th[colspan] { border-left: 1px solid var(--line); color: var(--ink-2); }
-.gantt th.g-act { width: 13.5em; text-align: left; padding-left: 12px; color: var(--ink-2); font-weight: 400; }
+.gantt th.g-act { width: 19em; line-height: 1.25; text-align: left; padding-left: 12px; color: var(--ink-2); font-weight: 400; }
 .gantt thead th.g-act { color: var(--muted); font-weight: 700; }
 .gantt col.g-mes { border-left: 1px solid var(--line); }
-.gantt tr.g-etapa th { text-align: left; padding: 10px 12px 6px; font-family: var(--f-display); font-size: var(--t-sm); color: var(--ink); background: var(--surface-2); }
+.gantt tr.g-etapa th { text-align: left; padding: 6px 12px 4px; font-family: var(--f-display); font-size: var(--t-sm); color: var(--ink); background: var(--surface-2); }
 .gantt tr.g-etapa .n { font-family: var(--f-data); color: var(--azul); margin-right: 8px; }
-.gantt td.g-barra { padding: 6px 2px; }
+.gantt td.g-barra { padding: 3px 2px; }
 .gantt td.g-barra i { display: block; height: 14px; border-radius: var(--r); background: var(--azul); transform-origin: 0 50%; }
 .gantt th.g-hito { color: var(--rojo); }
 .gantt tr.g-real th.g-act { font-weight: 700; color: var(--rojo); }
@@ -378,6 +378,44 @@ table.tabla.compacta { min-width: 0; }
 .vis > * { min-width: 0; }
 .vis p, .vis ul { max-width: none !important; }
 .vis-fallback { font-size: var(--t-sm); color: var(--muted); }
+/* Escenario: dibujo con sus lecturas a un lado y controles al otro desde 700 px de ancho de la tarjeta. Con menos se apilan: dibujo, controles, lecturas. */
+.vis:has(> .v-escena) { container-type: inline-size; }
+.v-escena { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px 16px; align-items: start; }
+.v-dib, .v-ctl, .v-lec { display: grid; gap: 10px; align-content: start; min-width: 0; }
+.v-dib:empty, .v-lec:empty { display: none; }
+.v-ctl .deslizadores { grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); gap: 6px 16px; }
+.v-ctl .deslizadores input { min-height: 24px; }
+.v-mas { border: 1px solid var(--line); border-radius: var(--r); padding: 2px 12px; background: var(--surface); }
+.v-mas > summary { cursor: pointer; font-size: var(--t-sm); font-weight: 700; min-height: 36px; display: flex; align-items: center; }
+.v-mas-cuerpo { display: grid; gap: 8px; padding-bottom: 10px; }
+.v-mas.v-libre { border: 0; padding: 0; background: none; }
+.v-mas.v-libre > summary { display: none; }
+.v-mas.v-libre > .v-mas-cuerpo { padding-bottom: 0; }
+.v-mas-cuerpo > * { margin: 0; }
+.v-lec .as-cuenta { grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: 6px; }
+.v-lec .as-cuenta div { padding: 6px 8px; }
+.v-lec .as-cuenta b { font-size: var(--t-md); }
+.v-lec .lecturas { gap: 6px; }
+.v-lec .lecturas div { padding: 5px 8px; }
+.v-lec .dw-tabla td.n { white-space: nowrap; }
+.v-ctl .vley, .v-dib .vley { gap: 4px 12px; }
+.v-ctl .dw-z { max-width: 320px; }
+@container (min-width: 700px) {
+  .v-escena { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); grid-template-rows: auto 1fr; }
+  .v-dib { grid-column: 1; grid-row: 1; }
+  .v-lec { grid-column: 1; grid-row: 2; }
+  .v-ctl { grid-column: 2; grid-row: 1 / span 2; }
+  .v-escena.v-pares { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; }
+  .vis .v-pestanas { display: none; }
+  .v-escena.v-pares[data-activa] > .v-bloque:nth-child(n) { display: grid; }
+}
+.v-pares > .v-bloque { display: grid; gap: 10px; align-content: start; min-width: 0; }
+.v-pestanas { display: flex; gap: 8px; }
+.v-pestanas button { flex: 1; }
+.v-pares[data-activa="0"] > .v-bloque:nth-child(2), .v-pares[data-activa="1"] > .v-bloque:first-child { display: none; }
+.v-pares .control-datos { margin: 0; gap: 6px; }
+.v-pares .control-datos > div { padding: 6px 9px; gap: 1px; }
+.v-pares .control-conclusion { padding: 8px 12px; }
 .vsvg { display: block; width: 100%; height: auto; }
 .vsvg.acotado { max-width: 500px; margin-inline: auto; }
 .vctl { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }

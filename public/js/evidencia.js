@@ -345,19 +345,26 @@
     ];
     var st = { ind: "error_odometrico", n: 5, k: val.length, total: en.mapeo.length };
     el.innerHTML =
+      '<div class="v-pestanas" role="group" aria-label="Parte del interactivo"><button type="button" class="vbtn" data-parte="0" aria-pressed="true">La media</button><button type="button" class="vbtn" data-parte="1" aria-pressed="false">Una proporción</button></div>' +
+      '<div class="v-escena v-pares" data-activa="0"><div class="v-bloque">' +
       '<h4 class="vsub">La media y su intervalo de confianza al 95 %</h4>' +
       U.chips(IND.map(function (i) { return [i.id, i.t]; }), "data-ind", st.ind, "Indicador") +
       '<div class="ev-graf" data-o="recta"></div>' +
       '<label class="desl-linea" for="ev-n">Repeticiones, suponiendo la misma media y la misma dispersión <b class="num" data-o="n"></b><input id="ev-n" type="range" min="3" max="20" step="1" value="5"></label>' +
       '<div class="vley"><span><i class="pt azul"></i>cada repetición</span><span><i class="cu azul-s"></i>intervalo con las cinco</span><span><i class="lin ambar"></i>intervalo proyectado</span></div>' +
       '<div class="control-datos ev-datos" data-o="datos-m" aria-live="polite"></div>' +
+      '</div><div class="v-bloque">' +
       '<h4 class="vsub">Una proporción de éxitos: intervalo de Clopper y Pearson</h4>' +
       U.chips([["5-6", "5 de 6 · exploraciones válidas"], ["15-15", "15 de 15 · protocolo propuesto"], ["17-17", "17 de 17"]], "data-pre", "5-6", "Casos de ejemplo") +
       '<div class="ev-nums"><label for="ev-k">Éxitos<input id="ev-k" type="number" min="0" max="40" step="1" value="5"></label><label for="ev-t">Intentos<input id="ev-t" type="number" min="1" max="40" step="1" value="6"></label></div>' +
       '<div class="ev-graf" data-o="prop"></div>' +
       '<div class="control-datos ev-datos" data-o="datos-p" aria-live="polite"></div>' +
-      '<p class="control-conclusion" data-o="lectura-p"></p>' +
-      '<p class="vnota">Intervalos de la media con la distribución t de Student (Ec. A8.2) y de la proporción con el método exacto de Clopper y Pearson, como en la Tabla A8.4. Lo proyectado es un cálculo: un ensayo nuevo puede cambiar la media y la dispersión.</p>';
+      '<p class="control-conclusion" data-o="lectura-p"></p></div></div>' +
+      '<details class="v-mas"><summary>Método y qué se proyecta</summary><div class="v-mas-cuerpo"><p class="vnota">Intervalos de la media con la distribución t de Student (Ec. A8.2) y de la proporción con el método exacto de Clopper y Pearson, como en la Tabla A8.4. Lo proyectado es un cálculo: un ensayo nuevo puede cambiar la media y la dispersión.</p></div></details>';
+    el.querySelector(".v-pestanas").addEventListener("click", function (e) {
+      var t = e.target.closest("[data-parte]"); if (!t) return;
+      el.querySelector(".v-pares").setAttribute("data-activa", t.getAttribute("data-parte")); U.marcar(el, "data-parte", t.getAttribute("data-parte"));
+    });
     var out = function (k) { return el.querySelector('[data-o="' + k + '"]'); };
     var inN = el.querySelector("#ev-n"), inK = el.querySelector("#ev-k"), inT = el.querySelector("#ev-t");
     function ind() { return IND.filter(function (i) { return i.id === st.ind; })[0]; }

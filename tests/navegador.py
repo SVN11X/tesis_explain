@@ -1277,9 +1277,9 @@ def probar_costos_y_plan(nav):
     p.goto(BASE + '/robot.html')
     p.wait_for_timeout(150)
     r = p.evaluate("""() => { const listas = document.querySelectorAll('ol.barras'), n = t => parseInt(t.replace(/\\D/g, ''), 10);
-      const montos = [...listas[0].querySelectorAll('.b-num')].map(x => n(x.firstChild.textContent));
+      const montos = [...listas[0].querySelectorAll('.b-num'), ...listas[1].querySelectorAll('.b-num')].map(x => n(x.firstChild.textContent));
       return { partidas: montos.length, suma: montos.reduce((a, b) => a + b, 0), orden: montos.every((v, i) => !i || montos[i - 1] >= v),
-               anios: [...listas[1].querySelectorAll('.b-txt')].map(x => x.textContent), compras: document.querySelectorAll('.tabla-compras tbody tr:not(.partida):not(.total) td:first-child').length,
+               anios: [...listas[2].querySelectorAll('.b-txt')].map(x => x.textContent), compras: document.querySelectorAll('.tabla-compras tbody tr:not(.partida):not(.total) td:first-child').length,
                totales: [...document.querySelectorAll('.tabla-compras tr.total td.n')].map(x => x.textContent) }; }""")
     ok(r['partidas'] == 17 and r['suma'] == 582447 and r['orden'], 'las 17 partidas suman 582 447 CLP, de mayor a menor', r)
     ok(r['anios'] == ['2024', '2025', '2026'] and r['compras'] == 52 and r['totales'] == ['444 643', '582 447'], 'el gasto por año y el detalle de compras cuadran con la Tabla A1.1', r)

@@ -38,6 +38,11 @@ def text_of(page, visual):
     return page.locator('[data-vis="%s"]' % visual).inner_text()
 
 
+def text_all(page, visual):
+    """Texto con lo plegado en un details incluido."""
+    return page.locator('[data-vis="%s"]' % visual).text_content()
+
+
 def estado(page, visual, fn):
     return page.evaluate('([v, f]) => document.querySelector(`[data-vis="${v}"]`)[f]()', [visual, fn])
 
@@ -120,10 +125,10 @@ with sync_playwright() as pw:
         # calibración con los datos de la tesis
         t = text_of(p, 'calibracion')
         check('3,63 % → 0,00 %' in t and '0,44 % → 0,43 %' in t and '÷ 1,0363' in t, name + ': el ensayo real muestra sesgo, dispersión y factor')
-        check('4,01 → 0,37' in t and '2,88 → −0,72' in t and 'Tabla A6.2' in t, name + ': cada prueba muestra su error antes y después')
+        check('4,01 → 0,37' in t and '2,88 → −0,72' in t and 'Tabla A6.2' in text_all(p, 'calibracion'), name + ': cada prueba muestra su error antes y después')
         check('6,7 cm → 0,0 cm' in t, name + ': el sesgo también se expresa en centímetros de la recta')
         p.locator('[data-vis=calibracion] [data-modo=sim]').click()
-        check('no son mediciones' in text_of(p, 'calibracion') and p.locator('[data-vis=calibracion] [data-k=sesgo]').is_visible(), name + ': la simulación se rotula como tal y muestra sus controles')
+        check('no son mediciones' in text_all(p, 'calibracion') and p.locator('[data-vis=calibracion] [data-k=sesgo]').is_visible(), name + ': la simulación se rotula como tal y muestra sus controles')
         set_range(p, '[data-vis=calibracion] [data-k=variacion]', 0)
         e = estado(p, 'calibracion', 'estadoCal')
         check(abs(e['nuevas']['media']) < 1e-9 and 'Sin variación aleatoria' in text_of(p, 'calibracion'), name + ': sin variación, el factor corrige exacto las repeticiones nuevas')
@@ -257,10 +262,12 @@ with sync_playwright() as pw:
 
         # Rejilla editable: muros, meta, encierro, vuelta al ejemplo y teclado. En los teléfonos se toca.
         tactil = bool(options.get('has_touch'))
+        p.evaluate("document.querySelectorAll('[data-vis=astar] details.v-mas').forEach(d => { d.open = true; })")
         rejilla = p.locator('[data-vis=astar] .as-rejilla')
         rejilla.scroll_into_view_if_needed()
 
         def tocar(cx, cy):
+            rejilla.scroll_into_view_if_needed()
             caja = rejilla.bounding_box()
             x, y = caja['x'] + (cx + .5) * caja['width'] / 24, caja['y'] + (cy + .5) * caja['height'] / 13
             if tactil:
