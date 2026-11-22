@@ -95,7 +95,7 @@ with sync_playwright() as pw:
         check(p.locator('[data-vis=lidar] .mp-lidar-scene .robot-planta').count() == 1 and '1 m' in p.locator('[data-vis=lidar] .mp-lidar-scene').inner_text(), name + ': el dibujo del LiDAR tiene el robot con su planta en U y escala de 1 m')
         p.locator('[data-vis=lidar] .mp-lidar-scene').focus()
         p.keyboard.press('ArrowRight')
-        check(p.locator('[data-out="mp-lidar-x"]').inner_text() == '1,08 m', name + ': las flechas mueven el robot 8 cm')
+        check(p.locator('[data-out="mp-lidar-x"]').text_content() == '1,08 m', name + ': las flechas mueven el robot 8 cm')
         p.locator('[data-vis=lidar] [data-reset]').click()
         p.locator('[data-vis=lidar] [data-caso=vidrio]').click()
         check(int(lectura(p, 'lidar', 1)) > 0, name + ': el vidrio produce sectores sin retorno')
@@ -107,6 +107,8 @@ with sync_playwright() as pw:
 
         # Vista 3D del mismo barrido: se dibuja, explica las alturas, cambia de punto de vista y gira
         v3 = p.locator('[data-vis=lidar] .mp-3d-lienzo')
+        if not v3.is_visible():
+            p.locator('[data-vis=lidar] [data-pane="3d"]').click()
         v3.scroll_into_view_if_needed()
         vista = lambda: p.locator('[data-vis=lidar]').evaluate('el => el.estadoSim().vista3d')
         pintado = v3.evaluate("c => { const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0, t = 0; for (let i = 0; i < d.length; i += 4 * 97) { t++; if (d[i] !== d[0] || d[i + 1] !== d[1] || d[i + 2] !== d[2]) n++; } return n / t; }")
