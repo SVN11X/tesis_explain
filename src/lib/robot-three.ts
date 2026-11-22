@@ -186,8 +186,8 @@ export async function heroScene(host:HTMLElement,onSelect:(id:PartId)=>void,onLo
     let mat=propios.get(k);if(!mat){mat=base.clone();propios.set(k,mat);materiales[id].push(mat);}m.material=mat;mallas[id].push(m);});}
   // PLA negro con brillo suave y metal más pulido: separan la forma del fondo. Los colores siguen siendo los del prototipo.
   if(robot.cad)for(const id of PARTS)for(const m of mallas[id]){const mat=m.material as THREE.MeshStandardMaterial,g=m.name.split('__')[0];
-    if(g==='cubierta'&&m.name!=='cubierta__franjas'){mat.color.lerp(new THREE.Color(.026,.03,.034),.6);mat.roughness=.46;mat.metalness=.06;}
-    else if(g==='laser_base'||g==='laser_cabezal'){mat.color.lerp(new THREE.Color(.045,.048,.052),.6);mat.roughness=.38;}
+    if(g==='cubierta'&&m.name!=='cubierta__franjas'){mat.color.lerp(new THREE.Color(.026,.03,.034),.6);mat.roughness=.6;mat.metalness=.06;}
+    else if(g==='laser_base'||g==='laser_cabezal'){mat.color.lerp(new THREE.Color(.045,.048,.052),.6);mat.roughness=.5;}
     else if(mat.metalness>.5)mat.roughness=Math.max(.2,mat.roughness*.8);}
   // La pieza elegida nunca queda tapada: las que pueden taparla pasan a fantasma. El LiDAR y el chasis quedan a la vista.
   const TAPAN:Record<PartId,PartId[]>={laser:[],cubierta:[],electronica:['cubierta','laser'],traccion:['cubierta','electronica','laser']};
@@ -200,7 +200,7 @@ export async function heroScene(host:HTMLElement,onSelect:(id:PartId)=>void,onLo
   // En el tema oscuro el robot negro se perdería sobre el fondo: suben la luz de contorno y el entorno.
   const L=s.lights;
   function tema(){const oscuro=temaOscuro();
-    s.scene.environmentIntensity=oscuro?.85:.55;L.hemi.intensity=oscuro?1:.75;L.key.intensity=s.lightweight?1.1:oscuro?2.1:2.2;L.rim.intensity=s.lightweight?.35:oscuro?4.4:2.4;
+    s.scene.environmentIntensity=oscuro?.65:.55;L.hemi.intensity=oscuro?.7:.75;L.key.intensity=s.lightweight?1.1:oscuro?1.5:2.2;L.rim.intensity=s.lightweight?.35:oscuro?4.4:2.4;
     sombraMat.opacity=oscuro?.5:.22;const viejo=pisoMapa;pisoMapa=texturaPiso(oscuro);pisoMat.map=pisoMapa??null;pisoMat.needsUpdate=true;viejo?.dispose();
     highlightMat.color.setHex(COLOR_PIEZA[seleccion][oscuro?1:0]);
     if(s.renderer instanceof SVGRenderer)s.renderer.setClearColor(new THREE.Color(oscuro?0x121a17:0xf1f1e9),1);s.invalidate();}
