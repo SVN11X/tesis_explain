@@ -26,3 +26,6 @@ coverage/
 /public/voz/ort/ort-wasm-simd-threaded.asyncify.wasm
 /public/voz/whisper-tiny/onnx/decoder_model_merged_quantized.onnx
 /public/voz/whisper-tiny/onnx/encoder_model_quantized.onnx
+
+# Owner original of the summary video (52 MB), the web version is in public/videos
+/demo_tesis.mp4

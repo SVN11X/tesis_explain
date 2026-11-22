@@ -19,6 +19,13 @@ const base=import.meta.env.BASE_URL.replace(/\/?$/,'/');
     <div class="hero-bottom"><span class="mono">01 / DE LA MÁQUINA A LA IDEA</span><p><span class="clave c-turquesa">Gira.</span> <span class="clave c-naranja">Acerca.</span> <span class="clave c-violeta">Desmonta.</span> <span class="clave c-azul">Experimenta.</span></p><a href="#guia-abierta" class="scroll-cue" aria-label="Leer de qué trata la guía"><svg class="ph" viewBox="0 0 256 256" aria-hidden="true"><path d="M204.24,148.24l-72,72a6,6,0,0,1-8.48,0l-72-72a6,6,0,0,1,8.48-8.48L122,201.51V40a6,6,0,0,1,12,0V201.51l61.76-61.75a6,6,0,0,1,8.48,8.48Z"/></svg></a></div>
   </section>
 
+  <section class="summary-section section-shell c-azul" id="resumen" aria-labelledby="summary-title">
+    <div class="map-record" data-reveal>
+      <figure><video controls preload="none" playsinline poster={`${base}videos/resumen-tesis.webp`} width="1280" height="720" aria-describedby="summary-text"><source src={`${base}videos/resumen-tesis.mp4`} type="video/mp4"/></video><figcaption>Video de 1 minuto, sin voz y con música. Tú lo inicias y puedes pausarlo con sus controles.</figcaption></figure>
+      <div><p class="eyebrow">VIDEO RESUMEN</p><h2 id="summary-title">La tesis en <em>un minuto.</em></h2><p id="summary-text">Es la presentación de la defensa en diapositivas: el título y el autor, el objetivo general (un robot de bajo costo con ROS 2 que mapea con SLAM y explora zonas no mapeadas), los cuatro objetivos específicos, el robot físico impreso en 3D y su gemelo simulado en Gazebo, la arquitectura, los resultados de las corridas y las conclusiones con el trabajo futuro.</p></div>
+    </div>
+  </section>
+
   <section class="guide-opening section-shell c-verde" id="guia-abierta" aria-labelledby="opening-title">
     <div class="opening-copy" data-reveal>
       <p class="eyebrow">TRABAJO DE TITULACIÓN · INGENIERÍA CIVIL ELECTRÓNICA · UTEM · 2026</p>

@@ -243,4 +243,4 @@ h2 em,h1 em{color:var(--tema)}
 .hero-run-ctl:hover{background:rgba(15,23,34,.96)}
 @media(min-width:1151px){.hero-run{position:absolute;right:0;bottom:120px;margin:0;width:200px}}
 @media print{.hero-run{display:none}}
-
+.summary-section{padding-block:30px 20px}.summary-section .map-record{margin-top:0;border-top:0}.summary-section .map-record video{aspect-ratio:16/9;height:auto;display:block}.summary-section h2{font-size:clamp(30px,3.4vw,52px)}.summary-section .map-record>div>p:last-child{max-width:520px}

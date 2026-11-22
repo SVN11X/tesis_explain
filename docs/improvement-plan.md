@@ -77,8 +77,9 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 ## Performance
 
 - [x] (green) bibliografia.html: render-blocking critical path under 170 KB compressed (238 KB in 0007).
-- [ ] BLOCKED: All 18 pages keep the above-the-fold critical path under 170 KB, but 13 exceed it counting all bytes before load. Is the standard definition enough?
+- [x] (yellow) The owner accepted on 2026-11-22 the standard's definition of the 170 KB budget: the above-the-fold critical path, which all 18 pages meet.
 - [x] (yellow) Slow 3G: LCP under 5 s on all 18 pages (PRs #78, #80 and #81, details in docs/decisions/0007).
+- [x] (yellow) Thesis summary video on the home page (owner, 2026-11-22): 720p web version under 5 MB with poster. Music only, so it has no captions and the page has a text summary.
 
 ## Owner
 
