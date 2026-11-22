@@ -533,7 +533,7 @@
       /* El atributo va antes de montar. Mientras falta, el CSS centra el respaldo, y los gráficos que
          miden su contenedor al dibujarse leían un ancho de cero y quedaban a 600 px, reducidos en un teléfono.
          Si el montaje falla, fallo() lo quita. */
-      try { el.setAttribute("data-montado", "1"); if (window.U && window.U.alMaquetar) window.U.alMaquetar(el); f(el); delete el.innerHTML; el.removeAttribute("data-error-vis"); }
+      try { el.setAttribute("data-montado", "1"); if (window.U && window.U.escenaAuto) window.U.escenaAuto(el); f(el); delete el.innerHTML; el.removeAttribute("data-error-vis"); }
       catch (e) { delete el.innerHTML; fallo(el, "No se pudo cargar este interactivo en tu navegador."); if (window.console) console.error(e); }
     }
     function pedir(el, despues) {

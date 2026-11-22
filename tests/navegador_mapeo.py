@@ -35,8 +35,8 @@ def set_range(page, selector, value):
 
 def text_of(page, visual):
     caja = page.locator('[data-vis="%s"]' % visual)
-    cerradas = caja.evaluate_handle('e => [...e.querySelectorAll("details.vis-detalle:not([open])")]')
-    caja.evaluate('e => e.querySelectorAll("details.vis-detalle").forEach(d => { d.open = true; })')
+    cerradas = caja.evaluate_handle('e => [...e.querySelectorAll("details.v-mas:not([open])")]')
+    caja.evaluate('e => e.querySelectorAll("details.v-mas").forEach(d => { d.open = true; })')
     texto = caja.inner_text()
     cerradas.evaluate('l => l.forEach(d => { d.open = false; })')
     return texto
