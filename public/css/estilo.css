@@ -1356,3 +1356,47 @@ figure.esquema .b-ampliar { position: static; margin-top: 10px; }
 .mp-reto-r[data-ok="true"] { border-inline-start: 4px solid var(--verde-texto); }
 .mp-reto-r[data-ok="false"] { border-inline-start: 4px solid var(--ambar); }
 .mp-reto-r, .mp-reto-fin { background: var(--surface); border: 1px solid var(--line); padding: 12px; border-radius: var(--r); margin: 0; font-size: var(--t-sm); line-height: 1.5; }
+/* Mapeo y control: el dibujo y sus mandos caben juntos en una pantalla. js/comun.js los reparte en dos columnas y pliega las notas. */
+body[data-pagina="mapeo"] .widget .vis, body[data-pagina="control"] .widget .vis { container-type: inline-size; }
+.vis-maq { gap: 10px; }
+.vis-seccion { display: grid; gap: 10px; min-width: 0; }
+.vis-seccion[hidden] { display: none; }
+.vis-cuerpo-dos { display: grid; gap: 12px; min-width: 0; }
+.vis-dibujo, .vis-mando { display: grid; gap: 10px; align-content: start; min-width: 0; }
+.vis-dibujo > *, .vis-mando > * { min-width: 0; margin-block: 0; }
+.vis-dibujo .mp-chart { max-width: none; }
+.vis-pestanas { display: flex; flex-wrap: wrap; gap: 8px; }
+.vis-pestanas button[aria-pressed="true"] { background: var(--acento-suave); color: var(--acento); border-color: var(--acento); }
+.vis-detalle { border: 1px solid var(--line); border-radius: var(--r); padding: 2px 12px; }
+.vis-detalle summary { cursor: pointer; font-weight: 700; min-height: 36px; display: flex; align-items: center; font-size: var(--t-sm); }
+.vis-detalle > :not(summary) { margin-block: 6px 10px; }
+@container (min-width: 700px) {
+  .vis-cuerpo-dos:not([data-una]) { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+}
+.vis-lecturas { display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; }
+.vis-lecturas > * { flex: 1 1 auto; min-width: 0; margin: 0; }
+.vis-lecturas .control-datos > div, .vis-lecturas .lecturas > div, .vis-lecturas .mp-readings > div { padding: 8px 10px; }
+.vis-lecturas .control-datos, .vis-lecturas .lecturas, .vis-lecturas .mp-readings { grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr)); gap: 8px; }
+@container (min-width: 700px) {
+  .vis[data-vis="lazo-rueda"] .vis-cuerpo-dos:not([data-una]) { grid-template-columns: minmax(0, 1fr); }
+  .vis[data-vis="estabilidad"] .vis-cuerpo-dos:not([data-una]) { grid-template-columns: minmax(0, 1fr); }
+  .vis[data-vis="estabilidad"] .ev-paneles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .vis[data-vis="estabilidad"] .ev-fig svg { width: auto; max-width: 100%; max-height: 290px; margin-inline: auto; }
+  .vis[data-vis="estabilidad"] .vis-mando { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .vis[data-vis="estabilidad"] .vis-mando > :first-child { grid-column: 1; }
+  .vis[data-vis="estabilidad"] .vis-mando > :nth-child(2) { grid-column: 2; grid-row: 1 / span 2; }
+  .vis[data-vis="estabilidad"] .vis-mando > :nth-child(n+4) { grid-column: 1 / -1; }
+}
+@container (max-width: 699px) {
+  .vis-maq, .vis-cuerpo-dos, .vis-dibujo, .vis-mando, .vis-seccion { gap: 8px; }
+  .vis-dibujo .vley, .vis-dibujo .mp-legend { gap: 2px 12px; }
+  .vis-maq .mp-status, .vis-maq .control-conclusion { padding: 8px 10px; min-height: 0; }
+  .vis-maq .mp-equation { padding: 8px; font-size: var(--t-sm); }
+  .vis-maq .mp-readings, .vis-maq .lecturas { grid-template-columns: repeat(auto-fit, minmax(min(100%, 96px), 1fr)); gap: 6px; }
+  .vis-maq .mp-readings > div, .vis-maq .lecturas > div { display: grid; padding: 6px 8px; }
+  .vis-maq .mp-readings b { margin-inline-start: 0; }
+  .vis-maq .control-datos { grid-template-columns: repeat(auto-fit, minmax(min(100%, 120px), 1fr)); gap: 6px; margin: 0; }
+  .vis-maq .control-datos > div { padding: 6px 8px; gap: 2px; }
+  .vis-dibujo .mp-svg, .vis-dibujo .control-graf svg { max-height: 40vh; width: auto; max-width: 100%; margin-inline: auto; }
+}
+.vis-maq .control-panel-exp { margin: 8px 0 2px; }

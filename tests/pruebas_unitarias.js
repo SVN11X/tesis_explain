@@ -186,5 +186,14 @@ ok(qsE.every(function (q, i) { return q.opciones.every(function (o, j) { return 
 ok(["54 quedaron abortadas", "53", "3,3 s", "16,7 s", "10 s"].every(function (c) { return htmlE.indexOf(c) >= 0; }), "las cifras del reto están en la página");
 ok(htmlE.split('data-vis="reto-exploracion"')[1].split("</div>")[0].indexOf("<details>") >= 0, "el reto trae su respaldo sin JavaScript");
 
+console.log("\nReparto de un interactivo en dibujo y mandos");
+var rp = ctx.window.U.repartir(["mando", "dibujo", "dibujo", "mando", "nota", "lectura"]);
+ok(rp.length === 1 && rp[0].titulo === null && rp[0].dibujo.join() === "1,2" && rp[0].mando.join() === "0,3" && rp[0].nota.join() === "4" && rp[0].lectura.join() === "5", "una sola sección reparte dibujo, mandos, lecturas y nota");
+var rp2 = ctx.window.U.repartir(["titulo", "mando", "dibujo", "titulo", "mando", "nota"]);
+ok(rp2.length === 2 && rp2[0].titulo === 0 && rp2[1].titulo === 3 && rp2[1].mando.join() === "4" && rp2[1].nota.join() === "5", "cada título abre una sección");
+var rp3 = ctx.window.U.repartir(["mando", "titulo", "dibujo"]);
+ok(rp3.length === 2 && rp3[0].titulo === null && rp3[1].titulo === 1 && rp3[1].dibujo.join() === "2", "el contenido antes del primer título forma una sección sin título");
+ok(ctx.window.U.repartir([]).length === 0, "sin hijos no hay secciones");
+
 console.log("\n" + (total - fallos) + " de " + total + " pruebas correctas");
 process.exit(fallos ? 1 : 0);

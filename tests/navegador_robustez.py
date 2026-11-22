@@ -105,7 +105,7 @@ with sync_playwright() as pw:
     p.goto(BASE + '/control.html'); box = p.locator('[data-vis=pid]'); box.scroll_into_view_if_needed(); p.wait_for_selector('[data-vis=pid][data-montado]')
     reglas = box.evaluate('el => el.estadoSim().reglas')
     check(reglas == ['error-sin-integral', 'no-llega'], 'Solo P: lectura del error permanente', reglas)
-    check('0,13 / (1 + 0,000913 · 1200) = 0,062 m/s' in box.locator('.pid-lectura').inner_text() and box.locator('[data-o=err]').inner_text() == '0,062 m/s', 'La fórmula de la lectura coincide con el error del gráfico')
+    check('0,13 / (1 + 0,000913 · 1200) = 0,062 m/s' in box.locator('.pid-lectura').text_content() and box.locator('[data-o=err]').inner_text() == '0,062 m/s', 'La fórmula de la lectura coincide con el error del gráfico')
     box.locator('[data-p=agr]').click()
     reglas = box.evaluate('el => el.estadoSim().reglas')
     check('integral-elimina' in reglas and 'sobreimpulso' in reglas, 'PI agresivo: la lectura explica el error nulo y el sobreimpulso', reglas)

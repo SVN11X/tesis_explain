@@ -35,7 +35,12 @@ def set_range(page, selector, value):
 
 
 def text_of(page, visual):
-    return page.locator('[data-vis="%s"]' % visual).inner_text()
+    caja = page.locator('[data-vis="%s"]' % visual)
+    cerradas = caja.evaluate_handle('e => [...e.querySelectorAll("details.vis-detalle:not([open])")]')
+    caja.evaluate('e => e.querySelectorAll("details.vis-detalle").forEach(d => { d.open = true; })')
+    texto = caja.inner_text()
+    cerradas.evaluate('l => l.forEach(d => { d.open = false; })')
+    return texto
 
 
 with sync_playwright() as pw:
@@ -152,6 +157,7 @@ with sync_playwright() as pw:
         check('no se mueve' in text_of(p, 'zonas'), name + ': hay PWM sin movimiento dentro de la zona muerta física')
         set_range(p, '#zm-p', 100)
         check('empieza a responder' in text_of(p, 'zonas'), name + ': el motor de ejemplo responde al cruzar el umbral')
+        p.locator('[data-vis=zonas] .vis-pestanas button').nth(1).click()
         p.locator('[data-vis=zonas] [data-rueda=izq]').click()
         check('2 → 0 ticks/ciclo' in text_of(p, 'zonas'), name + ': la izquierda ignora dos ticks de error')
         check('0,131 m/s' in text_of(p, 'fopdt') and '0,3291 s' in text_of(p, 'fopdt') and 'Prácticamente cero' in text_of(p, 'fopdt'), name + ': el modelo izquierdo muestra valor final, τ y retardo')
@@ -162,8 +168,10 @@ with sync_playwright() as pw:
         check(p.locator('[data-vis=pso] .ganancia-par').count() == 6 and '12,48' in text_of(p, 'pso') and '16,00' in text_of(p, 'pso') and '7500' in text_of(p, 'pso'), name + ': los seis pares incluyen los valores PSO y finales')
         p.locator('[data-vis=resolucion] [data-caso=giro]').click()
         check(p.locator('[data-vis=resolucion] .lleno').count() == 10 and '20,0 %' in text_of(p, 'resolucion'), name + ': el giro muestra diez ticks y el peso relativo de la banda')
+        p.locator('[data-vis=resolucion] .vis-pestanas button').nth(1).click()
         set_range(p, '#re-v', .135)
         check('Después · dos decimales\n0,14 m/s' in text_of(p, 'resolucion'), name + ': el dato publicado cambia al cruzar el umbral de redondeo')
+        p.locator('[data-vis=resolucion] .vis-pestanas button').nth(2).click()
         check(p.locator('[data-vis=resolucion] .re-muestras li').count() == 10 and '0,128 m/s' in text_of(p, 'resolucion'), name + ': se explica el promedio con diez muestras etiquetadas como ejemplo')
         check(not errors, name + ': todos los cambios de controles terminaron sin errores')
         check(p.evaluate('document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1'), name + ': sigue sin desborde después de interactuar')

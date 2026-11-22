@@ -215,6 +215,85 @@
     });
     el.estadoSim = function () { return { respondidas: hechas }; };
   };
+  /* Reparto de un interactivo en dibujo, mandos y notas. Cada tipo es "titulo", "dibujo", "mando", "lectura" o "nota".
+     Un título abre una sección nueva. Devuelve [{ titulo, dibujo, mando, lectura, nota }] con los índices de cada grupo. */
+  U.repartir = function (tipos) {
+    var secs = [], s = null;
+    function nueva(t) { s = { titulo: t, dibujo: [], mando: [], lectura: [], nota: [] }; secs.push(s); }
+    tipos.forEach(function (t, i) {
+      if (t === "titulo") { if (s && (s.titulo !== null || s.dibujo.length || s.mando.length || s.lectura.length || s.nota.length)) nueva(i); else if (!s) nueva(i); else s.titulo = i; return; }
+      if (!s) nueva(null);
+      s[t].push(i);
+    });
+    return secs;
+  };
+  /* Pone el dibujo y sus mandos juntos en una sola pantalla: lado a lado cuando hay ancho, apilados si no. Las notas largas
+     quedan plegadas y, si hay varias secciones con título, se muestra una a la vez. Mueve los nodos, no los recrea. */
+  var DIBUJO = ".mp-chart, .mp-columns, .mp-3d, .control-graf, .lienzo, .pid-l, .pso-l, .lr-dibujo, .ev-paneles, .dos-pan, .control-par, .ee-barras, .kd-secuencia, .kd-cancelacion, .ticks-contados, .registro-bins, .re-muestras, .banda-celdas, .ley-comparar, .ganancias-pares, .vley, .mp-legend, .leyenda, .proto, .ev-fig, .comparar, .mp-mapa-lect, .formula, .zm-banda, .re-ticks, .re-registro";
+  var LECTURA = ".control-datos, .lecturas, .mp-readings, .ev-datos, .wu-res, .tr-datos, .ee-res, .fo-datos, .pa-datos, .ti-datos, .re-datos, .kd-datos, .aw-par";
+  U.maquetar = function (vis) {
+    var pagina = document.body && document.body.getAttribute("data-pagina");
+    if (pagina !== "mapeo" && pagina !== "control") return;
+    var host = vis.children.length === 1 && vis.firstElementChild.classList.contains("mp-panel") ? vis.firstElementChild : vis;
+    var hijos = [].slice.call(host.children);
+    if (hijos.length < 3 || host.querySelector(".mp-escenario, .mp-reto") || host.getAttribute("data-maqueta") === "no") return;
+    var tipos = hijos.map(function (h) {
+      if (h.matches("h4.vsub")) return "titulo";
+      if (h.matches(".vnota, details, [data-plegar]")) return "nota";
+      if (h.matches(DIBUJO)) return "dibujo";
+      if (h.matches(LECTURA)) return "lectura";
+      return "mando";
+    });
+    var secs = U.repartir(tipos);
+    while (host.firstChild) host.removeChild(host.firstChild);
+    host.classList.add("vis-maq");
+    var tab = secs.length > 1 && secs.every(function (s) { return s.titulo !== null; });
+    var barra = null;
+    if (tab) { barra = document.createElement("div"); barra.className = "vis-pestanas"; barra.setAttribute("role", "group"); barra.setAttribute("aria-label", "Partes del interactivo"); host.appendChild(barra); }
+    var cajas = secs.map(function (s, k) {
+      var caja = document.createElement("div"); caja.className = "vis-seccion";
+      if (s.titulo !== null && !tab) caja.appendChild(hijos[s.titulo]);
+      var cuerpo = document.createElement("div"); cuerpo.className = "vis-cuerpo-dos";
+      [["dibujo", "vis-dibujo"], ["mando", "vis-mando"]].forEach(function (g) {
+        if (!s[g[0]].length) return;
+        var col = document.createElement("div"); col.className = g[1];
+        s[g[0]].forEach(function (i) { col.appendChild(hijos[i]); });
+        cuerpo.appendChild(col);
+      });
+      if (!s.dibujo.length || !s.mando.length) cuerpo.setAttribute("data-una", "1");
+      caja.appendChild(cuerpo);
+      if (s.lectura.length) {
+        var lect = document.createElement("div"); lect.className = "vis-lecturas";
+        s.lectura.forEach(function (i) { lect.appendChild(hijos[i]); });
+        caja.appendChild(lect);
+      }
+      if (s.nota.length) {
+        var d = document.createElement("details"); d.className = "vis-detalle";
+        var sm = document.createElement("summary"); sm.textContent = "Ver el detalle y lo que supone el ejemplo"; d.appendChild(sm);
+        var sueltas = s.nota.filter(function (i) { return !hijos[i].matches("details, [data-plegar]"); });
+        s.nota.forEach(function (i) {
+          var h = hijos[i], t = h.getAttribute("data-plegar");
+          if (h.matches("details")) caja.appendChild(h);
+          else if (t) { var e = document.createElement("details"); e.className = "vis-detalle"; var m = document.createElement("summary"); m.textContent = t; e.appendChild(m); e.appendChild(h); caja.appendChild(e); }
+        });
+        if (sueltas.length) { sueltas.forEach(function (i) { d.appendChild(hijos[i]); }); caja.appendChild(d); }
+      }
+      if (tab) {
+        var b = document.createElement("button"); b.type = "button"; b.className = "vbtn sec"; b.textContent = hijos[s.titulo].textContent.trim();
+        b.setAttribute("aria-pressed", String(k === 0)); b.addEventListener("click", function () {
+          [].forEach.call(barra.children, function (x, j) { x.setAttribute("aria-pressed", String(j === k)); cajas[j].hidden = j !== k; });
+        });
+        barra.appendChild(b); caja.hidden = k !== 0;
+      }
+      host.appendChild(caja);
+      return caja;
+    });
+  };
+  /* El reparto se hace en cuanto el interactivo escribe su HTML, antes de que dibuje: así sus gráficos miden el ancho final. */
+  U.alMaquetar = function (vis) {
+    var nativo = Object.getOwnPropertyDescriptor(Element.prototype, "innerHTML");
+    Object.defineProperty(vis, "innerHTML", { configurable: true, get: function () { return nativo.get.call(this); }, set: function (v) { nativo.set.call(this, v); U.maquetar(this); } });
+  };
   window.U = U;
   window.VISUALES = window.VISUALES || {};
 })();
