@@ -154,7 +154,7 @@ summary, select, input[type="checkbox"], input[type="radio"], input[type="range"
 
 /* 5. Capítulos */
 .miga { font-family: var(--f-data); font-weight: 400; font-size: .6875rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.miga a { color: var(--muted); text-decoration: none; }
+.miga a { color: var(--muted); text-decoration: none; display: inline-flex; align-items: center; min-height: 24px; }
 .miga a:hover { color: var(--ink); text-decoration: underline; }
 .meta-cap { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: var(--t-xs); color: var(--muted); }
 .etiqueta { font-family: var(--f-data); font-weight: 400; font-size: .6875rem; text-transform: uppercase; letter-spacing: .1em; display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--line-2); background: transparent; color: var(--ink-2); padding: 4px 9px; white-space: nowrap; }
