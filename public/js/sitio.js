@@ -918,9 +918,12 @@
      llega, sin esperar esos archivos. Los interactivos se montan después de
      DOMContentLoaded, cuando todos los scripts diferidos ya registraron sus funciones. */
   function alListo(fn) {
-    if (document.readyState === "complete") { fn(); return; }
     var hecho = false;
     function una() { if (!hecho) { hecho = true; fn(); } }
+    /* Las páginas de la guía cargan los scripts después del evento load (scripts/css_critico.py). Mientras falte
+       alguno, __guiaPendiente vale 1 y el evento guia:scripts avisa cuando el último ya corrió. */
+    if (window.__guiaPendiente) { document.addEventListener("guia:scripts", una, { once: true }); return; }
+    if (document.readyState === "complete") { fn(); return; }
     document.addEventListener("DOMContentLoaded", una);
     window.addEventListener("load", una);
   }

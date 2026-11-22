@@ -86,7 +86,7 @@ def contexto(nav, **kw):
 
 def estatico():
     print('HTML de los capítulos originales; portada y laboratorio en navegador_redisenio.py')
-    sin_estilo, sin_precarga, con_modulo, videos_mal, titulos = [], [], [], [], []
+    sin_estilo, sin_precarga, con_modulo, videos_mal, titulos, bloquean = [], [], [], [], [], []
     for pag in PAGINAS:
         html = (DIST / pag).read_text(encoding='utf-8')
         s = BeautifulSoup(html, 'html.parser')
@@ -97,9 +97,20 @@ def estatico():
         # primer pintado (docs/decisions/0007), y el respaldo de métricas ajustadas ya evita el salto de diseño
         if precargas or not s.select_one('meta[name=color-scheme]') or not s.select_one('script[type=speculationrules]'):
             sin_precarga.append(pag)
-        for sc in s.select('script[src]'):
-            if sc['src'].split('/')[-1] in MODULOS_VIS:
-                con_modulo.append(pag + ' ' + sc['src'])
+        # los scripts de la guía van en data-diferidos del cargador (scripts/css_critico.py), ya no en etiquetas script[src]
+        fuentes = [sc['src'] for sc in s.select('script[src]')] + [u for sc in s.select('script[data-diferidos]') for u in sc['data-diferidos'].split()]
+        # primer pintado: CSS crítico en línea, hojas completas sin bloquear y la misma lista en <noscript>
+        directos = s.head.find_all(['link', 'script'], recursive=False)
+        hojas = [l['href'] for l in directos if l.name == 'link' and 'stylesheet' in l.get('rel', []) and l.get('media') == 'print' and l.has_attr('onload')]
+        respaldo = [l['href'] for ns in s.head.find_all('noscript', recursive=False) for l in ns.find_all('link')]
+        suelto = [e for e in directos if (e.name == 'link' and 'stylesheet' in e.get('rel', []) and e.get('media') != 'print') or (e.name == 'script' and e.has_attr('src'))]
+        if not s.head.find('style', recursive=False) or not hojas or hojas != respaldo or suelto:
+            bloquean.append(pag)
+        if s.select('script[src][defer]'):
+            con_modulo.append(pag + ' script defer en el head')
+        for src in fuentes:
+            if src.split('/')[-1] in MODULOS_VIS:
+                con_modulo.append(pag + ' ' + src)
         for v in s.select('.bucle video'):
             if v.has_attr('autoplay') or v.get('preload') != 'none' or not v.has_attr('controls'):
                 videos_mal.append(pag)
@@ -109,6 +120,7 @@ def estatico():
     check(not sin_estilo, 'ninguna página usa estilos en línea', sin_estilo)
     check(not sin_precarga, 'ninguna precarga fuentes, todas declaran color-scheme y precargan páginas al apuntar', sin_precarga)
     check(not con_modulo, 'ninguna página carga los archivos de interactivos al abrirse', con_modulo)
+    check(not bloquean, 'el primer pintado no espera hojas ni scripts: CSS crítico en línea, hojas sin bloquear y respaldo sin JavaScript', bloquean)
     check(not videos_mal, 'los videos en bucle no se descargan solos y tienen controles sin JavaScript', videos_mal)
     check(not titulos, 'las tarjetas de decisión usan h3 bajo el h2 de su sección', titulos)
     deslizar = BeautifulSoup((DIST / 'control.html').read_text(encoding='utf-8'), 'html.parser').select('.deslizar img')
@@ -307,9 +319,9 @@ def titulos(nav):
         print('  info %d de %d títulos ocupan otras líneas con el respaldo (%s) que con Archivo, sin efecto con font-display optional'
               % (distintos, len(temas) * len(anchos), ', '.join(sorted(f.strip('"') for f in usados))), flush=True)
     # La garantía descansa en font-display optional en todas las hojas de la guía.
-    css = (DIST / 'css/estilo.css').read_text(encoding='utf-8')
+    css = (DIST / 'css/fuentes.css').read_text(encoding='utf-8')
     caras = re.findall(r'@font-face \{[^}]*url\([^}]*\}', css)
-    check(caras and all('font-display: optional' in c for c in caras), 'las %d fuentes web de css/estilo.css usan font-display optional: si no llegan a tiempo la página sigue con el respaldo y no se mueve' % len(caras))
+    check(caras and all('font-display: optional' in c for c in caras), 'las %d fuentes web de css/fuentes.css usan font-display optional: si no llegan a tiempo la página sigue con el respaldo y no se mueve' % len(caras))
     caras_web = [c for f in sorted((ROOT / 'src/styles').glob('*.css')) for c in re.findall(r'@font-face\s*\{[^}]*url\([^}]*\}', f.read_text(encoding='utf-8'))]
     check(caras_web and all(re.search(r'font-display:\s*optional', c) for c in caras_web), 'las %d fuentes web de la portada (src/styles) usan font-display optional' % len(caras_web))
 
