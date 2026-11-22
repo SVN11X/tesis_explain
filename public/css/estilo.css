@@ -963,6 +963,9 @@ p, li, dd, figcaption { overflow-wrap: break-word; }
 .articulo .destacado { font-family: var(--f-display); font-size: clamp(1.35rem, 2.4vw, 1.75rem); font-weight: 500; letter-spacing: -.03em; line-height: 1.25; color: var(--ink); max-width: 24em; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--line); padding: 16px 0; margin: 26px 0; }
 
 figure.fig { margin: 0; max-width: 980px; }
+figure.fig.tope-600 { max-width: 600px; }
+figure.fig.tope-760 { max-width: 760px; }
+figure.fig.tope-842 { max-width: 842px; }
 figure.fig > a, figure.fig > picture, figure.fig > img { display: block; }
 figure.fig img { display: block; width: 100%; height: auto; border-radius: var(--r); border: 1px solid var(--line); background: #fff; cursor: zoom-in; }
 figure.fig.oscura img { background: #1b1f26; }
@@ -1275,6 +1278,9 @@ figure.esquema .b-ampliar { position: static; margin-top: 10px; }
 .en-breve h2 { color: var(--tema); }
 .cifras-mini div { border-top: 2px solid var(--tema); }
 .cifras-mini b { color: var(--tema); }
+.cifras-mini .ico-cifra { width: 24px; height: 24px; color: var(--tema); }
+.cifras-mini div { grid-template-columns: 24px 1fr; column-gap: 8px; align-items: center; }
+.cifras-mini div > span { grid-column: 1 / -1; }
 .articulo > section > h2:not(#t-breve)::before { content: ""; display: block; width: 44px; height: 4px; margin-bottom: 16px; background: var(--tema); }
 .articulo li::marker { color: var(--tema); }
 .articulo h3 .ancla, .articulo h2 .ancla { color: var(--tema); }
@@ -1291,7 +1297,8 @@ figure.esquema .b-ampliar { position: static; margin-top: 10px; }
 .ficha-concepto dt { color: var(--tema); }
 /* La guía en el lateral y en el menú: el número de cada parte con su color, y la actual con su fondo */
 .lateral .gl-item .n, .menu-guia a[data-pag] .n { color: var(--tema); font-weight: 600; font-size: .8125rem; }
-.lateral .gl-fila > a { grid-template-columns: 30px 1fr; }
+.lateral .gl-fila > a { grid-template-columns: 30px 20px 1fr; }
+.lateral .gl-ico { width: 20px; height: 20px; margin-top: 1px; color: var(--tema); }
 .lateral a[aria-current="page"] { background: var(--tema-fondo); box-shadow: inset 3px 0 0 var(--tema); }
 .lateral .gl-secciones a.activo { border-left-color: var(--tema); box-shadow: inset 1px 0 0 var(--tema); }
 .gl-pos { color: var(--tema); }
