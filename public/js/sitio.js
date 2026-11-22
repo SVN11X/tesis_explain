@@ -84,7 +84,7 @@
       var min = Math.max(3, Math.round(palabras / 200));
       document.querySelectorAll("[data-lectura]").forEach(function (el) { el.textContent = min + " min de lectura"; });
     }
-    document.querySelectorAll("[data-cap-n]").forEach(function (el) { el.textContent = esCap ? "Tema " + (idxSec + 1) + " de " + CAPS.length : "Complemento " + n2(idxSec); });
+    document.querySelectorAll("[data-cap-n]").forEach(function (el) { el.textContent = "Parte " + (idxSec + 1) + " de " + SECUENCIA.length; });
     document.querySelectorAll("[data-bloque]").forEach(function (el) { el.textContent = esCap ? "Tema " + n2(idxSec) + " · " + BLOQUES[c.bloque] : n2(idxSec) + " · Complemento de la guía"; });
     document.querySelectorAll("[data-nivel]").forEach(function (el) {
       if (!c.nivel) { el.remove(); return; }

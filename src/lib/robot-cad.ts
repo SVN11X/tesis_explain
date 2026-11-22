@@ -18,8 +18,6 @@ export async function loadRobot(url:string):Promise<Robot>{
   for(const m of meshes){
     m.matrixWorld.decompose(m.position,m.quaternion,m.scale);m.castShadow=true;m.receiveShadow=true;
     const group=m.name.split('__')[0];
-    // La carcasa se vuelve transparente para mostrar lo de adentro: lleva materiales propios, sin compartirlos con otro grupo.
-    if(group==='cubierta')m.material=(m.material as THREE.Material).clone();
     if(group==='laser_cabezal')cabezal.push(m);else (parts[(group==='laser_base'?'laser':group) as PartId]??parts.cubierta).add(m);
   }
   const centro=new THREE.Box3();for(const m of cabezal){m.updateMatrixWorld(true);centro.expandByObject(m);}

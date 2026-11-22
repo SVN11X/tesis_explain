@@ -811,7 +811,7 @@ def probar_plegados(nav):
     p.goto(BASE + '/replicar.html')
     p.wait_for_timeout(300)
     ok(p.evaluate("[...document.querySelectorAll('details.detalle')].every(d => !d.open)") and p.locator('main p.resumen').count() >= 9, 'replicar: sin ancla parte con un resumen por sección y todo el detalle plegado')
-    ok(p.locator('main #materiales ~ .tabla-env table').first.is_visible() and p.locator('main #conexiones ~ .tabla-env table').is_visible() and p.locator('main #versiones ~ .tabla-env table').is_visible() and p.locator('main #repositorios ~ .aprender a').count() == 5 and p.locator('main #repositorios ~ .aprender a').first.is_visible(), 'replicar: la lista de materiales, las conexiones, las versiones y los repositorios base siguen visibles')
+    ok(p.locator('main #materiales ~ .tabla-env table').first.is_visible() and p.locator('main #conexiones ~ .tabla-env table').is_visible() and p.locator('main #versiones ~ .tabla-env table').is_visible() and p.locator('main #repositorios ~ .aprender a').count() == 7 and p.locator('main #repositorios ~ .aprender a').first.is_visible(), 'replicar: la lista de materiales, las conexiones, las versiones y los repositorios base siguen visibles')
     r = p.evaluate("""() => { const h0 = document.documentElement.scrollHeight, ds = [...document.querySelectorAll('details.detalle')];
       ds.forEach(d => d.open = true); const h1 = document.documentElement.scrollHeight; ds.forEach(d => d.open = false); return { plegada: h0, abierta: h1 }; }""")
     ok(r['plegada'] < r['abierta'] * 0.65, 'replicar: plegada, la página mide menos del 65 % de la abierta', r)
