@@ -1,0 +1,14 @@
+/* Botón «Escuchar» de los resúmenes (js/voz-resumen.js). Se pide junto con el script, no va en la ruta crítica. */
+.voz-fila { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; max-width: var(--lectura); margin: 8px 0 0; padding-left: 17px; }
+.voz-fila .voz-boton { min-width: 7.5rem; }
+.voz-fila .voz-boton:hover:where(:not(:disabled)) svg { transform: none; }
+.voz-fila .voz-boton svg { width: 1.1em; height: 1.1em; flex: none; }
+.voz-fila .voz-boton[aria-disabled="true"] { opacity: .6; cursor: progress; }
+.voz-fila .voz-boton[aria-disabled="true"]:hover { background: transparent; color: var(--ink); }
+.voz-barra { flex: 1 1 8rem; min-width: 6rem; max-width: 16rem; height: 8px; accent-color: var(--ink); }
+.voz-nota { font-size: var(--t-xs); color: var(--ink-2); }
+.voz-estado { font-size: var(--t-xs); color: var(--ink-2); }
+.voz-estado:empty { display: none; }
+.voz-error .voz-estado { color: var(--ink); font-weight: 600; }
+.voz-error .voz-boton { border-style: dashed; }
+@media print { .voz-fila { display: none; } }

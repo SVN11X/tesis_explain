@@ -939,6 +939,18 @@
     window.addEventListener("beforeprint", function () { document.querySelectorAll(".revela, .barras, .gantt").forEach(function (el) { el.classList.add("visible"); }); });
   }
 
+  /* Botón «Escuchar» de los resúmenes: js/voz-resumen.js se pide en reposo, tras el evento load. El audio no se pide hasta pulsarlo. */
+  function vozResumen() {
+    if (!document.querySelector("p.resumen")) return;
+    function pedir() {
+      var s = document.createElement("script");
+      s.src = new URL("js/voz-resumen.js", document.baseURI).href;
+      document.head.appendChild(s);
+    }
+    var libre = window.requestIdleCallback || function (f) { return setTimeout(f, 2500); };
+    if (document.readyState === "complete") libre(pedir); else window.addEventListener("load", function () { libre(pedir); }, { once: true });
+  }
+
   /* Cada parte arranca aislada: un fallo en una no impide montar las siguientes. */
   function iniciar(partes) {
     partes.forEach(function (f) {
@@ -959,7 +971,7 @@
     window.addEventListener("load", una);
   }
   function arrancar() {
-    iniciar([bibliografiaTrasladada, capitulo, progreso, arriba, videos, bucles, ampliar, comparadores, citasYTerminos, glosario, bibliografia, copiarCitas, materiales, etapas, plegados]);
+    iniciar([vozResumen, bibliografiaTrasladada, capitulo, progreso, arriba, videos, bucles, ampliar, comparadores, citasYTerminos, glosario, bibliografia, copiarCitas, materiales, etapas, plegados]);
     document.documentElement.classList.add("js");
     alListo(function () { iniciar([interactivos, destacarHash, tablasDesplazables, animaciones]); });
   }

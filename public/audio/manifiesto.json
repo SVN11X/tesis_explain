@@ -1,0 +1,127 @@
+{
+ "version": 1,
+ "modelo": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+ "formato": "audio/mp4",
+ "entradas": {
+  "q-1903df96e712440a": {
+   "archivo": "q-1903df96e712440a.m4a",
+   "segundos": 7.52,
+   "tipo": "pregunta",
+   "id": "p-oe2-parcial",
+   "texto": "1903df96e712440a",
+   "habla": "f70e653f36e3210c"
+  },
+  "q-8b18b0d4d9fdfa18": {
+   "archivo": "q-8b18b0d4d9fdfa18.m4a",
+   "segundos": 7.28,
+   "tipo": "pregunta",
+   "id": "p-ahorro",
+   "texto": "8b18b0d4d9fdfa18",
+   "habla": "d246f12afb79fb7c"
+  },
+  "q-9f6a7f8e4b844040": {
+   "archivo": "q-9f6a7f8e4b844040.m4a",
+   "segundos": 7.28,
+   "tipo": "pregunta",
+   "id": "p-exploro-todo",
+   "texto": "9f6a7f8e4b844040",
+   "habla": "9f6a7f8e4b844040"
+  },
+  "q-a495baf547c3385a": {
+   "archivo": "q-a495baf547c3385a.m4a",
+   "segundos": 6.16,
+   "tipo": "pregunta",
+   "id": "p-costo",
+   "texto": "a495baf547c3385a",
+   "habla": "a495baf547c3385a"
+  },
+  "q-abf6a2e5d8e9b2a2": {
+   "archivo": "q-abf6a2e5d8e9b2a2.m4a",
+   "segundos": 8.0,
+   "tipo": "pregunta",
+   "id": "p-oe3-parcial",
+   "texto": "abf6a2e5d8e9b2a2",
+   "habla": "d14838b550c1c3c8"
+  },
+  "q-adf21b52e331df95": {
+   "archivo": "q-adf21b52e331df95.m4a",
+   "segundos": 6.88,
+   "tipo": "pregunta",
+   "id": "p-una-de-sesenta",
+   "texto": "adf21b52e331df95",
+   "habla": "39f0cf3ceb0ab480"
+  },
+  "q-b6652a01cbf31400": {
+   "archivo": "q-b6652a01cbf31400.m4a",
+   "segundos": 5.36,
+   "tipo": "pregunta",
+   "id": "p-objetivo-general",
+   "texto": "b6652a01cbf31400",
+   "habla": "b6652a01cbf31400"
+  },
+  "q-cc3615f4c44f4176": {
+   "archivo": "q-cc3615f4c44f4176.m4a",
+   "segundos": 5.2,
+   "tipo": "pregunta",
+   "id": "p-aporte",
+   "texto": "cc3615f4c44f4176",
+   "habla": "cc3615f4c44f4176"
+  },
+  "q-dad0a96071d8b09c": {
+   "archivo": "q-dad0a96071d8b09c.m4a",
+   "segundos": 3.6,
+   "tipo": "pregunta",
+   "id": "p-metas-fijas",
+   "texto": "dad0a96071d8b09c",
+   "habla": "dad0a96071d8b09c"
+  },
+  "q-ed7488b486b9756f": {
+   "archivo": "q-ed7488b486b9756f.m4a",
+   "segundos": 7.44,
+   "tipo": "pregunta",
+   "id": "p-en-simple",
+   "texto": "ed7488b486b9756f",
+   "habla": "ed7488b486b9756f"
+  },
+  "r-0ebe824e3e5dbe6c": {
+   "archivo": "r-0ebe824e3e5dbe6c.m4a",
+   "segundos": 21.28,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "0ebe824e3e5dbe6c",
+   "habla": "6e7c4e093bdfe5a0"
+  },
+  "r-441c07ac5f099d5e": {
+   "archivo": "r-441c07ac5f099d5e.m4a",
+   "segundos": 15.68,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "441c07ac5f099d5e",
+   "habla": "441c07ac5f099d5e"
+  },
+  "r-6cda3bb4069e8514": {
+   "archivo": "r-6cda3bb4069e8514.m4a",
+   "segundos": 19.28,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "6cda3bb4069e8514",
+   "habla": "5e53ac943624c40e"
+  },
+  "r-76bb9f000cb67756": {
+   "archivo": "r-76bb9f000cb67756.m4a",
+   "segundos": 7.76,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "76bb9f000cb67756",
+   "habla": "76bb9f000cb67756"
+  },
+  "r-a03084ed5c53a26b": {
+   "archivo": "r-a03084ed5c53a26b.m4a",
+   "segundos": 22.0,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "a03084ed5c53a26b",
+   "habla": "edf3b3105411c78d"
+  }
+ }
+}
