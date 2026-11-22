@@ -272,8 +272,8 @@ figure.foto.sin-zoom img { cursor: default; }
 .video button.yt:focus-visible { outline: 3px solid var(--foco); outline-offset: -3px; }
 .video .yt-play { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 76px; height: 54px; border-radius: var(--r); background: rgba(220, 30, 30, .92); display: grid; place-items: center; box-shadow: 0 6px 20px rgba(0,0,0,.4); }
 .video .yt-play::after { content: ""; border-left: 20px solid #fff; border-top: 12px solid transparent; border-bottom: 12px solid transparent; margin-left: 5px; }
-.video .yt-tit { position: absolute; left: 0; right: 0; bottom: 0; padding: 26px 16px 12px; background: linear-gradient(transparent, rgba(0,0,0,.78)); color: #fff; font-size: var(--t-sm); font-weight: 700; text-align: left; }
-.video .yt-tit small { display: block; font-weight: 400; opacity: .85; font-size: var(--t-xs); }
+.video .yt-tit { position: absolute; left: 0; right: 0; bottom: 0; padding: 26px 16px 12px; background: linear-gradient(transparent, rgba(0,0,0,.9) 55%); color: #fff; font-size: var(--t-sm); font-weight: 700; text-align: left; }
+.video .yt-tit small { display: block; font-weight: 400; font-size: var(--t-xs); }
 .video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 /* Enlace de respaldo antes de que el video liviano se monte, o sin JavaScript */
 .video > a { position: absolute; inset: 0; display: grid; place-items: center; color: #fff; }
@@ -1006,14 +1006,19 @@ figure.fig figcaption small { display: block; color: var(--muted); font-size: va
 .videos-grid .vid-card small { font-size: var(--t-xs); color: var(--muted); }
 
 /* Casos reales */
-.casos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 16px; max-width: 1080px; }
+.casos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 16px; max-width: 1080px; }
 .caso { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; display: grid; grid-template-rows: auto 1fr; }
 .caso .caso-media { aspect-ratio: 16 / 9; background: var(--surface-2); position: relative; overflow: hidden; }
 .caso .caso-media > img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .caso .caso-media .video { border: 0; border-radius: 0; max-width: none; height: 100%; aspect-ratio: auto; }
-.caso .caso-media.icono { display: grid; place-items: center; background: radial-gradient(circle at 50% 55%, var(--plano-2), var(--plano) 70%); color: #9CC2FF; }
-.caso .caso-media.icono::before { content: ""; position: absolute; inset: 0; background-image: linear-gradient(var(--plano-linea) 1px, transparent 1px), linear-gradient(90deg, var(--plano-linea) 1px, transparent 1px); background-size: 24px 24px; background-position: center; }
-.caso .caso-media.icono svg { position: relative; width: 64px; height: 64px; }
+.caso:has(> .caso-media.icono) { grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto; align-items: start; column-gap: 12px; padding: 16px 18px 18px; }
+.caso .caso-media.icono { aspect-ratio: auto; background: none; overflow: visible; display: block; padding-top: 1px; color: var(--acento); }
+.caso .caso-media.icono svg { display: block; width: 28px; height: 28px; fill: currentColor; }
+.caso:has(> .caso-media.icono) .caso-txt { padding: 0; }
+@media (min-width: 720px) {
+  .caso:has(> .caso-media:not(.icono)) { grid-column: 1 / -1; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); grid-template-rows: auto; }
+  .caso:has(> .caso-media:not(.icono)) .caso-media { align-self: start; }
+}
 .caso .caso-txt { padding: 16px 18px 18px; display: grid; gap: 8px; align-content: start; }
 .caso .lugar { font-family: var(--f-data); font-weight: 400; font-size: var(--t-2xs); text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
 .caso h3, .caso h4 { font-size: var(--t-md) !important; font-weight: 600; margin: 0 !important; }
@@ -1304,7 +1309,7 @@ figure.esquema .b-ampliar { position: static; margin-top: 10px; }
 .mr-txt { margin: 0; font-size: var(--t-base); }
 .mr-et { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); }
 .mr-e { border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); padding: 10px 12px; min-width: 0; }
-.mr-e h4 { margin: 0 0 6px; font-size: var(--t-base); }
+.mr-e h3 { margin: 0 0 6px; font-size: var(--t-base); }
 .mr-e p { margin: 0 0 6px; font-size: var(--t-sm); overflow-wrap: anywhere; }
 .mr-e p:last-child { margin-bottom: 0; }
 .mr-e .mr-q { display: block; font-size: var(--t-xs); color: var(--muted); font-weight: 700; }

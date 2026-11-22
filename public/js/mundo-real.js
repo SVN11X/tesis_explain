@@ -58,7 +58,7 @@
       et.innerHTML = ETAPAS.map(function (e) {
         var t = c[e[0]];
         if (t) con++;
-        return '<div class="mr-e"><h4>' + e[1] + '</h4>' +
+        return '<div class="mr-e"><h3>' + e[1] + '</h3>' +
           '<p><span class="mr-q">Robot explorador</span>' + U.esc(ROBOT[e[0]]) + '</p>' +
           '<p class="' + (t ? "" : "mr-sin") + '"><span class="mr-q">Este caso</span>' + U.esc(t || SIN) + '</p></div>';
       }).join("");
