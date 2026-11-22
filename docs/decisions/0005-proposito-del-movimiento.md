@@ -28,10 +28,10 @@ Loop means it repeats without end. RM is what reduced motion does.
 | 4 | View transitions between pages | `css/estilo.css`, `web/src/styles/experience.css` | Page navigation | 120 to 260 ms | No | Continuity between pages | None | Not needed |
 | 5 | Hover, focus and accordion transitions | `css/estilo.css`, `css/marco.css`, `css/preguntas.css` | Pointer, focus, toggle | Mostly under 300 ms | No | Feedback of a state change | transition none | Not needed |
 | 6 | Home hero entrance (`enter`) and `.will-reveal` | `web/src/styles/experience.css` | Page load, scroll | 0.7 to 1 s, once | No | Orders the first view | Reduced to 0.001 ms | Not needed |
-| 7 | Wheel hint (`aviso-rueda`) | `web/src/styles/experience.css` | Wheel over the 3D robot | 1.8 s, once | No | Says zoom needs Ctrl so the page still scrolls | 0.001 ms | Not needed |
+| 7 | Wheel hint (`aviso-rueda`), now at the top left of the viewer so it never covers the robot | `web/src/styles/experience.css` | Wheel over the 3D robot | 1.8 s, once | No | Says zoom needs Ctrl so the page still scrolls | 0.001 ms | Not needed |
 | 8 | `.scan-loader` spinner | `web/src/styles/experience.css`, `LidarLab.svelte` | Lab load | 1.8 s per turn | Yes, only while loading | Shows that the 3D scene is preparing | One iteration, 0.001 ms | Removed from the DOM when the scene loads (`{#if !loaded}`), not shown on failure. Checked in the browser |
 | 9 | Hero 3D robot spin | `web/src/lib/robot-three.ts`, `RobotHero.svelte` | Starts on load | Continuous | Yes | Shows the robot from every side | Off at start | Yes, button «Pausar movimiento del sensor» |
-| 10 | Hero 3D camera and exploded view (GSAP) | `robot-three.ts` | Zoom, view and explode buttons | Under 2 s, once | No | Explains how the parts fit | Shorter | Not needed |
+| 10 | Hero 3D camera and exploded view (GSAP) | `robot-three.ts` | Zoom, view, explode buttons and choosing a part | Under 2 s (0.8 s), once | No | Explains how the parts fit. Choosing a part now frames the whole part from where it will be after the explode | Instant | Not needed |
 | 11 | LiDAR lab sweep and route | `LidarLab.svelte`, `lidar-three.ts` | User presses «Recorrer» | Until paused | Yes | Shows how the sensor builds the map | Stops on change to reduce | Yes, the same button reads «Pausar» |
 | 12 | LiDAR camera view change (GSAP) | `lidar-three.ts` | User picks a view | Under 2 s, once | No | Shows top and perspective views | None | Not needed |
 | 13 | Exploration simulation (`js/exploracion.js`, `U.bucle`) | Guide pages | Starts when in view | Continuous | Yes | Shows frontier exploration | Waits for the user | Yes, «Pausar» |
@@ -46,6 +46,7 @@ Loop means it repeats without end. RM is what reduced motion does.
 | 22 | Robot in search without results (`.robot-busca`) | `js/marco.js`, `css/marco.css` | A search finds nothing | 1.3 s, 3 times (3.9 s) | No | Shows that the robot looked and found nothing (see 0006) | Still image | Not needed |
 | 23 | Step change in «metas-abortadas» (`js/lecciones.js`, `.mq-p` in `css/estilo.css`) | `lecciones.html` | User presses «Anterior» or «Siguiente» | var(--dur-1), once per step | No | Shows which points change meaning in each step | transition none | Not needed |
 | 24 | Home hero real run (`.hero-run`, `img/mapa-crece.mp4`) | `web/src/pages/index.astro`, `web/src/styles/experience.css` | Starts by itself after the page loads and goes idle | 7.3 s clip | Yes | Shows the robot exploring and the map growing on the first screen, as a real run | Poster only, waits for the user | Yes, visible button «Pausar» over the video. Checked in the browser |
+| 25 | Hero 3D part ghosting (opacity of the parts that hide the selected one) | `robot-three.ts` | Choosing Electrónica or Ruedas | 0.6 s, once | No | Keeps the selected part visible instead of hidden behind the shell | Instant | Not needed |
 
 Row 23 does not exist on purpose: the feedback of the challenge in `mapeo.html` (`reto-mapeo`) is text, a colored edge and a status message that appear at once. It has no animation or transition, so there is nothing to pause or to switch off with reduced motion.
 
