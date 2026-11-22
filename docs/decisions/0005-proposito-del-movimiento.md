@@ -46,7 +46,7 @@ Loop means it repeats without end. RM is what reduced motion does.
 | 22 | Robot in search without results (`.robot-busca`) | `js/marco.js`, `css/marco.css` | A search finds nothing | 1.3 s, 3 times (3.9 s) | No | Shows that the robot looked and found nothing (see 0006) | Still image | Not needed |
 | 23 | Step change in «metas-abortadas» (`js/lecciones.js`, `.mq-p` in `css/estilo.css`) | `lecciones.html` | User presses «Anterior» or «Siguiente» | var(--dur-1), once per step | No | Shows which points change meaning in each step | transition none | Not needed |
 | 24 | Home hero real run (`.hero-run`, `img/mapa-crece.mp4`) | `web/src/pages/index.astro`, `web/src/styles/experience.css` | Starts by itself after the page loads and goes idle | 7.3 s clip | Yes | Shows the robot exploring and the map growing on the first screen, as a real run | Poster only, waits for the user | Yes, visible button «Pausar» over the video. Checked in the browser |
-| 25 | Hero 3D part ghosting (opacity of the parts that hide the selected one) | `robot-three.ts` | Choosing Electrónica or Ruedas | 0.6 s, once | No | Keeps the selected part visible instead of hidden behind the shell | Instant | Not needed |
+| 25 | Hero 3D part ghosting and tint (opacity of the parts that hide the selected one, emissive color on the selected part) | `robot-three.ts` | Choosing Electrónica or Ruedas | 0.6 s, once | No | Keeps the selected part visible instead of hidden behind the shell | Instant | Not needed |
 
 Row 23 does not exist on purpose: the feedback of the challenge in `mapeo.html` (`reto-mapeo`) is text, a colored edge and a status message that appear at once. It has no animation or transition, so there is nothing to pause or to switch off with reduced motion.
 
