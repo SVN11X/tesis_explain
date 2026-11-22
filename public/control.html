@@ -85,7 +85,7 @@
       <div class="meta-cap"><span data-nivel class="etiqueta">Nivel</span><span class="etiqueta" data-lectura>Lectura</span></div>
     </div>
     <figure class="tema-hero-fig contener">
-      <picture><source srcset="img/tesis/escalon-final.webp" type="image/webp"><img src="img/tesis/escalon-final.png" width="1281" height="1027" alt="Dos gráficos de la velocidad medida de cada rueda frente a una referencia de 0,13 m/s durante 10 segundos. Ambas ruedas suben en cerca de un segundo y se mantienen en la referencia." fetchpriority="high"></picture>
+      <picture><source srcset="img/tesis/escalon-final-640.webp 640w, img/tesis/escalon-final.webp 1281w" sizes="(max-width: 760px) 92vw, 680px" type="image/webp"><img src="img/tesis/escalon-final.png" width="1281" height="1027" alt="Dos gráficos de la velocidad medida de cada rueda frente a una referencia de 0,13 m/s durante 10 segundos. Ambas ruedas suben en cerca de un segundo y se mantienen en la referencia." fetchpriority="high"></picture>
       <figcaption>Respuesta de ambas ruedas del robot real a una referencia de 0,13 m/s, con las ganancias finales. Fig. 5.4 de la tesis.</figcaption>
     </figure>
   </div>
@@ -350,7 +350,7 @@
   <p>Los tres números se leen sobre la curva. La <strong>ganancia</strong> dice a qué velocidad llega la rueda por cada unidad de PWM, una vez que la respuesta se estabiliza. La <strong>constante de tiempo</strong> es lo que tarda en recorrer el 63 % del camino hacia ese valor. El <strong>retardo</strong> es el tiempo en que todavía no reacciona.</p>
   <p>¿Por qué conservar un retardo que no se distingue de cero? Porque la estructura FOPDT contiene al modelo de primer orden como caso particular, el de un motor de corriente continua cuando se desprecia la inductancia, y permite estudiar escenarios de retardo en el análisis de estabilidad <a class="ref" href="#f3">3</a> <a class="ref" href="#f23">23</a>. Cualquier retardo menor que 0,1 s da el mismo costo de ajuste, y por eso el optimizador entregó 0,0692 s para la derecha y otro script, 0,0845 s, con la misma ganancia y la misma constante de tiempo <a class="ref" href="#f1">1</a>. Medir retardos menores exige capturar más rápido, y eso queda como trabajo futuro.</p>
   <figure class="fig">
-    <picture><source srcset="img/tesis/pso-lambda.webp" type="image/webp"><img src="img/tesis/pso-lambda.png" width="1600" height="1461" loading="lazy" decoding="async" alt="Cuatro gráficos. A la izquierda, la identificación de cada rueda en lazo abierto: datos reales, datos suavizados y el modelo FOPDT, muy parecidos. A la derecha, una simulación del lazo cerrado con las ganancias finales y con una sintonía Lambda, que oscila mucho más."></picture>
+    <picture><source srcset="img/tesis/pso-lambda-640.webp 640w, img/tesis/pso-lambda.webp 1600w" sizes="(max-width: 760px) 92vw, 680px" type="image/webp"><img src="img/tesis/pso-lambda.png" width="1600" height="1461" loading="lazy" decoding="async" alt="Cuatro gráficos. A la izquierda, la identificación de cada rueda en lazo abierto: datos reales, datos suavizados y el modelo FOPDT, muy parecidos. A la derecha, una simulación del lazo cerrado con las ganancias finales y con una sintonía Lambda, que oscila mucho más."></picture>
     <figcaption>A la izquierda, el modelo de cada rueda calza con los datos reales. A la derecha, una comparación simulada con la sintonía Lambda, que presento solo como ilustración porque el modelo no tiene la zona muerta ni los tipos enteros del firmware. <small>Fig. A4.1 de la tesis.</small></figcaption>
   </figure>
   <p>Que las dos ruedas tengan modelos distintos importa. Cada modelo permite buscar y evaluar ganancias propias para esa rueda, en vez de suponer que ambas responderán igual.</p>
@@ -381,8 +381,8 @@
   </details>
   <figure class="desl-env">
     <div class="deslizar">
-      <picture class="c-a"><source srcset="img/tesis/escalon-pso.webp" type="image/webp"><img src="img/tesis/escalon-pso.png" width="1281" height="1027" loading="lazy" decoding="async" alt="Respuesta con las ganancias del PSO: la rueda izquierda queda bajo la referencia y la derecha sube por tramos con una detención cerca de 0,11 m/s."></picture>
-      <picture class="c-b"><source srcset="img/tesis/escalon-final.webp" type="image/webp"><img src="img/tesis/escalon-final.png" width="1281" height="1027" loading="lazy" decoding="async" alt="Respuesta con las ganancias finales: ambas ruedas alcanzan 0,13 m/s cerca de un segundo antes y se mantienen."></picture>
+      <picture class="c-a"><source srcset="img/tesis/escalon-pso-640.webp 640w, img/tesis/escalon-pso.webp 1281w" sizes="(max-width: 760px) 92vw, 680px" type="image/webp"><img src="img/tesis/escalon-pso.png" width="1281" height="1027" loading="lazy" decoding="async" alt="Respuesta con las ganancias del PSO: la rueda izquierda queda bajo la referencia y la derecha sube por tramos con una detención cerca de 0,11 m/s."></picture>
+      <picture class="c-b"><source srcset="img/tesis/escalon-final-640.webp 640w, img/tesis/escalon-final.webp 1281w" sizes="(max-width: 760px) 92vw, 680px" type="image/webp"><img src="img/tesis/escalon-final.png" width="1281" height="1027" loading="lazy" decoding="async" alt="Respuesta con las ganancias finales: ambas ruedas alcanzan 0,13 m/s cerca de un segundo antes y se mantienen."></picture>
       <input type="range" min="0" max="100" value="50" aria-label="Deslizar para comparar la respuesta con las ganancias del PSO y con las ganancias finales">
       <span class="c-linea" aria-hidden="true"></span>
       <span class="c-et a">Ganancias del PSO</span><span class="c-et b">Ganancias finales</span>

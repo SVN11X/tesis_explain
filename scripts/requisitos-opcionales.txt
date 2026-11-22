@@ -9,3 +9,5 @@ cascadio==0.1.1
 # subconjunto_fuentes.py: recorta las fuentes woff2 a los caracteres que usa el sitio.
 fonttools==4.61.1
 brotli==1.2.1
+# variantes_imagen.py: reduce los WebP del sitio para teléfonos.
+Pillow==11.3.0

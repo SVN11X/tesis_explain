@@ -211,3 +211,53 @@ Critical path KB (everything finished before `load`) before to after, KB after `
 - Over 170 KB before load: not met, and worse than before, 13 of 18 pages. The scripts now load before `load` again (38 to 64 KB) and the inline CSS adds about 14 KB to each HTML file, so the critical path grew by about 14 KB per page against the previous run. The pages that went over with images are `gemelo` (365.5), `navegacion` (281.5) and `movimiento` (254.6). The render-blocking part is only the HTML, 27.6 to 94.5 KB, and the first paint no longer waits for scripts, stylesheets or fonts. Whether bytes that arrive after the first paint belong in a "critical path" is the open question of this record. Reaching 170 KB by the count of this record needs the scripts after `load`, which brought back the font swap above, so it needs a separate item: either keep the scripts after `load` and stop the relayout at load (for example by loading the fonts only for repeat visits), or count only the bytes before the first paint.
 - CLS is at most 0.0126 (`preguntas`), under 0.1.
 - Not measured: a real device and repeated runs. Differences below a few hundred milliseconds are noise.
+
+## Follow-up 2026-11-22: images, and the home page inline styles
+
+Same method, one run per page and profile, `dist/` built from this branch. "Before" was measured again on `main` (after #80) with the same script, so both columns are comparable. The only change in method is that the LCP element and every image request before `load` were listed per page.
+
+### What the audit found
+
+- The LCP element is the first paragraph (`.lead`) on 16 pages and the `h1` on `index` and `laboratorios`. No page has an image as its LCP element, so the first images were already correct: each guide page whose first block is an image has `fetchpriority="high"` and no `loading="lazy"`, every `<img>` has `width` and `height`, and every video has `preload="none"` and a poster (or `data-poster`).
+- What was left was weight. Seven images of 53 to 160 KB were requested before `load`, some of them lazy ones that Chrome fetches early on a slow connection (its look-ahead distance grows as the connection gets slower): `robot-planta` 160 KB, `nav2-arquitectura-med` 93, `odom-real` 70, `arquitectura-med` 53 and others. All of them were sent at full size to a 360 px phone.
+- On `index` and `laboratorios` the `h1` waited for two blocking stylesheets (`css/marco.css` and the Astro sheet, 18.7 KB together). On Slow 3G the HTML arrived at 2.4 s, the sheets took one more round trip of 2 s and ended at 4.6 and 5.1 s, sharing the 50 KB/s with the poster and the lazy images. Not the video (it is `preload="none"` and starts 0.8 s after `load`), not the 3D viewer (its chunks arrive after `load`) and not the fonts (`optional`, after the first paint).
+
+### Changes
+
+1. `scripts/variantes_imagen.py` makes a 640 px WebP of every `<picture>` that is 900 px or wider (26 images, `-640.webp`) from the WebP already published, and writes `srcset="x-640.webp 640w, x.webp Nw" sizes="(max-width: 760px) 92vw, 680px"` in `public/*.html`. The WebP original and the PNG or JPG fallback are unchanged. `--comprobar` fails when a wide `<picture>` has no variant. It also makes `img/mapa-crece-fija-360.webp` (10 KB against 28 KB), the poster of the home hero, which is 300 px wide.
+2. `mapeo.html`: the small plane diagram below the first image is lazy and async.
+3. `index` and `laboratorios`: `build.inlineStylesheets: 'always'` in `astro.config.mjs` puts the Astro sheet in the HTML, and `src/layouts/Shell.astro` puts `css/marco.css` in a `<style>` in the same place and order as before. No page waits for a stylesheet round trip any more. The HTML grows from 18.5 to 36.4 KB compressed, and the two requests are gone.
+4. `index`: the hero poster is the 360 px file. The video logic is unchanged: `preload="none"`, the poster first, played after `load` and after an idle moment, with the pause button, as `docs/decisions/0005` (row 24) says.
+
+### Results
+
+Critical path KB (everything finished before `load`) before to after, image KB before `load` after the change, Slow 3G LCP in ms before to after, Slow 3G load in ms after, and the largest CLS seen in the two profiles.
+
+| Page | Critical KB | Image KB before load | Slow LCP | Slow load | CLS |
+| --- | --- | --- | --- | --- | --- |
+| `bibliografia` | 167.5 to 167.5 | 0.0 to 0.0 | 2568 to 2608 | 8605 | 0 |
+| `control` | 226.5 to 222.4 | 21.4 to 17.3 | 2588 to 2544 | 10452 | 0.0025 |
+| `exploracion` | 204.9 to 204.9 | 27.9 to 27.9 | 2852 to 2760 | 9823 | 0.0032 |
+| `gemelo` | 365.5 to 276.8 | 200.9 to 112.1 | 2660 to 2676 | 11275 | 0.0017 |
+| `index` | 140.4 to 150.1 | 47.3 to 57.8 | 5344 to 2672 | 9522 | 0 |
+| `laboratorio` | 188.4 to 188.4 | 0.0 to 0.0 | 2632 to 2624 | 9922 | 0 |
+| `laboratorios` | 86.9 to 86.2 | 0.0 to 0.0 | 4872 to 2604 | 5712 | 0 |
+| `lecciones` | 164.3 to 161.5 | 13.6 to 10.8 | 2680 to 2644 | 8569 | 0 |
+| `mapeo` | 212.3 to 212.4 | 13.2 to 13.2 | 2572 to 2596 | 12705 | 0.0032 |
+| `movimiento` | 254.6 to 222.1 | 69.9 to 37.3 | 2732 to 2588 | 9961 | 0.0032 |
+| `mundo-real` | 166.4 to 166.4 | 0.0 to 0.0 | 2656 to 2768 | 8580 | 0 |
+| `navegacion` | 281.5 to 221.4 | 113.8 to 53.6 | 2688 to 2696 | 9710 | 0.0032 |
+| `preguntas` | 217.4 to 217.4 | 0.0 to 0.0 | 2548 to 2616 | 11498 | 0.0126 |
+| `problema` | 206.2 to 206.2 | 23.9 to 23.9 | 2736 to 2660 | 10269 | 0.0018 |
+| `recursos` | 228.3 to 193.9 | 53.4 to 18.9 | 2676 to 2680 | 9003 | 0 |
+| `replicar` | 209.4 to 209.5 | 32.6 to 32.6 | 2664 to 2704 | 10521 | 0.0032 |
+| `resultados` | 183.5 to 183.5 | 0.0 to 0.0 | 2672 to 2692 | 9550 | 0.0018 |
+| `robot` | 200.6 to 200.6 | 19.4 to 19.4 | 2704 to 2592 | 10660 | 0.0018 |
+
+### Verdict
+
+- Slow 3G LCP under 5 s: met on all 18 pages (before: 17 of 18). The range is 2.54 to 2.77 s. `index` went from 5.34 to 2.67 s and `laboratorios` from 4.87 to 2.60 s, by taking the two stylesheets out of the critical path. The 16 guide pages did not change beyond noise (a few hundred milliseconds).
+- Over 170 KB before `load`: not met, 13 of 18 pages before and after. The images went down on seven pages (`gemelo` 365.5 to 276.8, `navegacion` 281.5 to 221.4, `movimiento` 254.6 to 222.1, `recursos` 228.3 to 193.9, `control` 226.5 to 222.4, `lecciones` 164.3 to 161.5), but no page crossed the line because of that: with every image removed, 11 of the 13 would still be over. What is left is not images: the five font files (69 to 79 KB), the shared `defer` scripts (39 to 64 KB), the two sheets (30 to 35 KB) and the HTML (25 to 60 KB). `gemelo` still loads 112 KB of images before `load` (`robot-planta-640` is 90 KB), and `navegacion` 54 KB. The home page grew from 140.4 to 150.1 KB because its sheets now count inside the HTML, and stays under the budget.
+- What would meet it, and was not done: fonts after `load` without the swap that 0007 (2) found, and the shared scripts after `load`. Both are the open question of the previous section and change what the visitor sees, so they are a separate item.
+- CLS is at most 0.0126 (`preguntas`, unchanged).
+- Not measured: a real device and repeated runs. Differences below a few hundred milliseconds are noise. A phone with a 2x or 3x screen downloads the 1200 to 1600 px WebP, not the 640 px one, because the `srcset` asks for the width the screen needs.

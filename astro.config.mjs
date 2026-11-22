@@ -16,7 +16,9 @@ export default defineConfig({
   site: 'https://svn11x.github.io',
   base: '/tesis_explain',
   output: 'static',
-  build: { format: 'file', assets: '_astro' },
+  // Las hojas de la portada y de los laboratorios van dentro del HTML: sin ellas la primera pantalla espera un viaje
+  // de red más (docs/decisions/0007).
+  build: { format: 'file', assets: '_astro', inlineStylesheets: 'always' },
   integrations: [svelte(), sinReadme],
   devToolbar: { enabled: false },
   // three.js pesa unos 700 kB minificado. Va en su propio fragmento y solo lo piden los visores 3D, así que el

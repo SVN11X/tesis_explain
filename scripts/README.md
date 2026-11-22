@@ -13,6 +13,7 @@ Generators, checks and build helpers. Run them from the repository root. Page an
 - `diagramas_control.js`, `diagramas_mapeo.js`, `diagramas_plano.js`: regenerate the fallback SVG diagrams (`--comprobar`).
 - `ejemplos_laboratorio.js`: regenerates the synthetic laboratory examples (`--comprobar`).
 - `imagen_social.py`: renders the social preview image `public/img/social.png` (`--comprobar` checks its size).
+- `variantes_imagen.py`: makes the 640 px WebP variants for phones and the narrow home poster, and writes their `srcset` in `public/*.html` (`--comprobar`).
 - `indice.py`: builds `dist/datos/indice.js` and `dist/datos/secciones.js` from the built pages (`--comprobar`). `npm run build` runs it.
 - `marco.py`: applies the shared header, footer and theme templates to the pages.
 - `modelo_robot.py`: prepares the robot CAD model from a STEP file.
