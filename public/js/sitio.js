@@ -243,8 +243,19 @@
       var desde = v.getAttribute("data-desde");
       var portada = v.getAttribute("data-portada");
       var img = portada ? '<picture><source srcset="' + esc(portada) + '.webp" type="image/webp"><img src="' + esc(portada) + '.jpg" alt="" loading="lazy" decoding="async" width="1280" height="720"></picture>'
-        : (yt ? '<img src="https://i.ytimg.com/vi/' + esc(yt) + '/hqdefault.jpg" alt="" loading="lazy" decoding="async" onerror="this.remove()">' : '');
+        : (yt ? '<img src="https://i.ytimg.com/vi/' + esc(yt) + '/maxresdefault.jpg" alt="" loading="lazy" decoding="async">' : '');
       v.innerHTML = '<button type="button" class="yt" aria-label="Reproducir video: ' + esc(tit + (sub ? ' ' + sub : '')) + '">' + img + '<span class="yt-play" aria-hidden="true"></span><span class="yt-tit">' + esc(tit) + (sub ? ' <small>' + esc(sub) + '</small>' : '') + '</span></button>';
+      var mini = !portada && yt && v.querySelector("img");
+      if (mini) {
+        /* maxres falta en muchos videos y YouTube devuelve entonces una imagen de 120x90: se baja a sddefault y luego a hqdefault. */
+        var tams = ["sddefault", "hqdefault"];
+        var ajustar = function () {
+          if (mini.naturalWidth <= 120 && tams.length) { mini.src = "https://i.ytimg.com/vi/" + yt + "/" + tams.shift() + ".jpg"; return; }
+          if (mini.naturalWidth > 120 && mini.naturalWidth < v.clientWidth) v.style.maxWidth = mini.naturalWidth + "px";
+        };
+        mini.addEventListener("load", ajustar);
+        mini.addEventListener("error", function () { if (tams.length) mini.src = "https://i.ytimg.com/vi/" + yt + "/" + tams.shift() + ".jpg"; else mini.remove(); });
+      }
       v.querySelector("button").addEventListener("click", function () {
         var f = document.createElement("iframe");
         f.src = yt ? "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(yt) + "?autoplay=1&rel=0" + (desde ? "&start=" + parseInt(desde, 10) : "")
