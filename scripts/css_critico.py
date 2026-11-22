@@ -5,14 +5,16 @@ datos.py llama a `aplicar(texto, pub)` por cada página. Dos bloques marcados sa
 - ESTILOS: el CSS de la primera pantalla en un <style>, y las hojas completas con media="print" y
   onload (pasan a "all" al llegar), con su <link> normal dentro de <noscript>. Sin JavaScript la
   página se ve con las hojas completas, como antes.
-- SCRIPTS: un cargador mínimo que inserta los scripts en orden cuando termina la carga (evento load). La lista
+- SCRIPTS: un cargador mínimo que inserta los scripts en orden después del primer pintado (con el evento load como respaldo). La lista
   vive en el atributo data-diferidos. js/sitio.js espera el evento "guia:scripts" para montar los
   interactivos, así sabe que los archivos de cada módulo ya registraron sus funciones.
 
+css/fuentes.css (fuentes y respaldos) va entero y solo en línea. Dos veces la misma @font-face, una en línea y otra
+en la hoja completa, crea dos fuentes y la página se recompone al llegar la segunda.
+
 El CSS crítico son las reglas de las hojas cuyo selector solo usa clases, ids y etiquetas que están
-en el HTML que va desde <body> hasta el final de la primera <section> de <main>: cabecera, aviso, portada del
-tema y el resumen de la primera sección. Con esos estilos las imágenes diferidas de abajo quedan donde estarán
-al final y el navegador no baja las que aún no hacen falta.
+en la página o que crean sus scripts compartidos. No se corta en la primera pantalla: el alto de la ventana
+varía y cualquier elemento visible sin su regla se movería cuando llegue la hoja completa.
 Las reglas con :hover o :active no se incluyen. El resto llega con la hoja completa, en el mismo orden.
 """
 import posixpath
@@ -25,10 +27,15 @@ LEGADO_SCRIPTS = re.compile(r'(?:<script src="[^"]+" defer></script>\n)+')
 BLOQUE_ESTILOS = re.compile(r'<!-- ESTILOS:[^>]*-->\n.*?<!-- FIN ESTILOS -->\n', re.S)
 BLOQUE_SCRIPTS = re.compile(r'<!-- SCRIPTS:[^>]*-->\n.*?<!-- FIN SCRIPTS -->\n', re.S)
 
-CARGADOR = ('(function(){var l=document.currentScript.getAttribute("data-diferidos").split(" "),w=window,h=0;w.__guiaPendiente=1;'
+# Los scripts empiezan después del primer pintado (un cuadro de animación tras DOMContentLoaded) y no después del
+# evento load. Las fuentes retrasan load, y cualquier cambio de estilo de los scripts con las fuentes ya llegadas
+# hace que el navegador las use aunque sean optional, con lo que el texto saltaría. La clase js de <html> se pone
+# aquí, antes del primer pintado, para que las reglas .js no aparezcan tarde.
+CARGADOR = ('document.documentElement.classList.add("js");(function(){var l=document.currentScript.getAttribute("data-diferidos").split(" "),w=window,h=0;w.__guiaPendiente=1;'
             'function f(){if(h)return;h=1;var n=l.length,k=0;l.forEach(function(u){var s=document.createElement("script");s.src=u;s.async=false;'
             's.onload=s.onerror=function(){if(++k===n){w.__guiaPendiente=0;document.dispatchEvent(new Event("guia:scripts"))}};document.head.appendChild(s)})}'
-            'if(document.readyState==="complete")setTimeout(f,0);else w.addEventListener("load",function(){setTimeout(f,0)})})()')
+            'function g(){requestAnimationFrame(function(){setTimeout(f,0)})}'
+            'w.addEventListener("load",f);if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",g);else g()})()')
 
 
 def _sin_comentarios(css):
@@ -86,13 +93,17 @@ def _selectores(texto):
     return [p for p in partes if p]
 
 
-def _vocabulario(region):
+def _vocabulario(region, js=''):
+    """Clases, ids y etiquetas que existen en la página o que crean sus scripts. Los scripts de la guía (marco, sitio,
+    comun) construyen la barra lateral, los botones de ampliar y el video; sus estilos también deben estar en línea, o
+    esos elementos se moverían cuando llegue la hoja completa."""
     clases = set(CLASES_CABEZA)
     for m in re.finditer(r'\sclass="([^"]*)"', region):
         clases.update(m.group(1).split())
     ids = set(re.findall(r'\sid="([^"]+)"', region))
     etiquetas = {m.lower() for m in re.findall(r'<([a-zA-Z][\w-]*)', region)} | {'html', 'body'}
-    return clases, ids, etiquetas
+    palabras = set(re.findall(r'[A-Za-z][\w-]*', js))
+    return clases | palabras, ids | palabras, etiquetas | {p.lower() for p in palabras}
 
 
 def _coincide(selector, vocab):
@@ -120,8 +131,7 @@ def _filtrar(css, vocab, keyframes):
         if cuerpo is None:
             salida.append(preludio + ';')
         elif preludio.startswith('@font-face'):
-            # No se repite: la misma regla en la hoja completa crearía otra fuente y la página se recompondría al llegar
-            continue
+            continue  # las fuentes viven en css/fuentes.css y van enteras en línea
         elif preludio.startswith(('@media', '@supports')):
             dentro = _filtrar(cuerpo, vocab, keyframes)
             if dentro:
@@ -155,13 +165,18 @@ def _compactar(css):
 def critico(texto, hojas, pub):
     """CSS de la primera pantalla de una página, desde sus hojas en orden."""
     cuerpo = texto[texto.index('<body'):]
-    corte = cuerpo.find('</section>', cuerpo.index('<main'))
-    vocab = _vocabulario(cuerpo[:corte])
+    js = ''.join((pub / 'js' / n).read_text(encoding='utf-8') for n in ('marco.js', 'sitio.js', 'comun.js'))
+    vocab = _vocabulario(cuerpo, js)
     keyframes = {}
     css = ''.join(_filtrar(_rutas(_sin_comentarios((pub / h).read_text(encoding='utf-8')), h), vocab, keyframes) for h in hojas)
     # los @keyframes solo se llevan si algo del CSS crítico los usa
     css += ''.join(k for nombre, k in keyframes.items() if re.search(r'animation[^;}]*\b' + re.escape(nombre) + r'\b', css))
     return _compactar(css)
+
+
+def fuentes(pub):
+    """css/fuentes.css entero, con sus rutas relativas a la página."""
+    return _compactar(_rutas(_sin_comentarios((pub / 'css/fuentes.css').read_text(encoding='utf-8')), 'css/fuentes.css'))
 
 
 def bloque_estilos(texto, pub):
@@ -174,6 +189,9 @@ def bloque_estilos(texto, pub):
     if not hojas:
         return None
     partes = ['<!-- ESTILOS: generado por scripts/datos.py. CSS de la primera pantalla en línea y hojas completas sin bloquear -->\n',
+              # Las fuentes van en su propio <style>, antes del resto. Con las reglas en el mismo <style> el navegador usa
+              # las fuentes optional que llegan tarde en cuanto la página se recompone (tests/navegador_experiencia.py).
+              '<style>' + fuentes(pub) + '</style>\n',
               '<style>' + critico(texto, hojas, pub) + '</style>\n']
     partes += ['<link rel="stylesheet" href="%s" media="print" onload="this.media=\'all\'">\n' % h for h in hojas]
     partes += ['<noscript><link rel="stylesheet" href="%s"></noscript>\n' % h for h in hojas]
@@ -192,7 +210,7 @@ def bloque_scripts(texto):
         lista = re.findall(r'src="([^"]+)"', m.group(0))
     if 'datos/proyecto.js' not in lista and 'js/comun.js' in lista:
         lista.insert(lista.index('js/comun.js'), 'datos/proyecto.js')
-    return ('<!-- SCRIPTS: generado por scripts/datos.py. Se cargan en orden después del evento load -->\n'
+    return ('<!-- SCRIPTS: generado por scripts/datos.py. Se cargan en orden después del primer pintado -->\n'
             '<script data-diferidos="%s">%s</script>\n<!-- FIN SCRIPTS -->\n' % (' '.join(lista), CARGADOR))
 
 

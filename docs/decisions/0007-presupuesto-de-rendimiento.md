@@ -162,15 +162,23 @@ The "before" render-blocking and critical path columns are the numbers of the fi
 
 CLS stayed at or below 0.0126 on Slow 3G (`tests/navegador_experiencia.py`, with fonts delayed 1.2 s, passes, and so do the other checks listed in the pull request).
 
-## Follow-up 2026-11-21 (2): scripts after `load` and critical CSS inline
+## Follow-up 2026-11-21 (2): critical CSS inline and scripts after the first paint
 
 Same method, one run per page and profile, `dist/` built from this branch. "Before" was measured again on `main` after the font change (#78), so both columns are comparable.
 
 ### Changes
 
-1. `scripts/css_critico.py`, called by `scripts/datos.py`, rewrites the head of the 16 guide pages. The shared and page stylesheets are no longer `<link rel="stylesheet">` that block painting. The head carries a `<style>` with the rules of the first screen (header, academic notice, topic hero and the first section, 24 to 27 KB raw and about 6 KB compressed) and the full sheets as `media="print"` with `onload` to switch to `all`, plus a `<noscript>` with the normal links. `@font-face` rules are not repeated in the inline CSS, because the same rule in the full sheet created a second font and moved the layout (CLS 0.029 on `preguntas`).
-2. The six or seven `defer` scripts are one small loader that inserts them in order after the `load` event. `js/sitio.js` waits for the event `guia:scripts` before it mounts the interactive parts. The theme script stays first in `<head>`, before any style.
-3. `tests/servidor.py` makes `Page.goto` also wait for the last script, since the tests used to assume the scripts ran at `load`. `tests/navegador_experiencia.py` now checks the new head (inline style, sheets without blocking, same list in `<noscript>`, no script in `<head>`) and that no page loads interactive modules.
+1. `scripts/css_critico.py`, called by `scripts/datos.py`, rewrites the head of the 16 guide pages. The stylesheets no longer block painting. The head carries two `<style>` elements and the full sheets as `media="print"` with `onload` to switch to `all`, plus a `<noscript>` with the normal links, so the page looks the same without JavaScript. The first `<style>` is `css/fuentes.css` (every `@font-face`, the web fonts and the metric-adjusted fallbacks, moved out of `css/estilo.css`). The second is every rule of the shared and page sheets whose classes, ids and tags exist in the page or are created by `js/marco.js`, `js/sitio.js` and `js/comun.js` (the sidebar, the zoom buttons, the video button): 72 KB raw and about 14.7 KB compressed per page.
+2. The scripts are one small loader in the head that adds `js` to `<html>` and inserts the six or seven scripts in order one animation frame after `DOMContentLoaded` (the `load` event is the fallback). `js/sitio.js` waits for `guia:scripts` before it mounts the interactive parts. The theme script stays first in `<head>`.
+3. `tests/servidor.py` makes `Page.goto` also wait for the last script. `tests/navegador_experiencia.py` checks the new head and reads the fonts from `css/fuentes.css`.
+
+### What went wrong first, and why the CSS is not cut at the first screen
+
+The first version inlined only the rules of the first section. CI (Linux fallback fonts) found CLS 0.127 on `problema.html` at desktop width. Three causes, found by comparing every element's box with only the inline CSS against the full CSS, at 320, 360, 390, 768, 1024 and 1366 px on the 16 guide pages:
+
+- The viewport shows more than the first section, and the scripts build elements (sidebar, buttons) whose rules were missing, so they moved when the full sheet arrived. Now the rules follow the page and the scripts, not the screen. After the change no element in the first 1000 px differs at any width. Only the total height of the page below the fold differs by a few hundred pixels.
+- The metric-adjusted fallback fonts were not inline, so the text was drawn with plain Arial metrics until the sheet arrived (brand width 145 against 139 px, the desktop navigation 15 px to the left). They are inline now.
+- Scripts started at `load` were measured at 2.4 to 2.7 s of LCP but made the page recompose when they ran: `load` waits for the fonts, and with the fonts already downloaded a style change makes the browser use them in spite of `font-display: optional`. Starting the scripts after the first paint, before the fonts arrive, removes that. The fonts also have to be in a `<style>` of their own placed before the other rules, or a late font is still used after the next resize (checked by hand with fonts held for 3 s, and by `fuentes_y_cls`).
 
 ### Results
 
@@ -178,30 +186,28 @@ Critical path KB (everything finished before `load`) before to after, KB after `
 
 | Page | Critical KB | After load KB | Slow LCP | Slow load | CLS |
 | --- | --- | --- | --- | --- | --- |
-| `bibliografia` | 154.6 to 52.6 | 108.1 | 6124 to 2544 | 4874 | 0.0 |
-| `control` | 212.4 to 89.8 | 128.8 | 6216 to 2520 | 5466 | 0.0239 |
-| `exploracion` | 191.2 to 79.1 | 118.5 | 6284 to 2516 | 9040 | 0.0032 |
-| `gemelo` | 186.4 to 318.7 | 39.1 | 6324 to 2500 | 12464 | 0.0018 |
-| `index` | 140.4 to 140.4 | 432.5 | 5368 to 5368 | 9249 | 0 |
-| `laboratorio` | 175.0 to 47.9 | 133.0 | 5724 to 2452 | 4896 | 0 |
-| `laboratorios` | 78.5 to 86.9 | 207.6 | 4880 to 4900 | 7841 | 0 |
-| `lecciones` | 151.2 to 62.3 | 95.2 | 6028 to 2456 | 5168 | 0.0 |
-| `mapeo` | 198.2 to 83.1 | 121.7 | 5984 to 2504 | 5328 | 0.0032 |
-| `movimiento` | 240.7 to 203.8 | 43.4 | 6148 to 2364 | 9098 | 0.0032 |
-| `mundo-real` | 153.0 to 51.1 | 110.3 | 6188 to 2352 | 4898 | 0.0042 |
-| `navegacion` | 175.2 to 235.4 | 39.1 | 6292 to 5516 | 9190 | 0.0032 |
-| `preguntas` | 203.3 to 86.4 | 123.0 | 6012 to 2424 | 4965 | 0.0127 |
-| `problema` | 192.1 to 78.1 | 120.1 | 6392 to 5320 | 5349 | 0.0018 |
-| `recursos` | 215.1 to 182.3 | 81.0 | 5984 to 5948 | 8832 | 0 |
-| `replicar` | 195.9 to 163.3 | 39.1 | 6400 to 2592 | 9394 | 0.0032 |
-| `resultados` | 170.0 to 54.8 | 163.7 | 5940 to 2528 | 4972 | 0.0018 |
-| `robot` | 186.8 to 74.7 | 118.5 | 6276 to 5300 | 5429 | 0.0018 |
-
-The render-blocking path (HTML only, as stylesheets and scripts no longer block) is 27.6 to 86.4 KB on all 18 pages.
+| `bibliografia` | 154.6 to 167.5 | 0 | 6124 to 2564 | 8658 | 0 |
+| `control` | 212.4 to 226.5 | 0 | 6216 to 2596 | 10820 | 0.0025 |
+| `exploracion` | 191.2 to 204.9 | 0 | 6284 to 2536 | 9782 | 0.0032 |
+| `gemelo` | 186.4 to 365.5 | 0 | 6324 to 2680 | 14404 | 0.0017 |
+| `index` | 140.4 to 140.4 | 432.5 | 5368 to 5356 | 9250 | 0 |
+| `laboratorio` | 175.0 to 188.4 | 0 | 5724 to 2640 | 9854 | 0 |
+| `laboratorios` | 78.5 to 86.9 | 207.6 | 4880 to 4848 | 7811 | 0 |
+| `lecciones` | 151.2 to 164.3 | 0 | 6028 to 2532 | 8587 | 0 |
+| `mapeo` | 198.2 to 212.3 | 0 | 5984 to 2632 | 12690 | 0.0032 |
+| `movimiento` | 240.7 to 254.6 | 0 | 6148 to 2668 | 10298 | 0.0032 |
+| `mundo-real` | 153.0 to 166.4 | 22.6 | 6188 to 2636 | 8602 | 0 |
+| `navegacion` | 175.2 to 281.5 | 0 | 6292 to 2672 | 10656 | 0.0032 |
+| `preguntas` | 203.3 to 217.4 | 0 | 6012 to 2588 | 11590 | 0.0126 |
+| `problema` | 192.1 to 206.2 | 0 | 6392 to 2624 | 10266 | 0.0018 |
+| `recursos` | 215.1 to 228.3 | 42.0 | 5984 to 2684 | 9623 | 0 |
+| `replicar` | 195.9 to 209.4 | 0 | 6400 to 2640 | 10640 | 0.0032 |
+| `resultados` | 170.0 to 183.5 | 42.0 | 5940 to 2680 | 9441 | 0.0018 |
+| `robot` | 186.8 to 200.6 | 0 | 6276 to 2688 | 10619 | 0.0018 |
 
 ### Verdict
 
-- Over 170 KB before load: 14 of 18 pages are under it now (12 were over). Four are still over: `gemelo` (318.7 KB), `navegacion` (235.4), `movimiento` (203.8) and `recursos` (182.3). Their excess is not code. Without the blocking CSS the browser lays the page out before the full sheet arrives and starts the lazy images that are near the first screen, so images (114 to 303 KB) finish before `load`. Not met.
-- Slow 3G LCP under 5 s: 13 of 18 pages are under 5 s, 12 of them under 2.6 s (before: only `laboratorios`). Not met on five: `index` (5.37 s, unchanged, the home page was not touched), `navegacion` (5.5), `problema` (5.3), `recursos` (5.9) and `robot` (5.3). On `navegacion`, `problema`, `recursos` and `robot` the LCP element is now the first image, which arrives at 5 s because it shares 50 KB/s with the fonts and the other images. What remains: give the first image of those pages `fetchpriority="high"` and a smaller file, and defer their other images until after `load`. The home page needs its own item (its LCP is the `h1` behind a blocking stylesheet).
-- CLS is at most 0.0239 (`control`, Slow 3G), under 0.1.
+- Slow 3G LCP under 5 s: 17 of 18 pages, all between 2.5 and 2.7 s except two (before: only `laboratorios`). `laboratorios` is 4.85 s. `index` is the only one left, 5.36 s, because the home page was not changed (its LCP is the `h1`, behind a blocking stylesheet from Astro). Met for the guide pages, not for the home page.
+- Over 170 KB before load: not met, and worse than before, 13 of 18 pages. The scripts now load before `load` again (38 to 64 KB) and the inline CSS adds about 14 KB to each HTML file, so the critical path grew by about 14 KB per page against the previous run. The pages that went over with images are `gemelo` (365.5), `navegacion` (281.5) and `movimiento` (254.6). The render-blocking part is only the HTML, 27.6 to 94.5 KB, and the first paint no longer waits for scripts, stylesheets or fonts. Whether bytes that arrive after the first paint belong in a "critical path" is the open question of this record. Reaching 170 KB by the count of this record needs the scripts after `load`, which brought back the font swap above, so it needs a separate item: either keep the scripts after `load` and stop the relayout at load (for example by loading the fonts only for repeat visits), or count only the bytes before the first paint.
+- CLS is at most 0.0126 (`preguntas`), under 0.1.
 - Not measured: a real device and repeated runs. Differences below a few hundred milliseconds are noise.

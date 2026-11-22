@@ -1,0 +1,37 @@
+/* Fuentes de la guía. Van en línea en el <head> de cada página (scripts/css_critico.py) y no en css/estilo.css:
+   si la misma regla llegara también con la hoja completa, el navegador crearía otra fuente y recompondría la página. */
+/* Fuentes tipográficas locales, subconjunto latino, licencia OFL en fuentes/ */
+@font-face { font-family: "Archivo"; src: url("../fuentes/archivo-latin-variable.woff2") format("woff2"); font-weight: 500 800; font-style: normal; font-stretch: 100%; font-display: optional; unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Atkinson Hyperlegible"; src: url("../fuentes/atkinson-hyperlegible-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: optional; unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Atkinson Hyperlegible"; src: url("../fuentes/atkinson-hyperlegible-latin-700-normal.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: optional; unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Atkinson Hyperlegible"; src: url("../fuentes/atkinson-hyperlegible-latin-400-italic.woff2") format("woff2"); font-weight: 400; font-style: italic; font-display: optional; unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "IBM Plex Mono"; src: url("../fuentes/ibm-plex-mono-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: optional; unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "IBM Plex Mono"; src: url("../fuentes/ibm-plex-mono-latin-600-normal.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: optional; unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+/* Respaldo con métricas ajustadas. Si las fuentes no llegan a tiempo, el texto usa una fuente del sistema
+   escalada para ocupar casi el mismo ancho, así el cambio de fuente no mueve la página.
+   size-adjust sale del ancho medio de un texto de la guía medido con fontTools: Archivo frente a Arial Bold,
+   con ancho 84 a 90 % para los títulos de sección y 80 % para el título de la portada y el de cada tema, que
+   tienen respaldos distintos porque el de la portada es largo y los de los temas son cortos, y Atkinson Hyperlegible
+   frente a Arial. Las alturas copian las de cada fuente divididas por ese factor.
+   Cada familia del sistema tiene su propio respaldo, porque sus anchos difieren: Arial y sus equivalentes de
+   igual ancho (Arimo, Liberation Sans y Helvetica Neue) en Windows, macOS, iOS, ChromeOS y Linux, Roboto en
+   Android y DejaVu Sans en Linux sin las anteriores. Roboto y DejaVu escalan los valores de Arial según la
+   razón entre sus anchos medios. Si una no existe, el navegador pasa a la siguiente de la lista. En Android 12 o
+   posterior Roboto es una fuente variable: si su negrita no tiene nombre propio, se usa la regular con peso 700.
+   Las caras de Roboto para Archivo fijan peso 700 y ancho 100 %. Sin eso, la fuente variable tomaría el peso y
+   el ancho pedidos, hasta 820 y 80 % en los títulos, y no tendría las medidas de la negrita con que se calcularon.
+   Los anchos máximos de lectura van en em y no en ch: el cero de Atkinson mide 0,648 em y el de Arial 0,556,
+   así que una medida en ch cambiaba de ancho al llegar la fuente y movía el texto.
+   El 94 % de Archivo Respaldo está ajustado al navegador de GitHub Actions (Chrome 156 en Ubuntu 26.04). Ahí
+   Liberation Sans Bold resultó cerca de un 1 % más ancha que en Chrome 153 y, con el 94,8 % medido en los archivos,
+   9 de 336 títulos de tema cambiaban de líneas entre 320 y 480 px. En Chrome 153, el 95,8 % reproduce esos mismos
+   9 casos, así que el valor se bajó en esa proporción. Detalle en docs/informe-tecnico.md. */
+@font-face { font-family: "Archivo Respaldo"; src: local("Arial Bold"), local("Arial-BoldMT"), local("Arimo Bold"), local("Arimo-Bold"), local("Liberation Sans Bold"), local("LiberationSans-Bold"), local("Helvetica Neue Bold"), local("HelveticaNeue-Bold"); font-weight: 100 900; size-adjust: 94%; ascent-override: 93.4%; descent-override: 22.4%; line-gap-override: 0%; }
+@font-face { font-family: "Archivo Respaldo Roboto"; src: local("Roboto Bold"), local("Roboto-Bold"); font-weight: 100 900; size-adjust: 100.9%; ascent-override: 87%; descent-override: 20.8%; line-gap-override: 0%; }
+@font-face { font-family: "Archivo Respaldo DejaVu"; src: local("DejaVu Sans Bold"), local("DejaVuSans-Bold"); font-weight: 100 900; size-adjust: 79.8%; ascent-override: 110%; descent-override: 26.3%; line-gap-override: 0%; }
+@font-face { font-family: "Atkinson Respaldo"; src: local("Arial"), local("ArialMT"), local("Arimo"), local("Arimo-Regular"), local("Liberation Sans"), local("LiberationSans-Regular"), local("LiberationSans"), local("Helvetica Neue"), local("HelveticaNeue"); font-weight: 400; size-adjust: 98.7%; ascent-override: 96.3%; descent-override: 29.4%; line-gap-override: 0%; }
+@font-face { font-family: "Atkinson Respaldo"; src: local("Arial Bold"), local("Arial-BoldMT"), local("Arimo Bold"), local("Arimo-Bold"), local("Liberation Sans Bold"), local("LiberationSans-Bold"), local("Helvetica Neue Bold"), local("HelveticaNeue-Bold"); font-weight: 700; size-adjust: 99.6%; ascent-override: 95.4%; descent-override: 29.1%; line-gap-override: 0%; }
+@font-face { font-family: "Atkinson Respaldo Roboto"; src: local("Roboto"), local("Roboto Regular"), local("Roboto-Regular"); font-weight: 400; size-adjust: 99.5%; ascent-override: 95.5%; descent-override: 29.1%; line-gap-override: 0%; }
+@font-face { font-family: "Atkinson Respaldo Roboto"; src: local("Roboto Bold"), local("Roboto-Bold"), local("Roboto Regular"), local("Roboto-Regular"); font-weight: 700; size-adjust: 106%; ascent-override: 89.6%; descent-override: 27.4%; line-gap-override: 0%; }
+@font-face { font-family: "Atkinson Respaldo DejaVu"; src: local("DejaVu Sans"), local("DejaVuSans"); font-weight: 400; size-adjust: 87.5%; ascent-override: 108.6%; descent-override: 33.1%; line-gap-override: 0%; }
+@font-face { font-family: "Atkinson Respaldo DejaVu"; src: local("DejaVu Sans Bold"), local("DejaVuSans-Bold"); font-weight: 700; size-adjust: 83.7%; ascent-override: 113.5%; descent-override: 34.6%; line-gap-override: 0%; }
