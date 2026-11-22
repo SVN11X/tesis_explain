@@ -500,7 +500,8 @@
     "js/evidencia.js": "estabilidad plano-mapa repeticiones",
     "js/slam-proceso.js": "candidatos-slam cola-slam",
     "js/lecciones.js": "metas-abortadas",
-    "js/mundo-real.js": "casos-ciclo"
+    "js/mundo-real.js": "casos-ciclo",
+    "js/diagramas-vivos.js": "ciclo-robot flujo-nav2 energia-senales"
   };
   var MODULO_DE = {};
   Object.keys(MODULOS).forEach(function (src) { MODULOS[src].split(" ").forEach(function (n) { MODULO_DE[n] = src; }); });

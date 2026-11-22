@@ -7,4 +7,4 @@ Tests of the site. Run them from the repository root. The browser tests need `np
 - `lidar.test.mjs`: unit tests of the LiDAR model in `src/lib` (`npm run test:lidar`).
 - `servidor.py`: local web server shared by the browser tests. It serves `dist/` under `/tesis_explain/` like GitHub Pages.
 - `navegador.py`: main browser test (search, interaction, pages, robot, navigation).
-- `navegador_control.py`, `navegador_defensa.py`, `navegador_evidencia.py`, `navegador_experiencia.py`, `navegador_laboratorio.py`, `navegador_mapeo.py`, `navegador_movimiento.py`, `navegador_redisenio.py`, `navegador_robustez.py`: browser tests of one page or area each (Playwright).
+- `navegador_control.py`, `navegador_defensa.py`, `navegador_diagramas.py`, `navegador_evidencia.py`, `navegador_experiencia.py`, `navegador_laboratorio.py`, `navegador_mapeo.py`, `navegador_movimiento.py`, `navegador_redisenio.py`, `navegador_robustez.py`: browser tests of one page or area each (Playwright).

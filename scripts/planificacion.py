@@ -73,6 +73,9 @@ def leer_costos():
     return filas, partidas
 
 
+PARTIDAS_VISIBLES = 8
+
+
 def barras(items, maximo, total, clase=''):
     """Lista de barras horizontales: el texto lleva el dato y la barra solo lo dibuja."""
     out = ['<ol class="barras%s">' % (' ' + clase if clase else '')]
@@ -110,7 +113,9 @@ def bloque_costos():
                '<p>Las 17 partidas de la Tabla A1.1, de mayor a menor, con su parte del proyecto completo.</p></div>'
                '<div class="vis-cuerpo"><ul class="leyenda-grupos">' +
                ''.join('<li class="g-%s"><i aria-hidden="true"></i>%s</li>' % (c, html.escape(g)) for g, c in GRUPOS) + '</ul>' +
-               barras([(k, v['monto'], clase[v['grupo']]) for k, v in orden], orden[0][1]['monto'], TOTAL_PROYECTO) + '</div></div>')
+               barras([(k, v['monto'], clase[v['grupo']]) for k, v in orden[:PARTIDAS_VISIBLES]], orden[0][1]['monto'], TOTAL_PROYECTO) +
+               '<details class="v-mas"><summary>Las otras %d partidas, de %s del proyecto o menos</summary><div class="v-mas-cuerpo">' % (len(orden) - PARTIDAS_VISIBLES, pct(orden[PARTIDAS_VISIBLES][1]['monto'], TOTAL_PROYECTO)) +
+               barras([(k, v['monto'], clase[v['grupo']]) for k, v in orden[PARTIDAS_VISIBLES:]], orden[0][1]['monto'], TOTAL_PROYECTO) + '</div></details></div></div>')
     anios = sorted(por_anio.items())
     out.append('<div class="widget"><div class="widget-cab"><h3 id="grafico-anios">Cuándo se pagó</h3><span class="tipo datos">Registro de compras</span>'
                '<p>Gasto de cada año, en pesos nominales. El tipo de cambio de la comparación sale del año en que se gastó más.</p></div>'

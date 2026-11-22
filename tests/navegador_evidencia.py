@@ -124,6 +124,8 @@ with sync_playwright() as pw:
         check('42 % más angosto' in caja.locator('[data-o="datos-m"]').inner_text() and caja.locator('.ev-ic-proy').count() == 1, nombre + ': con 10 repeticiones el intervalo se angosta 42 % y se dibuja la proyección')
         caja.locator('[data-ind="area_libre"]').click()
         check(dato(caja, 'Intervalo al 95 %, n = 5') == '3,464 a 3,531 m²', nombre + ': el área libre queda entre 3,46 y 3,53 m²', dato(caja, 'Intervalo al 95 %, n = 5'))
+        if caja.locator('.v-pestanas').is_visible():
+            caja.locator('[data-parte="1"]').click()
         check(dato(caja, 'Intervalo exacto al 95 %') == '35,9 a 99,6 %' and dato(caja, 'Prueba binomial frente a 50 %') == 'p = 0,109', nombre + ': 5 de 6 da 35,9 a 99,6 % y p = 0,109')
         caja.locator('[data-pre="15-15"]').click()
         check(dato(caja, 'Lo que se puede afirmar') == 'más de 78,2 %' and '17 intentos' in caja.locator('[data-o="lectura-p"]').inner_text(), nombre + ': 15 de 15 permite afirmar más de 78,2 % y faltan 17 para pasar del 80 %')
