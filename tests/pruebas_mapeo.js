@@ -191,4 +191,14 @@ test("el reto de los barridos usa las cifras de la página y corrige cada respue
   ["700 cm²", "30 cm", "40 cm", "10 cm"].forEach(function (c) { assert(html.indexOf(c) >= 0, "falta en la página " + c); });
   assert(html.split('data-vis="reto-mapeo"')[1].split("</div>")[0].indexOf("<details>") >= 0, "el respaldo sin JavaScript lleva la respuesta en un details");
 });
+test("la vista 3D devuelve al piso el punto que se tocó, con cualquier giro e inclinación", function () {
+  [[-.62, .62], [0, .06], [0, 1.45], [1.1, .9]].forEach(function (v) {
+    var vista = { yaw: v[0], pitch: v[1], esc: 90, ox: 310, oy: 200, cx: 1.6, cy: 1.3 };
+    [[.4, .3], [2.2, 1.9], [3.8, 2.4]].forEach(function (q) {
+      var c = Math.cos(vista.yaw), s = Math.sin(vista.yaw), x1 = (q[0] - vista.cx) * c - (q[1] - vista.cy) * s, y1 = (q[0] - vista.cx) * s + (q[1] - vista.cy) * c;
+      var p = M.pisoDesdePantalla(vista, vista.ox + x1 * vista.esc, vista.oy + y1 * Math.sin(vista.pitch) * vista.esc);
+      near(p.x, q[0], 1e-6); near(p.y, q[1], 1e-6);
+    });
+  });
+});
 console.log("\n" + total + " pruebas de mapeo correctas");
