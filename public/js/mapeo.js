@@ -116,10 +116,11 @@
       var g = U.robot.svg(X(rob.x), Y(rob.y), 0, 94, "lidar");
       b += '<g class="robot-planta"><path class="cuerpo" d="' + g.cuerpo + '"/><circle class="lidar" cx="' + g.lidar[0].toFixed(2) + '" cy="' + g.lidar[1].toFixed(2) + '" r="' + g.lidarR.toFixed(2) + '"/></g>';
     } else b += '<circle cx="' + X(rob.x) + '" cy="' + Y(rob.y) + '" r="13" class="mp-robot"/><circle cx="' + X(rob.x) + '" cy="' + Y(rob.y) + '" r="4.5" class="mp-sensor"/>';
+    b += '<circle class="mp-asa" cx="' + X(rob.x) + '" cy="' + Y(rob.y) + '" r="' + M.RADIO_ASA * 94 + '" fill="none" stroke-width="2.5" stroke-dasharray="5 4" pointer-events="none"/>';
     /* Escala gráfica de 1 m, igual en las dos vistas. */
     b += '<path d="M' + X(3) + ' 300v-7M' + X(3) + ' 296.5H' + X(4) + 'M' + X(4) + ' 300v-7" class="mp-escala" fill="none" stroke-width="2"/>' + '<text class="mp-ink" font-size="14" text-anchor="middle" x="' + X(3.5) + '" y="316">1 m</text>';
     b += txt(16, 316, solo ? "Solo puntos de este barrido · no es un mapa" : "Vista superior · escenario de ejemplo", 16);
-    return svg(490, 324, "Barrido LiDAR y robot. Controles de posición debajo del dibujo", b);
+    return svg(490, 324, "Barrido LiDAR y robot. La posición exacta está en el desplegable debajo", b);
   };
   /* Vista 3D del mismo barrido, dibujada a mano en un canvas, sin bibliotecas. Proyección ortográfica, caras
      ordenadas de atrás hacia adelante y la escena partida a la altura del láser: lo que queda bajo el plano se ve
@@ -145,6 +146,14 @@
   };
   /* Qué cruza el plano del láser: lo que empieza bajo él y termina sobre él */
   M.cruzaPlano3D = function (tipo) { return M.cajas3D().some(function (c) { return c.tipo === tipo && c.z0 < ALTO.laser && c.z1 > ALTO.laser; }); };
+  /* Radio, en metros, del anillo con el que se agarra el robot. */
+  M.RADIO_ASA = .3;
+  /* Inversa de la proyección de la vista 3D sobre el piso (z = 0): de un punto de la pantalla al punto de la sala.
+     v: giro, inclinación, escala, origen en pantalla y centro de la escena, los mismos que usa el dibujo. */
+  M.pisoDesdePantalla = function (v, sx, sy) {
+    var c = Math.cos(v.yaw), s = Math.sin(v.yaw), x1 = (sx - v.ox) / v.esc, y1 = (sy - v.oy) / v.esc / Math.sin(v.pitch);
+    return { x: v.cx + x1 * c + y1 * s, y: v.cy - x1 * s + y1 * c };
+  };
   var VISTAS_3D = { perspectiva: [-.62, .62], lado: [0, .06], arriba: [0, 1.45] };
   M.vista3D = function (cont) {
     var cv = document.createElement("canvas"), ctx = cv.getContext("2d");
@@ -160,7 +169,7 @@
         azul: v("--azul"), azulM: v("--azul-medio"), rojo: v("--rojo"), caja: v("--s4"), oscuro: [38, 43, 41] };
     }
     function medir() {
-      var w = Math.max(260, Math.round(cont.clientWidth || 600)), h = Math.round(w * .62), dpr = Math.min(2, window.devicePixelRatio || 1);
+      var w = Math.max(260, Math.round(cont.clientWidth || 600)), h = Math.round(w * .66), dpr = Math.min(2, window.devicePixelRatio || 1);
       if (w === W && h === H) return;
       W = w; H = h; cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); cv.style.aspectRatio = w + " / " + h;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -250,6 +259,12 @@
       for (var gx = .5; gx < 4; gx += .5) { var a = pt(gx, 0, 0), b = pt(gx, 2.6, 0); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); }
       for (var gy = .5; gy < 2.6; gy += .5) { var c1 = pt(0, gy, 0), c2 = pt(4, gy, 0); ctx.moveTo(c1[0], c1[1]); ctx.lineTo(c2[0], c2[1]); }
       ctx.stroke();
+      if (datos) {
+        var anillo = [];
+        for (var q = 0; q < 32; q++) anillo.push(pt(datos.rob.x + Math.cos(TAU * q / 32) * M.RADIO_ASA, datos.rob.y + Math.sin(TAU * q / 32) * M.RADIO_ASA, 0));
+        ctx.beginPath(); anillo.forEach(function (a, i) { if (i) ctx.lineTo(a[0], a[1]); else ctx.moveTo(a[0], a[1]); }); ctx.closePath();
+        ctx.setLineDash([5, 4]); ctx.strokeStyle = color(P.azul, 1, 1); ctx.lineWidth = 2.5; ctx.stroke(); ctx.setLineDash([]);
+      }
       var cs = caras();
       pintar(cs.bajo);
       /* el plano del láser: los sectores con retorno, los rayos y los puntos medidos */
@@ -292,21 +307,40 @@
       },
       girar: function (dy, dp) { st.yaw += dy; st.pitch = clamp(st.pitch + dp, .12, 1.5); dibujar(); },
       estado: function () { return { yaw: st.yaw, pitch: st.pitch, ancho: W, alto: H }; },
+      /* punto del piso bajo un evento del puntero, con su posición en el lienzo */
+      alPiso: function (e) {
+        var r = cv.getBoundingClientRect(); if (!(r.width > 0)) return null;
+        var sx = (e.clientX - r.left) * W / r.width, sy = (e.clientY - r.top) * H / r.height;
+        return { piso: M.pisoDesdePantalla({ yaw: st.yaw, pitch: st.pitch, esc: esc, ox: ox, oy: oy, cx: CX, cy: CY }, sx, sy), sx: sx, sy: sy };
+      },
+      cercaDelRobot: function (p) {
+        if (!datos || !p) return false;
+        var q = pt(datos.rob.x, datos.rob.y, 0), e2 = pt(datos.rob.x + M.RADIO_ASA, datos.rob.y, 0), e3 = pt(datos.rob.x, datos.rob.y + M.RADIO_ASA, 0);
+        return Math.hypot(p.sx - q[0], p.sy - q[1]) <= Math.max(26, Math.hypot(e2[0] - q[0], e2[1] - q[1]), Math.hypot(e3[0] - q[0], e3[1] - q[1]));
+      },
+      alMover: null,
       repintar: function () { P = null; dibujar(); }
     };
     /* arrastrar gira la escena. Con el dedo solo cuenta el arrastre horizontal, así deslizar en vertical sigue desplazando la página */
     var previo = null;
     cv.addEventListener("pointerdown", function (e) {
-      previo = { x: e.clientX, y: e.clientY, toque: e.pointerType === "touch" };
-      if (!previo.toque && cv.setPointerCapture) try { cv.setPointerCapture(e.pointerId); } catch (x) {}
+      var p = api.alMover ? api.alPiso(e) : null;
+      previo = { x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY, movido: false, robot: api.cercaDelRobot(p), toque: e.pointerType === "touch" };
+      if ((previo.robot || !previo.toque) && cv.setPointerCapture) try { cv.setPointerCapture(e.pointerId); } catch (x) {}
     });
     cv.addEventListener("pointermove", function (e) {
-      if (!previo) return;
+      if (!previo) { cv.classList.toggle("sobre-robot", !!api.alMover && api.cercaDelRobot(api.alPiso(e))); return; }
+      if (Math.hypot(e.clientX - previo.x0, e.clientY - previo.y0) > 5) previo.movido = true;
+      if (previo.robot) { var q = api.alPiso(e); if (q) api.alMover(q.piso.x, q.piso.y); return; }
       var dx = e.clientX - previo.x, dy = e.clientY - previo.y; previo.x = e.clientX; previo.y = e.clientY;
       if (anim) { cancelAnimationFrame(anim); anim = 0; }
       api.girar(dx * .009, previo.toque ? 0 : dy * .007);
     });
-    ["pointerup", "pointercancel", "lostpointercapture"].forEach(function (n) { cv.addEventListener(n, function () { previo = null; }); });
+    cv.addEventListener("pointerup", function (e) {
+      if (previo && !previo.robot && !previo.movido && api.alMover) { var q = api.alPiso(e); if (q) api.alMover(q.piso.x, q.piso.y); }
+      previo = null;
+    });
+    ["pointercancel", "lostpointercapture"].forEach(function (n) { cv.addEventListener(n, function () { previo = null; }); });
     cv.addEventListener("keydown", function (e) {
       var d = { ArrowLeft: [-.14, 0], ArrowRight: [.14, 0], ArrowUp: [0, .1], ArrowDown: [0, -.1] }[e.key];
       if (d) { e.preventDefault(); api.girar(d[0], d[1]); }
@@ -325,19 +359,22 @@
       vidrio: "Ejemplos posibles: retorno en el vidrio, retorno detrás de él o lectura ausente. Se alternan para enseñar el problema y no representan tasas medidas.",
       oscuro: "Se ilustran retornos débiles o ausentes en una superficie oscura. El comportamiento real depende del material, la distancia y el ángulo. No hay una probabilidad calibrada."
     };
-    el.innerHTML = '<div class="mp-panel"><div class="mp-cases" role="group" aria-label="Casos del LiDAR">' + Object.keys(casos).map(function (k) { return '<button class="vbtn sec" type="button" data-caso="' + k + '" aria-pressed="' + (k === caso) + '">' + casos[k] + '</button>'; }).join("") + '</div>' +
-      '<div class="mp-controls" role="group" aria-label="Vista del barrido"><button class="vbtn sec" type="button" data-vista="sala" aria-pressed="true">Sala y láser</button><button class="vbtn sec" type="button" data-vista="puntos" aria-pressed="false">Solo puntos</button><button class="vbtn sec" type="button" data-reset>Restablecer posición</button></div>' +
-      '<div class="mp-chart mp-lidar-scene" tabindex="0" role="group" aria-label="Mover el robot con las flechas o arrastrar en el dibujo"></div>' +
-      '<div class="mp-legend"><span><i class="mp-dot mp-dot-rojo" aria-hidden="true"></i>punto medido: donde volvió el láser</span><span><i class="mp-raya" aria-hidden="true"></i>rayo que llegó a un obstáculo</span><span>' + (window.U && window.U.robot ? window.U.robot.icono() : '<i class="mp-dot mp-dot-azul" aria-hidden="true"></i>') + 'robot visto desde arriba, con su LiDAR</span><span><i class="mp-contorno" aria-hidden="true"></i>objeto fuera de la altura del láser</span><span><i class="mp-raya mp-raya-vidrio" aria-hidden="true"></i>vidrio</span></div>' +
-      '<div class="mp-ranges">' + range("mp-lidar-x", "Posición horizontal", .15, 3.85, .01, rob.x) + range("mp-lidar-y", "Posición vertical en el dibujo", .15, 2.45, .01, rob.y) + '</div>' +
+    el.innerHTML = '<div class="mp-panel mp-lidar"><div class="mp-cases" role="group" aria-label="Casos del LiDAR">' + Object.keys(casos).map(function (k) { return '<button class="vbtn sec" type="button" data-caso="' + k + '" aria-pressed="' + (k === caso) + '">' + casos[k] + '</button>'; }).join("") + '</div>' +
+      '<div class="mp-pestanas" role="group" aria-label="Vista que se muestra"><button class="vbtn sec" type="button" data-pane="2d" aria-pressed="true">Vista 2D</button><button class="vbtn sec" type="button" data-pane="3d" aria-pressed="false">Vista 3D</button></div>' +
+      '<div class="mp-escenario" data-activa="2d">' +
+      '<section class="mp-lado" data-lado="2d" aria-label="Vista superior 2D"><div class="mp-controls" role="group" aria-label="Vista del barrido"><button class="vbtn sec" type="button" data-vista="sala" aria-pressed="true">Sala y láser</button><button class="vbtn sec" type="button" data-vista="puntos" aria-pressed="false">Solo puntos</button><button class="vbtn sec" type="button" data-reset>Restablecer posición</button></div>' +
+      '<div class="mp-chart mp-lidar-scene" tabindex="0" role="group" aria-label="Mover el robot: arrástralo, toca el piso o usa las flechas"></div></section>' +
+      '<section class="mp-lado mp-3d" data-lado="3d" aria-label="Vista 3D"><div class="mp-controls" role="group" aria-label="Punto de vista de la vista 3D"><button class="vbtn sec" type="button" data-v3="perspectiva" aria-pressed="true">Perspectiva</button><button class="vbtn sec" type="button" data-v3="lado" aria-pressed="false">De lado</button><button class="vbtn sec" type="button" data-v3="arriba" aria-pressed="false">Desde arriba</button></div>' +
+      '<div class="mp-3d-escena"></div></section></div>' +
+      '<p class="mp-pista">Arrastra el robot o toca el piso para moverlo. Con flechas en 2D. En 3D, arrastra fuera del robot para girar.</p>' +
       readings(["Sectores con retorno", "Sectores sin retorno"]) +
+      '<details class="mp-exacta"><summary>Posición exacta</summary><div class="mp-ranges">' + range("mp-lidar-x", "Posición horizontal", .15, 3.85, .01, rob.x) + range("mp-lidar-y", "Posición vertical en el dibujo", .15, 2.45, .01, rob.y) + '</div></details>' +
       '<p class="mp-status" aria-live="polite"></p>' +
-      '<figure class="mp-fig mp-3d"><div class="mp-controls" role="group" aria-label="Punto de vista de la vista 3D"><button class="vbtn sec" type="button" data-v3="perspectiva" aria-pressed="true">Perspectiva</button><button class="vbtn sec" type="button" data-v3="lado" aria-pressed="false">De lado</button><button class="vbtn sec" type="button" data-v3="arriba" aria-pressed="false">Desde arriba</button></div>' +
-      '<div class="mp-3d-escena"></div><figcaption id="mp-3d-desc">Vista 3D de ejemplo, con la misma sala y el mismo robot. En este ejemplo el láser mide en un plano a ' + fmt(ALTO.laser * 100, 0) + ' cm del suelo: cruza las patas de la mesa y las paredes, pasa sobre la caja baja de ' + fmt(ALTO.caja * 100, 0) + ' cm y bajo la cubierta, a ' + fmt(ALTO.mesa * 100, 0) + ' cm. Arrástrala o usa las flechas para girarla. No representa las cotas del prototipo.</figcaption></figure>' +
-      '<p class="vnota">230 sectores por vuelta, rango 0,15–12 m, según el nodo descrito en la tesis. La escena es un modelo idealizado, sin ruido ni movimiento durante el barrido. La posición del robot se conoce en esta ilustración. El LiDAR solo no resuelve su localización. Los dos dibujos usan la misma referencia para comparar.</p></div>';
+      '<div class="mp-legend"><span><i class="mp-dot mp-dot-rojo" aria-hidden="true"></i>punto medido: donde volvió el láser</span><span><i class="mp-raya" aria-hidden="true"></i>rayo que llegó a un obstáculo</span><span>' + (window.U && window.U.robot ? window.U.robot.icono() : '<i class="mp-dot mp-dot-azul" aria-hidden="true"></i>') + 'robot visto desde arriba, con su LiDAR</span><span><i class="mp-contorno" aria-hidden="true"></i>objeto fuera de la altura del láser</span><span><i class="mp-raya mp-raya-vidrio" aria-hidden="true"></i>vidrio</span></div>' +
+      '<p class="vnota" id="mp-3d-desc">Escena de ejemplo, no las cotas del prototipo: el láser mide en un plano a ' + fmt(ALTO.laser * 100, 0) + ' cm del suelo. Cruza las patas de la mesa y las paredes, pasa sobre la caja baja de ' + fmt(ALTO.caja * 100, 0) + ' cm y bajo la cubierta, a ' + fmt(ALTO.mesa * 100, 0) + ' cm. 230 sectores por vuelta, rango 0,15–12 m, según el nodo descrito en la tesis. Sin ruido ni movimiento durante el barrido. La posición del robot se conoce en esta ilustración: el LiDAR solo no resuelve su localización.</p></div>';
     var chart = el.querySelector(".mp-lidar-scene"), v3 = M.vista3D(el.querySelector(".mp-3d-escena"));
     v3.lienzo.setAttribute("tabindex", "0"); v3.lienzo.setAttribute("role", "group"); v3.lienzo.setAttribute("aria-roledescription", "vista 3D");
-    v3.lienzo.setAttribute("aria-label", "Vista 3D del barrido. Arrastra o usa las flechas para girarla."); v3.lienzo.setAttribute("aria-describedby", "mp-3d-desc");
+    v3.lienzo.setAttribute("aria-label", "Vista 3D del barrido. Arrastra el robot o toca el piso para moverlo, arrastra fuera del robot o usa las flechas para girarla."); v3.lienzo.setAttribute("aria-describedby", "mp-3d-desc");
     function draw() {
       var rays = M.barridoLidar(rob, caso), n = rays.filter(function (r) { return r.d !== null; }).length;
       chart.innerHTML = M.lidarSVG(rob, caso, solo, rays);
@@ -354,6 +391,7 @@
       aviso = p.bloqueado ? "Movimiento detenido por un obstáculo físico." : "";
       rob = { x: p.x, y: p.y }; draw();
     }
+    v3.alMover = move;
     var dragging = false;
     function point(e) {
       var r = chart.getBoundingClientRect();
@@ -372,6 +410,8 @@
       if (e.target.id === "mp-lidar-y") move(rob.x, +e.target.value);
     });
     el.addEventListener("click", function (e) {
+      var pa = e.target.closest("[data-pane]");
+      if (pa) { el.querySelector(".mp-escenario").setAttribute("data-activa", pa.getAttribute("data-pane")); U.marcar(el, "data-pane", pa.getAttribute("data-pane")); v3.repintar(); return; }
       var v = e.target.closest("[data-v3]");
       if (v) { v3.vista(v.getAttribute("data-v3")); U.marcar(el, "data-v3", v.getAttribute("data-v3")); return; }
       var b = e.target.closest("[data-caso], [data-vista], [data-reset]"); if (!b) return;
