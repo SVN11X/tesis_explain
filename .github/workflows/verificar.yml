@@ -67,6 +67,7 @@ jobs:
           python tests/navegador_laboratorio.py
           python tests/navegador_robustez.py
           python tests/navegador_evidencia.py
+          python tests/navegador_diagramas.py
           python tests/navegador.py
           python tests/navegador_experiencia.py
           python tests/navegador_redisenio.py
