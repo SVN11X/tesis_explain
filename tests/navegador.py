@@ -811,7 +811,7 @@ def probar_plegados(nav):
     p.goto(BASE + '/replicar.html')
     p.wait_for_timeout(300)
     ok(p.evaluate("[...document.querySelectorAll('details.detalle')].every(d => !d.open)") and p.locator('main p.resumen').count() >= 9, 'replicar: sin ancla parte con un resumen por sección y todo el detalle plegado')
-    ok(p.locator('main #materiales ~ .tabla-env table').first.is_visible() and p.locator('main #conexiones ~ .tabla-env table').is_visible() and p.locator('main #versiones ~ .tabla-env table').is_visible() and p.locator('main #repositorios ~ .aprender a').count() == 5 and p.locator('main #repositorios ~ .aprender a').first.is_visible(), 'replicar: la lista de materiales, las conexiones, las versiones y los repositorios base siguen visibles')
+    ok(p.locator('main #materiales ~ .tabla-env table').first.is_visible() and p.locator('main #conexiones ~ .tabla-env table').is_visible() and p.locator('main #versiones ~ .tabla-env table').is_visible() and p.locator('main #repositorios ~ .aprender a').count() == 7 and p.locator('main #repositorios ~ .aprender a').first.is_visible(), 'replicar: la lista de materiales, las conexiones, las versiones y los repositorios base siguen visibles')
     r = p.evaluate("""() => { const h0 = document.documentElement.scrollHeight, ds = [...document.querySelectorAll('details.detalle')];
       ds.forEach(d => d.open = true); const h1 = document.documentElement.scrollHeight; ds.forEach(d => d.open = false); return { plegada: h0, abierta: h1 }; }""")
     ok(r['plegada'] < r['abierta'] * 0.65, 'replicar: plegada, la página mide menos del 65 % de la abierta', r)
@@ -982,6 +982,17 @@ def probar_iconos(nav):
     ctx.close()
 
 
+def aporte_diagrama(pag, visual):
+    """Alto y palabras visibles del diagrama animado de una página. Es contenido nuevo y visible a propósito: se resta
+    del presupuesto de la página plegada, como el reto de la calibración en navegador_movimiento.py."""
+    return pag.evaluate(r"""(v) => { const w = document.querySelector('[data-vis="' + v + '"]').closest('.widget'); let n = 0;
+      const it = document.createTreeWalker(w, NodeFilter.SHOW_TEXT);
+      while (it.nextNode()) { const e = it.currentNode.parentElement;
+        if (!e || ['SCRIPT', 'STYLE'].includes(e.tagName) || (e.closest('details:not([open])') && !e.closest('summary')) || e.getClientRects().length === 0) continue;
+        n += it.currentNode.textContent.trim().split(/\s+/).filter(Boolean).length; }
+      return [w.offsetHeight, n]; }""", visual)
+
+
 ALTURA_ROBOT_ANTES = 22105  # alto de robot.html a 360 x 740 px antes de plegarlo, medido con el mismo recorrido
 PALABRAS_ROBOT_ANTES = 3175  # palabras visibles de robot.html antes de plegarlo
 PALABRAS_ROBOT = r"""() => { let n = 0; const it = document.createTreeWalker(document.querySelector('main'), NodeFilter.SHOW_TEXT);
@@ -1019,6 +1030,9 @@ def probar_robot_resumen(nav):
     print('  altura a 360 px: plegada %d px (%.1f pantallas, %.1f %% de antes), con todo abierto %d px, antes %d px' % (cerrada, cerrada / 740, 100.0 * cerrada / ALTURA_ROBOT_ANTES, abierta, ALTURA_ROBOT_ANTES))
     print('  palabras visibles plegada: %d, antes %d' % (palabras, PALABRAS_ROBOT_ANTES))
     ok(cerrada < abierta, '360 px: plegada la página es más corta que con todo abierto')
+    alto_dv, pal_dv = aporte_diagrama(p, 'energia-senales')
+    cerrada -= alto_dv
+    palabras -= pal_dv
     ok(cerrada <= ALTURA_ROBOT_ANTES * 0.85, '360 px: plegada mide como mucho el 85 %% de antes (%d px contra %d px)' % (cerrada, ALTURA_ROBOT_ANTES))
     ok(palabras <= PALABRAS_ROBOT_ANTES * 0.75, '360 px: plegada muestra como mucho el 75 %% de las palabras de antes (%d contra %d)' % (palabras, PALABRAS_ROBOT_ANTES))
     # un ancla hacia contenido plegado lo abre y lo muestra
@@ -1131,6 +1145,9 @@ def probar_problema_resumen(nav):
     print('  altura a 360 px: plegada %d px (%.1f pantallas, %.1f %% de antes), con todo abierto %d px, antes %d px' % (cerrada, cerrada / 740, 100.0 * cerrada / ALTURA_PROBLEMA_ANTES, abierta, ALTURA_PROBLEMA_ANTES))
     print('  palabras visibles plegada: %d, antes %d' % (palabras, PALABRAS_PROBLEMA_ANTES))
     ok(cerrada < abierta, '360 px: plegada la página es más corta que con todo abierto')
+    alto_dv, pal_dv = aporte_diagrama(p, 'ciclo-robot')
+    cerrada -= alto_dv
+    palabras -= pal_dv
     ok(cerrada <= ALTURA_PROBLEMA_ANTES * 0.72, '360 px: plegada mide como mucho el 72 %% de antes (%d px contra %d px)' % (cerrada, ALTURA_PROBLEMA_ANTES))
     ok(palabras <= PALABRAS_PROBLEMA_ANTES * 0.7, '360 px: plegada muestra como mucho el 70 %% de las palabras de antes (%d contra %d)' % (palabras, PALABRAS_PROBLEMA_ANTES))
     # un ancla hacia contenido plegado lo abre y lo muestra
@@ -1204,6 +1221,9 @@ def probar_navegacion_resumen(nav):
     cerrada = p.evaluate('document.documentElement.scrollHeight')
     palabras = p.evaluate(PALABRAS_ROBOT)
     print('  altura a 360 px: plegada %d px (%.1f %% de antes, %d px), palabras visibles %d de %d' % (cerrada, 100.0 * cerrada / ALTURA_NAV_ANTES, ALTURA_NAV_ANTES, palabras, PALABRAS_NAV_ANTES))
+    alto_dv, pal_dv = aporte_diagrama(p, 'flujo-nav2')
+    cerrada -= alto_dv
+    palabras -= pal_dv
     ok(cerrada <= ALTURA_NAV_ANTES * 0.80, '360 px: plegada mide como mucho el 80 %% de antes (%d px contra %d px)' % (cerrada, ALTURA_NAV_ANTES))
     ok(palabras <= PALABRAS_NAV_ANTES * 0.70, '360 px: plegada muestra como mucho el 70 %% de las palabras de antes (%d contra %d)' % (palabras, PALABRAS_NAV_ANTES))
     for destino in ('arbol', 'por-que-no-subir', 'd-recuperacion'):
