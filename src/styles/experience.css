@@ -201,6 +201,7 @@ h2 em,h1 em{color:var(--tema)}
 .evidence-numbers>a:hover h3{color:var(--tema)}
 .measurement-limit{background:var(--tema-fondo);border-left-color:var(--tema)}
 .chapter-number,.chapter-arrow{color:var(--tema)}
+.chapter-ico{display:inline-block;vertical-align:middle;width:22px;height:22px;margin:0 8px 10px 0;fill:var(--tema)}
 /* Número de cada parte: grande y con el color de su tema, como el índice de un libro */
 .chapter-row{grid-template-columns:76px 1fr 1.15fr 30px}
 .chapter-number{font-family:var(--f-titulo);font-size:clamp(30px,2.6vw,40px);font-weight:520;letter-spacing:-.05em;line-height:1;font-variant-numeric:tabular-nums}

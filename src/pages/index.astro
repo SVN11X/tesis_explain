@@ -2,7 +2,7 @@
 import Shell from '../layouts/Shell.astro';
 import RobotHero from '../components/RobotHero.svelte';
 import LidarLab from '../components/LidarLab.svelte';
-import { chapters, chapterGroups, cycle, lessons, questions } from '../lib/home-content';
+import { chapters, chapterIcons, chapterGroups, cycle, lessons, questions } from '../lib/home-content';
 const base=import.meta.env.BASE_URL.replace(/\/?$/,'/');
 ---
 <Shell title="El mundo no viene con un mapa" description="Una guía abierta para entender cómo se construyó un robot de bajo costo que mapea, navega y explora interiores con ROS 2. Explicaciones, ensayos e interactivos.">
@@ -94,7 +94,7 @@ const base=import.meta.env.BASE_URL.replace(/\/?$/,'/');
 
   <section class="guide-section section-shell" id="temas" aria-labelledby="guide-title">
     <div class="guide-heading" data-reveal><div><p class="eyebrow">LA GUÍA</p><h2 id="guide-title">Los temas, del problema <br/>a la construcción.</h2></div><p><mark>Diez temas</mark> para ir de la intuición al detalle y <mark>seis complementos</mark> para profundizar. Se pueden leer en orden o por separado.</p></div>
-    <div class="chapter-list">{chapters.map(([n,title,text,url,level],i)=><Fragment>{chapterGroups[i]&&<h3 class="chapter-group mono">{chapterGroups[i]}</h3>}<a href={`${base}${url}.html`} class="chapter-row" data-pag={url} data-reveal><span class="chapter-number mono">{n}</span><div class="chapter-title"><span class={`chapter-level mono nivel-${level==='básico'?'basico':level}`}>{level}</span><h4>{title}</h4></div><p>{text}</p><span class="chapter-arrow" aria-hidden="true">↗</span></a></Fragment>)}</div>
+    <div class="chapter-list">{chapters.map(([n,title,text,url,level],i)=><Fragment>{chapterGroups[i]&&<h3 class="chapter-group mono">{chapterGroups[i]}</h3>}<a href={`${base}${url}.html`} class="chapter-row" data-pag={url} data-reveal><span class="chapter-number mono">{n}</span><div class="chapter-title"><svg class="ph chapter-ico" viewBox="0 0 256 256" aria-hidden="true"><path d={chapterIcons[i]}/></svg><span class={`chapter-level mono nivel-${level==='básico'?'basico':level}`}>{level}</span><h4>{title}</h4></div><p>{text}</p><span class="chapter-arrow" aria-hidden="true">↗</span></a></Fragment>)}</div>
   </section>
 
   <section class="reading-section section-shell c-azul" id="mundo" aria-labelledby="world-title">
