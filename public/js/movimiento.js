@@ -49,6 +49,7 @@
       '<div class="lecturas" data-sim hidden><div><span>Repeticiones nuevas, tras calibrar</span><b data-o="nmedia"></b><small>error medio con el factor anterior</small></div><div><span>Su dispersión</span><b data-o="ndesv"></b><small>sigue presente</small></div></div>' +
       '<p class="vestado" aria-live="polite" data-o="msg"></p>' +
       '<p class="vnota" id="' + uid + '-nota">El error de cada prueba es (odometría − cinta) / cinta, tomado de la Tabla A6.2. La dispersión es la desviación estándar de las cinco pruebas: cuánto se separan entre sí. Calibrar aquí significa dividir lo que mide la odometría por un factor, 1 + error medio. La tesis no aplicó esta corrección. El cálculo muestra qué cambiaría. En la simulación, el sesgo y la variación los eliges tú y no son mediciones.</p>';
+    U.escena(el, { dibujo: ".cal-g", lecturas: ".lecturas, .vestado", plegar: [{ sel: ".vley", en: "dib", titulo: "Leyenda" }] });
     var cont = el.querySelector(".cal-g");
     function o(k) { return el.querySelector('[data-o="' + k + '"]'); }
 
@@ -159,6 +160,7 @@
       lecturas([["Antihorario", "ccw", 1], ["Horario", "cw", 1], ["Indicador del método", "max", 1], ["Giro real en cada esquina", "esq", 1], ["Desvío en cada tramo recto", "tramo", 1]]) +
       '<p class="vestado" aria-live="polite" data-o="msg"></p>' +
       '<p class="vnota" id="' + uid + '-nota">Ilustrativo: el robot de la tesis no se ensayó con este método. El robot sigue su propia odometría sin error de control, así que cree volver exacto al inicio. Lo dibujado es dónde termina de verdad. Sin ruido aleatorio. Borenstein y Feng usan un cuadrado de 4 m y cinco vueltas por sentido. Aquí se usa 1 m, para que quepa en un recinto pequeño. El caso de los conteos supone radios iguales y solo considera los 1976 y 1969 flancos por vuelta medidos.</p>';
+    U.escena(el, { dibujo: ".cu-pan", lecturas: ".lecturas", plegar: [{ sel: ".vley", en: "dib", titulo: "Leyenda" }] });
     var g = el.querySelector(".cu-g"), z = el.querySelector(".cu-z");
     function o(k) { return el.querySelector('[data-o="' + k + '"]'); }
     function camino(pts, X, Y) { return pts.map(function (p, i) { return (i ? "L" : "M") + X(p[0]).toFixed(1) + " " + Y(p[1]).toFixed(1); }).join(""); }
@@ -263,6 +265,7 @@
       '<p class="ci-formula" data-o="formula"></p>' +
       '<p class="vestado" aria-live="polite" data-o="aviso"></p>' +
       '<p class="vnota" id="ci-nota">El centro de giro es el punto alrededor del cual el robot gira en ese instante. Está sobre la línea que une las dos ruedas, del lado de la rueda más lenta. Cada rueda recorre su propio círculo alrededor de ese punto, y la de afuera va más rápido porque su círculo es más largo. Ticks por ciclo son los flancos de encoder que se cuentan en cada rueda durante 1/30 s, la unidad con que trabaja el control del capítulo 4. La animación avanza 1,5 veces más rápido que el robot real.</p>';
+    U.escena(el, { dibujo: ".ci-l", lecturas: ".lecturas", plegar: [{ sel: ".vley", en: "dib", titulo: "Leyenda" }] });
     var cont = el.querySelector(".ci-l"), L = lienzo(cont, 16 / 10, function () { dibujar(); });
     L.cv.setAttribute("role", "img"); L.cv.setAttribute("aria-describedby", "ci-nota");
     alTema(function () { P = paleta(); dibujar(); });
@@ -379,6 +382,7 @@
       '<div class="lecturas"><div><span>Cuenta con los cuatro flancos de A y B</span><b data-o="c">0</b></div><div><span>Cuenta solo con las subidas de A</span><b data-o="c1">0</b></div><div><span>Orden de los flancos</span><b data-o="ord">A antes que B</b></div><div><span>Sentido detectado</span><b data-o="sen">adelante</b></div></div>' +
       '<p class="vestado" aria-live="polite" data-o="estado"></p>' +
       '<p class="vnota">Ilustración con un imán de 6 pares de polos y la rueda girando muy lento. Usa Avanzar un paso: la primera cuenta sube en cada flanco y la segunda solo en uno de cada cuatro. Esa es la multiplicación por cuatro. En el robot, contar los cuatro flancos da 1980 por vuelta de rueda, unos 0,11 mm de avance por flanco, porque el sensor está en el eje del motor, antes de la caja reductora. Contando solo las subidas de A serían 495 por vuelta, unos 0,43 mm cada una.</p>';
+    U.escena(el, { dibujo: ".en-l", lecturas: ".lecturas, .vestado" });
     var cont = el.querySelector(".en-l"), L = lienzo(cont, 16 / 7, function () { dibujar(); });
     L.cv.setAttribute("role", "img"); L.cv.setAttribute("aria-label", "Disco magnético del encoder y las señales de los canales A y B en el tiempo");
     alTema(function () { P = paleta(); dibujar(); });

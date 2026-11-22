@@ -66,6 +66,7 @@
       '<h4 class="vsub">Qué hay en los $137 804 de operación y desarrollo</h4>' +
       '<div class="items"><span>Router de viaje<b class="num">$22 140</b></span><span>Cables de red<b class="num">$8 376</b></span><span>Cargador de baterías<b class="num">$16 169</b></span><span>Baterías de repuesto<b class="num">$41 436</b></span><span>HDMI inalámbrico, cables y hub USB<b class="num">$49 683</b></span></div>' +
       '<p class="vnota">Tablas A1.1 y A1.2 de la tesis. Ningún monto incluye herramientas ni el computador.</p>';
+    U.escena(el, { dibujo: ".costos", plegar: [{ sel: ".vley", en: "dib", titulo: "Leyenda" }], titulo: "Fuente de los montos" });
   };
 
   /* Visor de fotos del prototipo. Se cambia de vista con los botones, deslizando la foto con el

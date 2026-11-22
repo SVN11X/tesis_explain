@@ -38,6 +38,37 @@
       });
     }, 120);
   });
+  /* Escenario de un interactivo: el dibujo, las lecturas y los controles en tres bloques.
+     o.dibujo y o.lecturas son selectores de hijos directos de el, y lo demás son controles. Desde 700 px de ancho
+     el dibujo y las lecturas van a un lado y los controles al otro. Con menos, se apilan: dibujo, controles, lecturas.
+     Las notas largas (.vnota) quedan plegadas en un details, sin quitar nada del texto. Cada grupo de o.plegar
+     ({ sel, en, titulo }) va a un details dentro del bloque en ("dib", "ctl" o "lec") que se abre solo, sin su título, cuando
+     hay ancho para verlo todo y se pliega en un teléfono. */
+  function plegable(el, titulo, abierto) {
+    var det = document.createElement("details"), cuerpo = document.createElement("div"), s = document.createElement("summary");
+    det.className = "v-mas"; cuerpo.className = "v-mas-cuerpo"; s.textContent = titulo;
+    det.appendChild(s); det.appendChild(cuerpo);
+    if (abierto) { var ancho = function () { var ok = el.clientWidth >= 740; det.open = ok; det.classList.toggle("v-libre", ok); }; ancho(); U.alAncho(el, ancho); }
+    return { det: det, cuerpo: cuerpo };
+  }
+  U.escena = function (el, o) {
+    var hijos = Array.prototype.slice.call(el.children), esc = document.createElement("div"), b = {};
+    esc.className = "v-escena";
+    ["dib", "ctl", "lec"].forEach(function (k) { b[k] = document.createElement("div"); b[k].className = "v-" + k; esc.appendChild(b[k]); });
+    var grupos = (o.plegar || []).map(function (g) { return { g: g, p: plegable(el, g.titulo, true) }; }), notas = plegable(el, o.titulo || "Cómo leerlo y supuestos", false);
+    hijos.forEach(function (h) {
+      var g = grupos.filter(function (x) { return h.matches(x.g.sel); })[0];
+      if (g) g.p.cuerpo.appendChild(h);
+      else if (h.matches(o.dibujo)) b.dib.appendChild(h);
+      else if (o.lecturas && h.matches(o.lecturas)) b.lec.appendChild(h);
+      else if (h.classList.contains("vnota")) notas.cuerpo.appendChild(h);
+      else b.ctl.appendChild(h);
+    });
+    grupos.forEach(function (x) { if (x.p.cuerpo.children.length) b[x.g.en || "ctl"].appendChild(x.p.det); });
+    if (notas.cuerpo.children.length) b.ctl.appendChild(notas.det);
+    el.appendChild(esc);
+    return esc;
+  };
   /* Ayudas de marcado que comparten los interactivos. Todo texto que entra en el HTML se escapa. */
   /* aria-pressed en los botones que llevan attr: true solo en el que vale valor */
   U.marcar = function (el, attr, valor) {

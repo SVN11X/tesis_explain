@@ -398,6 +398,7 @@
       '<div class="ex-lienzo"></div>' +
       '<div class="lecturas"><div><span>Tiempo simulado</span><b data-o="t">0 s</b></div><div><span>Metas enviadas</span><b data-o="env">0</b></div><div><span>Reemplazadas antes de llegar</span><b data-o="rem">0</b></div><div><span>Alcanzadas</span><b data-o="alc">0</b></div><div><span>Plano descubierto</span><b data-o="cob">0 %</b></div></div>' +
         '<p class="vestado" aria-live="polite" data-o="ev"></p>';
+    U.escena(el, { dibujo: ".ex-lienzo", lecturas: ".lecturas, .vestado" });
     var cont = el.querySelector(".ex-lienzo");
     var L = lienzo(cont, 16 / 10, function () { dibujar(); });
     var P = paleta(el);
