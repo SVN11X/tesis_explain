@@ -28,7 +28,7 @@ Open `src/` for the home page and the laboratories, and `scripts/verificar_sitio
 
 - `npm run build` compiles the Astro site into `dist` and builds the search index there (needs `beautifulsoup4`).
 - The generators (`datos.py`, `descarga_preguntas.py`, `imagen_social.py`, `indice.py`) accept `--comprobar` and run after the build.
-- `voz_natural.py --comprobar` checks that every question and topic summary has its pre-generated audio in `public/audio/`, with no GPU. `python scripts/voz_natural.py` generates the missing audio and needs a GPU (see `docs/decisions/0010-voz-natural-pregenerada.md`). The site plays the file on press: `js/voz-natural.js` is the player, `js/voz-resumen.js` adds the Escuchar button to each summary and `js/defensa-voz.js` plays the question audio, with `speechSynthesis` as the fallback.
+- `voz_natural.py --comprobar` checks that every question and topic summary has its pre-generated audio in `public/audio/`, with no GPU. `python scripts/voz_natural.py` generates the missing audio and needs a GPU (see `docs/decisions/0010-voz-natural-pregenerada.md`). The site plays the file on press: `public/js/voz-natural.js` is the player, `public/js/voz-resumen.js` adds the Escuchar button to each summary and `public/js/defensa-voz.js` plays the question audio, with `speechSynthesis` as the fallback.
 - `npm test` runs the tests.
 - `python scripts/verificar_sitio.py` checks the built site in `dist`.
 - The browser tests serve `dist` under `/tesis_explain/`, so build first.

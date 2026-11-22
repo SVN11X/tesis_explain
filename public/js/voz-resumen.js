@@ -13,6 +13,7 @@
     seguir: "M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,39.87V216.13A15.94,15.94,0,0,0,80,232a16.07,16.07,0,0,0,8.36-2.35L232.4,141.51a15.81,15.81,0,0,0,0-27ZM80,215.94V40l143.83,88Z"
   };
   var cargaNucleo = null;
+  var AVISO_VOZ = "Voz sintética, generada con Qwen3-TTS";
 
   function icono(clave) {
     var s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -50,7 +51,7 @@
     return Math.floor(s / 60) + ":" + ("0" + (s % 60)).slice(-2);
   }
 
-  function montar(p) {
+  function montar(p, primera) {
     var fila = document.createElement("div");
     fila.className = "voz-fila";
     var b = document.createElement("button");
@@ -61,7 +62,8 @@
     barra.setAttribute("aria-label", "Avance del audio");
     var nota = document.createElement("span");
     nota.className = "voz-nota";
-    nota.textContent = "Voz sintética, generada con Qwen3-TTS";
+    nota.textContent = AVISO_VOZ;
+    nota.hidden = !primera;
     var estado = document.createElement("span");
     estado.className = "voz-estado"; estado.setAttribute("role", "status");
     fila.appendChild(b); fila.appendChild(barra); fila.appendChild(estado); fila.appendChild(nota);
@@ -83,7 +85,7 @@
     }
     function alAviso(d) {
       if (d.tipo === "cargando") { pintar("voz", "Cargando", true); estado.textContent = "Cargando el audio…"; }
-      else if (d.tipo === "sonando") { pintar("pausa", "Pausar"); barra.hidden = false; estado.textContent = ""; }
+      else if (d.tipo === "sonando") { pintar("pausa", "Pausar"); barra.hidden = false; estado.textContent = AVISO_VOZ; }
       else if (d.tipo === "pausa") { pintar("seguir", "Seguir"); estado.textContent = "En pausa"; }
       else if (d.tipo === "progreso") {
         if (d.total > 0) { barra.value = d.t / d.total; barra.setAttribute("aria-valuetext", mmss(d.t) + " de " + mmss(d.total)); }
@@ -111,7 +113,7 @@
     var lista = document.querySelectorAll("p.resumen");
     if (!lista.length) return;
     cargar("voz.css", "css").catch(function () { /* los botones usan el estilo base de .btn */ });
-    lista.forEach(montar);
+    lista.forEach(function (p, i) { montar(p, i === 0); });
   }
   iniciar();
 })();

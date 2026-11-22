@@ -22,7 +22,7 @@ The practice of the oral defense read each question with `speechSynthesis`, whos
 7. Site behavior. Nothing loads up front and nothing autoplays.
    - Each summary gets an Escuchar button (`js/voz-resumen.js`, loaded when the browser is idle) with play, pause and progress, loading and error states, keyboard use and one audio at a time. It finds its audio by the hash of its text, so no page needs an id.
    - `js/defensa-voz.js` plays the question audio and falls back to `speechSynthesis` when there is no file or it fails to load.
-   - A visible note says the voice is synthetic and generated with Qwen3-TTS.
+   - A visible note says the voice is synthetic and generated with Qwen3-TTS. It sits next to the first button of each page and shows again while any audio plays. The rows of the other buttons stay one line tall, which keeps long pages short.
    - The player and the manifest (`js/voz-natural.js`, `audio/manifiesto.json`) are requested on the first press. The audio file is requested when playback starts.
 
 ## Alternatives considered
