@@ -135,58 +135,48 @@
           rec_mux: [[540, 325], [540, 372], [670, 372], [670, 420]],
           joy_mux: [[95, 420], [705, 420]],
           mux_r2c: [[705, 420], [705, 500]],
-          serial_abajo: [[705, 492], [505, 492]],
-          serial_arriba: [[505, 508], [705, 508]],
+          serial_abajo: [[705, 486], [505, 486]],
+          serial_arriba: [[505, 514], [705, 514]],
           pwm: [[505, 500], [295, 500]],
           potencia: [[295, 500], [95, 500]],
           giro: [[95, 500], [95, 580]],
           conteos: [[95, 580], [505, 580], [505, 500]],
           odom: [[770, 500], [806, 500], [806, 215], [770, 215]]
-        },
-        etiquetas: {
-          scan_slam: [380, 32, "middle"], scan_costmaps: [515, 90, "start"], map_costmaps: [462, 125, "middle"],
-          tf_rviz: [210, 127, "middle"], goal_bt: [62, 140, "end"], costmap_planner: [515, 190, "start"],
-          meta: [330, 214, "middle"], plan: [330, 258, "middle"], bt_ctrl: [420, 268, "middle"],
-          costmap_ctrl: [632, 127, "middle"], ctrl_mux: [750, 330, "start"], mux_r2c: [715, 462, "end"],
-          serial_abajo: [605, 486, "middle"], pwm: [400, 493, "middle"], potencia: [195, 493, "middle"],
-          giro: [105, 545, "start"], conteos: [300, 574, "middle"], serial_arriba: [605, 530, "middle"],
-          odom: [798, 360, "end"]
         }
       },
       angosta: {
-        vb: [344, 560], nodo: [136, 40], fs: 13.5,
+        vb: [344, 576], pad: 14, nodo: [136, 40], fs: 13.5,
         pos: {
           rviz2: [82, 30], rplidar: [246, 30], slam: [82, 100], costmaps: [246, 100],
-          explore: [82, 170], planner: [246, 170], bt: [82, 240], controller: [246, 240],
-          recoveries: [82, 310], twist_mux: [246, 310], joystick: [82, 380], ros2c: [246, 380],
-          l298n: [82, 450], arduino: [246, 450], motores: [82, 520], encoders: [246, 520]
+          explore: [82, 170], planner: [246, 170], bt: [82, 256], controller: [246, 256],
+          recoveries: [82, 326], twist_mux: [246, 326], joystick: [82, 396], ros2c: [246, 396],
+          l298n: [82, 466], arduino: [246, 466], motores: [82, 536], encoders: [246, 536]
         },
         rutas: {
           scan_slam: [[200, 30], [200, 65], [100, 65], [100, 100]],
           scan_costmaps: [[290, 30], [290, 100]],
           map_costmaps: [[82, 100], [246, 100]],
           tf_rviz: [[60, 100], [60, 30]],
-          goal_bt: [[30, 30], [6, 30], [6, 240], [30, 240]],
-          explore_bt: [[82, 170], [82, 240]],
+          goal_bt: [[30, 30], [0, 30], [0, 256], [30, 256]],
+          explore_bt: [[82, 170], [82, 256]],
           costmap_planner: [[246, 100], [246, 170]],
-          meta: [[130, 240], [130, 200], [205, 200], [205, 170]],
-          plan: [[225, 170], [225, 212], [140, 212], [140, 240]],
-          bt_ctrl: [[82, 240], [246, 240]],
-          costmap_ctrl: [[290, 100], [326, 100], [326, 232], [290, 232]],
-          bt_rec: [[82, 240], [82, 310]],
-          ctrl_mux: [[246, 240], [246, 310]],
-          rec_mux: [[82, 310], [246, 310]],
-          joy_mux: [[120, 380], [120, 345], [205, 345], [205, 310]],
-          mux_r2c: [[246, 310], [246, 380]],
-          serial_abajo: [[230, 380], [230, 450]],
-          serial_arriba: [[262, 450], [262, 380]],
-          pwm: [[246, 450], [82, 450]],
-          potencia: [[82, 450], [82, 520]],
-          giro: [[82, 520], [246, 520]],
-          conteos: [[290, 520], [290, 450]],
-          odom: [[290, 380], [336, 380], [336, 248], [300, 248]]
-        },
-        etiquetas: {}
+          meta: [[130, 256], [130, 205], [205, 205], [205, 170]],
+          plan: [[225, 170], [225, 221], [140, 221], [140, 256]],
+          bt_ctrl: [[82, 256], [246, 256]],
+          costmap_ctrl: [[290, 100], [326, 100], [326, 248], [290, 248]],
+          bt_rec: [[82, 256], [82, 326]],
+          ctrl_mux: [[246, 256], [246, 326]],
+          rec_mux: [[82, 326], [246, 326]],
+          joy_mux: [[120, 396], [120, 361], [205, 361], [205, 326]],
+          mux_r2c: [[246, 326], [246, 396]],
+          serial_abajo: [[215, 396], [215, 466]],
+          serial_arriba: [[277, 466], [277, 396]],
+          pwm: [[246, 466], [82, 466]],
+          potencia: [[82, 466], [82, 536]],
+          giro: [[82, 536], [246, 536]],
+          conteos: [[290, 536], [290, 466]],
+          odom: [[290, 396], [336, 396], [336, 264], [300, 264]]
+        }
       }
     }
   };
@@ -253,20 +243,14 @@
           d5_lidar: [[470, 240], [295, 240], [295, 340]],
           l298_motor: [[705, 140], [705, 240]],
           lidar_pi: [[295, 340], [505, 340]],
-          pi_ard: [[505, 332], [705, 332]],
-          ard_pi: [[705, 348], [505, 348]],
+          pi_ard: [[505, 326], [705, 326]],
+          ard_pi: [[705, 354], [505, 354]],
           ard_l298: [[760, 340], [806, 340], [806, 140], [780, 140]],
           enc_ard: [[705, 240], [705, 340]]
-        },
-        etiquetas: {
-          d12_reg: [598, 84, "middle"], d12_l298: [750, 95, "start"], reg_d5: [495, 195, "end"],
-          d5_pi: [530, 290, "start"], d5_lidar: [380, 232, "middle"], l298_motor: [695, 195, "end"],
-          lidar_pi: [400, 325, "middle"], pi_ard: [605, 322, "middle"], ard_pi: [605, 372, "middle"],
-          ard_l298: [798, 250, "end"], enc_ard: [715, 295, "start"]
         }
       },
       angosta: {
-        vb: [344, 420], nodo: [136, 44], fs: 13.5,
+        vb: [344, 420], pad: 14, nodo: [136, 44], fs: 13.5,
         pos: {
           bateria: [82, 30], fusible: [246, 30], dist12: [82, 100], interruptor: [246, 100],
           l298n: [82, 170], regulador: [246, 170], motores: [82, 240], dist5: [246, 240],
@@ -283,15 +267,64 @@
           d5_lidar: [[290, 240], [337, 240], [337, 380], [290, 380]],
           l298_motor: [[82, 170], [82, 240]],
           lidar_pi: [[262, 380], [262, 310]],
-          pi_ard: [[246, 302], [82, 302]],
-          ard_pi: [[82, 318], [246, 318]],
-          ard_l298: [[30, 310], [7, 310], [7, 170], [30, 170]],
+          pi_ard: [[246, 296], [82, 296]],
+          ard_pi: [[82, 324], [246, 324]],
+          ard_l298: [[30, 310], [0, 310], [0, 170], [30, 170]],
           enc_ard: [[82, 240], [82, 310]]
-        },
-        etiquetas: {}
+        }
       }
     }
   };
 
-  return { ciclo: CICLO, nav2: NAV2, energia: ENERGIA };
+  /* Geometría compartida con el dibujo y con las pruebas. recortar deja la ruta entre los bordes de sus dos nodos y
+     marcas dice dónde va la insignia numerada de cada arista: el punto medio del tramo más largo, o el primero
+     de varios candidatos que no toque un nodo, otra arista ni otra insignia. */
+  function salida(pts, c, w, h, hueco) {
+    var hx = w / 2 + hueco, hy = h / 2 + hueco;
+    for (var i = 0; i < pts.length - 1; i++) {
+      var p = pts[i], q = pts[i + 1], dx = q[0] - p[0], dy = q[1] - p[1], t = Infinity;
+      if (dx > 0) t = Math.min(t, (c[0] + hx - p[0]) / dx); else if (dx < 0) t = Math.min(t, (c[0] - hx - p[0]) / dx);
+      if (dy > 0) t = Math.min(t, (c[1] + hy - p[1]) / dy); else if (dy < 0) t = Math.min(t, (c[1] - hy - p[1]) / dy);
+      if (t <= 1) return [[p[0] + dx * t, p[1] + dy * t]].concat(pts.slice(i + 1));
+    }
+    return pts;
+  }
+  function recortar(pts, cA, cB, w, h) {
+    var a = salida(pts, cA, w, h, 1);
+    return salida(a.slice().reverse(), cB, w, h, 3).reverse();
+  }
+  var RADIO_MARCA = 9;
+  function cruzaCaja(c, r, a, b) {
+    return Math.max(a[0], b[0]) >= c[0] - r && Math.min(a[0], b[0]) <= c[0] + r && Math.max(a[1], b[1]) >= c[1] - r && Math.min(a[1], b[1]) <= c[1] + r;
+  }
+  function marcas(G, V) {
+    var w = V.nodo[0], h = V.nodo[1], r = RADIO_MARCA + 2, rutas = {}, puestas = {};
+    G.aristas.forEach(function (a) { rutas[a.id] = recortar(V.rutas[a.id], V.pos[a.de], V.pos[a.a], w, h); });
+    G.aristas.forEach(function (a) {
+      var pts = rutas[a.id], segs = [], i;
+      for (i = 0; i < pts.length - 1; i++) segs.push([pts[i], pts[i + 1], Math.hypot(pts[i + 1][0] - pts[i][0], pts[i + 1][1] - pts[i][1])]);
+      segs.sort(function (x, y) { return y[2] - x[2]; });
+      var elegido = null;
+      segs.forEach(function (sg) {
+        [0.5, 0.4, 0.6, 0.3, 0.7, 0.2, 0.8].forEach(function (f) {
+          if (elegido) return;
+          var c = [sg[0][0] + (sg[1][0] - sg[0][0]) * f, sg[0][1] + (sg[1][1] - sg[0][1]) * f], bien = true;
+          G.nodos.forEach(function (n) {
+            var q = V.pos[n.id];
+            if (c[0] + r > q[0] - w / 2 && c[0] - r < q[0] + w / 2 && c[1] + r > q[1] - h / 2 && c[1] - r < q[1] + h / 2) bien = false;
+          });
+          G.aristas.forEach(function (e) {
+            if (e.id === a.id) return;
+            for (var j = 0; j < rutas[e.id].length - 1; j++) if (cruzaCaja(c, r, rutas[e.id][j], rutas[e.id][j + 1])) bien = false;
+          });
+          Object.keys(puestas).forEach(function (k) { if (puestas[k] && Math.hypot(puestas[k][0] - c[0], puestas[k][1] - c[1]) < 2 * r) bien = false; });
+          if (bien) elegido = c;
+        });
+      });
+      puestas[a.id] = elegido;
+    });
+    return puestas;
+  }
+
+  return { ciclo: CICLO, nav2: NAV2, energia: ENERGIA, geo: { recortar: recortar, marcas: marcas, radioMarca: RADIO_MARCA } };
 });

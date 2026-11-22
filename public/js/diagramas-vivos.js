@@ -8,6 +8,7 @@
   var V = window.VISUALES = window.VISUALES || {}, U = window.U;
   var NS = "http://www.w3.org/2000/svg";
   var ANGOSTO = 700;
+  var GEO = null;
 
   var CSS = [
     ".dv { display: grid; gap: 12px; min-width: 0; }",
@@ -33,8 +34,13 @@
     ".dv-ar.llega .l { stroke: var(--dv-color); stroke-width: 3.5; stroke-dasharray: none; }",
     ".dv-ar.llega .p { fill: var(--dv-color); }",
     ".dv-rombo .dv-ar.llega .l { stroke-dasharray: 9 5; }",
-    ".dv-ar .t { opacity: 0; fill: var(--ink); font-family: var(--marco-titulo); font-weight: 600; paint-order: stroke; stroke: var(--paper); stroke-width: 5px; stroke-linejoin: round; pointer-events: none; }",
-    ".dv-ar.llega .t { opacity: 1; }",
+    ".dv-ar .b { opacity: 0; pointer-events: none; }",
+    ".dv-ar.llega .b { opacity: 1; }",
+    ".dv-ar .b circle { fill: var(--dv-color); stroke: var(--paper); stroke-width: 2; }",
+    ".dv-ar .b text { fill: var(--paper); font-family: var(--marco-titulo); font-weight: 700; text-anchor: middle; dominant-baseline: central; }",
+    ".dv-tops { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: var(--t-sm); }",
+    ".dv-tops li { display: inline-flex; align-items: center; gap: 6px; }",
+    ".dv-tops b { min-width: 22px; height: 22px; border-radius: 11px; display: inline-grid; place-items: center; background: var(--dv-color); color: var(--paper); font-size: var(--t-2xs, .75rem); }",
     ".dv-pq { fill: var(--dv-color); stroke: var(--paper); stroke-width: 1.5; }",
     ".dv-fondo { fill: none; stroke: var(--line-2); stroke-width: 1.5; stroke-dasharray: 4 5; }",
     ".dv-lazo { fill: none; stroke: var(--muted); stroke-width: 1.25; }",
@@ -61,12 +67,12 @@
   }
   var esperan = null;
   function datos(listo, fallo) {
-    if (window.DIAGRAMAS_VIVOS) { listo(window.DIAGRAMAS_VIVOS); return; }
+    if (window.DIAGRAMAS_VIVOS) { GEO = window.DIAGRAMAS_VIVOS.geo; listo(window.DIAGRAMAS_VIVOS); return; }
     if (esperan) { esperan.push([listo, fallo]); return; }
     esperan = [[listo, fallo]];
     var sc = document.createElement("script");
     sc.src = "js/diagramas-vivos-datos.js";
-    sc.onload = function () { var l = esperan; esperan = null; l.forEach(function (f) { f[0](window.DIAGRAMAS_VIVOS); }); };
+    sc.onload = function () { GEO = window.DIAGRAMAS_VIVOS.geo; var l = esperan; esperan = null; l.forEach(function (f) { f[0](window.DIAGRAMAS_VIVOS); }); };
     sc.onerror = function () { sc.remove(); var l = esperan; esperan = null; l.forEach(function (f) { f[1](); }); };
     document.head.appendChild(sc);
   }
@@ -81,22 +87,6 @@
   function vistaPara(el) { return el.clientWidth && el.clientWidth < ANGOSTO ? "angosta" : "ancha"; }
   function f1(n) { return Math.round(n * 10) / 10; }
 
-  /* Recorta una ruta para que empiece en el borde del nodo de origen y termine en el del destino. */
-  function salida(pts, c, w, h, hueco) {
-    var hx = w / 2 + hueco, hy = h / 2 + hueco;
-    for (var i = 0; i < pts.length - 1; i++) {
-      var p = pts[i], q = pts[i + 1], dx = q[0] - p[0], dy = q[1] - p[1], t = Infinity;
-      if (dx > 0) t = Math.min(t, (c[0] + hx - p[0]) / dx); else if (dx < 0) t = Math.min(t, (c[0] - hx - p[0]) / dx);
-      if (dy > 0) t = Math.min(t, (c[1] + hy - p[1]) / dy); else if (dy < 0) t = Math.min(t, (c[1] - hy - p[1]) / dy);
-      if (t <= 1) { return [[p[0] + dx * t, p[1] + dy * t]].concat(pts.slice(i + 1)); }
-    }
-    return pts;
-  }
-  function recortar(pts, cA, cB, w, h) {
-    var a = salida(pts, cA, w, h, 1);
-    var b = salida(a.slice().reverse(), cB, w, h, 3).reverse();
-    return b;
-  }
   function trazo(pts) { return "M" + pts.map(function (p) { return f1(p[0]) + " " + f1(p[1]); }).join(" L"); }
   function punta(pts, tam) {
     var p = pts[pts.length - 1], q = pts[pts.length - 2], dx = p[0] - q[0], dy = p[1] - q[1], l = Math.sqrt(dx * dx + dy * dy) || 1;
@@ -143,12 +133,12 @@
       '<div class="vctl dv-pasos" role="group" aria-label="' + U.esc(cfg.grupo) + '">' + botones + '</div>' +
       '<div class="vctl"><button type="button" class="vbtn dv-pausa" aria-pressed="false">Pausar movimiento</button>' + (cfg.extra || "") + '<span class="vestado dv-rm" hidden>Tu sistema pide menos movimiento: el diagrama se muestra quieto.</span></div>' +
       '<div class="dv-lienzo"></div>' +
-      '<div class="dv-info" aria-live="polite"><p class="dv-paso"></p><p class="dv-nodo-info"></p></div>' +
+      '<div class="dv-info" aria-live="polite"><p class="dv-paso"></p><ol class="dv-tops" aria-label="Tópicos y enlaces del paso"></ol><p class="dv-nodo-info"></p></div>' +
       '<ul class="dv-leyenda" aria-label="Colores de los nodos">' + leyenda + '</ul>' +
       '<p class="vnota">' + cfg.nota + '</p>' +
       '<details class="dv-texto"><summary>Ver la descripción en texto</summary><p class="vis-fallback">' + U.esc(respaldo) + '</p></details></div>';
     var raiz = el.querySelector(".dv"), lienzo = el.querySelector(".dv-lienzo"), pausaB = el.querySelector(".dv-pausa");
-    var infoPaso = el.querySelector(".dv-paso"), infoNodo = el.querySelector(".dv-nodo-info"), avisoRM = el.querySelector(".dv-rm");
+    var infoPaso = el.querySelector(".dv-paso"), infoTops = el.querySelector(".dv-tops"), infoNodo = el.querySelector(".dv-nodo-info"), avisoRM = el.querySelector(".dv-rm");
     var pasos = el.querySelectorAll(".dv-pasos .vbtn");
 
     function estatico() { return U.quieto() || est.pausa; }
@@ -157,17 +147,21 @@
       var vi = D.vistas[clave], w = vi.nodo[0], h = vi.nodo[1];
       est.vista = clave;
       lienzo.innerHTML = "";
-      var svg = S(lienzo, "svg", { "class": "dv-svg dv-" + clave, viewBox: "0 0 " + vi.vb[0] + " " + vi.vb[1], role: "group", "aria-label": cfg.aria, focusable: "false" });
+      var svg = S(lienzo, "svg", { "class": "dv-svg dv-" + clave, viewBox: (-(vi.pad || 0)) + " 0 " + (vi.vb[0] + 2 * (vi.pad || 0)) + " " + vi.vb[1], role: "group", "aria-label": cfg.aria, focusable: "false" });
       S(svg, "title", {}, cfg.titulo);
       var gA = S(svg, "g", {}), gN = S(svg, "g", {}), gP = S(svg, "g", {});
-      refs = { aristas: {}, nodos: {}, gP: gP };
+      refs = { aristas: {}, nodos: {}, gP: gP, marcas: GEO.marcas(D, vi) };
       D.aristas.forEach(function (a) {
-        var pts = recortar(vi.rutas[a.id], vi.pos[a.de], vi.pos[a.a], w, h);
+        var pts = GEO.recortar(vi.rutas[a.id], vi.pos[a.de], vi.pos[a.a], w, h);
         var g = S(gA, "g", { "class": "dv-ar", "data-id": a.id });
         var path = S(g, "path", { "class": "l", d: trazo(pts) });
         S(g, "path", { "class": "p", d: punta(pts, 9) });
-        var lab = vi.etiquetas && vi.etiquetas[a.id];
-        if (lab) S(g, "text", { "class": "t", x: lab[0], y: lab[1], "text-anchor": lab[2], "font-size": vi.fs - 0.5 }, a.t);
+        var m = refs.marcas[a.id], b = S(g, "g", { "class": "b" });
+        if (m) {
+          b.setAttribute("transform", "translate(" + f1(m[0]) + " " + f1(m[1]) + ")");
+          S(b, "circle", { r: GEO.radioMarca });
+          S(b, "text", { "font-size": 12 }, "");
+        }
         refs.aristas[a.id] = { g: g, path: path };
       });
       D.nodos.forEach(function (n) {
@@ -193,11 +187,25 @@
       });
       D.nodos.forEach(function (n) { refs.nodos[n.id].classList.toggle("toca", !!tocan[n.id]); });
     }
+    function numerar() {
+      var item = D.pasos[est.i], n = 0, lis = "";
+      D.aristas.forEach(function (a) { var t = refs.aristas[a.id].g.querySelector(".b text"); if (t) t.textContent = ""; });
+      item.etapas.forEach(function (et) {
+        et.forEach(function (id) {
+          n++;
+          var t = refs.aristas[id].g.querySelector(".b text");
+          if (t) t.textContent = String(n);
+          lis += '<li><b>' + n + '</b>' + U.esc(A[id].t) + '</li>';
+        });
+      });
+      infoTops.innerHTML = lis;
+    }
     function pintar() {
       var item = D.pasos[est.i];
       raiz.style.setProperty("--dv-color", "var(--c-" + item.color + ")");
       raiz.classList.toggle("dv-rombo", item.paquete === "rombo");
       clases();
+      numerar();
       refs.gP.textContent = "";
       paquetes = [];
       if (!U.quieto()) item.etapas.forEach(function (et, k) {
@@ -338,7 +346,7 @@
         var cs = E.map(function (e) { return vi.pos[e.id]; });
         var gL = S(svg, "g", {}), gR = S(svg, "g", {}), gE = S(svg, "g", {}), gT = S(svg, "g", {});
         for (var i = 0; i < 4; i++) {
-          var a = cs[i], b = cs[(i + 1) % 4], pts = recortar([a, b], a, b, w, h);
+          var a = cs[i], b = cs[(i + 1) % 4], pts = GEO.recortar([a, b], a, b, w, h);
           S(gL, "path", { "class": "dv-lazo", "stroke-width": 2.5, d: trazo(pts) });
           S(gL, "path", { "class": "dv-lazo-p", d: punta(pts, 11) });
         }

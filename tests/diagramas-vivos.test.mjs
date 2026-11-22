@@ -53,7 +53,7 @@ for (const [nombre, G] of Object.entries(GRAFOS)) {
         assert.ok(r && r.length >= 2, `falta la ruta de ${a.id}`);
         assert.ok(dentro(r[0], V.pos[a.de], w, h), `${a.id}: empieza fuera de ${a.de}`);
         assert.ok(dentro(r[r.length - 1], V.pos[a.a], w, h), `${a.id}: termina fuera de ${a.a}`);
-        for (const p of r) assert.ok(p[0] >= 0 && p[0] <= V.vb[0] && p[1] >= 0 && p[1] <= V.vb[1], `${a.id}: punto fuera del viewBox`);
+        for (const p of r) assert.ok(p[0] >= -(V.pad || 0) && p[0] <= V.vb[0] + (V.pad || 0) && p[1] >= 0 && p[1] <= V.vb[1], `${a.id}: punto fuera del viewBox`);
         for (let i = 0; i < r.length - 1; i++) {
           assert.ok(r[i][0] === r[i + 1][0] || r[i][1] === r[i + 1][1], `${a.id}: el tramo ${i} no es ortogonal`);
           const largo = Math.hypot(r[i + 1][0] - r[i][0], r[i + 1][1] - r[i][1]);
@@ -67,6 +67,36 @@ for (const [nombre, G] of Object.entries(GRAFOS)) {
           }
         }
       }
+    });
+  }
+}
+
+for (const [nombre, G] of Object.entries(GRAFOS)) {
+  for (const [vista, V] of Object.entries(G.vistas)) {
+    test(`${nombre}, vista ${vista}: las insignias de las aristas no tocan un nodo, otra arista ni otra insignia`, () => {
+      const [w, h] = V.nodo, r = DV.geo.radioMarca, marcas = DV.geo.marcas(G, V), fallos = [];
+      const rutas = Object.fromEntries(G.aristas.map((a) => [a.id, DV.geo.recortar(V.rutas[a.id], V.pos[a.de], V.pos[a.a], w, h)]));
+      for (const a of G.aristas) {
+        const c = marcas[a.id];
+        if (!c) { fallos.push(`${a.id}: no hay sitio para su insignia`); continue; }
+        if (c[0] - r < -(V.pad || 0) || c[0] + r > V.vb[0] + (V.pad || 0) || c[1] - r < 0 || c[1] + r > V.vb[1]) fallos.push(`${a.id}: sale del viewBox`);
+        for (const n of G.nodos) {
+          const p = V.pos[n.id];
+          if (c[0] + r > p[0] - w / 2 && c[0] - r < p[0] + w / 2 && c[1] + r > p[1] - h / 2 && c[1] - r < p[1] + h / 2) fallos.push(`${a.id}: toca el nodo ${n.id}`);
+        }
+        for (const e of G.aristas) {
+          if (e.id === a.id) continue;
+          const q = rutas[e.id];
+          for (let i = 0; i < q.length - 1; i++) {
+            if (Math.max(q[i][0], q[i + 1][0]) >= c[0] - r && Math.min(q[i][0], q[i + 1][0]) <= c[0] + r && Math.max(q[i][1], q[i + 1][1]) >= c[1] - r && Math.min(q[i][1], q[i + 1][1]) <= c[1] + r) fallos.push(`${a.id}: cruza la arista ${e.id}`);
+          }
+        }
+        for (const o of G.aristas) {
+          if (o.id <= a.id || !marcas[o.id]) continue;
+          if (Math.hypot(marcas[o.id][0] - c[0], marcas[o.id][1] - c[1]) < 2 * r) fallos.push(`${a.id} y ${o.id} se superponen`);
+        }
+      }
+      assert.deepEqual(fallos, []);
     });
   }
 }
