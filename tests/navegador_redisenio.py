@@ -228,7 +228,6 @@ with sync_playwright() as pw:
                 solapa = not (marco['x'] + marco['width'] <= otro['x'] or otro['x'] + otro['width'] <= marco['x'] or marco['y'] + marco['height'] <= otro['y'] or otro['y'] + otro['height'] <= marco['y'])
                 check(not solapa, 'index.html a %d px: la corrida real no tapa «%s»' % (ancho, nombre))
         p.wait_for_timeout(500)
-        print('DIAG', ancho, p.evaluate('document.documentElement.scrollWidth'), p.evaluate("""[...document.querySelectorAll('body *')].filter(e => e.getBoundingClientRect().right > innerWidth + 0.5).slice(0, 15).map(e => e.tagName + '.' + e.className + ' r=' + Math.round(e.getBoundingClientRect().right) + ' ws=' + getComputedStyle(e).whiteSpace + ' fs=' + getComputedStyle(e).fontSize + ' ff=' + getComputedStyle(e).fontFamily.slice(0, 40) + ' t=' + (e.textContent || '').slice(0, 40))"""))
         check(p.evaluate('document.documentElement.scrollWidth') <= ancho, 'index.html a %d px: la portada no tiene scroll horizontal' % ancho)
         if ancho == 360:
             check(bool(p.locator('.hero-run video').get_attribute('aria-label')) and p.locator('.hero-run video').evaluate('v => v.muted && v.hasAttribute("playsinline")'), 'index.html: la corrida real tiene texto alternativo, sin sonido y en línea')
