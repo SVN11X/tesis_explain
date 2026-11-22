@@ -51,12 +51,9 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 - [x] (green) Measure the contrast of the small gray uppercase labels on the home page at 360 px and fix anything under 4.5:1.
 - [x] (green) Home page fonts use font-display: swap without metric-matched fallbacks, unlike the guide pages. Align them with the guide pages (docs/medicion-fuentes.md).
 - [x] (green) Measure the weight and use of Archivo, Atkinson Hyperlegible and IBM Plex Mono, and record the font decision in DESIGN.md.
-- [ ] BLOCKED: Waits for PR #25 and the Pages switch. After part (b): list the current tokens (spacing, type sizes, radii, durations, easing) in DESIGN.md from the site's CSS.
-- [ ] BLOCKED: Waits for PR #25 and the Pages switch. After part (b): record the performance budget in docs/decisions/, measured on dist/, with each page's critical path against 170 KB compressed.
 - [x] (yellow) control.html: the source list and «Mundo real» folded too (owner, 2026-11-20), PR #64.
 - [x] (green) After part (b): list the current tokens (spacing, type sizes, radii, durations, easing) in DESIGN.md from the site's CSS.
 - [x] (green) After part (b): record the performance budget in docs/decisions/, measured on dist/, with each page's critical path against 170 KB compressed.
-- [ ] BLOCKED: control.html stays at 84 % of its height because 17 interactives must stay visible. Fold its sources list and the «Mundo real» section too?
 - [x] (yellow) Summaries and folded detail on problema, navegacion, exploracion and replicar (owner approved on 2026-11-20): PRs #61, #60, #59 and #65.
 - [x] (yellow) The owner decided on 2026-11-20 that the challenge spreads: one per chapter with its own figures.
 - [x] (yellow) One short challenge per chapter on the shared U.reto (owner, 2026-11-20): mapeo, movimiento, control, robot, resultados, navegacion and exploracion.
@@ -80,8 +77,8 @@ Approved by the owner on 2026-11-19 after a review by deep-reviewer. The owner a
 ## Performance
 
 - [x] (green) bibliografia.html: render-blocking critical path under 170 KB compressed (238 KB in 0007).
-- [ ] (yellow) Pages over 170 KB before load (preguntas, control, mapeo, lecciones and others): defer what is not needed above the fold. 2026-11-21: render-blocking is now under 170 KB on all 18 pages (largest 80.4 KB), but the full critical path is still over 170 KB on 12 pages. Left: defer the `defer` scripts after the first paint (see docs/decisions/0007). 2026-11-22: images are lazy or 640 px on phones, but 13 pages are still over 170 KB. What is left is fonts (69 to 79 KB), shared scripts (39 to 64 KB) and CSS, not images. Left: fonts and scripts after `load` without the swap (docs/decisions/0007).
-- [x] (yellow) Slow 3G: LCP 5.8 to 7.4 s on every page. Find the shared cause (fonts, the frame, the search index) and fix it once. 2026-11-21: shared cause found (fonts, scripts and CSS share 50 KB/s, so estilo.css arrives late) and fonts no longer preloaded and subset. LCP is now 4.9 to 6.3 s. Left: the stylesheet round trip (inline critical CSS or a smaller estilo.css) and the deferred scripts (docs/decisions/0007). 2026-11-22: done, LCP is 2.5 to 2.8 s on all 18 pages (critical CSS inline on the guide pages, inline sheets on the home page and laboratorios).
+- [ ] BLOCKED: All 18 pages keep the above-the-fold critical path under 170 KB, but 13 exceed it counting all bytes before load. Is the standard definition enough?
+- [x] (yellow) Slow 3G: LCP under 5 s on all 18 pages (PRs #78, #80 and #81, details in docs/decisions/0007).
 
 ## Owner
 
