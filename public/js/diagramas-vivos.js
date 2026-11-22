@@ -47,6 +47,7 @@
     ".dv-info { padding: 10px 12px; border: 1px solid var(--line); border-left: 3px solid var(--dv-color, var(--tema)); background: var(--surface); display: grid; gap: 6px; min-height: 4.2em; }",
     ".dv-info p { margin: 0; font-size: var(--t-sm); max-width: none; }",
     ".dv-info .dv-nodo-info:empty { display: none; }",
+    ".dv-texto summary { cursor: pointer; font-size: var(--t-sm); min-height: 24px; padding: 4px 0; }",
     ".dv-leyenda { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 0; padding: 0; list-style: none; font-size: var(--t-xs); color: var(--muted); }",
     ".dv-leyenda li { display: inline-flex; align-items: center; gap: 6px; }",
     ".dv-leyenda i { width: 14px; height: 14px; border: 2px solid var(--nc); background: var(--nf); display: inline-block; }"
@@ -145,7 +146,7 @@
       '<div class="dv-info" aria-live="polite"><p class="dv-paso"></p><p class="dv-nodo-info"></p></div>' +
       '<ul class="dv-leyenda" aria-label="Colores de los nodos">' + leyenda + '</ul>' +
       '<p class="vnota">' + cfg.nota + '</p>' +
-      '<p class="vis-fallback">' + U.esc(respaldo) + '</p></div>';
+      '<details class="dv-texto"><summary>Ver la descripción en texto</summary><p class="vis-fallback">' + U.esc(respaldo) + '</p></details></div>';
     var raiz = el.querySelector(".dv"), lienzo = el.querySelector(".dv-lienzo"), pausaB = el.querySelector(".dv-pausa");
     var infoPaso = el.querySelector(".dv-paso"), infoNodo = el.querySelector(".dv-nodo-info"), avisoRM = el.querySelector(".dv-rm");
     var pasos = el.querySelectorAll(".dv-pasos .vbtn");
@@ -325,7 +326,7 @@
         '<div class="dv-lienzo"></div>' +
         '<div class="dv-info" aria-live="polite"><p class="dv-paso">Elige una etapa para detener el recorrido y leer su explicación.</p></div>' +
         '<p class="vnota">' + U.esc(C.ritmos.ruedas) + ' ' + U.esc(C.ritmos.destino) + ' Las dos vueltas no van a escala: en el robot son unas 100 correcciones de rueda por cada revisión del destino (30 por segundo por 3,3 s) y aquí se dibujan 10. Al moverse, el robot ve geometría nueva y el ciclo vuelve a empezar.</p>' +
-        '<p class="vis-fallback">' + U.esc(respaldo) + '</p></div>';
+        '<details class="dv-texto"><summary>Ver la descripción en texto</summary><p class="vis-fallback">' + U.esc(respaldo) + '</p></details></div>';
       var lienzo = el.querySelector(".dv-lienzo"), pausaB = el.querySelector(".dv-pausa"), info = el.querySelector(".dv-paso"), avisoRM = el.querySelector(".dv-rm");
 
       function dibujar(clave) {
