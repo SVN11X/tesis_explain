@@ -83,7 +83,7 @@
       <div class="meta-cap"><span data-nivel class="etiqueta">Nivel</span><span class="etiqueta" data-lectura>Lectura</span></div>
     </div>
     <figure class="tema-hero-fig contener">
-      <picture><source srcset="img/tesis/cotas-gemelo-med.webp" type="image/webp"><img src="img/tesis/cotas-gemelo-med.png" data-grande="img/tesis/cotas-gemelo.png" width="1100" height="914" alt="Plano del modelo del robot en tres vistas, lateral, frontal y en planta, con sus cotas: largo del chasis 24,5 cm, ancho 23 cm, altura total 17,4 cm, radio de rueda 3,35 cm, separación entre ruedas 18,8 cm y posición del LiDAR a 12 cm." fetchpriority="high"></picture>
+      <picture><source srcset="img/tesis/cotas-gemelo-med-640.webp 640w, img/tesis/cotas-gemelo-med.webp 1100w" sizes="(max-width: 760px) 92vw, 680px" type="image/webp"><img src="img/tesis/cotas-gemelo-med.png" data-grande="img/tesis/cotas-gemelo.png" width="1100" height="914" alt="Plano del modelo del robot en tres vistas, lateral, frontal y en planta, con sus cotas: largo del chasis 24,5 cm, ancho 23 cm, altura total 17,4 cm, radio de rueda 3,35 cm, separación entre ruedas 18,8 cm y posición del LiDAR a 12 cm." fetchpriority="high"></picture>
       <figcaption>Las medidas del gemelo digital, las mismas del robot real. Fig. A2.1 de la tesis.</figcaption>
     </figure>
   </div>
@@ -112,7 +112,7 @@
       <figcaption>El gemelo en Gazebo Classic: un chasis simple, dos ruedas, una rueda loca y el láser. <small>Fig. 4.2 de la tesis.</small></figcaption>
     </figure>
     <figure class="fig">
-      <picture><source srcset="img/fotos/robot-planta.webp" type="image/webp"><img src="img/fotos/robot-planta.jpg" data-grande="img/fotos/robot-planta-grande.jpg" width="900" height="958" loading="lazy" decoding="async" alt="El robot real visto desde arriba, con su carcasa negra y el láser al centro."></picture>
+      <picture><source srcset="img/fotos/robot-planta-640.webp 640w, img/fotos/robot-planta.webp 900w" sizes="(max-width: 760px) 92vw, 680px" type="image/webp"><img src="img/fotos/robot-planta.jpg" data-grande="img/fotos/robot-planta-grande.jpg" width="900" height="958" loading="lazy" decoding="async" alt="El robot real visto desde arriba, con su carcasa negra y el láser al centro."></picture>
       <figcaption>El robot real, con el mismo radio de rueda, separación y posición del láser. <small>Fig. 4.4 de la tesis.</small></figcaption>
     </figure>
   </div>
@@ -139,11 +139,11 @@
   <p>Esto tiene una consecuencia que conviene tener presente. En simulación, las ruedas no pasan por la conversión a pulsos ni por el controlador del firmware. El gemelo sirve para probar la geometría, los marcos y la navegación, pero no el control de bajo nivel.</p>
   <div class="galeria">
     <figure class="fig oscura">
-      <picture><source srcset="img/tesis/tf-marcos.webp" type="image/webp"><img src="img/tesis/tf-marcos.png" width="1279" height="926" loading="lazy" decoding="async" alt="El modelo del robot en RViz con varios tríos de ejes rojos, verdes y azules, uno por cada marco de referencia."></picture>
+      <picture><source srcset="img/tesis/tf-marcos-640.webp 640w, img/tesis/tf-marcos.webp 1279w" sizes="(max-width: 760px) 92vw, 680px" type="image/webp"><img src="img/tesis/tf-marcos.png" width="1279" height="926" loading="lazy" decoding="async" alt="El modelo del robot en RViz con varios tríos de ejes rojos, verdes y azules, uno por cada marco de referencia."></picture>
       <figcaption>Los marcos del modelo en RViz. Verificar que no haya marcos sueltos fue el primer criterio de aceptación. <small>Captura del autor.</small></figcaption>
     </figure>
     <figure class="fig oscura">
-      <picture><source srcset="img/tesis/gazebo-lidar.webp" type="image/webp"><img src="img/tesis/gazebo-lidar.png" width="1600" height="985" loading="lazy" decoding="async" alt="Vista superior en Gazebo del barrido del láser simulado en azul, recortado por obstáculos."></picture>
+      <picture><source srcset="img/tesis/gazebo-lidar-640.webp 640w, img/tesis/gazebo-lidar.webp 1600w" sizes="(max-width: 760px) 92vw, 680px" type="image/webp"><img src="img/tesis/gazebo-lidar.png" width="1600" height="985" loading="lazy" decoding="async" alt="Vista superior en Gazebo del barrido del láser simulado en azul, recortado por obstáculos."></picture>
       <figcaption>El láser simulado en el mundo de prueba, con sombras detrás de cada obstáculo. <small>Fig. 4.3 de la tesis.</small></figcaption>
     </figure>
   </div>
@@ -162,7 +162,7 @@
   </div>
   <p>Un modelo puede crecer sin tocar el robot real. La captura siguiente muestra el mismo gemelo con una cámara simulada frente a un mundo de prueba. La cámara no forma parte del sistema que evalué, pero ilustra cómo se probaría un sensor nuevo antes de comprarlo.</p>
   <figure class="fig oscura">
-    <picture><source srcset="img/tesis/gazebo-camara.webp" type="image/webp"><img src="img/tesis/gazebo-camara.jpg" width="1562" height="884" loading="lazy" decoding="async" alt="El gemelo naranja en Gazebo con líneas blancas que marcan el campo de visión de una cámara simulada, apuntando a un panel con figuras de personas y un número tres, junto a buzones."></picture>
+    <picture><source srcset="img/tesis/gazebo-camara-640.webp 640w, img/tesis/gazebo-camara.webp 1562w" sizes="(max-width: 760px) 92vw, 680px" type="image/webp"><img src="img/tesis/gazebo-camara.jpg" width="1562" height="884" loading="lazy" decoding="async" alt="El gemelo naranja en Gazebo con líneas blancas que marcan el campo de visión de una cámara simulada, apuntando a un panel con figuras de personas y un número tres, junto a buzones."></picture>
     <figcaption>Una cámara simulada en el gemelo. Las líneas blancas marcan su campo de visión. <small>Captura del autor. Extensión posible, no evaluada en este trabajo.</small></figcaption>
   </figure>
 </section>

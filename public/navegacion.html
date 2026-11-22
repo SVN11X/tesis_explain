@@ -110,7 +110,7 @@
   <h2 id="nav2">Las piezas de Nav2</h2>
   <p class="resumen">Nav2 usa dos mapas de costos, el planificador NavFn con A estrella y el controlador DWB, y un árbol de comportamiento que replanifica y se recupera en dos niveles <a class="ref" href="#f1">1</a>.</p>
   <figure class="fig oscura">
-    <picture><source srcset="img/tesis/nav2-arquitectura-med.webp" type="image/webp"><img src="img/tesis/nav2-arquitectura-med.png" data-grande="img/tesis/nav2-arquitectura.png" width="1200" height="827" loading="lazy" decoding="async" alt="Diagrama sobre fondo negro con tres zonas. Arriba, el operador con joystick y RViz2, y el robot físico con el RPLidar. Al centro, los componentes ROS 2 en la estación: slam_toolbox, costmaps, bt_navigator, planner_server, controller_server, recoveries_server, explore_server y twist_mux. Abajo, el robot físico: ros2_control, Arduino Nano, driver L298N, motores DC y encoders, con los tópicos que los unen."></picture>
+    <picture><source srcset="img/tesis/nav2-arquitectura-med-640.webp 640w, img/tesis/nav2-arquitectura-med.webp 1200w" sizes="(max-width: 760px) 92vw, 680px" type="image/webp"><img src="img/tesis/nav2-arquitectura-med.png" data-grande="img/tesis/nav2-arquitectura.png" width="1200" height="827" loading="lazy" decoding="async" alt="Diagrama sobre fondo negro con tres zonas. Arriba, el operador con joystick y RViz2, y el robot físico con el RPLidar. Al centro, los componentes ROS 2 en la estación: slam_toolbox, costmaps, bt_navigator, planner_server, controller_server, recoveries_server, explore_server y twist_mux. Abajo, el robot físico: ros2_control, Arduino Nano, driver L298N, motores DC y encoders, con los tópicos que los unen."></picture>
     <figcaption>Cómo se conectan los componentes de la navegación, desde el láser hasta los motores. <small>Fig. 4.6 de la tesis.</small></figcaption>
   </figure>
   <details class="detalle" id="d-nav2"><summary>Ver el detalle: las piezas, twist_mux y el árbol de comportamiento</summary>
@@ -132,15 +132,15 @@
   <p>Un mapa de costos toma la rejilla de ocupación y le agrega un costo a cada celda según qué tan cerca está de un obstáculo. Las celdas del obstáculo tienen el costo máximo, que en Nav2 es 254. Las que están a menos del radio inscrito del robot, la distancia de su centro a su borde más cercano, reciben 253, porque el centro ahí ya implicaría choque. Más allá, el costo decae de forma exponencial hasta el radio de <span class="term" data-t="Inflación" data-def="Zona de costo que se agrega alrededor de los obstáculos para que el robot mantenga distancia.">inflación</span>, y después vale cero <a class="ref" href="#f4">4</a>.</p>
   <div class="galeria g3">
     <figure class="fig oscura">
-      <picture><source srcset="img/tesis/costmap-1.webp" type="image/webp"><img src="img/tesis/costmap-1.png" width="1001" height="714" loading="lazy" decoding="async" alt="Mapa de costos al inicio de la exploración, con pocas paredes detectadas en rojo y celeste alrededor del robot."></picture>
+      <picture><source srcset="img/tesis/costmap-1-640.webp 640w, img/tesis/costmap-1.webp 1001w" sizes="(max-width: 760px) 92vw, 680px" type="image/webp"><img src="img/tesis/costmap-1.png" width="1001" height="714" loading="lazy" decoding="async" alt="Mapa de costos al inicio de la exploración, con pocas paredes detectadas en rojo y celeste alrededor del robot."></picture>
       <figcaption>Fronteras detectadas en la fase inicial. <small>Fig. 4.7 a.</small></figcaption>
     </figure>
     <figure class="fig oscura">
-      <picture><source srcset="img/tesis/costmap-2.webp" type="image/webp"><img src="img/tesis/costmap-2.png" width="953" height="738" loading="lazy" decoding="async" alt="Mapa de costos con más paredes y una ruta verde planificada desde el robot hacia una meta."></picture>
+      <picture><source srcset="img/tesis/costmap-2-640.webp 640w, img/tesis/costmap-2.webp 953w" sizes="(max-width: 760px) 92vw, 680px" type="image/webp"><img src="img/tesis/costmap-2.png" width="953" height="738" loading="lazy" decoding="async" alt="Mapa de costos con más paredes y una ruta verde planificada desde el robot hacia una meta."></picture>
       <figcaption>Ruta planificada por Nav2 hacia una meta. <small>Fig. 4.7 b.</small></figcaption>
     </figure>
     <figure class="fig oscura">
-      <picture><source srcset="img/tesis/costmap-3.webp" type="image/webp"><img src="img/tesis/costmap-3.png" width="945" height="722" loading="lazy" decoding="async" alt="Mapa de costos casi completo del recinto con la ruta verde entre pasillos."></picture>
+      <picture><source srcset="img/tesis/costmap-3-640.webp 640w, img/tesis/costmap-3.webp 945w" sizes="(max-width: 760px) 92vw, 680px" type="image/webp"><img src="img/tesis/costmap-3.png" width="945" height="722" loading="lazy" decoding="async" alt="Mapa de costos casi completo del recinto con la ruta verde entre pasillos."></picture>
       <figcaption>Cobertura avanzada del recinto. <small>Fig. 4.7 c.</small></figcaption>
     </figure>
   </div>

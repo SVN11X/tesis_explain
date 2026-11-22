@@ -3,6 +3,8 @@ import '../styles/experience.css';
 // Metadatos del tema, cabecera, aviso académico, pie y buscador comunes a todo el sitio: scripts/datos.py los genera desde
 // scripts/plantillas/, igual que en las páginas de la guía.
 import marco from '../generado/marco.json';
+import marcoCss from '../../public/css/marco.css?raw';
+// css/marco.css va dentro del HTML: como hoja aparte retrasa el primer pintado un viaje de red (docs/decisions/0007).
 const {title, description, page='inicio'} = Astro.props;
 const base=import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const canonical=new URL(page==='inicio'?'':`${page}.html`,'https://svn11x.github.io/tesis_explain/');
@@ -20,7 +22,7 @@ const cabecera=marco.cabecera.replaceAll(`data-nav="${actual}"`, `data-nav="${ac
     <Fragment set:html={marco.tema} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" href={`${base}img/icono.svg`} type="image/svg+xml" />
-    <link rel="stylesheet" href={`${base}css/marco.css`} />
+    <style set:html={marcoCss}></style>
     <meta property="og:type" content="website" />
     <meta property="og:title" content={`${title} · Robot explorador`} />
     <meta property="og:description" content={description} />
