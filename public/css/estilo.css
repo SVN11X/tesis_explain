@@ -1279,6 +1279,8 @@ figure.esquema .b-ampliar { position: static; margin-top: 10px; }
 .cifras-mini div { border-top: 2px solid var(--tema); }
 .cifras-mini b { color: var(--tema); }
 .cifras-mini .ico-cifra { width: 24px; height: 24px; color: var(--tema); }
+.cifras-mini div { grid-template-columns: 24px 1fr; column-gap: 8px; align-items: center; }
+.cifras-mini div > span { grid-column: 1 / -1; }
 .articulo > section > h2:not(#t-breve)::before { content: ""; display: block; width: 44px; height: 4px; margin-bottom: 16px; background: var(--tema); }
 .articulo li::marker { color: var(--tema); }
 .articulo h3 .ancla, .articulo h2 .ancla { color: var(--tema); }
