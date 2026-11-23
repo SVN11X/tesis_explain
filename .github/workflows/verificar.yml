@@ -35,6 +35,7 @@ jobs:
           python scripts/datos.py --comprobar
           python scripts/catalogo_defensa.py --comprobar
           python scripts/descarga_preguntas.py --comprobar
+          python scripts/voz_natural.py --comprobar
           python scripts/imagen_social.py --comprobar
           python scripts/indice.py --comprobar
           node scripts/ejemplos_laboratorio.js --comprobar
@@ -72,3 +73,4 @@ jobs:
           python tests/navegador_experiencia.py
           python tests/navegador_redisenio.py
           python tests/navegador_defensa.py
+          python tests/navegador_voz.py

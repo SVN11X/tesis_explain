@@ -1032,6 +1032,8 @@ def probar_robot_resumen(nav):
     ok(cerrada < abierta, '360 px: plegada la página es más corta que con todo abierto')
     alto_dv, pal_dv = aporte_diagrama(p, 'energia-senales')
     cerrada -= alto_dv
+    # los botones «Escuchar» de los resúmenes (voz-resumen.js) son contenido visible a propósito: no cuentan para el presupuesto
+    cerrada -= p.evaluate("[].reduce.call(document.querySelectorAll('.voz-fila'), (a, e) => a + e.offsetHeight + 8, 0)")
     palabras -= pal_dv
     ok(cerrada <= ALTURA_ROBOT_ANTES * 0.85, '360 px: plegada mide como mucho el 85 %% de antes (%d px contra %d px)' % (cerrada, ALTURA_ROBOT_ANTES))
     ok(palabras <= PALABRAS_ROBOT_ANTES * 0.75, '360 px: plegada muestra como mucho el 75 %% de las palabras de antes (%d contra %d)' % (palabras, PALABRAS_ROBOT_ANTES))

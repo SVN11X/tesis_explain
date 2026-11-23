@@ -210,6 +210,8 @@ with sync_playwright() as pw:
     abierta = p.evaluate('document.documentElement.scrollHeight')
     print('  altura a 360 px: plegada %d px (%.1f pantallas), con todo abierto %d px' % (cerrada, cerrada / 740, abierta))
     check(cerrada < abierta, '360 px: plegada la página es más corta que con todo abierto')
+    # los botones «Escuchar» de los resúmenes (voz-resumen.js) son contenido visible a propósito: no cuentan para el presupuesto
+    cerrada -= p.evaluate("[].reduce.call(document.querySelectorAll('.voz-fila'), (a, e) => a + e.offsetHeight + 8, 0)")
     # el reto de control (#67) suma unos 800 px visibles a propósito, sobre el 74 % que dejó plegar las fuentes y «Mundo real»
     check(cerrada < ALTURA_PRIMERA * 0.77, '360 px: tras la segunda pasada, con el reto, la página mide menos del 77 %% de la primera (%d px contra %d px)' % (cerrada, ALTURA_PRIMERA))
     # un ancla hacia el contenido plegado lo abre y lo muestra

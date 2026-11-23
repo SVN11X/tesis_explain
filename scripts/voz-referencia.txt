@@ -1,0 +1,1 @@
+Un láidar dos de mide distancias con luz láser en un plano horizontal. No ve fuera de ese plano, y el vidrio o una tela negra degradan la medición.
