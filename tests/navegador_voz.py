@@ -98,7 +98,7 @@ check(not [u for u in peticiones if '/audio/' in u], 'al cargar la página no se
 check(pg.locator('.voz-fila .voz-nota:visible').count() == 1 and pg.locator('.voz-fila .voz-nota').first.inner_text() == 'Voz sintética, generada con Qwen3-TTS',
       'la página avisa una vez, junto al primer botón, que la voz es sintética')
 clave = clave_de(PAGINA, 0)
-check(clave in MANIFIESTO['entradas'], 'el primer resumen de control está en el piloto', clave)
+check(clave in MANIFIESTO['entradas'], 'el primer resumen de control tiene audio', clave)
 b0 = pg.locator('.voz-fila .voz-boton').nth(0)
 check(b0.inner_text().strip() == 'Escuchar' and b0.locator('svg.ph').count() == 1, 'el botón dice Escuchar y lleva el ícono de altavoz')
 check(pg.locator('p.resumen').nth(0).locator('button').count() == 0, 'el botón no entra en el texto del resumen')
@@ -117,9 +117,15 @@ pg.wait_for_function('document.querySelectorAll(".voz-boton")[0].textContent.inc
 check(pg.evaluate('document.querySelectorAll(".voz-barra")[0].hidden'), 'al terminar vuelve a Escuchar y oculta el avance')
 check(not pg.errores, 'sin errores de JavaScript', pg.errores)
 
+ctx.close()
+
 # 2. Un resumen sin audio avisa. Con dos resúmenes con audio, suena uno solo a la vez.
 clave1 = clave_de(PAGINA, 1)
-check(clave1 not in MANIFIESTO['entradas'], 'el segundo resumen de control aún no tiene audio en el piloto')
+ctx = contexto(viewport=dict(width=1280, height=900))
+sin_audio = json.loads(json.dumps(MANIFIESTO))
+sin_audio['entradas'].pop(clave1, None)
+ctx.route('**/audio/manifiesto.json', lambda r: r.fulfill(status=200, content_type='application/json', body=json.dumps(sin_audio)))
+pg = abrir(ctx)
 b1 = pg.locator('.voz-fila .voz-boton').nth(1)
 b1.click()
 pg.wait_for_function('document.querySelectorAll(".voz-estado")[1].textContent.includes("todavía no tiene audio")')
