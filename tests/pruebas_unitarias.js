@@ -195,5 +195,18 @@ var rp3 = ctx.window.U.repartir(["mando", "titulo", "dibujo"]);
 ok(rp3.length === 2 && rp3[0].titulo === null && rp3[1].titulo === 1 && rp3[1].dibujo.join() === "2", "el contenido antes del primer título forma una sección sin título");
 ok(ctx.window.U.repartir([]).length === 0, "sin hijos no hay secciones");
 
+console.log("\nPestañas de mandos en el teléfono");
+var emp = ctx.window.U.empacar;
+var e1 = emp([{ h: 80, rotulo: "Valores" }, { h: 60, rotulo: "Acciones" }], 237);
+ok(e1.length === 1 && e1[0].indices.join() === "0,1", "si los mandos caben en una pantalla no hay pestañas");
+var e2 = emp([{ h: 150, rotulo: "Valores" }, { h: 100, rotulo: "Opciones" }, { h: 60, rotulo: "Acciones" }], 237);
+ok(e2.length === 2 && e2[0].indices.join() === "0" && e2[1].indices.join() === "1,2" && e2[0].rotulo === "Valores" && e2[1].rotulo === "Opciones y Acciones", "los mandos se agrupan seguidos hasta llenar el tope y cada grupo lleva el nombre de sus partes");
+var e3 = emp([{ h: 100, rotulo: "Valores" }, { h: 40, nota: true, rotulo: "Notas" }, { h: 300, lectura: true }, { h: 40, nota: true, rotulo: "Leyenda" }], 237);
+ok(e3.length === 2 && e3[0].indices.join() === "0,1,3" && e3[1].indices.join() === "2" && e3[1].rotulo === "Lecturas", "las notas van tras los mandos y las lecturas altas forman su propio grupo");
+var e4 = emp([{ h: 200 }, { h: 200 }, { h: 200 }, { h: 200 }, { h: 200 }, { h: 200 }, { h: 200 }], 237);
+ok(e4.length <= 5 && e4.every(function (g) { return g.rotulo; }), "nunca hay más de cinco grupos y todos tienen nombre");
+var e5 = emp([{ h: 200, rotulo: "Valores" }, { h: 200, rotulo: "Valores" }], 237);
+ok(e5[0].rotulo === "Valores" && e5[1].rotulo === "Valores 2", "los nombres repetidos se numeran");
+
 console.log("\n" + (total - fallos) + " de " + total + " pruebas correctas");
 process.exit(fallos ? 1 : 0);

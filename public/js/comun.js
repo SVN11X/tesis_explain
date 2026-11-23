@@ -51,6 +51,35 @@
     });
     return secs;
   };
+  /* Reparto de los mandos de un interactivo en pestañas para el teléfono. unidades[i] es { h, nota, rotulo }: la altura que ocupa,
+     si es una nota plegada ("nota"), una lectura ("lectura") y el nombre que le da su marcado ("" si no tiene). Los mandos se agrupan
+     seguidos hasta llenar tope px. Las notas van al final de los mandos y las lecturas aparte, detrás. Devuelve [{ indices, rotulo }],
+     o un solo grupo si todo cabe. Nunca hay más de 5 grupos. */
+  U.empacar = function (unidades, tope) {
+    var orden = unidades.map(function (u, i) { return i; }), hueco = 8;
+    function de(f) { return orden.filter(function (i) { return f(unidades[i]); }); }
+    var mandos = de(function (u) { return !u.nota && !u.lectura; }), lecturas = de(function (u) { return u.lectura && !u.nota; }), notas = de(function (u) { return u.nota; });
+    function juntar(ids, t) {
+      var gs = [], g = null, alto = 0;
+      ids.forEach(function (i) {
+        var h = unidades[i].h || 0;
+        if (g && alto + hueco + h <= t) { g.push(i); alto += hueco + h; return; }
+        g = [i]; alto = h; gs.push(g);
+      });
+      return gs;
+    }
+    function todos(t) { return juntar(mandos.concat(notas), t).concat(juntar(lecturas, t)); }
+    var gs = todos(tope), t = tope;
+    while (gs.length > 5) gs = todos(t *= 1.25);
+    if (gs.length === 1) return [{ indices: gs[0], rotulo: "Mandos" }];
+    var vistos = {};
+    return gs.map(function (g) {
+      var propios = g.map(function (i) { return unidades[i].rotulo; }).filter(function (r, k, l) { return r && l.indexOf(r) === k; });
+      var base = g.every(function (i) { return unidades[i].lectura; }) ? "Lecturas" : !propios.length ? (g.every(function (i) { return unidades[i].nota; }) ? "Notas" : "Mandos") : propios.length < 3 ? propios.join(" y ") : propios[0] + " y más";
+      vistos[base] = (vistos[base] || 0) + 1;
+      return { indices: g, rotulo: vistos[base] > 1 ? base + " " + vistos[base] : base };
+    });
+  };
   /* Escenario de un interactivo: el dibujo, las lecturas y los controles en tres bloques.
      o.dibujo y o.lecturas son selectores de hijos directos de el, y lo demás son controles. Desde 700 px de ancho
      el dibujo y las lecturas van a un lado y los controles al otro. Con menos, se apilan: dibujo, controles, lecturas.
@@ -66,6 +95,65 @@
     det.appendChild(s); det.appendChild(cuerpo);
     if (abierto) { var ancho = function () { var ok = el.clientWidth >= 740; det.open = ok; det.classList.toggle("v-libre", ok); }; ancho(); U.alAncho(el, ancho); }
     return { det: det, cuerpo: cuerpo };
+  }
+  /* Pestañas de mandos en el teléfono. Desde 740 px de ancho no hacen nada. Con menos, y si los mandos no caben junto al dibujo
+     en una pantalla, los grupos de .v-ctl pasan a pestañas y el dibujo y las lecturas siguen a la vista. Al ensancharse se deshacen. */
+  var nPest = 0;
+  function rotuloDe(u) {
+    if (u.getAttribute("data-pestana")) return u.getAttribute("data-pestana");
+    var a = u.getAttribute("aria-label");
+    if (a && a.length <= 24) return a;
+    if (u.querySelector("input[type=range]")) return "Valores";
+    if (u.querySelector("input[type=checkbox], input[type=radio], select, .chip")) return "Opciones";
+    return u.querySelector("button") ? "Acciones" : "";
+  }
+  function armarPestanas(esc, ctl) {
+    var lec = esc.querySelector(":scope > .v-lec"), dib = esc.querySelector(":scope > .v-dib");
+    var tira = lec && lec.offsetHeight > Math.round(window.innerHeight * 0.16) ? [].slice.call(lec.children) : [];
+    var leyendas = dib ? [].filter.call(dib.children, function (u) { return u.matches(".vley, .leyenda, .mp-legend") && u.offsetHeight > 36; }) : [];
+    var unidades = [].slice.call(ctl.children).concat(tira, leyendas), datos = unidades.map(function (u) {
+      var ley = leyendas.indexOf(u) >= 0, nota = ley || u.classList.contains("v-mas") || u.classList.contains("vnota");
+      return { h: u.offsetHeight, nota: nota, lectura: tira.indexOf(u) >= 0, rotulo: ley ? "Leyenda" : nota ? "Notas" : rotuloDe(u) };
+    }), pila = [];
+    var tope = Math.max(150, Math.round(window.innerHeight * 0.32)), grupos = U.empacar(datos, tope);
+    if (grupos.length < 2) return null;
+    var id = "vp" + (++nPest), lista = document.createElement("div"), paneles = [], botones = [];
+    lista.className = "v-pestanas-mando"; lista.setAttribute("role", "tablist"); lista.setAttribute("aria-label", "Mandos del interactivo");
+    function ir(k, foco) {
+      botones.forEach(function (b, j) { b.setAttribute("aria-selected", String(j === k)); b.tabIndex = j === k ? 0 : -1; paneles[j].hidden = j !== k; });
+      if (foco) botones[k].focus();
+    }
+    grupos.forEach(function (g, k) {
+      var b = document.createElement("button"), pn = document.createElement("div");
+      b.type = "button"; b.className = "v-pest"; b.id = id + "-t" + k; b.setAttribute("role", "tab"); b.setAttribute("aria-controls", id + "-p" + k);
+      b.textContent = g.rotulo;
+      pn.className = "v-panel"; pn.id = id + "-p" + k; pn.setAttribute("role", "tabpanel"); pn.setAttribute("aria-labelledby", b.id);
+      g.indices.forEach(function (i) { var u = unidades[i]; pila.push({ u: u, p: u.parentNode, r: u.nextSibling }); pn.appendChild(u); });
+      b.addEventListener("click", function () { ir(k, false); });
+      b.addEventListener("keydown", function (e) {
+        var n = grupos.length, j = e.key === "ArrowRight" || e.key === "ArrowDown" ? (k + 1) % n : e.key === "ArrowLeft" || e.key === "ArrowUp" ? (k + n - 1) % n : e.key === "Home" ? 0 : e.key === "End" ? n - 1 : -1;
+        if (j < 0) return;
+        e.preventDefault(); ir(j, true);
+      });
+      botones.push(b); paneles.push(pn); lista.appendChild(b);
+    });
+    ctl.appendChild(lista); paneles.forEach(function (pn) { ctl.appendChild(pn); });
+    ir(0, false); esc.setAttribute("data-pest", "1");
+    return function () {
+      while (pila.length) { var o = pila.pop(); o.p.insertBefore(o.u, o.r); }
+      ctl.removeChild(lista); paneles.forEach(function (pn) { ctl.removeChild(pn); });
+      esc.removeAttribute("data-pest");
+    };
+  }
+  function pestanas(el, esc) {
+    var ctl = esc.querySelector(":scope > .v-ctl"), deshacer = null;
+    if (!ctl || typeof ResizeObserver === "undefined") return;
+    function ajustar() {
+      var visible = esc.offsetHeight > 0, telefono = el.clientWidth < 740;
+      if (deshacer && !telefono) { deshacer(); deshacer = null; }
+      else if (!deshacer && telefono && visible) deshacer = armarPestanas(esc, ctl);
+    }
+    new ResizeObserver(function () { requestAnimationFrame(ajustar); }).observe(esc);
   }
   function armar(el, cont, hijos, s, o) {
     var esc = document.createElement("div"), b = {}, fuera = [];
@@ -84,6 +172,7 @@
     if (o.tira && (!b.dib.children.length || !b.ctl.children.length)) esc.setAttribute("data-una", "1");
     if (notas.cuerpo.children.length && !o.tira) b.ctl.appendChild(notas.det);
     cont.appendChild(esc);
+    pestanas(el, esc);
     fuera.forEach(function (x) { cont.appendChild(x); });
     if (notas.cuerpo.children.length && o.tira) cont.appendChild(notas.det);
     return esc;
