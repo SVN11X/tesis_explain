@@ -79,6 +79,26 @@ with sync_playwright() as pw:
             check(not errores, nombre + ': sin errores de página', errores)
             pg.close()
         ctx.close()
+    for ancho in (320, 360):
+        ctx = nav.new_context(viewport={'width': ancho, 'height': 740}, is_mobile=True, has_touch=True, reduced_motion='reduce')
+        total = 0
+        for pagina in ('movimiento.html', 'mapeo.html', 'navegacion.html', 'control.html', 'exploracion.html', 'robot.html'):
+            pg = ctx.new_page()
+            pg.goto(BASE + '/' + pagina)
+            pg.evaluate('() => document.getElementById("prueba-paneles") && document.getElementById("prueba-paneles").remove()')
+            for i in range(pg.locator('.vis').count()):
+                pg.locator('.vis').nth(i).scroll_into_view_if_needed()
+                pg.wait_for_timeout(250)
+            pg.wait_for_timeout(800)
+            cortes = pg.evaluate("""() => [...document.querySelectorAll('.v-clave')].flatMap(t => [t, ...t.querySelectorAll('*')].filter(e => {
+                const c = getComputedStyle(e);
+                return c.textOverflow === 'ellipsis' || e.scrollWidth > e.clientWidth + 1 || (e.scrollHeight > e.clientHeight + 1 && c.overflow !== 'visible');
+            }).map(e => (t.closest('[data-vis]') || t).getAttribute('data-vis') + ' ' + e.tagName));""")
+            total += pg.locator('.v-clave').count()
+            check(not cortes, '%s a %d px: ninguna tira de valores clave corta su texto' % (pagina, ancho), cortes)
+            pg.close()
+        check(total >= 5, 'a %d px hay tiras de valores clave en las páginas probadas' % ancho, total)
+        ctx.close()
     ctx = nav.new_context(viewport={'width': 1280, 'height': 800})
     for pagina, visual in CASOS:
         pg, sel, errores = abrir(ctx, pagina, visual)
