@@ -196,17 +196,28 @@ ok(rp3.length === 2 && rp3[0].titulo === null && rp3[1].titulo === 1 && rp3[1].d
 ok(ctx.window.U.repartir([]).length === 0, "sin hijos no hay secciones");
 
 console.log("\nPestañas de mandos en el teléfono");
-var emp = ctx.window.U.empacar;
-var e1 = emp([{ h: 80, rotulo: "Valores" }, { h: 60, rotulo: "Acciones" }], 237);
-ok(e1.length === 1 && e1[0].indices.join() === "0,1", "si los mandos caben en una pantalla no hay pestañas");
-var e2 = emp([{ h: 150, rotulo: "Valores" }, { h: 100, rotulo: "Opciones" }, { h: 60, rotulo: "Acciones" }], 237);
-ok(e2.length === 2 && e2[0].indices.join() === "0" && e2[1].indices.join() === "1,2" && e2[0].rotulo === "Valores" && e2[1].rotulo === "Opciones y Acciones", "los mandos se agrupan seguidos hasta llenar el tope y cada grupo lleva el nombre de sus partes");
-var e3 = emp([{ h: 100, rotulo: "Valores" }, { h: 40, nota: true, rotulo: "Notas" }, { h: 300, lectura: true }, { h: 40, nota: true, rotulo: "Leyenda" }], 237);
-ok(e3.length === 2 && e3[0].indices.join() === "0,1,3" && e3[1].indices.join() === "2" && e3[1].rotulo === "Lecturas", "las notas van tras los mandos y las lecturas altas forman su propio grupo");
-var e4 = emp([{ h: 200 }, { h: 200 }, { h: 200 }, { h: 200 }, { h: 200 }, { h: 200 }, { h: 200 }], 237);
-ok(e4.length <= 5 && e4.every(function (g) { return g.rotulo; }), "nunca hay más de cinco grupos y todos tienen nombre");
-var e5 = emp([{ h: 200, rotulo: "Valores" }, { h: 200, rotulo: "Valores" }], 237);
-ok(e5[0].rotulo === "Valores" && e5[1].rotulo === "Valores 2", "los nombres repetidos se numeran");
+var emp = ctx.window.U.empacar, PEST = ctx.window.U.PESTANAS;
+var rot2 = { m: ["Caso", "Ruedas"], corte: 1 };
+var e1 = emp([{ h: 80, tipo: "mando" }, { h: 60, tipo: "mando" }, { h: 40, tipo: "nota" }], 237, rot2);
+ok(e1.length === 1 && e1[0].indices.join() === "0,1,2", "si los mandos y las notas caben en una pantalla no hay pestañas");
+var e2 = emp([{ h: 150, tipo: "mando" }, { h: 100, tipo: "mando" }, { h: 60, tipo: "mando" }, { h: 40, tipo: "nota" }, { h: 300, tipo: "dato" }], 237, rot2);
+ok(e2.length === 3 && e2[0].indices.join() === "0" && e2[1].indices.join() === "1,2" && e2[0].rotulo === "Caso" && e2[1].rotulo === "Ruedas", "los mandos se cortan donde dice la entrada y cada pestaña lleva su nombre");
+ok(e2[2].indices.join() === "4,3" && e2[2].rotulo === "Datos y notas", "los datos y las notas van juntos en la última pestaña");
+var e3 = emp([{ h: 200, tipo: "mando" }, { h: 100, tipo: "nota" }], 237, { m: ["Pasos"] });
+ok(e3.length === 2 && e3[0].rotulo === "Pasos" && e3[1].rotulo === "Cómo leerlo" && e3[1].indices.join() === "1", "sin datos la última pestaña se llama Cómo leerlo");
+var e4 = emp([{ h: 200, tipo: "mando" }, { h: 200, tipo: "mando" }, { h: 200, tipo: "mando" }, { h: 100, tipo: "nota" }, { h: 100, tipo: "dato" }], 237, rot2);
+ok(e4.length <= 3, "nunca hay más de tres pestañas");
+ok(emp([{ h: 500, tipo: "mando" }], 237, null).length === 1, "sin entrada no hay pestañas");
+var GENERICOS = ["mandos", "valores", "opciones", "acciones", "lecturas", "notas", "leyenda", "datos", "controles"];
+var malas = [];
+Object.keys(PEST).forEach(function (id) {
+  var m = PEST[id].m, todos = m.concat(["Cómo leerlo", "Datos y notas"]);
+  if (m.length > 2 || (m.length === 2 && !(PEST[id].corte > 0))) malas.push(id + " tiene mal sus pestañas de mandos");
+  todos.forEach(function (n, k) {
+    if (n.length > 14 || /\d/.test(n) || GENERICOS.indexOf(n.toLowerCase()) >= 0 || todos.indexOf(n) !== k) malas.push(id + ": " + n);
+  });
+});
+ok(Object.keys(PEST).length >= 25 && !malas.length, "ninguna pestaña tiene un nombre genérico, numerado, repetido o de más de 14 letras", malas.join("; "));
 
 console.log("\n" + (total - fallos) + " de " + total + " pruebas correctas");
 process.exit(fallos ? 1 : 0);

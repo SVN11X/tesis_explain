@@ -12,7 +12,7 @@ if len(sys.argv) > 1:
 else:
     server, BASE = iniciar()
 count = 0
-CASOS = [('mapeo.html', 'lazo'), ('control.html', 'estabilidad'), ('movimiento.html', 'cinematica'), ('navegacion.html', 'dwb')]
+CASOS = [('mapeo.html', 'lazo'), ('control.html', 'pid'), ('movimiento.html', 'cinematica'), ('navegacion.html', 'dwb'), ('navegacion.html', 'astar')]
 
 
 def check(cond, text, detail=''):
@@ -44,7 +44,12 @@ with sync_playwright() as pw:
             pg, sel, errores = abrir(ctx, pagina, visual)
             tabs = pg.locator(sel + ' [role=tab]')
             n = tabs.count()
-            check(n >= 2, nombre + ': los mandos van en pestañas en 360 px', n)
+            check(2 <= n <= 3, nombre + ': los mandos van en 2 o 3 pestañas en 360 px', n)
+            nombres = tabs.all_inner_texts()
+            check(len(set(nombres)) == n and not any(any(c.isdigit() for c in t) or t in ('Mandos', 'Valores', 'Opciones', 'Acciones', 'Lecturas', 'Notas', 'Leyenda') for t in nombres), nombre + ': ninguna pestaña tiene un nombre genérico, numerado o repetido', nombres)
+            check(len({round(tabs.nth(i).bounding_box()['y']) for i in range(n)}) == 1, nombre + ': las pestañas caben en una sola fila')
+            check(all(tabs.nth(i).evaluate('e => e.scrollWidth <= e.clientWidth + 1') for i in range(n)), nombre + ': ningún nombre de pestaña queda cortado')
+            check(pg.locator(sel + ' .v-clave').count() == 1 and pg.locator(sel + ' .v-clave').first.bounding_box()['y'] > pg.locator(sel + ' .v-dib').first.bounding_box()['y'], nombre + ': los valores clave siguen a la vista bajo el dibujo')
             check(pg.locator(sel + ' [role=tablist]').count() >= 1 and pg.locator(sel + ' [role=tabpanel]:visible').count() == 1, nombre + ': hay un solo panel visible')
             check(all(tabs.nth(i).get_attribute('aria-controls') and pg.locator('#' + tabs.nth(i).get_attribute('aria-controls')).get_attribute('aria-labelledby') == tabs.nth(i).get_attribute('id') for i in range(n)), nombre + ': cada pestaña y su panel se nombran entre sí')
             check([tabs.nth(i).get_attribute('tabindex') for i in range(n)].count('0') == 1, nombre + ': solo la pestaña activa entra en el orden de tabulación')
@@ -69,6 +74,8 @@ with sync_playwright() as pw:
                 pg.set_viewport_size({'width': 320, 'height': 700})
                 pg.wait_for_timeout(500)
                 check(pg.locator(sel + ' [role=tab]').count() >= 2 and not pg.evaluate('document.documentElement.scrollWidth > innerWidth'), nombre + ': al volver a 320 px vuelven las pestañas sin desborde')
+                t320 = pg.locator(sel + ' [role=tab]')
+                check(len({round(t320.nth(i).bounding_box()['y']) for i in range(t320.count())}) == 1, nombre + ': a 320 px las pestañas siguen en una sola fila')
             check(not errores, nombre + ': sin errores de página', errores)
             pg.close()
         ctx.close()
@@ -80,9 +87,9 @@ with sync_playwright() as pw:
     ctx.close()
     ctx = nav.new_context(viewport={'width': 360, 'height': 740}, is_mobile=True, has_touch=True)
     pg, sel, errores = abrir(ctx, 'movimiento.html', 'cinematica')
-    pg.locator(sel + ' [role=tab]:has-text("Valores")').first.click()
+    pg.locator(sel + ' [role=tab]:has-text("Ruedas")').first.click()
     ranges = pg.locator(sel + ' [role=tabpanel]:visible input[type=range]')
-    check(ranges.count() >= 1, 'cinematica: el panel Valores trae sus deslizadores a la vista')
+    check(ranges.count() >= 1, 'cinematica: el panel Ruedas trae sus deslizadores a la vista')
     antes = pg.locator(sel + ' .v-escena').first.inner_html()
     ranges.first.focus()
     pg.keyboard.press('ArrowRight')

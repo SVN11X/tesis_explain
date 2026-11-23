@@ -410,14 +410,24 @@ table.tabla.compacta { min-width: 0; }
   .v-escena.v-pares[data-activa] > .v-bloque:nth-child(n) { display: grid; }
 }
 /* Pestañas de mandos en el teléfono (js/comun.js, pestanas): el dibujo y las lecturas quedan a la vista y solo cambia el grupo de mandos. */
-.v-pestanas-mando { display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 2px solid var(--line-2); }
-.v-pest { min-height: 36px; min-width: 24px; padding: 4px 12px; border: 1px solid var(--line-2); border-bottom: 0; background: var(--surface); color: var(--ink); font: inherit; font-size: var(--t-sm); cursor: pointer; }
+.v-pestanas-mando { display: flex; flex-wrap: nowrap; gap: 4px; border-bottom: 2px solid var(--line-2); }
+.v-pest { flex: 1 1 0; min-width: 24px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-height: 36px; padding: 4px 4px;  border: 1px solid var(--line-2); border-bottom: 0; background: var(--surface); color: var(--ink); font: inherit; font-size: var(--t-xs); cursor: pointer; }
 .v-pest:hover { background: var(--surface-2); }
 .v-pest[aria-selected="true"] { background: var(--acid); color: var(--sobre-acid); border-color: var(--ink); font-weight: 700; }
 .v-pest:active { background: var(--ink); color: var(--paper); }
 .v-panel { display: grid; gap: 8px; align-content: start; min-width: 0; }
 .v-panel[hidden] { display: none; }
 .v-escena[data-pest] { gap: 8px; }
+.v-escena[data-pest] > .v-dib { order: 1; }
+.v-escena[data-pest] > .v-clave { order: 2; }
+.v-escena[data-pest] > .v-ctl { order: 3; }
+.v-escena[data-pest] > .v-lec { order: 4; }
+.v-clave { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; min-width: 0; margin: 0; }
+.v-clave > p { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.v-clave > * { margin: 0; padding: 3px 8px; min-width: 0; gap: 0; }
+.v-clave > div > span { font-size: var(--t-xs); line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.v-clave > div > b { font-size: var(--t-base); line-height: 1.2; }
+.v-clave small { display: none; }
 .v-escena[data-pest] .v-dib svg[viewBox]:not(.ico):not(.ph) { max-height: 38svh; width: auto; max-width: 100%; margin-inline: auto; }
 .v-pares > .v-bloque { display: grid; gap: 10px; align-content: start; min-width: 0; }
 .v-pestanas { display: flex; gap: 8px; }
