@@ -17,6 +17,7 @@ On `mapeo.html` and `control.html` each interactive built one long column: contr
 4. Long explanatory notes, secondary readouts and fixed inputs go inside a folded `details` (`.v-mas`). Values, units, labels, resets and keyboard paths stay as they were.
 5. `U.escenaAuto` runs as soon as an interactive writes its HTML, before it draws, so each chart measures its final width. One line in `public/js/sitio.js` installs it.
 6. Interactives made of one block (`.mp-reto`, the LiDAR stage from #85) are left alone. Pages other than `mapeo` and `control` do not use `U.escenaAuto`.
+7. Phones (owner decision of 2026-11-22). Below 740 px of container the controls of an interactive go into an ARIA tab list when they do not fit beside the drawing. The drawing stays above the tabs, at most 38 % of the screen height, and is never split from the controls. This is part of `U.escena` (`pestanas` in `public/js/comun.js`), with no second helper. The pure `U.empacar` groups the controls in order up to 32 % of the screen height per panel, puts notes and long legends last, puts readouts taller than 16 % of the screen height in their own tab, and never makes more than five tabs. Each tab is named from the `data-pestana` or short `aria-label` of its first control, else "Valores", "Opciones", "Acciones", "Leyenda", "Notas" or "Lecturas". Keys: arrows, Home and End, with a roving tab stop and automatic activation. From 740 px the tabs are undone and the desktop layout is untouched. Nothing animates, so decision 0005 has no new row.
 
 ## Consequences
 
@@ -24,3 +25,4 @@ On `mapeo.html` and `control.html` each interactive built one long column: contr
 - Charts now draw at the width of their column, so their text is larger than when they were drawn wide and scaled down. A chart that needs a lot of height (the stability plots, the three stacked windup charts, the plan comparison) can stay above 720 px. The pull request lists them.
 - Content inside a folded `details` is not read by `inner_text` until opened. The browser tests open the details they read.
 - No sticky drawing on phones. A pinned drawing covered the focused control and failed the focus-not-obscured rule of WCAG 2.2.
+- Phones: a drawing made of several charts, captions or cards (the stability plots, the three windup charts, the gain pairs, the law comparison) is not compacted and can stay above one screen. Interactives that do not call `U.escena` (flow diagrams, lists of steps, the real-world cases) have no tabs. The pull request lists both.

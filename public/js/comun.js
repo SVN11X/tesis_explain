@@ -102,7 +102,7 @@
   function rotuloDe(u) {
     if (u.getAttribute("data-pestana")) return u.getAttribute("data-pestana");
     var a = u.getAttribute("aria-label");
-    if (a && a.length <= 24) return a;
+    if (a && a.length <= 16) return a;
     if (u.querySelector("input[type=range]")) return "Valores";
     if (u.querySelector("input[type=checkbox], input[type=radio], select, .chip")) return "Opciones";
     return u.querySelector("button") ? "Acciones" : "";

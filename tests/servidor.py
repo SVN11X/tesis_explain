@@ -65,7 +65,9 @@ def iniciar():
 def _esperar_scripts():
     """Las páginas de la guía cargan sus scripts después del evento load (scripts/css_critico.py). Playwright
     devuelve goto() en ese evento, así que cada prueba esperaba scripts que aún no estaban. Este parche hace que
-    goto() espere además a que el último script corra, que es lo que una persona espera antes de usar la página."""
+    goto() espere además a que el último script corra, que es lo que una persona espera antes de usar la página.
+    También muestra todos los paneles de pestañas del teléfono (js/comun.js, pestanas): las pruebas de cada interactivo
+    leen y mueven mandos de cualquier grupo sin cambiar de pestaña. La prueba de las pestañas quita esta hoja (#prueba-paneles)."""
     try:
         from playwright.sync_api import Error, Page
     except ImportError:
@@ -77,6 +79,10 @@ def _esperar_scripts():
         if kw.get('wait_until', 'load') in ('load', 'networkidle'):
             try:
                 self.wait_for_function('!window.__guiaPendiente', timeout=20000)
+            except Error:
+                pass
+            try:
+                self.add_style_tag(content='[role=tabpanel][hidden] { display: grid !important; }').evaluate('e => { e.id = "prueba-paneles"; }')
             except Error:
                 pass
         return respuesta

@@ -74,3 +74,4 @@ jobs:
           python tests/navegador_redisenio.py
           python tests/navegador_defensa.py
           python tests/navegador_voz.py
+          python tests/navegador_pestanas.py
