@@ -335,6 +335,7 @@ with sync_playwright() as pw:
     check(p.evaluate("[...document.querySelectorAll('main details.detalle[id^=d-]')].every(d => !d.open)"), '360 px: el detalle de cada resumen parte plegado')
     check(p.evaluate("[...document.querySelectorAll('main details.detalle[id^=d-]')].every(d => d.querySelector(':scope > summary').textContent.trim().startsWith('Ver el detalle:'))"), '360 px: cada detalle dice qué esconde')
     check(p.evaluate("[...document.querySelectorAll('main [data-vis], main .tabla-env')].every(v => !v.closest('details.detalle'))"), '360 px: ningún interactivo ni tabla quedó dentro de un detalle plegado')
+    p.evaluate("document.getElementById('prueba-paneles') && document.getElementById('prueba-paneles').remove()")
     cerrada = altura(p)
     p.evaluate("document.querySelectorAll('main details.detalle').forEach(d => d.open = true)")
     p.wait_for_timeout(300)
