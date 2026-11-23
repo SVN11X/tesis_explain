@@ -6,7 +6,7 @@ Generators, checks and build helpers. Run them from the repository root. Page an
 - `catalogo_defensa.py`: builds `datos/defensa/catalogo.json` from `preguntas.html` (`--comprobar` checks it).
 - `cifras_*_antes.json`: figures of each page before folding, read by `comparar_resumen.py`.
 - `comparar_resumen.py`: compares a page's figures with its saved list.
-- `css_critico.py`: writes the head of the guide pages: inline fonts and critical CSS, non-blocking full sheets and the script loader (used by `datos.py`).
+- `css_critico.py`: writes the head of the guide pages: inline fonts, the `<style data-critico></style>` marker, non-blocking full sheets and the script loader (used by `datos.py`). `python scripts/css_critico.py dist` replaces that marker with the critical CSS in the built pages.
 - `datos.py`: writes `datos/proyecto.js` and the static HTML blocks from JSON and CSV (`--comprobar`).
 - `descarga_preguntas.py`: builds the questions PDF, its manifest and the download button (`--comprobar`).
 - `descargar_voz.py`: downloads and checks the voice assets (`--comprobar`, `--manifiesto`).

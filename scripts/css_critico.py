@@ -1,6 +1,8 @@
 """CSS crítico de las páginas de la guía y carga de hojas y scripts sin bloquear el primer pintado ni el evento load.
 
-datos.py llama a `aplicar(texto, pub)` por cada página. Dos bloques marcados salen del <head>:
+datos.py llama a `aplicar(texto, pub, en_linea=False)` por cada página, así que la página guardada
+lleva `<style data-critico></style>` en lugar del CSS crítico. `python scripts/css_critico.py dist`
+rellena ese marcador en el sitio compilado, y solo allí. Dos bloques marcados salen del <head>:
 
 - ESTILOS: el CSS de la primera pantalla en un <style>, y las hojas completas con media="print" y
   onload (pasan a "all" al llegar), con su <link> normal dentro de <noscript>. Sin JavaScript la
@@ -19,6 +21,11 @@ Las reglas con :hover o :active no se incluyen. El resto llega con la hoja compl
 """
 import posixpath
 import re
+import sys
+from pathlib import Path
+
+# Marcador que dejan las páginas guardadas en public/. El sitio compilado lo cambia por el CSS crítico.
+PLACEHOLDER = '<style data-critico></style>'
 
 # Clases que el script del <head> pone en <html> antes del primer pintado.
 CLASES_CABEZA = {'resaltado-animado'}
@@ -179,7 +186,7 @@ def fuentes(pub):
     return _compactar(_rutas(_sin_comentarios((pub / 'css/fuentes.css').read_text(encoding='utf-8')), 'css/fuentes.css'))
 
 
-def bloque_estilos(texto, pub):
+def bloque_estilos(texto, pub, en_linea=True):
     m = BLOQUE_ESTILOS.search(texto)
     if m:
         hojas = re.findall(r'<noscript><link rel="stylesheet" href="([^"]+)"></noscript>', m.group(0))
@@ -192,7 +199,7 @@ def bloque_estilos(texto, pub):
               # Las fuentes van en su propio <style>, antes del resto. Con las reglas en el mismo <style> el navegador usa
               # las fuentes optional que llegan tarde en cuanto la página se recompone (tests/navegador_experiencia.py).
               '<style>' + fuentes(pub) + '</style>\n',
-              '<style>' + critico(texto, hojas, pub) + '</style>\n']
+              '<style>' + critico(texto, hojas, pub) + '</style>\n' if en_linea else PLACEHOLDER + '\n']
     partes += ['<link rel="stylesheet" href="%s" media="print" onload="this.media=\'all\'">\n' % h for h in hojas]
     partes += ['<noscript><link rel="stylesheet" href="%s"></noscript>\n' % h for h in hojas]
     partes.append('<!-- FIN ESTILOS -->\n')
@@ -214,14 +221,45 @@ def bloque_scripts(texto):
             '<script data-diferidos="%s">%s</script>\n<!-- FIN SCRIPTS -->\n' % (' '.join(lista), CARGADOR))
 
 
-def aplicar(texto, pub):
-    """Aplica los dos bloques a una página de la guía. Las demás páginas no tienen <main> y no cambian."""
+def aplicar(texto, pub, en_linea=True):
+    """Aplica los dos bloques a una página de la guía. Las demás páginas no tienen <main> y no cambian.
+    Con en_linea=False deja <style data-critico></style> y el CSS crítico se rellena al compilar (rellenar)."""
     if '<main' not in texto:
         return texto
     scripts = bloque_scripts(texto)
     if scripts:
         texto = (BLOQUE_SCRIPTS if BLOQUE_SCRIPTS.search(texto) else LEGADO_SCRIPTS).sub(lambda _: scripts, texto, count=1)
-    estilos = bloque_estilos(texto, pub)
+    estilos = bloque_estilos(texto, pub, en_linea)
     if estilos:
         texto = (BLOQUE_ESTILOS if BLOQUE_ESTILOS.search(texto) else LEGADO_HOJAS).sub(lambda _: estilos, texto, count=1)
     return texto
+
+
+def rellenar(carpeta):
+    """Cambia el marcador del CSS crítico por el CSS en las páginas ya compiladas de carpeta (dist).
+    Falla si una página de la guía se queda con el marcador vacío."""
+    carpeta = Path(carpeta)
+    rellenas, sin_critico = 0, []
+    for path in sorted(carpeta.glob('*.html')):
+        texto = path.read_text(encoding='utf-8')
+        if PLACEHOLDER not in texto:
+            continue
+        m = BLOQUE_ESTILOS.search(texto)
+        hojas = re.findall(r'<noscript><link rel="stylesheet" href="([^"]+)"></noscript>', m.group(0)) if m else []
+        if not hojas:
+            if '<main' in texto:
+                sin_critico.append(path.name)
+            continue
+        texto = texto.replace(PLACEHOLDER, '<style>' + critico(texto, hojas, carpeta) + '</style>', 1)
+        path.write_text(texto, encoding='utf-8', newline='\n')
+        rellenas += 1
+    print('%d páginas con el CSS crítico rellenado en %s' % (rellenas, carpeta))
+    if sin_critico:
+        raise SystemExit('CSS crítico sin rellenar: ' + ', '.join(sin_critico))
+
+
+if __name__ == '__main__':
+    if len(sys.argv) != 2:
+        raise SystemExit('Uso: python scripts/css_critico.py <carpeta>')
+    rellenar(sys.argv[1])
+
