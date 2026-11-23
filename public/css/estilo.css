@@ -426,6 +426,10 @@ table.tabla.compacta { min-width: 0; }
 .v-escena[data-vistas][data-pest] .v-dib svg:not(.ico):not(.ph):not([x]) { max-height: 25svh; width: auto; max-width: 100%; margin-inline: auto; }
 .v-vista { border-bottom: 0; margin-bottom: 2px; }
 .v-vista .v-pest { border-bottom: 1px solid var(--line-2); text-overflow: clip; }
+@container (max-width: 380px) {
+  .v-escena[data-vistas][data-pest] .v-dib svg:not(.ico):not(.ph):not([x]) { max-height: 19svh; }
+  .v-clave > * { padding: 2px 6px; }
+}
 .v-clave { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; min-width: 0; margin: 0; }
 .v-clave > p { grid-column: 1 / -1; font-size: var(--t-sm); overflow-wrap: anywhere; }
 .v-clave > * { margin: 0; padding: 3px 8px; min-width: 0; border: 1px solid var(--line); background: var(--surface); }
