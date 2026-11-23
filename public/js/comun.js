@@ -109,13 +109,13 @@
     var fuente = datos.filter(function (u) { return u.matches(TARJETAS); })[0] || datos.filter(function (u) { return u.tagName === "P"; })[0];
     if (!fuente) return null;
     var tira = document.createElement("div"), pendiente = 0, obs;
-    tira.className = "v-clave" + (fuente.matches(TARJETAS) ? " " + fuente.className : ""); tira.setAttribute("role", "group"); tira.setAttribute("aria-label", "Valores clave");
+    tira.className = "v-clave"; tira.setAttribute("role", "group"); tira.setAttribute("aria-label", "Valores clave");
     function pintar() {
       pendiente = 0; tira.textContent = "";
       (fuente.matches(TARJETAS) ? [].slice.call(fuente.children, 0, 4) : [fuente]).forEach(function (c) {
         var cp = c.cloneNode(true);
         [cp].concat([].slice.call(cp.querySelectorAll("*"))).forEach(function (e) {
-          e.removeAttribute("id");
+          e.removeAttribute("id"); e.removeAttribute("class");
           [].slice.call(e.attributes).forEach(function (a) { if (a.name.indexOf("data-") === 0) e.removeAttribute(a.name); });
         });
         tira.appendChild(cp);
