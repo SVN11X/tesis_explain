@@ -10,6 +10,7 @@ llamada a la red. Con un servicio simulado por Playwright comprueba cada respues
 docs/defensa/especificacion.md). También prueba 320 px de ancho, el teclado solo y los dos temas.
 datos/defensa/catalogo.json lo simula la prueba, porque lo genera otra unidad.
 """
+import hashlib
 import json
 import re
 from pathlib import Path
@@ -634,16 +635,25 @@ with sync_playwright() as pw:
     def ta_valor(pg):
         return pg.locator('dialog.dv-dialogo textarea').input_value()
 
-    # 10a. Lectura en voz alta.
-    ctx = ctx_voz()
+    def sin_audio(c):
+        c.route('**/audio/manifiesto.json', lambda r: r.fulfill(status=200, content_type='application/json', body=json.dumps({'entradas': {}})))
+        return c
+
+    # 10a. Lectura en voz alta. Sin audio pregrabado, para probar el camino de speechSynthesis.
+    ctx = sin_audio(ctx_voz())
     pg = voz_p(ctx)
     check(pg.evaluate('typeof window.DefensaVoz.montar') == 'function', 'js/defensa-voz.js se carga al mostrar la primera pregunta')
-    check(not boton(pg, 'Escuchar pregunta').is_visible(), 'sin voces, «Escuchar pregunta» queda oculto')
+    check(boton(pg, 'Escuchar pregunta').is_visible(), 'el botón de escuchar se ofrece también sin voces, por si hay audio pregrabado')
+    boton(pg, 'Escuchar pregunta').click()
+    pg.wait_for_selector('dialog.dv-dialogo .dv-voz-nota', state='visible')
+    check(boton(pg, 'Escuchar pregunta').is_visible() and pg.evaluate('__S.hablados.length') == 0, 'sin audio ni voz en español lo dice y no lee nada')
     check(pg.locator('dialog.dv-dialogo .dv-enunciado').is_visible(), 'la pregunta sigue visible sin voz')
     pg.evaluate('''() => __S.cambiar([{name: 'Remota', lang: 'es-MX', localService: false}, {name: 'Inglesa', lang: 'en-US', localService: true}])''')
-    check(not boton(pg, 'Escuchar pregunta').is_visible(), 'una voz en español remota o una local en otro idioma no bastan')
+    boton(pg, 'Escuchar pregunta').click()
+    pg.wait_for_selector('dialog.dv-dialogo .dv-voz-nota', state='visible')
+    check(pg.evaluate('__S.hablados.length') == 0, 'una voz en español remota o una local en otro idioma no bastan')
     pg.evaluate('''() => __S.cambiar([{name: 'Remota', lang: 'es-MX', localService: false}, {name: 'Local', lang: 'es-ES', localService: true}])''')
-    check(boton(pg, 'Escuchar pregunta').is_visible(), 'la voz que llega después con voiceschanged muestra el botón')
+    check(boton(pg, 'Escuchar pregunta').is_visible(), 'la voz que llega después con voiceschanged sigue con el botón visible')
     boton(pg, 'Escuchar pregunta').click()
     check(pg.evaluate('__S.hablados.length') == 1 and pg.evaluate('__S.hablados[0].voz') == 'Local' and pg.evaluate('__S.hablados[0].texto').startswith('¿'),
           'lee el enunciado con la voz en español de localService true', pg.evaluate('__S.hablados'))
@@ -655,6 +665,50 @@ with sync_playwright() as pw:
     c0 = pg.evaluate('__S.cancelados')
     boton(pg, 'Dictado externo').click()
     check(pg.evaluate('__S.cancelados') > c0 and boton(pg, 'Escuchar pregunta').is_visible(), 'la lectura se detiene antes de cualquier dictado')
+    ctx.close()
+
+    # 10a2. Audio pregrabado de la pregunta: suena si existe y, si el archivo falta, vuelve a speechSynthesis.
+    AUDIO_FALSO = """
+    (() => {
+      const A = window.__AU = {reproducidos: []};
+      class FakeAudio extends EventTarget {
+        constructor() { super(); this.paused = true; this.ended = false; this.currentTime = 0; this.duration = 10; this.src = ''; }
+        removeAttribute() { this.src = ''; }
+        load() {}
+        play() {
+          this.paused = false;
+          return fetch(this.src, {cache: 'no-store'}).then(r => {
+            if (!r.ok) throw new Error('http ' + r.status);
+            A.reproducidos.push(this.src);
+            this.dispatchEvent(new Event('playing'));
+          }).catch(e => { this.paused = true; this.dispatchEvent(new Event('error')); throw e; });
+        }
+        pause() { if (this.paused) return; this.paused = true; this.dispatchEvent(new Event('pause')); }
+      }
+      window.Audio = FakeAudio;
+    })();
+    """
+    ctx = ctx_voz()
+    ctx.add_init_script(AUDIO_FALSO)
+    pg = voz_p(ctx)
+    visible = re.sub(r'\s+', ' ', pg.locator('dialog.dv-dialogo .dv-enunciado').inner_text()).strip()
+    visible = re.sub(r'\s+([.,;:])', r'', visible)
+    huella = hashlib.sha256(visible.encode('utf-8')).hexdigest()[:16]
+    archivo_q = next(iter(json.loads((ROOT / 'public/audio/manifiesto.json').read_text(encoding='utf-8'))['entradas'].values()))['archivo']
+    entradas = {'q-' + huella: {'archivo': archivo_q, 'segundos': 5, 'tipo': 'pregunta'}}
+    ctx.route('**/audio/manifiesto.json', lambda r: r.fulfill(status=200, content_type='application/json', body=json.dumps({'entradas': entradas})))
+    pg.evaluate("""() => __S.cambiar([{name: 'Local', lang: 'es-ES', localService: true}])""")
+    boton(pg, 'Escuchar pregunta').click()
+    boton(pg, 'Detener lectura').wait_for()
+    pg.wait_for_function('__AU.reproducidos.length === 1')
+    check(pg.evaluate('__S.hablados.length') == 0 and archivo_q in pg.evaluate('__AU.reproducidos[0]'), 'con audio pregrabado suena el archivo y no la voz del navegador')
+    check('Voz sintética, generada con Qwen3-TTS' in mensaje_voz(pg), 'avisa que la voz es sintética', mensaje_voz(pg))
+    boton(pg, 'Detener lectura').click()
+    check(boton(pg, 'Escuchar pregunta').is_visible(), '«Detener lectura» corta el audio pregrabado')
+    ctx.route('**/audio/' + archivo_q, lambda r: r.fulfill(status=404, body='no existe'))
+    boton(pg, 'Escuchar pregunta').click()
+    pg.wait_for_function('__S.hablados.length === 1')
+    check(pg.evaluate('__S.hablados[0].voz') == 'Local', 'si el archivo falta lee con la voz del navegador')
     ctx.close()
 
     # 10b. Dictado externo: aviso, rechazo sin reconocedor, aceptación y texto agregado.
@@ -685,12 +739,15 @@ with sync_playwright() as pw:
     ctx.close()
 
     ctx, _ = contexto(browser)
+    sin_audio(ctx)
     ctx.add_init_script(fakes(sintesis=False, sr=False))
     pg = pagina(ctx)
     filtrar(pg, UNICA[0]); abrir(pg); boton(pg, 'Entrenar').click()
     pg.wait_for_selector('dialog.dv-dialogo .dv-voz button', state='attached')
-    check(boton(pg, 'Dictado externo').count() == 0 and not boton(pg, 'Escuchar pregunta').is_visible() and boton(pg, 'Dictar en este navegador').count() == 1,
-          'sin SpeechRecognition ni speechSynthesis solo queda el dictado privado')
+    boton(pg, 'Escuchar pregunta').click()
+    pg.wait_for_selector('dialog.dv-dialogo .dv-voz-nota', state='visible')
+    check(boton(pg, 'Dictado externo').count() == 0 and boton(pg, 'Dictar en este navegador').count() == 1,
+          'sin SpeechRecognition ni speechSynthesis queda el dictado privado y el aviso al escuchar')
     check(not pg.errores, 'sin errores de JavaScript sin esas interfaces', pg.errores)
     ctx.close()
 
@@ -943,14 +1000,18 @@ with sync_playwright() as pw:
     check('no está disponible' not in mensaje_voz(pg) and 'servidores' not in mensaje_voz(pg), 'al decidir queda solo el mensaje nuevo', mensaje_voz(pg))
     ctx.close()
 
-    # 11.5 Sin voz en español se explica por qué no hay «Escuchar pregunta».
-    ctx = ctx_voz()
+    # 11.5 Sin audio pregrabado ni voz en español, al pulsar «Escuchar pregunta» se explica por qué no hay lectura.
+    ctx = sin_audio(ctx_voz())
     pg = voz_p(ctx)
-    check(pg.locator('dialog.dv-dialogo .dv-voz-nota').is_visible() and 'voz en español' in pg.locator('dialog.dv-dialogo .dv-voz-nota').inner_text(), 'sin voz en español explica por qué no hay lectura')
-    pg.evaluate("__S.cambiar([{name: 'Inglesa', lang: 'en-US', localService: true}])")
-    check(pg.locator('dialog.dv-dialogo .dv-voz-nota').is_visible() and not boton(pg, 'Escuchar pregunta').is_visible(), 'una voz que no es en español no la reemplaza')
+    nota = pg.locator('dialog.dv-dialogo .dv-voz-nota')
+    check(not nota.is_visible(), 'la nota no estorba antes de pulsar')
+    boton(pg, 'Escuchar pregunta').click()
+    pg.wait_for_selector('dialog.dv-dialogo .dv-voz-nota', state='visible')
+    check('voz en español' in nota.inner_text(), 'sin audio ni voz en español explica por qué no hay lectura')
     pg.evaluate("__S.cambiar([{name: 'Local', lang: 'es-ES', localService: true}])")
-    check(not pg.locator('dialog.dv-dialogo .dv-voz-nota').is_visible() and boton(pg, 'Escuchar pregunta').is_visible(), 'con una voz en español la nota desaparece')
+    boton(pg, 'Escuchar pregunta').click()
+    pg.wait_for_function('__S.hablados.length === 1')
+    check(not nota.is_visible() and boton(pg, 'Detener lectura').is_visible(), 'con una voz en español la nota desaparece y lee')
     ctx.close()
 
     # Contradicción crítica detectada.

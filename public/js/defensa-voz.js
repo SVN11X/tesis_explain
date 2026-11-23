@@ -3,7 +3,8 @@
   primera vez que se muestra una pregunta y expone window.DefensaVoz.montar({textarea, enunciado, contenedor}).
 
   Agrega tres controles a cada pregunta:
-  - «Escuchar pregunta»: speechSynthesis con una voz en español que funcione sin red (localService).
+  - «Escuchar pregunta»: el audio pregrabado de la pregunta (js/voz-natural.js, voz sintética generada con Qwen3-TTS)
+    y, si no hay audio o falla, speechSynthesis con una voz en español que funcione sin red (localService).
   - «Dictar en este navegador»: Whisper tiny dentro de un Web Worker, con los archivos de voz/ servidos por este sitio.
     Graba al pulsar, sin pregunta previa: pide el micrófono y prepara el modelo en paralelo. Si la grabación termina
     antes, espera con el progreso y un botón Cancelar.
@@ -22,6 +23,19 @@
   var HZ = 16000;
   var TEXTO_PREPARAR = "No se pudo preparar el dictado. Tu borrador sigue aquí. Puedes escribir o usar el dictado externo.";
   var TEXTO_FALLO = "No se pudo dictar en este navegador. Tu pregunta y lo escrito siguen aquí. Puedes escribir o usar el dictado externo.";
+
+  var cargaNucleo = null;
+  function nucleo() {
+    if (window.VozNatural) return Promise.resolve();
+    if (!cargaNucleo) cargaNucleo = new Promise(function (ok, mal) {
+      var sc = document.createElement("script");
+      sc.src = new URL("js/voz-natural.js", document.baseURI).href;
+      sc.onload = ok;
+      sc.onerror = function () { sc.remove(); cargaNucleo = null; mal(new Error("voz-natural")); };
+      document.head.appendChild(sc);
+    });
+    return cargaNucleo;
+  }
 
   var instancias = [];
   var consentimiento = null;   /* {aceptado, version, hora}, solo en memoria */
@@ -78,6 +92,7 @@
     var inst = { contenedor: caja };
     var voz = null;                  /* voz en español sin red */
     var leyendo = false;
+    var lectura = 0;                 /* invalida la búsqueda del audio de una lectura ya detenida */
     var externo = null;              /* instancia de SpeechRecognition */
     /* reposo, consulta (lee el manifiesto), micro (espera el permiso), grabando, preparando (grabación terminada que
        espera al modelo) y transcribiendo. El modelo carga en paralelo desde que se pulsa el botón. */
@@ -93,10 +108,9 @@
     var area = el("div", "dv-voz-aviso");
     area.hidden = true;
     var bEscuchar = boton("Escuchar pregunta", "", alternarLectura);
-    bEscuchar.hidden = true;
     var bPrivado = boton("Dictar en este navegador", "", alPulsarPrivado);
     var bExterno = reconocimiento() ? boton("Dictado externo", "", alPulsarExterno) : null;
-    var nota = el("p", "dv-voz-nota", "Este navegador no tiene una voz en español para leer la pregunta.");
+    var nota = el("p", "dv-voz-nota", "No hay audio de esta pregunta ni una voz en español en este navegador para leerla.");
     nota.hidden = true;
     var bCancelar = boton("Cancelar", "", cancelar);
     bCancelar.hidden = true;
@@ -132,33 +146,51 @@
     /* ── lectura en voz alta ── */
     function elegirVoz() {
       voz = null;
-      if (!window.speechSynthesis || typeof speechSynthesis.getVoices !== "function") { nota.hidden = false; return; }
+      if (!window.speechSynthesis || typeof speechSynthesis.getVoices !== "function") return;
       var lista = speechSynthesis.getVoices() || [];
       for (var i = 0; i < lista.length; i++) {
         if (lista[i] && /^es([-_]|$)/i.test(lista[i].lang || "") && lista[i].localService === true) { voz = lista[i]; break; }
       }
-      bEscuchar.hidden = !voz;
-      nota.hidden = !!voz;
-      if (!voz && leyendo) detenerLectura();
     }
     function detenerLectura() {
+      lectura++;
+      if (window.VozNatural) window.VozNatural.detener();
       if (!leyendo) return;
       leyendo = false;
       try { speechSynthesis.cancel(); } catch (e) { /* nada que detener */ }
       pintar();
     }
-    function alternarLectura() {
-      if (leyendo) { detenerLectura(); decir("Lectura detenida."); return; }
-      if (!voz) return;
-      detenerDictados();
+    function terminarLectura() { if (leyendo) { leyendo = false; pintar(); } }
+    function hablarConNavegador() {
+      if (!voz) { leyendo = false; nota.hidden = false; pintar(); return; }
       var u = new SpeechSynthesisUtterance(enunciado);
       u.voice = voz; u.lang = voz.lang || "es";
       var fin = function () { if (leyendo && u.__activa) { leyendo = false; pintar(); } };
       u.__activa = true;
       u.onend = fin; u.onerror = fin;
-      leyendo = true;
       try { speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (e) { leyendo = false; }
       pintar();
+    }
+    function alternarLectura() {
+      if (leyendo) { detenerLectura(); decir("Lectura detenida."); return; }
+      detenerDictados();
+      nota.hidden = true;
+      leyendo = true;
+      var g = ++lectura;
+      pintar();
+      var visible = enunciado.replace(/\s+/g, " ").trim().replace(/\s+([.,;:])/g, "$1");
+      nucleo().then(function () { return window.VozNatural.huella(visible); }).then(function (h) {
+        return window.VozNatural.entrada("q-" + h);
+      }).then(function (e) {
+        if (g !== lectura) return;
+        if (!e) { hablarConNavegador(); return; }
+        window.VozNatural.reproducir(e.archivo, function (d) {
+          if (g !== lectura) return;
+          if (d.tipo === "sonando") decir("Voz sintética, generada con Qwen3-TTS.");
+          else if (d.tipo === "fin" || d.tipo === "detenido") terminarLectura();
+          else if (d.tipo === "error") hablarConNavegador();
+        });
+      }).catch(function () { if (g === lectura) hablarConNavegador(); });
     }
     if (window.speechSynthesis && typeof speechSynthesis.addEventListener === "function") {
       speechSynthesis.addEventListener("voiceschanged", elegirVoz);

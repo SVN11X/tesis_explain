@@ -18,3 +18,11 @@ The photos show the robot, a carpet and tape. None shows an address, a network n
 ## Icons
 
 Phosphor Icons 2.1.1, MIT, Copyright (c) 2023 Phosphor Icons. See `LICENSE-iconos.txt` and `docs/decisions/0008-iconos-con-significado.md`.
+
+## Qwen3-TTS (synthetic voice)
+
+- What: the pre-generated audio in `public/audio/` that reads the oral-defense questions and the topic summaries. The voice is synthetic and is labeled so on the site.
+- Model: Qwen3-TTS-12Hz-1.7B-Base (voice cloning) and Qwen3-TTS-12Hz-1.7B-VoiceDesign (design of the reference voice).
+- Author: Qwen team, Alibaba Cloud. Source: https://github.com/QwenLM/Qwen3-TTS and https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-Base.
+- License: Apache 2.0.
+- How it is used: `scripts/voz_natural.py` runs the model offline on the owner's PC. The site serves only the resulting files. See `docs/decisions/0010-voz-natural-pregenerada.md`.
