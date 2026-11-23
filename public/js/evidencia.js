@@ -204,7 +204,7 @@
       '<div class="ev-graf" data-o="graf"></div>' +
       '<div data-o="ley"></div>' +
       '<div class="control-datos ev-datos" data-o="datos" aria-live="polite"></div>' +
-      '<p class="control-conclusion" data-o="lectura"></p>' +
+      '<p class="control-conclusion" data-o="lectura" data-plegar="Qué dicen estos datos"></p>' +
       '<p class="vnota">Datos de la tesis: Tabla A8.3 para las distancias y Tabla A8.2 para cada mapa. Cada mapa se alineó con el plano solo girándolo y trasladándolo, sin escalarlo. El plano se midió con huincha. Su incertidumbre no está incluida en estas cifras.</p>';
     var out = function (k) { return el.querySelector('[data-o="' + k + '"]'); };
     /* Plano del recinto con la distancia elegida. La geometría sale de la Fig. A8.1 de la tesis. */

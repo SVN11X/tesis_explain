@@ -104,7 +104,7 @@ with sync_playwright() as pw:
         check(e['sel'] == 'pasillo-3' and abs(e['pasillos'] - 11.7) < 1e-9 and e['dentro'] == 7, nombre + ': los pasillos suman 11,7 cm y 7 de 11 distancias quedan dentro de una celda', e)
         check(dato(caja, 'Diferencia media') == '+5,2 cm' and caja.locator('[data-o="plano"] .ev-cota-sel').count() == 3, nombre + ': el tercer pasillo se marca en el plano con +5,2 cm')
         caja.locator('[data-fila="tabique-inferior"]').click()
-        check(dato(caja, 'Diferencia media') == '+9,3 cm' and dato(caja, 'Plano, medido con huincha') == '0,61 m' and 'no se midió' in caja.locator('[data-o="lectura"]').inner_text(), nombre + ': el tabique inferior muestra +9,3 cm y advierte que su largo no se midió')
+        check(dato(caja, 'Diferencia media') == '+9,3 cm' and dato(caja, 'Plano, medido con huincha') == '0,61 m' and 'no se midió' in caja.locator('[data-o="lectura"]').text_content(), nombre + ': el tabique inferior muestra +9,3 cm y advierte que su largo no se midió')
         check(caja.locator('[data-fila="tabique-inferior"]').get_attribute('aria-pressed') == 'true', nombre + ': la distancia elegida queda marcada')
         caja.locator('[data-v="iteraciones"]').click()
         check(caja.locator('[data-o="plano"]').is_hidden() and dato(caja, 'Media de los cinco mapas') == '3,43 cm' and dato(caja, 'Intervalo al 95 %') == '3,1 a 3,7 cm', nombre + ': por mapa, la media es 3,43 cm con el intervalo de la Tabla A8.4')

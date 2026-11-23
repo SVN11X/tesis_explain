@@ -34,7 +34,12 @@ def set_range(page, selector, value):
 
 
 def text_of(page, visual):
-    return page.locator('[data-vis="%s"]' % visual).inner_text()
+    caja = page.locator('[data-vis="%s"]' % visual)
+    cerradas = caja.evaluate_handle('e => [...e.querySelectorAll("details.v-mas:not([open])")]')
+    caja.evaluate('e => e.querySelectorAll("details.v-mas").forEach(d => { d.open = true; })')
+    texto = caja.inner_text()
+    cerradas.evaluate('l => l.forEach(d => { d.open = false; })')
+    return texto
 
 
 def lectura(page, visual, i):
@@ -114,7 +119,7 @@ with sync_playwright() as pw:
         pintado = v3.evaluate("c => { const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0, t = 0; for (let i = 0; i < d.length; i += 4 * 97) { t++; if (d[i] !== d[0] || d[i + 1] !== d[1] || d[i + 2] !== d[2]) n++; } return n / t; }")
         check(pintado > .25, name + ': la vista 3D dibuja la sala, el robot y el plano del láser', pintado)
         cruza = p.evaluate("['pared', 'pata', 'caja', 'tablero'].map(t => window.MAPEO.cruzaPlano3D(t))")
-        check(cruza == [True, True, False, False] and '20 cm' in p.locator('#mp-3d-desc').inner_text(), name + ': en 3D el plano cruza paredes y patas y deja fuera la caja baja y la cubierta, como dice el texto', cruza)
+        check(cruza == [True, True, False, False] and '20 cm' in p.locator('#mp-3d-desc').text_content(), name + ': en 3D el plano cruza paredes y patas y deja fuera la caja baja y la cubierta, como dice el texto', cruza)
         p.locator('[data-vis=lidar] [data-v3=arriba]').click()
         if name != 'movimiento reducido':
             p.wait_for_timeout(500)
@@ -171,7 +176,7 @@ with sync_playwright() as pw:
         check('Pose 0: x = 0,00 m' in text_of(p, 'lazo'), name + ': el origen queda fijo')
 
         # Peso del cierre: modifica el cálculo y se restablece junto con el resto
-        p.locator('[data-vis=lazo] details').last.locator('summary').click()
+        p.locator('[data-vis=lazo] details.guia-vis').last.locator('summary').click()
         set_range(p, '#mp-grafo-peso', .2)
         weak = p.locator('[data-vis=lazo]').evaluate('el => Math.hypot(el.estadoSim().poses[12][0], el.estadoSim().poses[12][1])')
         set_range(p, '#mp-grafo-peso', 5)

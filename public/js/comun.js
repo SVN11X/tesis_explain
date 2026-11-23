@@ -38,12 +38,28 @@
       });
     }, 120);
   });
+  /* Reparto de los hijos de un interactivo. tipos[i] es "titulo", "dibujo", "lectura", "mando", "nota" u otro nombre de grupo.
+     Un título abre una sección nueva. Devuelve [{ titulo, dibujo, mando, lectura, nota, ... }] con los índices de cada grupo. */
+  U.repartir = function (tipos) {
+    var secs = [], s = null;
+    function nueva(t) { s = { titulo: t, dibujo: [], mando: [], lectura: [], nota: [] }; secs.push(s); }
+    function vacia() { return Object.keys(s).every(function (k) { return k === "titulo" || !s[k].length; }); }
+    tipos.forEach(function (t, i) {
+      if (t === "titulo") { if (!s || s.titulo !== null || !vacia()) nueva(i); else s.titulo = i; return; }
+      if (!s) nueva(null);
+      (s[t] = s[t] || []).push(i);
+    });
+    return secs;
+  };
   /* Escenario de un interactivo: el dibujo, las lecturas y los controles en tres bloques.
      o.dibujo y o.lecturas son selectores de hijos directos de el, y lo demás son controles. Desde 700 px de ancho
      el dibujo y las lecturas van a un lado y los controles al otro. Con menos, se apilan: dibujo, controles, lecturas.
      Las notas largas (.vnota) quedan plegadas en un details, sin quitar nada del texto. Cada grupo de o.plegar
      ({ sel, en, titulo }) va a un details dentro del bloque en ("dib", "ctl" o "lec") que se abre solo, sin su título, cuando
-     hay ancho para verlo todo y se pliega en un teléfono. */
+     hay ancho para verlo todo y se pliega en un teléfono.
+     Opciones para las páginas de mapeo y control: o.tira pone las lecturas en una tira bajo el dibujo y los controles,
+     o.aparte (selector) deja plegados fuera del escenario los details y los elementos con data-plegar="Título",
+     y o.secciones muestra una sección a la vez, con botones, cuando cada h4.vsub abre una. */
   function plegable(el, titulo, abierto) {
     var det = document.createElement("details"), cuerpo = document.createElement("div"), s = document.createElement("summary");
     det.className = "v-mas"; cuerpo.className = "v-mas-cuerpo"; s.textContent = titulo;
@@ -51,23 +67,82 @@
     if (abierto) { var ancho = function () { var ok = el.clientWidth >= 740; det.open = ok; det.classList.toggle("v-libre", ok); }; ancho(); U.alAncho(el, ancho); }
     return { det: det, cuerpo: cuerpo };
   }
-  U.escena = function (el, o) {
-    var hijos = Array.prototype.slice.call(el.children), esc = document.createElement("div"), b = {};
-    esc.className = "v-escena";
+  function armar(el, cont, hijos, s, o) {
+    var esc = document.createElement("div"), b = {}, fuera = [];
+    esc.className = "v-escena" + (o.tira ? " v-tira" : "");
     ["dib", "ctl", "lec"].forEach(function (k) { b[k] = document.createElement("div"); b[k].className = "v-" + k; esc.appendChild(b[k]); });
     var grupos = (o.plegar || []).map(function (g) { return { g: g, p: plegable(el, g.titulo, true) }; }), notas = plegable(el, o.titulo || "Cómo leerlo y supuestos", false);
-    hijos.forEach(function (h) {
-      var g = grupos.filter(function (x) { return h.matches(x.g.sel); })[0];
-      if (g) g.p.cuerpo.appendChild(h);
-      else if (h.matches(o.dibujo)) b.dib.appendChild(h);
-      else if (o.lecturas && h.matches(o.lecturas)) b.lec.appendChild(h);
-      else if (h.classList.contains("vnota")) notas.cuerpo.appendChild(h);
-      else b.ctl.appendChild(h);
+    if (s.titulo !== null && !o.partes) cont.appendChild(hijos[s.titulo]);
+    [["dibujo", "dib"], ["lectura", "lec"], ["mando", "ctl"]].forEach(function (g) { s[g[0]].forEach(function (i) { b[g[1]].appendChild(hijos[i]); }); });
+    (s.plegable || []).forEach(function (i) { grupos.filter(function (x) { return hijos[i].matches(x.g.sel); })[0].p.cuerpo.appendChild(hijos[i]); });
+    s.nota.forEach(function (i) { notas.cuerpo.appendChild(hijos[i]); });
+    (s.aparte || []).forEach(function (i) {
+      var h = hijos[i], t = h.getAttribute("data-plegar");
+      if (t) { var p = plegable(el, t, false); p.cuerpo.appendChild(h); fuera.push(p.det); } else fuera.push(h);
     });
     grupos.forEach(function (x) { if (x.p.cuerpo.children.length) b[x.g.en || "ctl"].appendChild(x.p.det); });
-    if (notas.cuerpo.children.length) b.ctl.appendChild(notas.det);
-    el.appendChild(esc);
+    if (o.tira && (!b.dib.children.length || !b.ctl.children.length)) esc.setAttribute("data-una", "1");
+    if (notas.cuerpo.children.length && !o.tira) b.ctl.appendChild(notas.det);
+    cont.appendChild(esc);
+    fuera.forEach(function (x) { cont.appendChild(x); });
+    if (notas.cuerpo.children.length && o.tira) cont.appendChild(notas.det);
     return esc;
+  }
+  U.escena = function (el, o) {
+    var hijos = Array.prototype.slice.call(el.children), grupos = o.plegar || [];
+    var tipos = hijos.map(function (h) {
+      if (o.secciones && h.matches("h4.vsub")) return "titulo";
+      if (grupos.some(function (g) { return h.matches(g.sel); })) return "plegable";
+      if (o.aparte && h.matches(o.aparte)) return "aparte";
+      if (h.matches(o.dibujo)) return "dibujo";
+      if (o.lecturas && h.matches(o.lecturas)) return "lectura";
+      return h.classList.contains("vnota") ? "nota" : "mando";
+    });
+    var secs = U.repartir(tipos);
+    while (el.firstChild) el.removeChild(el.firstChild);
+    var partes = !!o.secciones && secs.length > 1 && secs.every(function (s) { return s.titulo !== null; });
+    if (!partes) {
+      var ultima = null;
+      secs.forEach(function (s) {
+        var cont = secs.length > 1 ? document.createElement("div") : el;
+        if (cont !== el) { cont.className = "v-parte"; el.appendChild(cont); }
+        ultima = armar(el, cont, hijos, s, o);
+      });
+      return ultima;
+    }
+    var barra = document.createElement("div"), cajas = [];
+    barra.className = "v-partes"; barra.setAttribute("role", "group"); barra.setAttribute("aria-label", "Partes del interactivo");
+    el.appendChild(barra);
+    secs.forEach(function (s, k) {
+      var caja = document.createElement("div"), b = document.createElement("button");
+      caja.className = "v-parte"; caja.hidden = k !== 0; el.appendChild(caja); cajas.push(caja);
+      armar(el, caja, hijos, s, Object.assign({}, o, { partes: true }));
+      b.type = "button"; b.className = "vbtn sec"; b.textContent = hijos[s.titulo].textContent.trim(); b.setAttribute("aria-pressed", String(k === 0));
+      b.addEventListener("click", function () {
+        [].forEach.call(barra.children, function (x, j) { x.setAttribute("aria-pressed", String(j === k)); cajas[j].hidden = j !== k; });
+      });
+      barra.appendChild(b);
+    });
+    return el;
+  };
+  /* Los interactivos de mapeo y control no dicen qué es dibujo y qué es lectura: se reconoce por clase. */
+  var ESCENA_AUTO = {
+    dibujo: ".mp-chart, .mp-columns, .mp-3d, .control-graf, .lienzo, .pid-l, .pso-l, .lr-dibujo, .ev-paneles, .dos-pan, .control-par, .ee-barras, .kd-secuencia, .kd-cancelacion, .ticks-contados, .registro-bins, .re-muestras, .banda-celdas, .ley-comparar, .ganancias-pares, .vley, .mp-legend, .leyenda, .proto, .ev-fig, .mp-mapa-lect, .comparar, .formula, .zm-banda, .re-ticks, .re-registro",
+    lecturas: ".control-datos, .lecturas, .mp-readings, .ev-datos, .wu-res, .tr-datos, .ee-res, .fo-datos, .pa-datos, .ti-datos, .re-datos, .kd-datos, .aw-par",
+    aparte: "details, [data-plegar]", tira: true, secciones: true, titulo: "Ver el detalle y lo que supone el ejemplo"
+  };
+  /* Se aplica en cuanto el interactivo escribe su HTML, antes de que dibuje, para que sus gráficos midan el ancho final. */
+  U.escenaAuto = function (vis) {
+    var pagina = document.body && document.body.getAttribute("data-pagina");
+    if (pagina !== "mapeo" && pagina !== "control") return;
+    var nativo = Object.getOwnPropertyDescriptor(Element.prototype, "innerHTML");
+    Object.defineProperty(vis, "innerHTML", { configurable: true, get: function () { return nativo.get.call(this); }, set: function (v) {
+      nativo.set.call(this, v);
+      var host = this.children.length === 1 && this.firstElementChild.classList.contains("mp-panel") ? this.firstElementChild : this;
+      if (host.children.length < 3 || host.querySelector(".mp-escenario, .mp-reto") || host.getAttribute("data-maqueta") === "no") return;
+      host.classList.add("v-auto");
+      U.escena(host, ESCENA_AUTO);
+    } });
   };
   /* Ayudas de marcado que comparten los interactivos. Todo texto que entra en el HTML se escapa. */
   /* aria-pressed en los botones que llevan attr: true solo en el que vale valor */
