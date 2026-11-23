@@ -3,6 +3,126 @@
  "modelo": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
  "formato": "audio/mp4",
  "entradas": {
+  "q-015e8c44757f7569": {
+   "archivo": "q-015e8c44757f7569.m4a",
+   "segundos": 11.04,
+   "tipo": "pregunta",
+   "id": "p-giro",
+   "texto": "015e8c44757f7569",
+   "habla": "6df5d754997b5ae9"
+  },
+  "q-02033be15f675df6": {
+   "archivo": "q-02033be15f675df6.m4a",
+   "segundos": 4.88,
+   "tipo": "pregunta",
+   "id": "p-incremental-estable",
+   "texto": "02033be15f675df6",
+   "habla": "1d7993cf5671d876"
+  },
+  "q-04b02b04f7d6e1a5": {
+   "archivo": "q-04b02b04f7d6e1a5.m4a",
+   "segundos": 7.2,
+   "tipo": "pregunta",
+   "id": "p-oficina",
+   "texto": "04b02b04f7d6e1a5",
+   "habla": "04b02b04f7d6e1a5"
+  },
+  "q-061bc0509fea10fe": {
+   "archivo": "q-061bc0509fea10fe.m4a",
+   "segundos": 11.2,
+   "tipo": "pregunta",
+   "id": "p-verificador",
+   "texto": "061bc0509fea10fe",
+   "habla": "0d22418a932bdedd"
+  },
+  "q-091a9a786c2ed8aa": {
+   "archivo": "q-091a9a786c2ed8aa.m4a",
+   "segundos": 3.68,
+   "tipo": "pregunta",
+   "id": "p-lidar-2d",
+   "texto": "091a9a786c2ed8aa",
+   "habla": "6e8e666d4908798b"
+  },
+  "q-0a002b60ced5f0e1": {
+   "archivo": "q-0a002b60ced5f0e1.m4a",
+   "segundos": 8.24,
+   "tipo": "pregunta",
+   "id": "p-ref-uso-pi",
+   "texto": "0a002b60ced5f0e1",
+   "habla": "f0fcd3085bfba62e"
+  },
+  "q-0a205529097ee963": {
+   "archivo": "q-0a205529097ee963.m4a",
+   "segundos": 5.92,
+   "tipo": "pregunta",
+   "id": "p-cobertura-ancha",
+   "texto": "0a205529097ee963",
+   "habla": "0a205529097ee963"
+  },
+  "q-0aaedbad18c085e8": {
+   "archivo": "q-0aaedbad18c085e8.m4a",
+   "segundos": 4.88,
+   "tipo": "pregunta",
+   "id": "p-comprar",
+   "texto": "0aaedbad18c085e8",
+   "habla": "05cbcbefb9ef98d7"
+  },
+  "q-0bf0cb0a418e2729": {
+   "archivo": "q-0bf0cb0a418e2729.m4a",
+   "segundos": 4.8,
+   "tipo": "pregunta",
+   "id": "p-ref-astrom",
+   "texto": "0bf0cb0a418e2729",
+   "habla": "78b0c1e52d4c7841"
+  },
+  "q-101d26ec7b7e7553": {
+   "archivo": "q-101d26ec7b7e7553.m4a",
+   "segundos": 5.76,
+   "tipo": "pregunta",
+   "id": "p-camino-orden",
+   "texto": "101d26ec7b7e7553",
+   "habla": "3a222191bcdddae9"
+  },
+  "q-103d21600b473810": {
+   "archivo": "q-103d21600b473810.m4a",
+   "segundos": 3.76,
+   "tipo": "pregunta",
+   "id": "p-huincha",
+   "texto": "103d21600b473810",
+   "habla": "103d21600b473810"
+  },
+  "q-106e8e2a3a98e9b9": {
+   "archivo": "q-106e8e2a3a98e9b9.m4a",
+   "segundos": 6.4,
+   "tipo": "pregunta",
+   "id": "p-dos-errores",
+   "texto": "106e8e2a3a98e9b9",
+   "habla": "05ba4e1663ae7c01"
+  },
+  "q-12a12ac947f99fd6": {
+   "archivo": "q-12a12ac947f99fd6.m4a",
+   "segundos": 8.08,
+   "tipo": "pregunta",
+   "id": "p-intervalo-simple",
+   "texto": "12a12ac947f99fd6",
+   "habla": "67507bcbb572fab7"
+  },
+  "q-13708fd90423af28": {
+   "archivo": "q-13708fd90423af28.m4a",
+   "segundos": 8.8,
+   "tipo": "pregunta",
+   "id": "p-angular",
+   "texto": "13708fd90423af28",
+   "habla": "eae3842f63ce8ab1"
+  },
+  "q-18a64576c6ceabc6": {
+   "archivo": "q-18a64576c6ceabc6.m4a",
+   "segundos": 8.48,
+   "tipo": "pregunta",
+   "id": "p-iteracion-2",
+   "texto": "18a64576c6ceabc6",
+   "habla": "b8bf5b38cbdde15d"
+  },
   "q-1903df96e712440a": {
    "archivo": "q-1903df96e712440a.m4a",
    "segundos": 7.52,
@@ -10,6 +130,318 @@
    "id": "p-oe2-parcial",
    "texto": "1903df96e712440a",
    "habla": "f70e653f36e3210c"
+  },
+  "q-19281b5cecd01bc9": {
+   "archivo": "q-19281b5cecd01bc9.m4a",
+   "segundos": 3.44,
+   "tipo": "pregunta",
+   "id": "p-impl-plano",
+   "texto": "19281b5cecd01bc9",
+   "habla": "19281b5cecd01bc9"
+  },
+  "q-1f8b2970e8c37612": {
+   "archivo": "q-1f8b2970e8c37612.m4a",
+   "segundos": 12.08,
+   "tipo": "pregunta",
+   "id": "p-inflacion",
+   "texto": "1f8b2970e8c37612",
+   "habla": "2f090174650d38da"
+  },
+  "q-245d683685ddee44": {
+   "archivo": "q-245d683685ddee44.m4a",
+   "segundos": 5.36,
+   "tipo": "pregunta",
+   "id": "p-impl-planta-pso",
+   "texto": "245d683685ddee44",
+   "habla": "b26bc1d087d94c4a"
+  },
+  "q-259d163195c7db9a": {
+   "archivo": "q-259d163195c7db9a.m4a",
+   "segundos": 5.84,
+   "tipo": "pregunta",
+   "id": "p-impl-captura",
+   "texto": "259d163195c7db9a",
+   "habla": "44eed83a782705fc"
+  },
+  "q-25be54ae34150055": {
+   "archivo": "q-25be54ae34150055.m4a",
+   "segundos": 3.92,
+   "tipo": "pregunta",
+   "id": "p-observados",
+   "texto": "25be54ae34150055",
+   "habla": "25be54ae34150055"
+  },
+  "q-2644a3a8f595c672": {
+   "archivo": "q-2644a3a8f595c672.m4a",
+   "segundos": 5.68,
+   "tipo": "pregunta",
+   "id": "p-12cm",
+   "texto": "2644a3a8f595c672",
+   "habla": "f61ad0dbac058be8"
+  },
+  "q-2756171cd012ec95": {
+   "archivo": "q-2756171cd012ec95.m4a",
+   "segundos": 6.72,
+   "tipo": "pregunta",
+   "id": "p-admisible",
+   "texto": "2756171cd012ec95",
+   "habla": "2756171cd012ec95"
+  },
+  "q-2d7bfe0b06bfbaf2": {
+   "archivo": "q-2d7bfe0b06bfbaf2.m4a",
+   "segundos": 6.0,
+   "tipo": "pregunta",
+   "id": "p-impl-metas",
+   "texto": "2d7bfe0b06bfbaf2",
+   "habla": "2d7bfe0b06bfbaf2"
+  },
+  "q-2dafab3ec857cc41": {
+   "archivo": "q-2dafab3ec857cc41.m4a",
+   "segundos": 5.6,
+   "tipo": "pregunta",
+   "id": "p-astar",
+   "texto": "2dafab3ec857cc41",
+   "habla": "2dafab3ec857cc41"
+  },
+  "q-326f43926aa162a7": {
+   "archivo": "q-326f43926aa162a7.m4a",
+   "segundos": 5.6,
+   "tipo": "pregunta",
+   "id": "p-ref-vincent",
+   "texto": "326f43926aa162a7",
+   "habla": "326f43926aa162a7"
+  },
+  "q-34277d18211eaa24": {
+   "archivo": "q-34277d18211eaa24.m4a",
+   "segundos": 5.28,
+   "tipo": "pregunta",
+   "id": "p-cierre-lazo",
+   "texto": "34277d18211eaa24",
+   "habla": "34277d18211eaa24"
+  },
+  "q-3690f494f931be56": {
+   "archivo": "q-3690f494f931be56.m4a",
+   "segundos": 10.0,
+   "tipo": "pregunta",
+   "id": "p-percentil",
+   "texto": "3690f494f931be56",
+   "habla": "c66c6397442d715e"
+  },
+  "q-36ead1387307ca7f": {
+   "archivo": "q-36ead1387307ca7f.m4a",
+   "segundos": 5.84,
+   "tipo": "pregunta",
+   "id": "p-pi-adecuado",
+   "texto": "36ead1387307ca7f",
+   "habla": "890816300834a3d7"
+  },
+  "q-37110be6f5bd85a5": {
+   "archivo": "q-37110be6f5bd85a5.m4a",
+   "segundos": 9.76,
+   "tipo": "pregunta",
+   "id": "p-impl-kd25",
+   "texto": "37110be6f5bd85a5",
+   "habla": "8a8126f6d503b5e2"
+  },
+  "q-40075f81f3d1ea38": {
+   "archivo": "q-40075f81f3d1ea38.m4a",
+   "segundos": 4.64,
+   "tipo": "pregunta",
+   "id": "p-impl-atomica",
+   "texto": "40075f81f3d1ea38",
+   "habla": "40075f81f3d1ea38"
+  },
+  "q-418aa5f575e4091e": {
+   "archivo": "q-418aa5f575e4091e.m4a",
+   "segundos": 8.16,
+   "tipo": "pregunta",
+   "id": "p-kd",
+   "texto": "418aa5f575e4091e",
+   "habla": "9f5ff9b06fce06cd"
+  },
+  "q-418c5d08bc42cb94": {
+   "archivo": "q-418c5d08bc42cb94.m4a",
+   "segundos": 7.84,
+   "tipo": "pregunta",
+   "id": "p-yamauchi",
+   "texto": "418c5d08bc42cb94",
+   "habla": "418c5d08bc42cb94"
+  },
+  "q-4240e9fa5bb52b74": {
+   "archivo": "q-4240e9fa5bb52b74.m4a",
+   "segundos": 4.08,
+   "tipo": "pregunta",
+   "id": "p-video",
+   "texto": "4240e9fa5bb52b74",
+   "habla": "4240e9fa5bb52b74"
+  },
+  "q-426fe49f4ebef305": {
+   "archivo": "q-426fe49f4ebef305.m4a",
+   "segundos": 3.84,
+   "tipo": "pregunta",
+   "id": "p-marcos",
+   "texto": "426fe49f4ebef305",
+   "habla": "426fe49f4ebef305"
+  },
+  "q-459ee31dbf82e41e": {
+   "archivo": "q-459ee31dbf82e41e.m4a",
+   "segundos": 4.24,
+   "tipo": "pregunta",
+   "id": "p-sin-computador",
+   "texto": "459ee31dbf82e41e",
+   "habla": "459ee31dbf82e41e"
+  },
+  "q-4c0766f0298e0e57": {
+   "archivo": "q-4c0766f0298e0e57.m4a",
+   "segundos": 3.04,
+   "tipo": "pregunta",
+   "id": "p-windup",
+   "texto": "4c0766f0298e0e57",
+   "habla": "4c0766f0298e0e57"
+  },
+  "q-4cd0039d8e90e2ee": {
+   "archivo": "q-4cd0039d8e90e2ee.m4a",
+   "segundos": 4.56,
+   "tipo": "pregunta",
+   "id": "p-decimales",
+   "texto": "4cd0039d8e90e2ee",
+   "habla": "4cd0039d8e90e2ee"
+  },
+  "q-4d581dad8ab250eb": {
+   "archivo": "q-4d581dad8ab250eb.m4a",
+   "segundos": 4.08,
+   "tipo": "pregunta",
+   "id": "p-estable-como",
+   "texto": "4d581dad8ab250eb",
+   "habla": "4d581dad8ab250eb"
+  },
+  "q-4e5eb2bb258f2e6a": {
+   "archivo": "q-4e5eb2bb258f2e6a.m4a",
+   "segundos": 6.32,
+   "tipo": "pregunta",
+   "id": "p-ref-maxim",
+   "texto": "4e5eb2bb258f2e6a",
+   "habla": "4e5eb2bb258f2e6a"
+  },
+  "q-57aada807ea22e32": {
+   "archivo": "q-57aada807ea22e32.m4a",
+   "segundos": 6.08,
+   "tipo": "pregunta",
+   "id": "p-estable-simple",
+   "texto": "57aada807ea22e32",
+   "habla": "57aada807ea22e32"
+  },
+  "q-58aeb994b0e38e7b": {
+   "archivo": "q-58aeb994b0e38e7b.m4a",
+   "segundos": 4.72,
+   "tipo": "pregunta",
+   "id": "p-slam-toolbox",
+   "texto": "58aeb994b0e38e7b",
+   "habla": "766a142b867082ad"
+  },
+  "q-5ab3296eb81d0992": {
+   "archivo": "q-5ab3296eb81d0992.m4a",
+   "segundos": 4.96,
+   "tipo": "pregunta",
+   "id": "p-exactitud-simple",
+   "texto": "5ab3296eb81d0992",
+   "habla": "5ab3296eb81d0992"
+  },
+  "q-5c38c08e26bd1f68": {
+   "archivo": "q-5c38c08e26bd1f68.m4a",
+   "segundos": 6.88,
+   "tipo": "pregunta",
+   "id": "p-no-corrigio",
+   "texto": "5c38c08e26bd1f68",
+   "habla": "5c38c08e26bd1f68"
+  },
+  "q-5d77d310d716721f": {
+   "archivo": "q-5d77d310d716721f.m4a",
+   "segundos": 8.48,
+   "tipo": "pregunta",
+   "id": "p-frontera-minima",
+   "texto": "5d77d310d716721f",
+   "habla": "b5493a21270b87e9"
+  },
+  "q-62548270bc46cd3e": {
+   "archivo": "q-62548270bc46cd3e.m4a",
+   "segundos": 7.92,
+   "tipo": "pregunta",
+   "id": "p-339-718",
+   "texto": "62548270bc46cd3e",
+   "habla": "38d85166bad0b1d8"
+  },
+  "q-6ca0234c7f3eb2c8": {
+   "archivo": "q-6ca0234c7f3eb2c8.m4a",
+   "segundos": 8.88,
+   "tipo": "pregunta",
+   "id": "p-oe1",
+   "texto": "6ca0234c7f3eb2c8",
+   "habla": "c86bc155f3dda03b"
+  },
+  "q-72ad1e3dc1cfc440": {
+   "archivo": "q-72ad1e3dc1cfc440.m4a",
+   "segundos": 6.96,
+   "tipo": "pregunta",
+   "id": "p-impl-semilla",
+   "texto": "72ad1e3dc1cfc440",
+   "habla": "46d821d541d24c52"
+  },
+  "q-74e42bcc3cfb38e0": {
+   "archivo": "q-74e42bcc3cfb38e0.m4a",
+   "segundos": 4.0,
+   "tipo": "pregunta",
+   "id": "p-cinco-bastan",
+   "texto": "74e42bcc3cfb38e0",
+   "habla": "74e42bcc3cfb38e0"
+  },
+  "q-7612906ee1ae2c81": {
+   "archivo": "q-7612906ee1ae2c81.m4a",
+   "segundos": 4.08,
+   "tipo": "pregunta",
+   "id": "p-dwb",
+   "texto": "7612906ee1ae2c81",
+   "habla": "81c13ced680f0c4b"
+  },
+  "q-79c71379261293fa": {
+   "archivo": "q-79c71379261293fa.m4a",
+   "segundos": 4.0,
+   "tipo": "pregunta",
+   "id": "p-adaptado",
+   "texto": "79c71379261293fa",
+   "habla": "79c71379261293fa"
+  },
+  "q-7d3d11624be0073b": {
+   "archivo": "q-7d3d11624be0073b.m4a",
+   "segundos": 3.44,
+   "tipo": "pregunta",
+   "id": "p-amcl",
+   "texto": "7d3d11624be0073b",
+   "habla": "649a58010af27a3c"
+  },
+  "q-81e7def50c0501e8": {
+   "archivo": "q-81e7def50c0501e8.m4a",
+   "segundos": 5.44,
+   "tipo": "pregunta",
+   "id": "p-red",
+   "texto": "81e7def50c0501e8",
+   "habla": "81e7def50c0501e8"
+  },
+  "q-82b70f1d17a3c501": {
+   "archivo": "q-82b70f1d17a3c501.m4a",
+   "segundos": 6.08,
+   "tipo": "pregunta",
+   "id": "p-fronteras-vs",
+   "texto": "82b70f1d17a3c501",
+   "habla": "de7436c782483a1f"
+  },
+  "q-85d2761c3c466a45": {
+   "archivo": "q-85d2761c3c466a45.m4a",
+   "segundos": 7.6,
+   "tipo": "pregunta",
+   "id": "p-aporte-pso",
+   "texto": "85d2761c3c466a45",
+   "habla": "aec38e38b2cb1278"
   },
   "q-8b18b0d4d9fdfa18": {
    "archivo": "q-8b18b0d4d9fdfa18.m4a",
@@ -19,6 +451,86 @@
    "texto": "8b18b0d4d9fdfa18",
    "habla": "d246f12afb79fb7c"
   },
+  "q-8c13a533818a686a": {
+   "archivo": "q-8c13a533818a686a.m4a",
+   "segundos": 7.52,
+   "tipo": "pregunta",
+   "id": "p-no-lineal",
+   "texto": "8c13a533818a686a",
+   "habla": "8c13a533818a686a"
+  },
+  "q-8f41f1ccb36bf0ff": {
+   "archivo": "q-8f41f1ccb36bf0ff.m4a",
+   "segundos": 6.4,
+   "tipo": "pregunta",
+   "id": "p-por-que-pso",
+   "texto": "8f41f1ccb36bf0ff",
+   "habla": "1240b5194e20b320"
+  },
+  "q-91318e1fc8981f18": {
+   "archivo": "q-91318e1fc8981f18.m4a",
+   "segundos": 8.08,
+   "tipo": "pregunta",
+   "id": "p-binomial",
+   "texto": "91318e1fc8981f18",
+   "habla": "c4dbd80781066140"
+  },
+  "q-92c24d099ebcbd96": {
+   "archivo": "q-92c24d099ebcbd96.m4a",
+   "segundos": 5.28,
+   "tipo": "pregunta",
+   "id": "p-sin-escala",
+   "texto": "92c24d099ebcbd96",
+   "habla": "92c24d099ebcbd96"
+  },
+  "q-92dc344c086127ba": {
+   "archivo": "q-92dc344c086127ba.m4a",
+   "segundos": 10.32,
+   "tipo": "pregunta",
+   "id": "p-control-una",
+   "texto": "92dc344c086127ba",
+   "habla": "6827fe7d9fd82cec"
+  },
+  "q-961ed0131871599b": {
+   "archivo": "q-961ed0131871599b.m4a",
+   "segundos": 6.96,
+   "tipo": "pregunta",
+   "id": "p-pso-mas-margen",
+   "texto": "961ed0131871599b",
+   "habla": "b662d6d511eb28c0"
+  },
+  "q-9939aedabfddf64f": {
+   "archivo": "q-9939aedabfddf64f.m4a",
+   "segundos": 4.64,
+   "tipo": "pregunta",
+   "id": "p-dos-sentidos",
+   "texto": "9939aedabfddf64f",
+   "habla": "9939aedabfddf64f"
+  },
+  "q-9c886ae656029e96": {
+   "archivo": "q-9c886ae656029e96.m4a",
+   "segundos": 4.4,
+   "tipo": "pregunta",
+   "id": "p-cuantas",
+   "texto": "9c886ae656029e96",
+   "habla": "9c886ae656029e96"
+  },
+  "q-9e9340a03edad128": {
+   "archivo": "q-9e9340a03edad128.m4a",
+   "segundos": 4.16,
+   "tipo": "pregunta",
+   "id": "p-clopper",
+   "texto": "9e9340a03edad128",
+   "habla": "9e9340a03edad128"
+  },
+  "q-9f0da187ecb0c7a6": {
+   "archivo": "q-9f0da187ecb0c7a6.m4a",
+   "segundos": 5.2,
+   "tipo": "pregunta",
+   "id": "p-cinta",
+   "texto": "9f0da187ecb0c7a6",
+   "habla": "9f0da187ecb0c7a6"
+  },
   "q-9f6a7f8e4b844040": {
    "archivo": "q-9f6a7f8e4b844040.m4a",
    "segundos": 7.28,
@@ -27,6 +539,22 @@
    "texto": "9f6a7f8e4b844040",
    "habla": "9f6a7f8e4b844040"
   },
+  "q-a06e8cba12cfaa88": {
+   "archivo": "q-a06e8cba12cfaa88.m4a",
+   "segundos": 8.0,
+   "tipo": "pregunta",
+   "id": "p-trejos",
+   "texto": "a06e8cba12cfaa88",
+   "habla": "d7c256633ff7af37"
+  },
+  "q-a45db1749c101598": {
+   "archivo": "q-a45db1749c101598.m4a",
+   "segundos": 6.16,
+   "tipo": "pregunta",
+   "id": "p-no-reemplazo",
+   "texto": "a45db1749c101598",
+   "habla": "fc7a1604f97cc4cd"
+  },
   "q-a495baf547c3385a": {
    "archivo": "q-a495baf547c3385a.m4a",
    "segundos": 6.16,
@@ -34,6 +562,22 @@
    "id": "p-costo",
    "texto": "a495baf547c3385a",
    "habla": "a495baf547c3385a"
+  },
+  "q-aaafccf25c27a566": {
+   "archivo": "q-aaafccf25c27a566.m4a",
+   "segundos": 4.56,
+   "tipo": "pregunta",
+   "id": "p-ref-wittenmark",
+   "texto": "aaafccf25c27a566",
+   "habla": "7581253598332503"
+  },
+  "q-ab0cb351429a200b": {
+   "archivo": "q-ab0cb351429a200b.m4a",
+   "segundos": 11.76,
+   "tipo": "pregunta",
+   "id": "p-foxy",
+   "texto": "ab0cb351429a200b",
+   "habla": "75289f54b29766bc"
   },
   "q-abf6a2e5d8e9b2a2": {
    "archivo": "q-abf6a2e5d8e9b2a2.m4a",
@@ -51,6 +595,30 @@
    "texto": "adf21b52e331df95",
    "habla": "39f0cf3ceb0ab480"
   },
+  "q-aefa54e6e4daf74a": {
+   "archivo": "q-aefa54e6e4daf74a.m4a",
+   "segundos": 6.08,
+   "tipo": "pregunta",
+   "id": "p-lista-negra",
+   "texto": "aefa54e6e4daf74a",
+   "habla": "aefa54e6e4daf74a"
+  },
+  "q-b1ea5d35617a3e01": {
+   "archivo": "q-b1ea5d35617a3e01.m4a",
+   "segundos": 11.2,
+   "tipo": "pregunta",
+   "id": "p-retardo-escenario",
+   "texto": "b1ea5d35617a3e01",
+   "habla": "15f3e051d60033c3"
+  },
+  "q-b56401d2476e12f1": {
+   "archivo": "q-b56401d2476e12f1.m4a",
+   "segundos": 7.2,
+   "tipo": "pregunta",
+   "id": "p-registro-gemelo",
+   "texto": "b56401d2476e12f1",
+   "habla": "b56401d2476e12f1"
+  },
   "q-b6652a01cbf31400": {
    "archivo": "q-b6652a01cbf31400.m4a",
    "segundos": 5.36,
@@ -58,6 +626,62 @@
    "id": "p-objetivo-general",
    "texto": "b6652a01cbf31400",
    "habla": "b6652a01cbf31400"
+  },
+  "q-b832f22926874ea7": {
+   "archivo": "q-b832f22926874ea7.m4a",
+   "segundos": 2.4,
+   "tipo": "pregunta",
+   "id": "p-energia",
+   "texto": "b832f22926874ea7",
+   "habla": "b832f22926874ea7"
+  },
+  "q-b8aee300f6272ee6": {
+   "archivo": "q-b8aee300f6272ee6.m4a",
+   "segundos": 2.16,
+   "tipo": "pregunta",
+   "id": "p-lee-laser",
+   "texto": "b8aee300f6272ee6",
+   "habla": "b8aee300f6272ee6"
+  },
+  "q-bb92bdf05a0f70f6": {
+   "archivo": "q-bb92bdf05a0f70f6.m4a",
+   "segundos": 6.88,
+   "tipo": "pregunta",
+   "id": "p-espacio-mayor",
+   "texto": "bb92bdf05a0f70f6",
+   "habla": "bb92bdf05a0f70f6"
+  },
+  "q-bbcab68afe2d0d97": {
+   "archivo": "q-bbcab68afe2d0d97.m4a",
+   "segundos": 9.92,
+   "tipo": "pregunta",
+   "id": "p-solo-013",
+   "texto": "bbcab68afe2d0d97",
+   "habla": "5108a84e030db76f"
+  },
+  "q-be929df0a2fcfc63": {
+   "archivo": "q-be929df0a2fcfc63.m4a",
+   "segundos": 6.4,
+   "tipo": "pregunta",
+   "id": "p-barrido",
+   "texto": "be929df0a2fcfc63",
+   "habla": "be929df0a2fcfc63"
+  },
+  "q-c4757e525e107f5a": {
+   "archivo": "q-c4757e525e107f5a.m4a",
+   "segundos": 6.56,
+   "tipo": "pregunta",
+   "id": "p-15-de-15",
+   "texto": "c4757e525e107f5a",
+   "habla": "c4757e525e107f5a"
+  },
+  "q-c657f062a6d48d02": {
+   "archivo": "q-c657f062a6d48d02.m4a",
+   "segundos": 4.24,
+   "tipo": "pregunta",
+   "id": "p-pid-discreto",
+   "texto": "c657f062a6d48d02",
+   "habla": "cee47f89b2ced2b2"
   },
   "q-cc3615f4c44f4176": {
    "archivo": "q-cc3615f4c44f4176.m4a",
@@ -67,6 +691,46 @@
    "texto": "cc3615f4c44f4176",
    "habla": "cc3615f4c44f4176"
   },
+  "q-d49e83d7cc542724": {
+   "archivo": "q-d49e83d7cc542724.m4a",
+   "segundos": 5.36,
+   "tipo": "pregunta",
+   "id": "p-margenes",
+   "texto": "d49e83d7cc542724",
+   "habla": "d49e83d7cc542724"
+  },
+  "q-d4e63637d9661f2b": {
+   "archivo": "q-d4e63637d9661f2b.m4a",
+   "segundos": 5.6,
+   "tipo": "pregunta",
+   "id": "p-originales",
+   "texto": "d4e63637d9661f2b",
+   "habla": "d4e63637d9661f2b"
+  },
+  "q-d7dc55e7f066af7e": {
+   "archivo": "q-d7dc55e7f066af7e.m4a",
+   "segundos": 6.4,
+   "tipo": "pregunta",
+   "id": "p-sesgo-mapa",
+   "texto": "d7dc55e7f066af7e",
+   "habla": "d7dc55e7f066af7e"
+  },
+  "q-d99c6546204e4e2b": {
+   "archivo": "q-d99c6546204e4e2b.m4a",
+   "segundos": 7.76,
+   "tipo": "pregunta",
+   "id": "p-mas-fino",
+   "texto": "d99c6546204e4e2b",
+   "habla": "d646c74b57d7a8a7"
+  },
+  "q-da19cbd01016da04": {
+   "archivo": "q-da19cbd01016da04.m4a",
+   "segundos": 8.56,
+   "tipo": "pregunta",
+   "id": "p-ki-lineal",
+   "texto": "da19cbd01016da04",
+   "habla": "1484849f1d8c425e"
+  },
   "q-dad0a96071d8b09c": {
    "archivo": "q-dad0a96071d8b09c.m4a",
    "segundos": 3.6,
@@ -74,6 +738,38 @@
    "id": "p-metas-fijas",
    "texto": "dad0a96071d8b09c",
    "habla": "dad0a96071d8b09c"
+  },
+  "q-de98d9ef678bc984": {
+   "archivo": "q-de98d9ef678bc984.m4a",
+   "segundos": 5.28,
+   "tipo": "pregunta",
+   "id": "p-ref-pso",
+   "texto": "de98d9ef678bc984",
+   "habla": "47dd2c8e81953044"
+  },
+  "q-e6ed24b0c1ffb3e7": {
+   "archivo": "q-e6ed24b0c1ffb3e7.m4a",
+   "segundos": 4.8,
+   "tipo": "pregunta",
+   "id": "p-impl-estabilidad",
+   "texto": "e6ed24b0c1ffb3e7",
+   "habla": "e6ed24b0c1ffb3e7"
+  },
+  "q-e83dbb6246ee6d6f": {
+   "archivo": "q-e83dbb6246ee6d6f.m4a",
+   "segundos": 4.48,
+   "tipo": "pregunta",
+   "id": "p-tabiques",
+   "texto": "e83dbb6246ee6d6f",
+   "habla": "e83dbb6246ee6d6f"
+  },
+  "q-e9128028a8c8d8b4": {
+   "archivo": "q-e9128028a8c8d8b4.m4a",
+   "segundos": 6.16,
+   "tipo": "pregunta",
+   "id": "p-ref-eurachem",
+   "texto": "e9128028a8c8d8b4",
+   "habla": "e9128028a8c8d8b4"
   },
   "q-ed7488b486b9756f": {
    "archivo": "q-ed7488b486b9756f.m4a",
@@ -83,6 +779,110 @@
    "texto": "ed7488b486b9756f",
    "habla": "ed7488b486b9756f"
   },
+  "q-efe5fdaa8de4ca93": {
+   "archivo": "q-efe5fdaa8de4ca93.m4a",
+   "segundos": 3.44,
+   "tipo": "pregunta",
+   "id": "p-plano-como",
+   "texto": "efe5fdaa8de4ca93",
+   "habla": "efe5fdaa8de4ca93"
+  },
+  "q-f477de7ca80a7eda": {
+   "archivo": "q-f477de7ca80a7eda.m4a",
+   "segundos": 5.36,
+   "tipo": "pregunta",
+   "id": "p-repetible-exacto",
+   "texto": "f477de7ca80a7eda",
+   "habla": "f477de7ca80a7eda"
+  },
+  "q-f6d840556c4a14ef": {
+   "archivo": "q-f6d840556c4a14ef.m4a",
+   "segundos": 5.6,
+   "tipo": "pregunta",
+   "id": "p-para-que-sim",
+   "texto": "f6d840556c4a14ef",
+   "habla": "f6d840556c4a14ef"
+  },
+  "q-f7a77d40af9c6cde": {
+   "archivo": "q-f7a77d40af9c6cde.m4a",
+   "segundos": 8.8,
+   "tipo": "pregunta",
+   "id": "p-resolucion",
+   "texto": "f7a77d40af9c6cde",
+   "habla": "0411d373544f8c08"
+  },
+  "q-f7e2d2351c268ef1": {
+   "archivo": "q-f7e2d2351c268ef1.m4a",
+   "segundos": 6.0,
+   "tipo": "pregunta",
+   "id": "p-otras-velocidades",
+   "texto": "f7e2d2351c268ef1",
+   "habla": "f7e2d2351c268ef1"
+  },
+  "q-f82d8950fba55a2f": {
+   "archivo": "q-f82d8950fba55a2f.m4a",
+   "segundos": 3.84,
+   "tipo": "pregunta",
+   "id": "p-literatura",
+   "texto": "f82d8950fba55a2f",
+   "habla": "f82d8950fba55a2f"
+  },
+  "q-f9fc6aabe413abff": {
+   "archivo": "q-f9fc6aabe413abff.m4a",
+   "segundos": 4.96,
+   "tipo": "pregunta",
+   "id": "p-ref-trejos-metrica",
+   "texto": "f9fc6aabe413abff",
+   "habla": "bba84a10cedd703b"
+  },
+  "q-fe8eaaa1380514ad": {
+   "archivo": "q-fe8eaaa1380514ad.m4a",
+   "segundos": 8.96,
+   "tipo": "pregunta",
+   "id": "p-logica-explorador",
+   "texto": "fe8eaaa1380514ad",
+   "habla": "fe8eaaa1380514ad"
+  },
+  "q-fee973c15abdda8a": {
+   "archivo": "q-fee973c15abdda8a.m4a",
+   "segundos": 7.12,
+   "tipo": "pregunta",
+   "id": "p-ref-gokce",
+   "texto": "fee973c15abdda8a",
+   "habla": "91740a1eb0480e09"
+  },
+  "r-08d5632729d3faef": {
+   "archivo": "r-08d5632729d3faef.m4a",
+   "segundos": 8.8,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "08d5632729d3faef",
+   "habla": "81c2fe89225c15ed"
+  },
+  "r-0941fccffde7b1b6": {
+   "archivo": "r-0941fccffde7b1b6.m4a",
+   "segundos": 12.24,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "0941fccffde7b1b6",
+   "habla": "ce68166fb775faff"
+  },
+  "r-0a075778b42c9b5a": {
+   "archivo": "r-0a075778b42c9b5a.m4a",
+   "segundos": 10.64,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "0a075778b42c9b5a",
+   "habla": "f3c9a327a6ce937b"
+  },
+  "r-0a26a665b413047c": {
+   "archivo": "r-0a26a665b413047c.m4a",
+   "segundos": 13.12,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "0a26a665b413047c",
+   "habla": "df0f0e8c2887de31"
+  },
   "r-0ebe824e3e5dbe6c": {
    "archivo": "r-0ebe824e3e5dbe6c.m4a",
    "segundos": 21.28,
@@ -90,6 +890,174 @@
    "id": null,
    "texto": "0ebe824e3e5dbe6c",
    "habla": "6e7c4e093bdfe5a0"
+  },
+  "r-0f5b728c64b888cc": {
+   "archivo": "r-0f5b728c64b888cc.m4a",
+   "segundos": 17.44,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "0f5b728c64b888cc",
+   "habla": "8aa317eefa684196"
+  },
+  "r-0f7c746242495643": {
+   "archivo": "r-0f7c746242495643.m4a",
+   "segundos": 17.52,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "0f7c746242495643",
+   "habla": "2b2e9308381ea7a6"
+  },
+  "r-1069eae3e0aac974": {
+   "archivo": "r-1069eae3e0aac974.m4a",
+   "segundos": 6.72,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "1069eae3e0aac974",
+   "habla": "1069eae3e0aac974"
+  },
+  "r-1482ef821f838916": {
+   "archivo": "r-1482ef821f838916.m4a",
+   "segundos": 7.52,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "1482ef821f838916",
+   "habla": "b0e71769ed5832d3"
+  },
+  "r-14c0b209a173f46e": {
+   "archivo": "r-14c0b209a173f46e.m4a",
+   "segundos": 9.76,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "14c0b209a173f46e",
+   "habla": "9202fa2ec77ad205"
+  },
+  "r-16b2a81f563d50b9": {
+   "archivo": "r-16b2a81f563d50b9.m4a",
+   "segundos": 13.28,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "16b2a81f563d50b9",
+   "habla": "28b0866923199f8b"
+  },
+  "r-16bd7fd5aef1b909": {
+   "archivo": "r-16bd7fd5aef1b909.m4a",
+   "segundos": 16.4,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "16bd7fd5aef1b909",
+   "habla": "305d2b5a0f090ee5"
+  },
+  "r-175262e1fd210d30": {
+   "archivo": "r-175262e1fd210d30.m4a",
+   "segundos": 17.92,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "175262e1fd210d30",
+   "habla": "6af94c2e0d4f6638"
+  },
+  "r-196048bd2da51379": {
+   "archivo": "r-196048bd2da51379.m4a",
+   "segundos": 21.36,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "196048bd2da51379",
+   "habla": "bb5e8ad29e018e6f"
+  },
+  "r-1b2fcfee51c97d97": {
+   "archivo": "r-1b2fcfee51c97d97.m4a",
+   "segundos": 11.52,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "1b2fcfee51c97d97",
+   "habla": "1b2fcfee51c97d97"
+  },
+  "r-2104e24876b10e10": {
+   "archivo": "r-2104e24876b10e10.m4a",
+   "segundos": 13.92,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "2104e24876b10e10",
+   "habla": "e941bdadfc84120f"
+  },
+  "r-22931f240fdb9ffa": {
+   "archivo": "r-22931f240fdb9ffa.m4a",
+   "segundos": 21.44,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "22931f240fdb9ffa",
+   "habla": "03805e6a3baf9e81"
+  },
+  "r-237fb35f8b09e204": {
+   "archivo": "r-237fb35f8b09e204.m4a",
+   "segundos": 12.32,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "237fb35f8b09e204",
+   "habla": "69edaaa711cd978c"
+  },
+  "r-26086a48722c2376": {
+   "archivo": "r-26086a48722c2376.m4a",
+   "segundos": 13.76,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "26086a48722c2376",
+   "habla": "b2a872d4f9138ae3"
+  },
+  "r-305b70cb2163c214": {
+   "archivo": "r-305b70cb2163c214.m4a",
+   "segundos": 9.76,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "305b70cb2163c214",
+   "habla": "305b70cb2163c214"
+  },
+  "r-341b1d0863965c7a": {
+   "archivo": "r-341b1d0863965c7a.m4a",
+   "segundos": 9.44,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "341b1d0863965c7a",
+   "habla": "5a79426a49952dc7"
+  },
+  "r-3bcb2f56e7ff9664": {
+   "archivo": "r-3bcb2f56e7ff9664.m4a",
+   "segundos": 20.64,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "3bcb2f56e7ff9664",
+   "habla": "c9999d72da8fa506"
+  },
+  "r-3d3e00e9fd6f7281": {
+   "archivo": "r-3d3e00e9fd6f7281.m4a",
+   "segundos": 10.88,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "3d3e00e9fd6f7281",
+   "habla": "5bc1ea1510ef0029"
+  },
+  "r-4285a8fa143336c1": {
+   "archivo": "r-4285a8fa143336c1.m4a",
+   "segundos": 11.76,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "4285a8fa143336c1",
+   "habla": "5909a88a1822d6ec"
+  },
+  "r-42d35448bda5417e": {
+   "archivo": "r-42d35448bda5417e.m4a",
+   "segundos": 7.28,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "42d35448bda5417e",
+   "habla": "52ffc74bf56b3a70"
+  },
+  "r-43c510c7eae7c402": {
+   "archivo": "r-43c510c7eae7c402.m4a",
+   "segundos": 26.72,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "43c510c7eae7c402",
+   "habla": "5713238824de2129"
   },
   "r-441c07ac5f099d5e": {
    "archivo": "r-441c07ac5f099d5e.m4a",
@@ -99,6 +1067,86 @@
    "texto": "441c07ac5f099d5e",
    "habla": "441c07ac5f099d5e"
   },
+  "r-48ce67e359235a53": {
+   "archivo": "r-48ce67e359235a53.m4a",
+   "segundos": 10.24,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "48ce67e359235a53",
+   "habla": "068e30fbfa2abf04"
+  },
+  "r-4a0bea9e195b70db": {
+   "archivo": "r-4a0bea9e195b70db.m4a",
+   "segundos": 16.64,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "4a0bea9e195b70db",
+   "habla": "a68abaedb1e5b9e4"
+  },
+  "r-4c271e29f18d0da8": {
+   "archivo": "r-4c271e29f18d0da8.m4a",
+   "segundos": 12.16,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "4c271e29f18d0da8",
+   "habla": "dad826264af0c3f1"
+  },
+  "r-4eefab6ae6a43323": {
+   "archivo": "r-4eefab6ae6a43323.m4a",
+   "segundos": 13.68,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "4eefab6ae6a43323",
+   "habla": "76c475c7502ec509"
+  },
+  "r-560f7f6966c52fa3": {
+   "archivo": "r-560f7f6966c52fa3.m4a",
+   "segundos": 11.44,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "560f7f6966c52fa3",
+   "habla": "1dcfea6e63cb2e1f"
+  },
+  "r-58f8c53a4a738e84": {
+   "archivo": "r-58f8c53a4a738e84.m4a",
+   "segundos": 22.08,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "58f8c53a4a738e84",
+   "habla": "a4854c2fe60f68e5"
+  },
+  "r-5d9f368bf79522c7": {
+   "archivo": "r-5d9f368bf79522c7.m4a",
+   "segundos": 16.24,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "5d9f368bf79522c7",
+   "habla": "4de2f14ac9697907"
+  },
+  "r-6373f7aa9b39f045": {
+   "archivo": "r-6373f7aa9b39f045.m4a",
+   "segundos": 13.52,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "6373f7aa9b39f045",
+   "habla": "8a3dbee1d00dd5f0"
+  },
+  "r-653142693499368e": {
+   "archivo": "r-653142693499368e.m4a",
+   "segundos": 11.44,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "653142693499368e",
+   "habla": "653142693499368e"
+  },
+  "r-67ac758904c61970": {
+   "archivo": "r-67ac758904c61970.m4a",
+   "segundos": 13.52,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "67ac758904c61970",
+   "habla": "1813158164989419"
+  },
   "r-6cda3bb4069e8514": {
    "archivo": "r-6cda3bb4069e8514.m4a",
    "segundos": 19.28,
@@ -106,6 +1154,22 @@
    "id": null,
    "texto": "6cda3bb4069e8514",
    "habla": "5e53ac943624c40e"
+  },
+  "r-6d72223d52f9b8a2": {
+   "archivo": "r-6d72223d52f9b8a2.m4a",
+   "segundos": 11.92,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "6d72223d52f9b8a2",
+   "habla": "6d72223d52f9b8a2"
+  },
+  "r-7123314dc6b3b8af": {
+   "archivo": "r-7123314dc6b3b8af.m4a",
+   "segundos": 23.12,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "7123314dc6b3b8af",
+   "habla": "eb64296a28770b2a"
   },
   "r-76bb9f000cb67756": {
    "archivo": "r-76bb9f000cb67756.m4a",
@@ -115,6 +1179,238 @@
    "texto": "76bb9f000cb67756",
    "habla": "76bb9f000cb67756"
   },
+  "r-76be6981869686b4": {
+   "archivo": "r-76be6981869686b4.m4a",
+   "segundos": 7.2,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "76be6981869686b4",
+   "habla": "76be6981869686b4"
+  },
+  "r-782b1eff0def6adc": {
+   "archivo": "r-782b1eff0def6adc.m4a",
+   "segundos": 13.68,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "782b1eff0def6adc",
+   "habla": "e4e4403622f54371"
+  },
+  "r-78e13d38abefc879": {
+   "archivo": "r-78e13d38abefc879.m4a",
+   "segundos": 11.76,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "78e13d38abefc879",
+   "habla": "1a8f4ae3a29b6e0b"
+  },
+  "r-7d1f641b25dbb6b9": {
+   "archivo": "r-7d1f641b25dbb6b9.m4a",
+   "segundos": 10.8,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "7d1f641b25dbb6b9",
+   "habla": "7d1f641b25dbb6b9"
+  },
+  "r-7e2529997bd96ffd": {
+   "archivo": "r-7e2529997bd96ffd.m4a",
+   "segundos": 10.24,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "7e2529997bd96ffd",
+   "habla": "6db5253f64fba614"
+  },
+  "r-7e3256f0ddcd9ccf": {
+   "archivo": "r-7e3256f0ddcd9ccf.m4a",
+   "segundos": 4.32,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "7e3256f0ddcd9ccf",
+   "habla": "7e3256f0ddcd9ccf"
+  },
+  "r-7eb5bbbc0d28eb00": {
+   "archivo": "r-7eb5bbbc0d28eb00.m4a",
+   "segundos": 15.04,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "7eb5bbbc0d28eb00",
+   "habla": "7aca4ce968c41cf5"
+  },
+  "r-7f4546d3d4b11b2a": {
+   "archivo": "r-7f4546d3d4b11b2a.m4a",
+   "segundos": 14.16,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "7f4546d3d4b11b2a",
+   "habla": "59f9f007c6eb0060"
+  },
+  "r-80a273e78ca08775": {
+   "archivo": "r-80a273e78ca08775.m4a",
+   "segundos": 22.8,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "80a273e78ca08775",
+   "habla": "6dd9097e3d0c6125"
+  },
+  "r-82cb5a5abe95535e": {
+   "archivo": "r-82cb5a5abe95535e.m4a",
+   "segundos": 12.4,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "82cb5a5abe95535e",
+   "habla": "42eb4111111df32b"
+  },
+  "r-83069c6d77c49f20": {
+   "archivo": "r-83069c6d77c49f20.m4a",
+   "segundos": 9.2,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "83069c6d77c49f20",
+   "habla": "498f3bcafc716d0c"
+  },
+  "r-83ba0fad964378fe": {
+   "archivo": "r-83ba0fad964378fe.m4a",
+   "segundos": 6.8,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "83ba0fad964378fe",
+   "habla": "7171cc29577fcc49"
+  },
+  "r-8478c8ba13f6bf30": {
+   "archivo": "r-8478c8ba13f6bf30.m4a",
+   "segundos": 8.88,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "8478c8ba13f6bf30",
+   "habla": "364157f2e60434b3"
+  },
+  "r-85a4f1a66298b45c": {
+   "archivo": "r-85a4f1a66298b45c.m4a",
+   "segundos": 17.84,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "85a4f1a66298b45c",
+   "habla": "a1f7748ffbf289a9"
+  },
+  "r-86194b52fa2f7b08": {
+   "archivo": "r-86194b52fa2f7b08.m4a",
+   "segundos": 8.08,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "86194b52fa2f7b08",
+   "habla": "13e2decb58dbbd04"
+  },
+  "r-869b99366879112e": {
+   "archivo": "r-869b99366879112e.m4a",
+   "segundos": 18.24,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "869b99366879112e",
+   "habla": "92e11d252673d6bb"
+  },
+  "r-8a4e2449f52c7d25": {
+   "archivo": "r-8a4e2449f52c7d25.m4a",
+   "segundos": 10.48,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "8a4e2449f52c7d25",
+   "habla": "8a4e2449f52c7d25"
+  },
+  "r-8c1a4ba7cfdfee96": {
+   "archivo": "r-8c1a4ba7cfdfee96.m4a",
+   "segundos": 9.04,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "8c1a4ba7cfdfee96",
+   "habla": "0fa95a3b532a69c6"
+  },
+  "r-8c367d7820072b2f": {
+   "archivo": "r-8c367d7820072b2f.m4a",
+   "segundos": 12.72,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "8c367d7820072b2f",
+   "habla": "8c367d7820072b2f"
+  },
+  "r-8e6418048a3d2e9b": {
+   "archivo": "r-8e6418048a3d2e9b.m4a",
+   "segundos": 22.0,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "8e6418048a3d2e9b",
+   "habla": "09d3aa3ae3e01d67"
+  },
+  "r-90633ede44e48c04": {
+   "archivo": "r-90633ede44e48c04.m4a",
+   "segundos": 8.64,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "90633ede44e48c04",
+   "habla": "90633ede44e48c04"
+  },
+  "r-92a3f054acdf18fc": {
+   "archivo": "r-92a3f054acdf18fc.m4a",
+   "segundos": 7.52,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "92a3f054acdf18fc",
+   "habla": "116c7191dca8c583"
+  },
+  "r-94b34593d3c8414c": {
+   "archivo": "r-94b34593d3c8414c.m4a",
+   "segundos": 9.44,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "94b34593d3c8414c",
+   "habla": "94b34593d3c8414c"
+  },
+  "r-956fc824011cf77e": {
+   "archivo": "r-956fc824011cf77e.m4a",
+   "segundos": 15.68,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "956fc824011cf77e",
+   "habla": "b8d96959d9e7e567"
+  },
+  "r-978a6aa5312b17cd": {
+   "archivo": "r-978a6aa5312b17cd.m4a",
+   "segundos": 20.08,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "978a6aa5312b17cd",
+   "habla": "bb684f7b05fd3420"
+  },
+  "r-9a3a4687c40f492e": {
+   "archivo": "r-9a3a4687c40f492e.m4a",
+   "segundos": 8.4,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "9a3a4687c40f492e",
+   "habla": "2f89083266b44ea1"
+  },
+  "r-9b74807af525e308": {
+   "archivo": "r-9b74807af525e308.m4a",
+   "segundos": 15.28,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "9b74807af525e308",
+   "habla": "7447bb504db5e09c"
+  },
+  "r-9c62d442bd2e182e": {
+   "archivo": "r-9c62d442bd2e182e.m4a",
+   "segundos": 13.6,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "9c62d442bd2e182e",
+   "habla": "9c62d442bd2e182e"
+  },
+  "r-9e94370b17ebcb7b": {
+   "archivo": "r-9e94370b17ebcb7b.m4a",
+   "segundos": 15.04,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "9e94370b17ebcb7b",
+   "habla": "ed5ed5c865d82607"
+  },
   "r-a03084ed5c53a26b": {
    "archivo": "r-a03084ed5c53a26b.m4a",
    "segundos": 22.0,
@@ -122,6 +1418,318 @@
    "id": null,
    "texto": "a03084ed5c53a26b",
    "habla": "edf3b3105411c78d"
+  },
+  "r-a0d0b03a1323a1f5": {
+   "archivo": "r-a0d0b03a1323a1f5.m4a",
+   "segundos": 20.32,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "a0d0b03a1323a1f5",
+   "habla": "967f8ca6354fa7b5"
+  },
+  "r-a537e8b8000301f3": {
+   "archivo": "r-a537e8b8000301f3.m4a",
+   "segundos": 25.68,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "a537e8b8000301f3",
+   "habla": "2704e9f4733944cd"
+  },
+  "r-a898fab232d0fa36": {
+   "archivo": "r-a898fab232d0fa36.m4a",
+   "segundos": 20.56,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "a898fab232d0fa36",
+   "habla": "3bcfa46d5321b73d"
+  },
+  "r-aba722489757651a": {
+   "archivo": "r-aba722489757651a.m4a",
+   "segundos": 22.4,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "aba722489757651a",
+   "habla": "6085d45f093ba5ff"
+  },
+  "r-afbde979c702786e": {
+   "archivo": "r-afbde979c702786e.m4a",
+   "segundos": 12.88,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "afbde979c702786e",
+   "habla": "a1ef59b5c2bc40bc"
+  },
+  "r-b447aab360d43805": {
+   "archivo": "r-b447aab360d43805.m4a",
+   "segundos": 13.6,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "b447aab360d43805",
+   "habla": "157b4455e1ae42f6"
+  },
+  "r-b7484be615beedb0": {
+   "archivo": "r-b7484be615beedb0.m4a",
+   "segundos": 17.2,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "b7484be615beedb0",
+   "habla": "b7c80ea9fa966fb7"
+  },
+  "r-bbfa43a28770f047": {
+   "archivo": "r-bbfa43a28770f047.m4a",
+   "segundos": 11.36,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "bbfa43a28770f047",
+   "habla": "bbfa43a28770f047"
+  },
+  "r-bc4f11fd5350331e": {
+   "archivo": "r-bc4f11fd5350331e.m4a",
+   "segundos": 9.12,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "bc4f11fd5350331e",
+   "habla": "bc4f11fd5350331e"
+  },
+  "r-c36cd0fe231981be": {
+   "archivo": "r-c36cd0fe231981be.m4a",
+   "segundos": 16.96,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "c36cd0fe231981be",
+   "habla": "04a6eb3fe20baa43"
+  },
+  "r-c36d7c976ddb2849": {
+   "archivo": "r-c36d7c976ddb2849.m4a",
+   "segundos": 19.2,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "c36d7c976ddb2849",
+   "habla": "b2ae85cb82d1749f"
+  },
+  "r-c457d1cc919ef485": {
+   "archivo": "r-c457d1cc919ef485.m4a",
+   "segundos": 9.6,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "c457d1cc919ef485",
+   "habla": "c457d1cc919ef485"
+  },
+  "r-c4e75b663287280c": {
+   "archivo": "r-c4e75b663287280c.m4a",
+   "segundos": 14.88,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "c4e75b663287280c",
+   "habla": "3ee435b4d8fada4c"
+  },
+  "r-c50490042eb666d6": {
+   "archivo": "r-c50490042eb666d6.m4a",
+   "segundos": 20.0,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "c50490042eb666d6",
+   "habla": "1d84a22d4b2892ad"
+  },
+  "r-c5068f8ecae7926c": {
+   "archivo": "r-c5068f8ecae7926c.m4a",
+   "segundos": 11.52,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "c5068f8ecae7926c",
+   "habla": "d67be226d37f85f8"
+  },
+  "r-c9e3067cd7c591e7": {
+   "archivo": "r-c9e3067cd7c591e7.m4a",
+   "segundos": 25.04,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "c9e3067cd7c591e7",
+   "habla": "97a87e440c67bf2e"
+  },
+  "r-ca0fc782e0858244": {
+   "archivo": "r-ca0fc782e0858244.m4a",
+   "segundos": 20.96,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "ca0fc782e0858244",
+   "habla": "fac8012e66a5072d"
+  },
+  "r-cc64492bcebb7141": {
+   "archivo": "r-cc64492bcebb7141.m4a",
+   "segundos": 8.8,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "cc64492bcebb7141",
+   "habla": "cc64492bcebb7141"
+  },
+  "r-cda98533df318ec8": {
+   "archivo": "r-cda98533df318ec8.m4a",
+   "segundos": 12.32,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "cda98533df318ec8",
+   "habla": "cda98533df318ec8"
+  },
+  "r-ce46f0d3e86564ac": {
+   "archivo": "r-ce46f0d3e86564ac.m4a",
+   "segundos": 20.8,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "ce46f0d3e86564ac",
+   "habla": "896b9af5bacf47f6"
+  },
+  "r-cf9008730b9dc3ea": {
+   "archivo": "r-cf9008730b9dc3ea.m4a",
+   "segundos": 11.28,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "cf9008730b9dc3ea",
+   "habla": "cf9008730b9dc3ea"
+  },
+  "r-d0b9cbd00cfe40a3": {
+   "archivo": "r-d0b9cbd00cfe40a3.m4a",
+   "segundos": 11.2,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "d0b9cbd00cfe40a3",
+   "habla": "d7ed5ec4f6075b3f"
+  },
+  "r-d16d44fee1514862": {
+   "archivo": "r-d16d44fee1514862.m4a",
+   "segundos": 13.12,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "d16d44fee1514862",
+   "habla": "d16d44fee1514862"
+  },
+  "r-d25323134235d166": {
+   "archivo": "r-d25323134235d166.m4a",
+   "segundos": 9.36,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "d25323134235d166",
+   "habla": "aa931ab14c02c04c"
+  },
+  "r-d5aa844ffcc949cf": {
+   "archivo": "r-d5aa844ffcc949cf.m4a",
+   "segundos": 11.92,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "d5aa844ffcc949cf",
+   "habla": "76462f184a99309a"
+  },
+  "r-dea00ca5ba56c678": {
+   "archivo": "r-dea00ca5ba56c678.m4a",
+   "segundos": 24.64,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "dea00ca5ba56c678",
+   "habla": "7f61e640a6db6ea4"
+  },
+  "r-dfcca79d1bf31293": {
+   "archivo": "r-dfcca79d1bf31293.m4a",
+   "segundos": 13.44,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "dfcca79d1bf31293",
+   "habla": "c35eb04eecb4195e"
+  },
+  "r-e100a4ce6bd1211c": {
+   "archivo": "r-e100a4ce6bd1211c.m4a",
+   "segundos": 7.36,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "e100a4ce6bd1211c",
+   "habla": "c7e319b0e48c4a17"
+  },
+  "r-e18e4ffab8844f93": {
+   "archivo": "r-e18e4ffab8844f93.m4a",
+   "segundos": 13.44,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "e18e4ffab8844f93",
+   "habla": "0af76c71b3a0469b"
+  },
+  "r-e33562080cc82f5b": {
+   "archivo": "r-e33562080cc82f5b.m4a",
+   "segundos": 19.12,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "e33562080cc82f5b",
+   "habla": "61969e38365b287d"
+  },
+  "r-e38a85f2fd590146": {
+   "archivo": "r-e38a85f2fd590146.m4a",
+   "segundos": 16.8,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "e38a85f2fd590146",
+   "habla": "994934f6aaaaa390"
+  },
+  "r-e54ca5948beb5b6f": {
+   "archivo": "r-e54ca5948beb5b6f.m4a",
+   "segundos": 15.76,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "e54ca5948beb5b6f",
+   "habla": "c2182411807e6fd6"
+  },
+  "r-e64f799a79879adf": {
+   "archivo": "r-e64f799a79879adf.m4a",
+   "segundos": 15.28,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "e64f799a79879adf",
+   "habla": "3cc322a0e604ecc3"
+  },
+  "r-e81857b101122970": {
+   "archivo": "r-e81857b101122970.m4a",
+   "segundos": 19.6,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "e81857b101122970",
+   "habla": "cc77959853d39167"
+  },
+  "r-eb0b7899c50464f8": {
+   "archivo": "r-eb0b7899c50464f8.m4a",
+   "segundos": 14.48,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "eb0b7899c50464f8",
+   "habla": "139c02b8325feeea"
+  },
+  "r-efba3b2b546bddee": {
+   "archivo": "r-efba3b2b546bddee.m4a",
+   "segundos": 11.36,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "efba3b2b546bddee",
+   "habla": "efba3b2b546bddee"
+  },
+  "r-f05632134787d9a7": {
+   "archivo": "r-f05632134787d9a7.m4a",
+   "segundos": 22.72,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "f05632134787d9a7",
+   "habla": "b1e643048a16bc7d"
+  },
+  "r-f1cd87926bce12f3": {
+   "archivo": "r-f1cd87926bce12f3.m4a",
+   "segundos": 14.8,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "f1cd87926bce12f3",
+   "habla": "f1cd87926bce12f3"
+  },
+  "r-f40841e6396a4593": {
+   "archivo": "r-f40841e6396a4593.m4a",
+   "segundos": 17.28,
+   "tipo": "resumen",
+   "id": null,
+   "texto": "f40841e6396a4593",
+   "habla": "aa4344ca80d73773"
   }
  }
 }
