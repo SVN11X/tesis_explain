@@ -79,9 +79,6 @@ def _esperar_scripts():
         if kw.get('wait_until', 'load') in ('load', 'networkidle'):
             try:
                 self.wait_for_function('!window.__guiaPendiente', timeout=20000)
-            except Error:
-                pass
-            try:
                 self.add_style_tag(content='[role=tabpanel][hidden] { display: grid !important; }').evaluate('e => { e.id = "prueba-paneles"; }')
             except Error:
                 pass
