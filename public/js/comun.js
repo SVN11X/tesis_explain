@@ -51,6 +51,39 @@
     });
     return secs;
   };
+  /* Nombres de las pestañas de cada interactivo en el teléfono, con las palabras del propio interactivo. m son los nombres de
+     las pestañas de mandos: uno, o dos con corte, el número de mandos que van a la primera. Las notas y la leyenda van a una
+     última pestaña, "Cómo leerlo", que también lleva los datos que no caben en la tira de valores clave ("Datos y notas").
+     Un interactivo sin entrada aquí no usa pestañas. */
+  U.PESTANAS = {
+    cinematica: { m: ["Caso", "Ruedas"], corte: 1 }, encoder: { m: ["Giro del disco"] }, calibracion: { m: ["Ensayo", "Sesgo y azar"], corte: 1 },
+    cuadrado: { m: ["Caso", "Ruedas"], corte: 1 },
+    rejilla: { m: ["Observaciones"] }, "marcos-mapeo": { m: ["Avance y error"] }, barridos: { m: ["Traslación"] },
+    "candidatos-slam": { m: ["Observación", "Etapas"], corte: 1 }, lazo: { m: ["Pasos", "Pose"], corte: 2 }, "cola-slam": { m: ["Tiempos"] },
+    "rviz-colores": { m: ["Capas"] }, "plano-mapa": { m: ["Qué mostrar", "Recinto"], corte: 1 },
+    inflacion: { m: ["Radio"] }, astar: { m: ["Algoritmo", "Celdas"], corte: 1 }, dwb: { m: ["Escenario", "Pesos"], corte: 1 },
+    "lazo-rueda": { m: ["Etapa"] }, pid: { m: ["Ejemplos", "Ganancias"], corte: 1 }, tiempo: { m: ["Frecuencia", "Ciclos"], corte: 1 },
+    papeles: { m: ["Ejemplo", "Ciclos"], corte: 3 }, cancelacion: { m: ["Medición", "Ciclos"], corte: 1 }, acumulador: { m: ["Rueda", "Bloqueo"], corte: 1 },
+    truncamiento: { m: ["Ejemplos", "Error"], corte: 1 }, windup: { m: ["Bloqueo", "Momento"], corte: 3 }, zonas: { m: ["PWM y umbral"] },
+    fopdt: { m: ["Rueda", "Escalón"], corte: 1 }, enjambre: { m: ["Búsqueda"] }, resolucion: { m: ["Operación"] },
+    estabilidad: { m: ["Rueda", "Planta"], corte: 1 }, exploracion: { m: ["Explorar"] }, costo: { m: ["Montos"] }
+  };
+  /* Reparto de los mandos de un interactivo en pestañas para el teléfono. unidades[i] es { h, tipo }: la altura que ocupa y si
+     es un "mando", un "dato" (lectura que no cabe en la tira de valores clave) o una "nota" (nota o leyenda). rot es su entrada de
+     U.PESTANAS. Devuelve [{ indices, rotulo }] con tres grupos como máximo: uno o dos de mandos y uno de datos y notas. Si los mandos
+     y las notas caben en tope px y no hay datos, devuelve un solo grupo y no hacen falta pestañas. Sin rot devuelve un solo grupo. */
+  U.empacar = function (unidades, tope, rot) {
+    var todos = unidades.map(function (u, i) { return i; });
+    function de(tipos) { return todos.filter(function (i) { return tipos.indexOf(unidades[i].tipo) >= 0; }); }
+    var mandos = de(["mando"]), datos = de(["dato"]), notas = de(["nota"]);
+    function alto(ids) { return ids.reduce(function (t, i) { return t + (unidades[i].h || 0) + 8; }, -8); }
+    if (!rot || !rot.m || !rot.m.length || (!datos.length && alto(mandos.concat(notas)) <= tope)) return todos.length ? [{ indices: todos, rotulo: rot && rot.m ? rot.m[0] : "" }] : [];
+    var partes = rot.m.length > 1 && rot.corte > 0 && rot.corte < mandos.length ? [mandos.slice(0, rot.corte), mandos.slice(rot.corte)] : [mandos];
+    var gs = partes.filter(function (g) { return g.length; }).map(function (g, k) { return { indices: g, rotulo: rot.m[k] }; });
+    var resto = datos.concat(notas);
+    if (resto.length) gs.push({ indices: resto, rotulo: datos.length ? "Datos y notas" : "Cómo leerlo" });
+    return gs;
+  };
   /* Escenario de un interactivo: el dibujo, las lecturas y los controles en tres bloques.
      o.dibujo y o.lecturas son selectores de hijos directos de el, y lo demás son controles. Desde 700 px de ancho
      el dibujo y las lecturas van a un lado y los controles al otro. Con menos, se apilan: dibujo, controles, lecturas.
@@ -67,6 +100,88 @@
     if (abierto) { var ancho = function () { var ok = el.clientWidth >= 740; det.open = ok; det.classList.toggle("v-libre", ok); }; ancho(); U.alAncho(el, ancho); }
     return { det: det, cuerpo: cuerpo };
   }
+  /* Pestañas de mandos en el teléfono. Desde 740 px de ancho no hacen nada. Con menos, y si el interactivo tiene entrada en
+     U.PESTANAS (o la pasa en o.pestanas), los mandos pasan a pestañas y el dibujo y los valores clave siguen a la vista.
+     Los valores clave son las cuatro primeras tarjetas de la primera lectura. Se copian en una tira bajo el dibujo y la copia se
+     actualiza sola. La lectura completa va a la última pestaña. Al ensancharse todo vuelve a su sitio. */
+  var nPest = 0, TARJETAS = ".lecturas, .control-datos, .mp-readings, .ev-datos, .wu-res, .tr-datos, .ee-res, .fo-datos, .pa-datos, .ti-datos, .re-datos, .kd-datos, .as-cuenta", ESTADOS = ".mp-equation, p.mp-status, p.vestado, .control-conclusion, .ev-procedencia, .lr-estado, .zm-estado, .wu-estado, .pa-exp, .fo-aviso";
+  function armarClave(esc, datos) {
+    var fuente = datos.filter(function (u) { return u.matches(TARJETAS); })[0] || datos.filter(function (u) { return u.tagName === "P"; })[0];
+    if (!fuente) return null;
+    var tira = document.createElement("div"), pendiente = 0, obs;
+    tira.className = "v-clave"; tira.setAttribute("role", "group"); tira.setAttribute("aria-label", "Valores clave");
+    function pintar() {
+      pendiente = 0; tira.textContent = "";
+      (fuente.matches(TARJETAS) ? [].slice.call(fuente.children, 0, 4) : [fuente]).forEach(function (c) {
+        var cp = c.cloneNode(true);
+        [cp].concat([].slice.call(cp.querySelectorAll("*"))).forEach(function (e) {
+          e.removeAttribute("id"); e.removeAttribute("class");
+          [].slice.call(e.attributes).forEach(function (a) { if (a.name.indexOf("data-") === 0) e.removeAttribute(a.name); });
+        });
+        tira.appendChild(cp);
+      });
+    }
+    pintar();
+    if (typeof MutationObserver !== "undefined") {
+      obs = new MutationObserver(function () { if (!pendiente) pendiente = requestAnimationFrame(pintar); });
+      obs.observe(fuente, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ["class"] });
+    }
+    esc.appendChild(tira);
+    return function () { if (obs) obs.disconnect(); cancelAnimationFrame(pendiente); esc.removeChild(tira); };
+  }
+  function armarPestanas(esc, ctl, rot) {
+    var lec = esc.querySelector(":scope > .v-lec"), dib = esc.querySelector(":scope > .v-dib");
+    var datos = (lec && lec.offsetHeight > Math.round(window.innerHeight * 0.16) ? [].slice.call(lec.children) : []).concat([].filter.call(ctl.children, function (u) { return u.matches(ESTADOS); }));
+    var notas = [].slice.call(ctl.children).filter(function (u) { return u.matches("[data-nota], .vnota"); });
+    var leyendas = dib ? [].filter.call(dib.children, function (u) { return u.matches(".vley, .leyenda, .mp-legend, [data-nota]") && u.offsetHeight > 36; }) : [];
+    var unidades = [].slice.call(ctl.children).filter(function (u) { return datos.indexOf(u) < 0; }).concat(datos, leyendas), pila = [], abiertas = [];
+    var tipos = unidades.map(function (u) { return datos.indexOf(u) >= 0 ? "dato" : notas.indexOf(u) >= 0 || leyendas.indexOf(u) >= 0 ? "nota" : "mando"; });
+    var grupos = U.empacar(unidades.map(function (u, i) { return { h: u.offsetHeight, tipo: tipos[i] }; }), Math.max(150, Math.round(window.innerHeight * 0.3)), rot);
+    if (grupos.length < 2) return null;
+    var quitarClave = datos.length ? armarClave(esc, datos) : null;
+    var id = "vp" + (++nPest), lista = document.createElement("div"), paneles = [], botones = [];
+    lista.className = "v-pestanas-mando"; lista.setAttribute("role", "tablist"); lista.setAttribute("aria-label", "Mandos del interactivo");
+    function ir(k, foco) {
+      botones.forEach(function (b, j) { b.setAttribute("aria-selected", String(j === k)); b.tabIndex = j === k ? 0 : -1; paneles[j].hidden = j !== k; });
+      if (foco) botones[k].focus();
+    }
+    grupos.forEach(function (g, k) {
+      var b = document.createElement("button"), pn = document.createElement("div");
+      b.type = "button"; b.className = "v-pest"; b.id = id + "-t" + k; b.setAttribute("role", "tab"); b.setAttribute("aria-controls", id + "-p" + k);
+      b.textContent = g.rotulo; b.title = g.rotulo;
+      pn.className = "v-panel"; pn.id = id + "-p" + k; pn.setAttribute("role", "tabpanel"); pn.setAttribute("aria-labelledby", b.id);
+      g.indices.forEach(function (i) {
+        var u = unidades[i]; pila.push({ u: u, p: u.parentNode, r: u.nextSibling }); pn.appendChild(u);
+        if (u.tagName === "DETAILS" && u.hasAttribute("data-nota")) { abiertas.push({ u: u, abierto: u.open, libre: u.classList.contains("v-libre") }); u.open = true; u.classList.add("v-libre"); }
+      });
+      b.addEventListener("click", function () { ir(k, false); });
+      b.addEventListener("keydown", function (e) {
+        var n = grupos.length, j = e.key === "ArrowRight" || e.key === "ArrowDown" ? (k + 1) % n : e.key === "ArrowLeft" || e.key === "ArrowUp" ? (k + n - 1) % n : e.key === "Home" ? 0 : e.key === "End" ? n - 1 : -1;
+        if (j < 0) return;
+        e.preventDefault(); ir(j, true);
+      });
+      botones.push(b); paneles.push(pn); lista.appendChild(b);
+    });
+    ctl.appendChild(lista); paneles.forEach(function (pn) { ctl.appendChild(pn); });
+    ir(0, false); esc.setAttribute("data-pest", "1");
+    return function () {
+      while (pila.length) { var o = pila.pop(); o.p.insertBefore(o.u, o.r); }
+      abiertas.forEach(function (x) { x.u.open = x.abierto; x.u.classList.toggle("v-libre", x.libre); });
+      if (quitarClave) quitarClave();
+      ctl.removeChild(lista); paneles.forEach(function (pn) { ctl.removeChild(pn); });
+      esc.removeAttribute("data-pest");
+    };
+  }
+  function pestanas(el, esc, o) {
+    var ctl = esc.querySelector(":scope > .v-ctl"), deshacer = null, rot = o.pestanas || U.PESTANAS[(el.closest("[data-vis]") || el).getAttribute("data-vis")];
+    if (!ctl || !rot || typeof ResizeObserver === "undefined") return;
+    function ajustar() {
+      var visible = esc.offsetHeight > 0, telefono = el.clientWidth < 740;
+      if (deshacer && !telefono) { deshacer(); deshacer = null; }
+      else if (!deshacer && telefono && visible) deshacer = armarPestanas(esc, ctl, rot);
+    }
+    new ResizeObserver(function () { requestAnimationFrame(ajustar); }).observe(esc);
+  }
   function armar(el, cont, hijos, s, o) {
     var esc = document.createElement("div"), b = {}, fuera = [];
     esc.className = "v-escena" + (o.tira ? " v-tira" : "");
@@ -80,10 +195,12 @@
       var h = hijos[i], t = h.getAttribute("data-plegar");
       if (t) { var p = plegable(el, t, false); p.cuerpo.appendChild(h); fuera.push(p.det); } else fuera.push(h);
     });
-    grupos.forEach(function (x) { if (x.p.cuerpo.children.length) b[x.g.en || "ctl"].appendChild(x.p.det); });
+    notas.det.setAttribute("data-nota", "");
+    grupos.forEach(function (x) { if (x.g.en === "dib") x.p.det.setAttribute("data-nota", ""); if (x.p.cuerpo.children.length) b[x.g.en || "ctl"].appendChild(x.p.det); });
     if (o.tira && (!b.dib.children.length || !b.ctl.children.length)) esc.setAttribute("data-una", "1");
     if (notas.cuerpo.children.length && !o.tira) b.ctl.appendChild(notas.det);
     cont.appendChild(esc);
+    pestanas(el, esc, o);
     fuera.forEach(function (x) { cont.appendChild(x); });
     if (notas.cuerpo.children.length && o.tira) cont.appendChild(notas.det);
     return esc;

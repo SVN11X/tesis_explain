@@ -195,5 +195,29 @@ var rp3 = ctx.window.U.repartir(["mando", "titulo", "dibujo"]);
 ok(rp3.length === 2 && rp3[0].titulo === null && rp3[1].titulo === 1 && rp3[1].dibujo.join() === "2", "el contenido antes del primer título forma una sección sin título");
 ok(ctx.window.U.repartir([]).length === 0, "sin hijos no hay secciones");
 
+console.log("\nPestañas de mandos en el teléfono");
+var emp = ctx.window.U.empacar, PEST = ctx.window.U.PESTANAS;
+var rot2 = { m: ["Caso", "Ruedas"], corte: 1 };
+var e1 = emp([{ h: 80, tipo: "mando" }, { h: 60, tipo: "mando" }, { h: 40, tipo: "nota" }], 237, rot2);
+ok(e1.length === 1 && e1[0].indices.join() === "0,1,2", "si los mandos y las notas caben en una pantalla no hay pestañas");
+var e2 = emp([{ h: 150, tipo: "mando" }, { h: 100, tipo: "mando" }, { h: 60, tipo: "mando" }, { h: 40, tipo: "nota" }, { h: 300, tipo: "dato" }], 237, rot2);
+ok(e2.length === 3 && e2[0].indices.join() === "0" && e2[1].indices.join() === "1,2" && e2[0].rotulo === "Caso" && e2[1].rotulo === "Ruedas", "los mandos se cortan donde dice la entrada y cada pestaña lleva su nombre");
+ok(e2[2].indices.join() === "4,3" && e2[2].rotulo === "Datos y notas", "los datos y las notas van juntos en la última pestaña");
+var e3 = emp([{ h: 200, tipo: "mando" }, { h: 100, tipo: "nota" }], 237, { m: ["Pasos"] });
+ok(e3.length === 2 && e3[0].rotulo === "Pasos" && e3[1].rotulo === "Cómo leerlo" && e3[1].indices.join() === "1", "sin datos la última pestaña se llama Cómo leerlo");
+var e4 = emp([{ h: 200, tipo: "mando" }, { h: 200, tipo: "mando" }, { h: 200, tipo: "mando" }, { h: 100, tipo: "nota" }, { h: 100, tipo: "dato" }], 237, rot2);
+ok(e4.length <= 3, "nunca hay más de tres pestañas");
+ok(emp([{ h: 500, tipo: "mando" }], 237, null).length === 1, "sin entrada no hay pestañas");
+var GENERICOS = ["mandos", "valores", "opciones", "acciones", "lecturas", "notas", "leyenda", "datos", "controles"];
+var malas = [];
+Object.keys(PEST).forEach(function (id) {
+  var m = PEST[id].m, todos = m.concat(["Cómo leerlo", "Datos y notas"]);
+  if (m.length > 2 || (m.length === 2 && !(PEST[id].corte > 0))) malas.push(id + " tiene mal sus pestañas de mandos");
+  todos.forEach(function (n, k) {
+    if (n.length > 14 || /\d/.test(n) || GENERICOS.indexOf(n.toLowerCase()) >= 0 || todos.indexOf(n) !== k) malas.push(id + ": " + n);
+  });
+});
+ok(Object.keys(PEST).length >= 25 && !malas.length, "ninguna pestaña tiene un nombre genérico, numerado, repetido o de más de 14 letras", malas.join("; "));
+
 console.log("\n" + (total - fallos) + " de " + total + " pruebas correctas");
 process.exit(fallos ? 1 : 0);
