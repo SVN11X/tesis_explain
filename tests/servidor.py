@@ -79,7 +79,7 @@ def _esperar_scripts():
         if kw.get('wait_until', 'load') in ('load', 'networkidle'):
             try:
                 self.wait_for_function('!window.__guiaPendiente', timeout=20000)
-                self.add_style_tag(content='[role=tabpanel][hidden] { display: grid !important; }').evaluate('e => { e.id = "prueba-paneles"; }')
+                self.evaluate('() => { var e = document.createElement("style"); e.id = "prueba-paneles"; e.textContent = "[role=tabpanel][hidden] { display: grid !important; }"; document.head.appendChild(e); }')
             except Error:
                 pass
         return respuesta
