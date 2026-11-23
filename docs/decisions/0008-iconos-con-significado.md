@@ -1,9 +1,9 @@
 # 0008. Meaning icons: Phosphor regular, inline, one per topic and one per figure card
 
-- Status: proposed
+- Status: accepted
 - Date: 2026-11-22
 - Proposed by: AI tool, from the owner's complaint that icons are missing and the pages are hard to understand visually
-- Accepted by: pending
+- Accepted by: owner, 2026-11-22
 
 ## Context
 

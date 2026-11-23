@@ -875,7 +875,7 @@
   function materiales() {
     if (!TESIS_PDF) return;
     document.querySelectorAll("[data-tesis-pdf]").forEach(function (td) {
-      td.innerHTML = '<span class="estado ok">Disponible</span> <a href="' + esc(TESIS_PDF) + '">Descargar el PDF</a>';
+      td.innerHTML = '<span class="estado ok">Disponible</span> <a href="' + esc(TESIS_PDF) + '">Ver el PDF</a>';
     });
   }
 

@@ -30,7 +30,7 @@ def rellenar(texto, academic):
         'revision_iso': html.escape(academic.get('ultima_actualizacion_sitio') or ''),
         'revision_texto': html.escape(fecha(academic.get('ultima_actualizacion_sitio')) or 'sin fecha'),
         'version': html.escape(academic.get('version_documento') or 'pendiente de confirmación'),
-        'tesis_pdf': (' <a href="%s">Descargar la tesis en PDF</a>.' % html.escape(pdf)) if pdf else '',
+        'tesis_pdf': (' <a href="%s">Ver la tesis en PDF</a>.' % html.escape(pdf)) if pdf else '',
     }
     salida = re.sub(r'\{\{(\w+)\}\}', lambda m: valores[m.group(1)], texto)
     assert '{{' not in salida, 'plantilla con un campo sin valor'

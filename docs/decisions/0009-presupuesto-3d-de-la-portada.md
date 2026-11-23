@@ -1,9 +1,9 @@
 # 0009. 3D budget of the home robot
 
-- Status: proposed
+- Status: accepted
 - Date: 2026-11-22
 - Proposed by: AI tool, from the home 3D polish item
-- Accepted by: pending
+- Accepted by: owner, 2026-11-22
 
 ## Context
 

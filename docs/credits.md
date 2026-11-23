@@ -12,7 +12,6 @@ Both repositories are by Sebastián Valderas Neculqueo, the author of the thesis
 | `fotos/chasis-render*.webp`, `fotos/chasis-render.jpg` | `replicar.html` | `docs/images/mechanical/robot-v2-render-top-left-front.png` of ros2-indoor-exploration-robot | MIT |
 | `fotos/navegacion-real-sala.webp`, `fotos/navegacion-real-sala.png` | `navegacion.html` | `docs/images/real-robot/navigation-room-path-2026-01-24.png` of ros2-indoor-exploration-robot | MIT |
 | `tesis/circuito-1800.webp` | `replicar.html` | `figures/05-implementation/circuit-diagram.png` of doc_tesis, resized from 11441 px to 1800 px | CC BY 4.0 |
-| `tesis/nav2-arquitectura-1760.webp` | `navegacion.html` | `tesis/nav2-arquitectura.png`, already in the site, resized to 1760 px | CC BY 4.0 |
 
 The photos show the robot, a carpet and tape. None shows an address, a network name, a serial number or a MAC address. The voltage display in the field photo shows only electrical readings.
 
