@@ -54,19 +54,35 @@
   /* Nombres de las pestañas de cada interactivo en el teléfono, con las palabras del propio interactivo. m son los nombres de
      las pestañas de mandos: uno, o dos con corte, el número de mandos que van a la primera. Las notas y la leyenda van a una
      última pestaña, "Cómo leerlo", que también lleva los datos que no caben en la tira de valores clave ("Datos y notas").
-     Un interactivo sin entrada aquí no usa pestañas. */
+     Un interactivo sin entrada aquí no usa pestañas. g, si está, separa los gráficos apilados: partes dice dónde están (sel es un
+     selector dentro del dibujo, t filtra los hijos y por cuántos hijos forman un gráfico) y n los nombra, uno por gráfico. */
   U.PESTANAS = {
     cinematica: { m: ["Caso", "Ruedas"], corte: 1 }, encoder: { m: ["Giro del disco"] }, calibracion: { m: ["Ensayo", "Sesgo y azar"], corte: 1 },
-    cuadrado: { m: ["Caso", "Ruedas"], corte: 1 },
-    rejilla: { m: ["Observaciones"] }, "marcos-mapeo": { m: ["Avance y error"] }, barridos: { m: ["Traslación"] },
+    cuadrado: { m: ["Caso", "Ruedas"], corte: 1, g: { partes: [{ sel: ".dos-pan" }], n: ["Recorrido", "Llegada"] } },
+    rejilla: { m: ["Observaciones"] }, "marcos-mapeo": { m: ["Avance y error"] }, barridos: { m: ["Traslación"], g: { partes: [{ t: ".mp-chart" }], n: ["Marco de A", "Desacuerdo"] } },
     "candidatos-slam": { m: ["Observación", "Etapas"], corte: 1 }, lazo: { m: ["Pasos", "Pose"], corte: 2 }, "cola-slam": { m: ["Tiempos"] },
     "rviz-colores": { m: ["Capas"] }, "plano-mapa": { m: ["Qué mostrar", "Recinto"], corte: 1 },
     inflacion: { m: ["Radio"] }, astar: { m: ["Algoritmo", "Celdas"], corte: 1 }, dwb: { m: ["Escenario", "Pesos"], corte: 1 },
     "lazo-rueda": { m: ["Etapa"] }, pid: { m: ["Ejemplos", "Ganancias"], corte: 1 }, tiempo: { m: ["Frecuencia", "Ciclos"], corte: 1 },
     papeles: { m: ["Ejemplo", "Ciclos"], corte: 3 }, cancelacion: { m: ["Medición", "Ciclos"], corte: 1 }, acumulador: { m: ["Rueda", "Bloqueo"], corte: 1 },
-    truncamiento: { m: ["Ejemplos", "Error"], corte: 1 }, windup: { m: ["Bloqueo", "Momento"], corte: 3 }, zonas: { m: ["PWM y umbral"] },
+    truncamiento: { m: ["Ejemplos", "Error"], corte: 1 }, windup: { m: ["Bloqueo", "Momento"], corte: 3, g: { partes: [{ sel: ".wu-g", por: 2 }], n: ["Velocidad", "Pedido", "Aplicado"] } }, zonas: { m: ["PWM y umbral"] },
     fopdt: { m: ["Rueda", "Escalón"], corte: 1 }, enjambre: { m: ["Búsqueda"] }, resolucion: { m: ["Operación"] },
-    estabilidad: { m: ["Rueda", "Planta"], corte: 1 }, exploracion: { m: ["Explorar"] }, costo: { m: ["Montos"] }
+    estabilidad: { m: ["Rueda", "Planta"], corte: 1, g: { partes: [{ sel: ".ev-paneles" }], n: ["Polos", "Nyquist"] } }, exploracion: { m: ["Explorar"] }, costo: { m: ["Montos"] },
+    pso: { g: { partes: [{ sel: ".ganancias-pares", por: 2 }, { sel: ".comparar", por: 3 }], n: ["Kp", "Kd", "Ki", "Límites"] } }
+  };
+  /* Gráficos apilados de un interactivo. partes[i] = { n, por }: cuántos hijos tiene y de cuántos en cuántos forman un gráfico.
+     Devuelve [{ parte, indices }], un gráfico por elemento, en orden. Un gráfico no cruza de una parte a otra. */
+  U.repartirGraficos = function (partes) {
+    var gs = [];
+    partes.forEach(function (pt, i) {
+      var por = Math.max(1, pt.por || 1);
+      for (var k = 0; k < pt.n; k += por) {
+        var idx = [];
+        for (var j = k; j < Math.min(pt.n, k + por); j++) idx.push(j);
+        gs.push({ parte: i, indices: idx });
+      }
+    });
+    return gs;
   };
   /* Reparto de los mandos de un interactivo en pestañas para el teléfono. unidades[i] es { h, tipo }: la altura que ocupa y si
      es un "mando", un "dato" (lectura que no cabe en la tira de valores clave) o una "nota" (nota o leyenda). rot es su entrada de
@@ -112,7 +128,7 @@
     tira.className = "v-clave"; tira.setAttribute("role", "group"); tira.setAttribute("aria-label", "Valores clave");
     function pintar() {
       pendiente = 0; tira.textContent = "";
-      (fuente.matches(TARJETAS) ? [].slice.call(fuente.children, 0, 4) : [fuente]).forEach(function (c) {
+      (fuente.matches(TARJETAS) ? [].slice.call(fuente.children).filter(function (c) { return c.textContent.length <= 60; }).slice(0, 4) : [fuente]).forEach(function (c) {
         var cp = c.cloneNode(true);
         [cp].concat([].slice.call(cp.querySelectorAll("*"))).forEach(function (e) {
           e.removeAttribute("id"); e.removeAttribute("class");
@@ -122,12 +138,66 @@
       });
     }
     pintar();
+    if (!tira.children.length) return null;
     if (typeof MutationObserver !== "undefined") {
       obs = new MutationObserver(function () { if (!pendiente) pendiente = requestAnimationFrame(pintar); });
       obs.observe(fuente, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ["class"] });
     }
     esc.appendChild(tira);
     return function () { if (obs) obs.disconnect(); cancelAnimationFrame(pendiente); esc.removeChild(tira); };
+  }
+  /* Un gráfico a la vez: los gráficos apilados de rot.g se esconden menos uno, y un grupo de botones sobre el dibujo elige cuál se ve.
+     El estado compartido (instante, rueda, ganancias) no se toca, y se esconde con una clase, así que sobrevive a que el interactivo
+     repinte. Flechas, Inicio y Fin mueven la elección. */
+  function armarVistas(dib, g) {
+    var k = 0, pendiente = 0, obs, botones = [];
+    function grupos() {
+      var elems = g.partes.map(function (pt) {
+        var cont = pt.sel ? dib.querySelector(pt.sel) : dib;
+        return cont ? [].filter.call(cont.children, function (c) { return !c.classList.contains("v-vista") && (!pt.t || c.matches(pt.t)); }) : [];
+      });
+      return U.repartirGraficos(elems.map(function (l, i) { return { n: l.length, por: g.partes[i].por }; })).map(function (gr) {
+        return gr.indices.map(function (i) { return elems[gr.parte][i]; });
+      });
+    }
+    var gs = grupos();
+    if (gs.length < 2) return null;
+    function pintar() {
+      pendiente = 0;
+      var l = grupos(), cur = Math.min(k, l.length - 1);
+      l.forEach(function (gr, j) { gr.forEach(function (e) { e.classList.toggle("v-oculto", j !== cur); }); });
+    }
+    var barra = document.createElement("div");
+    barra.className = "v-pestanas-mando v-vista"; barra.setAttribute("role", "group"); barra.setAttribute("aria-label", "Gráfico que se ve");
+    g.n.forEach(function (nombre, j) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "v-pest"; b.textContent = nombre; b.title = nombre;
+      b.addEventListener("click", function () { ir(j, false); });
+      b.addEventListener("keydown", function (e) {
+        var n = g.n.length, t = e.key === "ArrowRight" || e.key === "ArrowDown" ? (j + 1) % n : e.key === "ArrowLeft" || e.key === "ArrowUp" ? (j + n - 1) % n : e.key === "Home" ? 0 : e.key === "End" ? n - 1 : -1;
+        if (t < 0) return;
+        e.preventDefault(); ir(t, true);
+      });
+      botones.push(b); barra.appendChild(b);
+    });
+    function ir(j, foco) {
+      k = j;
+      botones.forEach(function (b, i) { b.setAttribute("aria-pressed", String(i === j)); });
+      pintar();
+      if (foco) botones[j].focus();
+    }
+    dib.insertBefore(barra, dib.firstChild);
+    ir(0, false);
+    if (typeof MutationObserver !== "undefined") {
+      obs = new MutationObserver(function () { if (!pendiente) pendiente = requestAnimationFrame(pintar); });
+      obs.observe(dib, { childList: true, subtree: true });
+    }
+    return function () {
+      if (obs) obs.disconnect();
+      cancelAnimationFrame(pendiente);
+      [].forEach.call(dib.querySelectorAll(".v-oculto"), function (e) { e.classList.remove("v-oculto"); });
+      dib.removeChild(barra);
+    };
   }
   function armarPestanas(esc, ctl, rot) {
     var lec = esc.querySelector(":scope > .v-lec"), dib = esc.querySelector(":scope > .v-dib");
@@ -175,10 +245,14 @@
   function pestanas(el, esc, o) {
     var ctl = esc.querySelector(":scope > .v-ctl"), deshacer = null, rot = o.pestanas || U.PESTANAS[(el.closest("[data-vis]") || el).getAttribute("data-vis")];
     if (!ctl || !rot || typeof ResizeObserver === "undefined") return;
+    var dibujo = esc.querySelector(":scope > .v-dib"), vistas = null;
     function ajustar() {
       var visible = esc.offsetHeight > 0, telefono = el.clientWidth < 740;
       if (deshacer && !telefono) { deshacer(); deshacer = null; }
       else if (!deshacer && telefono && visible) deshacer = armarPestanas(esc, ctl, rot);
+      if (vistas && !telefono) { vistas(); vistas = null; }
+      else if (!vistas && telefono && visible && rot.g && dibujo) { vistas = armarVistas(dibujo, rot.g); if (vistas) esc.setAttribute("data-vistas", "1"); }
+      if (!vistas) esc.removeAttribute("data-vistas");
     }
     new ResizeObserver(function () { requestAnimationFrame(ajustar); }).observe(esc);
   }
