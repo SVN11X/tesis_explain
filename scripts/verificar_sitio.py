@@ -59,6 +59,16 @@ secuencia = re.findall(r'\{ id: "([^"]+)", t: "([^"]+)"', sitio[sitio.index('var
 filas = [(a['href'].rsplit('/', 1)[-1].replace('.html', ''), a.h4.get_text(strip=True)) for a in pages['index.html'].select('.chapter-row')]
 check(len(secuencia) == 16 and filas == secuencia, 'portada: la lista de temas no coincide con las 16 partes de js/sitio.js %s' % filas)
 check(all(a.get('data-pag') == a['href'].rsplit('/', 1)[-1].replace('.html', '') for a in pages['index.html'].select('.chapter-row')), 'portada: cada tema lleva su data-pag')
+# El CSS crítico se rellena al compilar (scripts/css_critico.py): ninguna guía conserva el marcador vacío
+for name in pages:
+    texto = (DIST/name).read_text(encoding='utf-8')
+    if '<main' not in texto:
+        continue
+    check('<style data-critico></style>' not in texto, name + ': el CSS crítico no se rellenó en la compilación')
+    bloque = re.search(r'<!-- ESTILOS:.*?<!-- FIN ESTILOS -->', texto, re.S)
+    if bloque:
+        estilos = re.findall(r'<style>(.*?)</style>', bloque.group(0), re.S)
+        check(len(estilos) > 1 and estilos[1].strip() != '', name + ': falta el CSS crítico en línea')
 
 # Modelo del CAD: franjas amarillas en su propio nodo y materiales de dos caras (scripts/modelo_robot.py)
 glb = (DIST/'modelos/robot.glb').read_bytes()

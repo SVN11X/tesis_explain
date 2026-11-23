@@ -145,6 +145,6 @@ for path in sorted(PUB.glob('*.html')):
         text = re.sub(r'(<!-- CABECERA:[^>]*-->\n).*?(<!-- FIN CABECERA -->)', lambda m: m.group(1) + marco.marcar(frame['cabecera'], path.stem) + '\n' + m.group(2), text, flags=re.S)
     if 'PIE:' in text:
         text = re.sub(r'(<!-- PIE:[^>]*-->\n).*?(<!-- FIN PIE -->)', lambda m: m.group(1) + frame['pie'] + '\n' + m.group(2), text, flags=re.S)
-    text = css_critico.aplicar(text, PUB)
+    text = css_critico.aplicar(text, PUB, en_linea=False)
     write(path, text)
 print('Metadatos, CSV y HTML sincronizados' + (' (comprobación)' if CHECK else ''))
