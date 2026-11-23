@@ -211,12 +211,22 @@ ok(emp([{ h: 500, tipo: "mando" }], 237, null).length === 1, "sin entrada no hay
 var GENERICOS = ["mandos", "valores", "opciones", "acciones", "lecturas", "notas", "leyenda", "datos", "controles"];
 var malas = [];
 Object.keys(PEST).forEach(function (id) {
-  var m = PEST[id].m, todos = m.concat(["Cómo leerlo", "Datos y notas"]);
+  var m = PEST[id].m || [], g = PEST[id].g, todos = m.concat(["Cómo leerlo", "Datos y notas"]);
   if (m.length > 2 || (m.length === 2 && !(PEST[id].corte > 0))) malas.push(id + " tiene mal sus pestañas de mandos");
+  if (g) {
+    var gn = g.n;
+    if (gn.length < 2 || gn.length > 4) malas.push(id + " tiene mal el número de gráficos");
+    gn.forEach(function (n, k) { if (n.length > 12 || /\d/.test(n) || GENERICOS.indexOf(n.toLowerCase()) >= 0 || gn.indexOf(n) !== k) malas.push(id + " gráfico: " + n); });
+    if (!g.partes.length) malas.push(id + " sin partes");
+  }
   todos.forEach(function (n, k) {
     if (n.length > 14 || /\d/.test(n) || GENERICOS.indexOf(n.toLowerCase()) >= 0 || todos.indexOf(n) !== k) malas.push(id + ": " + n);
   });
 });
+var rg = ctx.window.U.repartirGraficos([{ n: 6, por: 2 }, { n: 3, por: 3 }]);
+ok(rg.length === 4 && rg[0].indices.join() === "0,1" && rg[2].indices.join() === "4,5" && rg[3].parte === 1 && rg[3].indices.join() === "0,1,2", "los gráficos apilados se agrupan de a por hijos y no cruzan de una parte a otra");
+ok(ctx.window.U.repartirGraficos([{ n: 2 }]).length === 2 && ctx.window.U.repartirGraficos([{ n: 0 }]).length === 0, "sin por cada hijo es un gráfico y sin hijos no hay gráficos");
+ok(Object.keys(PEST).filter(function (id) { return PEST[id].g; }).length === 5 && PEST.windup.g.n.join() === "Velocidad,Pedido,Aplicado" && PEST.estabilidad.g.n.join() === "Polos,Nyquist", "los cinco interactivos con gráficos apilados los nombran con sus palabras");
 ok(Object.keys(PEST).length >= 25 && !malas.length, "ninguna pestaña tiene un nombre genérico, numerado, repetido o de más de 14 letras", malas.join("; "));
 
 console.log("\n" + (total - fallos) + " de " + total + " pruebas correctas");

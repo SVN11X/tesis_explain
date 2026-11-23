@@ -99,6 +99,45 @@ with sync_playwright() as pw:
             pg.close()
         check(total >= 5, 'a %d px hay tiras de valores clave en las páginas probadas' % ancho, total)
         ctx.close()
+    APILADOS = [('control.html', 'estabilidad'), ('control.html', 'windup'), ('movimiento.html', 'cuadrado'), ('control.html', 'pso'), ('mapeo.html', 'barridos'), ('control.html', 'papeles')]
+    for ancho in (360, 320):
+        ctx = nav.new_context(viewport={'width': ancho, 'height': 740}, is_mobile=True, has_touch=True, reduced_motion='reduce')
+        for pagina, visual in APILADOS:
+            nombre = '%s a %d px' % (visual, ancho)
+            pg, sel, errores = abrir(ctx, pagina, visual)
+            for i in range(pg.locator('.vis').count()):
+                pg.locator('.vis').nth(i).scroll_into_view_if_needed()
+                pg.wait_for_timeout(150)
+            pg.locator(sel).scroll_into_view_if_needed()
+            pg.wait_for_timeout(600)
+            alto = pg.locator(sel + ' .v-escena').first.bounding_box()['height']
+            check(alto <= 740, nombre + ': el escenario cabe en una pantalla de 740 px', round(alto))
+            check(not pg.evaluate('document.documentElement.scrollWidth > innerWidth'), nombre + ': sin desborde horizontal')
+            barra = pg.locator(sel + ' .v-vista')
+            if barra.count():
+                botones = barra.locator('button')
+                n = botones.count()
+                check(n >= 2, nombre + ': un grupo de botones elige el gráfico', n)
+                antes = pg.locator(sel + ' .v-clave').inner_text() if pg.locator(sel + ' .v-clave').count() else ''
+                estado = pg.evaluate("s => [...document.querySelectorAll(s + ' input[type=range], ' + s + ' input[type=checkbox]')].map(e => e.type === 'checkbox' ? e.checked : e.value).join()", sel)
+                botones.first.focus()
+                pg.keyboard.press('ArrowRight')
+                check(botones.nth(1).get_attribute('aria-pressed') == 'true', nombre + ': la flecha derecha pasa al segundo gráfico')
+                pg.keyboard.press('End')
+                check(botones.nth(n - 1).get_attribute('aria-pressed') == 'true', nombre + ': Fin pasa al último gráfico')
+                pg.keyboard.press('Home')
+                check(botones.first.get_attribute('aria-pressed') == 'true', nombre + ': Inicio vuelve al primer gráfico')
+                botones.nth(1).click()
+                pg.wait_for_timeout(300)
+                despues = pg.locator(sel + ' .v-clave').inner_text() if pg.locator(sel + ' .v-clave').count() else ''
+                estado2 = pg.evaluate("s => [...document.querySelectorAll(s + ' input[type=range], ' + s + ' input[type=checkbox]')].map(e => e.type === 'checkbox' ? e.checked : e.value).join()", sel)
+                check(estado == estado2 and antes == despues, nombre + ': al cambiar de gráfico los valores y los mandos quedan igual')
+                check(pg.locator(sel + ' .v-oculto').count() >= 1, nombre + ': los demás gráficos quedan escondidos')
+            cortes = pg.evaluate("""s => [...document.querySelectorAll(s + ' .v-clave, ' + s + ' .v-vista')].flatMap(t => [t, ...t.querySelectorAll('*')].filter(e => getComputedStyle(e).textOverflow === 'ellipsis' || e.scrollWidth > e.clientWidth + 1 || (e.scrollHeight > e.clientHeight + 1 && getComputedStyle(e).overflow !== 'visible')).map(e => e.tagName))""", sel)
+            check(not cortes, nombre + ': ni la tira ni los botones cortan su texto', cortes)
+            check(not errores, nombre + ': sin errores de página', errores)
+            pg.close()
+        ctx.close()
     ctx = nav.new_context(viewport={'width': 1280, 'height': 800})
     for pagina, visual in CASOS:
         pg, sel, errores = abrir(ctx, pagina, visual)

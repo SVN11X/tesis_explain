@@ -162,7 +162,7 @@ with sync_playwright() as pw:
         p.locator('[data-vis=cuadrado] [data-k=sep]').focus()
         p.keyboard.press('ArrowRight')
         e = estado(p, 'cuadrado', 'estadoCuadrado')
-        check(abs(e['sep'] - 0.021) < 1e-9 and p.locator('[data-vis=cuadrado] [aria-pressed=true]').count() == 0, name + ': con el teclado se ajusta la separación y el caso deja de estar marcado', e)
+        check(abs(e['sep'] - 0.021) < 1e-9 and p.locator('[data-vis=cuadrado] [data-caso][aria-pressed=true]').count() == 0, name + ': con el teclado se ajusta la separación y el caso deja de estar marcado', e)
 
         check(not errors, name + ': los cambios del capítulo 3 terminaron sin errores', errors[:3])
         check(p.evaluate('document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1'), name + ': sigue sin desborde después de interactuar')
