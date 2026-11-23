@@ -635,8 +635,12 @@ with sync_playwright() as pw:
     def ta_valor(pg):
         return pg.locator('dialog.dv-dialogo textarea').input_value()
 
-    # 10a. Lectura en voz alta.
-    ctx = ctx_voz()
+    def sin_audio(c):
+        c.route('**/audio/manifiesto.json', lambda r: r.fulfill(status=200, content_type='application/json', body=json.dumps({'entradas': {}})))
+        return c
+
+    # 10a. Lectura en voz alta. Sin audio pregrabado, para probar el camino de speechSynthesis.
+    ctx = sin_audio(ctx_voz())
     pg = voz_p(ctx)
     check(pg.evaluate('typeof window.DefensaVoz.montar') == 'function', 'js/defensa-voz.js se carga al mostrar la primera pregunta')
     check(boton(pg, 'Escuchar pregunta').is_visible(), 'el botón de escuchar se ofrece también sin voces, por si hay audio pregrabado')
@@ -735,6 +739,7 @@ with sync_playwright() as pw:
     ctx.close()
 
     ctx, _ = contexto(browser)
+    sin_audio(ctx)
     ctx.add_init_script(fakes(sintesis=False, sr=False))
     pg = pagina(ctx)
     filtrar(pg, UNICA[0]); abrir(pg); boton(pg, 'Entrenar').click()
@@ -996,7 +1001,7 @@ with sync_playwright() as pw:
     ctx.close()
 
     # 11.5 Sin audio pregrabado ni voz en español, al pulsar «Escuchar pregunta» se explica por qué no hay lectura.
-    ctx = ctx_voz()
+    ctx = sin_audio(ctx_voz())
     pg = voz_p(ctx)
     nota = pg.locator('dialog.dv-dialogo .dv-voz-nota')
     check(not nota.is_visible(), 'la nota no estorba antes de pulsar')
